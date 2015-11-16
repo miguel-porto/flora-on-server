@@ -238,7 +238,7 @@ public class FloraOnGraph {
     }*/
 
 	/**
-	 * Gets the direct neighbors of the given vertex
+	 * Gets the direct neighbors of the given vertex, off all facets.
 	 * @param id The vertex's document handle
 	 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links').
 	 * @throws ArangoException
@@ -320,8 +320,7 @@ public class FloraOnGraph {
     			, Constants.TAXONOMICGRAPHNAME,q,vertexCollectionRestrictions);*/
     	//System.out.println(query);
     	CursorResult<SimpleTaxonResult> vertexCursor=this.driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
-    	System.out.println(this.driver.executeAqlQueryJSON(query, null, null));
-    	//System.out.println(this.driver.executeAqlQueryJSON("klj"+query, null, null));
+    	//System.out.println(this.driver.executeAqlQueryJSON(query, null, null));
     	return vertexCursor.asList();
     }
         
@@ -348,6 +347,11 @@ public class FloraOnGraph {
     	return vertexCursor.asList();
     }
 
+    public int getNumberOfNodesInCollection(NodeTypes nodetype) throws ArangoException {
+    	String query="FOR v IN "+nodetype.toString()+" COLLECT WITH COUNT INTO cou RETURN cou";
+    	return this.driver.executeAqlQuery(query, null, null, Integer.class).getUniqueResult();
+    }
+    
     public Boolean deleteTaxEntNode(TaxEntName nodename) throws QueryException, ArangoException {
     	// TODO delete!
     	TaxEnt te=this.findTaxEnt(nodename);
@@ -398,11 +402,15 @@ public class FloraOnGraph {
      * @throws ArangoException 
      */
 	public TaxEnt findTaxEnt(TaxEntName q) throws QueryException, ArangoException {
-		String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
-		return this.driver.executeAqlQuery(query, null, null, TaxEnt.class).getUniqueResult();
+		/*String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
+		TaxEntVertex tev=this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
+		if(tev==null)
+			return null;
+		else
+			return new TaxEnt(FloraOnGraph.this,tev);*/
 		
 		// TODO optimize this with an AQL query
-		/*
+		
     	if(q.name.equals("")) throw new QueryException("Invalid blank name.");
     	TaxEnt n;
     	try {
@@ -432,7 +440,7 @@ public class FloraOnGraph {
 				}
 			}
 			return n;
-    	}*/
+    	}
 	}
 	
 	/**

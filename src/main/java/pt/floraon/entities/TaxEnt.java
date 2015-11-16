@@ -28,7 +28,11 @@ import pt.floraon.server.Constants.TaxonRanks;
 public class TaxEnt extends TaxEntVertex implements VertexWrapper,ResultItem {
 	private VertexEntity<TaxEntVertex> vertexEntity=null;
 	private FloraOnGraph graph;
-	private Boolean dirty=false;
+	private Boolean dirty;
+	{
+		this.dirty=false;
+		this.vertexEntity=null;
+	}
 
 	public TaxEnt(TaxEntVertex tev) {
 		super(tev);
@@ -198,7 +202,7 @@ public class TaxEnt extends TaxEntVertex implements VertexWrapper,ResultItem {
 	 * @throws ArangoException
 	 */
 	public int setPartOf(TaxEnt parent) throws IOException, ArangoException {	// TODO: Optimize this with a single AQL query
-		if(this.vertexEntity==null) throw new IOException("Node "+this.name+" not attached to DB");
+		if(this._id==null) throw new IOException("Node "+this.name+" not attached to DB");
 
 		// checks whether there is already a PART_OF relation between these two nodes
 		Integer nrel=this.graph.driver.executeAqlQuery(

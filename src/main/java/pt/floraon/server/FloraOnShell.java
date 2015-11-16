@@ -1,6 +1,8 @@
 package pt.floraon.server;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +14,8 @@ import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
 import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.dbworker.QueryException;
+import pt.floraon.dbworker.TaxonomyException;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.SimpleTaxonResult;
 import pt.floraon.entities.SpeciesList;
@@ -19,10 +23,11 @@ import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.server.Constants.NativeStatus;
+import pt.floraon.server.Constants.NodeTypes;
 import pt.floraon.server.Constants.PhenologicalStates;
 
 public class FloraOnShell {
-    public static void main( String[] args ) throws ParseException {
+    public static void main( String[] args ) throws ParseException, IOException {
     	FloraOnGraph fog;
     	try {
 			fog=new FloraOnGraph("flora");
@@ -33,7 +38,15 @@ public class FloraOnShell {
     	
     	//generateRandomSpeciesLists(fog,50000);
     	
-    	System.out.println(Constants.ANSI_GREENBOLD+"\nBem vindo à consola Flora-On!\nEsta é a caixa ylémica. Escreva a sua consulta!\n"+Constants.ANSI_RESET);
+    	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit.");
+    	try {
+			System.out.println(Constants.ANSI_WHITE+fog.getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+fog.getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+fog.getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET);
+		} catch (ArangoException e1) {
+			System.out.println("Some fatal error reading database. Aborting.");
+			System.out.println(e1.getMessage());
+			System.exit(1);
+		}
+    	
     	String query;
     	Iterator<SimpleTaxonResult> it;
     	ResultProcessor<SimpleTaxonResult> rp;
@@ -49,10 +62,47 @@ public class FloraOnShell {
 				} });*/
             String line = null;
             while ((line = console.readLine()) != null) {
-            	if(line.equals("")) continue;
-            	if(line.equals("\\q")) System.exit(0);
+            	try {
+	            	if(line.equals("")) continue;
+	            	if(line.equals("\\q")) System.exit(0);
+	            	
+	            	if(line.startsWith("\\")) {           		
+							ServerDispatch.processCommand(line.substring(1), fog, new PrintWriter(System.out));
+	            	} else {
+	    				YlemParser ylem=new YlemParser(fog,line);
+	    				long start = System.nanoTime();
+	    				List<SimpleTaxonResult> res=ylem.execute();
+	    				long elapsedTime = System.nanoTime() - start;
+	    				
+	    				if(res==null)
+	    					System.out.println("No results.");
+	    				else {
+	    					System.out.println(res.size()+" results.");
+	    					it=res.iterator();
+	    					rp=new ResultProcessor<SimpleTaxonResult>(SimpleTaxonResult.class);
+	    					System.out.println(rp.toCSVTable(it));
+	    				}
+	
+	    				System.out.printf("[%.3f sec]\n", (double)elapsedTime/1000000000);
+	            	}
+				} catch (QueryException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ArangoException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TaxonomyException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             	
-            	if(line.equals("\\u")) {
+/*            	if(line.equals("\\u")) {
 	            	try {
 	                	//fog.getDataUploader().uploadTaxonomyListFromFile("/media/miguel/Brutal/SPB/Flora-On/Taxonomia/Grafo/taxonomia_full_novo.csv",false);
 	                	fog.getDataUploader().uploadMorphologyFromCSV("/home/miguel/Desktop/morfologia(2).csv");
@@ -64,26 +114,8 @@ public class FloraOnShell {
 	        			e1.printStackTrace();
 	        			continue;
 	        		}
-            	}
-            	
-				YlemParser ylem=new YlemParser(fog,line);
-				long start = System.nanoTime();
-				List<SimpleTaxonResult> res=ylem.execute();
-				long elapsedTime = System.nanoTime() - start;
-				
-				if(res==null)
-					System.out.println("No results.");
-				else {
-					System.out.println(res.size()+" results.");
-					it=res.iterator();
-					rp=new ResultProcessor<SimpleTaxonResult>(SimpleTaxonResult.class);
-					System.out.println(rp.toCSVTable(it));
-				}
-
-				System.out.printf("[%.3f sec]\n", (double)elapsedTime/1000000000);
+            	}*/
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } finally {
             try {
                 TerminalFactory.get().restore();
