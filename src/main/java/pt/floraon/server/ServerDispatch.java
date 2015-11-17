@@ -56,7 +56,7 @@ public class ServerDispatch implements Runnable{
 	}
 	
 	private static String success(String obj) {
-		return "{\"success\":true,\"msg\":\""+obj+"\"}";
+		return "{\"success\":true,\"msg\":"+obj+"}";
 	}
 
 	private static String success(JsonElement obj,JsonObject header) {
@@ -183,14 +183,29 @@ public class ServerDispatch implements Runnable{
 				output.println(error("Missing query."));
 				break;
 			}
+
+			String infacets[];
+			if(getQSValue("f",qs)==null || getQSValue("f",qs).equals(""))
+				infacets=new String[]{"taxonomy"};
+			else
+				infacets=getQSValue("f",qs).split(",");
+			
+			Facets[] fac=new Facets[infacets.length];
+			for(int i=0;i<infacets.length;i++) fac[i]=Facets.valueOf(infacets[i].toUpperCase());
+
 			if(id==null) {
 				TaxEnt te=graph.findTaxEnt(query);
 				if(te==null)
-					output.println(success(graph.getNeighbors("sometthingnomatch")));
+					output.println(success(graph.getNeighbors("sometthingnomatch",fac)));
 				else
-					output.println(success(graph.getNeighbors(te.getID())));
-			} else
-				output.println(success(graph.getNeighbors(id)));
+					output.println(success(graph.getNeighbors(te.getID(),fac)));
+			} else {
+				String[] ids=id.split(",");
+				if(ids.length==1)
+					output.println(success(graph.getNeighbors(ids[0],fac)));
+				else
+					output.println(success(graph.getRelationshipsBetween(ids,fac)));
+			}
 			break;
 			
 		case "reference":
@@ -202,7 +217,12 @@ public class ServerDispatch implements Runnable{
 				rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
 			}
 			jobj.add("rankmap", ranks);
-			jobj.addProperty("rankelement", rk.toString());
+			
+			ranks=new JsonObject();
+			for(AllRelTypes art:Constants.AllRelTypes.values()) {
+				ranks.addProperty(art.toString(), art.getFacet().toString());
+			}
+			jobj.add("facets", ranks);
 			output.println(success(jobj.toString()));
 			/*
 			rk=new StringBuilder();

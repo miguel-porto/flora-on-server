@@ -1,7 +1,10 @@
 package pt.floraon.server;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -107,13 +110,40 @@ public final class Constants {
 	public static Map<AllRelTypes,Facets> RelTypesFacet=new HashMap<AllRelTypes,Facets>();
 
 	public enum AllRelTypes {
-		PART_OF,
-		SYNONYM,
-		HYBRID_OF,
-		OBSERVED_IN,
-		OBSERVED_BY,
-    	HAS_QUALITY,
-    	ATTRIBUTE_OF,
+		PART_OF(Facets.TAXONOMY),
+		SYNONYM(Facets.TAXONOMY),
+		HYBRID_OF(Facets.TAXONOMY),
+		OBSERVED_IN(Facets.OCCURRENCE),
+		OBSERVED_BY(Facets.OCCURRENCE),
+    	HAS_QUALITY(Facets.MORPHOLOGY),
+    	ATTRIBUTE_OF(Facets.MORPHOLOGY);
+		
+		Facets facet;
+		AllRelTypes(Facets facet) {
+			this.facet=facet;
+		}
+		
+		public Facets getFacet() {
+			return this.facet;
+		}
+		
+		public static AllRelTypes[] getRelTypesOfFacet(Facets facet) {
+			List<AllRelTypes> out=new ArrayList<AllRelTypes>();
+			for(AllRelTypes art:AllRelTypes.values()) {
+				if(art.getFacet().equals(facet)) out.add(art);
+			}
+			return out.toArray(new AllRelTypes[0]);
+		}
+
+		public static AllRelTypes[] getRelTypesOfFacets(Facets[] facets) {
+			List<Facets> fac=Arrays.asList(facets);
+			List<AllRelTypes> out=new ArrayList<AllRelTypes>();
+			for(AllRelTypes art:AllRelTypes.values()) {
+				if(fac.contains(art.getFacet())) out.add(art);
+			}
+			return out.toArray(new AllRelTypes[0]);
+		}
+
 	}
 
 	public enum NodeTypes {
@@ -124,7 +154,7 @@ public final class Constants {
     	attribute,			// a morphological attribute (e.g. red flower)
     	character			// a morphological character (e.g. flower color, leaf shape...)
     }
-	
+/*
 	public static class Pair<L,R> implements Comparable<Pair<L,R>> {
 		  private final L left;
 		  private final R right;
@@ -153,14 +183,8 @@ public final class Constants {
 			return this.getLeft().toString().compareTo(o.getLeft().toString());
 		}
 	}
-
+*/
     static {
-    	
-    	/*FacetRelTypes.put(Facets.ECOLOGY, EcologyRelTypes.values() );
-    	FacetRelTypes.put(Facets.TAXONOMY, TaxonomyRelTypes.values() );
-    	FacetRelTypes.put(Facets.OCCURRENCE, OccurrenceRelTypes.values() );
-    	FacetRelTypes.put(Facets.MORPHOLOGY, MorphologyRelTypes.values() );*/
-    	
     	for(Entry<Facets,AllRelTypes[]> f:FacetRelTypes.entrySet()) {
     		for(AllRelTypes rt:f.getValue()) {
     			RelTypesFacet.put(rt,f.getKey());

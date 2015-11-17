@@ -243,16 +243,47 @@ public class FloraOnGraph {
 	 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links').
 	 * @throws ArangoException
 	 */
-	public String getNeighbors(String id) throws ArangoException {
-		String query=String.format("FOR p IN GRAPH_TRAVERSAL('%1$s','%2$s','any',{paths:true,maxDepth:1}) "
+	public String getNeighbors(String id, Facets[] facets) throws ArangoException {
+		AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
+		String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
+			+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+			+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
+			+ "LET d=DOCUMENT(n) RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+			,Constants.TAXONOMICGRAPHNAME,id,EntityFactory.toJsonString(art)
+		);
+		
+/*		String query=String.format("FOR p IN GRAPH_TRAVERSAL('%1$s','%2$s','any',{paths:true,maxDepth:1}) "
 			+ "RETURN {nodes:(FOR v IN p[*].vertex RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
-			+ ",links:(FOR e IN FLATTEN(FOR ed IN p[*].path.edges RETURN ed) COLLECT a=e._id LET d=DOCUMENT(a) "
-			+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}",Constants.TAXONOMICGRAPHNAME,id);
+			+ ",links:(FOR e IN FLATTEN(FOR ed IN p[*].path.edges RETURN ed) COLLECT a=e._id LET d=DOCUMENT(a) LET ty=PARSE_IDENTIFIER(d).collection "
+			+ "FILTER ty=='PART_OF'"
+			+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:ty})}",Constants.TAXONOMICGRAPHNAME,id);*/
+		System.out.println(query);//System.out.println(res);
 		String res=this.driver.executeAqlQueryJSON(query, null, null);
 		// NOTE: server responses are always an array, but here we always have one element, so we remove the []
 		return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
 	}
-	
+
+	/**
+	 * Gets the links between given nodes (in the ID array), of the given facets. Does not expand any node.
+	 * @param id
+	 * @param facets
+	 * @return
+	 * @throws ArangoException
+	 */
+	public String getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
+		AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
+		String query=String.format("RETURN {nodes:(FOR n IN %2$s "
+			+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+			+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
+			+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
+			+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+			,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
+		);
+		String res=this.driver.executeAqlQueryJSON(query, null, null);
+		// NOTE: server responses are always an array, but here we always have one element, so we remove the []
+		return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
+	}
+
     /**
      * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
      * @param q The query as a String. It is matched as a whole to the node 'name' attribute.
@@ -402,14 +433,13 @@ public class FloraOnGraph {
      * @throws ArangoException 
      */
 	public TaxEnt findTaxEnt(TaxEntName q) throws QueryException, ArangoException {
+// NOTE: this AQL query is slower than the code below!	
 		/*String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
 		TaxEntVertex tev=this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
 		if(tev==null)
 			return null;
 		else
 			return new TaxEnt(FloraOnGraph.this,tev);*/
-		
-		// TODO optimize this with an AQL query
 		
     	if(q.name.equals("")) throw new QueryException("Invalid blank name.");
     	TaxEnt n;
@@ -595,7 +625,7 @@ public class FloraOnGraph {
 
 	/**
 	 * Fetches one {@link TaxEnt} with the given idEnt
-	 * @param oldId Legacy ID (wehn importing from other DB)
+	 * @param oldId Legacy ID (when importing from other DB)
 	 * @return
 	 */
 	public TaxEnt getTaxEntById(int oldId) {
