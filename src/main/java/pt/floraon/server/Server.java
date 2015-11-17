@@ -15,8 +15,9 @@ public class Server
 			return;
 		}
 
+    	System.out.println("Starting Flora-On server on port 9000...");
 		MultiThreadedServer server = new MultiThreadedServer(9000,graph);
-		server.run();		
+		server.run();
 
 /*    	FloraOnGraph fog;
     	

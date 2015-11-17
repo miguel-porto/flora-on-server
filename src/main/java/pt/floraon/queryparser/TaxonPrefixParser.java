@@ -61,7 +61,7 @@ public class TaxonPrefixParser extends TokenParser {
 			for(String smallpiece:piecesToParse) {
 				smallpiece=smallpiece.trim();
 				try {
-					res=this.graph.speciesTextQuerySimple(smallpiece,StringMatchTypes.PREFIX,false,collectionRestrictions);
+					res=this.graph.dbGeneralQueries.speciesTextQuerySimple(smallpiece,StringMatchTypes.PREFIX,false,collectionRestrictions);
 					/*	this alternative below is actaully slower...
 					if(this.curquery.results==null)
 						res=this.graph.speciesTextQuerySimple(smallpiece,false,false);

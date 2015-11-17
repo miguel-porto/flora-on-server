@@ -34,7 +34,7 @@ public final class GeoPointParser extends TokenParser {
 				}		
 				if(lat!=null && lng!=null) {
 					try {
-						res=this.graph.findListTaxaWithin(lat,lng,15000);
+						res=this.graph.dbSpecificQueries.findListTaxaWithin(lat,lng,15000);
 					} catch (ArangoException e) {
 						e.printStackTrace();
 					}

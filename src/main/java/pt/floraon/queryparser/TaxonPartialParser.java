@@ -60,7 +60,7 @@ public class TaxonPartialParser extends TokenParser {
 			for(String smallpiece:piecesToParse) {
 				smallpiece=smallpiece.trim();
 				try {
-					res=this.graph.speciesTextQuerySimple(smallpiece,StringMatchTypes.PARTIAL,false,collectionRestrictions);
+					res=this.graph.dbGeneralQueries.speciesTextQuerySimple(smallpiece,StringMatchTypes.PARTIAL,false,collectionRestrictions);
 					/*	this alternative below is actaully slower...
 					if(this.curquery.results==null)
 						res=this.graph.speciesTextQuerySimple(smallpiece,false,false);

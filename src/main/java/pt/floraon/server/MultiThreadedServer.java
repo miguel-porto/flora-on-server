@@ -25,6 +25,7 @@ public class MultiThreadedServer implements Runnable {
             this.runningThread = Thread.currentThread();
         }
         openServerSocket();
+        System.out.println("Ok!");
         while(! isStopped()){
             Socket clientSocket = null;
             try {

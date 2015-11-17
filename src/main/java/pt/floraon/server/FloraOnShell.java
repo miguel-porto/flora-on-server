@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -13,6 +14,7 @@ import com.arangodb.ArangoException;
 import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
+import jline.console.completer.StringsCompleter;
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.QueryException;
 import pt.floraon.dbworker.TaxonomyException;
@@ -40,7 +42,7 @@ public class FloraOnShell {
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit.");
     	try {
-			System.out.println(Constants.ANSI_WHITE+fog.getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+fog.getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+fog.getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET);
+			System.out.println(Constants.ANSI_WHITE+fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET+"\n");
 		} catch (ArangoException e1) {
 			System.out.println("Some fatal error reading database. Aborting.");
 			System.out.println(e1.getMessage());
@@ -50,8 +52,10 @@ public class FloraOnShell {
     	String query;
     	Iterator<SimpleTaxonResult> it;
     	ResultProcessor<SimpleTaxonResult> rp;
+    	String[] commands=new String[]{"\\upload/taxonomy?file=","\\upload/attributes?file=","\\upload/occurrences?file=","\\checklist"};
         try {
             ConsoleReader console = new ConsoleReader();
+            console.addCompleter(new StringsCompleter(Arrays.asList(commands)));
             console.addCompleter(new FileNameCompleter());
             console.setPrompt(Constants.ANSI_CYANBOLD+"flora-on> "+Constants.ANSI_RESET);
             /*console.addTriggeredAction('\\', new ActionListener(){
@@ -265,7 +269,7 @@ public class FloraOnShell {
     		autnode=null;
     		while(autnode==null) {
     			idaut=ThreadLocalRandom.current().nextInt(1, 20 + 1);
-    			autnode=fog.getAuthorById(idaut);
+    			autnode=fog.dbNodeWorker.getAuthorById(idaut);
     		}
     		lat=37+ThreadLocalRandom.current().nextFloat()*5;
     		lon=(float) (-9.5+ThreadLocalRandom.current().nextFloat()*3);
@@ -278,7 +282,7 @@ public class FloraOnShell {
 				for(int j=0;j<nsp;j++) {
 					idents[j]=ThreadLocalRandom.current().nextInt(1, 4000 + 1);
 				}
-				Iterator<TaxEntVertex> itte=fog.getTaxEntsByIds(idents);
+				Iterator<TaxEntVertex> itte=fog.dbNodeWorker.getTaxEntsByIds(idents);
 				while(itte.hasNext()) {
 					new TaxEnt(fog,itte.next()).setObservedIn(sln, (short)0, (short)1, PhenologicalStates.UNKNOWN, null, 10000, null, NativeStatus.WILD, null);
 				}

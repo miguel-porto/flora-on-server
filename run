@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 SERVICE_NAME="Flora-On Server"
-PATH_TO_JAR=target/appassembler/bin/floraond
+PATH_TO_DAEMON=target/appassembler/bin/floraond
+PATH_TO_SHELL=target/appassembler/bin/floraonsh
 PID_PATH_NAME=/tmp/MyService-pid
+PORT=9000
 
 detectrunning() {
       ## This could be achieved with filtering using -sTCP:LISTEN but this option is not available
       ## on lsof v4.78 which is the one bundled with some distros. So we have to do this grep below
-      newpid=$(lsof -i :9000 -F T -Ts | grep -i "TST=LISTEN" -B1 | head -n1)
+      newpid=$(lsof -i :$PORT -F T -Ts | grep -i "TST=LISTEN" -B1 | head -n1)
       newpid=${newpid:1}
 }
 
@@ -14,7 +16,7 @@ case $1 in
     start)
         echo "Starting $SERVICE_NAME ..."
         if [ ! -f $PID_PATH_NAME ]; then
-            nohup sh $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+            nohup sh $PATH_TO_DAEMON /tmp 2>> /dev/null >> /dev/null &
                         echo $! > $PID_PATH_NAME
 
 STARTED_PID=$(cat $PID_PATH_NAME);
@@ -33,7 +35,7 @@ STARTED_PID=$(cat $PID_PATH_NAME);
 	    done
 
                         
-           printf "\n$SERVICE_NAME started on port $newpid!\n\n"
+           printf "\n$SERVICE_NAME started on port $PORT with pid=$newpid!\n\n"
         else
             echo "$SERVICE_NAME is already running"
         fi
@@ -57,12 +59,18 @@ STARTED_PID=$(cat $PID_PATH_NAME);
             echo "$SERVICE_NAME stopped ...";
             rm $PID_PATH_NAME
             echo "$SERVICE_NAME starting ..."
-            nohup sh $PATH_TO_JAR /tmp 2>> /dev/null >> /dev/null &
+            nohup sh $PATH_TO_DAEMON /tmp 2>> /dev/null >> /dev/null &
                         echo $! > $PID_PATH_NAME
             echo "$SERVICE_NAME started ..."
         else
             echo "$SERVICE_NAME is not running ..."
         fi
+    ;;
+    direct)
+		$PATH_TO_DAEMON
+	;;
+    *)
+	    $PATH_TO_SHELL
     ;;
 esac 
 

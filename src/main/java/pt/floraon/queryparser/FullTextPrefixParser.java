@@ -35,7 +35,7 @@ public class FullTextPrefixParser extends TokenParser {
 			System.out.println(this.classname+"Parsing part #"+(whichPiece+1)+" \""+piece+"\", whole string");
 
 			try {
-				res=this.graph.speciesTextQuerySimple(piece,StringMatchTypes.PREFIX,false,collectionRestrictions);	// search all vertex collections
+				res=this.graph.dbGeneralQueries.speciesTextQuerySimple(piece,StringMatchTypes.PREFIX,false,collectionRestrictions);	// search all vertex collections
 			} catch (ArangoException e) {
 				e.printStackTrace();
 			}

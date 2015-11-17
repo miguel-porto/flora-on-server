@@ -2,11 +2,8 @@ package pt.floraon.queryparser;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.arangodb.util.CollectionUtils;
 
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.entities.SimpleTaxonResult;
@@ -31,7 +28,7 @@ public class YlemParser {
 		try {
 			for(String parser : parsers) {
 				myClass = Class.forName("pt.floraon.queryparser."+parser);
-				Class[] types = {FloraOnGraph.class, QueryString.class};
+				Class<?>[] types = {FloraOnGraph.class, QueryString.class};
 				Constructor<?> constructor = myClass.getConstructor(types);
 				
 				Object[] parameters = {this.graph, qs};

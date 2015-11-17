@@ -28,7 +28,7 @@ public class TaxEntName {
 	 */
 	public TaxEntName(String name) throws TaxonomyException {
 		// TODO process annotations (in [square brackets])
-		name=name.trim();
+		name=name.replaceAll(" +", " ").trim();
 		if(name.equals("")) {
 			this.isNull=true;
 			return;

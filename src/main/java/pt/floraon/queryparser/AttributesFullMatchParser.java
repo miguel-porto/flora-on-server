@@ -55,7 +55,7 @@ public class AttributesFullMatchParser extends TokenParser {
 			for(String smallpiece:piecesToParse) {
 				smallpiece=smallpiece.trim();
 				try {
-					res=this.graph.speciesTextQuerySimple(smallpiece,StringMatchTypes.EXACT,false,collectionRestrictions);
+					res=this.graph.dbGeneralQueries.speciesTextQuerySimple(smallpiece,StringMatchTypes.EXACT,false,collectionRestrictions);
 				} catch (ArangoException e) {
 					e.printStackTrace();
 				}

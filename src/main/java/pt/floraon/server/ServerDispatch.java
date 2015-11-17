@@ -194,17 +194,17 @@ public class ServerDispatch implements Runnable{
 			for(int i=0;i<infacets.length;i++) fac[i]=Facets.valueOf(infacets[i].toUpperCase());
 
 			if(id==null) {
-				TaxEnt te=graph.findTaxEnt(query);
+				TaxEnt te=graph.dbNodeWorker.findTaxEnt(query);
 				if(te==null)
-					output.println(success(graph.getNeighbors("sometthingnomatch",fac)));
+					output.println(success(graph.dbNodeWorker.getNeighbors("sometthingnomatch",fac)));
 				else
-					output.println(success(graph.getNeighbors(te.getID(),fac)));
+					output.println(success(graph.dbNodeWorker.getNeighbors(te.getID(),fac)));
 			} else {
 				String[] ids=id.split(",");
 				if(ids.length==1)
-					output.println(success(graph.getNeighbors(ids[0],fac)));
+					output.println(success(graph.dbNodeWorker.getNeighbors(ids[0],fac)));
 				else
-					output.println(success(graph.getRelationshipsBetween(ids,fac)));
+					output.println(success(graph.dbNodeWorker.getRelationshipsBetween(ids,fac)));
 			}
 			break;
 			
@@ -251,11 +251,40 @@ public class ServerDispatch implements Runnable{
 
 			switch(path[2]) {
 			case "taxonomy":
-				graph.getDataUploader().uploadTaxonomyListFromFile(query, false);
+				graph.dbDataUploader.uploadTaxonomyListFromFile(query, false);
 				break;
 				
+			case "attributes":
+				graph.dbDataUploader.uploadMorphologyFromCSV(query);
+				break;
+
+			case "occurrences":
+				//graph.dbDataUploader.uploadTaxonomyListFromFile(query, false);
+				break;
 			default:
 				output.println(error("Unrecognized command: "+path[2]));
+				break;
+			}
+			break;
+		
+		case "nodes":
+			if(path.length<3) {
+				output.println(error("Choose one of: delete"));
+				output.flush();
+				return;
+			}
+			
+			switch(path[2]) {
+			case "delete":
+				id=getQSValue("id",qs);
+				if(id==null || id.trim().length()<1) {
+					output.println(error("You must provide a document handle as id"));
+					output.flush();
+					return;
+				}
+
+				graph.dbNodeWorker.deleteNode(id);
+				output.println(success(id));
 				break;
 			}
 			break;

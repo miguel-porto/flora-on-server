@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -29,7 +31,6 @@ import com.arangodb.entity.EntityFactory;
 import com.arangodb.entity.StringsResultEntity;
 import com.arangodb.entity.UserEntity;
 import com.arangodb.entity.marker.VertexEntity;
-import com.arangodb.http.HttpResponseEntity;
 import com.arangodb.util.GraphVerticesOptions;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -37,6 +38,7 @@ import pt.floraon.entities.Attribute;
 import pt.floraon.entities.AttributeVertex;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.AuthorVertex;
+import pt.floraon.entities.Character;
 import pt.floraon.entities.ChecklistEntry;
 import pt.floraon.entities.Occurrence;
 import pt.floraon.entities.SpeciesList;
@@ -51,17 +53,26 @@ import static pt.floraon.server.Constants.*;
 
 public class FloraOnGraph {
 	public ArangoDriver driver;
+	public final GeneralQueries dbGeneralQueries;
+	public final NodeWorker dbNodeWorker;
+	public final DataUploader dbDataUploader;
+	public final SpecificQueries dbSpecificQueries;
+	
 	public FloraOnGraph(String dbname) throws ArangoException {
         ArangoConfigure configure = new ArangoConfigure();
         configure.init();
         configure.setDefaultDatabase("flora");
-
+        this.dbGeneralQueries=new FloraOnGraph.GeneralQueries();
+        this.dbNodeWorker=new FloraOnGraph.NodeWorker();
+        this.dbDataUploader=new FloraOnGraph.DataUploader();
+        this.dbSpecificQueries=new FloraOnGraph.SpecificQueries();
+        
         driver = new ArangoDriver(configure);
-
+/*
         driver.createAqlFunction("flora::testCode", "function (config, vertex, path) {"
     		+ "if(!vertex.name) return ['exclude','prune'];"
     		+ "}");
-        
+        */
         try {
 			StringsResultEntity dbs=driver.getDatabases();
 			if(!dbs.getResult().contains(dbname))
@@ -76,6 +87,11 @@ public class FloraOnGraph {
         //driver.createFulltextIndex("taxent", "name");
 	}
 	
+	/**
+	 * Initializes a new database from scratch. Creates collections, graphs, etc.
+	 * @param dbname
+	 * @throws ArangoException
+	 */
 	private void initializeNewGraph(String dbname) throws ArangoException {
 		/*				UserEntity ue;
 		ue=new UserEntity();*/
@@ -238,429 +254,456 @@ public class FloraOnGraph {
     }*/
 
 	/**
-	 * Gets the direct neighbors of the given vertex, off all facets.
-	 * @param id The vertex's document handle
-	 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links').
-	 * @throws ArangoException
+	 * A class that groups methods to add, update, remove or fetch nodes. 
+	 * @author miguel
+	 *
 	 */
-	public String getNeighbors(String id, Facets[] facets) throws ArangoException {
-		AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
-		String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
-			+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
-			+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
-			+ "LET d=DOCUMENT(n) RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
-			,Constants.TAXONOMICGRAPHNAME,id,EntityFactory.toJsonString(art)
-		);
-		
-/*		String query=String.format("FOR p IN GRAPH_TRAVERSAL('%1$s','%2$s','any',{paths:true,maxDepth:1}) "
-			+ "RETURN {nodes:(FOR v IN p[*].vertex RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
-			+ ",links:(FOR e IN FLATTEN(FOR ed IN p[*].path.edges RETURN ed) COLLECT a=e._id LET d=DOCUMENT(a) LET ty=PARSE_IDENTIFIER(d).collection "
-			+ "FILTER ty=='PART_OF'"
-			+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:ty})}",Constants.TAXONOMICGRAPHNAME,id);*/
-		System.out.println(query);//System.out.println(res);
-		String res=this.driver.executeAqlQueryJSON(query, null, null);
-		// NOTE: server responses are always an array, but here we always have one element, so we remove the []
-		return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
-	}
-
-	/**
-	 * Gets the links between given nodes (in the ID array), of the given facets. Does not expand any node.
-	 * @param id
-	 * @param facets
-	 * @return
-	 * @throws ArangoException
-	 */
-	public String getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
-		AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
-		String query=String.format("RETURN {nodes:(FOR n IN %2$s "
-			+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
-			+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
-			+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
-			+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
-			,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
-		);
-		String res=this.driver.executeAqlQueryJSON(query, null, null);
-		// NOTE: server responses are always an array, but here we always have one element, so we remove the []
-		return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
-	}
-
-    /**
-     * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
-     * @param q The query as a String. It is matched as a whole to the node 'name' attribute.
-     * @param matchtype Type of match desired (exact, partial or prefix).
-     * @param onlyLeafNodes true to return only leaf nodes. If false, all species or inferior rank nodes are returned.
-     * @param collections Node collections to be searched for matches. They must have a 'name' attribute.
-     * @return A list of {@link SimpleTaxonResult}
-     * @throws ArangoException
-     */
-    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections) throws ArangoException {
-    	// TODO put vertex collection restrictions in the options
-    	String query;
-    	q=q.toLowerCase().trim();
-    	String filter="";
-    	switch(matchtype) {
-    	case EXACT:
-    		filter="LOWER(v.name)=='%2$s'";
-			break;
-		case PARTIAL:
-			filter="LIKE(v.name,'%%%2$s%%',true)";
-			break;
-		case PREFIX:
-			filter="LIKE(v.name,'%2$s%%',true)";
-			break;
-		default:
-			break;
-    	}
-    	String leaf=onlyLeafNodes ? " FILTER nedg==0" : "";
-    	
-    	if(collections==null) {
-    		collections=new String[1];
-    		collections[0]="taxent";
-    	}
-
-    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
-	    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
-	        		+ "FOR o IN FLATTEN(FOR v IN base "
-	    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
-	    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
-	    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
-	    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,match:gr[*].o.source,leaf:l}"
-	    				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
-		} else {
-			StringBuilder sb=new StringBuilder();
-			sb.append("[");
-			for(int i=0;i<collections.length-1;i++) {
-				sb.append("'").append(collections[i]).append("',");
+	public final class NodeWorker {
+		/**
+		 * Fetches one author with the given idAut
+		 * @param idaut
+		 * @return Null if not found, otherwise an {@link Author}
+		 */
+		public Author getAuthorById(int idaut) {
+			String query="RETURN GRAPH_VERTICES('taxgraph',{idAut:"+idaut+"})[0]";
+			AuthorVertex vertexCursor=null;
+			try {
+				vertexCursor = driver.executeAqlQuery(query, null, null, AuthorVertex.class).getUniqueResult();
+			} catch (ArangoException e) {
+				System.err.println("More than one author with this ID?!");
+				return null;
 			}
-			sb.append("'").append(collections[collections.length-1]).append("']");
+			if(vertexCursor==null)
+				return null;
+			else
+				return new Author(FloraOnGraph.this,vertexCursor);
+		}
+
+		/**
+		 * Fetches one {@link TaxEnt} with the given idEnt
+		 * @param oldId Legacy ID (when importing from other DB)
+		 * @return
+		 */
+		public TaxEnt getTaxEntById(int oldId) {
+			//String query="RETURN GRAPH_VERTICES('taxgraph',{oldId:"+oldId+"},{vertexCollectionRestriction:'taxent'})[0]";
+			String query="FOR v IN taxent FILTER v.oldId=="+oldId+" RETURN v";
+			TaxEntVertex vertexCursor=null;
+			try {
+				vertexCursor = driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
+			} catch (ArangoException e) {
+				System.err.println("More than one taxon with this ID?!");
+				return null;
+			}
+			if(vertexCursor==null)
+				return null;
+			else
+				return new TaxEnt(FloraOnGraph.this,vertexCursor);
+		}
+
+		/**
+		 * Fetches an iterator of {@link TaxEnt}s with the given idEnts
+		 * @param oldIds An array of idEnts
+		 * @return
+		 */
+		public Iterator<TaxEntVertex> getTaxEntsByIds(int[] oldIds) {
+			String query="FOR v IN taxent FILTER v.oldId IN "+EntityFactory.toJsonString(oldIds)+" RETURN v";
+			Iterator<TaxEntVertex> vertexCursor=null;
+			try {
+				vertexCursor = driver.executeAqlQuery(query, null, null, TaxEntVertex.class).iterator();
+			} catch (ArangoException e) {
+				System.err.println("More than one taxon with this ID?!");
+				return null;
+			}
+			return vertexCursor;
+		}
+
+	    /**
+	     * Create a new taxonomic node and immediately add it to DB.
+	     * @param name
+	     * @param author
+	     * @param rank
+	     * @param annotation
+	     * @param current
+	     * @return A {@link TaxEnt} node.
+	     * @throws ArangoException
+	     */
+	    public TaxEnt createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException {
+	    	return new TaxEnt(FloraOnGraph.this,name,author,rank,annotation,current);
+	    }
+
+	    /**
+	     * Gets only one taxon node, or none, based only on taxon name. The name must not be ambiguous.
+	     * @param q
+	     * @return
+	     * @throws QueryException
+	     * @throws ArangoException
+	     * @throws TaxonomyException
+	     */
+	    public TaxEnt findTaxEnt(String q) throws QueryException, ArangoException, TaxonomyException {
+	    	return findTaxEnt(new TaxEntName(q));
+	    }
+	    
+	    /**
+		 * Gets only one node, or none, based on name and rank.
+		 * NOTE: if rank is "norank", it is ignored.
+	     * @param q
+	     * @return
+	     * @throws QueryException
+	     * @throws ArangoException 
+	     */
+		public TaxEnt findTaxEnt(TaxEntName q) throws QueryException, ArangoException {
+	// NOTE: this AQL query is slower than the code below!	
+			/*String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
+			TaxEntVertex tev=this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
+			if(tev==null)
+				return null;
+			else
+				return new TaxEnt(FloraOnGraph.this,tev);*/
 			
-	    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
-	        		+ "FOR o IN FLATTEN(FOR v IN base "
-	    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
-	    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
-	    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
-	    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source}"
-	    				,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
-		}
-/*    	
-    	String query=String.format("FOR v IN UNIQUE(FLATTEN(FOR v IN GRAPH_TRAVERSAL('%1$s',"
-    			//+ "FOR v IN attribute "
-    			+ "FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) "
-    			+ "FILTER "+filter+" RETURN v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
-    			+ "RETURN v[*].vertex)) LET nedg=LENGTH(GRAPH_EDGES('taxgraph',v,{direction:'inbound'})) "+leaf+" RETURN {name:v.name,_key:v._key,leaf:nedg==0}"
-    			, Constants.TAXONOMICGRAPHNAME,q,vertexCollectionRestrictions);*/
-    	//System.out.println(query);
-    	CursorResult<SimpleTaxonResult> vertexCursor=this.driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
-    	//System.out.println(this.driver.executeAqlQueryJSON(query, null, null));
-    	return vertexCursor.asList();
-    }
-        
-    /**
-     * Execute a text query on the starting nodes going upwards. Good idea, but it's actually slower!
-     * @param startingVertices
-     * @param q
-     * @param exact
-     * @return
-     * @throws ArangoException
-     */
-    @Deprecated
-    public List<SimpleTaxonResult> inverseSpeciesTextQuery(List<SimpleTaxonResult> startingVertices,String q,boolean exact) throws ArangoException {
-    	String[] handles=new String[startingVertices.size()];
-    	for(int i=0;i<startingVertices.size();i++) {
-    		handles[i]="taxent/"+startingVertices.get(i).getId();
-    	}
-    	String query="FOR o IN (FOR v IN "+EntityFactory.toJsonString(handles)+" "
-			+ "LET p=GRAPH_TRAVERSAL('taxgraph',v,'outbound',{paths:true,filterVertices:'flora::testCode'})[0] LET vv=p[*].path.vertices RETURN "
-			+ "{n:DOCUMENT(v),p: (FOR fi IN UNIQUE(FLATTEN(vv[*][* RETURN {n:CURRENT.name,k:CURRENT._id}])) FILTER LIKE(fi.n,'%"+q+"%',true)"
-			+ " RETURN {n:fi.n,k:fi.k}) }) FILTER LENGTH(o.p)>0 RETURN {name:o.n.name,_key:o.n._key,match:o.p[*].k}";
-    	System.out.println("INVERSE QUERY\n"+query);
-    	CursorResult<SimpleTaxonResult> vertexCursor=this.driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
-    	return vertexCursor.asList();
-    }
+	    	if(q.name==null || q.name.equals("")) throw new QueryException("Invalid blank name.");
+	    	TaxEnt n;
+	    	try {
+	    		VertexCursor<TaxEntVertex> vc=driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.name,null,null,null,null,null), null, null);
+	    		VertexEntity<TaxEntVertex> ve1=vc.getUniqueResult();
 
-    public int getNumberOfNodesInCollection(NodeTypes nodetype) throws ArangoException {
-    	String query="FOR v IN "+nodetype.toString()+" COLLECT WITH COUNT INTO cou RETURN cou";
-    	return this.driver.executeAqlQuery(query, null, null, Integer.class).getUniqueResult();
-    }
-    
-    public Boolean deleteTaxEntNode(TaxEntName nodename) throws QueryException, ArangoException {
-    	// TODO delete!
-    	TaxEnt te=this.findTaxEnt(nodename);
-    	this.driver.deleteDocument(te.getID());
-    	return false;
-    }
-    
-    public Attribute findAttribute(String name) throws ArangoException {
-    	String query="FOR v IN attribute FILTER v.name=='"+name+"' RETURN v";
-		AttributeVertex vertexCursor=this.driver.executeAqlQuery(query, null, null, AttributeVertex.class).getUniqueResult();
-		if(vertexCursor==null)
-			return null;
-		else
-			return new Attribute(this,vertexCursor);
-    }
-    /**
-     * Create a new taxonomic node and immediately add it to DB.
-     * @param name
-     * @param author
-     * @param rank
-     * @param annotation
-     * @param current
-     * @return A {@link TaxEnt} node.
-     * @throws ArangoException
-     */
-    public TaxEnt createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException {
-    	return new TaxEnt(this,name,author,rank,annotation,current);
-    }
+	    		if(ve1==null)	// node doesn't exist
+	    			return null;
+	    		else
+	    			n=new TaxEnt(FloraOnGraph.this,ve1);
 
-    /**
-     * Gets only one taxon node, or none, based only on taxon name. The name must not be ambiguous.
-     * @param q
-     * @return
-     * @throws QueryException
-     * @throws ArangoException
-     * @throws TaxonomyException
-     */
-    public TaxEnt findTaxEnt(String q) throws QueryException, ArangoException, TaxonomyException {
-    	return findTaxEnt(new TaxEntName(q));
-    }
-    
-    /**
-	 * Gets only one node, or none, based on name and rank.
-	 * NOTE: if rank is "norank", it is ignored.
-     * @param q
-     * @return
-     * @throws QueryException
-     * @throws ArangoException 
-     */
-	public TaxEnt findTaxEnt(TaxEntName q) throws QueryException, ArangoException {
-// NOTE: this AQL query is slower than the code below!	
-		/*String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
-		TaxEntVertex tev=this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
-		if(tev==null)
-			return null;
-		else
-			return new TaxEnt(FloraOnGraph.this,tev);*/
-		
-    	if(q.name.equals("")) throw new QueryException("Invalid blank name.");
-    	TaxEnt n;
-    	try {
-    		VertexCursor<TaxEntVertex> vc=driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.name,null,null,null,null,null), null, null);
-    		VertexEntity<TaxEntVertex> ve1=vc.getUniqueResult();
+	    		if(q.rank==null || q.rank.getValue().equals(TaxonRanks.NORANK.getValue()) || n.getRankValue()==null) return n; else {
+					if(!n.getRankValue().equals(q.rank.getValue())) return null; else return n;
+				}	    		
+	    	} catch (NonUniqueResultException e) {	// multiple nodes with this name. Search the one of the right rank
+	    		VertexCursor<TaxEntVertex> vc=driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.name,null,null,null), null, null);
+				if(q.rank==null || q.rank.getValue().equals(TaxonRanks.NORANK.getValue())) throw new QueryException("More than one node with name "+q.name+". You must disambiguate.");
 
-    		if(ve1==null)	// node doesn't exist
-    			return null;
-    		else
-    			n=new TaxEnt(this,ve1);
-
-    		if(q.rank==null || q.rank.getValue().equals(TaxonRanks.NORANK.getValue()) || n.getRankValue()==null) return n; else {
-				if(!n.getRankValue().equals(q.rank.getValue())) return null; else return n;
-			}	    		
-    	} catch (NonUniqueResultException e) {	// multiple nodes with this name. Search the one of the right rank
-    		VertexCursor<TaxEntVertex> vc=driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.name,null,null,null), null, null);
-			if(q.rank==null || q.rank.getValue().equals(TaxonRanks.NORANK.getValue())) throw new QueryException("More than one node with name "+q.name+". You must disambiguate.");
-
-			Iterator<VertexEntity<TaxEntVertex>> ns=vc.iterator();
-			n=null;
-			TaxEnt n1;
-			while(ns.hasNext()) {
-				//n1=ns.next().getEntity();
-				n1=new TaxEnt(this,ns.next());
-				if(n1.getRankValue().equals(q.rank.getValue()) || n1.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
-					if(n!=null) throw new QueryException("More than one node with name "+q.name+" and rank "+q.rank); else n=n1;
+				Iterator<VertexEntity<TaxEntVertex>> ns=vc.iterator();
+				n=null;
+				TaxEnt n1;
+				while(ns.hasNext()) {
+					//n1=ns.next().getEntity();
+					n1=new TaxEnt(FloraOnGraph.this,ns.next());
+					if(n1.getRankValue().equals(q.rank.getValue()) || n1.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
+						if(n!=null) throw new QueryException("More than one node with name "+q.name+" and rank "+q.rank); else n=n1;
+					}
 				}
+				return n;
+	    	}
+		}
+
+		public boolean deleteTaxEntNode(TaxEntName nodename) throws QueryException, ArangoException {
+	    	TaxEnt te=findTaxEnt(nodename);
+	    	if(te!=null) return deleteNode(te.getID());
+	    	return false;
+	    }
+		
+		public boolean deleteNode(String id) throws ArangoException {
+			driver.deleteDocument(id);
+			return true;
+		}
+	    
+	    public Attribute findAttribute(String name) throws ArangoException {
+	    	String query="FOR v IN attribute FILTER v.name=='"+name+"' RETURN v";
+			AttributeVertex vertexCursor=driver.executeAqlQuery(query, null, null, AttributeVertex.class).getUniqueResult();
+			if(vertexCursor==null)
+				return null;
+			else
+				return new Attribute(FloraOnGraph.this,vertexCursor);
+	    }
+
+		/**
+		 * Gets the direct neighbors of the given vertex, off all facets.
+		 * @param id The vertex's document handle
+		 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links').
+		 * @throws ArangoException
+		 */
+		public String getNeighbors(String id, Facets[] facets) throws ArangoException {
+			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
+			String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
+				+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+				+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
+				+ "LET d=DOCUMENT(n) RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+				,Constants.TAXONOMICGRAPHNAME,id,EntityFactory.toJsonString(art)
+			);
+			
+	/*		String query=String.format("FOR p IN GRAPH_TRAVERSAL('%1$s','%2$s','any',{paths:true,maxDepth:1}) "
+				+ "RETURN {nodes:(FOR v IN p[*].vertex RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+				+ ",links:(FOR e IN FLATTEN(FOR ed IN p[*].path.edges RETURN ed) COLLECT a=e._id LET d=DOCUMENT(a) LET ty=PARSE_IDENTIFIER(d).collection "
+				+ "FILTER ty=='PART_OF'"
+				+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:ty})}",Constants.TAXONOMICGRAPHNAME,id);*/
+			System.out.println(query);//System.out.println(res);
+			String res=driver.executeAqlQueryJSON(query, null, null);
+			// NOTE: server responses are always an array, but here we always have one element, so we remove the []
+			return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
+		}
+	
+		/**
+		 * Gets the links between given nodes (in the ID array), of the given facets. Does not expand any node.
+		 * @param id An array of document handles
+		 * @param facets The link facets to load
+		 * @return
+		 * @throws ArangoException
+		 */
+		public String getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
+			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
+			String query=String.format("RETURN {nodes:(FOR n IN %2$s "
+				+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+				+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
+				+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
+				+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+				,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
+			);
+			String res=driver.executeAqlQueryJSON(query, null, null);
+			// NOTE: server responses are always an array, but here we always have one element, so we remove the []
+			return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
+		}
+	}
+	
+	/**
+	 * A class that groups methods for higher-level queries.
+	 * @author miguel
+	 *
+	 */
+	public final class GeneralQueries {
+	    /**
+	     * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
+	     * This is the <b>main</b> query function. 
+	     * @param q The query as a String. It is matched as a whole to the node 'name' attribute.
+	     * @param matchtype Type of match desired (exact, partial or prefix).
+	     * @param onlyLeafNodes true to return only leaf nodes. If false, all species or inferior rank nodes are returned.
+	     * @param collections Node collections to be searched for matches. They must have a 'name' attribute.
+	     * @return A list of {@link SimpleTaxonResult}
+	     * @throws ArangoException
+	     */
+	    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections) throws ArangoException {
+	    	// TODO put vertex collection restrictions in the options
+	    	String query;
+	    	q=q.toLowerCase().trim();
+	    	String filter="";
+	    	switch(matchtype) {
+	    	case EXACT:
+	    		filter="LOWER(v.name)=='%2$s'";
+				break;
+			case PARTIAL:
+				filter="LIKE(v.name,'%%%2$s%%',true)";
+				break;
+			case PREFIX:
+				filter="LIKE(v.name,'%2$s%%',true)";
+				break;
+			default:
+				break;
+	    	}
+	    	String leaf=onlyLeafNodes ? " FILTER nedg==0" : "";
+	    	
+	    	if(collections==null) {
+	    		collections=new String[1];
+	    		collections[0]="taxent";
+	    	}
+	
+	    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
+		    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
+		        		+ "FOR o IN FLATTEN(FOR v IN base "
+		    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+		    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
+		    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
+		    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,match:gr[*].o.source,leaf:l}"
+		    				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
+			} else {
+				StringBuilder sb=new StringBuilder();
+				sb.append("[");
+				for(int i=0;i<collections.length-1;i++) {
+					sb.append("'").append(collections[i]).append("',");
+				}
+				sb.append("'").append(collections[collections.length-1]).append("']");
+				
+		    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
+		        		+ "FOR o IN FLATTEN(FOR v IN base "
+		    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+		    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
+		    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
+		    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source}"
+		    				,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
 			}
-			return n;
-    	}
+	/*    	
+	    	String query=String.format("FOR v IN UNIQUE(FLATTEN(FOR v IN GRAPH_TRAVERSAL('%1$s',"
+	    			//+ "FOR v IN attribute "
+	    			+ "FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) "
+	    			+ "FILTER "+filter+" RETURN v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+	    			+ "RETURN v[*].vertex)) LET nedg=LENGTH(GRAPH_EDGES('taxgraph',v,{direction:'inbound'})) "+leaf+" RETURN {name:v.name,_key:v._key,leaf:nedg==0}"
+	    			, Constants.TAXONOMICGRAPHNAME,q,vertexCollectionRestrictions);*/
+	    	//System.out.println(query);
+	    	CursorResult<SimpleTaxonResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
+	    	return vertexCursor.asList();
+	    }
+	        
+	    /**
+	     * Execute a text query on the starting nodes going upwards. Good idea, but it's actually slower!
+	     * @param startingVertices
+	     * @param q
+	     * @param exact
+	     * @return
+	     * @throws ArangoException
+	     */
+	    @Deprecated
+	    public List<SimpleTaxonResult> inverseSpeciesTextQuery(List<SimpleTaxonResult> startingVertices,String q,boolean exact) throws ArangoException {
+	    	String[] handles=new String[startingVertices.size()];
+	    	for(int i=0;i<startingVertices.size();i++) {
+	    		handles[i]="taxent/"+startingVertices.get(i).getId();
+	    	}
+	    	String query="FOR o IN (FOR v IN "+EntityFactory.toJsonString(handles)+" "
+				+ "LET p=GRAPH_TRAVERSAL('taxgraph',v,'outbound',{paths:true,filterVertices:'flora::testCode'})[0] LET vv=p[*].path.vertices RETURN "
+				+ "{n:DOCUMENT(v),p: (FOR fi IN UNIQUE(FLATTEN(vv[*][* RETURN {n:CURRENT.name,k:CURRENT._id}])) FILTER LIKE(fi.n,'%"+q+"%',true)"
+				+ " RETURN {n:fi.n,k:fi.k}) }) FILTER LENGTH(o.p)>0 RETURN {name:o.n.name,_key:o.n._key,match:o.p[*].k}";
+	    	System.out.println("INVERSE QUERY\n"+query);
+	    	CursorResult<SimpleTaxonResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
+	    	return vertexCursor.asList();
+	    }
 	}
 	
-	/**
-	 * Gets all species lists within a radius of a given point
-	 * @param latitude The point's latitude
-	 * @param longitude The point's longitude
-	 * @param distance The radius
-	 * @return
-	 * @throws ArangoException 
-	 */
-	public Iterator<SpeciesList> findSpeciesListsWithin(Float latitude,Float longitude,Float distance) throws ArangoException {
-    	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.specieslist.toString());
-    	CursorResult<SpeciesList> vertexCursor=this.driver.executeAqlQuery(query, null, null, SpeciesList.class);
-    	return vertexCursor.iterator();
-	}
-
-	/**
-	 * Gets the nearest species list to the given point, no matter how distant it is.
-	 * @param latitude
-	 * @param longitude
-	 * @return A {@link SpeciesListVertex}
-	 * @throws ArangoException
-	 */
-	public SpeciesList findNearestSpeciesList(Float latitude,Float longitude) throws ArangoException {
-    	String query=String.format("RETURN NEAR(%1$s, %2$f, %3$f, 1)[0]",NodeTypes.specieslist.toString(),latitude,longitude);
-    	//System.out.println(query);
-    	SpeciesListVertex vertex=this.driver.executeAqlQuery(query, null, null, SpeciesListVertex.class).getUniqueResult();
-    	return new SpeciesList(this,vertex);
-	}
-
-	/**
-	 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
-	 * @param latitude
-	 * @param longitude
-	 * @param distance
-	 * @return
-	 * @throws ArangoException
-	 */
-	public Iterator<SimpleTaxonResult> findTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
-		//"FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) RETURN NEIGHBORS(%1$s,OBSERVED_IN,sl,'inbound',{},{includeData:true})[*]) RETURN DISTINCT a"
-		String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
-			+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_key:CURRENT._key}]) "
-			+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_key:b._key,count:c}"
-			,NodeTypes.specieslist.toString()
-			,latitude,longitude,distance
-		);
-		//System.out.println(query);
-    	CursorResult<SimpleTaxonResult> vertexCursor=this.driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
-    	vertexCursor.asList();
-    	return vertexCursor.iterator();
-	}
-
-	/**
-	 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
-	 * @param latitude
-	 * @param longitude
-	 * @param distance
-	 * @return A list
-	 * @throws ArangoException
-	 */
-	public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
-		String query=String.format("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
-				+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true}) "
-				+ "RETURN {match:sl._id,name:n.name,_key:n._key}) "
-				+ "COLLECT k=o._key,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_key:k,match:ma,count:LENGTH(ma)}"
-				,NodeTypes.specieslist.toString(),latitude,longitude,distance);
-/*
-		String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
-			+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_key:CURRENT._key}]) "
-			+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_key:b._key,count:c}"
-			,NodeTypes.specieslist.toString(),latitude,longitude,distance
-		);*/
-		//System.out.println(query);
-    	return this.driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class).asList();
-	}
-
-	/**
-	 * Gets all occurrences within a radius of given coordinates
-	 * @param latitude
-	 * @param longitude
-	 * @param distance
-	 * @return
-	 * @throws ArangoException
-	 */
-	public Iterator<Occurrence> findOccurrencesWithin(Float latitude,Float longitude,int distance) throws ArangoException {
-    	String aqlQuery=String.format("FOR v2 IN WITHIN(%1$s,%4$f,%5$f,%6$d) "
-			+ "LET nei=EDGES(%2$s,v2,'inbound') FILTER LENGTH(nei)>0 "
-			+ "LET mainaut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:true})) "
-			+ "LET aut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:false})) "
-			+ "FOR n IN nei RETURN {name:DOCUMENT(n._from).name,confidence:n.confidence,weight:n.weight,phenoState:n.phenoState,wild:n.wild"
-			+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventoryKey:v2._key,occurrenceKey:n._key,location:v2.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
-			,NodeTypes.specieslist.toString(),AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString()
-			,latitude,longitude,distance);
-    	CursorResult<Occurrence> vertexCursor=this.driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
-    	return vertexCursor.iterator();
-	}
+	public final class SpecificQueries {
+	    /**
+	     * Gets the number of nodes in given collection.
+	     * @param nodetype The collection
+	     * @return
+	     * @throws ArangoException
+	     */
+	    public int getNumberOfNodesInCollection(NodeTypes nodetype) throws ArangoException {
+	    	String query="FOR v IN "+nodetype.toString()+" COLLECT WITH COUNT INTO cou RETURN cou";
+	    	return driver.executeAqlQuery(query, null, null, Integer.class).getUniqueResult();
+	    }
+	    	
+		/**
+		 * Gets all species lists within a radius of a given point
+		 * @param latitude The point's latitude
+		 * @param longitude The point's longitude
+		 * @param distance The radius
+		 * @return
+		 * @throws ArangoException 
+		 */
+		public Iterator<SpeciesList> findSpeciesListsWithin(Float latitude,Float longitude,Float distance) throws ArangoException {
+	    	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.specieslist.toString());
+	    	CursorResult<SpeciesList> vertexCursor=driver.executeAqlQuery(query, null, null, SpeciesList.class);
+	    	return vertexCursor.iterator();
+		}
 	
-	/**
-	 * Checks whether given species list already exists (same author, same date, coordinates very close) and returns it.
-	 * @param idAuthor
-	 * @param latitude
-	 * @param longitude
-	 * @param year
-	 * @param month
-	 * @param day
-	 * @param radius Radius in which to search for the species list
-	 * @return Null if not found, a {@link SpeciesList} if one or more results are found. In the latter case, the returned result is "randomly" selected.
-	 * @throws ArangoException
-	 */
-	public SpeciesList findExistingSpeciesList(int idAuthor,float latitude,float longitude,Integer year,Integer month,Integer day,float radius) throws ArangoException {
-		StringBuilder sb=new StringBuilder();
-		sb.append("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$f) FILTER sl.year==")
-			.append(year).append(" && sl.month==")
-			.append(month).append(" && sl.day==")
-			.append(day)
-			.append(" LET nei=GRAPH_NEIGHBORS('%6$s',sl,{direction:'outbound',neighborExamples:{idAut:%5$d},edgeExamples:{main:true},edgeCollectionRestriction:'OBSERVED_BY',includeData:true}) FILTER LENGTH(nei)>0 RETURN sl");
-
-		String query=String.format(sb.toString(), NodeTypes.specieslist.toString(),latitude,longitude,radius,idAuthor,Constants.TAXONOMICGRAPHNAME.toString());
-
-		SpeciesListVertex vertexCursor = null;
-		try {
-			vertexCursor = this.driver.executeAqlQuery(query, null, null, SpeciesListVertex.class).getUniqueResult();
-		} catch (NonUniqueResultException e) {
-			System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
-			vertexCursor=this.driver.executeAqlQuery(query, null, null, SpeciesListVertex.class).iterator().next();
+		/**
+		 * Gets the nearest species list to the given point, no matter how distant it is.
+		 * @param latitude
+		 * @param longitude
+		 * @return A {@link SpeciesListVertex}
+		 * @throws ArangoException
+		 */
+		public SpeciesList findNearestSpeciesList(Float latitude,Float longitude) throws ArangoException {
+	    	String query=String.format("RETURN NEAR(%1$s, %2$f, %3$f, 1)[0]",NodeTypes.specieslist.toString(),latitude,longitude);
+	    	//System.out.println(query);
+	    	SpeciesListVertex vertex=driver.executeAqlQuery(query, null, null, SpeciesListVertex.class).getUniqueResult();
+	    	return new SpeciesList(FloraOnGraph.this,vertex);
 		}
-		if(vertexCursor==null)
-			return null;
-		else
-			return new SpeciesList(this,vertexCursor);
-	}
 	
-	/**
-	 * Fetches one author with the given idAut
-	 * @param idaut
-	 * @return Null if not found, otherwise an {@link Author}
-	 */
-	public Author getAuthorById(int idaut) {
-		String query="RETURN GRAPH_VERTICES('taxgraph',{idAut:"+idaut+"})[0]";
-		AuthorVertex vertexCursor=null;
-		try {
-			vertexCursor = this.driver.executeAqlQuery(query, null, null, AuthorVertex.class).getUniqueResult();
-		} catch (ArangoException e) {
-			System.err.println("More than one author with this ID?!");
-			return null;
+		/**
+		 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
+		 * @param latitude
+		 * @param longitude
+		 * @param distance
+		 * @return
+		 * @throws ArangoException
+		 */
+		public Iterator<SimpleTaxonResult> findTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
+			//"FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) RETURN NEIGHBORS(%1$s,OBSERVED_IN,sl,'inbound',{},{includeData:true})[*]) RETURN DISTINCT a"
+			String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
+				+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_key:CURRENT._key}]) "
+				+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_key:b._key,count:c}"
+				,NodeTypes.specieslist.toString()
+				,latitude,longitude,distance
+			);
+			//System.out.println(query);
+	    	CursorResult<SimpleTaxonResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
+	    	vertexCursor.asList();
+	    	return vertexCursor.iterator();
 		}
-		if(vertexCursor==null)
-			return null;
-		else
-			return new Author(this,vertexCursor);
-	}
-
-	/**
-	 * Fetches one {@link TaxEnt} with the given idEnt
-	 * @param oldId Legacy ID (when importing from other DB)
-	 * @return
-	 */
-	public TaxEnt getTaxEntById(int oldId) {
-		//String query="RETURN GRAPH_VERTICES('taxgraph',{oldId:"+oldId+"},{vertexCollectionRestriction:'taxent'})[0]";
-		String query="FOR v IN taxent FILTER v.oldId=="+oldId+" RETURN v";
-		TaxEntVertex vertexCursor=null;
-		try {
-			vertexCursor = this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
-		} catch (ArangoException e) {
-			System.err.println("More than one taxon with this ID?!");
-			return null;
-		}
-		if(vertexCursor==null)
-			return null;
-		else
-			return new TaxEnt(this,vertexCursor);
-	}
-
-	/**
-	 * Fetches an iterator of {@link TaxEnt}s with the given idEnts
-	 * @param oldIds An array of idEnts
-	 * @return
-	 */
-	public Iterator<TaxEntVertex> getTaxEntsByIds(int[] oldIds) {
-		String query="FOR v IN taxent FILTER v.oldId IN "+EntityFactory.toJsonString(oldIds)+" RETURN v";
-		Iterator<TaxEntVertex> vertexCursor=null;
-		try {
-			vertexCursor = this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).iterator();
-		} catch (ArangoException e) {
-			System.err.println("More than one taxon with this ID?!");
-			return null;
-		}
-		return vertexCursor;
-	}
 	
+		/**
+		 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
+		 * @param latitude
+		 * @param longitude
+		 * @param distance
+		 * @return A list
+		 * @throws ArangoException
+		 */
+		public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
+			String query=String.format("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
+					+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true}) "
+					+ "RETURN {match:sl._id,name:n.name,_key:n._key}) "
+					+ "COLLECT k=o._key,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_key:k,match:ma,count:LENGTH(ma)}"
+					,NodeTypes.specieslist.toString(),latitude,longitude,distance);
+	/*
+			String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
+				+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_key:CURRENT._key}]) "
+				+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_key:b._key,count:c}"
+				,NodeTypes.specieslist.toString(),latitude,longitude,distance
+			);*/
+			//System.out.println(query);
+	    	return driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class).asList();
+		}
+	
+		/**
+		 * Gets all occurrences within a radius of given coordinates
+		 * @param latitude
+		 * @param longitude
+		 * @param distance
+		 * @return
+		 * @throws ArangoException
+		 */
+		public Iterator<Occurrence> findOccurrencesWithin(Float latitude,Float longitude,int distance) throws ArangoException {
+	    	String aqlQuery=String.format("FOR v2 IN WITHIN(%1$s,%4$f,%5$f,%6$d) "
+				+ "LET nei=EDGES(%2$s,v2,'inbound') FILTER LENGTH(nei)>0 "
+				+ "LET mainaut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:true})) "
+				+ "LET aut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:false})) "
+				+ "FOR n IN nei RETURN {name:DOCUMENT(n._from).name,confidence:n.confidence,weight:n.weight,phenoState:n.phenoState,wild:n.wild"
+				+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventoryKey:v2._key,occurrenceKey:n._key,location:v2.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
+				,NodeTypes.specieslist.toString(),AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString()
+				,latitude,longitude,distance);
+	    	CursorResult<Occurrence> vertexCursor=driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
+	    	return vertexCursor.iterator();
+		}
+		
+		/**
+		 * Checks whether given species list already exists (same author, same date, coordinates very close) and returns it.
+		 * @param idAuthor
+		 * @param latitude
+		 * @param longitude
+		 * @param year
+		 * @param month
+		 * @param day
+		 * @param radius Radius in which to search for the species list
+		 * @return Null if not found, a {@link SpeciesList} if one or more results are found. In the latter case, the returned result is "randomly" selected.
+		 * @throws ArangoException
+		 */
+		public SpeciesList findExistingSpeciesList(int idAuthor,float latitude,float longitude,Integer year,Integer month,Integer day,float radius) throws ArangoException {
+			StringBuilder sb=new StringBuilder();
+			sb.append("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$f) FILTER sl.year==")
+				.append(year).append(" && sl.month==")
+				.append(month).append(" && sl.day==")
+				.append(day)
+				.append(" LET nei=GRAPH_NEIGHBORS('%6$s',sl,{direction:'outbound',neighborExamples:{idAut:%5$d},edgeExamples:{main:true},edgeCollectionRestriction:'OBSERVED_BY',includeData:true}) FILTER LENGTH(nei)>0 RETURN sl");
+	
+			String query=String.format(sb.toString(), NodeTypes.specieslist.toString(),latitude,longitude,radius,idAuthor,Constants.TAXONOMICGRAPHNAME.toString());
+	
+			SpeciesListVertex vertexCursor = null;
+			try {
+				vertexCursor = driver.executeAqlQuery(query, null, null, SpeciesListVertex.class).getUniqueResult();
+			} catch (NonUniqueResultException e) {
+				System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
+				vertexCursor=driver.executeAqlQuery(query, null, null, SpeciesListVertex.class).iterator().next();
+			}
+			if(vertexCursor==null)
+				return null;
+			else
+				return new SpeciesList(FloraOnGraph.this,vertexCursor);
+		}
+	}
+		
 	/**
 	 * Gets all occurrences, in a simplified format, of the taxa contained in that whose name exactly matches the query.
 	 * @param taxname A taxon name
@@ -764,10 +807,11 @@ public class FloraOnGraph {
     	return vertexCursor.iterator();
     }
 
-	public DataUploader getDataUploader() {
-		return new DataUploader();
-	}
-	
+	/**
+	 * A class that groups methods for data uploads from CSV files.
+	 * @author miguel
+	 *
+	 */
 	public class DataUploader {
 	    /**
 		 * Uploads a tab-separated CSV taxonomy file.
@@ -822,7 +866,7 @@ public class FloraOnGraph {
 						parsedName.rank=TaxonRanks.valueOf(names[i].toUpperCase());
 						if(pastspecies && parsedName.author==null) parsedName.author=parentNode.getAuthor();
 						//System.out.println(parsedname.name);
-						n=findTaxEnt(parsedName);
+						n=dbNodeWorker.findTaxEnt(parsedName);
 						
 						if(n==null) {	// if node does not exist, add it.
 							n=new TaxEnt(FloraOnGraph.this,parsedName,true);
@@ -897,11 +941,11 @@ public class FloraOnGraph {
 	    				latitude=Float.parseFloat(record.get(5));
 	    				longitude=Float.parseFloat(record.get(6));
 // search for an existing species list in the same coordinates, same author and same date
-	    				sln=findExistingSpeciesList(Integer.parseInt(idauts[0]),latitude,longitude,year,month,day,3);
+	    				sln=dbSpecificQueries.findExistingSpeciesList(Integer.parseInt(idauts[0]),latitude,longitude,year,month,day,3);
 
 	    				if(sln==null) {	// add new specieslist
 // find 1st author
-							autnode=FloraOnGraph.this.getAuthorById((int)Integer.parseInt(idauts[0]));
+							autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[0]));
     						if(autnode==null) {			// SKIP line, main observer is compulsory
     							lineerrors.add(record.getRecordNumber());
         						counterr++;
@@ -927,7 +971,7 @@ public class FloraOnGraph {
 	    					isupd=true;
 	    				}
 	    				
-	    				taxnode=getTaxEntById((int)Integer.parseInt(record.get(4)));	// find taxon with ident, we assume there's only one!
+	    				taxnode=dbNodeWorker.getTaxEntById((int)Integer.parseInt(record.get(4)));	// find taxon with ident, we assume there's only one!
 
 						if(taxnode==null) {	// taxon not found! SKIP line
 							lineerrors.add(record.getRecordNumber());
@@ -955,7 +999,7 @@ public class FloraOnGraph {
     						);
 	    			    if(idauts.length>1) {	// supplementary observers
 	    			    	for(i=1;i<idauts.length;i++) {
-	    			    		autnode=getAuthorById((int)Integer.parseInt(idauts[i]));
+	    			    		autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[i]));
 	    						if(autnode==null) {
 	    							lineerrors.add(record.getRecordNumber());
 	        						counterr++;
@@ -995,7 +1039,7 @@ public class FloraOnGraph {
 			freader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
 			records = CSVFormat.MYSQL.parse(freader);
 			for (CSVRecord record : records) {
-				autnode=getAuthorById((int)Integer.parseInt(record.get(0)));
+				autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(record.get(0)));
 				if(autnode==null) {	// add author
 					new Author(FloraOnGraph.this
 						,(int)Integer.parseInt(record.get(0))
@@ -1022,8 +1066,9 @@ public class FloraOnGraph {
 		 * @param file
 		 * @return
 		 * @throws IOException
+		 * @throws ArangoException 
 		 */
-		public String uploadMorphologyFromCSV(String file) throws IOException {
+		public String uploadMorphologyFromCSV(String file) throws IOException, ArangoException {
 			StringBuilder err=new StringBuilder();
 	    	File tl=new File(file);
 	    	Reader freader;
@@ -1038,7 +1083,13 @@ public class FloraOnGraph {
 			Iterator<CSVRecord> records =csvp.iterator();
 			
 // TODO: group attributes in characters
-				//csvp.getHeaderMap().keySet();
+			Iterator<Entry<String,Integer>> characters=csvp.getHeaderMap().entrySet().iterator();
+			List<Character> colnames=new ArrayList<Character>();
+			characters.next();	// skip 1st column
+			while(characters.hasNext()) {
+				colnames.add(new Character(FloraOnGraph.this,characters.next().getKey(),null,null));
+			}
+			
 			CSVRecord record;
 			String[] attrs;
 			int count=0;
@@ -1048,19 +1099,25 @@ public class FloraOnGraph {
 				if(count % 50==0) {System.out.print(".");System.out.flush();}
 				try {
 					fullname1=new TaxEntName(record.get("taxon"));
-					n1=findTaxEnt(fullname1);
+					n1=dbNodeWorker.findTaxEnt(fullname1);
 					if(n1==null) throw new QueryException(fullname1.name+" not found.");
 					for(int i=1;i<record.size();i++) {
 						attrs=record.get(i).split(",");
 						for(String attr:attrs) {
-							an=findAttribute(attr);
-							if(an==null) {
-								an=new Attribute(FloraOnGraph.this,attr,null,null);
-								System.out.println("Added \""+attr+"\"");
-								nnodes++;
+							attr=attr.trim();
+							if(attr.length()==0) continue;
+							if(attr.equalsIgnoreCase("NA")) {
+								// TODO: handle when character not applicable
+							} else {
+								an=dbNodeWorker.findAttribute(attr);
+								if(an==null) {
+									an=new Attribute(FloraOnGraph.this,attr,null,null);
+									an.setAttributeOfCharacter(colnames.get(i));
+									//System.out.println("Added \""+attr+"\" of \""+colnames.get(i)+"\"");
+									nnodes++;
+								}
+								nrels+=an.setQualityOf(n1);
 							}
-							an.setQualityOf(n1);
-							nrels++;
 						}
 					}
 				} catch (QueryException | IllegalArgumentException | TaxonomyException | ArangoException e) {

@@ -57,6 +57,18 @@ public class Attribute extends AttributeVertex implements VertexWrapper {
 		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 	}
 
+	public int setAttributeOfCharacter(Character character) throws IOException, ArangoException {
+		if(this._id==null) throw new IOException("Node "+this.name+" not attached to DB");
+		ATTRIBUTE_OF a=new ATTRIBUTE_OF(character._id,this._id); 
+		String query=String.format(
+				"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN ATTRIBUTE_OF RETURN OLD ? 0 : 1"
+				,character._id
+				,this._id
+				,a.toJSONString());
+			//System.out.println(query);
+			return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
+	}
+	
 	@Override
 	public void saveToDB() throws IOException, ArangoException {
 		// TODO Auto-generated method stub
