@@ -28,16 +28,16 @@ public class SpeciesListVertex extends GeneralDBNode {
 	}
 	
 	public SpeciesListVertex(SpeciesList sl) {
-		super(sl);
-		this.location[0]=sl.location[0];
-		this.location[1]=sl.location[1];
-		this.year=sl.year;
-		this.month=sl.month;
-		this.day=sl.day;
-		this.precision=sl.precision;
-		this.area=sl.area;
-		this.comment=sl.comment;
-		this.complete=sl.complete;
+		super(sl.baseNode);
+		this.location[0]=sl.baseNode.location[0];
+		this.location[1]=sl.baseNode.location[1];
+		this.year=sl.baseNode.year;
+		this.month=sl.baseNode.month;
+		this.day=sl.baseNode.day;
+		this.precision=sl.baseNode.precision;
+		this.area=sl.baseNode.area;
+		this.comment=sl.baseNode.comment;
+		this.complete=sl.baseNode.complete;
 	}
 
 	public SpeciesListVertex(SpeciesListVertex sl) {

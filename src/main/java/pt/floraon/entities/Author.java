@@ -9,24 +9,26 @@ import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
 
-public class Author extends AuthorVertex implements VertexWrapper {
+public class Author extends GeneralNodeWrapper {
+	public AuthorVertex baseNode;
 	private VertexEntity<AuthorVertex> vertexEntity=null;
-	private FloraOnGraph graph;
-	private Boolean dirty=false;
 
 	public Author(Integer idAut, String name, String email, String acronym,String username,Integer level) {
-		super(idAut, name, email, acronym, username, level);
+		this.baseNode=new AuthorVertex(idAut, name, email, acronym, username, level);
+		super.baseNode=this.baseNode;
 	}
 	
 	public Author(FloraOnGraph graph,Integer idAut, String name, String email, String acronym,String username,Integer level) throws ArangoException {
-		super(idAut, name, email, acronym, username, level);
+		this.baseNode=new AuthorVertex(idAut, name, email, acronym, username, level);
+		super.baseNode=this.baseNode;
 		this.graph=graph;
-		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.author.toString(), new AuthorVertex(this), false);
-		super._id=this.vertexEntity.getDocumentHandle();
+		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.author.toString(), this.baseNode, false);
+		super.baseNode._id=this.vertexEntity.getDocumentHandle();
 	}
 
 	public Author(FloraOnGraph graph, AuthorVertex aut) {
-		super(aut);
+		this.baseNode=aut;
+		super.baseNode=this.baseNode;
 		this.graph=graph;
 	}
 

@@ -19,13 +19,13 @@ public class AuthorVertex extends GeneralDBNode {
 	}
 	
 	public AuthorVertex(Author aut) {
-		super(aut);
-		this.idAut=aut.idAut;
-		this.name=aut.name;
-		this.email=aut.email;
-		this.acronym=aut.acronym;
-		this.username=aut.username;
-		this.level=aut.level;
+		super(aut.baseNode);
+		this.idAut=aut.baseNode.idAut;
+		this.name=aut.baseNode.name;
+		this.email=aut.baseNode.email;
+		this.acronym=aut.baseNode.acronym;
+		this.username=aut.baseNode.username;
+		this.level=aut.baseNode.level;
 	}
 
 	public AuthorVertex(AuthorVertex aut) {

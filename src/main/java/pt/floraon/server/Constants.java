@@ -1,5 +1,7 @@
 package pt.floraon.server;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -9,6 +11,18 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import java.util.Objects;
+
+import pt.floraon.entities.GeneralDBEdge;
+import pt.floraon.entities.PART_OF;
+import pt.floraon.entities.OBSERVED_BY;
+import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.entities.ATTRIBUTE_OF;
+import pt.floraon.entities.HAS_QUALITY;
+import pt.floraon.entities.OBSERVED_IN;
+import pt.floraon.entities.SYNONYM;
+import pt.floraon.queryparser.QueryString;
+import pt.floraon.queryparser.TokenParser;
+import pt.floraon.entities.HYBRID_OF;
 
 public final class Constants {
 	public static String TAXONOMICGRAPHNAME="taxgraph";
@@ -110,17 +124,20 @@ public final class Constants {
 	public static Map<AllRelTypes,Facets> RelTypesFacet=new HashMap<AllRelTypes,Facets>();
 
 	public enum AllRelTypes {
-		PART_OF(Facets.TAXONOMY),
-		SYNONYM(Facets.TAXONOMY),
-		HYBRID_OF(Facets.TAXONOMY),
-		OBSERVED_IN(Facets.OCCURRENCE),
-		OBSERVED_BY(Facets.OCCURRENCE),
-    	HAS_QUALITY(Facets.MORPHOLOGY),
-    	ATTRIBUTE_OF(Facets.MORPHOLOGY);
+		PART_OF(Facets.TAXONOMY,PART_OF.class),
+		SYNONYM(Facets.TAXONOMY,pt.floraon.entities.SYNONYM.class),
+		HYBRID_OF(Facets.TAXONOMY,pt.floraon.entities.HYBRID_OF.class),
+		OBSERVED_IN(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_IN.class),
+		OBSERVED_BY(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_BY.class),
+    	HAS_QUALITY(Facets.MORPHOLOGY,pt.floraon.entities.HAS_QUALITY.class),
+    	ATTRIBUTE_OF(Facets.MORPHOLOGY,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
-		AllRelTypes(Facets facet) {
+		Class<? extends GeneralDBEdge> edgeClass;
+		
+		AllRelTypes(Facets facet,Class<? extends GeneralDBEdge> cls) {
 			this.facet=facet;
+			this.edgeClass=cls;
 		}
 		
 		public Facets getFacet() {
@@ -144,6 +161,12 @@ public final class Constants {
 			return out.toArray(new AllRelTypes[0]);
 		}
 
+		public GeneralDBEdge getEdge() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			Class<?>[] types = {};
+			Constructor<?> constructor = this.edgeClass.getConstructor(types);
+			Object[] parameters = {};
+			return (GeneralDBEdge)constructor.newInstance(parameters);
+		}
 	}
 
 	public enum NodeTypes {

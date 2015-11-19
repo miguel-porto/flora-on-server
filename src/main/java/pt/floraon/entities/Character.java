@@ -9,33 +9,37 @@ import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
 
-public class Character extends CharacterVertex implements VertexWrapper {
-	private FloraOnGraph graph;
-	private Boolean dirty=false;
-
+public class Character extends GeneralNodeWrapper {
+	public CharacterVertex baseNode;
+	
 	public Character(Character at) {
-		super(at);
+		this.baseNode=new CharacterVertex(at);
+		super.baseNode=this.baseNode;
 	}
 
 	public Character(CharacterVertex at) {
-		super(at);
+		this.baseNode=at;
+		super.baseNode=this.baseNode;
 	}
 	
 	public Character(FloraOnGraph graph,Character at) {
-		super(at);
+		this.baseNode=new CharacterVertex(at);
+		super.baseNode=this.baseNode;
 		this.graph=graph;
 	}
 
 	public Character(FloraOnGraph graph,CharacterVertex at) {
-		super(at);
+		this.baseNode=at;
+		super.baseNode=this.baseNode;
 		this.graph=graph;
 	}
 
 	public Character(FloraOnGraph graph, String name,String shortName,String description) throws ArangoException {
-		super(name,shortName,description);
+		this.baseNode=new CharacterVertex(name,shortName,description);
+		super.baseNode=this.baseNode;
 		this.graph=graph;
-		VertexEntity<CharacterVertex> vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.character.toString(), new CharacterVertex(this), false);
-		super._id=vertexEntity.getDocumentHandle();
+		VertexEntity<CharacterVertex> vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.character.toString(), this.baseNode, false);
+		super.baseNode._id=vertexEntity.getDocumentHandle();
 	}
 
 	@Override

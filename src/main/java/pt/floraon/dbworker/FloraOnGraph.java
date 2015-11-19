@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -421,9 +422,9 @@ public class FloraOnGraph {
 		public String getNeighbors(String id, Facets[] facets) throws ArangoException {
 			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
 			String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
-				+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+				+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 				+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
-				+ "LET d=DOCUMENT(n) RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+				+ "LET d=DOCUMENT(n) RETURN MERGE(d,{source:d._from,target:d._to,type:PARSE_IDENTIFIER(d).collection}))}"
 				,Constants.TAXONOMICGRAPHNAME,id,EntityFactory.toJsonString(art)
 			);
 			
@@ -432,7 +433,7 @@ public class FloraOnGraph {
 				+ ",links:(FOR e IN FLATTEN(FOR ed IN p[*].path.edges RETURN ed) COLLECT a=e._id LET d=DOCUMENT(a) LET ty=PARSE_IDENTIFIER(d).collection "
 				+ "FILTER ty=='PART_OF'"
 				+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:ty})}",Constants.TAXONOMICGRAPHNAME,id);*/
-			System.out.println(query);//System.out.println(res);
+			//System.out.println(query);//System.out.println(res);
 			String res=driver.executeAqlQueryJSON(query, null, null);
 			// NOTE: server responses are always an array, but here we always have one element, so we remove the []
 			return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
@@ -448,10 +449,10 @@ public class FloraOnGraph {
 		public String getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
 			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
 			String query=String.format("RETURN {nodes:(FOR n IN %2$s "
-				+ "LET v=DOCUMENT(n) RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
+				+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 				+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
 				+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
-				+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+				+ "RETURN MERGE(d,{source:d._from,target:d._to,type:PARSE_IDENTIFIER(d).collection}))}"	//{id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
 				,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
 			);
 			String res=driver.executeAqlQueryJSON(query, null, null);
@@ -879,7 +880,7 @@ public class FloraOnGraph {
 							n.saveToDB();
 						}
 						if(parentNode!=null) {	// create PART_OF relationship to previous column
-							nrels+=n.setPartOf(parentNode);
+							nrels+=n.setPART_OF(parentNode.baseNode);
 						}
 						parentNode=n;
 					}
@@ -1097,6 +1098,7 @@ public class FloraOnGraph {
 				record=records.next();
 				count++;
 				if(count % 50==0) {System.out.print(".");System.out.flush();}
+				if(count % 500==0) {System.out.print(count);System.out.flush();}
 				try {
 					fullname1=new TaxEntName(record.get("taxon"));
 					n1=dbNodeWorker.findTaxEnt(fullname1);
@@ -1112,11 +1114,11 @@ public class FloraOnGraph {
 								an=dbNodeWorker.findAttribute(attr);
 								if(an==null) {
 									an=new Attribute(FloraOnGraph.this,attr,null,null);
-									an.setAttributeOfCharacter(colnames.get(i));
+									an.setAttributeOfCharacter(colnames.get(i-1));
 									//System.out.println("Added \""+attr+"\" of \""+colnames.get(i)+"\"");
 									nnodes++;
 								}
-								nrels+=an.setQualityOf(n1);
+								nrels+=an.setQUALITY_OF(n1);
 							}
 						}
 					}

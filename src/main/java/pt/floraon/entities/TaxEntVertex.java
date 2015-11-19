@@ -21,15 +21,15 @@ public class TaxEntVertex extends GeneralDBNode {
 	protected Integer oldId;
 	
 	public TaxEntVertex(TaxEnt te) {
-		super(te);
-		this.name=te.name;
-		this.rank=te.rank;
+		super(te.baseNode);
+		this.name=te.baseNode.name;
+		this.rank=te.baseNode.rank;
 		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
-		this.annotation=te.annotation;
-		this.author=te.author;
-		this.current=te.current;
-		this.gbifKey=te.gbifKey;
-		this.oldId=te.oldId;
+		this.annotation=te.baseNode.annotation;
+		this.author=te.baseNode.author;
+		this.current=te.baseNode.current;
+		this.gbifKey=te.baseNode.gbifKey;
+		this.oldId=te.baseNode.oldId;
 	}
 
 	public TaxEntVertex(TaxEntVertex te) {

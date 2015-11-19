@@ -10,10 +10,10 @@ public class CharacterVertex extends GeneralDBNode {
 	}
 	
 	public CharacterVertex(Character at) {
-		super(at);
-		this.name=at.name;
-		this.shortName=at.shortName;
-		this.description=at.description;
+		super(at.baseNode);
+		this.name=at.baseNode.name;
+		this.shortName=at.baseNode.shortName;
+		this.description=at.baseNode.description;
 	}	
 	
 	public CharacterVertex(CharacterVertex at) {
