@@ -255,11 +255,15 @@ public class ServerDispatch implements Runnable{
 				break;
 				
 			case "attributes":
-				graph.dbDataUploader.uploadMorphologyFromCSV(query);
+				graph.dbDataUploader.uploadMorphologyFromFile(query);
 				break;
 
+			case "authors":
+				graph.dbDataUploader.uploadAuthorsFromFile(query);
+				break;
+				
 			case "occurrences":
-				//graph.dbDataUploader.uploadTaxonomyListFromFile(query, false);
+				graph.dbDataUploader.uploadRecordsFromFile(query);
 				break;
 			default:
 				output.println(error("Unrecognized command: "+path[2]));

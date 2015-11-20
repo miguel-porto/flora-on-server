@@ -12,6 +12,7 @@ import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.QueryException;
 import pt.floraon.dbworker.TaxEntName;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.server.Constants.NodeTypes;
 import pt.floraon.server.Constants.TaxonRanks;
 
 /**
@@ -38,38 +39,27 @@ public class AppTest
         return new TestSuite( AppTest.class );
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-//    	URL input = getClass().getResource("taxonomia_full_novo.csv");
-/*    	FloraOnGraph fog;
+    public void testApp() {
+		System.out.println("Reading sample taxonomy");
+
+    	FloraOnGraph fog=null;
     	try {
 			fog=new FloraOnGraph("flora");
 		} catch (ArangoException e2) {
-			return;
+			fail(e2.getErrorMessage());
 		}
-    	
-    	TaxEntName ten=new TaxEntName();
-    	ten.author="L.";
-    	ten.name="TEST NODE";
-    	ten.rank=TaxonRanks.SPECIES;
-    	
+
+    	if(fog==null) fail("Unable to create database.");
+/*
     	try {
-    		TaxEnt in=new TaxEnt(fog,ten,true);
-    		TaxEntName tmp=new TaxEntName();
-    		tmp.name=ten.name;
-    		TaxEnt tmp1=fog.findTaxEnt(tmp);
-    		assertEquals(tmp1,in);
-			//new TaxEnt(fog,ten,true);
-			
+			fog.dbDataUploader.uploadTaxonomyListFromStream(fog.getClass().getResourceAsStream("/taxonomia_full_novo.csv"), false);
+			assertEquals(5593,fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.taxent));
+		} catch (IOException e) {
+			fail(e.getMessage());
 		} catch (ArangoException e) {
 			fail(e.getErrorMessage());
-		} catch (QueryException e) {
-			fail(e.getMessage());
-		}*/
-    	
+		}
+    	*/
   /*      try {
         	System.out.println("Importing "+input.getFile());
         	fog.getDataUploader().uploadTaxonomyListFromFile(input.getFile(),false);
@@ -77,8 +67,5 @@ public class AppTest
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}*/
-    	
-    	assertTrue(true);
-        
     }
 }

@@ -24,8 +24,8 @@
 		<dependency>
 			<groupId>com.arangodb</groupId>
 			<artifactId>arangodb-java-driver</artifactId>
-			<version>2.7.MP</version>
-			<scope>compile</scope>
+			<version>2.7.0</version>
+<!--			<scope>compile</scope>-->
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

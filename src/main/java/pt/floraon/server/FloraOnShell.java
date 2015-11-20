@@ -37,10 +37,9 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
-    	
     	//generateRandomSpeciesLists(fog,50000);
     	
-    	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit.");
+    	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
 			System.out.println(Constants.ANSI_WHITE+fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET+"\n");
 		} catch (ArangoException e1) {
@@ -52,7 +51,15 @@ public class FloraOnShell {
     	String query;
     	Iterator<SimpleTaxonResult> it;
     	ResultProcessor<SimpleTaxonResult> rp;
-    	String[] commands=new String[]{"\\upload/taxonomy?file=","\\upload/attributes?file=","\\upload/occurrences?file=","\\checklist"};
+    	String[] commands=new String[]{
+			"\\upload/taxonomy?file="
+			,"\\upload/attributes?file="
+			,"\\upload/occurrences?file="
+			,"\\upload/authors?file="
+			,"\\checklist"
+			,"\\sampledata"
+		};
+    	
         try {
             ConsoleReader console = new ConsoleReader();
             console.addCompleter(new StringsCompleter(Arrays.asList(commands)));
@@ -69,6 +76,15 @@ public class FloraOnShell {
             	try {
 	            	if(line.equals("")) continue;
 	            	if(line.equals("\\q")) System.exit(0);
+	            	if(line.equals("\\sampledata")) {
+	            		System.out.println("Reading sample taxonomy");
+	            		fog.dbDataUploader.uploadTaxonomyListFromStream(fog.getClass().getResourceAsStream("/taxonomia_full_novo.csv"), false);
+	            		fog.dbDataUploader.uploadTaxonomyListFromStream(fog.getClass().getResourceAsStream("/stepping_stones.csv"), false);
+	            		System.out.println("Reading morphology");
+	            		fog.dbDataUploader.uploadMorphologyFromStream(fog.getClass().getResourceAsStream("/morphology.csv"));
+	            		continue;
+	            		//fog.dbDataUploader.uploadRecordsFromStream(fog.getClass().getResourceAsStream("/records"));
+	            	}
 	            	
 	            	if(line.startsWith("\\")) {           		
 							ServerDispatch.processCommand(line.substring(1), fog, new PrintWriter(System.out));
@@ -127,28 +143,7 @@ public class FloraOnShell {
                 e.printStackTrace();
             }
         }
-        
-    	if(System.console()!=null) {
-/*	    	while((query=System.console().readLine("floraon> "))!="") {
-		    	//System.out.println(fog.findExistingSpeciesList(3,37.456f, -8.775f,2015,10,12,1000));
-				//System.out.println(fog.findExistingSpeciesList(3,37.456f, -8.767f,null,null,null,10));
-				//fog.printTaxa(fog.findTaxEntWithin(38.1714f, -7.0572f, 1000000));
-				YlemParser ylem=new YlemParser(fog,query);
-				it=ylem.execute().iterator();
-				
-				//it=fog.speciesTextQuery(query);
-				rp=new ResultProcessor<SimpleTaxonResult>(SimpleTaxonResult.class);
-				System.out.println(rp.toTable(it));
-	    	}*/
-    	} else {
-    		query="perto:38.5778 -8.5563 medicago";
-			YlemParser ylem=new YlemParser(fog,query);
-			it=ylem.execute().iterator();
-			
-			//it=fog.speciesTextQuery(query);
-			rp=new ResultProcessor<SimpleTaxonResult>(SimpleTaxonResult.class);
-			System.out.println(rp.toCSVTable(it));
-    	}
+       
 
 /*    	
     	Iterator<SimpleTaxonResult> vertexIterator2;

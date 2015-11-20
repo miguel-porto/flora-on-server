@@ -23,5 +23,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="/home/miguel/httpcomponents-client-4.3.6/commons-csv-1.1.jar"/>
+	<classpathentry excluding="**" kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -50,18 +50,18 @@ public class Attribute extends GeneralNodeWrapper {
 	 * @throws IOException
 	 * @throws ArangoException
 	 */
-	public int setQUALITY_OF(TaxEnt parent) throws ArangoException, IOException {
+	public int setHAS_QUALITY(TaxEnt parent) throws ArangoException, IOException {
 		if(baseNode._id==null) throw new IOException("Node "+baseNode._id+" not attached to DB");
 
 		// checks whether there is already a HAS_QUALITY relation between these two nodes
 		String query=String.format(
 			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
-			,baseNode._id,parent.baseNode._id,AllRelTypes.HAS_QUALITY.toString());
+			,parent.baseNode._id,baseNode._id,AllRelTypes.HAS_QUALITY.toString());
 		
 		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 		
 		if(nrel==0) {
-			this.graph.driver.createEdge(AllRelTypes.HAS_QUALITY.toString(), new HAS_QUALITY(), baseNode._id, parent.baseNode._id, false, false);
+			this.graph.driver.createEdge(AllRelTypes.HAS_QUALITY.toString(), new HAS_QUALITY(), parent.baseNode._id, baseNode._id, false, false);
 			return 1;
 		} else return 0;
 	}

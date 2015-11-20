@@ -3,6 +3,7 @@ package pt.floraon.dbworker;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -94,6 +95,7 @@ public class FloraOnGraph {
 	 * @throws ArangoException
 	 */
 	private void initializeNewGraph(String dbname) throws ArangoException {
+		System.out.println("Initializing a fresh new database");
 		/*				UserEntity ue;
 		ue=new UserEntity();*/
 		UserEntity[] ue=new UserEntity[0];
@@ -820,20 +822,18 @@ public class FloraOnGraph {
 		 * Authority of a name goes in front of the name between braces {}
 		 * Multiple files can be uploaded, as they are merged. In this case, the <u>last column</u> of the new file <b>must match</b> the <u>orphan nodes</u> in the DB
 		 * <p>Optionally, the last column may be an ID (if you want to match with old IDs)</p>
-	     * @param file
+	     * @param stream
 	     * @param simulate
 	     * @return
 	     * @throws IOException
 	     * @throws TaxonomyException
 	     * @throws QueryException
 	     */
-	    public Map<String,Integer> uploadTaxonomyListFromFile(String file,boolean simulate) throws IOException {
+		public Map<String,Integer> uploadTaxonomyListFromStream(InputStream stream,boolean simulate) throws IOException {
 	    	Integer nnodes=0,nrels=0,nrecs=0;
-	    	File tl=new File(file);
 	    	Reader freader;
-	    	if(!tl.canRead()) throw new IOException("Cannot read input file "+file);
-	    	
-			freader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+
+			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
 			Iterator<CSVRecord> records = CSVFormat.EXCEL.withDelimiter('\t').withQuote('"').parse(freader).iterator();
 			CSVRecord record=records.next();
 
@@ -894,17 +894,28 @@ public class FloraOnGraph {
 				e.printStackTrace();
 			}
 			freader.close();
-			System.out.println("Read "+nrecs+" records; created "+nnodes+" nodes and "+nrels+" relationships");
+			System.out.println("\nRead "+nrecs+" records; created "+nnodes+" nodes and "+nrels+" relationships");
 			Map<String,Integer> out=new HashMap<String,Integer>();
 			out.put("nrecs", nrecs);
 			out.put("nnodes", nnodes);
 			out.put("nrels", nrels);
 			return out;
+		}
+
+		public Map<String,Integer> uploadTaxonomyListFromFile(String file,boolean simulate) throws IOException {
+	    	File tl=new File(file);
+	    	if(!tl.canRead()) throw new IOException("Cannot read input file "+file);
+	    	return uploadTaxonomyListFromStream(new FileInputStream(file),simulate);
 	    }
 	    
-		public String uploadRecordsFromFile(String filename) throws IOException {
-	    	StringBuilder out=new StringBuilder();
+	    public String uploadRecordsFromFile(String filename) throws IOException {
 	    	File file=new File(filename);
+	    	if(!file.canRead()) throw new IOException("Cannot read file "+filename);
+	    	return uploadRecordsFromStream(new FileInputStream(file));
+	    }
+	    
+		public String uploadRecordsFromStream(InputStream stream) throws IOException {
+	    	StringBuilder out=new StringBuilder();
 	    	Reader freader=null;
 	    	Author autnode=null;
 	    	TaxEnt taxnode;
@@ -918,68 +929,68 @@ public class FloraOnGraph {
 	    	Boolean isupd=false,abort=false;
 	    	String[] idauts;
 	    	System.out.print("Reading records");
-	    	if(file.canRead()) {
-	    		try {
-	    			freader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-	    			Iterable<CSVRecord> records = CSVFormat.MYSQL.parse(freader);
-	    			for (CSVRecord record : records) {
-	    				if(record.size()!=19) {
-							lineerrors.add(record.getRecordNumber());
-    						counterr++;
-    						continue;	
-	    				}
-	    				nrecs++;
-						if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
-						if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
+
+    		try {
+    			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+    			Iterable<CSVRecord> records = CSVFormat.MYSQL.parse(freader);
+    			for (CSVRecord record : records) {
+    				if(record.size()!=19) {
+						lineerrors.add(record.getRecordNumber());
+						counterr++;
+						continue;	
+    				}
+    				nrecs++;
+					if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
+					if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
 
 // check if authors and ident exist in graph
-	    				idauts=record.get(7).replace("\"", "").split(",");	// there may be several authors. The 1st is the main.
-	    				
-	    				//ni=db.findNodesByLabelAndProperty(NodeTypes.specieslist, "idrec", (int)Integer.parseInt(record.get(0)));	// check if record with same idrec exists
-	    				if(record.get(1).equals("\\N")) year=null; else year=Integer.parseInt(record.get(1));
-	    				if(record.get(2).equals("\\N")) month=null; else month=Integer.parseInt(record.get(2));
-	    				if(record.get(3).equals("\\N")) day=null; else day=Integer.parseInt(record.get(3));
-	    				latitude=Float.parseFloat(record.get(5));
-	    				longitude=Float.parseFloat(record.get(6));
+    				idauts=record.get(7).replace("\"", "").split(",");	// there may be several authors. The 1st is the main.
+    				
+    				//ni=db.findNodesByLabelAndProperty(NodeTypes.specieslist, "idrec", (int)Integer.parseInt(record.get(0)));	// check if record with same idrec exists
+    				if(record.get(1).equals("\\N")) year=null; else year=Integer.parseInt(record.get(1));
+    				if(record.get(2).equals("\\N")) month=null; else month=Integer.parseInt(record.get(2));
+    				if(record.get(3).equals("\\N")) day=null; else day=Integer.parseInt(record.get(3));
+    				latitude=Float.parseFloat(record.get(5));
+    				longitude=Float.parseFloat(record.get(6));
 // search for an existing species list in the same coordinates, same author and same date
-	    				sln=dbSpecificQueries.findExistingSpeciesList(Integer.parseInt(idauts[0]),latitude,longitude,year,month,day,3);
+    				sln=dbSpecificQueries.findExistingSpeciesList(Integer.parseInt(idauts[0]),latitude,longitude,year,month,day,3);
 
-	    				if(sln==null) {	// add new specieslist
+    				if(sln==null) {	// add new specieslist
 // find 1st author
-							autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[0]));
-    						if(autnode==null) {			// SKIP line, main observer is compulsory
-    							lineerrors.add(record.getRecordNumber());
-        						counterr++;
-        						abort=true;
-        						continue;			
-    						} else {	// first author exists and taxon exists, create node
-    		    			    tmp=Integer.parseInt(record.get(8));	// precision
-    		    			    switch(tmp) {
-    		    			    case 0: tmp=1;break;
-    		    			    case 1: tmp=100;break;
-    		    			    case 2: tmp=1000;break;
-    		    			    case 3: tmp=10000;break;
-    		    			    }
-    		   			    	//sln.setProperty("author",(int)Integer.parseInt(idauts[0]));		// this is the main observer (it'll also be created a relationship, but this for indexing purposes)
-
-    							sln=new SpeciesList(FloraOnGraph.this,latitude,longitude,year,month,day,tmp,null,null,false);
-    							if(autnode!=null) sln.setObservedBy(autnode, true);
-    							newsplist++;
-	    						isupd=false;
-    						}
-	    				} else {	// TODO: update specieslist?
-	    					countupd++;
-	    					isupd=true;
-	    				}
-	    				
-	    				taxnode=dbNodeWorker.getTaxEntById((int)Integer.parseInt(record.get(4)));	// find taxon with ident, we assume there's only one!
-
-						if(taxnode==null) {	// taxon not found! SKIP line
+						autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[0]));
+						if(autnode==null) {			// SKIP line, main observer is compulsory
 							lineerrors.add(record.getRecordNumber());
-							System.err.println("Taxon with oldID "+(int)Integer.parseInt(record.get(4))+" not found.");
-							counterr++;
-							abort=true;
+    						counterr++;
+    						abort=true;
+    						continue;			
+						} else {	// first author exists and taxon exists, create node
+		    			    tmp=Integer.parseInt(record.get(8));	// precision
+		    			    switch(tmp) {
+		    			    case 0: tmp=1;break;
+		    			    case 1: tmp=100;break;
+		    			    case 2: tmp=1000;break;
+		    			    case 3: tmp=10000;break;
+		    			    }
+		   			    	//sln.setProperty("author",(int)Integer.parseInt(idauts[0]));		// this is the main observer (it'll also be created a relationship, but this for indexing purposes)
+
+							sln=new SpeciesList(FloraOnGraph.this,latitude,longitude,year,month,day,tmp,null,null,false);
+							if(autnode!=null) sln.setObservedBy(autnode, true);
+							newsplist++;
+    						isupd=false;
 						}
+    				} else {	// TODO: update specieslist?
+    					countupd++;
+    					isupd=true;
+    				}
+    				
+    				taxnode=dbNodeWorker.getTaxEntById((int)Integer.parseInt(record.get(4)));	// find taxon with ident, we assume there's only one!
+
+					if(taxnode==null) {	// taxon not found! SKIP line
+						lineerrors.add(record.getRecordNumber());
+						System.err.println("Taxon with oldID "+(int)Integer.parseInt(record.get(4))+" not found.");
+						counterr++;
+						abort=true;
+					}
 /*if(isupd) {
 	//sln.setProperty("idrec", (int)Integer.parseInt(record.get(0)));
     sln.setProperty("lat", (float)Float.parseFloat(record.get(5)));
@@ -988,56 +999,61 @@ public class FloraOnGraph {
     if(month!=null) sln.setProperty("month", month); else sln.removeProperty("month");
     if(day!=null) sln.setProperty("day", day); else sln.removeProperty("day");
 }*/
- 			    		if(taxnode!=null) countnew+=taxnode.setObservedIn(sln
- 			    				,Short.parseShort(record.get(11))	// uncertainty
- 			    				,Short.parseShort(record.get(9))	// validated?
- 			    				,(int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.IN_FLOWER : PhenologicalStates.UNKNOWN
- 			    				,record.get(18).replace("\"", "")
- 			    				,Integer.parseInt(record.get(17))
- 			    				,record.get(10).equals("\\N") ? null : record.get(10).replace("\n", "").replace("\"", "")
- 			    				,Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD : NativeStatus.NATURALIZED
- 			    				,record.get(12).equals("\\N") ? null : record.get(12).replace("\"", "")
-    						);
-	    			    if(idauts.length>1) {	// supplementary observers
-	    			    	for(i=1;i<idauts.length;i++) {
-	    			    		autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[i]));
-	    						if(autnode==null) {
-	    							lineerrors.add(record.getRecordNumber());
-	        						counterr++;
-	        						abort=true;
-	    						} else {
-	    							sln.setObservedBy(autnode, false);
-	    						}
-	    			    	}
-	    			    }
-	    			    counter++;
-	    			    if((counter % 2500)==0) {
-	    			    	System.out.println(counter+" records processed.");
-	    			    	out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
-	    			    }
-	    			}
-				} catch (NumberFormatException e) {
-					e.printStackTrace();
-				} catch (ArangoException e) {
-					e.printStackTrace();
-					counterr++;
-				} finally {
-	    			if(freader!=null) freader.close();
-	    			out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
-				}
-	    	} else throw new IOException("Cannot read file "+filename);
+		    		if(taxnode!=null) countnew+=taxnode.setObservedIn(sln
+		    				,Short.parseShort(record.get(11))	// uncertainty
+		    				,Short.parseShort(record.get(9))	// validated?
+		    				,(int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.IN_FLOWER : PhenologicalStates.UNKNOWN
+		    				,record.get(18).replace("\"", "")
+		    				,Integer.parseInt(record.get(17))
+		    				,record.get(10).equals("\\N") ? null : record.get(10).replace("\n", "").replace("\"", "")
+		    				,Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD : NativeStatus.NATURALIZED
+		    				,record.get(12).equals("\\N") ? null : record.get(12).replace("\"", "")
+						);
+    			    if(idauts.length>1) {	// supplementary observers
+    			    	for(i=1;i<idauts.length;i++) {
+    			    		autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[i]));
+    						if(autnode==null) {
+    							lineerrors.add(record.getRecordNumber());
+        						counterr++;
+        						abort=true;
+    						} else {
+    							sln.setObservedBy(autnode, false);
+    						}
+    			    	}
+    			    }
+    			    counter++;
+    			    if((counter % 2500)==0) {
+    			    	System.out.println(counter+" records processed.");
+    			    	out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
+    			    }
+    			}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (ArangoException e) {
+				e.printStackTrace();
+				counterr++;
+			} finally {
+    			if(freader!=null) freader.close();
+    			out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
+			}
+
 	    	if(abort) throw new IOException(counterr+" errors found on lines "+lineerrors.toString());
 	    	return out.toString();
 	    }
 		
-	    public Map<String,Integer> uploadAuthorsFromFile(String filename) throws IOException, NumberFormatException, ArangoException {
+		public Map<String,Integer> uploadAuthorsFromFile(String filename) throws IOException, NumberFormatException, ArangoException {
 	    	File file=new File(filename);
+	    	if(!file.canRead()) throw new IOException("Cannot read file "+filename);
+	    	return uploadAuthorsFromStream(new FileInputStream(file));
+		}
+		
+	    public Map<String,Integer> uploadAuthorsFromStream(InputStream stream) throws IOException, NumberFormatException, ArangoException {
 	    	Author autnode;
 	    	Reader freader=null;
 	    	int countnew=0,countupd=0;
 	    	Iterable<CSVRecord> records=null;
 	    	
-			freader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
 			records = CSVFormat.MYSQL.parse(freader);
 			for (CSVRecord record : records) {
 				autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(record.get(0)));
@@ -1062,6 +1078,11 @@ public class FloraOnGraph {
 			return out;
 	    }
 
+	    public String uploadMorphologyFromFile(String filename) throws IOException, ArangoException {
+	    	File file=new File(filename);
+	    	if(!file.canRead()) throw new IOException("Cannot read file "+filename);
+	    	return uploadMorphologyFromStream(new FileInputStream(file));
+	    }
 		/**
 		 * Uploads qualities as associates with taxa. First column is the taxa, the following columns the qualities.
 		 * @param file
@@ -1069,21 +1090,18 @@ public class FloraOnGraph {
 		 * @throws IOException
 		 * @throws ArangoException 
 		 */
-		public String uploadMorphologyFromCSV(String file) throws IOException, ArangoException {
+		public String uploadMorphologyFromStream(InputStream stream) throws IOException, ArangoException {
 			StringBuilder err=new StringBuilder();
-	    	File tl=new File(file);
 	    	Reader freader;
 	    	TaxEntName fullname1;
 	    	TaxEnt n1;
 	    	Attribute an;
 	    	int nerrors=0,nnodes=0,nrels=0;
-	    	if(!tl.canRead()) throw new IOException("Cannot read input file "+file);
 			
-			freader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
+			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
 			CSVParser csvp=CSVFormat.EXCEL.withDelimiter('\t').withQuote('"').withHeader().parse(freader);
 			Iterator<CSVRecord> records =csvp.iterator();
 			
-// TODO: group attributes in characters
 			Iterator<Entry<String,Integer>> characters=csvp.getHeaderMap().entrySet().iterator();
 			List<Character> colnames=new ArrayList<Character>();
 			characters.next();	// skip 1st column
@@ -1118,7 +1136,7 @@ public class FloraOnGraph {
 									//System.out.println("Added \""+attr+"\" of \""+colnames.get(i)+"\"");
 									nnodes++;
 								}
-								nrels+=an.setQUALITY_OF(n1);
+								nrels+=an.setHAS_QUALITY(n1);
 							}
 						}
 					}
