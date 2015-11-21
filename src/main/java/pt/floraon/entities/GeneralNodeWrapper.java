@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import com.arangodb.ArangoException;
 
 import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.server.Constants.AllRelTypes;
 
 public abstract class GeneralNodeWrapper {
@@ -17,6 +18,10 @@ public abstract class GeneralNodeWrapper {
 
 	public String getID() {
 		return baseNode._id;
+	}
+	
+	public GeneralDBNode getNode() {
+		return this.baseNode;
 	}
 
 	/**
@@ -33,7 +38,7 @@ public abstract class GeneralNodeWrapper {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	public int createRelationshipTo(GeneralDBNode parent,AllRelTypes type) throws IOException, ArangoException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public GraphUpdateResult createRelationshipTo(GeneralDBNode parent,AllRelTypes type) throws IOException, ArangoException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if(baseNode._id==null) throw new IOException("Node "+baseNode._id+" not attached to DB");
 
 		// checks whether there is already a PART_OF relation between these two nodes
@@ -44,9 +49,11 @@ public abstract class GeneralNodeWrapper {
 		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 		
 		if(nrel==0) {
-			this.graph.driver.createEdge(type.toString(), type.getEdge(), baseNode._id, parent._id, false, false);
-			return 1;
-		} else return 0;
+			return GraphUpdateResult.fromHandles(this.graph, new String[] {
+				this.graph.driver.createEdge(type.toString(), type.getEdge(), baseNode._id, parent._id, false, false).getDocumentHandle()
+				,baseNode._id,parent._id
+			});
+		} else return GraphUpdateResult.emptyResult();
 	}
 	
 	/**

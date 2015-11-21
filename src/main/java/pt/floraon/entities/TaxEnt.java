@@ -11,6 +11,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.TaxEntName;
+import pt.floraon.results.ResultItem;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NativeStatus;
 import pt.floraon.server.Constants.NodeTypes;

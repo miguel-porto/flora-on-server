@@ -8,7 +8,7 @@ import java.util.List;
 import com.arangodb.ArangoException;
 
 import pt.floraon.dbworker.FloraOnGraph;
-import pt.floraon.entities.SimpleTaxonResult;
+import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
 import pt.floraon.server.Constants.StringMatchTypes;

@@ -19,11 +19,12 @@ import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.QueryException;
 import pt.floraon.dbworker.TaxonomyException;
 import pt.floraon.entities.Author;
-import pt.floraon.entities.SimpleTaxonResult;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
 import pt.floraon.queryparser.YlemParser;
+import pt.floraon.results.ResultProcessor;
+import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants.NativeStatus;
 import pt.floraon.server.Constants.NodeTypes;
 import pt.floraon.server.Constants.PhenologicalStates;
@@ -37,7 +38,6 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
-    	//generateRandomSpeciesLists(fog,50000);
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
@@ -48,7 +48,6 @@ public class FloraOnShell {
 			System.exit(1);
 		}
     	
-    	String query;
     	Iterator<SimpleTaxonResult> it;
     	ResultProcessor<SimpleTaxonResult> rp;
     	String[] commands=new String[]{
@@ -73,6 +72,7 @@ public class FloraOnShell {
 				} });*/
             String line = null;
             while ((line = console.readLine()) != null) {
+            	line=line.trim();
             	try {
 	            	if(line.equals("")) continue;
 	            	if(line.equals("\\q")) System.exit(0);
@@ -82,8 +82,9 @@ public class FloraOnShell {
 	            		fog.dbDataUploader.uploadTaxonomyListFromStream(fog.getClass().getResourceAsStream("/stepping_stones.csv"), false);
 	            		System.out.println("Reading morphology");
 	            		fog.dbDataUploader.uploadMorphologyFromStream(fog.getClass().getResourceAsStream("/morphology.csv"));
+	            		System.out.println("\nGenerating random species lists");
+	                	generateRandomSpeciesLists(fog,10000);
 	            		continue;
-	            		//fog.dbDataUploader.uploadRecordsFromStream(fog.getClass().getResourceAsStream("/records"));
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {           		
@@ -99,7 +100,7 @@ public class FloraOnShell {
 	    				else {
 	    					System.out.println(res.size()+" results.");
 	    					it=res.iterator();
-	    					rp=new ResultProcessor<SimpleTaxonResult>(SimpleTaxonResult.class);
+	    					rp=new ResultProcessor<SimpleTaxonResult>();
 	    					System.out.println(rp.toCSVTable(it));
 	    				}
 	
@@ -258,14 +259,24 @@ public class FloraOnShell {
     public static void generateRandomSpeciesLists(FloraOnGraph fog,int number) {
     	SpeciesList sln;
     	Author autnode=null;
-    	int idaut,nsp;
+    	int nsp;
     	float lat,lon;
+    	
+    	Author[] authors=null;
+		try {
+			authors = new Author[3];
+			authors[0]=fog.dbNodeWorker.getAuthorById(1);
+			if(authors[0]==null) authors[0]=new Author(fog,1,"John Doe","email@nothing.pt","JD","JDoe",10);
+			authors[1]=fog.dbNodeWorker.getAuthorById(2);
+			if(authors[1]==null) authors[1]=new Author(fog,2,"Miguel Porto","email@nothing.pt","MP","MPorto",10);
+			authors[2]=fog.dbNodeWorker.getAuthorById(3);
+			if(authors[2]==null) authors[2]=new Author(fog,3,"Someone else","email@nothing.pt","SE","SElse",10);
+		} catch (ArangoException e1) {
+			System.out.println(e1.getErrorMessage());
+		}
     	for(int i=0;i<number;i++) {
-    		autnode=null;
-    		while(autnode==null) {
-    			idaut=ThreadLocalRandom.current().nextInt(1, 20 + 1);
-    			autnode=fog.dbNodeWorker.getAuthorById(idaut);
-    		}
+   			autnode=authors[ThreadLocalRandom.current().nextInt(0, authors.length)];
+   			
     		lat=37+ThreadLocalRandom.current().nextFloat()*5;
     		lon=(float) (-9.5+ThreadLocalRandom.current().nextFloat()*3);
     		try {
@@ -281,7 +292,8 @@ public class FloraOnShell {
 				while(itte.hasNext()) {
 					new TaxEnt(fog,itte.next()).setObservedIn(sln, (short)0, (short)1, PhenologicalStates.UNKNOWN, null, 10000, null, NativeStatus.WILD, null);
 				}
-				System.out.println((i+1)+": added "+sln.getID());
+				if(i % 100==0) {System.out.print(".");System.out.flush();}
+				if(i % 1000==0) {System.out.print(i);System.out.flush();}
 			} catch (ArangoException | IOException e) {
 				e.printStackTrace();
 			}

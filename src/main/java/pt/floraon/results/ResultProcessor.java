@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.results;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -6,20 +6,18 @@ import java.util.List;
 
 import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
-
-import pt.floraon.entities.ResultItem;
 /**
  * Utility class to handle query responses
  * @author miguel
  *
- * @param <T>
+ * @param <T> A class implementing {@link ResultItem}
  */
 public class ResultProcessor<T extends ResultItem> {
-	 private final Class<T> type;
+	 /*private final Class<T> type;
 
 	public ResultProcessor(Class<T> type) {
 		this.type = type;
-	}
+	}*/
 
 	public String toCSVTable(Iterator<T> it) {
 		StringBuilder sb=new StringBuilder(); 

@@ -1,4 +1,4 @@
-package pt.floraon.entities;
+package pt.floraon.results;
 
 import java.util.Arrays;
 import java.util.HashSet;

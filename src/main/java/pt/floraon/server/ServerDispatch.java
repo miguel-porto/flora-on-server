@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,16 +24,20 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicLineParser;
 
 import com.arangodb.ArangoException;
+import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.QueryException;
 import pt.floraon.dbworker.TaxonomyException;
-import pt.floraon.entities.ChecklistEntry;
-import pt.floraon.entities.SimpleTaxonResult;
+import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.queryparser.YlemParser;
+import pt.floraon.results.ChecklistEntry;
+import pt.floraon.results.ResultProcessor;
+import pt.floraon.results.SimpleTaxonResult;
+
 import static pt.floraon.server.Constants.*; 
 
 public class ServerDispatch implements Runnable{
@@ -110,13 +115,13 @@ public class ServerDispatch implements Runnable{
     }
 	
 	public static void processCommand(String command,FloraOnGraph graph,PrintWriter out) throws QueryException, ArangoException, TaxonomyException, URISyntaxException, IOException {
-		URI url=new URI("/"+command);
+		URI url=new URI("/"+command.trim());
 		processCommand(url,graph,out);
 	}
 	
 	public static void processCommand(URI url,FloraOnGraph graph,PrintWriter output) throws QueryException, ArangoException, TaxonomyException, IOException {
 		JsonObject jobj;
-    	String format,id;
+    	String format,id,id2;
     	JsonObject header;
     	List<NameValuePair> qs=URLEncodedUtils.parse(url,Charset.defaultCharset().toString());
     	String command=url.getPath();
@@ -149,7 +154,7 @@ public class ServerDispatch implements Runnable{
 			header.addProperty("time", (double)elapsedTime/1000000000);
 			header.addProperty("nresults", res.size());
 			it=res.iterator();
-			rp=new ResultProcessor<SimpleTaxonResult>(SimpleTaxonResult.class);
+			rp=new ResultProcessor<SimpleTaxonResult>();
 			output.println(success(rp.toJSONElement(it),header));
 
 			//out.printf("[%.3f sec]\n", (double)elapsedTime/1000000000);
@@ -158,7 +163,7 @@ public class ServerDispatch implements Runnable{
 		case "checklist":
 			format=getQSValue("fmt",qs);
 			if(format==null) format="json";
-			ResultProcessor<ChecklistEntry> rpchk=new ResultProcessor<ChecklistEntry>(ChecklistEntry.class);
+			ResultProcessor<ChecklistEntry> rpchk=new ResultProcessor<ChecklistEntry>();
 			List<ChecklistEntry> chklst=graph.getCheckList();
 			Collections.sort(chklst);
 			switch(format) {
@@ -196,15 +201,15 @@ public class ServerDispatch implements Runnable{
 			if(id==null) {
 				TaxEnt te=graph.dbNodeWorker.findTaxEnt(query);
 				if(te==null)
-					output.println(success(graph.dbNodeWorker.getNeighbors("sometthingnomatch",fac)));
+					output.println(success(graph.dbNodeWorker.getNeighbors(null,fac).toString()));
 				else
-					output.println(success(graph.dbNodeWorker.getNeighbors(te.getID(),fac)));
+					output.println(success(graph.dbNodeWorker.getNeighbors(te.getID(),fac).toString()));
 			} else {
 				String[] ids=id.split(",");
 				if(ids.length==1)
-					output.println(success(graph.dbNodeWorker.getNeighbors(ids[0],fac)));
+					output.println(success(graph.dbNodeWorker.getNeighbors(ids[0],fac).toString()));
 				else
-					output.println(success(graph.dbNodeWorker.getRelationshipsBetween(ids,fac)));
+					output.println(success(graph.dbNodeWorker.getRelationshipsBetween(ids,fac).toString()));
 			}
 			break;
 			
@@ -271,6 +276,49 @@ public class ServerDispatch implements Runnable{
 			}
 			break;
 		
+		case "links":
+			if(path.length<3) {
+				output.println(error("Choose one of: add"));
+				output.flush();
+				return;
+			}
+			
+			switch(path[2]) {
+			case "add":
+				id=getQSValue("from",qs);
+				id2=getQSValue("to",qs);
+				String type=getQSValue("type",qs);
+				if(id==null || id.trim().length()<1 || id2==null || id2.trim().length()<1 || type==null) {
+					output.println(error("You must provide relationship type and two document handles 'from' and 'to'"));
+					output.flush();
+					return;
+				}
+
+				GeneralNodeWrapperImpl n1=graph.dbNodeWorker.getNodeWrapper(id);
+				GeneralNodeWrapperImpl n2=graph.dbNodeWorker.getNodeWrapper(id2);
+				if(n1==null) {
+					output.println(error("Node "+id+" not found."));
+					output.flush();
+					return;
+				}
+				if(n2==null) {
+					output.println(error("Node "+id2+" not found."));
+					output.flush();
+					return;
+				}
+				try {
+					output.println(success(
+						n1.createRelationshipTo(n2.getNode(), AllRelTypes.valueOf(type.toUpperCase())).toString()
+					));
+				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+						| IllegalArgumentException | InvocationTargetException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				break;
+			}
+			break;
+
 		case "nodes":
 			if(path.length<3) {
 				output.println(error("Choose one of: delete"));
@@ -287,12 +335,11 @@ public class ServerDispatch implements Runnable{
 					return;
 				}
 
-				graph.dbNodeWorker.deleteNode(id);
-				output.println(success(id));
+				output.println(success(EntityFactory.toJsonString(graph.dbNodeWorker.deleteNode(id))));
 				break;
 			}
 			break;
-			
+
 		default:	
 			output.println(error("Unknown command: "+path[1]));
 			break;

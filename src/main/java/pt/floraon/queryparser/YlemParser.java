@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import pt.floraon.dbworker.FloraOnGraph;
-import pt.floraon.entities.SimpleTaxonResult;
+import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
 
 public class YlemParser {

@@ -2,7 +2,6 @@ package pt.floraon.entities;
 
 import com.google.gson.internal.LinkedTreeMap;
 
-import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.TaxonRanks;
 
 /**

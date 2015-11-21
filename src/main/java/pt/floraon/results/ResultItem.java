@@ -1,4 +1,4 @@
-package pt.floraon.entities;
+package pt.floraon.results;
 
 public interface ResultItem {
 	public String toCSVLine();

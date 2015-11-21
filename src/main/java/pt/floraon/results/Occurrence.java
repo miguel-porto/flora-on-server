@@ -1,5 +1,8 @@
-package pt.floraon.entities;
+package pt.floraon.results;
 
+import pt.floraon.entities.Author;
+import pt.floraon.entities.SpeciesList;
+import pt.floraon.entities.TaxEnt;
 import pt.floraon.server.Constants.NativeStatus;
 import pt.floraon.server.Constants.PhenologicalStates;
 

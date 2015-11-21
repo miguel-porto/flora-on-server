@@ -1,19 +1,11 @@
 package pt.floraon.server;
 
-import java.io.IOException;
-import java.net.URL;
-
 import com.arangodb.ArangoException;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import pt.floraon.dbworker.FloraOnGraph;
-import pt.floraon.dbworker.QueryException;
-import pt.floraon.dbworker.TaxEntName;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.Constants.TaxonRanks;
 
 /**
  * Unit test for simple App.

@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import com.arangodb.ArangoException;
 
 import pt.floraon.dbworker.FloraOnGraph;
-import pt.floraon.entities.SimpleTaxonResult;
+import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
 
 public final class GeoPointParser extends TokenParser {

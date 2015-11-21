@@ -14,15 +14,6 @@ import java.util.Objects;
 
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.PART_OF;
-import pt.floraon.entities.OBSERVED_BY;
-import pt.floraon.dbworker.FloraOnGraph;
-import pt.floraon.entities.ATTRIBUTE_OF;
-import pt.floraon.entities.HAS_QUALITY;
-import pt.floraon.entities.OBSERVED_IN;
-import pt.floraon.entities.SYNONYM;
-import pt.floraon.queryparser.QueryString;
-import pt.floraon.queryparser.TokenParser;
-import pt.floraon.entities.HYBRID_OF;
 
 public final class Constants {
 	public static String TAXONOMICGRAPHNAME="taxgraph";

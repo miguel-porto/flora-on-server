@@ -8,13 +8,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -41,13 +39,17 @@ import pt.floraon.entities.AttributeVertex;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.AuthorVertex;
 import pt.floraon.entities.Character;
-import pt.floraon.entities.ChecklistEntry;
-import pt.floraon.entities.Occurrence;
+import pt.floraon.entities.GeneralDBNode;
+import pt.floraon.entities.GeneralDBNodeImpl;
+import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.SpeciesListVertex;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
-import pt.floraon.entities.SimpleTaxonResult;
+import pt.floraon.results.ChecklistEntry;
+import pt.floraon.results.GraphUpdateResult;
+import pt.floraon.results.Occurrence;
+import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.TaxonRanks;
 
@@ -114,6 +116,8 @@ public class FloraOnGraph {
 		}
 
 		List<EdgeDefinitionEntity> edgeDefinitions = new ArrayList<EdgeDefinitionEntity>();
+
+		// taxonomic relations
 		EdgeDefinitionEntity edgeDefinition = new EdgeDefinitionEntity();
 		// define the edgeCollection to store the edges
 		edgeDefinition.setCollection(AllRelTypes.PART_OF.toString());
@@ -122,9 +126,28 @@ public class FloraOnGraph {
 		// and add one or more collections
 		from.add(NodeTypes.taxent.toString());
 		edgeDefinition.setFrom(from);
-
 		 // repeat this for the collections where an edge is going into  
 		List<String> to = new ArrayList<String>();
+		to.add(NodeTypes.taxent.toString());
+		edgeDefinition.setTo(to);
+		edgeDefinitions.add(edgeDefinition);
+
+		edgeDefinition = new EdgeDefinitionEntity();
+		edgeDefinition.setCollection(AllRelTypes.HYBRID_OF.toString());
+		from = new ArrayList<String>();
+		from.add(NodeTypes.taxent.toString());
+		edgeDefinition.setFrom(from);
+		to = new ArrayList<String>();
+		to.add(NodeTypes.taxent.toString());
+		edgeDefinition.setTo(to);
+		edgeDefinitions.add(edgeDefinition);
+
+		edgeDefinition = new EdgeDefinitionEntity();
+		edgeDefinition.setCollection(AllRelTypes.SYNONYM.toString());
+		from = new ArrayList<String>();
+		from.add(NodeTypes.taxent.toString());
+		edgeDefinition.setFrom(from);
+		to = new ArrayList<String>();
 		to.add(NodeTypes.taxent.toString());
 		edgeDefinition.setTo(to);
 		edgeDefinitions.add(edgeDefinition);
@@ -185,7 +208,9 @@ public class FloraOnGraph {
 	 */
 	public List<ChecklistEntry> getCheckList() {
 		List<ChecklistEntry> chklst=new ArrayList<ChecklistEntry>();
-        CursorResult<List> vertexCursor;
+        @SuppressWarnings("rawtypes")
+		CursorResult<List> vertexCursor;
+        @SuppressWarnings("rawtypes")
         Iterator<List> vertexIterator;
     	GraphVerticesOptions gvo=new GraphVerticesOptions();
     	List<String> vcr=new ArrayList<String>();
@@ -395,15 +420,33 @@ public class FloraOnGraph {
 	    	}
 		}
 
-		public boolean deleteTaxEntNode(TaxEntName nodename) throws QueryException, ArangoException {
+		public String[] deleteTaxEntNode(TaxEntName nodename) throws QueryException, ArangoException {
 	    	TaxEnt te=findTaxEnt(nodename);
 	    	if(te!=null) return deleteNode(te.getID());
-	    	return false;
+	    	return new String[0];
 	    }
 		
-		public boolean deleteNode(String id) throws ArangoException {
+		/**
+		 * Deletes one node and all connected edges
+		 * @param id The document handle
+		 * @return An array of the deleted document handles
+		 * @throws ArangoException
+		 */
+		public String[] deleteNode(String id) throws ArangoException {
+			List<String> deleted=new ArrayList<String>();
+			String tmp;
+			String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s') RETURN e"
+				,Constants.TAXONOMICGRAPHNAME,id);
+			System.out.println(query);
+			Iterator<String> vertexCursor=driver.executeAqlQuery(query, null, null, String.class).iterator();
+			while(vertexCursor.hasNext()) {
+				tmp=vertexCursor.next();
+				driver.deleteDocument(tmp);
+				deleted.add(tmp);
+			}
 			driver.deleteDocument(id);
-			return true;
+			deleted.add(id);
+			return deleted.toArray(new String[0]);
 		}
 	    
 	    public Attribute findAttribute(String name) throws ArangoException {
@@ -418,15 +461,16 @@ public class FloraOnGraph {
 		/**
 		 * Gets the direct neighbors of the given vertex, off all facets.
 		 * @param id The vertex's document handle
-		 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links').
+		 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links') of the form {nodes[],links:[]}
 		 * @throws ArangoException
 		 */
-		public String getNeighbors(String id, Facets[] facets) throws ArangoException {
+		public GraphUpdateResult getNeighbors(String id, Facets[] facets) {
+			if(id==null) return GraphUpdateResult.emptyResult();
 			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
 			String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
 				+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 				+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
-				+ "LET d=DOCUMENT(n) RETURN MERGE(d,{source:d._from,target:d._to,type:PARSE_IDENTIFIER(d).collection}))}"
+				+ "LET d=DOCUMENT(n) RETURN MERGE(d,{type:PARSE_IDENTIFIER(d).collection}))}"	//source:d._from,target:d._to,
 				,Constants.TAXONOMICGRAPHNAME,id,EntityFactory.toJsonString(art)
 			);
 			
@@ -436,11 +480,30 @@ public class FloraOnGraph {
 				+ "FILTER ty=='PART_OF'"
 				+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:ty})}",Constants.TAXONOMICGRAPHNAME,id);*/
 			//System.out.println(query);//System.out.println(res);
-			String res=driver.executeAqlQueryJSON(query, null, null);
+			String res;
+			try {
+				res = driver.executeAqlQueryJSON(query, null, null);
+			} catch (ArangoException e) {
+				System.err.println(e.getErrorMessage());
+				return GraphUpdateResult.emptyResult();
+			}
 			// NOTE: server responses are always an array, but here we always have one element, so we remove the []
-			return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
+			return (res==null || res.equals("[]")) ? GraphUpdateResult.emptyResult() : GraphUpdateResult.fromJson(res.substring(1, res.length()-1));
 		}
-	
+
+		public GeneralDBNode getNode(String id) throws ArangoException {
+			return driver.getDocument(id, GeneralDBNode.class).getEntity();
+		}
+
+		public GeneralNodeWrapperImpl getNodeWrapper(String id) {
+			try {
+				return new GeneralNodeWrapperImpl(FloraOnGraph.this,driver.getDocument(id, GeneralDBNodeImpl.class).getEntity());
+			} catch (ArangoException e) {
+				System.err.println(e.getErrorMessage());
+				return null;
+			}
+		}
+
 		/**
 		 * Gets the links between given nodes (in the ID array), of the given facets. Does not expand any node.
 		 * @param id An array of document handles
@@ -448,18 +511,18 @@ public class FloraOnGraph {
 		 * @return
 		 * @throws ArangoException
 		 */
-		public String getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
+		public GraphUpdateResult getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
 			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
 			String query=String.format("RETURN {nodes:(FOR n IN %2$s "
 				+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 				+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
 				+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
-				+ "RETURN MERGE(d,{source:d._from,target:d._to,type:PARSE_IDENTIFIER(d).collection}))}"	//{id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
+				+ "RETURN MERGE(d,{type:PARSE_IDENTIFIER(d).collection}))}"	//{id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
 				,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
 			);
 			String res=driver.executeAqlQueryJSON(query, null, null);
 			// NOTE: server responses are always an array, but here we always have one element, so we remove the []
-			return (res==null || res.equals("[]")) ? "{\"nodes\":[],\"links\":[]}" : res.substring(1, res.length()-1);
+			return (res==null || res.equals("[]")) ? GraphUpdateResult.emptyResult() : GraphUpdateResult.fromJson(res.substring(1, res.length()-1));
 		}
 	}
 	
@@ -503,7 +566,7 @@ public class FloraOnGraph {
 	    		collections=new String[1];
 	    		collections[0]="taxent";
 	    	}
-	
+// TODO SYNONYMS are bidirectional!
 	    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
 		    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
 		        		+ "FOR o IN FLATTEN(FOR v IN base "
@@ -926,7 +989,7 @@ public class FloraOnGraph {
 	    	Integer year,month,day;
 	    	float latitude,longitude;
 	    	List<Long> lineerrors=new ArrayList<Long>();
-	    	Boolean isupd=false,abort=false;
+	    	Boolean abort=false,isupd;
 	    	String[] idauts;
 	    	System.out.print("Reading records");
 

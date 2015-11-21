@@ -1,4 +1,4 @@
-package pt.floraon.entities;
+package pt.floraon.results;
 
 /**
  * Represents an output line in the downloaded checklist
