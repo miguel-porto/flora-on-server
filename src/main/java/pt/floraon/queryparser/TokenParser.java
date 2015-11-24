@@ -1,21 +1,18 @@
 package pt.floraon.queryparser;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.server.Constants;
 
 public abstract class TokenParser implements Comparable<TokenParser> {
 	protected FloraOnGraph graph;
-	protected QueryString curquery;
+	protected QueryObject currentQueryObj;
 	protected String classname;
-	protected List<String> afterQuery=new ArrayList<String>();
+	//protected List<String> afterQuery=new ArrayList<String>();
 
 	protected abstract Integer getOrder();
-	public abstract QueryString parse();
-	public TokenParser(FloraOnGraph graph,QueryString query) {
-		this.curquery=query;
+	public abstract QueryObject parse();
+	public TokenParser(FloraOnGraph graph,QueryObject query) {
+		this.currentQueryObj=query;
 		this.graph=graph;
 		this.classname=Constants.ANSI_YELLOW+"["+this.getClass().getSimpleName()+"] "+Constants.ANSI_RESET;
 	}

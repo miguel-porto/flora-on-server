@@ -32,7 +32,7 @@ public class AppTest
     }
 
     public void testApp() {
-		System.out.println("Reading sample taxonomy");
+		//System.out.println("Reading sample taxonomy");
 
     	FloraOnGraph fog=null;
     	try {

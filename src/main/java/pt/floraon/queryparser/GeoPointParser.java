@@ -8,24 +8,37 @@ import java.util.regex.Pattern;
 import com.arangodb.ArangoException;
 
 import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.queryparser.QueryObject.QueryPiece;
+import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
 import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
 
+/**
+ * Implements a parser for geographic queries based on a single point (latitude longitude) given in the form:
+ * perto: xxx yyy
+ * @author miguel
+ *
+ */
 public final class GeoPointParser extends TokenParser {
+	private final int RADIUS=15000;
 	private Pattern pattern=Pattern.compile("perto: *(-?[0-9.,]+) *(-?[0-9.,]+)",Pattern.CASE_INSENSITIVE);
 	
-	public GeoPointParser(FloraOnGraph graph, QueryString query) {
+	public GeoPointParser(FloraOnGraph graph, QueryObject query) {
 		super(graph, query);
 	}
 
-	public QueryString parse() {
+	public QueryObject parse() {
 		List<SimpleTaxonResult> res=null;
 		Matcher mat;
 		Float lat=null,lng=null;
-		System.out.println(this.classname+Constants.ANSI_CYAN+"Entering"+Constants.ANSI_RESET+" with query "+Arrays.toString(this.curquery.query));
+		System.out.println(this.classname+Constants.ANSI_CYAN+"Entering"+Constants.ANSI_RESET+" with query "+Arrays.toString(this.currentQueryObj.queryPieces.toArray()));
 		
-		for(String piece:this.curquery.query) {
-			mat=this.pattern.matcher(piece);
+		QueryPieceIterator itqp=this.currentQueryObj.iterator();
+		QueryPiece piece;
+		
+		while(itqp.hasNext()) {		// iterate over all pieces
+			piece=itqp.next();
+			mat=this.pattern.matcher(piece.query);
 			while(mat.find()) {
 				System.out.println(this.classname+"Parsing "+mat.group(0));
 				if(mat.groupCount()==2) {
@@ -34,24 +47,21 @@ public final class GeoPointParser extends TokenParser {
 				}		
 				if(lat!=null && lng!=null) {
 					try {
-						res=this.graph.dbSpecificQueries.findListTaxaWithin(lat,lng,15000);
+						res=this.graph.dbSpecificQueries.findListTaxaWithin(lat,lng,RADIUS);
 					} catch (ArangoException e) {
 						e.printStackTrace();
 					}
 				}
 				System.out.println(this.classname+Constants.ANSI_GREENBOLD+"Found "+res.size()+Constants.ANSI_RESET+" results here");
 				
-				this.curquery.results=SimpleTaxonResult.mergeResultLists(this.curquery.results,res);
-				//System.out.println("# sp:"+this.curquery.results.size());
+				this.currentQueryObj.results=SimpleTaxonResult.mergeResultLists(this.currentQueryObj.results,res);
 			}
 			
-			for(String s:this.pattern.split(piece)) {
-				if(!s.trim().equals("")) this.afterQuery.add(s.trim());
-			}
+			// split this piece
+			itqp.splitQueryPiece(pattern);
 		}
-		this.curquery.query=this.afterQuery.toArray(new String[0]);
-		System.out.println(this.classname+"Left unparsed: "+Arrays.toString(this.curquery.query));
-		return this.curquery;
+		System.out.println(this.classname+"Left unparsed: "+Arrays.toString(this.currentQueryObj.queryPieces.toArray()));
+		return this.currentQueryObj;
 	}
 
 	@Override

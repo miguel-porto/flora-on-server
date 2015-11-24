@@ -22,6 +22,7 @@ import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
+import pt.floraon.queryparser.WordSequenceIterator;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
@@ -38,6 +39,15 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
+    	String seq="aaa bbbb cccc dddd eeee";
+    	WordSequenceIterator it1=new WordSequenceIterator(seq);
+    	String tmps;
+    	while(it1.hasNext()) {
+    		tmps=it1.next();
+    		System.out.println(tmps);
+    		if(tmps.equals("aaa bbbb cccc")) it1.markAsUsed();
+    		
+    	}
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {

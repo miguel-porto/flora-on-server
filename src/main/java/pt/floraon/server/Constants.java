@@ -31,7 +31,7 @@ public final class Constants {
 	public static final String ANSI_GREENBOLD = "\u001B[32;1m";
 	
 	public enum StringMatchTypes {
-		EXACT,PREFIX,PARTIAL
+		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}
 	
 	public enum TaxonRanks {

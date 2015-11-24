@@ -46,6 +46,7 @@ import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.SpeciesListVertex;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
+import pt.floraon.queryparser.Match;
 import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.Occurrence;
@@ -602,7 +603,89 @@ public class FloraOnGraph {
 	    	CursorResult<SimpleTaxonResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
 	    	return vertexCursor.asList();
 	    }
-	        
+
+	    /**
+	     * Returns a list of all possible matches of the given query string, ordered in terms of relevance.
+	     * @param q
+	     * @param matchtype
+	     * @param collections
+	     * @return
+	     * @throws ArangoException
+	     */
+	    public List<Match> queryMatcher(String q,StringMatchTypes matchtype,String[] collections) throws ArangoException {
+	    	String query;
+	    	q=q.toLowerCase().trim();
+	    	String filter="";
+	    	switch(matchtype) {
+	    	case EXACT:
+	    		filter="LOWER(v.name)=='%2$s'";
+				break;
+			case PARTIAL:
+				filter="LIKE(v.name,'%%%2$s%%',true)";
+				break;
+			case PREFIX:
+				filter="LIKE(v.name,'%2$s%%',true)";
+				break;
+			default:
+				break;
+	    	}
+	    	
+	    	if(collections==null) {
+	    		collections=new String[1];
+	    		collections[0]="taxent";
+	    	}
+
+			// this is actually a workaround so we don't use GRAPH_VERTICES when there are more than 1 collection in the filters, it's faster to do separately
+	    	List<Match> res=new ArrayList<Match>();
+	    	for(String collection : collections) {
+		    	query=String.format("FOR v IN %3$s FILTER "+filter+" "
+	    			+ "LET co=PARSE_IDENTIFIER(v._id).collection "
+	    			+ "LET typematch=LIKE(v.name,'%2$s',true) ? 0 : (LIKE(v.name,'%2$s%%',true) ? 1 : 2) "	// NOTE: these numbers must correspond to the enum order StringMatchTypes
+	    			+ "COLLECT c=co,r=v.rank,tm=typematch INTO gr SORT tm,r,LENGTH(gr) "
+	    			+ "RETURN {rank:r,nodeType:c,matchType:tm,matches:gr[*].v.name,query:'%2$s'}"
+	    			,Constants.TAXONOMICGRAPHNAME,q,collection);
+		    	res.addAll(driver.executeAqlQuery(query, null, null, Match.class).asList());
+	    	}
+	    	return res;
+/*	    	
+	    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
+		    	query=String.format("FOR v IN %3$s FILTER "+filter+" "
+	    			+ "LET co=PARSE_IDENTIFIER(v._id).collection "
+	    			+ "LET typematch=LIKE(v.name,'%2$s',true) ? 0 : (LIKE(v.name,'%2$s%%',true) ? 1 : 2) "	// NOTE: these numbers must correspond to the enum order StringMatchTypes
+	    			+ "COLLECT c=co,r=v.rank,tm=typematch INTO gr SORT tm,r,LENGTH(gr) "
+	    			+ "RETURN {rank:r,nodeType:c,matchType:tm,matches:gr[*].v.name,query:'%2$s'}"
+	    			,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
+			} else {
+				StringBuilder sb=new StringBuilder();
+				sb.append("[");
+				for(int i=0;i<collections.length-1;i++) {
+					sb.append("'").append(collections[i]).append("',");
+				}
+				sb.append("'").append(collections[collections.length-1]).append("']");
+				
+		    	query=String.format("FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" "
+	    			+ "LET co=PARSE_IDENTIFIER(v._id).collection "
+	    			+ "LET typematch=LIKE(v.name,'%2$s',true) ? 0 : (LIKE(v.name,'%2$s%%',true) ? 1 : 2) "	// NOTE: these numbers must correspond to the enum order StringMatchTypes
+	    			+ "COLLECT c=co,r=v.rank,tm=typematch INTO gr SORT tm,r,LENGTH(gr) "
+	    			+ "RETURN {rank:r,nodeType:c,matchType:tm,matches:gr[*].v.name,query:'%2$s'}"
+	    			,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
+	    			
+			}
+	    	CursorResult<Match> vertexCursor=driver.executeAqlQuery(query, null, null, Match.class);
+	    	return vertexCursor.asList();*/
+	    }
+	    
+	    /**
+	     * Fetches all species (or inferior rank) downstream the given match
+	     * @param match
+	     * @return
+	     * @throws ArangoException 
+	     */
+	    public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes) throws ArangoException {
+	    	// FIXME: filter by taxon rank
+	    	return speciesTextQuerySimple(match.query,match.getMatchType(),onlyLeafNodes,new String[]{match.getNodeType().toString()});
+	    }
+	    
 	    /**
 	     * Execute a text query on the starting nodes going upwards. Good idea, but it's actually slower!
 	     * @param startingVertices
