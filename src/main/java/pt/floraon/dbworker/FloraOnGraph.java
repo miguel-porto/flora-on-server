@@ -353,11 +353,11 @@ public class FloraOnGraph {
 	     * @param rank
 	     * @param annotation
 	     * @param current
-	     * @return A {@link TaxEnt} node.
+	     * @return The document handle of the new node.
 	     * @throws ArangoException
 	     */
-	    public TaxEnt createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException {
-	    	return new TaxEnt(FloraOnGraph.this,name,author,rank,annotation,current);
+	    public GraphUpdateResult createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException {
+	    	return GraphUpdateResult.fromHandle(FloraOnGraph.this, new TaxEnt(FloraOnGraph.this,name,author,rank,annotation,current).getID());
 	    }
 
 	    /**
@@ -535,7 +535,7 @@ public class FloraOnGraph {
 	public final class GeneralQueries {
 	    /**
 	     * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
-	     * This is the <b>main</b> query function. 
+	     * <b>This is the main query function.</b> 
 	     * @param q The query as a String. It is matched as a whole to the node 'name' attribute.
 	     * @param matchtype Type of match desired (exact, partial or prefix).
 	     * @param onlyLeafNodes true to return only leaf nodes. If false, all species or inferior rank nodes are returned.
@@ -543,7 +543,7 @@ public class FloraOnGraph {
 	     * @return A list of {@link SimpleTaxonResult}
 	     * @throws ArangoException
 	     */
-	    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections) throws ArangoException {
+	    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections,TaxonRanks rank) throws ArangoException {
 	    	// TODO put vertex collection restrictions in the options
 	    	String query;
 	    	q=q.toLowerCase().trim();
@@ -563,19 +563,33 @@ public class FloraOnGraph {
 	    	}
 	    	String leaf=onlyLeafNodes ? " FILTER nedg==0" : "";
 	    	
+	    	if(rank!=null) {
+	    		if(filter=="")
+	    			filter="v.rank=="+rank.getValue().toString();
+	    		else
+	    			filter+=" && v.rank=="+rank.getValue().toString();
+	    	}
+	    	
 	    	if(collections==null) {
 	    		collections=new String[1];
 	    		collections[0]="taxent";
 	    	}
-// TODO SYNONYMS are bidirectional!
+// FIXME SYNONYMS are bidirectional!
 	    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
+	    		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
+					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
+					+ "RETURN {source:v,name:v2.vertex.name,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
+					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source,reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
+/*
 		    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
 		        		+ "FOR o IN FLATTEN(FOR v IN base "
 		    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 		    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
 		    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
 		    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,match:gr[*].o.source,leaf:l}"
-		    				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
+		    				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);*/
 			} else {
 				StringBuilder sb=new StringBuilder();
 				sb.append("[");
@@ -583,14 +597,21 @@ public class FloraOnGraph {
 					sb.append("'").append(collections[i]).append("',");
 				}
 				sb.append("'").append(collections[collections.length-1]).append("']");
-				
+
+				query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
+					+ "FOR o IN FLATTEN(FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
+					+ "RETURN {source:v,name:v2.vertex.name,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
+					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source,reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
+/*				
 		    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
 		        		+ "FOR o IN FLATTEN(FOR v IN base "
 		    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 		    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
 		    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
 		    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source}"
-		    				,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
+		    				,Constants.TAXONOMICGRAPHNAME,q,sb.toString());*/
 			}
 	/*    	
 	    	String query=String.format("FOR v IN UNIQUE(FLATTEN(FOR v IN GRAPH_TRAVERSAL('%1$s',"
@@ -630,10 +651,7 @@ public class FloraOnGraph {
 				break;
 	    	}
 	    	
-	    	if(collections==null) {
-	    		collections=new String[1];
-	    		collections[0]="taxent";
-	    	}
+	    	if(collections==null) collections=new String[] {"taxent"};
 
 			// this is actually a workaround so we don't use GRAPH_VERTICES when there are more than 1 collection in the filters, it's faster to do separately
 	    	List<Match> res=new ArrayList<Match>();
@@ -677,13 +695,12 @@ public class FloraOnGraph {
 	    
 	    /**
 	     * Fetches all species (or inferior rank) downstream the given match
-	     * @param match
+	     * @param match A {@link Match} created by {@link queryMatcher}
 	     * @return
 	     * @throws ArangoException 
 	     */
 	    public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes) throws ArangoException {
-	    	// FIXME: filter by taxon rank
-	    	return speciesTextQuerySimple(match.query,match.getMatchType(),onlyLeafNodes,new String[]{match.getNodeType().toString()});
+	    	return speciesTextQuerySimple(match.query,match.getMatchType(),onlyLeafNodes,new String[]{match.getNodeType().toString()},match.getRank());
 	    }
 	    
 	    /**
@@ -758,6 +775,7 @@ public class FloraOnGraph {
 		 * @return
 		 * @throws ArangoException
 		 */
+		@Deprecated
 		public Iterator<SimpleTaxonResult> findTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
 			//"FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) RETURN NEIGHBORS(%1$s,OBSERVED_IN,sl,'inbound',{},{includeData:true})[*]) RETURN DISTINCT a"
 			String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
@@ -774,6 +792,7 @@ public class FloraOnGraph {
 	
 		/**
 		 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
+		 * Note that this only returns the TaxEnt nodes which are direct neighbors of the species list, independently of their taxonomic rank.
 		 * @param latitude
 		 * @param longitude
 		 * @param distance
@@ -782,16 +801,10 @@ public class FloraOnGraph {
 		 */
 		public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
 			String query=String.format("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
-					+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true}) "
+					+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,%5$s,sl,'inbound',{},{includeData:true}) "
 					+ "RETURN {match:sl._id,name:n.name,_key:n._key}) "
-					+ "COLLECT k=o._key,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_key:k,match:ma,count:LENGTH(ma)}"
-					,NodeTypes.specieslist.toString(),latitude,longitude,distance);
-	/*
-			String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
-				+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_key:CURRENT._key}]) "
-				+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_key:b._key,count:c}"
-				,NodeTypes.specieslist.toString(),latitude,longitude,distance
-			);*/
+					+ "COLLECT k=o._key,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_key:k,match:ma,count:LENGTH(ma),reltypes:['%5$s']}"
+					,NodeTypes.specieslist.toString(),latitude,longitude,distance,AllRelTypes.OBSERVED_IN.toString());
 			//System.out.println(query);
 	    	return driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class).asList();
 		}
@@ -1072,7 +1085,7 @@ public class FloraOnGraph {
 	    	Integer year,month,day;
 	    	float latitude,longitude;
 	    	List<Long> lineerrors=new ArrayList<Long>();
-	    	Boolean abort=false,isupd;
+	    	Boolean abort=false;//,isupd;
 	    	String[] idauts;
 	    	System.out.print("Reading records");
 
@@ -1122,11 +1135,11 @@ public class FloraOnGraph {
 							sln=new SpeciesList(FloraOnGraph.this,latitude,longitude,year,month,day,tmp,null,null,false);
 							if(autnode!=null) sln.setObservedBy(autnode, true);
 							newsplist++;
-    						isupd=false;
+    						//isupd=false;
 						}
     				} else {	// TODO: update specieslist?
     					countupd++;
-    					isupd=true;
+    					//isupd=true;
     				}
     				
     				taxnode=dbNodeWorker.getTaxEntById((int)Integer.parseInt(record.get(4)));	// find taxon with ident, we assume there's only one!

@@ -37,4 +37,10 @@ public class Occurrence implements ResultItem {
 		sb.append("</td></tr>");
 		return sb.toString();
 	}
+
+	@Override
+	public String[] toStringArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -247,4 +247,10 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	public String toHTMLLine() {
 		return "<tr><td>"+this.getFullName()+"</td></tr>";
 	}
+
+	@Override
+	public String[] toStringArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

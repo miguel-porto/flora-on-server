@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
+
+import dnl.utils.text.table.TextTable;
 /**
  * Utility class to handle query responses
  * @author miguel
@@ -39,6 +41,14 @@ public class ResultProcessor<T extends ResultItem> {
     	}
     	sb.append("</table>");
     	return sb.toString();
+	}
+	
+	public TextTable toPrettyTable(Iterator<T> it) {
+		List<String[]> tmp=new ArrayList<String[]>();
+    	while (it.hasNext()) {
+    		tmp.add(it.next().toStringArray());
+    	}
+    	return new TextTable(new String[] {"Count","Key","RelTypes","Name","Matches"},tmp.toArray(new String[0][0]));
 	}
 
     public String toJSONString(Iterator<T> it) {

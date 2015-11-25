@@ -135,6 +135,7 @@ public class ServerDispatch implements Runnable{
     	switch(path[1]) {
 		case "query":
 			String query=getQSValue("q",qs);
+			format=getQSValue("fmt",qs);
 			if(query==null || query.length()<1) {
 				output.println(error("Missing query."));
 				output.flush();
@@ -155,7 +156,16 @@ public class ServerDispatch implements Runnable{
 			header.addProperty("nresults", res.size());
 			it=res.iterator();
 			rp=new ResultProcessor<SimpleTaxonResult>();
-			output.println(success(rp.toJSONElement(it),header));
+			switch(format) {
+			case "html":
+				output.println(rp.toHTMLTable(it));
+				break;
+				
+			case "json":
+			default:
+				output.println(success(rp.toJSONElement(it),header));
+				break;
+			}
 
 			//out.printf("[%.3f sec]\n", (double)elapsedTime/1000000000);
 			break;
@@ -222,6 +232,7 @@ public class ServerDispatch implements Runnable{
 				rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
 			}
 			jobj.add("rankmap", ranks);
+			jobj.addProperty("rankelement", rk.toString());
 			
 			ranks=new JsonObject();
 			for(AllRelTypes art:Constants.AllRelTypes.values()) {
@@ -321,7 +332,7 @@ public class ServerDispatch implements Runnable{
 
 		case "nodes":
 			if(path.length<3) {
-				output.println(error("Choose one of: delete"));
+				output.println(error("Choose one of: delete, add"));
 				output.flush();
 				return;
 			}
@@ -336,6 +347,17 @@ public class ServerDispatch implements Runnable{
 				}
 
 				output.println(success(EntityFactory.toJsonString(graph.dbNodeWorker.deleteNode(id))));
+				break;
+				
+			case "add":
+				String name=getQSValue("n",qs);
+				String author=getQSValue("a",qs);
+				String rank=getQSValue("r",qs);
+				
+				output.println(success(
+					graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toString()
+				));
+				
 				break;
 			}
 			break;

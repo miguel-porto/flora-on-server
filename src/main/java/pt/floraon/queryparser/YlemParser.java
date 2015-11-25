@@ -126,11 +126,14 @@ public class YlemParser {
 
 		// RESULT PHASE
 		List <SimpleTaxonResult> tmp;
+		Match thisMatch;
 		for(QueryPiece qp : qs.queryPieces) {		// process each query piece independently and intersect results
 			for(MatchList ml : qp.matchLists) {
 				try {
 					if(ml.matches.size()>0) {
-						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_RESET+"Fetch: \""+ml.matches.get(0).query+"\"");
+						thisMatch=ml.matches.get(0);
+						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_RESET+"Fetch: \""+thisMatch.query+"\""+(thisMatch.rank!=null ? " ("+thisMatch.getRank().toString()+")" : ""));
+						// take the most relevant match
 						tmp=graph.dbGeneralQueries.fetchMatchSpecies(ml.matches.get(0),false);
 						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_GREENBOLD+"Found "+tmp.size()+Constants.ANSI_RESET+" results.");
 						if(qs.results==null)
