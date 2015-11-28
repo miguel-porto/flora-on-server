@@ -121,7 +121,7 @@ public final class Constants {
 		OBSERVED_IN(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_IN.class),
 		OBSERVED_BY(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_BY.class),
     	HAS_QUALITY(Facets.MORPHOLOGY,pt.floraon.entities.HAS_QUALITY.class),
-    	ATTRIBUTE_OF(Facets.MORPHOLOGY,pt.floraon.entities.ATTRIBUTE_OF.class);
+    	ATTRIBUTE_OF(Facets.TAXONOMY,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
 		Class<? extends GeneralDBEdge> edgeClass;

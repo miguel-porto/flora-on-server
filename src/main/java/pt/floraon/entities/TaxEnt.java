@@ -9,6 +9,7 @@ import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.internal.LinkedTreeMap;
 
+import pt.floraon.dbworker.FloraOnException;
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.TaxEntName;
 import pt.floraon.results.ResultItem;
@@ -41,7 +42,7 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
 	}
-
+	
 	public TaxEnt(LinkedTreeMap<String,Object> tev) {
 		super.baseNode=new TaxEntVertex(tev);
 		this.baseNode=(TaxEntVertex)super.baseNode;
@@ -99,6 +100,17 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), this.baseNode, false);
 		this.baseNode._id=this.vertexEntity.getDocumentHandle();
 		this.baseNode._key=this.vertexEntity.getDocumentKey();
+	}
+	
+	/**
+	 * Creates a TaxEnt from an existing node, by its handle.
+	 * @param graph
+	 * @param handle
+	 * @return
+	 * @throws ArangoException
+	 */
+	public static TaxEnt fromHandle(FloraOnGraph graph,String handle) throws ArangoException {
+		return new TaxEnt(graph,graph.driver.getDocument(handle, TaxEntVertex.class).getEntity());
 	}
 	
 	/**
@@ -199,8 +211,8 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 		this.dirty=false;
 	}
 		
-	public int setObservedIn(SpeciesList slist,Short doubt,Short validated,PhenologicalStates state,String uuid,Integer weight,String pubnotes,NativeStatus nstate,String dateInserted) throws IOException, ArangoException {
-		if(baseNode._id==null) throw new IOException("Node "+baseNode.name+" not attached to DB");
+	public int setObservedIn(SpeciesList slist,Short doubt,Short validated,PhenologicalStates state,String uuid,Integer weight,String pubnotes,NativeStatus nstate,String dateInserted) throws FloraOnException, ArangoException {
+		if(baseNode._id==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
 		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,nstate,dateInserted,baseNode._id,slist.baseNode._id);
 		String query=String.format(
 			"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN OBSERVED_IN RETURN OLD ? 0 : 1"

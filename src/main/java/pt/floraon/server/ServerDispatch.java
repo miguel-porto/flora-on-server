@@ -28,6 +28,7 @@ import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import pt.floraon.dbworker.FloraOnException;
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.dbworker.QueryException;
 import pt.floraon.dbworker.TaxonomyException;
@@ -35,12 +36,13 @@ import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ChecklistEntry;
+import pt.floraon.results.Occurrence;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
 
 import static pt.floraon.server.Constants.*; 
 
-public class ServerDispatch implements Runnable{
+public class ServerDispatch implements Runnable {
     protected Socket clientSocket = null;
     protected String serverText   = null;
     protected FloraOnGraph graph=null;
@@ -111,21 +113,25 @@ public class ServerDispatch implements Runnable{
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		} catch (FloraOnException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
     }
 	
-	public static void processCommand(String command,FloraOnGraph graph,PrintWriter out) throws QueryException, ArangoException, TaxonomyException, URISyntaxException, IOException {
+	public static void processCommand(String command,FloraOnGraph graph,PrintWriter out) throws ArangoException, URISyntaxException, IOException, FloraOnException {
 		URI url=new URI("/"+command.trim());
 		processCommand(url,graph,out);
 	}
 	
-	public static void processCommand(URI url,FloraOnGraph graph,PrintWriter output) throws QueryException, ArangoException, TaxonomyException, IOException {
+	public static void processCommand(URI url,FloraOnGraph graph,PrintWriter output) throws QueryException, ArangoException, TaxonomyException, IOException, FloraOnException {
 		JsonObject jobj;
     	String format,id,id2;
     	JsonObject header;
     	List<NameValuePair> qs=URLEncodedUtils.parse(url,Charset.defaultCharset().toString());
     	String command=url.getPath();
-
+    	String name,author,rank,comment,current,description,shortName;
+    	
     	String[] path=command.split("/");
     	if(path.length<2) {
     		output.println(error("This is Flora-On.\nMissing parameters."));
@@ -155,15 +161,15 @@ public class ServerDispatch implements Runnable{
 			header.addProperty("time", (double)elapsedTime/1000000000);
 			header.addProperty("nresults", res.size());
 			it=res.iterator();
-			rp=new ResultProcessor<SimpleTaxonResult>();
+			rp=new ResultProcessor<SimpleTaxonResult>(it);
 			switch(format) {
 			case "html":
-				output.println(rp.toHTMLTable(it));
+				output.println(rp.toHTMLTable());
 				break;
 				
 			case "json":
 			default:
-				output.println(success(rp.toJSONElement(it),header));
+				output.println(success(rp.toJSONElement(),header));
 				break;
 			}
 
@@ -173,20 +179,20 @@ public class ServerDispatch implements Runnable{
 		case "checklist":
 			format=getQSValue("fmt",qs);
 			if(format==null) format="json";
-			ResultProcessor<ChecklistEntry> rpchk=new ResultProcessor<ChecklistEntry>();
 			List<ChecklistEntry> chklst=graph.getCheckList();
 			Collections.sort(chklst);
+			ResultProcessor<ChecklistEntry> rpchk=new ResultProcessor<ChecklistEntry>(chklst.iterator());
 			switch(format) {
 			case "json":
 				header=new JsonObject();
 				header.addProperty("nresults", chklst.size());
-				output.println(success(rpchk.toJSONElement(chklst.iterator()),header));
+				output.println(success(rpchk.toJSONElement(),header));
 				break;
 			case "html":
-				output.println(rpchk.toHTMLTable(chklst.iterator()));
+				output.println(rpchk.toHTMLTable());
 				break;
 			case "csv":
-				output.println(rpchk.toCSVTable(chklst.iterator()));
+				output.println(rpchk.toCSVTable());
 				break;
 			}
 			break;
@@ -289,7 +295,7 @@ public class ServerDispatch implements Runnable{
 		
 		case "links":
 			if(path.length<3) {
-				output.println(error("Choose one of: add"));
+				output.println(error("Choose one of: add, update"));
 				output.flush();
 				return;
 			}
@@ -327,16 +333,24 @@ public class ServerDispatch implements Runnable{
 					e1.printStackTrace();
 				}
 				break;
+				
+			case "update":
+				id=getQSValue("id",qs);
+				current=getQSValue("current",qs);
+				output.println(success(
+					graph.dbNodeWorker.UpdateDocument(id, "current", Integer.parseInt(current)==1).toString()
+				));
+				break;
 			}
 			break;
 
 		case "nodes":
 			if(path.length<3) {
-				output.println(error("Choose one of: delete, add"));
+				output.println(error("Choose one of: delete, add, update"));
 				output.flush();
 				return;
 			}
-			
+
 			switch(path[2]) {
 			case "delete":
 				id=getQSValue("id",qs);
@@ -350,19 +364,82 @@ public class ServerDispatch implements Runnable{
 				break;
 				
 			case "add":
-				String name=getQSValue("n",qs);
-				String author=getQSValue("a",qs);
-				String rank=getQSValue("r",qs);
+				if(path.length<4) {
+					output.println(error("Choose the node type: taxent"));
+					output.flush();
+					return;
+				}
+				switch(path[3]) {
+				case "taxent":
+					name=getQSValue("name",qs);
+					author=getQSValue("author",qs);
+					rank=getQSValue("rank",qs);
+					
+					output.println(success(
+						graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toString()
+					));
+					break;
+					
+				case "attribute":
+					name=getQSValue("name",qs);
+					shortName=getQSValue("shortname",qs);
+					description=getQSValue("description",qs);
+					
+					output.println(success(
+						graph.dbNodeWorker.createAttributeNode(name, shortName, description).toString()
+					));
+					break;
 				
-				output.println(success(
-					graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toString()
-				));
-				
+				case "character":
+					name=getQSValue("name",qs);
+					shortName=getQSValue("shortname",qs);
+					description=getQSValue("description",qs);
+					
+					output.println(success(
+						graph.dbNodeWorker.createCharacterNode(name, shortName, description).toString()
+					));
+					break;
+					
+				default:
+					output.println(error("Invalid node type"));
+					output.flush();
+					return;
+				}
 				break;
+				
+			case "update":
+				if(path.length<4) {
+					output.println(error("Choose the node type: taxent"));
+					output.flush();
+					return;
+				}
+				switch(path[3]) {
+				case "taxent":
+					name=getQSValue("name",qs);
+					author=getQSValue("author",qs);
+					rank=getQSValue("rank",qs);
+					comment=getQSValue("comment",qs);
+					current=getQSValue("current",qs);
+					
+					output.println(success(
+						graph.dbNodeWorker.updateTaxEntNode(TaxEnt.fromHandle(graph,getQSValue("id",qs)), name, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), Integer.parseInt(current)==1, author, comment).toString()
+					));
+					break;
+
+				default:
+					output.println(error("Invalid node type"));
+					output.flush();
+					return;
+				}
 			}
 			break;
 
-		default:	
+		case "occurrences":
+			ResultProcessor<Occurrence> rpo=new ResultProcessor<Occurrence>(graph.getAllOccurrences());
+			output.println(rpo.toCSVTable());
+			break;
+			
+		default:
 			output.println(error("Unknown command: "+path[1]));
 			break;
 		}

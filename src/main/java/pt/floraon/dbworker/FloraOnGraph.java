@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.http.ParseException;
 
 import com.arangodb.ArangoConfigure;
 import com.arangodb.ArangoDriver;
@@ -353,13 +354,50 @@ public class FloraOnGraph {
 	     * @param rank
 	     * @param annotation
 	     * @param current
-	     * @return The document handle of the new node.
+	     * @return A {@link GraphUpdateResult} with the new node.
 	     * @throws ArangoException
 	     */
 	    public GraphUpdateResult createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException {
-	    	return GraphUpdateResult.fromHandle(FloraOnGraph.this, new TaxEnt(FloraOnGraph.this,name,author,rank,annotation,current).getID());
+	    	return GraphUpdateResult.fromHandle(
+    			FloraOnGraph.this, new TaxEnt(FloraOnGraph.this,name,author,rank,annotation,current).getID()
+			);
 	    }
 
+	    /**
+	     * Create a new attribute node and add to DB.
+	     * @param name
+	     * @param shortName
+	     * @param description
+	     * @return A {@link GraphUpdateResult} with the new node.
+	     * @throws ArangoException
+	     */
+	    public GraphUpdateResult createAttributeNode(String name,String shortName,String description) throws ArangoException {
+	    	return GraphUpdateResult.fromHandle(
+    			FloraOnGraph.this, new Attribute(FloraOnGraph.this,name,shortName,description).getID()
+			);
+	    }
+
+	    /**
+	     * Create a new character node and add to DB.
+	     * @param name
+	     * @param shortName
+	     * @param description
+	     * @return A {@link GraphUpdateResult} with the new node.
+	     * @throws ArangoException
+	     */
+	    public GraphUpdateResult createCharacterNode(String name,String shortName,String description) throws ArangoException {
+	    	return GraphUpdateResult.fromHandle(
+    			FloraOnGraph.this, new Character(FloraOnGraph.this,name,shortName,description).getID()
+			);
+	    }
+
+	    public GraphUpdateResult UpdateDocument(String handle,String key,Object value) throws ArangoException {
+	    	HashMap<String, Object> newHashMap = new HashMap<String, Object>();
+	    	newHashMap.put(key, value);
+	    	driver.updateDocument(handle, newHashMap);
+	    	return GraphUpdateResult.fromHandle(FloraOnGraph.this,handle);
+	    }
+	    
 	    /**
 	     * Gets only one taxon node, or none, based only on taxon name. The name must not be ambiguous.
 	     * @param q
@@ -426,6 +464,16 @@ public class FloraOnGraph {
 	    	if(te!=null) return deleteNode(te.getID());
 	    	return new String[0];
 	    }
+		
+		public GraphUpdateResult updateTaxEntNode(TaxEnt node,String name,TaxonRanks rank,Boolean current,String author,String comment) throws IOException, ArangoException {
+			node.setAnnotation(comment);
+			node.setName(name);
+			node.setRank(rank.getValue());
+			node.setCurrent(current);
+			node.setAuthor(author);
+			node.saveToDB();
+			return GraphUpdateResult.fromHandle(FloraOnGraph.this, node.getID());
+		}
 		
 		/**
 		 * Deletes one node and all connected edges
@@ -580,7 +628,7 @@ public class FloraOnGraph {
 					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
 					+ "RETURN {source:v,name:v2.vertex.name,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
-					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source,reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
 					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
 /*
 		    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
@@ -602,7 +650,7 @@ public class FloraOnGraph {
 					+ "FOR o IN FLATTEN(FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
 					+ "RETURN {source:v,name:v2.vertex.name,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
-					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source,reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
 					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
 /*				
 		    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
@@ -965,7 +1013,7 @@ public class FloraOnGraph {
 			+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventory:v2._key,location:v2.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
 			,NodeTypes.specieslist.toString(),AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString());
     	CursorResult<Occurrence> vertexCursor=this.driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
-    	System.out.println(aqlQuery);
+    	//System.out.println(aqlQuery);
     	return vertexCursor.iterator();
     }
 
@@ -1067,13 +1115,62 @@ public class FloraOnGraph {
 	    	return uploadTaxonomyListFromStream(new FileInputStream(file),simulate);
 	    }
 	    
-	    public String uploadRecordsFromFile(String filename) throws IOException {
+	    public String uploadRecordsFromFile(String filename) throws IOException, FloraOnException {
 	    	File file=new File(filename);
 	    	if(!file.canRead()) throw new IOException("Cannot read file "+filename);
 	    	return uploadRecordsFromStream(new FileInputStream(file));
 	    }
 	    
-		public String uploadRecordsFromStream(InputStream stream) throws IOException {
+		public String uploadRecordsFromStream(InputStream stream) throws FloraOnException, IOException {
+	    	StringBuilder out=new StringBuilder();
+	    	Reader freader=null;
+	    	int countupd=0,countnew=0,counterr=0,nrecs=0;
+	    	int newsplist=0;
+	    	long counter=0;
+	    	List<String[]> lineerrors=new ArrayList<String[]>();
+	    	Boolean abort=false;
+	    	System.out.print("Reading records ");
+
+	    	Occurrence occ;
+    		try {
+    			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+    			Iterable<CSVRecord> records = CSVFormat.MYSQL.parse(freader);
+    			for (CSVRecord record : records) {
+    				try {
+    					occ=Occurrence.fromCSVline(record);
+    					nrecs++;
+    					if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
+    					if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
+    					
+    					occ.commit(FloraOnGraph.this);
+    				} catch(FloraOnException e) {
+						lineerrors.add(new String[] {((Long)record.getRecordNumber()).toString(),e.getMessage()});
+						counterr++;
+						continue;
+    				}
+    				
+    			    counter++;
+    			    if((counter % 2500)==0) {
+    			    	System.out.println(counter+" records processed.");
+    			    }
+    			}
+			} catch (NumberFormatException e) {
+				abort=true;
+				e.printStackTrace();
+			} catch (ArangoException e) {
+				e.printStackTrace();
+				counterr++;
+			} finally {
+    			if(freader!=null) freader.close();
+    			out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
+			}
+
+	    	if(abort) throw new FloraOnException(counterr+" errors found on lines "+lineerrors.toString());
+	    	return out.toString();
+	    }
+		
+		@Deprecated
+		public String uploadRecordsFromStreamOld(InputStream stream) throws IOException, FloraOnException {
 	    	StringBuilder out=new StringBuilder();
 	    	Reader freader=null;
 	    	Author autnode=null;
@@ -1187,7 +1284,8 @@ public class FloraOnGraph {
     			    }
     			}
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				abort=true;
+				System.err.println("Error processing number fields. Make sure the fields are not quoted. Message: "+e.getMessage());
 			} catch (ArangoException e) {
 				e.printStackTrace();
 				counterr++;
@@ -1199,7 +1297,7 @@ public class FloraOnGraph {
 	    	if(abort) throw new IOException(counterr+" errors found on lines "+lineerrors.toString());
 	    	return out.toString();
 	    }
-		
+
 		public Map<String,Integer> uploadAuthorsFromFile(String filename) throws IOException, NumberFormatException, ArangoException {
 	    	File file=new File(filename);
 	    	if(!file.canRead()) throw new IOException("Cannot read file "+filename);

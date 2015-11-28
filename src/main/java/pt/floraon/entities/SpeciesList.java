@@ -6,6 +6,7 @@ import java.util.Iterator;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
+import pt.floraon.dbworker.FloraOnException;
 import pt.floraon.dbworker.FloraOnGraph;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
@@ -29,7 +30,7 @@ public class SpeciesList extends GeneralNodeWrapper {
 	}
 	
 	public SpeciesList(FloraOnGraph graph,Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String comment,Boolean complete) throws ArangoException {
-		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day,precision,area,comment,complete);
+		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision, area, comment,complete);
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 		this.graph=graph;
 		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), this.baseNode, false);
@@ -68,9 +69,9 @@ public class SpeciesList extends GeneralNodeWrapper {
 	 * @throws IOException
 	 * @throws ArangoException
 	 */
-	public int setObservedBy(Author aut,Boolean isMainAuthor) throws IOException, ArangoException {
+	public int setObservedBy(Author aut,Boolean isMainAuthor) throws FloraOnException, ArangoException {
 // TODO if it is main observer, can only be one!
-		if(baseNode._id==null) throw new IOException("Species list not attached to DB");
+		if(baseNode._id==null) throw new FloraOnException("Species list not attached to DB");
 		String query=String.format("FOR au IN author FILTER au.idAut==%2$d UPSERT {_from:'%1$s',_to:au._id} INSERT {_from:'%1$s',_to:au._id,main:%3$b} UPDATE {} IN OBSERVED_BY RETURN OLD ? 0 : 1",baseNode.getID(),aut.baseNode.idAut,isMainAuthor);
 //		System.out.println(query);
 		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
