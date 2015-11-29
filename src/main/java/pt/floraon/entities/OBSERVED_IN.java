@@ -8,11 +8,9 @@ import pt.floraon.server.Constants.PhenologicalStates;
  *
  */
 public class OBSERVED_IN extends GeneralDBEdge {
-	protected Short confidence,validated,wild;
-	protected Short phenoState;
-	protected String uuid,pubnotes,privnotes;
+	protected Short confidence,validated,nativeStatus,phenoState;
+	protected String uuid,pubNotes,privNotes,dateInserted;
 	protected Integer weight=100000;
-	protected String dateInserted;
 	
 	public OBSERVED_IN(Short unc,Short validated,PhenologicalStates phe,String uuid,Integer weight,String pubnotes,NativeStatus nstate,String dateInserted) {
 		this.confidence=unc;
@@ -20,9 +18,9 @@ public class OBSERVED_IN extends GeneralDBEdge {
 		this.phenoState=phe.getCode();
 		this.uuid=uuid;
 		this.weight=weight;
-		this.pubnotes=pubnotes;
+		this.pubNotes=pubnotes;
 		this.dateInserted=dateInserted;
-		this.wild=nstate.getCode();
+		this.nativeStatus=nstate.getCode();
 	}
 	
 	public OBSERVED_IN(Short unc,Short validated,PhenologicalStates phe,String uuid,Integer weight,String pubnotes,NativeStatus nstate,String dateInserted,String from,String to) {
@@ -31,9 +29,9 @@ public class OBSERVED_IN extends GeneralDBEdge {
 		this.phenoState=phe.getCode();
 		this.uuid=uuid;
 		this.weight=weight;
-		this.pubnotes=pubnotes;
+		this.pubNotes=pubnotes;
 		this.dateInserted=dateInserted;
-		this.wild=nstate.getCode();
+		this.nativeStatus=nstate.getCode();
 		this._from=from;
 		this._to=to;
 	}

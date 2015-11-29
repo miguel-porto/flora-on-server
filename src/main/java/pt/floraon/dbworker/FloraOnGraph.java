@@ -17,7 +17,6 @@ import java.util.Map.Entry;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.http.ParseException;
 
 import com.arangodb.ArangoConfigure;
 import com.arangodb.ArangoDriver;
@@ -209,6 +208,7 @@ public class FloraOnGraph {
 	 * @return
 	 */
 	public List<ChecklistEntry> getCheckList() {
+		// TODO the query is very slow!
 		List<ChecklistEntry> chklst=new ArrayList<ChecklistEntry>();
         @SuppressWarnings("rawtypes")
 		CursorResult<List> vertexCursor;
@@ -1005,13 +1005,19 @@ public class FloraOnGraph {
      * @throws ArangoException
      */
     public Iterator<Occurrence> getAllOccurrences() throws ArangoException {
+    	String aqlQuery="FOR oi IN OBSERVED_IN LET sl=(FOR sl IN specieslist FILTER oi._to==sl._id RETURN sl)[0] RETURN MERGE("
+    			+ "sl,oi,(FOR tx IN taxent FILTER oi._from==tx._id RETURN tx)[0]"
+    			+ ",{observers:(FOR ob IN OBSERVED_BY FILTER ob._from==sl._id RETURN (FOR au IN author FILTER au._id==ob._to SORT ob.main RETURN au.name)[0])}"
+    			+ ",{inventoryKey:sl._key})";
+
+/*
     	String aqlQuery=String.format("FOR v2 IN %1$s "
 			+ "LET nei=EDGES(%2$s,v2,'inbound') FILTER LENGTH(nei)>0 "
 			+ "LET mainaut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:true})) "
 			+ "LET aut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:false})) "
 			+ "FOR n IN nei RETURN {name:DOCUMENT(n._from).name,confidence:n.confidence,weight:n.weight,phenoState:n.phenoState,wild:n.wild"
 			+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventory:v2._key,location:v2.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
-			,NodeTypes.specieslist.toString(),AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString());
+			,NodeTypes.specieslist.toString(),AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString());*/
     	CursorResult<Occurrence> vertexCursor=this.driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
     	//System.out.println(aqlQuery);
     	return vertexCursor.iterator();
@@ -1128,7 +1134,6 @@ public class FloraOnGraph {
 	    	int newsplist=0;
 	    	long counter=0;
 	    	List<String[]> lineerrors=new ArrayList<String[]>();
-	    	Boolean abort=false;
 	    	System.out.print("Reading records ");
 
 	    	Occurrence occ;
@@ -1155,7 +1160,6 @@ public class FloraOnGraph {
     			    }
     			}
 			} catch (NumberFormatException e) {
-				abort=true;
 				e.printStackTrace();
 			} catch (ArangoException e) {
 				e.printStackTrace();
@@ -1165,136 +1169,7 @@ public class FloraOnGraph {
     			out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
 			}
 
-	    	if(abort) throw new FloraOnException(counterr+" errors found on lines "+lineerrors.toString());
-	    	return out.toString();
-	    }
-		
-		@Deprecated
-		public String uploadRecordsFromStreamOld(InputStream stream) throws IOException, FloraOnException {
-	    	StringBuilder out=new StringBuilder();
-	    	Reader freader=null;
-	    	Author autnode=null;
-	    	TaxEnt taxnode;
-	    	SpeciesList sln;
-	    	int tmp,i,countupd=0,countnew=0,counterr=0,nrecs=0;
-	    	int newsplist=0;
-	    	long counter=0;
-	    	Integer year,month,day;
-	    	float latitude,longitude;
-	    	List<Long> lineerrors=new ArrayList<Long>();
-	    	Boolean abort=false;//,isupd;
-	    	String[] idauts;
-	    	System.out.print("Reading records");
-
-    		try {
-    			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-    			Iterable<CSVRecord> records = CSVFormat.MYSQL.parse(freader);
-    			for (CSVRecord record : records) {
-    				if(record.size()!=19) {
-						lineerrors.add(record.getRecordNumber());
-						counterr++;
-						continue;	
-    				}
-    				nrecs++;
-					if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
-					if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
-
-// check if authors and ident exist in graph
-    				idauts=record.get(7).replace("\"", "").split(",");	// there may be several authors. The 1st is the main.
-    				
-    				//ni=db.findNodesByLabelAndProperty(NodeTypes.specieslist, "idrec", (int)Integer.parseInt(record.get(0)));	// check if record with same idrec exists
-    				if(record.get(1).equals("\\N")) year=null; else year=Integer.parseInt(record.get(1));
-    				if(record.get(2).equals("\\N")) month=null; else month=Integer.parseInt(record.get(2));
-    				if(record.get(3).equals("\\N")) day=null; else day=Integer.parseInt(record.get(3));
-    				latitude=Float.parseFloat(record.get(5));
-    				longitude=Float.parseFloat(record.get(6));
-// search for an existing species list in the same coordinates, same author and same date
-    				sln=dbSpecificQueries.findExistingSpeciesList(Integer.parseInt(idauts[0]),latitude,longitude,year,month,day,3);
-
-    				if(sln==null) {	// add new specieslist
-// find 1st author
-						autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[0]));
-						if(autnode==null) {			// SKIP line, main observer is compulsory
-							lineerrors.add(record.getRecordNumber());
-    						counterr++;
-    						abort=true;
-    						continue;			
-						} else {	// first author exists and taxon exists, create node
-		    			    tmp=Integer.parseInt(record.get(8));	// precision
-		    			    switch(tmp) {
-		    			    case 0: tmp=1;break;
-		    			    case 1: tmp=100;break;
-		    			    case 2: tmp=1000;break;
-		    			    case 3: tmp=10000;break;
-		    			    }
-		   			    	//sln.setProperty("author",(int)Integer.parseInt(idauts[0]));		// this is the main observer (it'll also be created a relationship, but this for indexing purposes)
-
-							sln=new SpeciesList(FloraOnGraph.this,latitude,longitude,year,month,day,tmp,null,null,false);
-							if(autnode!=null) sln.setObservedBy(autnode, true);
-							newsplist++;
-    						//isupd=false;
-						}
-    				} else {	// TODO: update specieslist?
-    					countupd++;
-    					//isupd=true;
-    				}
-    				
-    				taxnode=dbNodeWorker.getTaxEntById((int)Integer.parseInt(record.get(4)));	// find taxon with ident, we assume there's only one!
-
-					if(taxnode==null) {	// taxon not found! SKIP line
-						lineerrors.add(record.getRecordNumber());
-						System.err.println("Taxon with oldID "+(int)Integer.parseInt(record.get(4))+" not found.");
-						counterr++;
-						abort=true;
-					}
-/*if(isupd) {
-	//sln.setProperty("idrec", (int)Integer.parseInt(record.get(0)));
-    sln.setProperty("lat", (float)Float.parseFloat(record.get(5)));
-    sln.setProperty("long", (float)Float.parseFloat(record.get(6)));
-    if(year!=null) sln.setProperty("year", year); else sln.removeProperty("year");
-    if(month!=null) sln.setProperty("month", month); else sln.removeProperty("month");
-    if(day!=null) sln.setProperty("day", day); else sln.removeProperty("day");
-}*/
-		    		if(taxnode!=null) countnew+=taxnode.setObservedIn(sln
-		    				,Short.parseShort(record.get(11))	// uncertainty
-		    				,Short.parseShort(record.get(9))	// validated?
-		    				,(int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.IN_FLOWER : PhenologicalStates.UNKNOWN
-		    				,record.get(18).replace("\"", "")
-		    				,Integer.parseInt(record.get(17))
-		    				,record.get(10).equals("\\N") ? null : record.get(10).replace("\n", "").replace("\"", "")
-		    				,Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD : NativeStatus.NATURALIZED
-		    				,record.get(12).equals("\\N") ? null : record.get(12).replace("\"", "")
-						);
-    			    if(idauts.length>1) {	// supplementary observers
-    			    	for(i=1;i<idauts.length;i++) {
-    			    		autnode=dbNodeWorker.getAuthorById((int)Integer.parseInt(idauts[i]));
-    						if(autnode==null) {
-    							lineerrors.add(record.getRecordNumber());
-        						counterr++;
-        						abort=true;
-    						} else {
-    							sln.setObservedBy(autnode, false);
-    						}
-    			    	}
-    			    }
-    			    counter++;
-    			    if((counter % 2500)==0) {
-    			    	System.out.println(counter+" records processed.");
-    			    	out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
-    			    }
-    			}
-			} catch (NumberFormatException e) {
-				abort=true;
-				System.err.println("Error processing number fields. Make sure the fields are not quoted. Message: "+e.getMessage());
-			} catch (ArangoException e) {
-				e.printStackTrace();
-				counterr++;
-			} finally {
-    			if(freader!=null) freader.close();
-    			out.append(newsplist+" species lists added; "+countupd+" updated; "+countnew+" new observations inserted; "+counterr+" warning (lines skipped).");
-			}
-
-	    	if(abort) throw new IOException(counterr+" errors found on lines "+lineerrors.toString());
+	    	//if(abort) throw new FloraOnException(counterr+" errors found on lines "+lineerrors.toString());
 	    	return out.toString();
 	    }
 
@@ -1372,8 +1247,8 @@ public class FloraOnGraph {
 			while(records.hasNext()) {
 				record=records.next();
 				count++;
-				if(count % 50==0) {System.out.print(".");System.out.flush();}
-				if(count % 500==0) {System.out.print(count);System.out.flush();}
+				if(count % 100==0) {System.out.print(".");System.out.flush();}
+				if(count % 1000==0) {System.out.print(count);System.out.flush();}
 				try {
 					fullname1=new TaxEntName(record.get("taxon"));
 					n1=dbNodeWorker.findTaxEnt(fullname1);

@@ -32,8 +32,7 @@ public class AppTest
     }
 
     public void testApp() {
-		//System.out.println("Reading sample taxonomy");
-
+    	// TODO: record upload test!!!
     	FloraOnGraph fog=null;
     	try {
 			fog=new FloraOnGraph("flora");

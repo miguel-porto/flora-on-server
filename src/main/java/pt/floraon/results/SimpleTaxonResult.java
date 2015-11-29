@@ -1,9 +1,12 @@
 package pt.floraon.results;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.csv.CSVPrinter;
 
 /**
  * Represents the "taxonomic result" of a query, i.e. the simplified and aggregated information gathered from all taxa that
@@ -28,8 +31,13 @@ public class SimpleTaxonResult implements ResultItem {
 	protected Integer count;	// number of occurrences
 
 	@Override
-	public String toCSVLine() {
-		return this.count+"\t"+this._key+"\tPath: "+Arrays.toString(this.reltypes)+"\t"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"\tMatches: "+Arrays.toString(this.match);
+	public void toCSVLine(CSVPrinter rec) throws IOException {
+		rec.print(this.count);
+		rec.print(this._key);
+		rec.print(Arrays.toString(this.reltypes));
+		rec.print(this._key);
+		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
+		rec.print(Arrays.toString(this.match));
 	}
 
 	@Override

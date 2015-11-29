@@ -1,5 +1,8 @@
 package pt.floraon.results;
 
+import java.io.IOException;
+
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 
 import com.arangodb.ArangoException;
@@ -19,10 +22,19 @@ import pt.floraon.server.Constants.PhenologicalStates;
  *
  */
 public class Occurrence implements ResultItem {
-	protected String name,dateInserted,uuid,inventoryKey,occurrenceKey,pubNotes,privNotes;
-	protected Short wild,confidence,phenoState,validated,nativeStatus;
-	protected Integer weight,year,month,day,precision,idEnt;
-	protected Float[] location={null,null};
+	/**
+	 * NOTE: the field names must be exactly equal to the corresponding fields in the classes OBSERVED_IN and SpeciesList
+	 * They don't need to be all here, though, just the relevant ones.
+	 */
+	protected String uuid,pubNotes,privNotes,dateInserted;			// from OBSERVED_IN
+	protected Short confidence,validated,nativeStatus,phenoState;	// from OBSERVED_IN
+	protected Integer weight;										// from OBSERVED_IN
+	protected Float[] location={null,null};							// from SpeciesList
+	protected Integer year,month,day,precision/*,area*/;			// from SpeciesList
+	protected String comment;										// from SpeciesList
+
+	protected String name,inventoryKey;
+	protected Integer idEnt;
 	protected String[] observers;	// this first of the array is the main observer
 	protected Integer[] idauts;
 	
@@ -62,7 +74,7 @@ public class Occurrence implements ResultItem {
 		occ.pubNotes = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : tmp.replace("\n", "");
 		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.NATURALIZED.getCode();
 		occ.dateInserted = (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp;
-		
+// FIXME: column 13!		
 		return occ;
 	}
 	
@@ -80,7 +92,7 @@ public class Occurrence implements ResultItem {
 		Author autnode;
 		if(sl == null) {	// add new specieslist
 			autnode = graph.dbNodeWorker.getAuthorById(idauts[0]);		//find 1st author (main)
-			if(autnode == null)			// SKIP line, main observer is compulsory
+			if(autnode == null)
 				throw new FloraOnException("Cannot find main author with idAut="+idauts[0]);
 			else {	// first author exists and taxon exists, create node
 				sl = new SpeciesList(graph,location[0],location[1],year,month,day,precision,null,null,false);
@@ -97,28 +109,42 @@ public class Occurrence implements ResultItem {
 			}
 		}
 		
-
 		TaxEnt taxnode = graph.dbNodeWorker.getTaxEntById(idEnt);	// find taxon with ident, we assume there's only one!
 
 		if(taxnode == null)	// taxon not found! SKIP line
 			throw new FloraOnException("Taxon with oldID "+idEnt+" not found.");
 		
+		this.name=taxnode.getName();
 		taxnode.setObservedIn(sl, confidence, validated, PhenologicalStates.getStateFromCode(phenoState), uuid, weight, pubNotes, NativeStatus.getStateFromCode(nativeStatus), dateInserted);
 	}
 	
 	@Override
-	public String toCSVLine() {
-		StringBuilder sb=new StringBuilder();
-		sb.append(this.inventoryKey+"\t"+this.name+"\t"+this.location[0]+"\t"+this.location[1]+"\t"+NativeStatus.getStateFromCode(this.wild)+"\t"+PhenologicalStates.getStateFromCode(this.phenoState)+"\t"+this.dateInserted+"\t"+this.confidence+"\t"+this.validated+"\t"+this.uuid+"\t");
-		for(String s:this.observers)
-			sb.append(s+", ");
-		 return sb.toString();
+	public void toCSVLine(CSVPrinter rec) throws IOException {
+		StringBuffer sb1=new StringBuffer();
+		rec.print(this.inventoryKey);
+		rec.print(this.year);
+		rec.print(this.month);
+		rec.print(this.day);
+		rec.print(this.name);
+		rec.print(this.location[0]);
+		rec.print(this.location[1]);
+		for(String s:this.observers) sb1.append(s+", ");
+		rec.print(sb1.toString());
+		rec.print(this.precision);
+		rec.print(this.validated);
+		rec.print(this.pubNotes);
+		rec.print(this.confidence);
+		rec.print(this.dateInserted);
+		rec.print(PhenologicalStates.getStateFromCode(this.phenoState));
+		rec.print(NativeStatus.getStateFromCode(this.nativeStatus));
+		rec.print(this.weight);
+		rec.print(this.uuid);
 	}
 	
 	@Override
 	public String toHTMLLine() {
 		StringBuilder sb=new StringBuilder();
-		sb.append("<tr><td>"+this.inventoryKey+"</td><td>"+this.name+"</td><td>"+this.location[0]+"</td><td>"+this.location[1]+"</td><td>"+NativeStatus.getStateFromCode(this.wild)+"</td><td>"+PhenologicalStates.getStateFromCode(this.phenoState)+"</td><td>"+this.dateInserted+"</td><td>"+this.confidence+"</td><td>"+this.validated+"</td><td>"+this.uuid+"</td><td>");
+		sb.append("<tr><td>"+this.inventoryKey+"</td><td>"+this.name+"</td><td>"+this.location[0]+"</td><td>"+this.location[1]+"</td><td>"+NativeStatus.getStateFromCode(this.nativeStatus)+"</td><td>"+PhenologicalStates.getStateFromCode(this.phenoState)+"</td><td>"+this.dateInserted+"</td><td>"+this.confidence+"</td><td>"+this.validated+"</td><td>"+this.uuid+"</td><td>");
 		for(String s:this.observers)
 			sb.append(s+", ");
 		sb.append("</td></tr>");

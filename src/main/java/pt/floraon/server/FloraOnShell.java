@@ -86,7 +86,7 @@ public class FloraOnShell {
 	            		System.out.println("\nGenerating random species lists");
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
-	                	//generateRandomSpeciesLists(graph,10000);
+	                	generateRandomSpeciesLists(graph,10000);
 	            		continue;
 	            	}
 	            	

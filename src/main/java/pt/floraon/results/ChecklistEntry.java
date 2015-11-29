@@ -1,5 +1,9 @@
 package pt.floraon.results;
 
+import java.io.IOException;
+
+import org.apache.commons.csv.CSVPrinter;
+
 /**
  * Represents an output line in the downloaded checklist
  * @author miguel
@@ -19,8 +23,12 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 		} else return co;
 	}
 	@Override
-	public String toCSVLine() {
-		return this.taxon+"\t"+this.canonicalName+"\t"+this.genus+"\t"+this.family+"\t"+this.order;
+	public void toCSVLine(CSVPrinter rec) throws IOException {
+		rec.print(this.taxon);
+		rec.print(this.canonicalName);
+		rec.print(this.genus);
+		rec.print(this.family);
+		rec.print(this.order);
 	}
 
 	@Override

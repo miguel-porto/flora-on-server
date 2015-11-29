@@ -1,8 +1,12 @@
 package pt.floraon.results;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 
 import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
@@ -27,12 +31,19 @@ public class ResultProcessor<T extends ResultItem> {
 	}*/
 
 	public String toCSVTable() {
-		StringBuilder sb=new StringBuilder(); 
-		T tmp;
-    	while (this.results.hasNext()) {
-    		tmp=this.results.next();
-    		sb.append(tmp.toCSVLine()).append("\n");
-    	}
+		StringBuffer sb=new StringBuffer();
+		CSVPrinter out;
+		try {
+			out = new CSVPrinter(sb,CSVFormat.DEFAULT.withQuote('\"'));
+			while (this.results.hasNext()) {
+				this.results.next().toCSVLine(out);
+				out.println();
+			}
+			out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	return sb.toString();
 	}
 

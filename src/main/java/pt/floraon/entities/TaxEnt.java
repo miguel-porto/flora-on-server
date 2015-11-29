@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.csv.CSVPrinter;
+
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.internal.LinkedTreeMap;
@@ -251,8 +253,8 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	}
 
 	@Override
-	public String toCSVLine() {
-		return this.getFullName();
+	public void toCSVLine(CSVPrinter rec) throws IOException {
+		rec.print(this.getFullName());
 	}
 
 	@Override

@@ -273,19 +273,19 @@ public class ServerDispatch implements Runnable {
 
 			switch(path[2]) {
 			case "taxonomy":
-				graph.dbDataUploader.uploadTaxonomyListFromFile(query, false);
+				output.println(graph.dbDataUploader.uploadTaxonomyListFromFile(query, false));
 				break;
 				
 			case "attributes":
-				graph.dbDataUploader.uploadMorphologyFromFile(query);
+				output.println(graph.dbDataUploader.uploadMorphologyFromFile(query));
 				break;
 
 			case "authors":
-				graph.dbDataUploader.uploadAuthorsFromFile(query);
+				output.println(graph.dbDataUploader.uploadAuthorsFromFile(query));
 				break;
 				
 			case "occurrences":
-				graph.dbDataUploader.uploadRecordsFromFile(query);
+				output.println(graph.dbDataUploader.uploadRecordsFromFile(query));
 				break;
 			default:
 				output.println(error("Unrecognized command: "+path[2]));
@@ -434,7 +434,7 @@ public class ServerDispatch implements Runnable {
 			}
 			break;
 
-		case "occurrences":
+		case "occurrences":		// all options must return Occurrence lists!
 			ResultProcessor<Occurrence> rpo=new ResultProcessor<Occurrence>(graph.getAllOccurrences());
 			output.println(rpo.toCSVTable());
 			break;
