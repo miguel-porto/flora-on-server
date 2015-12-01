@@ -7,11 +7,11 @@ import org.apache.commons.csv.CSVRecord;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.dbworker.FloraOnException;
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.server.FloraOnException;
 import pt.floraon.server.Constants.NativeStatus;
 import pt.floraon.server.Constants.PhenologicalStates;
 

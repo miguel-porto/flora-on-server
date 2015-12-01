@@ -28,10 +28,7 @@ import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import pt.floraon.dbworker.FloraOnException;
-import pt.floraon.dbworker.FloraOnGraph;
-import pt.floraon.dbworker.QueryException;
-import pt.floraon.dbworker.TaxonomyException;
+import pt.floraon.driver.FloraOnGraph;
 import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.queryparser.YlemParser;

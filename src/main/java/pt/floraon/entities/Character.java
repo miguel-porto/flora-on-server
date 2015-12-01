@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
 

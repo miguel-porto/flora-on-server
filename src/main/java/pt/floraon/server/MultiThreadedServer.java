@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 
 public class MultiThreadedServer implements Runnable {
 

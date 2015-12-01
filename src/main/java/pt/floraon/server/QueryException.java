@@ -1,4 +1,4 @@
-package pt.floraon.dbworker;
+package pt.floraon.server;
 
 public class QueryException extends FloraOnException {
 	private static final long serialVersionUID = 1L;

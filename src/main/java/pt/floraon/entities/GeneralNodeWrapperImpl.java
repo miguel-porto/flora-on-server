@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 
 public class GeneralNodeWrapperImpl extends GeneralNodeWrapper {
 	

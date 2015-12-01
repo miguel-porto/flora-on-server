@@ -2,7 +2,8 @@ package pt.floraon.server;
 
 import java.text.ParseException;
 import com.arangodb.ArangoException;
-import pt.floraon.dbworker.FloraOnGraph;
+
+import pt.floraon.driver.FloraOnGraph;
 
 public class Server 
 {

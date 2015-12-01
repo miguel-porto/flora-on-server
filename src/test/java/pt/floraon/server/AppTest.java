@@ -5,7 +5,7 @@ import com.arangodb.ArangoException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 
 /**
  * Unit test for simple App.

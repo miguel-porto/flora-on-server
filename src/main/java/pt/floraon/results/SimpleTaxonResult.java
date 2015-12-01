@@ -42,7 +42,7 @@ public class SimpleTaxonResult implements ResultItem {
 
 	@Override
 	public String toHTMLLine() {
-		return "<tr><td>"+this.count+"</td><td>"+this._key+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</td><td>"+Arrays.toString(this.match)+"</td></tr>";
+		return "<tr><td>"+this.count+"</td><td>"+this._key+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
 	}
 
 	@Override

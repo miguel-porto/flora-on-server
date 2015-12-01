@@ -10,7 +10,7 @@ import com.arangodb.ArangoException;
 import com.arangodb.entity.DocumentEntity;
 import com.arangodb.entity.EntityFactory;
 
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 
 /**
  * Represents a response composed of an array of nodes and an array of links. It's intended for updating a graph with new or updated nodes.

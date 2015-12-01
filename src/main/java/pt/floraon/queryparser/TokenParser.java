@@ -1,6 +1,6 @@
 package pt.floraon.queryparser;
 
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 import pt.floraon.server.Constants;
 
 public abstract class TokenParser implements Comparable<TokenParser> {

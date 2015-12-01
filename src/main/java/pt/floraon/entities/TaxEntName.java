@@ -1,6 +1,6 @@
-package pt.floraon.dbworker;
+package pt.floraon.entities;
 
-import pt.floraon.entities.GeneralDBNode;
+import pt.floraon.server.TaxonomyException;
 import pt.floraon.server.Constants.TaxonRanks;
 
 public class TaxEntName {

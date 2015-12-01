@@ -1,4 +1,4 @@
-package pt.floraon.dbworker;
+package pt.floraon.driver;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,6 +45,7 @@ import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.SpeciesListVertex;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.entities.TaxEntName;
 import pt.floraon.entities.TaxEntVertex;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.ChecklistEntry;
@@ -52,6 +53,9 @@ import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.Occurrence;
 import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
+import pt.floraon.server.FloraOnException;
+import pt.floraon.server.QueryException;
+import pt.floraon.server.TaxonomyException;
 import pt.floraon.server.Constants.TaxonRanks;
 
 import static pt.floraon.server.Constants.*;
@@ -627,8 +631,8 @@ public class FloraOnGraph {
 	    		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
 					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
-					+ "RETURN {source:v,name:v2.vertex.name,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
-					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
+					+ "COLLECT k=o._key,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
 					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
 /*
 		    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
@@ -639,6 +643,7 @@ public class FloraOnGraph {
 		    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,match:gr[*].o.source,leaf:l}"
 		    				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);*/
 			} else {
+				// TODO may this option should be removed? we don't want queries with ambiguous results (from matches of different collections)
 				StringBuilder sb=new StringBuilder();
 				sb.append("[");
 				for(int i=0;i<collections.length-1;i++) {
@@ -649,9 +654,9 @@ public class FloraOnGraph {
 				query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
 					+ "FOR o IN FLATTEN(FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
-					+ "RETURN {source:v,name:v2.vertex.name,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
-					+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
-					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
+					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
+					+ "COLLECT k=o._key,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
 /*				
 		    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
 		        		+ "FOR o IN FLATTEN(FOR v IN base "

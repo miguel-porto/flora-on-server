@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.dbworker.FloraOnGraph;
+import pt.floraon.driver.FloraOnGraph;
 import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.server.Constants.AllRelTypes;
 
