@@ -69,6 +69,7 @@ public final class Constants {
 		,ECOLOGY
 		,OCCURRENCE
 		,MORPHOLOGY
+		,IMAGE
 	}
 
 	public enum PhenologicalStates {
@@ -122,6 +123,7 @@ public final class Constants {
 		OBSERVED_BY(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_BY.class),
     	HAS_QUALITY(Facets.MORPHOLOGY,pt.floraon.entities.HAS_QUALITY.class),
     	ATTRIBUTE_OF(Facets.TAXONOMY,pt.floraon.entities.ATTRIBUTE_OF.class);
+    	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
 		Class<? extends GeneralDBEdge> edgeClass;
@@ -166,7 +168,8 @@ public final class Constants {
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
     	author,
     	attribute,			// a morphological attribute (e.g. red flower)
-    	character			// a morphological character (e.g. flower color, leaf shape...)
+    	character,			// a morphological character (e.g. flower color, leaf shape...)
+    	image
     }
 /*
 	public static class Pair<L,R> implements Comparable<Pair<L,R>> {

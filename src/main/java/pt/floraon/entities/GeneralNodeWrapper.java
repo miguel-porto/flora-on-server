@@ -14,7 +14,12 @@ public abstract class GeneralNodeWrapper {
 	protected Boolean dirty;
 	protected GeneralDBNode baseNode;
 	
-	abstract void saveToDB() throws IOException, ArangoException;
+	/**
+	 * Saves this node to database
+	 * @throws IOException
+	 * @throws ArangoException
+	 */
+	abstract void commit() throws IOException, ArangoException;
 
 	public String getID() {
 		return baseNode._id;

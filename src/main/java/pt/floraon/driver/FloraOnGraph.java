@@ -42,6 +42,7 @@ import pt.floraon.entities.Character;
 import pt.floraon.entities.GeneralDBNode;
 import pt.floraon.entities.GeneralDBNodeImpl;
 import pt.floraon.entities.GeneralNodeWrapperImpl;
+import pt.floraon.entities.Image;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.SpeciesListVertex;
 import pt.floraon.entities.TaxEnt;
@@ -78,10 +79,14 @@ public class FloraOnGraph {
         
         driver = new ArangoDriver(configure);
 /*
+        driver.createAqlFunction("flora::hybridVisitor", "function (config, result, vertex, path, connections) {"
+    		+ "result.push({vertex});"
+    		+ "}");*/
+        /*
         driver.createAqlFunction("flora::testCode", "function (config, vertex, path) {"
     		+ "if(!vertex.name) return ['exclude','prune'];"
-    		+ "}");
-        */
+    		+ "}");*/
+        
         try {
 			StringsResultEntity dbs=driver.getDatabases();
 			if(!dbs.getResult().contains(dbname))
@@ -475,7 +480,7 @@ public class FloraOnGraph {
 			node.setRank(rank.getValue());
 			node.setCurrent(current);
 			node.setAuthor(author);
-			node.saveToDB();
+			node.commit();
 			return GraphUpdateResult.fromHandle(FloraOnGraph.this, node.getID());
 		}
 		
@@ -1095,7 +1100,7 @@ public class FloraOnGraph {
 							//System.out.println("EXISTS "+parsedName.name);System.out.flush();
 							n.setRank(parsedName.rank.getValue());
 							if(parsedName.author!=null) n.setAuthor(parsedName.author);
-							n.saveToDB();
+							n.commit();
 						}
 						if(parentNode!=null) {	// create PART_OF relationship to previous column
 							nrels+=n.setPART_OF(parentNode.baseNode);
@@ -1105,7 +1110,7 @@ public class FloraOnGraph {
  
 					if(hasOldId) {
 						n.setOldId(Integer.parseInt(record.get(record.size()-1)));
-						n.saveToDB();
+						n.commit();
 					}
 				}
 			} catch (TaxonomyException | QueryException | ArangoException e) {
@@ -1126,6 +1131,17 @@ public class FloraOnGraph {
 	    	return uploadTaxonomyListFromStream(new FileInputStream(file),simulate);
 	    }
 	    
+		public String uploadImagesFromStream(InputStream stream) throws FloraOnException, IOException {
+			Reader freader=null;
+			freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+			Iterable<CSVRecord> records = CSVFormat.MYSQL.parse(freader);
+			Image img;
+			for(CSVRecord record : records) {
+				img=new Image(FloraOnGraph.this,record);
+			}
+			return null;
+		}
+		
 	    public String uploadRecordsFromFile(String filename) throws IOException, FloraOnException {
 	    	File file=new File(filename);
 	    	if(!file.canRead()) throw new IOException("Cannot read file "+filename);

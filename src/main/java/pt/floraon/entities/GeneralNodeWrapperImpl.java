@@ -14,7 +14,7 @@ public class GeneralNodeWrapperImpl extends GeneralNodeWrapper {
 	}
 
 	@Override
-	void saveToDB() throws IOException, ArangoException {
+	void commit() throws IOException, ArangoException {
 		// TODO Auto-generated method stub
 		
 	}

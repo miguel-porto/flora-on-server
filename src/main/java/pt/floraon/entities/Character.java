@@ -43,7 +43,7 @@ public class Character extends GeneralNodeWrapper {
 	}
 
 	@Override
-	public void saveToDB() throws IOException, ArangoException {
+	public void commit() throws IOException, ArangoException {
 		// TODO Auto-generated method stub
 		
 	}

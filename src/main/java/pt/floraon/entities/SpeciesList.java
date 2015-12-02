@@ -102,7 +102,7 @@ public class SpeciesList extends GeneralNodeWrapper {
 	}
 
 	@Override
-	public void saveToDB() {
+	public void commit() {
 		// TODO Auto-generated method stub
 		
 	}

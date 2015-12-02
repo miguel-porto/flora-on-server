@@ -204,7 +204,7 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	 * @throws ArangoException 
 	 */
 	@Override
-	public void saveToDB() throws IOException, ArangoException {
+	public void commit() throws IOException, ArangoException {
 		if(!this.dirty) return;
 		if(baseNode._id==null) throw new IOException("Node "+baseNode.name+" not attached to DB");
 // TODO didn't test whether it gets updated!
