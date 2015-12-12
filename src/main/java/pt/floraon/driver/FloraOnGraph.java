@@ -32,6 +32,8 @@ import com.arangodb.entity.StringsResultEntity;
 import com.arangodb.entity.UserEntity;
 import com.arangodb.entity.marker.VertexEntity;
 import com.arangodb.util.GraphVerticesOptions;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.entities.Attribute;
@@ -52,6 +54,7 @@ import pt.floraon.queryparser.Match;
 import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.Occurrence;
+import pt.floraon.results.SimpleNameResult;
 import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
 import pt.floraon.server.FloraOnException;
@@ -86,7 +89,7 @@ public class FloraOnGraph {
         driver.createAqlFunction("flora::testCode", "function (config, vertex, path) {"
     		+ "if(!vertex.name) return ['exclude','prune'];"
     		+ "}");*/
-        
+        driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");        
         try {
 			StringsResultEntity dbs=driver.getDatabases();
 			if(!dbs.getResult().contains(dbname))
@@ -210,6 +213,7 @@ public class FloraOnGraph {
 		driver.createHashIndex("author", true, "idAut");
 		driver.createHashIndex("taxent", true, true, "oldId");
 		driver.createHashIndex("taxent", false, true, "rank");
+		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
 	}
 	
 	/**
@@ -769,11 +773,11 @@ public class FloraOnGraph {
 	     * @return
 	     * @throws ArangoException
 	     */
-	    @Deprecated
+/*	    @Deprecated
 	    public List<SimpleTaxonResult> inverseSpeciesTextQuery(List<SimpleTaxonResult> startingVertices,String q,boolean exact) throws ArangoException {
 	    	String[] handles=new String[startingVertices.size()];
 	    	for(int i=0;i<startingVertices.size();i++) {
-	    		handles[i]="taxent/"+startingVertices.get(i).getId();
+	    		//handles[i]="taxent/"+startingVertices.get(i).getId();
 	    	}
 	    	String query="FOR o IN (FOR v IN "+EntityFactory.toJsonString(handles)+" "
 				+ "LET p=GRAPH_TRAVERSAL('taxgraph',v,'outbound',{paths:true,filterVertices:'flora::testCode'})[0] LET vv=p[*].path.vertices RETURN "
@@ -782,7 +786,7 @@ public class FloraOnGraph {
 	    	System.out.println("INVERSE QUERY\n"+query);
 	    	CursorResult<SimpleTaxonResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
 	    	return vertexCursor.asList();
-	    }
+	    }*/
 	}
 	
 	public final class SpecificQueries {
@@ -848,6 +852,19 @@ public class FloraOnGraph {
 	    	return vertexCursor.iterator();
 		}
 	
+		/**
+		 * Gets all species or inferior ranks.
+		 * @param onlyLeafNodes true to return only the terminal nodes.
+		 * @return
+		 * @throws ArangoException
+		 */
+		public Iterator<SimpleNameResult> getAllSpeciesOrInferior(boolean onlyLeafNodes) throws ArangoException {
+			String query=String.format("FOR v IN taxent LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) FILTER v.isSpeciesOrInf==true"
+				+ "%1$s SORT v.name RETURN {_key:v._key,name:v.name,author:v.author,leaf:npar==0}", onlyLeafNodes ? "&& npar==0" : "");
+	    	CursorResult<SimpleNameResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleNameResult.class);
+	    	return vertexCursor.iterator();
+		}
+		
 		/**
 		 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
 		 * Note that this only returns the TaxEnt nodes which are direct neighbors of the species list, independently of their taxonomic rank.
@@ -1306,6 +1323,16 @@ public class FloraOnGraph {
 				return nerrors+" errors found while parsing file. Nothing changed.<br/><textarea>"+err.toString()+"</textarea>";
 			else
 				return nnodes+" new nodes added and "+nrels+" relationships created.";
+		}
+		
+		public void addSpeciesLists(JsonObject sl) throws FloraOnException, ArangoException {
+			JsonArray arr=new JsonArray();
+			arr.add(sl);
+			addSpeciesLists(arr);
+		}
+		public void addSpeciesLists(JsonArray sls) throws FloraOnException, ArangoException {
+			for(int i=0; i<sls.size(); i++)
+				new SpeciesList(FloraOnGraph.this,sls.get(i).getAsJsonObject());
 		}
 	}
 }

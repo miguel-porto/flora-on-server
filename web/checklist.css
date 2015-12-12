@@ -1,0 +1,53 @@
+html,body {margin:0;padding:0;font-family: 'Lato',sans-serif;}
+table {border-spacing:0;margin:3px;}
+table td {padding:3px;}
+a {text-decoration:none;}
+h1 {
+	text-align:center;
+}
+
+.button {
+	cursor:pointer;
+	border-radius:5px;
+	box-shadow:0 0 3px gray;
+	background-color:#ccc;
+	float:left;
+	min-width:16px;
+	min-height:16px;
+	margin:0 3px;
+	padding:1px 3px;
+	text-align:center;
+}
+
+#checklist {
+	font-size:0.7em;
+	width:90%;
+	background-color:#eee;
+	margin:0 auto;
+	border-radius:8px;
+	padding:2px 8px;
+}
+
+#checklist table {
+}
+
+ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;}
+
+#main-holder {
+	display:flex;
+	width:100%;
+}
+
+#left-bar {
+	background-color:#eee;
+}
+
+#left-bar ul {
+	color:blue;
+	padding:0px 12px;
+}
+
+#left-bar ul li {list-style-type:none;font-size:1.5em;margin-top:12px;}
+
+#main.species table tr td {cursor:pointer;}
+#main.species table tr:hover td {background-color:#eee;}

@@ -1,7 +1,6 @@
 package pt.floraon.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Arrays;
@@ -81,14 +80,14 @@ public class FloraOnShell {
 	            		System.out.println("Reading morphology");
 	            		graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
+	            		//generateRandomSpeciesLists(graph,10000);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
-	                	generateRandomSpeciesLists(graph,10000);
 	            		continue;
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {           		
-							ServerDispatch.processCommand(line.substring(1), graph, new PrintWriter(System.out));
+						ServerDispatch.processCommand(line.substring(1), graph, System.out);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);
 	    				long start = System.nanoTime();
@@ -285,7 +284,7 @@ public class FloraOnShell {
     		lon=(float) (-9.5+ThreadLocalRandom.current().nextFloat()*3);
     		try {
 				sln=new SpeciesList(fog,lat,lon,ThreadLocalRandom.current().nextInt(1990, 2016),ThreadLocalRandom.current().nextInt(1, 12)
-					,ThreadLocalRandom.current().nextInt(1, 30),0,null,null,false);
+					,ThreadLocalRandom.current().nextInt(1, 30),0,null,null,false,null,null);
 				if(autnode!=null) sln.setObservedBy(autnode, true);
 				nsp=ThreadLocalRandom.current().nextInt(1, 60 + 1);
 				int[] idents=new int[nsp];

@@ -26,12 +26,12 @@ public class Occurrence implements ResultItem {
 	 * NOTE: the field names must be exactly equal to the corresponding fields in the classes OBSERVED_IN and SpeciesList
 	 * They don't need to be all here, though, just the relevant ones.
 	 */
-	protected String uuid,pubNotes,privNotes,dateInserted;			// from OBSERVED_IN
+	protected String uuid,comment,dateInserted;			// from OBSERVED_IN
 	protected Short confidence,validated,nativeStatus,phenoState;	// from OBSERVED_IN
 	protected Integer weight;										// from OBSERVED_IN
 	protected Float[] location={null,null};							// from SpeciesList
 	protected Integer year,month,day,precision/*,area*/;			// from SpeciesList
-	protected String comment;										// from SpeciesList
+	protected String pubNotes,privNotes,habitat;					// from SpeciesList
 
 	protected String name,inventoryKey;
 	protected Integer idEnt;
@@ -68,10 +68,10 @@ public class Occurrence implements ResultItem {
 	    }
 		occ.confidence = Short.parseShort(record.get(11));
 		occ.validated = Short.parseShort(record.get(9));
-		occ.phenoState = (int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.IN_FLOWER.getCode() : PhenologicalStates.UNKNOWN.getCode();
+		occ.phenoState = (int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.FLOWER.getCode() : PhenologicalStates.UNKNOWN.getCode();
 		occ.uuid = record.get(18).replace("\"", "");
 		occ.weight = Integer.parseInt(record.get(17));
-		occ.pubNotes = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : tmp.replace("\n", "");
+		occ.comment = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : tmp.replace("\n", "");
 		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.NATURALIZED.getCode();
 		occ.dateInserted = (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp;
 // FIXME: column 13!		
@@ -95,7 +95,7 @@ public class Occurrence implements ResultItem {
 			if(autnode == null)
 				throw new FloraOnException("Cannot find main author with idAut="+idauts[0]);
 			else {	// first author exists and taxon exists, create node
-				sl = new SpeciesList(graph,location[0],location[1],year,month,day,precision,null,null,false);
+				sl = new SpeciesList(graph,location[0],location[1],year,month,day,precision,null,null,false,null,null);
 				sl.setObservedBy(autnode, true);
 			}
 			
@@ -115,7 +115,7 @@ public class Occurrence implements ResultItem {
 			throw new FloraOnException("Taxon with oldID "+idEnt+" not found.");
 		
 		this.name=taxnode.getName();
-		taxnode.setObservedIn(sl, confidence, validated, PhenologicalStates.getStateFromCode(phenoState), uuid, weight, pubNotes, NativeStatus.getStateFromCode(nativeStatus), dateInserted);
+		taxnode.setObservedIn(sl, confidence, validated, PhenologicalStates.getStateFromCode(phenoState), uuid, weight, comment, NativeStatus.getStateFromCode(nativeStatus), dateInserted);
 	}
 	
 	@Override
@@ -132,7 +132,7 @@ public class Occurrence implements ResultItem {
 		rec.print(sb1.toString());
 		rec.print(this.precision);
 		rec.print(this.validated);
-		rec.print(this.pubNotes);
+		rec.print(this.comment);
 		rec.print(this.confidence);
 		rec.print(this.dateInserted);
 		rec.print(PhenologicalStates.getStateFromCode(this.phenoState));

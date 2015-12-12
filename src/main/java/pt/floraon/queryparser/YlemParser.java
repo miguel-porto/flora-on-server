@@ -139,7 +139,7 @@ public class YlemParser {
 						if(qs.results==null)
 							qs.results=tmp;
 						else
-							qs.results=SimpleTaxonResult.mergeResultLists(qs.results, tmp);
+							qs.results=SimpleTaxonResult.mergeSimpleTaxonResultLists(qs.results, tmp);
 					}
 				} catch (ArangoException e) {
 					// TODO Auto-generated catch block

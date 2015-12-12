@@ -1,0 +1,164 @@
+html,body {height:100%;margin:0;padding:0;font-family:sans-serif;overflow:hidden;font-size:0.9em}
+.button {box-shadow:0 0 3px #aaa;margin:8px;padding:4px;cursor:pointer;border-radius:8px;background-color:white;}
+.button:not(.dead):hover {box-shadow:0 0 3px #070;background:linear-gradient(#fff,#cfc);}
+.button:not(.dead).selected {box-shadow:0 0 3px #070;background:linear-gradient(#cfc,#7f5);}
+.button .pin {box-shadow:0 0 3px #000;width:1.25em;height:1.25em;float:right;border-radius:50%;}
+.button .pin.selected {background-color:#ff0;}
+table th {font-weight:normal;text-align:left;font-size:1.1em}
+p.error {text-align:center;font-size:2em;}
+
+#wait-screen {position:fixed;width:100%;height:100%;background:rgba(0,0,0,0.4);text-align:center;font-size:3em;top:0;left:0;opacity:0;display:none;}
+#main-wrap {display:flex;width:100%;height:100%;vertical-align:text-bottom;}
+#main-wrap .title h1 {font-size:1em;margin:0;}
+
+#taxbrowser {flex:10 1 auto;}
+#toolbar {flex:0 0 200px;box-shadow:0 0 10px black;background:linear-gradient(-30deg,#ddd,#fff);overflow:auto;}
+#toolbar p {margin:0;}
+#toolbar .box {border-radius:0px;box-shadow:0 0 3px #999;padding:5px;margin:2px 0px;background:linear-gradient(#fff,#e7e7e7);}
+#toolbar input {width:100%;border:0;margin:0;padding:0}
+#taxontable {width:100%;}
+#taxontable td {background-color:#ddd}
+#taxontable td.name {color:blue;}
+#taxontable .button {width:1.5em;height:1.5em;border-radius:50%;margin:3px;padding:0;float:right}
+
+#legend {position:absolute;left:0;bottom:0;box-shadow:0 0 10px #000;background:linear-gradient(-30deg,#ddd,#fff);border-radius:6px;margin:8px;}
+#legend .entry {padding:4px;cursor:pointer}
+#legend .entry.selected .pin {background-color:#0f0;}
+#legend .entry .pin {box-shadow:0 0 3px black,0 0 5px white inset;width:1.25em;height:1.25em;float:left;border-radius:50%;margin-right:4px;}
+#legend .entry .pin.selected {background-color:#ff0;}
+
+span.label {border-radius:3px;background-color:white;margin:2px;padding:2px 5px;cursor:pointer;transition:background 0.4s}
+span.label.selected {background-color:#7f7;box-shadow:0 0 3px #444 inset;}
+
+.window {
+	position:absolute;
+	background:linear-gradient(#fff,#ddd);
+	box-shadow:0 0 30px #444;
+	font-size:1.0em;
+}
+
+.window p {
+	font-size:1.2em;
+}
+.window table {width:100%}
+
+.window.docked {
+	width:100%;
+	min-height:50px;
+	top:0;
+	left:0;
+}
+
+.window.float {
+	border-radius:4px;
+	border:1px solid #aaa;
+	padding:4px;
+	overflow:auto;
+}
+
+.window.float.center {
+	width:70%;
+	left:15%;
+	max-height:80%;
+	top:10%;
+}
+
+.window .wrap {margin:8px;}
+
+.window h1 {
+	margin:0;
+	font-size:1.2em;
+	font-weight:normal;
+	color:#06f;
+}
+
+.window .closebutton {
+	box-shadow:0 0 5px #999;
+	border-radius:5px;
+	padding:1px 4px;
+	position:absolute;
+	right:0;
+	bottom:0;
+	cursor:pointer;
+	margin:5px;
+}
+.window.float .closebutton {
+	top:0;bottom:auto;
+}
+
+.window .closebutton:hover {
+	background-color:orange;
+}
+
+.window input[type=text] {
+	border:0;
+	width:13em;
+	padding:0.25em;
+	border-radius:4px;
+	border:1px solid #ddd;
+}
+
+.window textarea {width:95%;}
+
+.window .button {display:inline-block}
+
+p.info {
+	font-style:italic;
+	color:gray;
+	font-size:0.9em
+}
+
+svg {width:100%;height:100%;}
+
+.node text {
+	stroke-width:0px;
+	text-anchor:middle;
+	cursor:pointer;
+/*  pointer-events: none;*/
+	font:10px sans-serif;
+	fill:#000;
+	transition:font-size 0.4s
+/*	alignment-baseline:middle;*/
+}
+
+svg.noentnames .node text {display:none;}
+
+.link {stroke-width:0px;fill:#ddd;cursor:pointer;}
+.link:hover {fill:#fcc !important;stroke-width:2px;stroke:#f77;}
+.link.SYNONYM {stroke:#ddd;stroke-width:2px;fill:white !important}
+.link.SYNONYM.current {stroke:blue;}
+.link.PART_OF.current {fill:#7c7;}
+.link.HYBRID_OF {stroke:#c7c;stroke-width:0px;fill:#c7c;}
+.link.FEEDING {stroke:#f36;stroke-width:2px;fill:none;stroke-opacity:0.5;}	/*stroke-dasharray:5,3;*/
+.link.PARASITIZING {stroke:#f36;stroke-width:1.5px;fill:none;stroke-dasharray:3,2;}
+.link.HAS_QUALITY {stroke:#03f;stroke-width:1px;fill:none;stroke-dasharray:3,3;}
+.link.ATTRIBUTE_OF {stroke:#53f;stroke-width:2px;fill:none;}
+.link.OBSERVED_IN {stroke:#f3f;stroke-width:1px;fill:none;stroke-dasharray:3,3;}
+.link.OBSERVED_BY {stroke:#f3f;stroke-width:1px;fill:none;}
+.link.selected {fill:#f55 !important;stroke-width:2px;stroke:#f00 !important;}
+
+.node circle {fill:#ccc;stroke-width:2;transition:stroke 0.4s,transform 0.4s;stroke:white;}
+.node.taxent.class circle {fill:#fff;stroke:black;stroke-width:4px;transform:scale(1.2);}
+.node.taxent.subclass circle {fill:#8f8;transform:scale(1.3);}
+.node.taxent.order circle {fill:#08f;}
+.node.taxent.family circle {fill:#a8f;}
+.node.taxent.subfamily circle {fill:#fa8;}
+.node.taxent.genus circle {fill:#f88;}
+.node.taxent.species circle {fill:#efa;stroke-width:2px;stroke:black;transform:scale(0.8);}
+.node.taxent.subspecies circle {fill:transparent;stroke-width:4px;stroke:black;transform:scale(0.5);}
+.node.taxent.notcurrent {opacity:0.5;}
+
+.node.author path {fill:green;}
+
+.node.attribute path {fill:#0f0;stroke:blue;}
+
+.node.character circle {fill:#00f;stroke:blue;}
+
+.node.fixed circle {fill:#f00;}
+.node.selected circle,.node.selected path {fill:#f00 !important;stroke:#070 !important;stroke-width:3px !important;}
+.node.selected circle {fill:#f00 !important;stroke:#070 !important;stroke-width:3px !important;transform:scale(1.5);}
+
+.node:hover {stroke-width:3px !important;stroke:red !important;}
+.node:hover text {font-size:15px;}
+
+

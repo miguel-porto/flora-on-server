@@ -5,6 +5,9 @@ import java.util.Iterator;
 
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 
 import pt.floraon.driver.FloraOnGraph;
 import pt.floraon.server.Constants;
@@ -29,8 +32,8 @@ public class SpeciesList extends GeneralNodeWrapper {
 		super.baseNode._id=this.vertexEntity.getDocumentHandle();
 	}
 	
-	public SpeciesList(FloraOnGraph graph,Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String comment,Boolean complete) throws ArangoException {
-		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision, area, comment,complete);
+	public SpeciesList(FloraOnGraph graph,Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String pubNotes,Boolean complete,String privNotes,String habitat) throws ArangoException {
+		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision, area, pubNotes, complete, privNotes, habitat);
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 		this.graph=graph;
 		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), this.baseNode, false);
@@ -46,6 +49,36 @@ public class SpeciesList extends GeneralNodeWrapper {
 		super.baseNode=slv;
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 		this.graph=fog;
+	}
+	
+	/**
+	 * Constructs a new species list from a JSON document as documented in the wiki.
+	 * @param graph
+	 * @param sl A {@link JsonObject} as documented <a href="https://github.com/miguel-porto/flora-on-server/wiki/Document-formats-for-uploading-data">here</a>.
+	 * @throws FloraOnException
+	 * @throws ArangoException
+	 */
+	public SpeciesList(FloraOnGraph graph,JsonObject sl) throws FloraOnException, ArangoException {
+		if(!(sl.has("latitude") && sl.has("longitude") && sl.has("precision") && sl.has("authors") && sl.has("taxa"))) throw new FloraOnException("Species list document must have at least the fields latitude, longitude, precision, authors, taxa.");
+		JsonElement tmp;
+		// TODO HERE!!!
+		super.baseNode=new SpeciesListVertex(
+			sl.get("latitude").getAsFloat()
+			, sl.get("longitude").getAsFloat()
+			, (tmp=sl.get("year")) == null ? null : tmp.getAsInt()
+			, (tmp=sl.get("month")) == null ? null : tmp.getAsInt()
+			, (tmp=sl.get("day")).isJsonNull() ? null : tmp.getAsInt()
+			, sl.get("precision").getAsInt()
+			, (tmp=sl.get("area")) == null ? null : tmp.getAsInt()
+			, (tmp=sl.get("pubNotes")) == null ? null : tmp.getAsString()
+			, (tmp=sl.get("complete")) == null ? null : tmp.getAsBoolean()
+			, (tmp=sl.get("privNotes")).isJsonNull() ? null : tmp.getAsString()
+			, (tmp=sl.get("habitat")) == null ? null : tmp.getAsString()
+			);
+		this.baseNode=(SpeciesListVertex)super.baseNode;
+		this.graph=graph;
+		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), this.baseNode, false);
+		super.baseNode._id=this.vertexEntity.getDocumentHandle();
 	}
 
 	public void setPrecision(Integer precision) {
@@ -97,7 +130,7 @@ public class SpeciesList extends GeneralNodeWrapper {
 	 * @return
 	 */
 	public Iterator<TaxEntVertex> getSpecies() {
-		// TODO
+		// TODO Gets all the species of this species list
 		return null;
 	}
 

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -48,6 +49,7 @@ import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.Occurrence;
 import pt.floraon.results.ResultProcessor;
+import pt.floraon.results.SimpleNameResult;
 import pt.floraon.results.SimpleTaxonResult;
 
 import static pt.floraon.server.Constants.*; 
@@ -116,18 +118,27 @@ public class ServerDispatch implements Runnable {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-        try(PrintWriter out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);InputStream in = clientSocket.getInputStream();) {
+        //try(BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
+
+		try(InputStream in = clientSocket.getInputStream();) {
         	HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         	SessionInputBufferImpl buf = new SessionInputBufferImpl(metrics, 2048);
         	buf.bind(in);
 
         	DefaultHttpRequestParser reqParser = new DefaultHttpRequestParser(buf);
-        	HttpRequest req = reqParser.parse();
+        	HttpRequest req;
+        	try {
+        		req = reqParser.parse();
+        	} catch (ConnectionClosedException e) {
+        		ostr.close();
+        		return;
+        	}
         	RequestLine requestline=req.getRequestLine();
         	URI url=new URIBuilder(requestline.getUri()).build();
+
         	switch(requestline.getMethod()) {
         	case "GET":
-        		processCommand(url,this.graph,out);
+        		processCommand(url,this.graph,ostr);
         		break;
         	case "POST":
             	InputStream contentStream = null;
@@ -160,7 +171,7 @@ public class ServerDispatch implements Runnable {
                 		}
                 	}*/
                 	
-                	processCommand(url,qs,this.graph,out);
+                	processCommand(url,qs,this.graph,ostr);
                 	break;
                 default:	// TODO handle multipart form data
 /*                	URLCodec uc=new URLCodec();
@@ -178,10 +189,11 @@ public class ServerDispatch implements Runnable {
                 }
         		break;
     		default:
-    			out.println(error("Invalid http method: "+requestline.getMethod()));
+    			//out.println(error("Invalid http method: "+requestline.getMethod()));
     			break;
         	}
-        	out.close();
+        	ostr.close();
+        	//out.close();
         } catch (ArangoException | QueryException | TaxonomyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -200,16 +212,17 @@ public class ServerDispatch implements Runnable {
 		}
     }
 	
-	public static void processCommand(String command,FloraOnGraph graph,PrintWriter out) throws ArangoException, URISyntaxException, IOException, FloraOnException {
+	public static void processCommand(String command,FloraOnGraph graph,OutputStream out) throws ArangoException, URISyntaxException, IOException, FloraOnException {
 		URI url=new URI("/"+command.trim());
 		processCommand(url,graph,out);
 	}
 	
-	public static void processCommand(URI url,FloraOnGraph graph,PrintWriter output) throws QueryException, ArangoException, TaxonomyException, IOException, FloraOnException {
+	public static void processCommand(URI url,FloraOnGraph graph,OutputStream output) throws QueryException, ArangoException, TaxonomyException, IOException, FloraOnException {
 		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,output);
 	}
 	
-	public static void processCommand(URI url,List<NameValuePair> params,FloraOnGraph graph,PrintWriter output) throws QueryException, ArangoException, TaxonomyException, IOException, FloraOnException {
+	public static void processCommand(URI url,List<NameValuePair> params,FloraOnGraph graph,OutputStream outstr) throws QueryException, ArangoException, TaxonomyException, IOException {
+		PrintWriter output;
 		JsonObject jobj;
     	String format,id,id2;
     	JsonObject header;
@@ -217,9 +230,10 @@ public class ServerDispatch implements Runnable {
     	String name,author,rank,comment,current,description,shortName;
     	Object parameters=null;
     	
+    	output = new PrintWriter(new OutputStreamWriter(outstr, StandardCharsets.UTF_8), true);
     	String[] path=command.split("/");
     	if(path.length<2) {
-    		output.println(error("This is Flora-On. Missing parameters."));
+    		output.println(error("This is Flora-On. Missing parameters. Are you looking for the web admin? Go to http://localhost:9000/admin"));
     		output.flush();
     		return;
     	}
@@ -236,7 +250,10 @@ public class ServerDispatch implements Runnable {
     	} else parameters=params;		// no JSON, key-values
     	
     	switch(path[1]) {
-		case "query":
+    	case "admin":
+    		WebAdmin.processRequest(url,outstr,graph);
+    		break;
+		case "query":	// general compound query, as input by the user
 			String query=getQSValue("q",parameters);
 			format=getQSValue("fmt",parameters);
 			if(query==null || query.length()<1) {
@@ -254,7 +271,6 @@ public class ServerDispatch implements Runnable {
 			
 			if(res==null) res=new ArrayList<SimpleTaxonResult>();
 				
-			//out.println(res.size()+" results.");
 			header=new JsonObject();
 			header.addProperty("time", (double)elapsedTime/1000000000);
 			header.addProperty("nresults", res.size());
@@ -270,29 +286,45 @@ public class ServerDispatch implements Runnable {
 				output.println(success(rp.toJSONElement(),header));
 				break;
 			}
-
-			//out.printf("[%.3f sec]\n", (double)elapsedTime/1000000000);
 			break;
 			
-		case "checklist":
+		case "lists":
+			if(path.length<3) {
+				output.println(error("Choose one of: checklist, species"));
+				output.flush();
+				return;
+			}
 			format=getQSValue("fmt",parameters);
-			if(format==null) format="json";
-			List<ChecklistEntry> chklst=graph.getCheckList();
-			Collections.sort(chklst);
-			ResultProcessor<ChecklistEntry> rpchk=new ResultProcessor<ChecklistEntry>(chklst.iterator());
-			switch(format) {
-			case "json":
-				header=new JsonObject();
-				header.addProperty("nresults", chklst.size());
-				output.println(success(rpchk.toJSONElement(),header));
+			if(format==null || format.trim().equals("")) format="html";
+			ResultProcessor<?> rpchk=null;
+			switch(path[2]) {
+			case "checklist":
+				List<ChecklistEntry> chklst=graph.getCheckList();
+				Collections.sort(chklst);
+				rpchk=(ResultProcessor<ChecklistEntry>) new ResultProcessor<ChecklistEntry>(chklst.iterator());
 				break;
-			case "html":
-				output.println(rpchk.toHTMLTable());
-				break;
-			case "csv":
-				output.println(rpchk.toCSVTable());
+			
+			case "species":
+				Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(true);
+				rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
 				break;
 			}
+			
+			if(rpchk!=null) {
+				switch(format) {
+				case "json":
+					header=new JsonObject();
+					//header.addProperty("nresults", chklst.size());
+					output.println(success(rpchk.toJSONElement(),header));
+					break;
+				case "html":
+					output.println(rpchk.toHTMLTable());
+					break;
+				case "csv":
+					output.println(rpchk.toCSVTable());
+					break;
+				}
+			} else output.println(error("Some error occurred."));
 			break;
 			
 		case "getneighbors":
@@ -328,31 +360,49 @@ public class ServerDispatch implements Runnable {
 			break;
 			
 		case "reference":
-			jobj=new JsonObject();
-			JsonObject ranks=new JsonObject();	// a map to convert rank numbers to names
+			if(path.length<3) {
+				output.println(error("Choose one of: all, ranks"));
+				output.flush();
+				return;
+			}
 			StringBuilder rk=new StringBuilder();
-			for(TaxonRanks e : Constants.TaxonRanks.values()) {
-				ranks.addProperty(e.getValue().toString(), e.toString());
-				rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
+			switch(path[2]) {
+			case "all":
+				jobj=new JsonObject();
+				JsonObject ranks=new JsonObject();	// a map to convert rank numbers to names
+				for(TaxonRanks e : Constants.TaxonRanks.values()) {
+					ranks.addProperty(e.getValue().toString(), e.toString());
+					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
+				}
+				jobj.add("rankmap", ranks);
+				jobj.addProperty("rankelement", rk.toString());
+				
+				ranks=new JsonObject();
+				for(AllRelTypes art:Constants.AllRelTypes.values()) {
+					ranks.addProperty(art.toString(), art.getFacet().toString());
+				}
+				jobj.add("facets", ranks);
+				output.println(success(jobj.toString()));
+					/*
+				rk=new StringBuilder();
+				
+				for(TaxonomyRelTypes rt:TaxonomyRelTypes.values()) {
+					rk.append("<option value=\""+rt.name()+"\">"+rt.name()+"</option>");
+				}   			
+				obj.put("reltypes", rk.toString());
+				obj.put("success", true);
+				out.println(obj.toJSONString());*/
+				break;
+				
+			case "ranks":
+				rk.append("<select name=\"ranks\">");
+				for(TaxonRanks e : Constants.TaxonRanks.values()) {
+					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
+				}
+				rk.append("</select>");
+				output.println(rk.toString());
+				break;
 			}
-			jobj.add("rankmap", ranks);
-			jobj.addProperty("rankelement", rk.toString());
-			
-			ranks=new JsonObject();
-			for(AllRelTypes art:Constants.AllRelTypes.values()) {
-				ranks.addProperty(art.toString(), art.getFacet().toString());
-			}
-			jobj.add("facets", ranks);
-			output.println(success(jobj.toString()));
-			/*
-			rk=new StringBuilder();
-			
-			for(TaxonomyRelTypes rt:TaxonomyRelTypes.values()) {
-				rk.append("<option value=\""+rt.name()+"\">"+rt.name()+"</option>");
-			}   			
-			obj.put("reltypes", rk.toString());
-			obj.put("success", true);
-			out.println(obj.toJSONString());*/
 			break;
 			
 		case "upload":
@@ -383,7 +433,12 @@ public class ServerDispatch implements Runnable {
 				break;
 				
 			case "occurrences":
-				output.println(graph.dbDataUploader.uploadRecordsFromFile(query));
+				try {
+					output.println(graph.dbDataUploader.uploadRecordsFromFile(query));
+				} catch (FloraOnException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
 				break;
 			default:
 				output.println(error("Unrecognized command: "+path[2]));
@@ -535,6 +590,32 @@ public class ServerDispatch implements Runnable {
 		case "occurrences":		// all options must return Occurrence lists!
 			ResultProcessor<Occurrence> rpo=new ResultProcessor<Occurrence>(graph.getAllOccurrences());
 			output.println(rpo.toCSVTable());
+			break;
+
+		case "specieslists":	// manage species lists (add, update, etc.)
+			if(!(parameters instanceof JsonObject)) {
+				output.println(error("You must POST a JSON document for these methods."));
+				output.flush();
+				return;
+			}
+			if(path.length<3) {
+				output.println(error("Choose one of: add"));
+				output.flush();
+				return;
+			}
+			JsonObject jpar=(JsonObject) parameters;
+			switch(path[2]) {
+			case "add":		// add a species list
+				try {
+					if(jpar.has("list"))	// it's a list of species lists
+						graph.dbDataUploader.addSpeciesLists(jpar.get("list").getAsJsonArray());
+					else			// it's only one species list
+						graph.dbDataUploader.addSpeciesLists(jpar);
+				} catch (FloraOnException e) {
+					output.println(error("Error: "+e.getMessage()));
+				}
+				break;
+			}			
 			break;
 			
 		default:

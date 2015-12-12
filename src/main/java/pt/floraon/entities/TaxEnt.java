@@ -247,7 +247,7 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	}
 	
 	public List<TaxEnt> getParentNodes() {
-		// TODO
+		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
 	}
 

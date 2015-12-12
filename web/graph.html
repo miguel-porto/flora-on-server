@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Taxonomy browser</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="stylesheet" type="text/css" href="taxbrowser.css"/>
+	<script type="text/javascript" src="d3.min.js"></script>
+	<script type="text/javascript" src="basefunctions.js"></script>
+	<script type="text/javascript" src="taxbrowser.js"></script>
+</head>
+<body>
+<div id="main-wrap">
+	<div id="taxbrowser"></div>
+	<div id="toolbar" data-page="">
+<!--	<?php if($_GET['p']=='tax' && array_key_exists("logged",$_SESSION)): ?> -->
+		<ul id="linklist"></ul>
+		<div id="but-logout" class="button">Fechar sessão de edição</div>
+		<div id="but-clean" class="button">Clean</div>
+		<div id="but-delnode" class="button">Delete node/link</div>
+		<div class="box">
+		<div class="title"><p>Node tools</p></div>
+		<div id="but-newnode" class="button">New node</div>
+		<div id="but-orphan" class="button">Load orphan</div>
+		</div>
+		<div class="box">
+		<div class="title"><p>Create new link</p></div>
+		<div id="but-partof" class="button">PART_OF</div>
+		<div id="but-synonym" class="button">SYNONYM</div>
+		<div id="but-parent" class="button">HYBRID_OF</div>
+		</div>
+		<div class="box">
+		<div class="title"><p>Upload CSVs</p></div>
+		<div id="but-uploadbase" class="button">Base taxonomy</div>
+		<div id="but-uploadinter" class="button">Intercalate level</div>
+		<div id="but-empty" class="button">Empty taxonomy!</div>
+		</div>
+<!--	<?php elseif($_GET['p']=='eco' && array_key_exists("logged",$_SESSION)): ?> -->
+		<div class="box">
+		<div class="title"><p>Upload CSVs</p></div>
+		<div id="but-uploadreloccur" class="button">Relationship occurrences</div>
+		</div>
+<!--	<?php elseif($_GET['p']=='chars' && array_key_exists("logged",$_SESSION)): ?> -->
+		<div class="box">
+		<div id="but-logout" class="button">Fechar sessão de edição</div>
+		<div id="but-uploadattributes" class="button">Add attributes</div>
+		<div id="but-newnode" class="button">New attribute</div>
+		<div id="but-newchar" class="button">New character</div>
+		<div id="but-delnode" class="button">Delete node/link</div>
+		</div>
+		<div class="box">
+		<div class="title"><p>Create new link</p></div>
+		<div id="but-synonym" class="button">SYNONYM</div>
+		<div id="but-hasquality" class="button">HAS_QUALITY</div>
+		<div id="but-partof" class="button">PART_OF</div>
+		<div id="but-attributeof" class="button">ATTRIBUTE_OF</div>
+		</div>
+<!--	<?php endif; ?>
+	<?php if(!$_GET['p']): ?> -->
+		<div id="but-editsession" class="button">Abrir sessão de edição</div>
+<!--	<?php endif; ?> -->
+		<div class="box">
+		<div class="title"><p>General query</p></div>
+		<div class="button dead"><input type="text" name="query" id="querytool"/></div>
+		<div class="title"><p>Add node</p></div>
+		<div class="button dead"><input type="text" name="query" id="loadnode"/></div>
+		</div>
+		<div id="viewfacets" class="box">
+		<div class="title"><p>Facets</p></div>
+		<div id="but-showtaxonomy" name="TAXONOMY" class="button selected">Taxonomic links<div class="pin selected"></div></div>
+		<div id="but-showecology" name="ECOLOGY" class="button selected">Ecological links<div class="pin selected"></div></div>
+		<div id="but-showmorphology" name="MORPHOLOGY" class="button selected">Morphological links<div class="pin selected"></div></div>
+		<div id="but-showoccurrence" name="OCCURRENCE" class="button">Occurrence links<div class="pin"></div></div>
+		</div>
+	</div>
+	<div id="legend">
+		<div class="entry selected" id="but-entnames"><div class="pin"></div>Entity names</div>
+	</div>
+</div>
+<div id="wait-screen">Working...</div>
+</body>
+</html>
+

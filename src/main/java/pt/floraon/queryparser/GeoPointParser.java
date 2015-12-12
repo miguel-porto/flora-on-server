@@ -54,7 +54,7 @@ public final class GeoPointParser extends TokenParser {
 				}
 				System.out.println(this.classname+Constants.ANSI_GREENBOLD+"Found "+res.size()+Constants.ANSI_RESET+" results here");
 				
-				this.currentQueryObj.results=SimpleTaxonResult.mergeResultLists(this.currentQueryObj.results,res);
+				this.currentQueryObj.results=SimpleTaxonResult.mergeSimpleTaxonResultLists(this.currentQueryObj.results,res);
 			}
 			
 			// split this piece

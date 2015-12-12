@@ -3,7 +3,7 @@ package pt.floraon.entities;
 public class SpeciesListVertex extends GeneralDBNode {
 	protected Float[] location={null,null};
 	protected Integer year,month,day,precision,area;
-	protected String comment;
+	protected String pubNotes,privNotes,habitat;
 	protected Boolean complete;		// did the observer identify all species he was able to?
 	
 	public SpeciesListVertex(Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision) {
@@ -15,7 +15,7 @@ public class SpeciesListVertex extends GeneralDBNode {
 		this.precision=precision;
 	}
 	
-	public SpeciesListVertex(Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String comment,Boolean complete) {
+	public SpeciesListVertex(Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String pubNotes,Boolean complete,String privNotes,String habitat) {
 		this.location[0]=latitude;
 		this.location[1]=longitude;
 		this.year=year;
@@ -23,8 +23,10 @@ public class SpeciesListVertex extends GeneralDBNode {
 		this.day=day;
 		this.precision=precision;
 		this.area=area;
-		this.comment=comment;
+		this.pubNotes=pubNotes;
 		this.complete=complete;
+		this.privNotes=privNotes;
+		this.habitat=habitat;
 	}
 	
 	public SpeciesListVertex(SpeciesList sl) {
@@ -36,7 +38,7 @@ public class SpeciesListVertex extends GeneralDBNode {
 		this.day=sl.baseNode.day;
 		this.precision=sl.baseNode.precision;
 		this.area=sl.baseNode.area;
-		this.comment=sl.baseNode.comment;
+		this.pubNotes=sl.baseNode.pubNotes;
 		this.complete=sl.baseNode.complete;
 	}
 
@@ -49,7 +51,7 @@ public class SpeciesListVertex extends GeneralDBNode {
 		this.day=sl.day;
 		this.precision=sl.precision;
 		this.area=sl.area;
-		this.comment=sl.comment;
+		this.pubNotes=sl.pubNotes;
 		this.complete=sl.complete;
 	}
 }

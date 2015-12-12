@@ -73,7 +73,7 @@ public final class Constants {
 	}
 
 	public enum PhenologicalStates {
-		UNKNOWN((short)0),VEGETATIVE((short)1),IN_FLOWER((short)2),IN_DISPERSION((short)3),IN_FLOWER_AND_DISPERSION((short)4);
+		UNKNOWN((short)0),VEGETATIVE((short)1),FLOWER((short)2),DISPERSION((short)3),FLOWER_DISPERSION((short)4);
 		
 		private final Short code;
 		PhenologicalStates (Short code) {

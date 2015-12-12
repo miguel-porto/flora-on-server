@@ -22,12 +22,9 @@ import org.apache.commons.csv.CSVPrinter;
  * @author Miguel Porto
  *
  */
-public class SimpleTaxonResult implements ResultItem {
-	protected String name;		// taxon canonical name
-	protected String _key;
+public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	protected String[] match;
 	protected String[] reltypes;
-	protected Boolean leaf=null;
 	protected Integer count;	// number of occurrences
 
 	@Override
@@ -35,7 +32,6 @@ public class SimpleTaxonResult implements ResultItem {
 		rec.print(this.count);
 		rec.print(this._key);
 		rec.print(Arrays.toString(this.reltypes));
-		rec.print(this._key);
 		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
 		rec.print(Arrays.toString(this.match));
 	}
@@ -56,22 +52,13 @@ public class SimpleTaxonResult implements ResultItem {
 		};
 	}
 	
-	@Override
-	public boolean equals(Object o) {
-		return this._key.equals(((SimpleTaxonResult)o)._key);
-	}
-	
-	public String getId() {
-		return this._key;
-	}
-
 	/**
 	 * Intersects two result lists (keeping only common elements) but unions the matches and reltypes of each element
 	 * @param l1
 	 * @param l2
 	 * @return
 	 */
-	public static List<SimpleTaxonResult> mergeResultLists(List<SimpleTaxonResult> l1,List<SimpleTaxonResult> l2) {
+	public static List<SimpleTaxonResult> mergeSimpleTaxonResultLists(List<SimpleTaxonResult> l1,List<SimpleTaxonResult> l2) {
 		if(l1==null) return l2;
 		if(l2==null) return l1;
 		l1.retainAll(l2);

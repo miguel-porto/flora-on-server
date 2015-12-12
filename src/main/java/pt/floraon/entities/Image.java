@@ -14,7 +14,7 @@ import pt.floraon.server.Constants.NodeTypes;
 public class Image extends GeneralNodeWrapper {
 	public ImageVertex baseNode;
 	private Integer idEnt,idOrg,idAut;
-	
+// TODO images!
 	public Image(FloraOnGraph graph,CSVRecord record) {
 		String tmp;
 		baseNode.guid=record.get(0);
