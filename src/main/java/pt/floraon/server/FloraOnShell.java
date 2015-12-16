@@ -87,7 +87,7 @@ public class FloraOnShell {
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {           		
-						ServerDispatch.processCommand(line.substring(1), graph, System.out);
+						ServerDispatch.processCommand(line.substring(1), graph, System.out,false);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);
 	    				long start = System.nanoTime();

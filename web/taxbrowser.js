@@ -104,13 +104,6 @@ document.addEventListener('DOMContentLoaded', function() {
 //	addEvent('resize',window,handleResize);
 });
 
-function fetchAJAX(addr,callback) {
-	loadXMLDoc(addr,function(xmlo) {
-		xmlo=xmlo.target;
-		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
-	});
-}
-
 function substituteWindow(html,el) {
 	var curwnd=document.querySelector('.window .wrap');
 	if(!curwnd) return;
@@ -168,7 +161,8 @@ function removeEl(ev) {
 }
 
 function updateLink(d,current) {
-	fetchAJAX('worker.php?w=changelink&i='+d._id+'&current='+current,function(rt) {
+//	fetchAJAX('worker.php?w=changelink&i='+d._id+'&current='+current,function(rt) {
+	fetchAJAX('/links/update?id='+d._id+'&current='+current,function(rt) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 		console.log(rt.msg);
@@ -184,7 +178,8 @@ function updateLink(d,current) {
 }
 
 function updateTaxNode(d,name,rank,author,comment,current) {
-	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
+//	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
+	fetchAJAX('/nodes/update/taxent?id='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 			updateData(rt.msg.nodes,null);
@@ -513,7 +508,7 @@ function clickToolbar(ev) {
 				var tname=wnd.querySelector('input[name=taxonname]').value;
 				var tauth=wnd.querySelector('input[name=taxonauth]').value;
 				var trank=wnd.querySelector('select[name=taxonrank]').value;
-				fetchAJAX('worker.php?w=addtaxnode&n='+encodeURIComponent(tname)+'&r='+encodeURIComponent(trank)+'&a='+encodeURIComponent(tauth),function(rt) {
+				fetchAJAX('/nodes/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {				
 					rt=JSON.parse(rt);
 					console.log(rt.msg);
 					updateData(rt.msg.nodes,null);
@@ -521,7 +516,7 @@ function clickToolbar(ev) {
 				hideWindow({target:wnd});
 			});
 			break;
-			
+/*			
 		case 'chars':	// TODO here!
 			var wnd=showWindow('<h1>Add new attribute</h1><p>Attribute name: <input type="text" name="attributename"/> Short name: <input type="text" name="shortname"/> Description: <input type="text" name="desc"/> <input type="button" value="Add"/></p><p class="info">aaa</p>',{close:true});
 			addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
@@ -535,7 +530,7 @@ function clickToolbar(ev) {
 				});
 				hideWindow({target:wnd});
 			});
-			break;		
+			break;	*/	
 		}
 		break;
 
@@ -609,7 +604,7 @@ function collapseNode(n) {
 
 function deleteEntity(d,type) {
 //	if(type=='node') {
-		fetchAJAX('worker.php?w=delnode&i='+d._id,function(rt) {
+		fetchAJAX('/nodes/delete?id='+d._id,function(rt) {
 			rt=JSON.parse(rt);
 			var toremove=[];
 			if(rt.success) {
@@ -966,7 +961,7 @@ function clickNode(d) {
 			var srcid=document.querySelector('.window input[name=srcid]').value;
 			var tarid=d._id;
 			var linktype=document.querySelector('.window input[name=linktype]').value;
-			fetchAJAX('worker.php?w=addlink&i1='+srcid+'&i2='+tarid+'&t='+linktype+'&cur=1',function(rt) {
+			fetchAJAX('/links/add?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {			
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					console.log(rt.msg);

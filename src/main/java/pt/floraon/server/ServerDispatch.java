@@ -1,5 +1,6 @@
 package pt.floraon.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,12 +16,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.fileupload.ParameterParser;
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -33,6 +40,10 @@ import org.apache.http.impl.io.DefaultHttpRequestParser;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.SessionInputBufferImpl;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.message.BasicStatusLine;
 import org.apache.http.util.EntityUtils;
 
 import com.arangodb.ArangoException;
@@ -138,7 +149,7 @@ public class ServerDispatch implements Runnable {
 
         	switch(requestline.getMethod()) {
         	case "GET":
-        		processCommand(url,this.graph,ostr);
+        		processCommand(url,this.graph,ostr,true);
         		break;
         	case "POST":
             	InputStream contentStream = null;
@@ -158,34 +169,54 @@ public class ServerDispatch implements Runnable {
             	}
             	BasicHttpEntity ent = new BasicHttpEntity();
                 ent.setContent(contentStream);
+            	ParameterParser pp=new ParameterParser();
+            	Map<String,String> contentTypeHeader=pp.parse(req.getFirstHeader("Content-Type").getValue(),';');
+            	String contentType=null;
+            	for(Entry<String,String> e : contentTypeHeader.entrySet()) {	// get content-type
+            		if(e.getValue()==null) {contentType=e.getKey();break;}
+            	}
+                //System.out.println(EntityUtils.toString(ent));
                 //ereq.setEntity(ent);
-                switch(req.getFirstHeader("Content-Type").getValue()) {
+                switch(contentType) {
                 case "application/x-www-form-urlencoded":
                 	List<NameValuePair> qs=URLEncodedUtils.parse(EntityUtils.toString(ent),Charset.defaultCharset());
-                	/*for(NameValuePair nvp : qs) {
+                	for(NameValuePair nvp : qs) {
                 		if(nvp.getValue()==null) {
                 			JsonObject jo=(JsonObject) new JsonParser().parse(nvp.getName());
                 			System.out.println(jo.toString());
                 		} else {
                 			System.out.println("NAME: "+nvp.getName()+"; value: "+nvp.getValue());
                 		}
-                	}*/
-                	
-                	processCommand(url,qs,this.graph,ostr);
+                	}
+                	processCommand(url,qs,this.graph,ostr,true);
                 	break;
-                default:	// TODO handle multipart form data
-/*                	URLCodec uc=new URLCodec();
-                	try {
-						String ol=uc.decode(EntityUtils.toString(ent));
-						out.println(ol);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (DecoderException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+                	
+                case "multipart/form-data":
+                	List<NameValuePair> params=new ArrayList<NameValuePair>();
+					try {
+						MultipartStream multipartStream = new MultipartStream(contentStream, contentTypeHeader.get("boundary").getBytes(),500,null);
+						boolean nextPart = multipartStream.skipPreamble();
+						ByteArrayOutputStream tmp;
+						while(nextPart) {	// parse each form data part and build a key value map
+							String name=pp.parse(multipartStream.readHeaders(),';').get("name");
+							tmp=new ByteArrayOutputStream();
+							multipartStream.readBodyData(tmp);
+							params.add(new BasicNameValuePair(name,tmp.toString()));
+							nextPart = multipartStream.readBoundary();
+						}
+					} catch(MultipartStream.MalformedStreamException e) {
+					// the stream failed to follow required syntax
+						break;
+					} catch(IOException e) {
+					// a read or write error occurred
+						break;
 					}
-                	break;*/
+					processCommand(url,params,this.graph,ostr,true);
+//					for(NameValuePair nvp : params) System.out.println("NAME: "+nvp.getName()+"; value: "+nvp.getValue());
+                	break;
+
+                default:
+                	break;
                 }
         		break;
     		default:
@@ -193,7 +224,6 @@ public class ServerDispatch implements Runnable {
     			break;
         	}
         	ostr.close();
-        	//out.close();
         } catch (ArangoException | QueryException | TaxonomyException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -212,16 +242,16 @@ public class ServerDispatch implements Runnable {
 		}
     }
 	
-	public static void processCommand(String command,FloraOnGraph graph,OutputStream out) throws ArangoException, URISyntaxException, IOException, FloraOnException {
+	public static void processCommand(String command,FloraOnGraph graph,OutputStream out,boolean headers) throws ArangoException, URISyntaxException, IOException, FloraOnException {
 		URI url=new URI("/"+command.trim());
-		processCommand(url,graph,out);
+		processCommand(url,graph,out,headers);
 	}
 	
-	public static void processCommand(URI url,FloraOnGraph graph,OutputStream output) throws QueryException, ArangoException, TaxonomyException, IOException, FloraOnException {
-		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,output);
+	public static void processCommand(URI url,FloraOnGraph graph,OutputStream output,boolean headers) throws QueryException, ArangoException, TaxonomyException, IOException, FloraOnException {
+		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,output,headers);
 	}
 	
-	public static void processCommand(URI url,List<NameValuePair> params,FloraOnGraph graph,OutputStream outstr) throws QueryException, ArangoException, TaxonomyException, IOException {
+	public static void processCommand(URI url,List<NameValuePair> params,FloraOnGraph graph,OutputStream outstr,boolean headers) throws QueryException, ArangoException, TaxonomyException, IOException {
 		PrintWriter output;
 		JsonObject jobj;
     	String format,id,id2;
@@ -248,11 +278,22 @@ public class ServerDispatch implements Runnable {
 			parameters=jpar;
 			output.println(jpar.toString());
     	} else parameters=params;		// no JSON, key-values
+
+    	if(path[1].equals("admin")) {
+    		WebAdmin.processRequest(url,outstr,graph);
+    		output.flush();
+    		return;
+    	}
+    	
+    	if(headers) {
+	    	HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+	    	httpres.addHeader(new BasicHeader("Content-Type:","application/json"));
+	    	output.print(httpres.toString()+"\r\n");
+	    	output.print("\r\n");
+	    	output.flush();
+    	}
     	
     	switch(path[1]) {
-    	case "admin":
-    		WebAdmin.processRequest(url,outstr,graph);
-    		break;
 		case "query":	// general compound query, as input by the user
 			String query=getQSValue("q",parameters);
 			format=getQSValue("fmt",parameters);
@@ -395,7 +436,7 @@ public class ServerDispatch implements Runnable {
 				break;
 				
 			case "ranks":
-				rk.append("<select name=\"ranks\">");
+				rk.append("<select name=\"rank\">");
 				for(TaxonRanks e : Constants.TaxonRanks.values()) {
 					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
 				}

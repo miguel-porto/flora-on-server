@@ -14,11 +14,13 @@ or you can group certain populations in non-taxonomic nodes, for instance, when 
 1. Download and install ArangoDB
 2. Clone Flora-On into a local folder
 3. In the console, compile with Maven: `mvn package appassembler:assemble`
-4. And type `./run` to launch Flora-On shell
-5. In Flora-On shell, you can type `\sampledata` to load some sample data on the portuguese plant species, to get it working.
-6. Directly type any query in the Flora-On shell to fetch matching species.
-
-A web-based admin is underway.
+## Using
+### Flora-On console
+In the local folder type `./run` to launch Flora-On shell
+In Flora-On shell, you can start by typing `\sampledata` to load some sample data on the portuguese plant species, to get it working.
+Then, directly type any query in the Flora-On shell to fetch matching species.
+### Flora-On server
+Type `./run start` to launch Flora-On server. In the browser, go to localhost:9000/admin for the web admin (under development)
 
 Stay tuned for updates!
 

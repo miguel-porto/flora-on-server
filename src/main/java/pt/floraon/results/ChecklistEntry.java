@@ -14,11 +14,14 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 
 	@Override
 	public int compareTo(ChecklistEntry arg0) {
-		int co=this.order.compareTo(arg0.order);
+		int co,cf;
+		if(this.order!=null && arg0.order!=null) co=this.order.compareTo(arg0.order); else co=0;
 		if(co==0) {
-			int cf=this.family.compareTo(arg0.family);
+			if(this.family!=null && arg0.family!=null) cf=this.family.compareTo(arg0.family); else cf=0;
 			if(cf==0) {
-				return this.canonicalName.compareTo(arg0.canonicalName);
+				if(this.canonicalName!=null && arg0.canonicalName!=null)
+					return this.canonicalName.compareTo(arg0.canonicalName);
+				else return 0;
 			} else return cf;
 		} else return co;
 	}

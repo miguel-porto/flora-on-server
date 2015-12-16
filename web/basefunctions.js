@@ -23,6 +23,26 @@ function removeEvent(evnt,elem,func) {
    }
 }
 
+function postAJAXForm(addr,formElement,callback) {
+	loadXMLDocPOST(addr,formElement,function(xmlo) {
+		xmlo=xmlo.target;
+		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
+	});
+}
+
+function loadXMLDocPOST(doc,formElement,onopen) {
+    var xmlhttp = new XMLHttpRequest();
+	var params = new FormData(formElement);
+	console.log(params);
+	xmlhttp.open("POST", doc, true);
+//	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader("Content-length", params.length);
+	xmlhttp.setRequestHeader("Connection", "close");
+
+	xmlhttp.onreadystatechange = onopen;
+	xmlhttp.send(params);
+}
+
 function loadXMLDoc(doc,onopen) {
     var xmlhttp;
 
@@ -34,6 +54,13 @@ function loadXMLDoc(doc,onopen) {
     xmlhttp.onreadystatechange = onopen;
     xmlhttp.open("GET", doc, true);
     xmlhttp.send();
+}
+
+function fetchAJAX(addr,callback) {
+	loadXMLDoc(addr,function(xmlo) {
+		xmlo=xmlo.target;
+		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
+	});
 }
 
 function getQueryVariable(query,variable) {

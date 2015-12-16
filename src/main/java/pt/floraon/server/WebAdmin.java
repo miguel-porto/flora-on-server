@@ -56,35 +56,36 @@ public final class WebAdmin {
 			case "html":
 			case "htm":
 				out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);
-				res.addHeader(new BasicHeader("Content-Type:","text/html"));
+				res.addHeader(new BasicHeader("Content-Type","text/html"));
 				processFile=true;
 				break;
 			case "png":
 				out = new PrintWriter(ostr);
-				res.addHeader(new BasicHeader("Content-Type:","image/png"));
+				res.addHeader(new BasicHeader("Content-Type","image/png"));
 				break;
 			case "js":
 				out = new PrintWriter(ostr);
-				res.addHeader(new BasicHeader("Content-Type:","application/javascript"));
+				res.addHeader(new BasicHeader("Content-Type","application/javascript"));
 				break;
 			case "css":
 				out = new PrintWriter(ostr);
-				res.addHeader(new BasicHeader("Content-Type:","text/css"));
+				res.addHeader(new BasicHeader("Content-Type","text/css"));
 				break;
 			case "csv":
 				out = new PrintWriter(ostr);
-				res.addHeader(new BasicHeader("Content-Type:","text/csv; charset=Windows-1252"));
-				res.addHeader(new BasicHeader("Content-Disposition:","attachment;Filename=\"Checklist_flora_Portugal.csv\""));
+				res.addHeader(new BasicHeader("Content-Type","text/csv; charset=Windows-1252"));
+				res.addHeader(new BasicHeader("Content-Disposition","attachment;Filename=\"Checklist_flora_Portugal.csv\""));
 				break;
 			default:
 				out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);
-				res.addHeader(new BasicHeader("Content-Type:","text/html"));
+				res.addHeader(new BasicHeader("Content-Type","text/html"));
 				break;
 			}
 		} else {
 			out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);
-			res.addHeader(new BasicHeader("Content-Type:","text/html"));
+			res.addHeader(new BasicHeader("Content-Type","text/html"));
 		}
+		//res.addHeader("Set-Cookie","c1=adsfg; path=/; domain=\".app.localhost:9000\"");
 		// get querystring
 		List<NameValuePair> params=URLEncodedUtils.parse(url,Charset.defaultCharset().toString());
 		out.print(res.toString()+"\r\n");
@@ -115,7 +116,7 @@ public final class WebAdmin {
 				if(address.equals("web/checklist.csv")) {
 					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
 					try {
-						ServerDispatch.processCommand("lists/checklist?fmt=csv", graph, baos);
+						ServerDispatch.processCommand("lists/checklist?fmt=csv", graph, baos,false);
 					} catch (URISyntaxException e1) {
 						out.println("Error");
 					} catch (FloraOnException e1) {
@@ -135,11 +136,14 @@ public final class WebAdmin {
 		String fmt=getQSValue("fmt",params);
 		StringBuilder out=new StringBuilder();
 		ByteArrayOutputStream baos;
+		
+		if(what==null) return "<p>Page not found.</p>";
+		
 		try {
 			switch(what) {		// the 'w' parameter of the URL querystring
 			case "main":
 				baos=new ByteArrayOutputStream();
-				ServerDispatch.processCommand("lists/checklist?fmt=html", graph, baos);
+				ServerDispatch.processCommand("lists/checklist?fmt=html", graph, baos, false);
 				baos.close();
 				
 				out.append("<div id=\"main\" class=\"checklist\">");
@@ -150,27 +154,28 @@ public final class WebAdmin {
 			case "species":
 				out.append("<div id=\"main\" class=\"species\">");
 				out.append("<div class=\"togglevis\"><h3>Add new taxon</h3><div class=\"content\">");
-				out.append("<p>Taxon name: <input type=\"text\" name=\"taxonname\"/> Authority: <input type=\"text\" name=\"taxonauth\"/> Rank: ");
+				out.append("<form class=\"poster\" data-path=\"/nodes/add/taxent\"><p>Taxon name: <input type=\"text\" name=\"name\"/> Authority: <input type=\"text\" name=\"author\"/> Rank: ");
 				baos=new ByteArrayOutputStream();
-				ServerDispatch.processCommand("reference/ranks", graph, baos);
+				ServerDispatch.processCommand("reference/ranks", graph, baos, false);
 				out.append(baos.toString(StandardCharsets.UTF_8.name()));
 				baos.close();
-				out.append(" <input type=\"button\" value=\"Add\"/></p>");
+				out.append(" <input type=\"submit\" value=\"Add\"/></p></form>");
 				out.append("</div></div>");
 				
 				baos=new ByteArrayOutputStream();
-				ServerDispatch.processCommand("lists/species?fmt=json", graph, baos);
+				ServerDispatch.processCommand("lists/species?fmt=json", graph, baos, false);
 				baos.close();
 				out.append("<table>");
 				JsonObject res=(new JsonParser().parse(baos.toString())).getAsJsonObject(),tmp;
 				JsonArray spp=res.get("msg").getAsJsonArray();
 				for(JsonElement je : spp) {
 					tmp=je.getAsJsonObject();
-					out.append("<tr><td><i>")
+					out.append("<tr><td data-key=\""+tmp.get("_key").getAsString()+"\"><i>")
 						.append(tmp.get("name").getAsString())
 						.append("</i></td><td>")
 						.append(tmp.get("author").getAsString())
-						.append("</td><td><div class=\"button round\">x</div><div class=\"button\">add synonym</div><div class=\"button\">add infrataxon</div></td></tr>");
+						.append("</td><td><form class=\"poster\" data-path=\"/nodes/delete\"><input type=\"hidden\" name=\"id\" value=\"taxent/"+tmp.get("_key").getAsString()+"\"/><input type=\"submit\" value=\"x\"/></form>");
+						//.append("<div class=\"button\">add synonym</div><div class=\"button\">add infrataxon</div></td></tr>");
 				}
 				out.append("</table></div>");
 				return out.toString();
