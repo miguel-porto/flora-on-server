@@ -1,21 +1,20 @@
 package pt.floraon.entities;
 
-import java.io.IOException;
-
 import org.apache.commons.csv.CSVRecord;
 
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
+import pt.floraon.server.FloraOnException;
 
 public class Image extends GeneralNodeWrapper {
 	public ImageVertex baseNode;
 	private Integer idEnt,idOrg,idAut;
 // TODO images!
-	public Image(FloraOnGraph graph,CSVRecord record) {
+	public Image(FloraOnDriver graph,CSVRecord record) {
 		String tmp;
 		baseNode.guid=record.get(0);
 		baseNode.fileName=record.get(1);
@@ -34,7 +33,7 @@ public class Image extends GeneralNodeWrapper {
 		this.graph=graph;
 	}
 	@Override
-	void commit() throws IOException, ArangoException {
+	void commit() throws FloraOnException, ArangoException {
 		if(!this.dirty) return;
 		if(baseNode._id==null) {	// it was created from CSV record
 			Author aut=graph.dbNodeWorker.getAuthorById(idAut);

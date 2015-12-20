@@ -6,10 +6,9 @@ import java.util.Iterator;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.server.Constants;
 import pt.floraon.server.FloraOnException;
 import pt.floraon.server.Constants.NodeTypes;
@@ -17,14 +16,14 @@ import pt.floraon.server.Constants.NodeTypes;
 public class SpeciesList extends GeneralNodeWrapper {
 	public SpeciesListVertex baseNode;
 	private VertexEntity<SpeciesListVertex> vertexEntity=null;
-	private FloraOnGraph graph;
+	private FloraOnDriver graph;
 
 	public SpeciesList(Float latitude, Float longitude, Integer year, Integer month, Integer day,Integer precision) {
 		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision);
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 	}
 
-	public SpeciesList(FloraOnGraph graph,Float latitude, Float longitude, Integer year, Integer month, Integer day,Integer precision) throws ArangoException {
+	public SpeciesList(FloraOnDriver graph,Float latitude, Float longitude, Integer year, Integer month, Integer day,Integer precision) throws ArangoException {
 		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision);
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 		this.graph=graph;
@@ -32,7 +31,7 @@ public class SpeciesList extends GeneralNodeWrapper {
 		super.baseNode._id=this.vertexEntity.getDocumentHandle();
 	}
 	
-	public SpeciesList(FloraOnGraph graph,Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String pubNotes,Boolean complete,String privNotes,String habitat) throws ArangoException {
+	public SpeciesList(FloraOnDriver graph,Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String pubNotes,Boolean complete,String privNotes,String habitat) throws ArangoException {
 		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision, area, pubNotes, complete, privNotes, habitat);
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 		this.graph=graph;
@@ -45,7 +44,7 @@ public class SpeciesList extends GeneralNodeWrapper {
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 	}
 	
-	public SpeciesList(FloraOnGraph fog,SpeciesListVertex slv) {
+	public SpeciesList(FloraOnDriver fog,SpeciesListVertex slv) {
 		super.baseNode=slv;
 		this.baseNode=(SpeciesListVertex)super.baseNode;
 		this.graph=fog;
@@ -58,7 +57,7 @@ public class SpeciesList extends GeneralNodeWrapper {
 	 * @throws FloraOnException
 	 * @throws ArangoException
 	 */
-	public SpeciesList(FloraOnGraph graph,JsonObject sl) throws FloraOnException, ArangoException {
+	public SpeciesList(FloraOnDriver graph,JsonObject sl) throws FloraOnException, ArangoException {
 		if(!(sl.has("latitude") && sl.has("longitude") && sl.has("precision") && sl.has("authors") && sl.has("taxa"))) throw new FloraOnException("Species list document must have at least the fields latitude, longitude, precision, authors, taxa.");
 		JsonElement tmp;
 		// TODO HERE!!!

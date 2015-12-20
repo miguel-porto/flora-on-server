@@ -1,13 +1,12 @@
 package pt.floraon.entities;
 
-import java.io.IOException;
-
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.NodeTypes;
+import pt.floraon.server.FloraOnException;
 
 public class Character extends GeneralNodeWrapper {
 	public CharacterVertex baseNode;
@@ -22,19 +21,19 @@ public class Character extends GeneralNodeWrapper {
 		super.baseNode=this.baseNode;
 	}
 	
-	public Character(FloraOnGraph graph,Character at) {
+	public Character(FloraOnDriver graph,Character at) {
 		this.baseNode=new CharacterVertex(at);
 		super.baseNode=this.baseNode;
 		this.graph=graph;
 	}
 
-	public Character(FloraOnGraph graph,CharacterVertex at) {
+	public Character(FloraOnDriver graph,CharacterVertex at) {
 		this.baseNode=at;
 		super.baseNode=this.baseNode;
 		this.graph=graph;
 	}
 
-	public Character(FloraOnGraph graph, String name,String shortName,String description) throws ArangoException {
+	public Character(FloraOnDriver graph, String name,String shortName,String description) throws ArangoException {
 		this.baseNode=new CharacterVertex(name,shortName,description);
 		super.baseNode=this.baseNode;
 		this.graph=graph;
@@ -43,7 +42,7 @@ public class Character extends GeneralNodeWrapper {
 	}
 
 	@Override
-	public void commit() throws IOException, ArangoException {
+	public void commit() throws FloraOnException, ArangoException {
 		// TODO Auto-generated method stub
 		
 	}

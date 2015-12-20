@@ -5,7 +5,7 @@ import com.arangodb.ArangoException;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 
 /**
  * Unit test for simple App.
@@ -33,9 +33,9 @@ public class AppTest
 
     public void testApp() {
     	// TODO: record upload test!!!
-    	FloraOnGraph fog=null;
+    	FloraOnDriver fog=null;
     	try {
-			fog=new FloraOnGraph("flora");
+			fog=new FloraOnDriver("flora");
 		} catch (ArangoException e2) {
 			fail(e2.getErrorMessage());
 		}

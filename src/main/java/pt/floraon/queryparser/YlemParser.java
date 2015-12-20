@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.results.SimpleTaxonResult;
 import pt.floraon.server.Constants;
@@ -23,8 +23,8 @@ import pt.floraon.server.Constants.StringMatchTypes;
 public class YlemParser {
 	private String[] preParsers={"GeoPointParser"};		// regex-based parsers, which don't need to find matches in the DB
 	private String[] query=new String[1];
-	private FloraOnGraph graph;
-	public YlemParser(FloraOnGraph graph,String query) {
+	private FloraOnDriver graph;
+	public YlemParser(FloraOnDriver graph,String query) {
 		this.query[0]=query;//.trim().replaceAll(" +", " ");
 		this.graph=graph;
 	}
@@ -75,7 +75,7 @@ public class YlemParser {
 		try {
 			for(String parser : preParsers) {
 				myClass = Class.forName("pt.floraon.queryparser."+parser);
-				Class<?>[] types = {FloraOnGraph.class, QueryObject.class};
+				Class<?>[] types = {FloraOnDriver.class, QueryObject.class};
 				Constructor<?> constructor = myClass.getConstructor(types);
 				
 				Object[] parameters = {this.graph, qs};

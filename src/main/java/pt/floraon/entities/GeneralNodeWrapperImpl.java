@@ -1,20 +1,19 @@
 package pt.floraon.entities;
 
-import java.io.IOException;
-
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.server.FloraOnException;
 
 public class GeneralNodeWrapperImpl extends GeneralNodeWrapper {
 	
-	public GeneralNodeWrapperImpl(FloraOnGraph graph, GeneralDBNode node) {
+	public GeneralNodeWrapperImpl(FloraOnDriver graph, GeneralDBNode node) {
 		this.baseNode=node;
 		this.graph=graph;
 	}
 
 	@Override
-	void commit() throws IOException, ArangoException {
+	void commit() throws FloraOnException, ArangoException {
 		// TODO Auto-generated method stub
 		
 	}

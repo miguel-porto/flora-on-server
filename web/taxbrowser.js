@@ -34,8 +34,8 @@ function zoomed() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+	var query=getQueryVariable(window.location.search,'q');
 	var dim=document.getElementById('taxbrowser').getBoundingClientRect();
-
 	zoom=d3.behavior.zoom().scaleExtent([0.1, 4]).on("zoom", zoomed);
 
 	force = d3.layout.force().size([dim.width, dim.height]).linkDistance(100).friction(0.5).charge(-1000);//.linkStrength(0.8);
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //				,reltypes:'<select name="reltype">'+rt.reltypes+'</select>'
 			};
 		}
-		loadData({query:'Cistaceae'},false,getVisibleFacets(),1);
+		loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae'},false,getVisibleFacets(),1);
 	});
 
 //	loadData({query:'crambe'},false,getVisibleFacets(),1);
@@ -555,7 +555,15 @@ function clickToolbar(ev) {
 			onUpdateData();
 		});
 		break;
-		
+	case 'but-characters':
+		fetchAJAX('/nodes/getallcharacters',function(rt) {
+			rt=JSON.parse(rt);
+			var onlynew=mergeNodes(rt.nodes);
+			gdata.nodes=gdata.nodes.concat(onlynew);
+			onUpdateData();
+		});
+
+		break;
 	case 'but-partof':
 		var linktype='PART_OF';
 	case 'but-parent':

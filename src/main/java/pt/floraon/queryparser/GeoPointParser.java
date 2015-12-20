@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
 import pt.floraon.results.SimpleTaxonResult;
@@ -23,7 +23,7 @@ public final class GeoPointParser extends TokenParser {
 	private final int RADIUS=15000;
 	private Pattern pattern=Pattern.compile("perto: *(-?[0-9.,]+) *(-?[0-9.,]+)",Pattern.CASE_INSENSITIVE);
 	
-	public GeoPointParser(FloraOnGraph graph, QueryObject query) {
+	public GeoPointParser(FloraOnDriver graph, QueryObject query) {
 		super(graph, query);
 	}
 

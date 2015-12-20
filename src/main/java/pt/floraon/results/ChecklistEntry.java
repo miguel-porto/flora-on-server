@@ -35,8 +35,13 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 	}
 
 	@Override
-	public String toHTMLLine() {
+	public String toHTMLTableRow() {
 		return "<tr><td>"+this.taxon+"</td><td>"+this.canonicalName+"</td><td>"+this.genus+"</td><td>"+this.family+"</td><td>"+this.order+"</td></tr>";
+	}
+
+	@Override
+	public String toHTMLListItem() {
+		return "<li>"+this.taxon+"</li>";
 	}
 	
 	@Override

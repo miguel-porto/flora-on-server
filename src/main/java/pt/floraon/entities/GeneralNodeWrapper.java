@@ -5,12 +5,14 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.ArangoKey;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.server.Constants.AllRelTypes;
+import pt.floraon.server.FloraOnException;
 
 public abstract class GeneralNodeWrapper {
-	protected FloraOnGraph graph;
+	protected FloraOnDriver graph;
 	protected Boolean dirty;
 	protected GeneralDBNode baseNode;
 	
@@ -19,10 +21,14 @@ public abstract class GeneralNodeWrapper {
 	 * @throws IOException
 	 * @throws ArangoException
 	 */
-	abstract void commit() throws IOException, ArangoException;
+	abstract void commit() throws FloraOnException, ArangoException;
 
 	public String getID() {
 		return baseNode._id;
+	}
+	
+	public ArangoKey getArangoKey() throws ArangoException {
+		return ArangoKey.fromString(baseNode._id);
 	}
 	
 	public GeneralDBNode getNode() {
@@ -67,8 +73,8 @@ public abstract class GeneralNodeWrapper {
 	 * @throws IOException
 	 * @throws ArangoException
 	 */
-	public int setPART_OF(GeneralDBNode parent) throws ArangoException, IOException {
-		if(baseNode._id==null) throw new IOException("Node "+baseNode._id+" not attached to DB");
+	public int setPART_OF(GeneralDBNode parent) throws ArangoException, FloraOnException {
+		if(baseNode._id==null) throw new FloraOnException("Node "+baseNode._id+" not attached to DB");
 
 		// checks whether there is already a PART_OF relation between these two nodes
 		String query=String.format(

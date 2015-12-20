@@ -1,20 +1,21 @@
 package pt.floraon.entities;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.csv.CSVPrinter;
-
 import com.arangodb.ArangoException;
+import com.arangodb.CursorResult;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.internal.LinkedTreeMap;
 
-import pt.floraon.driver.FloraOnGraph;
-import pt.floraon.results.ResultItem;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.server.Constants;
 import pt.floraon.server.FloraOnException;
+import pt.floraon.server.TaxonomyException;
+import pt.floraon.server.Constants.AllRelTypes;
 import pt.floraon.server.Constants.NativeStatus;
 import pt.floraon.server.Constants.NodeTypes;
 import pt.floraon.server.Constants.PhenologicalStates;
@@ -25,7 +26,7 @@ import pt.floraon.server.Constants.TaxonRanks;
  * @author Miguel Porto
  *
  */
-public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
+public class TaxEnt extends GeneralNodeWrapper {
 	public TaxEntVertex baseNode;
 	private VertexEntity<TaxEntVertex> vertexEntity=null;
 	{
@@ -38,18 +39,18 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 		this.baseNode=(TaxEntVertex)super.baseNode;
 	}
 	
-	public TaxEnt(FloraOnGraph graph,TaxEntVertex tev) {
+	public TaxEnt(FloraOnDriver graph,TaxEntVertex tev) {
 		super.baseNode=tev;
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
 	}
 	
-	public TaxEnt(LinkedTreeMap<String,Object> tev) {
+	public TaxEnt(LinkedTreeMap<String,Object> tev) throws TaxonomyException {
 		super.baseNode=new TaxEntVertex(tev);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 	}
 
-	public TaxEnt(FloraOnGraph graph,VertexEntity<TaxEntVertex> ve) {
+	public TaxEnt(FloraOnDriver graph,VertexEntity<TaxEntVertex> ve) {
 		super.baseNode=ve.getEntity();
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
@@ -63,8 +64,9 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	 * @param name
 	 * @param rank
 	 * @param annotation
+	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(String name,Integer rank,String author,String annotation) {
+	public TaxEnt(String name,Integer rank,String author,String annotation) throws TaxonomyException {
 		super.baseNode=new TaxEntVertex(name,rank,author,annotation,null,null);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 	}
@@ -74,8 +76,9 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	 * @param graph The graph instance
 	 * @param tname The name
 	 * @throws ArangoException
+	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(FloraOnGraph graph,TaxEntName tname,Boolean current) throws ArangoException {
+	public TaxEnt(FloraOnDriver graph,TaxEntName tname,Boolean current) throws ArangoException, TaxonomyException {
 		super.baseNode=new TaxEntVertex(tname.name,tname.rank == null ? null : tname.rank.getValue(),tname.author,null,current,null);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
@@ -93,8 +96,9 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	 * @param annotation
 	 * @param current
 	 * @throws ArangoException
+	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(FloraOnGraph graph,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException {
+	public TaxEnt(FloraOnDriver graph,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException, TaxonomyException {
 		super.baseNode=new TaxEntVertex(name,rank == null ? null : rank.getValue(),author,annotation,current,null);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
@@ -110,7 +114,7 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	 * @return
 	 * @throws ArangoException
 	 */
-	public static TaxEnt fromHandle(FloraOnGraph graph,String handle) throws ArangoException {
+	public static TaxEnt fromHandle(FloraOnDriver graph,String handle) throws ArangoException {
 		return new TaxEnt(graph,graph.driver.getDocument(handle, TaxEntVertex.class).getEntity());
 	}
 	
@@ -122,58 +126,29 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 		return this.vertexEntity;
 	}
 
-	/**
-	 * Gets the taxon canonical name.
-	 * @return
-	 */
-	public String getName() {
-		return baseNode.name;
-	}
-
-	public void setName(String name) {
+	public void setName(String name) throws TaxonomyException {
 		if(Objects.equals(name, baseNode.name)) return;
+		if(name==null || name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
 		baseNode.name = name;
 		this.dirty=true;
 	}
 	
-	/**
-	 * Gets the taxon name with authorship and annotations.
-	 * @return
-	 */
-	public String getFullName() {
-		return this.getName()+(baseNode.author!=null ? " "+this.getAuthor() : "")+(baseNode.annotation!=null ? " ["+this.getAnnotation()+"]" : "");
-	}
-
-	public TaxonRanks getRank() {
-		return TaxonRanks.getRankFromValue(baseNode.rank);
-	}
-	
-	public Integer getRankValue() {
-		return baseNode.rank;
-	}
-
 	public void setRank(Integer rank) {
 		if(Objects.equals(rank, baseNode.rank)) return;
 		baseNode.rank = rank;
 		this.dirty=true;
 	}
 
-	public String getAnnotation() {
-		return baseNode.annotation;
-	}
-
 	public void setAnnotation(String annotation) {
 		if(Objects.equals(annotation, baseNode.annotation)) return;
+		if(annotation!=null && annotation.trim().length()==0) annotation=null;
 		baseNode.annotation = annotation;
 		this.dirty=true;
 	}
 
-	public String getAuthor() {
-		return baseNode.author;
-	}
-
 	public void setAuthor(String author) {
 		if(Objects.equals(author, baseNode.author)) return;
+		if(author!=null && author.trim().length()==0) author=null;
 		baseNode.author = author;
 		this.dirty=true;
 	}
@@ -202,13 +177,13 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 	 * Flushes all changes in the node to the DB
 	 * @throws IOException 
 	 * @throws ArangoException 
+	 * @throws FloraOnException 
 	 */
 	@Override
-	public void commit() throws IOException, ArangoException {
+	public void commit() throws ArangoException, FloraOnException {
 		if(!this.dirty) return;
-		if(baseNode._id==null) throw new IOException("Node "+baseNode.name+" not attached to DB");
-// TODO didn't test whether it gets updated!
-		this.graph.driver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), baseNode._key, new TaxEntVertex(this), true);
+		if(baseNode._id==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
+		this.graph.driver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), baseNode._key, new TaxEntVertex(this), false);
 		this.dirty=false;
 	}
 		
@@ -234,11 +209,11 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 
 	
 	public Boolean isSpecies() {
-		return this.getRankValue()==TaxonRanks.SPECIES.getValue();
+		return this.baseNode.getRankValue()==TaxonRanks.SPECIES.getValue();
 	}
 	
 	public Boolean isSpeciesOrInferior() {
-		return this.getRankValue()>=TaxonRanks.SPECIES.getValue();
+		return this.baseNode.getRankValue()>=TaxonRanks.SPECIES.getValue();
 	}
 	
 	public Boolean isHybrid() {
@@ -246,24 +221,58 @@ public class TaxEnt extends GeneralNodeWrapper implements ResultItem {
 		return null;
 	}
 	
-	public List<TaxEnt> getParentNodes() {
+	public boolean isLeafNode() throws FloraOnException, ArangoException {
+		if(this.graph==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
+		String query="RETURN LENGTH(FOR e IN PART_OF FILTER e._to=='"+baseNode._id+"' RETURN e)";
+		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult()==0;
+	}
+	
+	/**
+	 * Gets the chain of synonyms associated with this taxon (excluding self). Note that only true SYNONYMs are returned (no PART_OF).
+	 * @return
+	 * @throws ArangoException
+	 * @throws FloraOnException 
+	 * @throws IOException 
+	 */
+	public CursorResult<TaxEntVertex> getSynonyms() throws ArangoException, FloraOnException {
+		if(this.graph==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
+		String query=String.format("FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'any',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex"
+			,NodeTypes.taxent.toString(),AllRelTypes.SYNONYM.toString(),this.baseNode._id
+		);
+		return this.graph.driver.executeAqlQuery(query,null,null,TaxEntVertex.class);
+	}
+	
+	/**
+	 * Sets this taxon as a synonym of given taxon. Automatically sets this taxon to not current.
+	 * @param tev
+	 * @throws ArangoException 
+	 * @throws IOException 
+	 * @throws FloraOnException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalArgumentException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 * @throws SecurityException 
+	 * @throws NoSuchMethodException 
+	 */
+	public void setSynonymOf(TaxEntVertex tev) throws ArangoException, IOException, FloraOnException {
+		this.setCurrent(false);
+		this.commit();
+		try {
+			new GeneralNodeWrapperImpl(this.graph, this.baseNode).createRelationshipTo(tev, AllRelTypes.SYNONYM);
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Gets the parents of an hybrid
+	 * @return
+	 */
+	public List<TaxEnt> getParentTaxa() {
 		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
-	}
-
-	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
-		rec.print(this.getFullName());
-	}
-
-	@Override
-	public String toHTMLLine() {
-		return "<tr><td>"+this.getFullName()+"</td></tr>";
-	}
-
-	@Override
-	public String[] toStringArray() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

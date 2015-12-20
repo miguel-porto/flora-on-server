@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 
 public class MultiThreadedServer implements Runnable {
 
@@ -13,9 +13,9 @@ public class MultiThreadedServer implements Runnable {
     protected ServerSocket serverSocket = null;
     protected boolean      isStopped    = false;
     protected Thread       runningThread= null;
-    protected FloraOnGraph graph;
+    protected FloraOnDriver graph;
 
-    public MultiThreadedServer(int port,FloraOnGraph graph){
+    public MultiThreadedServer(int port,FloraOnDriver graph){
         this.serverPort = port;
         this.graph=graph;
     }

@@ -30,22 +30,22 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	@Override
 	public void toCSVLine(CSVPrinter rec) throws IOException {
 		rec.print(this.count);
-		rec.print(this._key);
+		rec.print(this._id);
 		rec.print(Arrays.toString(this.reltypes));
 		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
 		rec.print(Arrays.toString(this.match));
 	}
 
 	@Override
-	public String toHTMLLine() {
-		return "<tr><td>"+this.count+"</td><td>"+this._key+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
+	public String toHTMLTableRow() {
+		return "<tr><td>"+this.count+"</td><td>"+this._id+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
 	}
 
 	@Override
 	public String[] toStringArray() {
 		return new String[] {
 			this.count==null ? null : this.count.toString()
-			,this._key
+			,this._id
 			,Arrays.toString(this.reltypes)
 			,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name
 			,Arrays.toString(this.match)

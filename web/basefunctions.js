@@ -23,6 +23,13 @@ function removeEvent(evnt,elem,func) {
    }
 }
 
+function postJSON(addr,obj,callback) {
+	loadXMLDocPOSTJSON(addr,obj,function(xmlo) {
+		xmlo=xmlo.target;
+		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
+	});
+}
+
 function postAJAXForm(addr,formElement,callback) {
 	loadXMLDocPOST(addr,formElement,function(xmlo) {
 		xmlo=xmlo.target;
@@ -30,10 +37,24 @@ function postAJAXForm(addr,formElement,callback) {
 	});
 }
 
+function loadXMLDocPOSTJSON(doc,obj,onopen) {
+    var xmlhttp = new XMLHttpRequest();
+	var params = new FormData();
+	for(var k in obj) {
+		params.append(k,obj[k]);
+	}
+	xmlhttp.open("POST", doc, true);
+//	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader("Content-length", params.length);
+	xmlhttp.setRequestHeader("Connection", "close");
+
+	xmlhttp.onreadystatechange = onopen;
+	xmlhttp.send(params);
+}
+
 function loadXMLDocPOST(doc,formElement,onopen) {
     var xmlhttp = new XMLHttpRequest();
 	var params = new FormData(formElement);
-	console.log(params);
 	xmlhttp.open("POST", doc, true);
 //	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xmlhttp.setRequestHeader("Content-length", params.length);

@@ -5,10 +5,11 @@ import java.io.IOException;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.server.Constants;
 import pt.floraon.server.Constants.AllRelTypes;
 import pt.floraon.server.Constants.NodeTypes;
+import pt.floraon.server.FloraOnException;
 
 public class Attribute extends GeneralNodeWrapper {
 	public AttributeVertex baseNode;
@@ -22,19 +23,19 @@ public class Attribute extends GeneralNodeWrapper {
 		this.baseNode=(AttributeVertex)super.baseNode;
 	}
 	
-	public Attribute(FloraOnGraph graph,Attribute at) {
+	public Attribute(FloraOnDriver graph,Attribute at) {
 		super.baseNode=new AttributeVertex(at.baseNode);
 		this.baseNode=(AttributeVertex)super.baseNode;
 		this.graph=graph;
 	}
 
-	public Attribute(FloraOnGraph graph,AttributeVertex at) {
+	public Attribute(FloraOnDriver graph,AttributeVertex at) {
 		super.baseNode=at;
 		this.baseNode=(AttributeVertex)super.baseNode;
 		this.graph=graph;
 	}
 
-	public Attribute(FloraOnGraph graph, String name,String shortName,String description) throws ArangoException {
+	public Attribute(FloraOnDriver graph, String name,String shortName,String description) throws ArangoException {
 		super.baseNode=new AttributeVertex(name,shortName,description);
 		this.baseNode=(AttributeVertex)super.baseNode;
 		this.graph=graph;
@@ -83,7 +84,7 @@ public class Attribute extends GeneralNodeWrapper {
 	}
 	
 	@Override
-	public void commit() throws IOException, ArangoException {
+	public void commit() throws FloraOnException, ArangoException {
 		// TODO Auto-generated method stub
 		
 	}

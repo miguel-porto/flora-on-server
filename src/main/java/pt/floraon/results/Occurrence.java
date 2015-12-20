@@ -7,7 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
@@ -72,7 +72,7 @@ public class Occurrence implements ResultItem {
 		occ.uuid = record.get(18).replace("\"", "");
 		occ.weight = Integer.parseInt(record.get(17));
 		occ.comment = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : tmp.replace("\n", "");
-		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.NATURALIZED.getCode();
+		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.UNCERTAIN.getCode();
 		occ.dateInserted = (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp;
 // FIXME: column 13!		
 		return occ;
@@ -86,7 +86,7 @@ public class Occurrence implements ResultItem {
 	 * @throws ArangoException 
 	 * @throws FloraOnException 
 	 */
-	public void commit(FloraOnGraph graph) throws ArangoException, FloraOnException {
+	public void commit(FloraOnDriver graph) throws ArangoException, FloraOnException {
 		// search for an existing species list in the same coordinates, same author and same date
 		SpeciesList sl = graph.dbSpecificQueries.findExistingSpeciesList(idauts[0],location[0],location[1],year,month,day,3);
 		Author autnode;
@@ -114,7 +114,7 @@ public class Occurrence implements ResultItem {
 		if(taxnode == null)	// taxon not found! SKIP line
 			throw new FloraOnException("Taxon with oldID "+idEnt+" not found.");
 		
-		this.name=taxnode.getName();
+		this.name=taxnode.baseNode.getName();
 		taxnode.setObservedIn(sl, confidence, validated, PhenologicalStates.getStateFromCode(phenoState), uuid, weight, comment, NativeStatus.getStateFromCode(nativeStatus), dateInserted);
 	}
 	
@@ -142,7 +142,7 @@ public class Occurrence implements ResultItem {
 	}
 	
 	@Override
-	public String toHTMLLine() {
+	public String toHTMLTableRow() {
 		StringBuilder sb=new StringBuilder();
 		sb.append("<tr><td>"+this.inventoryKey+"</td><td>"+this.name+"</td><td>"+this.location[0]+"</td><td>"+this.location[1]+"</td><td>"+NativeStatus.getStateFromCode(this.nativeStatus)+"</td><td>"+PhenologicalStates.getStateFromCode(this.phenoState)+"</td><td>"+this.dateInserted+"</td><td>"+this.confidence+"</td><td>"+this.validated+"</td><td>"+this.uuid+"</td><td>");
 		for(String s:this.observers)
@@ -151,6 +151,11 @@ public class Occurrence implements ResultItem {
 		return sb.toString();
 	}
 
+	@Override
+	public String toHTMLListItem() {
+		return "<li>"+this.location[0]+", "+this.location[1]+"</li>";
+	}
+	
 	@Override
 	public String[] toStringArray() {
 		// TODO Auto-generated method stub

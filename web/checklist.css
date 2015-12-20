@@ -2,22 +2,43 @@ html,body {margin:0;padding:0;font-family: 'Lato',sans-serif;}
 table {border-spacing:0;margin:3px;}
 table td {padding:3px;}
 a {text-decoration:none;}
-h1 {
-	text-align:center;
-}
+h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
+h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}
+h3 {margin:0}
+p {margin:3px;}
+p.notcurrent {color:red;text-transform:uppercase;text-align:center;}
+::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
+:-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
+::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
+:-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
 
-.button,input[type=submit] {
+.button {
 	cursor:pointer;
 	border-radius:5px;
 	box-shadow:0 0 3px gray;
 	background-color:#ccc;
 	float:left;
-	min-width:16px;
-	min-height:16px;
-	margin:0 3px;
-	padding:1px 3px;
+	min-width:1em;
+	min-height:1em;
+	margin:2px 3px;
+	padding:0px 3px;
 	text-align:center;
+	font-size:0.75em;
+	text-transform:none !important;
 }
+
+.button:hover {
+	background-color:#7c7;
+}
+
+.button.remove:hover {
+	background-color:#f77;
+}
+
+div.toggler h1 {margin:8px 0 5px;font-size:1em;border-bottom:1px solid #99f;padding:0 4px 6px;cursor:pointer;text-align:left;margin-bottom:0}
+div.toggler h1:hover {background-color:#ff9;}
+div.toggler .content {border-radius:0px;background-color:white;padding:8px;margin:0 6px;}
+div.toggler.off .content {display:none;}
 
 #checklist {
 	font-size:0.7em;
@@ -31,7 +52,8 @@ h1 {
 #checklist table {
 }
 
-ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;}
+ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;cursor:pointer}
+ul.menu li:hover {background-color:#ff7;}
 
 #main-holder {
 	display:flex;
@@ -49,5 +71,60 @@ ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0
 
 #left-bar ul li {list-style-type:none;font-size:1.5em;margin-top:12px;}
 
+#main {flex-grow:2}
 #main.species table tr td {cursor:pointer;}
 #main.species table tr:hover td {background-color:#eee;}
+
+.taxman-holder {
+	display:flex;
+}
+
+.taxtree-holder ul {
+	list-style-type:none;
+	padding-left:0.6em;
+	margin-top:5px;
+}
+.taxtree-holder ul .tools {position:absolute;top:0;right:0;}
+.taxtree-holder ul.ORDER {text-transform:uppercase;}
+.taxtree-holder ul.ORDER ul {text-transform:none;}
+.taxtree-holder li.FAMILY {color:blue;}
+.taxtree-holder li.GENUS {color:#070;}
+.taxtree-holder li.SPECIES {color:#07f;}
+.taxtree-holder li.SUBSPECIES {color:#550;}
+.taxtree-holder li.VARIETY {color:#990;}
+.taxtree-holder ul li {
+	position:relative;
+	cursor:pointer;
+	padding:4px 3px 4px 6px;
+	background-color:white;
+	border-left:1px dashed gray;
+}
+.taxtree-holder ul li:hover {
+	background-color:#fa0;
+}
+
+#taxtree {min-width:300px}
+#taxdetails {flex-grow:1;background-color:#eee;border-radius:6px;margin:0 8px;}
+#taxdetails .synonyms {padding:0;margin:0}
+#taxdetails .synonyms li {
+	font-style:italic;
+	list-style-type:none;
+}
+
+
+ul.suggestions {
+	display:inline-block;
+	padding:0;
+	margin:0;
+}
+ul.suggestions li {
+/*	border:1px solid transparent;*/
+	border-radius:6px;
+	cursor:pointer;
+	padding:1px 10px;
+	list-style-type:none;
+}
+ul.suggestions li.selected {
+/*	border:1px solid red;*/
+	background:rgba(127,127,0,0.4);
+}

@@ -53,12 +53,36 @@ public class ResultProcessor<T extends ResultItem> {
 		sb.append("<table>");
     	while (this.results.hasNext()) {
     		tmp=this.results.next();
-    		sb.append(tmp.toHTMLLine());
+    		sb.append(tmp.toHTMLTableRow());
     	}
     	sb.append("</table>");
     	return sb.toString();
 	}
 	
+	/**
+	 * Outputs these results as an HTML UL tag, optionally with a class.
+	 * @param cssClass
+	 * @return
+	 */
+	public String toHTMLList(String cssClass) {
+		StringBuilder sb=new StringBuilder(); 
+		T tmp;
+		if(cssClass==null)
+			sb.append("<ul>");
+		else
+			sb.append("<ul class=\"").append(cssClass).append("\">");
+		while (this.results.hasNext()) {
+			tmp=this.results.next();
+			sb.append(tmp.toHTMLListItem());
+		}
+		sb.append("</ul>");
+		return sb.toString();
+	}
+
+	public String toHTMLList() {
+		return toHTMLList(null);
+	}
+
 	public TextTable toPrettyTable() {
 		List<String[]> tmp=new ArrayList<String[]>();
     	while (this.results.hasNext()) {

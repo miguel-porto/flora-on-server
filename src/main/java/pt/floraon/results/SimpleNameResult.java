@@ -6,25 +6,30 @@ import org.apache.commons.csv.CSVPrinter;
 
 public class SimpleNameResult implements ResultItem {
 	protected String name;		// taxon canonical name
-	protected String _key,author;
+	protected String _id,author;
 	protected Boolean leaf=null;
 
 	@Override
 	public void toCSVLine(CSVPrinter rec) throws IOException {
-		rec.print(this._key);
+		rec.print(this._id);
 		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
 		rec.print(this.author);
 	}
 
 	@Override
-	public String toHTMLLine() {
-		return "<tr><td data-key=\""+this._key+"\"><i>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</i></td><td>"+this.author+"</td></tr>";
+	public String toHTMLTableRow() {
+		return "<tr><td data-key=\""+this._id+"\"><i>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</i></td><td>"+this.author+"</td></tr>";
+	}
+
+	@Override
+	public String toHTMLListItem() {
+		return "<li data-key=\""+this._id+"\"><i>"+this.name+"</i>"+(this.author == null ? "" : " "+this.author)+"</li>";
 	}
 
 	@Override
 	public String[] toStringArray() {
 		return new String[] {
-				this._key
+				this._id
 				,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name
 				,this.author
 			};
@@ -32,6 +37,6 @@ public class SimpleNameResult implements ResultItem {
 
 	@Override
 	public boolean equals(Object o) {
-		return this._key.equals(((SimpleTaxonResult)o)._key);
+		return this._id.equals(((SimpleTaxonResult)o)._id);
 	}
 }

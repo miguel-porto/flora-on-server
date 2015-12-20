@@ -3,14 +3,14 @@ package pt.floraon.server;
 import java.text.ParseException;
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 
 public class Server 
 {
     public static void main( String[] args ) throws ParseException {
-    	FloraOnGraph graph;
+    	FloraOnDriver graph;
     	try {
-    		graph=new FloraOnGraph("flora");
+    		graph=new FloraOnDriver("flora");
 		} catch (ArangoException e2) {
 			e2.printStackTrace();
 			return;

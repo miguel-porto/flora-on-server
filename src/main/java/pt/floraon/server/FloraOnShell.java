@@ -14,7 +14,7 @@ import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
 import jline.console.completer.StringsCompleter;
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
@@ -28,9 +28,9 @@ import pt.floraon.server.Constants.PhenologicalStates;
 
 public class FloraOnShell {
     public static void main( String[] args ) throws ParseException, IOException {
-    	FloraOnGraph graph;
+    	FloraOnDriver graph;
     	try {
-			graph=new FloraOnGraph("flora");
+			graph=new FloraOnDriver("flora");
 		} catch (ArangoException e2) {
 			e2.printStackTrace();
 			return;
@@ -259,7 +259,7 @@ public class FloraOnShell {
         */
     }
     
-    public static void generateRandomSpeciesLists(FloraOnGraph fog,int number) {
+    public static void generateRandomSpeciesLists(FloraOnDriver fog,int number) {
     	SpeciesList sln;
     	Author autnode=null;
     	int nsp;

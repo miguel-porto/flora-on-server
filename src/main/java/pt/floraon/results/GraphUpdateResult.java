@@ -9,8 +9,12 @@ import java.util.Map;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.DocumentEntity;
 import com.arangodb.entity.EntityFactory;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
-import pt.floraon.driver.FloraOnGraph;
+import pt.floraon.driver.FloraOnDriver;
 
 /**
  * Represents a response composed of an array of nodes and an array of links. It's intended for updating a graph with new or updated nodes.
@@ -26,15 +30,15 @@ public class GraphUpdateResult {
 	private List<Map> links=null;
 	private String jsonRepresentation=null;
 	private List<String> documentHandles=null;
-	private FloraOnGraph graph;
+	private FloraOnDriver graph;
 		
 	/**
 	 * Returns a JSON representation of the results
 	 */
-	@SuppressWarnings("rawtypes")
 	@Override
 	public String toString() {
-		if(this.jsonRepresentation!=null) return this.jsonRepresentation;
+		return this.toJsonObject().toString();
+/*		if(this.jsonRepresentation!=null) return this.jsonRepresentation;
 		if(this.nodes==null && this.links==null && this.documentHandles==null) return "{\"nodes\":[],\"links\":[]}";
 		
 		if(this.documentHandles!=null) {
@@ -59,7 +63,47 @@ public class GraphUpdateResult {
 			}
 			return "{\"nodes\":"+EntityFactory.toJsonString(this.nodes)+",\"links\":"+EntityFactory.toJsonString(this.links)+"}";
 		}
-		return "{\"nodes\":[],\"links\":[]}";
+		return "{\"nodes\":[],\"links\":[]}";*/
+	}
+
+	@SuppressWarnings("rawtypes")
+	public JsonElement toJsonObject() {
+		if(this.jsonRepresentation!=null) return (new JsonParser()).parse(this.jsonRepresentation);
+		if(this.nodes==null && this.links==null && this.documentHandles==null) return GraphUpdateResult.emptyResultJson();
+		
+		if(this.documentHandles!=null) {
+			Map<?,?> tmp;
+			Object tmp1;
+			this.links=new ArrayList<Map>();
+			this.nodes=new ArrayList<Map>();
+			try {
+				Iterator<DocumentEntity<Map>> dc=graph.driver.executeDocumentQuery("FOR d IN DOCUMENT("+EntityFactory.toJsonString(this.documentHandles)+") RETURN MERGE(d,{type:PARSE_IDENTIFIER(d._id).collection})", null, null, Map.class).iterator();
+				while(dc.hasNext()) {
+					tmp=dc.next().getEntity();
+					tmp1=tmp.get("_from");
+					if(tmp1!=null) {	// it's an edge
+						this.links.add(tmp);
+					} else {	// it's a vertex
+						this.nodes.add(tmp);
+					}
+				}
+			} catch (ArangoException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			JsonObject out=new JsonObject();
+			out.add("nodes", EntityFactory.toJsonElement(this.nodes, false));
+			out.add("links", EntityFactory.toJsonElement(this.links, false));
+			return out;
+		}
+		return GraphUpdateResult.emptyResultJson();
+	}
+
+	private static JsonObject emptyResultJson() {
+		JsonObject out=new JsonObject();
+		out.add("nodes", new JsonArray());
+		out.add("links", new JsonArray());
+		return out;
 	}
 	
 	public static GraphUpdateResult emptyResult() {
@@ -72,7 +116,7 @@ public class GraphUpdateResult {
 		return out;
 	}
 	
-	public static GraphUpdateResult fromHandle(FloraOnGraph graph,String id) {
+	public static GraphUpdateResult fromHandle(FloraOnDriver graph,String id) {
 		GraphUpdateResult out=new GraphUpdateResult();
 		out.graph=graph;
 		out.documentHandles=new ArrayList<String>();
@@ -80,7 +124,7 @@ public class GraphUpdateResult {
 		return out;
 	}
 	
-	public static GraphUpdateResult fromHandles(FloraOnGraph graph,String[] ids) {
+	public static GraphUpdateResult fromHandles(FloraOnDriver graph,String[] ids) {
 		GraphUpdateResult out=new GraphUpdateResult();
 		out.graph=graph;
 		out.documentHandles=new ArrayList<String>();

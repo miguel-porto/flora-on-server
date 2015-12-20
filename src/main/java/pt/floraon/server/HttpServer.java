@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,22 +28,14 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 
-import com.arangodb.ArangoException;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import pt.floraon.driver.FloraOnGraph;
-
-import static pt.floraon.server.ServerDispatch.*;
+import pt.floraon.driver.FloraOnDriver;
 /**
  * Handles the request to the web admin pages... a hacky implementation of a dynamic web server!
  * @author miguel
  *
  */
-public final class WebAdmin {
-	static void processRequest(URI url,OutputStream ostr,FloraOnGraph graph) throws FileNotFoundException, IOException, ArangoException {
+public final class HttpServer {
+	static void processRequest(URI url,OutputStream ostr,FloraOnDriver graph) throws FileNotFoundException, IOException {
 		PrintWriter out=null;
     	String command=url.getPath();
     	String[] path=command.split("/");
@@ -99,20 +92,37 @@ public final class WebAdmin {
 			address="web/"+path[2]+"/"+path[3];
 		page=new File(address);
 		
-		if(processFile) {
+		if(processFile) {	// it's an HTML file, look for dynamic content <!-- CONTENT:/address -->
+			Pattern cnt=Pattern.compile("<!-- CONTENT:([a-zA-Z0-9_/?=%+-]+) -->");
 			BufferedReader br=new BufferedReader(new FileReader(page));
 			String line;
 			while((line=br.readLine())!=null) {
-				if(line.contains("<!-- CONTENT -->")) {
-					line=line.replace("<!-- CONTENT -->", makePageContent(params,graph));
+				Matcher mat=cnt.matcher(line);
+				if(mat.find()) {	// this line has dynamic content
+					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
+					try {
+						URI urlcnt=new URI(mat.group(1).trim());	// this is the dynamic content URL
+						List<NameValuePair> paramscnt=URLEncodedUtils.parse(urlcnt,Charset.defaultCharset().toString());	// this is the content query variables
+						List<NameValuePair> mergeparams=new ArrayList<NameValuePair>(paramscnt);
+						mergeparams.addAll(params);	// merge the content query variables with the parent query variables
+						// NOTE: if there are duplicate keys, the content query variables take precedence!
+						ServerDispatch.processCommand(urlcnt, mergeparams, graph, baos, false);
+					} catch (FloraOnException e) {
+						out.println("Error: "+e.getMessage());
+					} catch (URISyntaxException e) {
+						out.println("Error: "+e.getMessage());
+						e.printStackTrace();
+					}
+					baos.close();
+					line=mat.replaceFirst(baos.toString());
 				}
 				out.println(line);
 			}
 			br.close();
-		} else {
+		} else {	// it's a static file
 			try {
 				IOUtils.copy(new FileInputStream(page), ostr);
-			} catch (FileNotFoundException e) {
+			} catch (FileNotFoundException e) {		// file does not exist? add exceptions here!
 				if(address.equals("web/checklist.csv")) {
 					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
 					try {
@@ -130,8 +140,8 @@ public final class WebAdmin {
 		out.close();
 		return;
 	}
-	
-	static String makePageContent(List<NameValuePair> params,FloraOnGraph graph) throws ArangoException, IOException {
+	/*
+	static String makePageContent(List<NameValuePair> params,FloraOnDriver graph) throws IOException {
 		String what=getQSValue("w",params);
 		String fmt=getQSValue("fmt",params);
 		StringBuilder out=new StringBuilder();
@@ -141,16 +151,6 @@ public final class WebAdmin {
 		
 		try {
 			switch(what) {		// the 'w' parameter of the URL querystring
-			case "main":
-				baos=new ByteArrayOutputStream();
-				ServerDispatch.processCommand("lists/checklist?fmt=html", graph, baos, false);
-				baos.close();
-				
-				out.append("<div id=\"main\" class=\"checklist\">");
-				out.append(baos.toString());
-				out.append("</div>");
-				return out.toString();
-
 			case "species":
 				out.append("<div id=\"main\" class=\"species\">");
 				out.append("<div class=\"togglevis\"><h3>Add new taxon</h3><div class=\"content\">");
@@ -169,6 +169,7 @@ public final class WebAdmin {
 				JsonObject res=(new JsonParser().parse(baos.toString())).getAsJsonObject(),tmp;
 				JsonArray spp=res.get("msg").getAsJsonArray();
 				for(JsonElement je : spp) {
+					//SimpleNameResult snr=EntityFactory.createEntity(je.getAsString(), SimpleNameResult.class);
 					tmp=je.getAsJsonObject();
 					out.append("<tr><td data-key=\""+tmp.get("_key").getAsString()+"\"><i>")
 						.append(tmp.get("name").getAsString())
@@ -178,15 +179,14 @@ public final class WebAdmin {
 						//.append("<div class=\"button\">add synonym</div><div class=\"button\">add infrataxon</div></td></tr>");
 				}
 				out.append("</table></div>");
-				return out.toString();
-	
-			default:
-				return "<p>Page not found.</p>";
+				break;
+				
 			}
+			return out.toString();
 		} catch (FloraOnException e) {
 			return "<p>Flora-On error: "+e.getMessage()+"</p>";
 		} catch (URISyntaxException e) {
 			return "<p>Error processing URL.</p>";
 		}
-	}
+	}*/
 }
