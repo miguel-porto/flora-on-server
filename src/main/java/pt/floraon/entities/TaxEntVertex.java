@@ -147,6 +147,7 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 		StringBuilder sb=new StringBuilder();
 		sb.append("<li class=\"")
 			.append(this.getRank().toString())
+			.append(this.current ? "" : " notcurrent")
 			.append("\" data-key=\"")
 			.append(this._id)
 			.append("\">")

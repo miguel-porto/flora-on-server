@@ -6,11 +6,13 @@ h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
 h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}
 h3 {margin:0}
 p {margin:3px;}
-p.notcurrent {color:red;text-transform:uppercase;text-align:center;}
 ::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
 :-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
 ::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
 :-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
+ul.menu {padding:0}
+ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;cursor:pointer}
+ul.menu li:hover {background-color:#ff7;}
 
 .button {
 	cursor:pointer;
@@ -52,9 +54,6 @@ div.toggler.off .content {display:none;}
 #checklist table {
 }
 
-ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;cursor:pointer}
-ul.menu li:hover {background-color:#ff7;}
-
 #main-holder {
 	display:flex;
 	width:100%;
@@ -77,6 +76,7 @@ ul.menu li:hover {background-color:#ff7;}
 
 .taxman-holder {
 	display:flex;
+	position:relative;
 }
 
 .taxtree-holder ul {
@@ -103,7 +103,10 @@ ul.menu li:hover {background-color:#ff7;}
 	background-color:#fa0;
 }
 
+.taxtree-holder ul li.notcurrent {color:#999 !important}
+
 #taxtree {min-width:300px}
+
 #taxdetails {flex-grow:1;background-color:#eee;border-radius:6px;margin:0 8px;}
 #taxdetails .synonyms {padding:0;margin:0}
 #taxdetails .synonyms li {
@@ -111,6 +114,10 @@ ul.menu li:hover {background-color:#ff7;}
 	list-style-type:none;
 }
 
+#taxdetails ul.currentstatus {text-align:center}
+#taxdetails ul.currentstatus .current,#taxdetails ul.currentstatus .notcurrent {color:gray}
+#taxdetails ul.currentstatus .current.selected {color:#070;background-color:#9f9;text-transform:uppercase;}
+#taxdetails ul.currentstatus .notcurrent.selected {color:#700;text-transform:uppercase;background-color:#f99}
 
 ul.suggestions {
 	display:inline-block;

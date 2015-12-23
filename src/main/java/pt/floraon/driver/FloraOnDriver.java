@@ -89,7 +89,7 @@ public class FloraOnDriver {
         driver.createAqlFunction("flora::testCode", "function (config, vertex, path) {"
     		+ "if(!vertex.name) return ['exclude','prune'];"
     		+ "}");*/
-        driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");        
+                
         try {
 			StringsResultEntity dbs=driver.getDatabases();
 			if(!dbs.getResult().contains(dbname))
@@ -233,7 +233,7 @@ public class FloraOnDriver {
     	gvo.setVertexCollectionRestriction(vcr);
     	String query=String.format(
 			"FOR v IN GRAPH_TRAVERSAL('%1$s',"	//		LENGTH(EDGES(%2$s,v._id,'inbound'))
-			+ "FOR v IN taxent FILTER v.isSpeciesOrInf==true && LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e)==0 RETURN v"	// leaf nodes
+			+ "FOR v IN taxent FILTER v.isSpeciesOrInf==true && v.current==true && LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e)==0 RETURN v"	// leaf nodes
 			+ ",'outbound',{paths:false,filterVertices:[%3$s],vertexFilterMethod:['exclude']}) COLLECT a=v[*].vertex RETURN a"
    			, Constants.TAXONOMICGRAPHNAME,AllRelTypes.PART_OF.toString(),Constants.CHECKLISTFIELDS);
 
@@ -850,6 +850,13 @@ public class FloraOnDriver {
 	    	return speciesTextQuerySimple(match.query,match.getMatchType(),onlyLeafNodes,new String[]{match.getNodeType().toString()},match.getRank());
 	    }
 	    
+	    public List<String> validateTaxonomy() {
+	    	/* TODO:
+	    	 * - in a synonym chain, only one node can be current
+	    	 */
+	    	List<String> out=new ArrayList<String>();
+	    	return out;
+	    }
 	    /**
 	     * Execute a text query on the starting nodes going upwards. Good idea, but it's actually slower!
 	     * @param startingVertices

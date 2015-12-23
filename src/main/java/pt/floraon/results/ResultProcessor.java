@@ -1,6 +1,7 @@
 package pt.floraon.results;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -58,7 +59,18 @@ public class ResultProcessor<T extends ResultItem> {
     	sb.append("</table>");
     	return sb.toString();
 	}
-	
+
+	public void toHTMLTable(PrintWriter ostr) {
+		T tmp;
+		ostr.print("<table>");
+    	while (this.results.hasNext()) {
+    		tmp=this.results.next();
+    		ostr.print(tmp.toHTMLTableRow());
+    	}
+    	ostr.print("</table>");
+    	ostr.flush();
+	}
+
 	/**
 	 * Outputs these results as an HTML UL tag, optionally with a class.
 	 * @param cssClass

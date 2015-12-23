@@ -268,6 +268,7 @@ public class ServerDispatch implements Runnable {
     	Object parameters=null;
     	
     	output = new PrintWriter(new OutputStreamWriter(outstr, StandardCharsets.UTF_8), true);
+    	
     	String[] path=command.split("/");
     	if(path.length<2) {
     		output.println(error("This is Flora-On. Missing parameters. Are you looking for the web admin? Go to http://localhost:9000/admin"));
@@ -408,7 +409,8 @@ public class ServerDispatch implements Runnable {
 						break;
 					case "html":
 					case "htmltable":
-						output.println(rpchk.toHTMLTable());
+						//output.println(rpchk.toHTMLTable());
+						rpchk.toHTMLTable(output);
 						break;
 					case "csv":
 						output.println(rpchk.toCSVTable());
@@ -497,20 +499,33 @@ public class ServerDispatch implements Runnable {
 				
 			case "webadmin":
 				String what=getQSValue("w",params);
+				if(what==null) {
+					output.print("<p>Page not found.</p>");
+					break;
+				}
 				//String fmt=getQSValue("fmt",params);
 				switch(what) {		// the 'w' parameter of the URL querystring
 				case "main":	// CHECKLIST
-					ByteArrayOutputStream baos=new ByteArrayOutputStream();
-					ServerDispatch.processCommand("lists/checklist?fmt=htmltable", graph, baos, false);
-					baos.close();
-					output.print("<div id=\"main\" class=\"checklist\">");
-					output.print(baos.toString());
+					output.print("<div id=\"main\" class=\"checklist\"><h1>List of all accepted names</h1>");
+					output.flush();
+					ServerDispatch.processCommand("lists/checklist?fmt=htmltable", graph, outstr, false);
 					output.print("</div>");
 					break;
 				case "tree":
+					ByteArrayOutputStream baos=new ByteArrayOutputStream();
 					output.print("<div id=\"main\" class=\"taxman-holder\"><div id=\"taxtree\" class=\"taxtree-holder\">");
 					baos=new ByteArrayOutputStream();
-					ServerDispatch.processCommand("lists/tree?rank=order&fmt=htmllist", graph, baos, false);
+					ServerDispatch.processCommand("lists/tree?rank=class&fmt=htmllist", graph, baos, false);
+					baos.close();
+					output.print(baos.toString());
+					output.print("</div>");
+					output.print("<div id=\"taxdetails\"><h2>Click on a taxon on the tree</h2></div>");
+					output.print("</div>");
+					break;
+				case "families":
+					output.print("<div id=\"main\" class=\"taxman-holder\"><div id=\"taxtree\" class=\"taxtree-holder\">");
+					baos=new ByteArrayOutputStream();
+					ServerDispatch.processCommand("lists/tree?rank=family&fmt=htmllist", graph, baos, false);
 					baos.close();
 					output.print(baos.toString());
 					output.print("</div>");
@@ -521,7 +536,7 @@ public class ServerDispatch implements Runnable {
 					id=getQSValue("id",params);
 					TaxEnt tev=graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(id));
 					output.print("<h1>"+tev.baseNode.getFullName()+"</h1>");
-					if(!tev.baseNode.isCurrent()) output.print("<p class=\"notcurrent\">not current</p>");
+					output.print("<ul class=\"menu currentstatus\"><li class=\"current"+(tev.baseNode.isCurrent() ? " selected" : "")+"\">current</li><li class=\"notcurrent"+(tev.baseNode.isCurrent() ? "" : " selected")+"\">not current</li></ul>");
 					output.print("<ul class=\"menu\"><li><a href=\"graph.html?q="+URLEncoder.encode(tev.baseNode.getName(), StandardCharsets.UTF_8.name())+"\">View in graph</a></li>"
 						+ (tev.isLeafNode() ? "<li id=\"deletetaxon\" class=\"actionbutton\">Delete taxon</li>" : "") + "</ul>");
 					output.print("<input type=\"hidden\" name=\"nodekey\" value=\""+tev.baseNode.getID()+"\"/>");
@@ -539,6 +554,10 @@ public class ServerDispatch implements Runnable {
 					}
 					output.print("<div class=\"toggler off\" id=\"updatetaxonbox\"><h1>Change name</h1><div class=\"content\"><table><tr><td>New name</td><td>");
 					output.print("<input type=\"text\" name=\"name\" value=\""+tev.baseNode.getName()+"\"/></td></tr><tr><td>New author</td><td><input type=\"text\" name=\"author\" value=\""+(tev.baseNode.getAuthor()==null ? "" : tev.baseNode.getAuthor())+"\"/></td></tr><tr><td>New annotation</td><td><input type=\"text\" name=\"annot\" value=\""+(tev.baseNode.getAnnotation() == null ? "" : tev.baseNode.getAnnotation())+"\"/></td></tr></table><input type=\"button\" value=\"Update\" class=\"actionbutton\" id=\"updatetaxon\"/></div></div>");
+					break;
+					
+				case "validate":
+					
 					break;
 					
 				default:
@@ -692,8 +711,9 @@ public class ServerDispatch implements Runnable {
 						rank=getQSValue("rank",parameters);
 						annot=getQSValue("annot",parameters);
 						id=getQSValue("parent",parameters);
+						current=getQSValue("current",parameters);
 						output.println(success(
-							graph.dbNodeWorker.createTaxEntChild(ArangoKey.fromString(id), name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), annot, true).toString()
+							graph.dbNodeWorker.createTaxEntChild(ArangoKey.fromString(id), name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), annot, current==null ? null : Integer.parseInt(current)==1).toString()
 						));
 						break;
 						

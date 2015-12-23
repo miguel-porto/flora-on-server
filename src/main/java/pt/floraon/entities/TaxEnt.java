@@ -256,7 +256,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 	 * @throws NoSuchMethodException 
 	 */
 	public void setSynonymOf(TaxEntVertex tev) throws ArangoException, IOException, FloraOnException {
-		this.setCurrent(false);
+		if(tev.current) this.setCurrent(false);
 		this.commit();
 		try {
 			new GeneralNodeWrapperImpl(this.graph, this.baseNode).createRelationshipTo(tev, AllRelTypes.SYNONYM);
