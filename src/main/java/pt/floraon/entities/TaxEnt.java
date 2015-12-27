@@ -60,17 +60,49 @@ public class TaxEnt extends GeneralNodeWrapper {
 	}
 
 	/**
-	 * Create a new detached node (i.e. not saved in DB)
+	 * Create a new detached taxon (i.e. not saved in DB)
 	 * @param name
 	 * @param rank
 	 * @param annotation
 	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(String name,Integer rank,String author,String annotation) throws TaxonomyException {
-		super.baseNode=new TaxEntVertex(name,rank,author,annotation,null,null);
+	public TaxEnt(String name,String author,Integer rank,String annotation, Boolean current) throws TaxonomyException {
+		super.baseNode=new TaxEntVertex(name,rank,author,annotation,current,null);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 	}
 
+	/**
+	 * Creates a new taxon and adds it to DB.
+	 * @param driver
+	 * @param name
+	 * @param author
+	 * @param rank
+	 * @param annotation
+	 * @param current
+	 * @return
+	 * @throws TaxonomyException
+	 * @throws ArangoException
+	 */
+	public static TaxEnt newFromName(FloraOnDriver driver,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws TaxonomyException, ArangoException {
+		TaxEnt out=new TaxEnt(name, author, rank == null ? null : rank.getValue(), annotation, current);
+		out.graph=driver;
+		out.vertexEntity=driver.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out.baseNode, false);
+		out.baseNode._id=out.vertexEntity.getDocumentHandle();
+		out.baseNode._key=out.vertexEntity.getDocumentKey();
+		return out;
+	}
+
+	/**
+	 * Creates a new taxon and adds it to DB.
+	 * @param driver
+	 * @param te
+	 * @return
+	 * @throws TaxonomyException
+	 * @throws ArangoException
+	 */
+	public static TaxEnt newFromTaxEnt(FloraOnDriver driver,TaxEnt te) throws TaxonomyException, ArangoException {
+		return TaxEnt.newFromName(driver, te.baseNode.getName(), te.baseNode.getAuthor(), te.baseNode.getRank(), te.baseNode.getAnnotation(), te.baseNode.current);
+	}
 	/**
 	 * Create a new node and add it to DB.
 	 * @param graph The graph instance
@@ -78,14 +110,14 @@ public class TaxEnt extends GeneralNodeWrapper {
 	 * @throws ArangoException
 	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(FloraOnDriver graph,TaxEntName tname,Boolean current) throws ArangoException, TaxonomyException {
+	/*private TaxEnt(FloraOnDriver graph,TaxEntName tname,Boolean current) throws ArangoException, TaxonomyException {
 		super.baseNode=new TaxEntVertex(tname.name,tname.rank == null ? null : tname.rank.getValue(),tname.author,null,current,null);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
 		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), this.baseNode, false);
 		this.baseNode._id=this.vertexEntity.getDocumentHandle();
 		this.baseNode._key=this.vertexEntity.getDocumentKey();
-	}
+	}*/
 
 	/**
 	 * Create a new node and add it to DB.
@@ -98,23 +130,47 @@ public class TaxEnt extends GeneralNodeWrapper {
 	 * @throws ArangoException
 	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(FloraOnDriver graph,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException, TaxonomyException {
+/*	private TaxEnt(FloraOnDriver graph,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException, TaxonomyException {
 		super.baseNode=new TaxEntVertex(name,rank == null ? null : rank.getValue(),author,annotation,current,null);
 		this.baseNode=(TaxEntVertex)super.baseNode;
 		this.graph=graph;
 		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), this.baseNode, false);
 		this.baseNode._id=this.vertexEntity.getDocumentHandle();
 		this.baseNode._key=this.vertexEntity.getDocumentKey();
-	}
+	}*/
+		
+	/*public static TaxEnt newFromName(FloraOnDriver driver,TaxEntName tname,Boolean current) throws TaxonomyException, ArangoException {
+		return new TaxEnt(driver, tname, current);
+	}*/
 	
+	public static TaxEnt parse(String name) throws TaxonomyException {
+		name=name.replaceAll(" +", " ").trim();
+		if(name.equals("")) {
+			throw new TaxonomyException("Taxon must have a name");
+		}
+		// extract the authority between braces (I don't use regex cause it's too simple)
+		int a=name.indexOf('{');
+		int b=name.indexOf('}');
+		String author=null,name1;
+		if(a>-1 && b>-1) {
+			if(b>a+1) {
+				author=name.substring(a+1, b-0).trim();
+				name1=name.substring(0,a).trim();
+			} else {
+				name1=name.substring(0,a).trim();
+			}
+		} else name1=name;
+		return new TaxEnt(name1, author, null, null, null);
+	}
+
 	/**
-	 * Creates a TaxEnt from an existing node, by its handle.
+	 * Creates a TaxEnt from an existing node in the DB, by its handle.
 	 * @param graph
 	 * @param handle
 	 * @return
 	 * @throws ArangoException
 	 */
-	public static TaxEnt fromHandle(FloraOnDriver graph,String handle) throws ArangoException {
+	public static TaxEnt newFromHandle(FloraOnDriver graph,String handle) throws ArangoException {
 		return new TaxEnt(graph,graph.driver.getDocument(handle, TaxEntVertex.class).getEntity());
 	}
 	
@@ -256,6 +312,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 	 * @throws NoSuchMethodException 
 	 */
 	public void setSynonymOf(TaxEntVertex tev) throws ArangoException, IOException, FloraOnException {
+		if(this.getID().equals(tev.getID())) throw new TaxonomyException("Cannot add a synonym of itself");
 		if(tev.current) this.setCurrent(false);
 		this.commit();
 		try {
@@ -266,7 +323,20 @@ public class TaxEnt extends GeneralNodeWrapper {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * Tests whether this taxon can be inserted as a child of given taxon, following the rules of nomenclature.
+	 * @param taxon
+	 * @return
+	 * @throws TaxonomyException 
+	 */
+	public void canBeChildOf(TaxEntVertex taxon) throws TaxonomyException {
+		if(baseNode.rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank");
+		if(this.isSpeciesOrInferior()) {
+			if(baseNode.getName().toLowerCase().indexOf(taxon.getName().toLowerCase()) != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
+			// FIXME: check if name is valid for this parent!
+		}
+	}
 	/**
 	 * Gets the parents of an hybrid
 	 * @return

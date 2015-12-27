@@ -48,6 +48,7 @@ public class ResultProcessor<T extends ResultItem> {
     	return sb.toString();
 	}
 
+	@Deprecated
 	public String toHTMLTable() {
 		StringBuilder sb=new StringBuilder(); 
 		T tmp;

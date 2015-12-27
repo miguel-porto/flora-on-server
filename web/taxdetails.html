@@ -1,13 +1,13 @@
 <!-- CONTENT:/webadmin?w=taxondetails -->
 <div class="toggler off">
-	<h1>Add new synonym</h1>
+	<h1>Add new synonym <span class="info">binds an existing name as a synonym of this taxon</span></h1>
 	<div class="content">
 		<p>Add <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="boxsynonym"/> as a synonym of this taxon <input type="button" value="Add" class="actionbutton" id="addsynonym"/></p>
 		<div id="suggestions"></div>
 	</div>
 </div>
 <div class="toggler off" id="addchildbox">
-	<h1>Add new inferior taxon</h1>
+	<h1>Add new sub-taxon <span class="info">creates a new taxon and adds it as a child of this taxon</span></h1>
 	<div class="content">
 		<table>
 		<tr><td>Name</td><td><input type="text" name="name"/></td></tr>

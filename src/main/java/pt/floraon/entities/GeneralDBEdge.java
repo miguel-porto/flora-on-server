@@ -10,4 +10,8 @@ public class GeneralDBEdge {
 	public String toJSONString() {
 		return EntityFactory.toJsonString(this);
 	}
+	
+	public String getID() {
+		return this._id;
+	}
 }

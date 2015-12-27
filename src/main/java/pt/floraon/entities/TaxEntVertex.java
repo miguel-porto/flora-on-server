@@ -98,8 +98,15 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 	 * Gets the taxon name with authorship and annotations.
 	 * @return
 	 */
+	public String getFullName(boolean htmlFormatted) {
+		if(htmlFormatted && rank>=TaxonRanks.GENUS.getValue())
+			return "<i>"+name+"</i>"+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
+		else
+			return name+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
+	}
+	
 	public String getFullName() {
-		return name+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
+		return getFullName(false);
 	}
 
 	public TaxonRanks getRank() {
@@ -133,7 +140,7 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 
 	@Override
 	public String toHTMLTableRow() {
-		return "<tr><td>"+this.getFullName()+"</td></tr>";
+		return "<tr><td>"+this.getFullName(true)+"</td></tr>";
 	}
 
 	@Override
@@ -151,7 +158,7 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 			.append("\" data-key=\"")
 			.append(this._id)
 			.append("\">")
-			.append(this.getFullName())
+			.append(this.getFullName(true))
 			.append("</li>");
 		return sb.toString();
 	}

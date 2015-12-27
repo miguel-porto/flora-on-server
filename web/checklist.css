@@ -13,6 +13,7 @@ p {margin:3px;}
 ul.menu {padding:0}
 ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;cursor:pointer}
 ul.menu li:hover {background-color:#ff7;}
+.info {font-size:0.8em;color:gray;font-style:italic;font-weight:normal;}
 
 .button {
 	cursor:pointer;
@@ -35,6 +36,7 @@ ul.menu li:hover {background-color:#ff7;}
 
 .button.remove:hover {
 	background-color:#f77;
+	box-shadow:0 0 3px #f77;
 }
 
 div.toggler h1 {margin:8px 0 5px;font-size:1em;border-bottom:1px solid #99f;padding:0 4px 6px;cursor:pointer;text-align:left;margin-bottom:0}
@@ -42,6 +44,7 @@ div.toggler h1:hover {background-color:#ff9;}
 div.toggler .content {border-radius:0px;background-color:white;padding:8px;margin:0 6px;}
 div.toggler.off .content {display:none;}
 
+/*
 #checklist {
 	font-size:0.7em;
 	width:90%;
@@ -50,9 +53,8 @@ div.toggler.off .content {display:none;}
 	border-radius:8px;
 	padding:2px 8px;
 }
-
-#checklist table {
-}
+*/
+.checklist table tr.notcurrent {color:#999;}
 
 #main-holder {
 	display:flex;
@@ -85,8 +87,8 @@ div.toggler.off .content {display:none;}
 	margin-top:5px;
 }
 .taxtree-holder ul .tools {position:absolute;top:0;right:0;}
-.taxtree-holder ul.ORDER {text-transform:uppercase;}
-.taxtree-holder ul.ORDER ul {text-transform:none;}
+.taxtree-holder li.ORDER {text-transform:uppercase;}
+.taxtree-holder li.ORDER * {text-transform:none;}
 .taxtree-holder li.FAMILY {color:blue;}
 .taxtree-holder li.GENUS {color:#070;}
 .taxtree-holder li.SPECIES {color:#07f;}
@@ -112,6 +114,7 @@ div.toggler.off .content {display:none;}
 #taxdetails .synonyms li {
 	font-style:italic;
 	list-style-type:none;
+	margin:3px;
 }
 
 #taxdetails ul.currentstatus {text-align:center}

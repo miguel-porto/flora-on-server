@@ -36,17 +36,17 @@ function suggestionOver(ev) {
 }
 
 function suggestionClick(ev) {
-	var li=getParentbyTag(ev.target,'li');
+	var li=_getParentbyTag(ev.target,'li');
 	var el=li.parentNode.getAttribute('data-inputel');
 	var inp=document.getElementById(el);
 	inp.value=li.innerHTML.replace(/<[^>]*>/g, '');
 	inp.setAttribute('data-key',li.getAttribute('data-key'));
 	
-	var ul=getParentbyTag(ev.target,'ul');
+	var ul=_getParentbyTag(ev.target,'ul');
 	ul.parentNode.removeChild(ul);
 }
 
-function getParentbyTag(el,tagname) {
+function _getParentbyTag(el,tagname) {
 	while(el.tagName.toLowerCase()!=tagname) {
 		el=el.parentNode;
 	};

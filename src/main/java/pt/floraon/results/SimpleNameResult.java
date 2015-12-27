@@ -8,6 +8,7 @@ public class SimpleNameResult implements ResultItem {
 	protected String name;		// taxon canonical name
 	protected String _id,author;
 	protected Boolean leaf=null;
+	protected Boolean current=null;
 
 	@Override
 	public void toCSVLine(CSVPrinter rec) throws IOException {
@@ -18,12 +19,12 @@ public class SimpleNameResult implements ResultItem {
 
 	@Override
 	public String toHTMLTableRow() {
-		return "<tr><td data-key=\""+this._id+"\"><i>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</i></td><td>"+this.author+"</td></tr>";
+		return "<tr"+(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))+"><td data-key=\""+this._id+"\"><i>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</i></td><td>"+this.author+"</td></tr>";
 	}
 
 	@Override
 	public String toHTMLListItem() {
-		return "<li data-key=\""+this._id+"\"><i>"+this.name+"</i>"+(this.author == null ? "" : " "+this.author)+"</li>";
+		return "<li"+(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))+" data-key=\""+this._id+"\"><i>"+this.name+"</i>"+(this.author == null ? "" : " "+this.author)+"</li>";
 	}
 
 	@Override
@@ -37,6 +38,6 @@ public class SimpleNameResult implements ResultItem {
 
 	@Override
 	public boolean equals(Object o) {
-		return this._id.equals(((SimpleTaxonResult)o)._id);
+		return this._id.equals(((SimpleNameResult)o)._id);
 	}
 }

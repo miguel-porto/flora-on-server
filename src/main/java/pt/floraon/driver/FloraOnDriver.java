@@ -45,10 +45,10 @@ import pt.floraon.entities.GeneralDBNode;
 import pt.floraon.entities.GeneralDBNodeImpl;
 import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.Image;
+import pt.floraon.entities.SYNONYM;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.SpeciesListVertex;
 import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.TaxEntName;
 import pt.floraon.entities.TaxEntVertex;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.ChecklistEntry;
@@ -373,7 +373,7 @@ public class FloraOnDriver {
 	     */
 	    public GraphUpdateResult createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException, TaxonomyException {
 	    	return GraphUpdateResult.fromHandle(
-    			FloraOnDriver.this, new TaxEnt(FloraOnDriver.this,name,author,rank,annotation,current).getID()
+    			FloraOnDriver.this, TaxEnt.newFromName(FloraOnDriver.this,name,author,rank,annotation,current).getID()
 			);
 	    }
 	    
@@ -391,11 +391,13 @@ public class FloraOnDriver {
 	     */
 	    public ArangoKey createTaxEntChild(ArangoKey parent,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws FloraOnException, ArangoException {
 	    	TaxEnt par=this.getTaxEnt(parent);
-	    	if(par.baseNode.getRankValue() >= rank.getValue()) throw new TaxonomyException("Rank must be lower than parent rank");
-	    	// FIXME: check if name is valid for this parent!
-	    	TaxEnt chi=new TaxEnt(FloraOnDriver.this,name,author,rank,annotation,current);
-	    	chi.setPART_OF(par.baseNode);
-	    	return chi.getArangoKey();
+	    	TaxEnt child=new TaxEnt(name, author, rank.getValue(), annotation, current);
+	    	child.canBeChildOf(par.baseNode);
+	    	//if(par.baseNode.getRankValue() >= rank.getValue()) throw new TaxonomyException("Rank must be lower than parent rank");
+	    	
+	    	child=TaxEnt.newFromTaxEnt(FloraOnDriver.this, child);
+	    	child.setPART_OF(par.baseNode);
+	    	return child.getArangoKey();
 	    }
 
 	    /**
@@ -426,7 +428,7 @@ public class FloraOnDriver {
 			);
 	    }
 
-	    public GraphUpdateResult UpdateDocument(String handle,String key,Object value) throws ArangoException {
+	    public GraphUpdateResult updateDocument(String handle,String key,Object value) throws ArangoException {
 	    	HashMap<String, Object> newHashMap = new HashMap<String, Object>();
 	    	newHashMap.put(key, value);
 	    	driver.updateDocument(handle, newHashMap);
@@ -442,7 +444,7 @@ public class FloraOnDriver {
 	     * @throws TaxonomyException
 	     */
 	    public TaxEnt findTaxEnt(String q) throws QueryException, ArangoException, TaxonomyException {
-	    	return findTaxEnt(new TaxEntName(q));
+	    	return findTaxEnt(TaxEnt.parse(q).baseNode);
 	    }
 	    
 	    /**
@@ -453,7 +455,7 @@ public class FloraOnDriver {
 	     * @throws QueryException
 	     * @throws ArangoException 
 	     */
-		public TaxEnt findTaxEnt(TaxEntName q) throws QueryException, ArangoException {
+		public TaxEnt findTaxEnt(TaxEntVertex q) throws QueryException, ArangoException {
 	// NOTE: this AQL query is slower than the code below!	
 			/*String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
 			TaxEntVertex tev=this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
@@ -462,10 +464,10 @@ public class FloraOnDriver {
 			else
 				return new TaxEnt(FloraOnGraph.this,tev);*/
 			
-	    	if(q.name==null || q.name.equals("")) throw new QueryException("Invalid blank name.");
+	    	if(q.getName()==null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 	    	TaxEnt n;
 	    	try {
-	    		VertexCursor<TaxEntVertex> vc=driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.name,null,null,null,null,null), null, null);
+	    		VertexCursor<TaxEntVertex> vc=driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.getName(),null,null,null,null,null), null, null);
 	    		VertexEntity<TaxEntVertex> ve1=vc.getUniqueResult();
 
 	    		if(ve1==null)	// node doesn't exist
@@ -473,17 +475,17 @@ public class FloraOnDriver {
 	    		else
 	    			n=new TaxEnt(FloraOnDriver.this,ve1);
 
-	    		if(q.rank==null || q.rank.getValue().equals(TaxonRanks.NORANK.getValue()) || n.baseNode.getRankValue()==null) return n; else {
-					if(!n.baseNode.getRankValue().equals(q.rank.getValue())) return null; else return n;
+	    		if(q.getRankValue()==null || q.getRankValue().equals(TaxonRanks.NORANK.getValue()) || n.baseNode.getRankValue()==null) return n; else {
+					if(!n.baseNode.getRankValue().equals(q.getRankValue())) return null; else return n;
 				}	    		
 	    	} catch (NonUniqueResultException e) {	// multiple nodes with this name. Search the one of the right rank
 	    		VertexCursor<TaxEntVertex> vc=null;
 				try {
-					vc = driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.name,null,null,null), null, null);
+					vc = driver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEntVertex.class, new TaxEntVertex(q.getName(),null,null,null), null, null);
 				} catch (TaxonomyException e1) {
 					// just go on, empty query
 				}
-				if(q.rank==null || q.rank.getValue().equals(TaxonRanks.NORANK.getValue())) throw new QueryException("More than one node with name "+q.name+". You must disambiguate.");
+				if(q.getRankValue()==null || q.getRankValue().equals(TaxonRanks.NORANK.getValue())) throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
 
 				Iterator<VertexEntity<TaxEntVertex>> ns=vc.iterator();
 				n=null;
@@ -491,8 +493,8 @@ public class FloraOnDriver {
 				while(ns.hasNext()) {
 					//n1=ns.next().getEntity();
 					n1=new TaxEnt(FloraOnDriver.this,ns.next());
-					if(n1.baseNode.getRankValue().equals(q.rank.getValue()) || n1.baseNode.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
-						if(n!=null) throw new QueryException("More than one node with name "+q.name+" and rank "+q.rank); else n=n1;
+					if(n1.baseNode.getRankValue().equals(q.getRankValue()) || n1.baseNode.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
+						if(n!=null) throw new QueryException("More than one node with name "+q.getName()+" and rank "+q.getRank().toString()); else n=n1;
 					}
 				}
 				return n;
@@ -501,11 +503,26 @@ public class FloraOnDriver {
 			}
 		}
 
-		public String[] deleteTaxEntNode(TaxEntName nodename) throws QueryException, ArangoException {
+		public String[] deleteTaxEntNode(TaxEntVertex nodename) throws QueryException, ArangoException {
 	    	TaxEnt te=findTaxEnt(nodename);
 	    	if(te!=null) return deleteNode(ArangoKey.fromString(te.getID()));
 	    	return new String[0];
 	    }
+		
+		/**
+		 * Deletes the SYNONYM relationship that is linking 'from' with 'to'. The deleted relationship is the one immediately connected to 'to'. Note that this might have side effects (break other synonym links) in complex chains of synonyms.
+		 * @param from
+		 * @param to
+		 * @throws ArangoException 
+		 */
+		public GraphUpdateResult detachSynonym(ArangoKey from,ArangoKey to) throws ArangoException {
+			String query=String.format("LET e=FLATTEN("
+				+ "FOR v in TRAVERSAL(%1$s,%2$s,'%3$s','any',{paths:true,filterVertices:[{_id:'%4$s'}],vertexFilterMethod:'exclude'}) RETURN v.path.edges) "
+				+ "REMOVE e[LENGTH(e)-1] IN SYNONYM RETURN OLD"
+				,NodeTypes.taxent.toString(),AllRelTypes.SYNONYM.toString(),from.toString(),to.toString());
+			SYNONYM deleted=driver.executeAqlQuery(query, null, null, SYNONYM.class).getUniqueResult();
+			return GraphUpdateResult.fromHandle(FloraOnDriver.this, deleted.getID());
+		}
 		
 		public GraphUpdateResult updateTaxEntNode(TaxEnt node,String name,TaxonRanks rank,Boolean current,String author,String annotation) throws ArangoException, FloraOnException {
 			node.setAnnotation(annotation);
@@ -550,6 +567,7 @@ public class FloraOnDriver {
 		public String[] deleteLeafNode(ArangoKey id) throws ArangoException, FloraOnException {
 			List<String> deleted=new ArrayList<String>();
 			String tmp;
+			// TODO check for attributes!
 			String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s',{direction:'inbound'}) COLLECT WITH COUNT INTO cou RETURN cou"
 				,Constants.TAXONOMICGRAPHNAME,id);
 			if(driver.executeAqlQuery(query, null, null, Integer.class).getUniqueResult()!=0) throw new FloraOnException("Node has children, inward synonyms or is parent of an hybrid");
@@ -725,8 +743,8 @@ public class FloraOnDriver {
 	    		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
 					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
-					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
-					+ "COLLECT k=o._key,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_id:v2.vertex._id,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
+					+ "COLLECT k=o._id,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n, _id:k, leaf:l, match:UNIQUE(gr[*].o.source), reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
 					,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
 /*
 		    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
@@ -748,8 +766,8 @@ public class FloraOnDriver {
 				query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
 					+ "FOR o IN FLATTEN(FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
-					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_key:v2.vertex._key,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
-					+ "COLLECT k=o._key,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
+					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_id:v2.vertex._id,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
+					+ "COLLECT k=o._id,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_id:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
 					,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
 /*				
 		    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
@@ -972,8 +990,8 @@ public class FloraOnDriver {
 		public Iterator<SimpleTaxonResult> findTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
 			//"FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) RETURN NEIGHBORS(%1$s,OBSERVED_IN,sl,'inbound',{},{includeData:true})[*]) RETURN DISTINCT a"
 			String query=String.format("FOR a IN FLATTEN(FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
-				+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_key:CURRENT._key}]) "
-				+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_key:b._key,count:c}"
+				+ "RETURN NEIGHBORS(specieslist,OBSERVED_IN,sl,'inbound',{},{includeData:true})[* RETURN {name:CURRENT.name,_id:CURRENT._id}]) "
+				+ "COLLECT b=a WITH COUNT INTO c SORT c DESC RETURN {name:b.name,_id:b._id,count:c}"
 				,NodeTypes.specieslist.toString()
 				,latitude,longitude,distance
 			);
@@ -991,7 +1009,7 @@ public class FloraOnDriver {
 		 */
 		public Iterator<SimpleNameResult> getAllSpeciesOrInferior(boolean onlyLeafNodes) throws ArangoException {
 			String query=String.format("FOR v IN taxent LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) FILTER v.isSpeciesOrInf==true"
-				+ "%1$s SORT v.name RETURN {_key:v._key,name:v.name,author:v.author,leaf:npar==0}", onlyLeafNodes ? "&& npar==0" : "");
+				+ "%1$s SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current}", onlyLeafNodes ? "&& npar==0" : "");
 	    	CursorResult<SimpleNameResult> vertexCursor=driver.executeAqlQuery(query, null, null, SimpleNameResult.class);
 	    	return vertexCursor.iterator();
 		}
@@ -1008,8 +1026,8 @@ public class FloraOnDriver {
 		public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws ArangoException {
 			String query=String.format("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
 					+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,%5$s,sl,'inbound',{},{includeData:true}) "
-					+ "RETURN {match:sl._id,name:n.name,_key:n._key}) "
-					+ "COLLECT k=o._key,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_key:k,match:ma,count:LENGTH(ma),reltypes:['%5$s']}"
+					+ "RETURN {match:sl._id,name:n.name,_id:n._id}) "
+					+ "COLLECT k=o._id,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_id:k,match:ma,count:LENGTH(ma),reltypes:['%5$s']}"
 					,NodeTypes.specieslist.toString(),latitude,longitude,distance,AllRelTypes.OBSERVED_IN.toString());
 			//System.out.println(query);
 	    	return driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class).asList();
@@ -1217,7 +1235,7 @@ public class FloraOnDriver {
 			System.out.print("Reading file ");
 			try {
 				TaxEnt n,parentNode;
-				TaxEntName parsedName;
+				TaxEnt parsedName;
 				boolean pastspecies;	// true after the column species has passed (so to know when to append names to genus)
 				while(records.hasNext()) {
 					record=records.next();
@@ -1228,26 +1246,30 @@ public class FloraOnDriver {
 					n=null;
 					pastspecies=false;
 					for(int i=0;i<names.length;i++) {
-						parsedName=new TaxEntName(record.get(i));
+						try {
+							parsedName=TaxEnt.parse(record.get(i));
+						} catch (TaxonomyException e) {
+							// is it an empty cell? skip. 
+							continue;
+						}
 						if(names[i].equals("species")) pastspecies=true;
-						// is it an empty cell? skip. 
-						if(parsedName.isNull()) continue;
+						parsedName.setCurrent(true);
 						// special cases: if species or lower rank, must prepend genus.
-						if(pastspecies) parsedName.name=parentNode.baseNode.getName()+" "+(names[i].equals("species") ? "" : (infraRanks.containsKey(names[i]) ? infraRanks.get(names[i]) : names[i])+" ")+parsedName.name;
+						if(pastspecies) parsedName.setName(parentNode.baseNode.getName()+" "+(names[i].equals("species") ? "" : (infraRanks.containsKey(names[i]) ? infraRanks.get(names[i]) : names[i])+" ")+parsedName.baseNode.getName());
 						
-						parsedName.rank=TaxonRanks.valueOf(names[i].toUpperCase());
-						if(pastspecies && parsedName.author==null) parsedName.author=parentNode.baseNode.getAuthor();
+						parsedName.setRank(TaxonRanks.valueOf(names[i].toUpperCase()).getValue());
+						if(pastspecies && parsedName.baseNode.getAuthor()==null) parsedName.setAuthor(parentNode.baseNode.getAuthor());
 						//System.out.println(parsedname.name);
-						n=dbNodeWorker.findTaxEnt(parsedName);
+						n=dbNodeWorker.findTaxEnt(parsedName.baseNode);
 						
 						if(n==null) {	// if node does not exist, add it.
-							n=new TaxEnt(FloraOnDriver.this,parsedName,true);
+							n=TaxEnt.newFromTaxEnt(FloraOnDriver.this,parsedName);
 							//System.out.println("ADD "+parsedName.name);System.out.flush();
 							nnodes++;
 						} else {	// if it exists, update its rank and authority.
-							//System.out.println("EXISTS "+parsedName.name);System.out.flush();
-							n.setRank(parsedName.rank.getValue());
-							if(parsedName.author!=null) n.setAuthor(parsedName.author);
+							//System.out.println("EXISTS "+parsedName.baseNode.getFullName());System.out.flush();
+							n.setRank(parsedName.baseNode.getRankValue());
+							if(parsedName.baseNode.getAuthor()!=null) n.setAuthor(parsedName.baseNode.getAuthor());
 							n.commit();
 						}
 						if(parentNode!=null) {	// create PART_OF relationship to previous column
@@ -1394,7 +1416,7 @@ public class FloraOnDriver {
 		public String uploadMorphologyFromStream(InputStream stream) throws IOException, ArangoException {
 			StringBuilder err=new StringBuilder();
 	    	Reader freader;
-	    	TaxEntName fullname1;
+	    	TaxEnt fullname1;
 	    	TaxEnt n1;
 	    	Attribute an;
 	    	int nerrors=0,nnodes=0,nrels=0;
@@ -1419,9 +1441,9 @@ public class FloraOnDriver {
 				if(count % 100==0) {System.out.print(".");System.out.flush();}
 				if(count % 1000==0) {System.out.print(count);System.out.flush();}
 				try {
-					fullname1=new TaxEntName(record.get("taxon"));
-					n1=dbNodeWorker.findTaxEnt(fullname1);
-					if(n1==null) throw new QueryException(fullname1.name+" not found.");
+					fullname1=TaxEnt.parse(record.get("taxon"));
+					n1=dbNodeWorker.findTaxEnt(fullname1.baseNode);
+					if(n1==null) throw new QueryException(fullname1.baseNode.getFullName() +" not found.");
 					for(int i=1;i<record.size();i++) {
 						attrs=record.get(i).split(",");
 						for(String attr:attrs) {

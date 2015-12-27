@@ -7,7 +7,6 @@ var centernode=null;
 //var ranks=['f.','var.','subsp.','species','genus','family','order','phylum'];
 var lastZoom;
 var zoom;
-var node_drag;
 var reference=null;
 
 var w = window,
@@ -38,11 +37,11 @@ document.addEventListener('DOMContentLoaded', function() {
 	var dim=document.getElementById('taxbrowser').getBoundingClientRect();
 	zoom=d3.behavior.zoom().scaleExtent([0.1, 4]).on("zoom", zoomed);
 
-	force = d3.layout.force().size([dim.width, dim.height]).linkDistance(100).friction(0.5).charge(-1000);//.linkStrength(0.8);
+	force=d3.layout.force().size([dim.width, dim.height]).linkDistance(100).friction(0.5).charge(-1000);//.linkStrength(0.8);
 	svg = d3.select('#taxbrowser').append('svg').attr('width', dim.width).attr('height', dim.height).call(zoom);
 	svg=svg.append('g');
 	
-	node_drag = force.drag().on("dragend", dragend);
+//	node_drag = force.drag().on("dragend", dragend);
 
 	force.nodes(gdata.nodes).links(gdata.links);
 	
@@ -816,7 +815,7 @@ function onUpdateData() {
 	var tmp=node.enter();	
 	tmp=tmp.append('g').attr('class',function(d) {
 		return('node '+d.type+' '+(d.rank ? reference.rankmap[''+d.rank].toLowerCase() : '')+(this.hasClass('selected') ? ' selected' : '')+(d.current ? '' : ' notcurrent'));
-	}).call(drag).on('click',clickNode).on('dblclick', dblclick)
+	}).on('click',clickNode).on('dblclick', dblclick).call(force.drag)
 	//.on('mouseover',function(d) {d3.select(d3.event.target).style('fill','black');});
 	tmp.append(function(d) {
 		var el;

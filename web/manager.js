@@ -47,6 +47,7 @@ function actionButtonClick(ev) {
 		break;
 
 	case 'deletetaxon':
+		if(!confirm('Are you sure you want to delete this taxon?')) break;
 		var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
 		postJSON('/nodes/deleteleaf',{id:parent},function(rt) {
 			rt=JSON.parse(rt);
@@ -81,8 +82,14 @@ function updateTaxon(obj) {
 			loadTaxDetails(obj.id,el);
 			var li=document.getElementById('taxtree').querySelector('li[data-key="'+obj.id+'"]');
 			var par=li.parentNode.parentNode;
-			par.removeChild(par.querySelector('ul'));
-			par.dispatchEvent(clickEvent);
+			if(par.tagName=='LI') {
+				par.removeChild(par.querySelector('ul'));
+				//par.dispatchEvent(clickEvent);
+				loadTreeNode(par,function() {
+					var li=document.getElementById('taxtree').querySelector('li[data-key="'+obj.id+'"]');
+					li.dispatchEvent(clickEvent);
+				});
+			} else window.location.reload();
 		} else
 			alert(rt.msg);
 	});
@@ -103,10 +110,12 @@ function loadTaxDetails(key,el) {
 		var tog=el.querySelectorAll('div.toggler h1');
 		for(var i=0;i<tog.length;i++) {
 			addEvent('click',tog[i],function(ev) {
-				ev.target.parentNode.classList.toggle('off');
+				var el=getParentbyTag(ev.target,'h1');
+				el.parentNode.classList.toggle('off');
 			});
 		}
 		
+// current / not current buttons
 		var els=document.querySelectorAll('#taxdetails ul.currentstatus li');
 		for(var i=0;i<els.length;i++) {
 			addEvent('click',els[i],function(ev) {
@@ -124,15 +133,29 @@ function loadTaxDetails(key,el) {
 					,current:ev.target.classList.contains('current') ? 1 : 0
 				}
 				updateTaxon(obj);
-				
 			});
 		}
+		
+// detach synonyms
+		var els=document.querySelectorAll('#taxdetails ul.synonyms div.button.remove');
+		for(var i=0;i<els.length;i++) {
+			addEvent('click',els[i],function(ev) {
+				var from=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+				var to=ev.target.parentNode.getAttribute('data-key');
+				postJSON('/nodes/detachsynonym',{from:from,to:to},function(rt) {
+					rt=JSON.parse(rt);
+					if(rt.success)
+						loadTaxDetails(from,el);
+					else
+						alert(rt.msg);
+				});
+			});
+		}
+
 	});
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-	var tr=document.querySelectorAll('#main.species tr');
-	
 	addEvent('scroll',document,function(ev) {
 		var td=document.getElementById('taxdetails');
 		var lb=document.getElementById('left-bar');
@@ -145,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 	
+	var tr=document.querySelectorAll('#main.species tr');
 	for(var i=0;i<tr.length;i++) {
 		addEvent('click',tr[i],function(ev) {
 			var par=getParentbyTag(ev.target,'tr');
@@ -160,39 +184,34 @@ document.addEventListener('DOMContentLoaded', function() {
 // attach the click+expand tree node
 	var lis=document.querySelector('.taxtree-holder>ul');
 	addEvent('click',lis,function(ev) {
-		switch(ev.target.tagName) {
-		case 'LI':
-			var key=ev.target.getAttribute('data-key');
-			loadTaxDetails(key,document.getElementById('taxdetails'));
-//			window.location.search='w=tree&tid='+encodeURIComponent(key);
-			if(ev.target.querySelector('ul')) return;
-			fetchAJAX('/lists/tree?fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
-				var html=createHTML(rt);
-				ev.target.appendChild(html);
-			});
-			
-			break;
-/*			
-		case 'DIV':
-			if(ev.target.classList.contains('button')) {
-				var id=getParentbyTag(ev.target,'li').getAttribute('data-key');
-				switch(ev.target.getAttribute('data-cmd')) {
-				case 'delete':
-					if(!confirm('Are you sure you want to delete this taxon, ALL its attributes and ALL occurrences of this taxon???')) break;
-					postJSON('/nodes/delete',{id:id},function(rt) {
-						alert(rt);
-					});
-					break;
-
-				case 'add':
-					
-					break;
-				}
-			}
-			break;*/
-		}
+		var el=getParentbyTag(ev.target,'li');
+		var key=el.getAttribute('data-key');
+		loadTaxDetails(key,document.getElementById('taxdetails'));
+		if(el.querySelector('ul')) return;
+		loadTreeNode(el,null);
 	});
+	
+	var qs=document.getElementById('freequery');
+	if(qs) {
+		addEvent('submit',qs,function(ev) {
+			ev.preventDefault();
+			var q=document.getElementById('querybox').value;
+			if(q) {
+				window.location.search='w=query&q='+encodeURIComponent(q);
+			}
+		});
+	}
 });
+
+function loadTreeNode(el,callback) {
+	var key=el.getAttribute('data-key');
+	fetchAJAX('/lists/tree?fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
+		var html=createHTML(rt);
+		el.appendChild(html);
+		if(callback) callback();
+	});
+	
+}
 
 /**
 	Forms must have a data-path attribute
