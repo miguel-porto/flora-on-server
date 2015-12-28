@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.driver;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -112,23 +112,24 @@ public final class Constants {
     	}
 	}
 
-	public static Map<Facets,AllRelTypes[]> FacetRelTypes=new EnumMap<Facets,AllRelTypes[]>(Facets.class);
-	public static Map<AllRelTypes,Facets> RelTypesFacet=new HashMap<AllRelTypes,Facets>();
+	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
+	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
 
-	public enum AllRelTypes {
+	public enum RelTypes {
 		PART_OF(Facets.TAXONOMY,PART_OF.class),
 		SYNONYM(Facets.TAXONOMY,pt.floraon.entities.SYNONYM.class),
 		HYBRID_OF(Facets.TAXONOMY,pt.floraon.entities.HYBRID_OF.class),
 		OBSERVED_IN(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_IN.class),
 		OBSERVED_BY(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_BY.class),
     	HAS_QUALITY(Facets.MORPHOLOGY,pt.floraon.entities.HAS_QUALITY.class),
-    	ATTRIBUTE_OF(Facets.TAXONOMY,pt.floraon.entities.ATTRIBUTE_OF.class);
+    	ATTRIBUTE_OF(Facets.TAXONOMY,pt.floraon.entities.ATTRIBUTE_OF.class),
+		EXISTS_IN(Facets.TAXONOMY,pt.floraon.entities.EXISTS_IN.class);
     	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
 		Class<? extends GeneralDBEdge> edgeClass;
 		
-		AllRelTypes(Facets facet,Class<? extends GeneralDBEdge> cls) {
+		RelTypes(Facets facet,Class<? extends GeneralDBEdge> cls) {
 			this.facet=facet;
 			this.edgeClass=cls;
 		}
@@ -137,21 +138,21 @@ public final class Constants {
 			return this.facet;
 		}
 		
-		public static AllRelTypes[] getRelTypesOfFacet(Facets facet) {
-			List<AllRelTypes> out=new ArrayList<AllRelTypes>();
-			for(AllRelTypes art:AllRelTypes.values()) {
+		public static RelTypes[] getRelTypesOfFacet(Facets facet) {
+			List<RelTypes> out=new ArrayList<RelTypes>();
+			for(RelTypes art:RelTypes.values()) {
 				if(art.getFacet().equals(facet)) out.add(art);
 			}
-			return out.toArray(new AllRelTypes[0]);
+			return out.toArray(new RelTypes[0]);
 		}
 
-		public static AllRelTypes[] getRelTypesOfFacets(Facets[] facets) {
+		public static RelTypes[] getRelTypesOfFacets(Facets[] facets) {
 			List<Facets> fac=Arrays.asList(facets);
-			List<AllRelTypes> out=new ArrayList<AllRelTypes>();
-			for(AllRelTypes art:AllRelTypes.values()) {
+			List<RelTypes> out=new ArrayList<RelTypes>();
+			for(RelTypes art:RelTypes.values()) {
 				if(fac.contains(art.getFacet())) out.add(art);
 			}
-			return out.toArray(new AllRelTypes[0]);
+			return out.toArray(new RelTypes[0]);
 		}
 
 		public GeneralDBEdge getEdge() throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -202,8 +203,8 @@ public final class Constants {
 	}
 */
     static {
-    	for(Entry<Facets,AllRelTypes[]> f:FacetRelTypes.entrySet()) {
-    		for(AllRelTypes rt:f.getValue()) {
+    	for(Entry<Facets,RelTypes[]> f:FacetRelTypes.entrySet()) {
+    		for(RelTypes rt:f.getValue()) {
     			RelTypesFacet.put(rt,f.getKey());
     		}
     	}

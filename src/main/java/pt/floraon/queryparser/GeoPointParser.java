@@ -7,11 +7,11 @@ import java.util.regex.Pattern;
 
 import com.arangodb.ArangoException;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
 import pt.floraon.results.SimpleTaxonResult;
-import pt.floraon.server.Constants;
 
 /**
  * Implements a parser for geographic queries based on a single point (latitude longitude) given in the form:

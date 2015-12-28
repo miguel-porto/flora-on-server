@@ -14,7 +14,14 @@ import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
 import jline.console.completer.StringsCompleter;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.QueryException;
+import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
@@ -22,9 +29,6 @@ import pt.floraon.entities.TaxEntVertex;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
-import pt.floraon.server.Constants.NativeStatus;
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.Constants.PhenologicalStates;
 
 public class FloraOnShell {
     public static void main( String[] args ) throws ParseException, IOException {

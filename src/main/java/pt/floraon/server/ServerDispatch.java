@@ -1,5 +1,7 @@
 package pt.floraon.server;
 
+import static pt.floraon.driver.Constants.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +58,11 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import pt.floraon.driver.ArangoKey;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.QueryException;
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
@@ -66,8 +72,6 @@ import pt.floraon.results.Occurrence;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleNameResult;
 import pt.floraon.results.SimpleTaxonResult;
-
-import static pt.floraon.server.Constants.*;
 
 public class ServerDispatch implements Runnable {
     protected Socket clientSocket = null;
@@ -471,7 +475,7 @@ public class ServerDispatch implements Runnable {
 					jobj.addProperty("rankelement", rk.toString());
 					
 					ranks=new JsonObject();
-					for(AllRelTypes art:Constants.AllRelTypes.values()) {
+					for(RelTypes art:Constants.RelTypes.values()) {
 						ranks.addProperty(art.toString(), art.getFacet().toString());
 					}
 					jobj.add("facets", ranks);
@@ -532,6 +536,7 @@ public class ServerDispatch implements Runnable {
 					id=getQSValue("id",params);
 					TaxEnt tev=graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(id));
 					output.print("<h1>"+tev.baseNode.getFullName(true)+"</h1>");
+					// TODO write possible taxonomic errors
 					output.print("<ul class=\"menu currentstatus\"><li class=\"current"+(tev.baseNode.isCurrent() ? " selected" : "")+"\">current</li><li class=\"notcurrent"+(tev.baseNode.isCurrent() ? "" : " selected")+"\">not current</li></ul>");
 					output.print("<ul class=\"menu\"><li><a href=\"graph.html?q="+URLEncoder.encode(tev.baseNode.getName(), StandardCharsets.UTF_8.name())+"\">View in graph</a></li>"
 						+ (tev.isLeafNode() ? "<li id=\"deletetaxon\" class=\"actionbutton\">Delete taxon</li>" : "") + "</ul>");
@@ -644,7 +649,7 @@ public class ServerDispatch implements Runnable {
 					}
 					try {
 						output.println(success(
-							n1.createRelationshipTo(n2.getNode(), AllRelTypes.valueOf(type.toUpperCase())).toJsonObject()
+							n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject()
 						));
 					} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 							| IllegalArgumentException | InvocationTargetException e1) {

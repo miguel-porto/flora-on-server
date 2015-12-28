@@ -3,10 +3,10 @@ package pt.floraon.entities;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.server.Constants;
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.FloraOnException;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.NodeTypes;
 
 public class Author extends GeneralNodeWrapper {
 	public AuthorVertex baseNode;

@@ -1,5 +1,7 @@
 package pt.floraon.driver;
 
+import static pt.floraon.driver.Constants.*;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,6 +38,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.AttributeVertex;
 import pt.floraon.entities.Author;
@@ -56,13 +59,6 @@ import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.Occurrence;
 import pt.floraon.results.SimpleNameResult;
 import pt.floraon.results.SimpleTaxonResult;
-import pt.floraon.server.Constants;
-import pt.floraon.server.FloraOnException;
-import pt.floraon.server.QueryException;
-import pt.floraon.server.TaxonomyException;
-import pt.floraon.server.Constants.TaxonRanks;
-
-import static pt.floraon.server.Constants.*;
 
 public class FloraOnDriver {
 	public ArangoDriver driver;
@@ -124,7 +120,7 @@ public class FloraOnDriver {
 		
 		CollectionOptions co=new CollectionOptions();
 		co.setType(CollectionType.EDGE);
-		for(AllRelTypes nt:AllRelTypes.values()) {
+		for(RelTypes nt:RelTypes.values()) {
 			driver.createCollection(nt.toString(),co);
 		}
 
@@ -133,7 +129,7 @@ public class FloraOnDriver {
 		// taxonomic relations
 		EdgeDefinitionEntity edgeDefinition = new EdgeDefinitionEntity();
 		// define the edgeCollection to store the edges
-		edgeDefinition.setCollection(AllRelTypes.PART_OF.toString());
+		edgeDefinition.setCollection(RelTypes.PART_OF.toString());
 		// define a set of collections where an edge is going out...
 		List<String> from = new ArrayList<String>();
 		// and add one or more collections
@@ -146,7 +142,7 @@ public class FloraOnDriver {
 		edgeDefinitions.add(edgeDefinition);
 
 		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(AllRelTypes.HYBRID_OF.toString());
+		edgeDefinition.setCollection(RelTypes.HYBRID_OF.toString());
 		from = new ArrayList<String>();
 		from.add(NodeTypes.taxent.toString());
 		edgeDefinition.setFrom(from);
@@ -156,7 +152,7 @@ public class FloraOnDriver {
 		edgeDefinitions.add(edgeDefinition);
 
 		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(AllRelTypes.SYNONYM.toString());
+		edgeDefinition.setCollection(RelTypes.SYNONYM.toString());
 		from = new ArrayList<String>();
 		from.add(NodeTypes.taxent.toString());
 		edgeDefinition.setFrom(from);
@@ -167,7 +163,7 @@ public class FloraOnDriver {
 
 		// species list subgraph
 		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(AllRelTypes.OBSERVED_IN.toString());
+		edgeDefinition.setCollection(RelTypes.OBSERVED_IN.toString());
 		from = new ArrayList<String>();
 		from.add(NodeTypes.taxent.toString());
 		edgeDefinition.setFrom(from);
@@ -177,7 +173,7 @@ public class FloraOnDriver {
 		edgeDefinitions.add(edgeDefinition);
 
 		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(AllRelTypes.OBSERVED_BY.toString());
+		edgeDefinition.setCollection(RelTypes.OBSERVED_BY.toString());
 		from = new ArrayList<String>();
 		from.add(NodeTypes.specieslist.toString());
 		edgeDefinition.setFrom(from);
@@ -188,7 +184,7 @@ public class FloraOnDriver {
 
 		// attributes <- taxent
 		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(AllRelTypes.HAS_QUALITY.toString());
+		edgeDefinition.setCollection(RelTypes.HAS_QUALITY.toString());
 		from = new ArrayList<String>();
 		from.add(NodeTypes.taxent.toString());
 		edgeDefinition.setFrom(from);
@@ -199,7 +195,7 @@ public class FloraOnDriver {
 
 		// characters <- attributes
 		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(AllRelTypes.ATTRIBUTE_OF.toString());
+		edgeDefinition.setCollection(RelTypes.ATTRIBUTE_OF.toString());
 		from = new ArrayList<String>();
 		from.add(NodeTypes.attribute.toString());
 		edgeDefinition.setFrom(from);
@@ -235,7 +231,7 @@ public class FloraOnDriver {
 			"FOR v IN GRAPH_TRAVERSAL('%1$s',"	//		LENGTH(EDGES(%2$s,v._id,'inbound'))
 			+ "FOR v IN taxent FILTER v.isSpeciesOrInf==true && v.current==true && LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e)==0 RETURN v"	// leaf nodes
 			+ ",'outbound',{paths:false,filterVertices:[%3$s],vertexFilterMethod:['exclude']}) COLLECT a=v[*].vertex RETURN a"
-   			, Constants.TAXONOMICGRAPHNAME,AllRelTypes.PART_OF.toString(),Constants.CHECKLISTFIELDS);
+   			, Constants.TAXONOMICGRAPHNAME,RelTypes.PART_OF.toString(),Constants.CHECKLISTFIELDS);
 
     	try {
     		// traverse all leaf nodes outwards
@@ -519,7 +515,7 @@ public class FloraOnDriver {
 			String query=String.format("LET e=FLATTEN("
 				+ "FOR v in TRAVERSAL(%1$s,%2$s,'%3$s','any',{paths:true,filterVertices:[{_id:'%4$s'}],vertexFilterMethod:'exclude'}) RETURN v.path.edges) "
 				+ "REMOVE e[LENGTH(e)-1] IN SYNONYM RETURN OLD"
-				,NodeTypes.taxent.toString(),AllRelTypes.SYNONYM.toString(),from.toString(),to.toString());
+				,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),from.toString(),to.toString());
 			SYNONYM deleted=driver.executeAqlQuery(query, null, null, SYNONYM.class).getUniqueResult();
 			return GraphUpdateResult.fromHandle(FloraOnDriver.this, deleted.getID());
 		}
@@ -602,7 +598,7 @@ public class FloraOnDriver {
 		 */
 		public GraphUpdateResult getNeighbors(String id, Facets[] facets) {
 			if(id==null) return GraphUpdateResult.emptyResult();
-			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
+			RelTypes[] art=RelTypes.getRelTypesOfFacets(facets);
 			String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
 				+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 				+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
@@ -677,7 +673,7 @@ public class FloraOnDriver {
 		 * @throws ArangoException
 		 */
 		public GraphUpdateResult getRelationshipsBetween(String[] id, Facets[] facets) throws ArangoException {
-			AllRelTypes[] art=AllRelTypes.getRelTypesOfFacets(facets);
+			RelTypes[] art=RelTypes.getRelTypesOfFacets(facets);
 			String query=String.format("RETURN {nodes:(FOR n IN %2$s "
 				+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 				+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
@@ -947,7 +943,7 @@ public class FloraOnDriver {
 		 */
 		public CursorResult<TaxEntVertex> getChildren(ArangoKey id) throws ArangoException {
 			String query=String.format("FOR v IN NEIGHBORS(%1$s, %2$s, '%3$s', 'inbound') LET v1=DOCUMENT(v) SORT v1.name RETURN v1"
-				,NodeTypes.taxent.toString(),AllRelTypes.PART_OF.toString(),id.toString());
+				,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),id.toString());
 		    return driver.executeAqlQuery(query, null, null, TaxEntVertex.class);
 		}
 		
@@ -1028,7 +1024,7 @@ public class FloraOnDriver {
 					+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,%5$s,sl,'inbound',{},{includeData:true}) "
 					+ "RETURN {match:sl._id,name:n.name,_id:n._id}) "
 					+ "COLLECT k=o._id,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_id:k,match:ma,count:LENGTH(ma),reltypes:['%5$s']}"
-					,NodeTypes.specieslist.toString(),latitude,longitude,distance,AllRelTypes.OBSERVED_IN.toString());
+					,NodeTypes.specieslist.toString(),latitude,longitude,distance,RelTypes.OBSERVED_IN.toString());
 			//System.out.println(query);
 	    	return driver.executeAqlQuery(query, null, null, SimpleTaxonResult.class).asList();
 		}
@@ -1048,7 +1044,7 @@ public class FloraOnDriver {
 				+ "LET aut=DOCUMENT(NEIGHBORS(%1$s,%3$s,v2,'outbound',{main:false})) "
 				+ "FOR n IN nei RETURN {name:DOCUMENT(n._from).name,confidence:n.confidence,weight:n.weight,phenoState:n.phenoState,wild:n.wild"
 				+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventoryKey:v2._key,occurrenceKey:n._key,location:v2.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
-				,NodeTypes.specieslist.toString(),AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString()
+				,NodeTypes.specieslist.toString(),RelTypes.OBSERVED_IN.toString(),RelTypes.OBSERVED_BY.toString()
 				,latitude,longitude,distance);
 	    	CursorResult<Occurrence> vertexCursor=driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
 	    	return vertexCursor.iterator();
@@ -1105,7 +1101,7 @@ public class FloraOnDriver {
 			+ "LET aut=DOCUMENT(NEIGHBORS(%6$s,%5$s,n,'outbound',{main:false})) "
 			+ "RETURN {name:v2.name,location:DOCUMENT(n).location,observers:APPEND(mainaut[*].name,aut[*].name)}"
 			,Constants.TAXONOMICGRAPHNAME,taxname,NodeTypes.taxent.toString()
-			,AllRelTypes.OBSERVED_IN.toString(),AllRelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString());
+			,RelTypes.OBSERVED_IN.toString(),RelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString());
     	CursorResult<Occurrence> vertexCursor=this.driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
     	return vertexCursor.iterator();
     }
@@ -1129,8 +1125,8 @@ public class FloraOnDriver {
 					+ "LET aut=DOCUMENT(NEIGHBORS(%6$s,%5$s,sl,'outbound',{main:false})) "
 					+ "RETURN {name:v2.name,confidence:n.confidence,weight:n.weight,phenoState:n.phenoState,wild:n.wild"
 					+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventory:sl._key,location:sl.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
-					,Constants.TAXONOMICGRAPHNAME,query,NodeTypes.taxent.toString(),AllRelTypes.OBSERVED_IN.toString()
-					,AllRelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString(),collections[0]);
+					,Constants.TAXONOMICGRAPHNAME,query,NodeTypes.taxent.toString(),RelTypes.OBSERVED_IN.toString()
+					,RelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString(),collections[0]);
     	} else {
     		aqlQuery=String.format(
 				"FOR v2 IN UNIQUE(FLATTEN(FOR v IN GRAPH_TRAVERSAL('%1$s',"
@@ -1142,8 +1138,8 @@ public class FloraOnDriver {
 					+ "LET aut=DOCUMENT(NEIGHBORS(%6$s,%5$s,sl,'outbound',{main:false})) "
 					+ "RETURN {name:v2.name,confidence:n.confidence,weight:n.weight,phenoState:n.phenoState,wild:n.wild"
 					+ ",uuid:n.uuid,dateInserted:n.dateInserted,inventory:sl._key,location:sl.location,observers:APPEND(mainaut[*].name,aut[*].name)}"
-					,Constants.TAXONOMICGRAPHNAME,query,NodeTypes.taxent.toString(),AllRelTypes.OBSERVED_IN.toString()
-					,AllRelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString(),EntityFactory.toJsonString(collections));
+					,Constants.TAXONOMICGRAPHNAME,query,NodeTypes.taxent.toString(),RelTypes.OBSERVED_IN.toString()
+					,RelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString(),EntityFactory.toJsonString(collections));
     	}
     	CursorResult<Occurrence> vertexCursor=this.driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
     	return vertexCursor.iterator();
@@ -1167,8 +1163,8 @@ public class FloraOnDriver {
 			+ "FOR n IN nei LET mainaut=DOCUMENT(NEIGHBORS(%6$s,%5$s,n,'outbound',{main:true})) "
 			+ "LET aut=DOCUMENT(NEIGHBORS(%6$s,%5$s,n,'outbound',{main:false})) "
 			+ "RETURN {name:v2.name,location:DOCUMENT(n).location,observers:APPEND(mainaut[*].name,aut[*].name)}"
-			,Constants.TAXONOMICGRAPHNAME,query,NodeTypes.taxent.toString(),AllRelTypes.OBSERVED_IN.toString()
-			,AllRelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString(),EntityFactory.toJsonString(collections));
+			,Constants.TAXONOMICGRAPHNAME,query,NodeTypes.taxent.toString(),RelTypes.OBSERVED_IN.toString()
+			,RelTypes.OBSERVED_BY.toString(),NodeTypes.specieslist.toString(),EntityFactory.toJsonString(collections));
     	CursorResult<Occurrence> vertexCursor=this.driver.executeAqlQuery(aqlQuery, null, null, Occurrence.class);
     	//System.out.println(aqlQuery);
     	return vertexCursor.iterator();

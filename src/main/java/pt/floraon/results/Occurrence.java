@@ -8,12 +8,12 @@ import org.apache.commons.csv.CSVRecord;
 import com.arangodb.ArangoException;
 
 import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
-import pt.floraon.server.FloraOnException;
-import pt.floraon.server.Constants.NativeStatus;
-import pt.floraon.server.Constants.PhenologicalStates;
 
 /**
  * Represents the occurrence of one taxon. Note that this is a class which has no representation in the DB. It is constructed by extracting info from a {@link SpeciesList},

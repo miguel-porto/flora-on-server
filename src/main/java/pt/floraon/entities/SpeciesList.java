@@ -8,10 +8,10 @@ import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.server.Constants;
-import pt.floraon.server.FloraOnException;
-import pt.floraon.server.Constants.NodeTypes;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.NodeTypes;
 
 public class SpeciesList extends GeneralNodeWrapper {
 	public SpeciesListVertex baseNode;

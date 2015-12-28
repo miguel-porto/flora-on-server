@@ -7,9 +7,9 @@ import com.arangodb.ArangoException;
 
 import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.server.Constants.AllRelTypes;
-import pt.floraon.server.FloraOnException;
 
 public abstract class GeneralNodeWrapper {
 	protected FloraOnDriver graph;
@@ -49,7 +49,7 @@ public abstract class GeneralNodeWrapper {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	public GraphUpdateResult createRelationshipTo(GeneralDBNode parent,AllRelTypes type) throws IOException, ArangoException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	public GraphUpdateResult createRelationshipTo(GeneralDBNode parent,RelTypes type) throws IOException, ArangoException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if(baseNode._id==null) throw new IOException("Node "+baseNode._id+" not attached to DB");
 
 		// checks whether there is already a PART_OF relation between these two nodes
@@ -79,12 +79,12 @@ public abstract class GeneralNodeWrapper {
 		// checks whether there is already a PART_OF relation between these two nodes
 		String query=String.format(
 			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
-			,baseNode._id,parent._id,AllRelTypes.PART_OF.toString());
+			,baseNode._id,parent._id,RelTypes.PART_OF.toString());
 		
 		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 		
 		if(nrel==0) {
-			this.graph.driver.createEdge(AllRelTypes.PART_OF.toString(), new PART_OF(true), baseNode._id, parent._id, false, false);
+			this.graph.driver.createEdge(RelTypes.PART_OF.toString(), new PART_OF(true), baseNode._id, parent._id, false, false);
 			return 1;
 		} else return 0;
 	}

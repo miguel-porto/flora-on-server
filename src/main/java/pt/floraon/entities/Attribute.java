@@ -5,11 +5,11 @@ import java.io.IOException;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.server.Constants;
-import pt.floraon.server.Constants.AllRelTypes;
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.FloraOnException;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.RelTypes;
 
 public class Attribute extends GeneralNodeWrapper {
 	public AttributeVertex baseNode;
@@ -57,12 +57,12 @@ public class Attribute extends GeneralNodeWrapper {
 		// checks whether there is already a HAS_QUALITY relation between these two nodes
 		String query=String.format(
 			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
-			,parent.baseNode._id,baseNode._id,AllRelTypes.HAS_QUALITY.toString());
+			,parent.baseNode._id,baseNode._id,RelTypes.HAS_QUALITY.toString());
 		
 		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 		
 		if(nrel==0) {
-			this.graph.driver.createEdge(AllRelTypes.HAS_QUALITY.toString(), new HAS_QUALITY(), parent.baseNode._id, baseNode._id, false, false);
+			this.graph.driver.createEdge(RelTypes.HAS_QUALITY.toString(), new HAS_QUALITY(), parent.baseNode._id, baseNode._id, false, false);
 			return 1;
 		} else return 0;
 	}
@@ -73,12 +73,12 @@ public class Attribute extends GeneralNodeWrapper {
 		// checks whether there is already a HAS_QUALITY relation between these two nodes
 		String query=String.format(
 			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
-			,baseNode._id,character.baseNode._id,AllRelTypes.ATTRIBUTE_OF.toString());
+			,baseNode._id,character.baseNode._id,RelTypes.ATTRIBUTE_OF.toString());
 		
 		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 		
 		if(nrel==0) {
-			this.graph.driver.createEdge(AllRelTypes.ATTRIBUTE_OF.toString(), new ATTRIBUTE_OF(), baseNode._id, character.baseNode._id, false, false);
+			this.graph.driver.createEdge(RelTypes.ATTRIBUTE_OF.toString(), new ATTRIBUTE_OF(), baseNode._id, character.baseNode._id, false, false);
 			return 1;
 		} else return 0;
 	}

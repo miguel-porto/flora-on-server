@@ -1,7 +1,7 @@
 package pt.floraon.entities;
 
-import pt.floraon.server.Constants.NativeStatus;
-import pt.floraon.server.Constants.PhenologicalStates;
+import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.PhenologicalStates;
 /**
  * Represents an occurrence of a taxon in a species list
  * @author miguel

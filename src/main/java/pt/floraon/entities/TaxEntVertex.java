@@ -6,9 +6,9 @@ import org.apache.commons.csv.CSVPrinter;
 
 import com.google.gson.internal.LinkedTreeMap;
 
+import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.results.ResultItem;
-import pt.floraon.server.Constants.TaxonRanks;
-import pt.floraon.server.TaxonomyException;
 
 /**
  * Represents a taxonomic entity in the DB.

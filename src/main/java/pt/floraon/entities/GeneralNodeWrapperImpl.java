@@ -3,7 +3,7 @@ package pt.floraon.entities;
 import com.arangodb.ArangoException;
 
 import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.server.FloraOnException;
+import pt.floraon.driver.FloraOnException;
 
 public class GeneralNodeWrapperImpl extends GeneralNodeWrapper {
 	

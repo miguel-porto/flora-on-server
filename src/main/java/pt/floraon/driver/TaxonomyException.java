@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.driver;
 
 public class TaxonomyException extends FloraOnException {
 	private static final long serialVersionUID = 1L;

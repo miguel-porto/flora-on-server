@@ -29,6 +29,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 
 import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOnException;
 /**
  * Handles the request to the web admin pages... a hacky implementation of a dynamic web server!
  * @author miguel

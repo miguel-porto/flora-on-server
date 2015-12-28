@@ -11,15 +11,15 @@ import com.arangodb.CursorResult;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.internal.LinkedTreeMap;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.server.Constants;
-import pt.floraon.server.FloraOnException;
-import pt.floraon.server.TaxonomyException;
-import pt.floraon.server.Constants.AllRelTypes;
-import pt.floraon.server.Constants.NativeStatus;
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.Constants.PhenologicalStates;
-import pt.floraon.server.Constants.TaxonRanks;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.PhenologicalStates;
+import pt.floraon.driver.Constants.RelTypes;
+import pt.floraon.driver.Constants.TaxonRanks;
 
 /**
  * A wrapper for the taxonomic nodes, providing a series of convenience functions.
@@ -293,7 +293,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 	public CursorResult<TaxEntVertex> getSynonyms() throws ArangoException, FloraOnException {
 		if(this.graph==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
 		String query=String.format("FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'any',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex"
-			,NodeTypes.taxent.toString(),AllRelTypes.SYNONYM.toString(),this.baseNode._id
+			,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),this.baseNode._id
 		);
 		return this.graph.driver.executeAqlQuery(query,null,null,TaxEntVertex.class);
 	}
@@ -316,7 +316,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 		if(tev.current) this.setCurrent(false);
 		this.commit();
 		try {
-			new GeneralNodeWrapperImpl(this.graph, this.baseNode).createRelationshipTo(tev, AllRelTypes.SYNONYM);
+			new GeneralNodeWrapperImpl(this.graph, this.baseNode).createRelationshipTo(tev, RelTypes.SYNONYM);
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			// TODO Auto-generated catch block
@@ -334,14 +334,20 @@ public class TaxEnt extends GeneralNodeWrapper {
 		if(baseNode.rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank");
 		if(this.isSpeciesOrInferior()) {
 			if(baseNode.getName().toLowerCase().indexOf(taxon.getName().toLowerCase()) != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
-			// FIXME: check if name is valid for this parent!
+			// TODO: more tests for name validity
 		}
+	}
+	
+	public TaxEnt getParentTaxon() {
+		// TODO: get parent
+		//dsasdgf
+		return null;
 	}
 	/**
 	 * Gets the parents of an hybrid
 	 * @return
 	 */
-	public List<TaxEnt> getParentTaxa() {
+	public List<TaxEnt> getHybridAncestry() {
 		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
 	}

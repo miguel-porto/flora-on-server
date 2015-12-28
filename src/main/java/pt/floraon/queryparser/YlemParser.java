@@ -8,12 +8,12 @@ import java.util.List;
 
 import com.arangodb.ArangoException;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.results.SimpleTaxonResult;
-import pt.floraon.server.Constants;
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.Constants.StringMatchTypes;
 
 /**
  * This is the main interpreter for complex queries. It dispatches the query string to all the specific parsers and returns a list of results.

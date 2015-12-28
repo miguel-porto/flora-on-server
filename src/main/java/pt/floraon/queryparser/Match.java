@@ -1,8 +1,8 @@
 package pt.floraon.queryparser;
 
-import pt.floraon.server.Constants.NodeTypes;
-import pt.floraon.server.Constants.StringMatchTypes;
-import pt.floraon.server.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.StringMatchTypes;
+import pt.floraon.driver.Constants.TaxonRanks;
 
 /**
  * Represents a match in the database. The purpose is to list all possible matches of a given query string in the database, so that they can be ordered
