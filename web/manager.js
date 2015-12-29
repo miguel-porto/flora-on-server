@@ -187,8 +187,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	addEvent('click',lis,function(ev) {
 		var el=getParentbyTag(ev.target,'li');
 		var key=el.getAttribute('data-key');
+		if(el.classList.contains('loading')) return;
+		if(el.querySelector('ul')) {
+			el.removeChild(el.querySelector('ul'));
+			return;
+		}
+		el.classList.add('loading');
 		loadTaxDetails(key,document.getElementById('taxdetails'));
-		if(el.querySelector('ul')) return;
 		loadTreeNode(el,null);
 	});
 	
@@ -207,6 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadTreeNode(el,callback) {
 	var key=el.getAttribute('data-key');
 	fetchAJAX('/lists/tree?fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
+		el.classList.remove('loading');
 		var html=createHTML(rt);
 		el.appendChild(html);
 		if(callback) callback();

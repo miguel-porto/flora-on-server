@@ -88,6 +88,7 @@ div.toggler.off .content {display:none;}
 	margin-top:5px;
 }
 .taxtree-holder ul .tools {position:absolute;top:0;right:0;}
+.taxtree-holder li.loading {font-style:italic;color:grey !important;background-color:#ccc}
 .taxtree-holder li.ORDER {text-transform:uppercase;}
 .taxtree-holder li.ORDER * {text-transform:none;}
 .taxtree-holder li.FAMILY {color:blue;}
