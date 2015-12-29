@@ -170,7 +170,8 @@ public final class Constants {
     	author,
     	attribute,			// a morphological attribute (e.g. red flower)
     	character,			// a morphological character (e.g. flower color, leaf shape...)
-    	image
+    	image,
+    	territory			// a geographic territory (e.g. country)
     }
 /*
 	public static class Pair<L,R> implements Comparable<Pair<L,R>> {

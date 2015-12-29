@@ -53,6 +53,7 @@ import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.SpeciesListVertex;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
+import pt.floraon.entities.Territory;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.GraphUpdateResult;
@@ -370,6 +371,20 @@ public class FloraOnDriver {
 	    public GraphUpdateResult createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException, TaxonomyException {
 	    	return GraphUpdateResult.fromHandle(
     			FloraOnDriver.this, TaxEnt.newFromName(FloraOnDriver.this,name,author,rank,annotation,current).getID()
+			);
+	    }
+	    
+	    /**
+	     * Creates a new territory and immediately add it to DB.
+	     * @param name
+	     * @param shortName
+	     * @return
+	     * @throws ArangoException
+	     * @throws TaxonomyException
+	     */
+	    public GraphUpdateResult createTerritory(String name,String shortName) throws ArangoException, TaxonomyException {
+	    	return GraphUpdateResult.fromHandle(
+	    		FloraOnDriver.this, Territory.newFromName(FloraOnDriver.this, name, shortName).getID()
 			);
 	    }
 	    

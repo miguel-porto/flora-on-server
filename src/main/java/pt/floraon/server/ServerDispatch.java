@@ -132,7 +132,6 @@ public class ServerDispatch implements Runnable {
 		return out.toString();
 	}
 	
-	@SuppressWarnings("deprecation")
 	private static void success(PrintWriter output, JsonElement obj,JsonObject header, boolean includeHeaders) {
 		if(includeHeaders) {
 			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
@@ -144,7 +143,6 @@ public class ServerDispatch implements Runnable {
 		output.flush();
 	}
 
-	@SuppressWarnings("deprecation")
 	private static void success(PrintWriter output, JsonElement obj, boolean includeHeaders) {
 		if(includeHeaders) {
 			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
@@ -156,7 +154,6 @@ public class ServerDispatch implements Runnable {
 		output.flush();
 	}
 
-	@SuppressWarnings("deprecation")
 	private static void success(PrintWriter output, String obj, boolean includeHeaders) {
 		if(includeHeaders) {
 			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
