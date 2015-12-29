@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.URI;
@@ -16,9 +17,11 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -337,17 +340,12 @@ public class ServerDispatch implements Runnable {
 			parameters=jpar;
 			//output.println(jpar.toString());
     	} else parameters=params;		// no JSON, key-values
-/*
-    	if(includeHeaders) {
-	    	HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-	    	httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
-	    	output.print(httpres.toString()+"\r\n");
-	    	output.print("\r\n");
-	    	output.flush();
-    	}*/
     	
+    	ListIterator<String> part=Arrays.asList(path).listIterator();
+    	part.next();		// skip first
+
     	try {
-	    	switch(path[1]) {
+	    	switch(part.next()) {
 			case "query":	// general compound query, as input by the user
 				query=getQSValue("q",parameters);
 				format=getQSValue("fmt",parameters);
@@ -399,14 +397,14 @@ public class ServerDispatch implements Runnable {
 				
 			case "lists":
 				String htmlClass=null;
-				if(path.length<3) {
+				if(!part.hasNext()) {
 					error(output,"Choose one of: checklist, species, tree",includeHeaders);
 					return;
 				}
 				format=getQSValue("fmt",parameters);
 				if(format==null || format.trim().equals("")) format="htmltable";
 				ResultProcessor<?> rpchk=null;
-				switch(path[2]) {
+				switch(part.next()) {
 				case "checklist":
 					List<ChecklistEntry> chklst=graph.getCheckList();
 					Collections.sort(chklst);
@@ -497,12 +495,12 @@ public class ServerDispatch implements Runnable {
 				return;
 				
 			case "reference":
-				if(path.length<3) {
+				if(!part.hasNext()) {
 					error(output,"Choose one of: all, ranks",includeHeaders);
 					return;
 				}
 				StringBuilder rk=new StringBuilder();
-				switch(path[2]) {
+				switch(part.next()) {
 				case "all":
 					jobj=new JsonObject();
 					JsonObject ranks=new JsonObject();	// a map to convert rank numbers to names
@@ -625,7 +623,7 @@ public class ServerDispatch implements Runnable {
 				break;
 				
 			case "upload":
-				if(path.length<3) {
+				if(!part.hasNext()) {
 					error(output,"Choose one of: taxonomy, attributes or occurrences",includeHeaders);
 					return;
 				}
@@ -636,7 +634,7 @@ public class ServerDispatch implements Runnable {
 					return;
 				}
 	
-				switch(path[2]) {
+				switch(part.next()) {
 				case "taxonomy":
 					output.println(graph.dbDataUploader.uploadTaxonomyListFromFile(query, false));
 					break;
@@ -658,18 +656,18 @@ public class ServerDispatch implements Runnable {
 					}
 					break;
 				default:
-					error(output,"Unrecognized command: "+path[2],includeHeaders);
+					error(output,"Unrecognized command.",includeHeaders);
 					return;
 				}
 				break;
 			
 			case "links":
-				if(path.length<3) {
+				if(!part.hasNext()) {
 					error(output,"Choose one of: add, update",includeHeaders);
 					return;
 				}
 				
-				switch(path[2]) {
+				switch(part.next()) {
 				case "add":
 					id=getQSValue("from",parameters);
 					id2=getQSValue("to",parameters);
@@ -707,12 +705,12 @@ public class ServerDispatch implements Runnable {
 				break;
 	
 			case "nodes":
-				if(path.length<3) {
+				if(!part.hasNext()) {
 					error(output,"Choose one of: delete, add, update",includeHeaders);
 					return;
 				}
 	
-				switch(path[2]) {
+				switch(part.next()) {
 				case "getallcharacters":
 					output.print(graph.dbNodeWorker.getAllCharacters().toString());
 					output.flush();
@@ -745,11 +743,11 @@ public class ServerDispatch implements Runnable {
 					return;
 
 				case "add":
-					if(path.length<4) {
+					if(!part.hasNext()) {
 						error(output,"Choose the node type: taxent",includeHeaders);
 						return;
 					}
-					switch(path[3]) {
+					switch(part.next()) {
 					case "inferiortaxent":	// this adds a bond taxent child of the given parent and ensures it is taxonomically valid
 						name=getQSValue("name",parameters);
 						author=getQSValue("author",parameters);
@@ -787,11 +785,11 @@ public class ServerDispatch implements Runnable {
 					}
 										
 				case "update":
-					if(path.length<4) {
+					if(!part.hasNext()) {
 						error(output,"Choose the node type: taxent",includeHeaders);
 						return;
 					}
-					switch(path[3]) {
+					switch(part.next()) {
 					case "taxent":
 						name=getQSValue("name",parameters);
 						author=getQSValue("author",parameters);
@@ -826,12 +824,12 @@ public class ServerDispatch implements Runnable {
 					error(output,"You must POST a JSON document for these methods.",includeHeaders);
 					return;
 				}
-				if(path.length<3) {
+				if(!part.hasNext()) {
 					error(output,"Choose one of: add",includeHeaders);
 					return;
 				}
 				JsonObject jpar=(JsonObject) parameters;
-				switch(path[2]) {
+				switch(part.next()) {
 				case "add":		// add a species list
 					try {
 						if(jpar.has("list"))	// it's a list of species lists
@@ -847,7 +845,7 @@ public class ServerDispatch implements Runnable {
 				break;
 				
 			default:
-				error(output,"Unknown command: "+path[1],includeHeaders);
+				error(output,"Unknown command.",includeHeaders);
 				return;
 			}
     	} catch (ArangoException | FloraOnException e) {
