@@ -93,7 +93,7 @@ public final class Constants {
 	}
 
 	public enum NativeStatus {
-		WILD((short)0),UNCERTAIN((short)1),NATURALIZED((short)2);
+		WILD((short)0),UNCERTAIN((short)1),NATURALIZED((short)2),ENDEMIC((short)3),NATIVE((short)0),EXOTIC((short)2);
 		
 		private final Short code;
 		NativeStatus (Short code) {
