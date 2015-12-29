@@ -5,8 +5,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -36,7 +36,7 @@ import pt.floraon.driver.FloraOnException;
  *
  */
 public final class HttpServer {
-	static void processRequest(URI url,OutputStream ostr,FloraOnDriver graph) throws FileNotFoundException, IOException {
+	static void processRequest(URI url,OutputStream outputStream,FloraOnDriver graph) throws FileNotFoundException, IOException {
 		PrintWriter out=null;
     	String command=url.getPath();
     	String[] path=command.split("/");
@@ -49,35 +49,35 @@ public final class HttpServer {
 			switch(match.group(1)) {
 			case "html":
 			case "htm":
-				out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);
-				res.addHeader(new BasicHeader("Content-Type","text/html"));
+				out = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
+				res.addHeader(new BasicHeader("Content-Type","text/html; charset=utf-8"));
 				processFile=true;
 				break;
 			case "png":
-				out = new PrintWriter(ostr);
+				out = new PrintWriter(outputStream);
 				res.addHeader(new BasicHeader("Content-Type","image/png"));
 				break;
 			case "js":
-				out = new PrintWriter(ostr);
+				out = new PrintWriter(outputStream);
 				res.addHeader(new BasicHeader("Content-Type","application/javascript"));
 				break;
 			case "css":
-				out = new PrintWriter(ostr);
+				out = new PrintWriter(outputStream);
 				res.addHeader(new BasicHeader("Content-Type","text/css"));
 				break;
 			case "csv":
-				out = new PrintWriter(ostr);
+				out = new PrintWriter(outputStream);
 				res.addHeader(new BasicHeader("Content-Type","text/csv; charset=Windows-1252"));
 				res.addHeader(new BasicHeader("Content-Disposition","attachment;Filename=\"Checklist_flora_Portugal.csv\""));
 				break;
 			default:
-				out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);
-				res.addHeader(new BasicHeader("Content-Type","text/html"));
+				out = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
+				res.addHeader(new BasicHeader("Content-Type","text/html; charset=utf-8"));
 				break;
 			}
 		} else {
-			out = new PrintWriter(new OutputStreamWriter(ostr, StandardCharsets.UTF_8), true);
-			res.addHeader(new BasicHeader("Content-Type","text/html"));
+			out = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
+			res.addHeader(new BasicHeader("Content-Type","text/html; charset=utf-8"));
 		}
 		//res.addHeader("Set-Cookie","c1=adsfg; path=/; domain=\".app.localhost:9000\"");
 		// get querystring
@@ -85,6 +85,7 @@ public final class HttpServer {
 		out.print(res.toString()+"\r\n");
 		out.print("\r\n");
 		out.flush();
+
 		File page;
 		String address;
 		if(path.length==3)
@@ -95,34 +96,36 @@ public final class HttpServer {
 		
 		if(processFile) {	// it's an HTML file, look for dynamic content <!-- CONTENT:/address -->
 			Pattern cnt=Pattern.compile("<!-- CONTENT:([a-zA-Z0-9_/?=%+-]+) -->");
-			BufferedReader br=new BufferedReader(new FileReader(page));
+			BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(page), StandardCharsets.UTF_8));	//new BufferedReader(new FileReader(page));
 			String line;
-			while((line=br.readLine())!=null) {
+			while((line=br.readLine())!=null) {	// scan the file for dynamic content
 				Matcher mat=cnt.matcher(line);
 				if(mat.find()) {	// this line has dynamic content
-					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
+					//ByteArrayOutputStream  baos=new ByteArrayOutputStream();
+					out.flush();
 					try {
 						URI urlcnt=new URI(mat.group(1).trim());	// this is the dynamic content URL
 						List<NameValuePair> paramscnt=URLEncodedUtils.parse(urlcnt,Charset.defaultCharset().toString());	// this is the content query variables
 						List<NameValuePair> mergeparams=new ArrayList<NameValuePair>(paramscnt);
 						mergeparams.addAll(params);	// merge the content query variables with the parent query variables
 						// NOTE: if there are duplicate keys, the content query variables take precedence!
-						ServerDispatch.processCommand(urlcnt, mergeparams, graph, baos, false);
+						ServerDispatch.processCommand(urlcnt, mergeparams, graph, outputStream, false);
+						//ServerDispatch.processCommand(urlcnt, mergeparams, graph, baos, false);
 					} catch (FloraOnException e) {
 						out.println("Error: "+e.getMessage());
 					} catch (URISyntaxException e) {
 						out.println("Error: "+e.getMessage());
 						e.printStackTrace();
 					}
-					baos.close();
-					line=mat.replaceFirst(baos.toString());
-				}
-				out.println(line);
+					/*baos.close();
+					line=mat.replaceFirst(baos.toString());*/
+					
+				} else out.println(line);
 			}
 			br.close();
 		} else {	// it's a static file
 			try {
-				IOUtils.copy(new FileInputStream(page), ostr);
+				IOUtils.copy(new FileInputStream(page), outputStream);
 			} catch (FileNotFoundException e) {		// file does not exist? add exceptions here!
 				if(address.equals("web/checklist.csv")) {
 					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
@@ -138,7 +141,6 @@ public final class HttpServer {
 				}
 			}
 		}
-		out.close();
 		return;
 	}
 	/*

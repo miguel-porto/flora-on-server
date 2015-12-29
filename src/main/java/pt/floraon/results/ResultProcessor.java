@@ -61,15 +61,15 @@ public class ResultProcessor<T extends ResultItem> {
     	return sb.toString();
 	}
 
-	public void toHTMLTable(PrintWriter ostr) {
+	public void toHTMLTable(PrintWriter output) {
 		T tmp;
-		ostr.print("<table>");
+		output.print("<table>");
     	while (this.results.hasNext()) {
     		tmp=this.results.next();
-    		ostr.print(tmp.toHTMLTableRow());
+    		output.print(tmp.toHTMLTableRow());
     	}
-    	ostr.print("</table>");
-    	ostr.flush();
+    	output.print("</table>");
+    	output.flush();
 	}
 
 	/**

@@ -110,14 +110,17 @@ public class ServerDispatch implements Runnable {
 		return null;
 	}
 	
+	@Deprecated
 	private static String success(String obj) {
 		return "{\"success\":true,\"msg\":\""+obj+"\"}";
 	}
-
+	
+	@Deprecated
 	private static String success(JsonElement obj) {
 		return "{\"success\":true,\"msg\":"+obj.toString()+"}";
 	}
 
+	@Deprecated
 	private static String success(JsonElement obj,JsonObject header) {
 		JsonObject out;
 		if(header==null)
@@ -128,11 +131,54 @@ public class ServerDispatch implements Runnable {
 		out.add("msg", obj);
 		return out.toString();
 	}
-
-	private static String error(String obj) {
-		return "{\"success\":false,\"msg\":\""+obj+"\"}";
+	
+	@SuppressWarnings("deprecation")
+	private static void success(PrintWriter output, JsonElement obj,JsonObject header, boolean includeHeaders) {
+		if(includeHeaders) {
+			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
+			output.print(httpres.toString()+"\r\n");
+			output.print("\r\n");
+		}
+		output.print(success(obj, header));
+		output.flush();
 	}
-   
+
+	@SuppressWarnings("deprecation")
+	private static void success(PrintWriter output, JsonElement obj, boolean includeHeaders) {
+		if(includeHeaders) {
+			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
+			output.print(httpres.toString()+"\r\n");
+			output.print("\r\n");
+		}
+		output.print(success(obj));
+		output.flush();
+	}
+
+	@SuppressWarnings("deprecation")
+	private static void success(PrintWriter output, String obj, boolean includeHeaders) {
+		if(includeHeaders) {
+			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
+			output.print(httpres.toString()+"\r\n");
+			output.print("\r\n");
+		}
+		output.print(success(obj));
+		output.flush();
+	}
+
+	private static void error(PrintWriter output, String obj, boolean includeHeaders) {
+		if(includeHeaders) {
+			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
+			output.print(httpres.toString()+"\r\n");
+			output.print("\r\n");
+		}
+		output.print("{\"success\":false,\"msg\":\""+obj+"\"}");
+		output.flush();
+	}
+
 // dispatch a request to port 9000
 	public void run() {
 		OutputStream ostr=null;
@@ -258,53 +304,47 @@ public class ServerDispatch implements Runnable {
 		processCommand(url,graph,outputStream,headers);
 	}
 	
+	public static void processCommand(String command,FloraOnDriver graph,PrintWriter output,boolean headers) throws URISyntaxException, IOException, FloraOnException {
+		URI url=new URI("/"+command.trim());
+		processCommand(url,graph,output,headers);
+	}
+	
+	public static void processCommand(URI url,FloraOnDriver graph,PrintWriter output,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
+		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,output,headers);
+	}
+
 	public static void processCommand(URI url,FloraOnDriver graph,OutputStream outputStream,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
 		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,outputStream,headers);
 	}
 	
-	public static void processCommand(URI url,List<NameValuePair> params,FloraOnDriver graph,OutputStream outputStream,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
-		PrintWriter output;
+	public static void processCommand(URI url,List<NameValuePair> params,FloraOnDriver graph,PrintWriter output,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
+		String command=url.getPath();
+		String[] path=command.split("/");
 		JsonObject jobj;
     	String format,id,id2;
     	JsonObject header;
-    	String command=url.getPath();
     	String name,author,rank,comment,current,description,shortName,query,from,to,annot;
     	Object parameters=null;
-    	
-    	output = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
-    	
-    	String[] path=command.split("/");
-    	if(path.length<2) {
-    		output.println(error("This is Flora-On. Missing parameters. Are you looking for the web admin? Go to http://localhost:9000/admin/"));
-    		output.flush();
-    		return;
-    	}
 
-    	if(path[1].equals("admin")) {
-    		HttpServer.processRequest(url,outputStream,graph);
-    		output.flush();
-    		return;
-    	}
-    	
     	// check whether we have a single JSON document with the query, or a name value list
     	if(params.size()==1 && params.get(0).getValue()==null) {
 			JsonObject jpar=null;
 			try {
 				jpar=(JsonObject) new JsonParser().parse(params.get(0).getName());
 			} catch (JsonSyntaxException e) {
-				output.println(error(e.getMessage()));
+				error(output,e.getMessage(),includeHeaders);
 			}
 			parameters=jpar;
-			output.println(jpar.toString());
+			//output.println(jpar.toString());
     	} else parameters=params;		// no JSON, key-values
-
+/*
     	if(includeHeaders) {
 	    	HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-	    	httpres.addHeader(new BasicHeader("Content-Type:","application/json"));
+	    	httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
 	    	output.print(httpres.toString()+"\r\n");
 	    	output.print("\r\n");
 	    	output.flush();
-    	}
+    	}*/
     	
     	try {
 	    	switch(path[1]) {
@@ -312,8 +352,7 @@ public class ServerDispatch implements Runnable {
 				query=getQSValue("q",parameters);
 				format=getQSValue("fmt",parameters);
 				if(query==null || query.length()<1) {
-					output.println(error("Missing query."));
-					output.flush();
+					error(output,"Missing query.",includeHeaders);
 					return;
 				}
 				if(format==null) format="json";
@@ -338,8 +377,8 @@ public class ServerDispatch implements Runnable {
 					
 				case "json":
 				default:
-					output.println(success(rp.toJSONElement(),header));
-					break;
+					success(output,rp.toJSONElement(),header,includeHeaders);
+					return;
 				}
 				break;
 				
@@ -361,8 +400,7 @@ public class ServerDispatch implements Runnable {
 			case "lists":
 				String htmlClass=null;
 				if(path.length<3) {
-					output.println(error("Choose one of: checklist, species, tree"));
-					output.flush();
+					error(output,"Choose one of: checklist, species, tree",includeHeaders);
 					return;
 				}
 				format=getQSValue("fmt",parameters);
@@ -385,8 +423,8 @@ public class ServerDispatch implements Runnable {
 					id=getQSValue("id",parameters);		// the id of the taxent node of which to get the children
 					rank=getQSValue("rank",parameters);	// the rank of which to get all nodes
 					if(id!=null & rank!=null) {
-						output.println(error("You must specify id OR rank, not both."));
-						break;
+						error(output,"You must specify id OR rank, not both.",includeHeaders);
+						return;
 					}
 					if(id!=null) {
 						CursorResult<TaxEntVertex> tmp=graph.dbSpecificQueries.getChildren(ArangoKey.fromString(id));
@@ -407,29 +445,31 @@ public class ServerDispatch implements Runnable {
 					case "json":
 						header=new JsonObject();
 						//header.addProperty("nresults", chklst.size());
-						output.println(success(rpchk.toJSONElement(),header));
-						break;
+						success(output,rpchk.toJSONElement(),header,includeHeaders);
+						return;
 					case "htmllist":
-						output.println(rpchk.toHTMLList(htmlClass));
+						output.println(rpchk.toHTMLList(htmlClass));	// FIXME headers
 						break;
 					case "html":
 					case "htmltable":
-						//output.println(rpchk.toHTMLTable());
-						rpchk.toHTMLTable(output);
+						rpchk.toHTMLTable(output);		// FIXME headers?
 						break;
 					case "csv":
-						output.println(rpchk.toCSVTable());
+						output.println(rpchk.toCSVTable());		// FIXME headers
 						break;
 					}
-				} else output.println(error("Some error occurred."));
+				} else {
+					error(output,"Some error occurred.",includeHeaders);
+					return;
+				}
 				break;
 				
 			case "getneighbors":
 				id=getQSValue("id",parameters);
 				query=getQSValue("q",parameters);
 				if(id==null && query==null) {
-					output.println(error("Missing query."));
-					break;
+					error(output,"Missing query.",includeHeaders);
+					return;
 				}
 	
 				String infacets[];
@@ -444,22 +484,21 @@ public class ServerDispatch implements Runnable {
 				if(id==null) {
 					TaxEnt te=graph.dbNodeWorker.findTaxEnt(query);
 					if(te==null)
-						output.println(success(graph.dbNodeWorker.getNeighbors(null,fac).toJsonObject()));
+						success(output,graph.dbNodeWorker.getNeighbors(null,fac).toJsonObject(),includeHeaders);
 					else
-						output.println(success(graph.dbNodeWorker.getNeighbors(te.getID(),fac).toJsonObject()));
+						success(output,graph.dbNodeWorker.getNeighbors(te.getID(),fac).toJsonObject(),includeHeaders);
 				} else {
 					String[] ids=id.split(",");
 					if(ids.length==1)
-						output.println(success(graph.dbNodeWorker.getNeighbors(ids[0],fac).toJsonObject()));
+						success(output,graph.dbNodeWorker.getNeighbors(ids[0],fac).toJsonObject(),includeHeaders);
 					else
-						output.println(success(graph.dbNodeWorker.getRelationshipsBetween(ids,fac).toJsonObject()));
+						success(output,graph.dbNodeWorker.getRelationshipsBetween(ids,fac).toJsonObject(),includeHeaders);
 				}
-				break;
+				return;
 				
 			case "reference":
 				if(path.length<3) {
-					output.println(error("Choose one of: all, ranks"));
-					output.flush();
+					error(output,"Choose one of: all, ranks",includeHeaders);
 					return;
 				}
 				StringBuilder rk=new StringBuilder();
@@ -479,7 +518,7 @@ public class ServerDispatch implements Runnable {
 						ranks.addProperty(art.toString(), art.getFacet().toString());
 					}
 					jobj.add("facets", ranks);
-					output.println(success(jobj));
+					success(output,jobj,includeHeaders);
 						/*
 					rk=new StringBuilder();
 					
@@ -489,9 +528,9 @@ public class ServerDispatch implements Runnable {
 					obj.put("reltypes", rk.toString());
 					obj.put("success", true);
 					out.println(obj.toJSONString());*/
-					break;
+					return;
 					
-				case "ranks":
+				case "ranks":	// FIXME headers
 					rk.append("<select name=\"rank\">");
 					for(TaxonRanks e : Constants.TaxonRanks.values()) {
 						rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
@@ -503,6 +542,12 @@ public class ServerDispatch implements Runnable {
 				break;
 				
 			case "webadmin":
+				if(includeHeaders) {
+					HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+					httpres.addHeader(new BasicHeader("Content-Type:","text/html; charset=utf-8"));
+					output.print(httpres.toString()+"\r\n");
+					output.print("\r\n");
+				}
 				String what=getQSValue("w",params);
 				if(what==null) {
 					output.print("<div id=\"main\"><h2>This is the Flora-On taxonomy manager</h2><p>To edit the checklist, choose <a href=\"?w=families\">Family tree</a> on the left.</p></div>");
@@ -512,14 +557,13 @@ public class ServerDispatch implements Runnable {
 				switch(what) {		// the 'w' parameter of the URL querystring
 				case "main":	// CHECKLIST
 					output.print("<div id=\"main\" class=\"checklist\"><h1>List of all accepted names</h1>");
-					output.flush();
-					ServerDispatch.processCommand("lists/species?fmt=htmltable", graph, outputStream, false);
+					ServerDispatch.processCommand("lists/species?fmt=htmltable", graph, output, false);
 					output.print("</div>");
 					break;
 				case "tree":
 					output.print("<div id=\"main\" class=\"taxman-holder\"><div id=\"taxtree\" class=\"taxtree-holder\">");
 					output.flush();
-					ServerDispatch.processCommand("lists/tree?rank=class&fmt=htmllist", graph, outputStream, false);
+					ServerDispatch.processCommand("lists/tree?rank=class&fmt=htmllist", graph, output, false);
 					output.print("</div>");
 					output.print("<div id=\"taxdetails\"><h2>Click a taxon on the tree to edit</h2></div>");
 					output.print("</div>");
@@ -527,7 +571,7 @@ public class ServerDispatch implements Runnable {
 				case "families":
 					output.print("<div id=\"main\" class=\"taxman-holder\"><div id=\"taxtree\" class=\"taxtree-holder\">");
 					output.flush();
-					ServerDispatch.processCommand("lists/tree?rank=family&fmt=htmllist", graph, outputStream, false);
+					ServerDispatch.processCommand("lists/tree?rank=family&fmt=htmllist", graph, output, false);
 					output.print("</div>");
 					output.print("<div id=\"taxdetails\"><h2>Click a taxon on the tree to edit</h2></div>");
 					output.print("</div>");
@@ -536,11 +580,15 @@ public class ServerDispatch implements Runnable {
 					id=getQSValue("id",params);
 					TaxEnt tev=graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(id));
 					output.print("<h1>"+tev.baseNode.getFullName(true)+"</h1>");
-					// TODO write possible taxonomic errors
 					output.print("<ul class=\"menu currentstatus\"><li class=\"current"+(tev.baseNode.isCurrent() ? " selected" : "")+"\">current</li><li class=\"notcurrent"+(tev.baseNode.isCurrent() ? "" : " selected")+"\">not current</li></ul>");
 					output.print("<ul class=\"menu\"><li><a href=\"graph.html?q="+URLEncoder.encode(tev.baseNode.getName(), StandardCharsets.UTF_8.name())+"\">View in graph</a></li>"
 						+ (tev.isLeafNode() ? "<li id=\"deletetaxon\" class=\"actionbutton\">Delete taxon</li>" : "") + "</ul>");
 					output.print("<input type=\"hidden\" name=\"nodekey\" value=\""+tev.baseNode.getID()+"\"/>");
+					try {
+						tev.canBeChildOf(tev.getParentTaxon());
+					} catch (TaxonomyException e) {
+						output.print("<p class=\"error\">There are taxonomic errors in this taxon. Please revise it or its parent relationships:<br/>ERROR: "+e.getMessage()+"</p>");
+					}
 					output.print("<table><tr><td>ID</td><td>"+tev.baseNode.getID()+"</td></tr>");
 					output.print("<tr><td>Rank</td><td>"+tev.baseNode.getRank().toString()+"</td></tr></table>");
 					Iterator<TaxEntVertex> it1=tev.getSynonyms().iterator();
@@ -566,7 +614,7 @@ public class ServerDispatch implements Runnable {
 					output.print("<div id=\"main\"><h2>Enter your query</h2><form id=\"freequery\"><input type=\"text\" id=\"querybox\" name=\"query\" value=\""+(query == null ? "" : query)+"\"/><input type=\"submit\" value=\"Search!\"/></form>");
 					output.flush();
 					if(query!=null)
-						ServerDispatch.processCommand("query?q="+URLEncoder.encode(query, StandardCharsets.UTF_8.name())+"&fmt=html", graph, outputStream, false);
+						ServerDispatch.processCommand("query?q="+URLEncoder.encode(query, StandardCharsets.UTF_8.name())+"&fmt=html", graph, output, false);
 					output.print("</div>");
 					break;
 					
@@ -578,15 +626,13 @@ public class ServerDispatch implements Runnable {
 				
 			case "upload":
 				if(path.length<3) {
-					output.println(error("Choose one of: taxonomy, attributes or occurrences"));
-					output.flush();
+					error(output,"Choose one of: taxonomy, attributes or occurrences",includeHeaders);
 					return;
 				}
 				
 				query=getQSValue("file",parameters);
 				if(query==null || query.length()<1) {
-					output.println(error("You must provide the full path to a local text file to upload."));
-					output.flush();
+					error(output,"You must provide the full path to a local text file to upload.",includeHeaders);
 					return;
 				}
 	
@@ -612,15 +658,14 @@ public class ServerDispatch implements Runnable {
 					}
 					break;
 				default:
-					output.println(error("Unrecognized command: "+path[2]));
-					break;
+					error(output,"Unrecognized command: "+path[2],includeHeaders);
+					return;
 				}
 				break;
 			
 			case "links":
 				if(path.length<3) {
-					output.println(error("Choose one of: add, update"));
-					output.flush();
+					error(output,"Choose one of: add, update",includeHeaders);
 					return;
 				}
 				
@@ -630,48 +675,40 @@ public class ServerDispatch implements Runnable {
 					id2=getQSValue("to",parameters);
 					String type=getQSValue("type",parameters);
 					if(id==null || id.trim().length()<1 || id2==null || id2.trim().length()<1 || type==null) {
-						output.println(error("You must provide relationship type and two document handles 'from' and 'to'"));
-						output.flush();
+						error(output,"You must provide relationship type and two document handles 'from' and 'to'",includeHeaders);
 						return;
 					}
 	
 					GeneralNodeWrapperImpl n1=graph.dbNodeWorker.getNodeWrapper(id);
 					GeneralNodeWrapperImpl n2=graph.dbNodeWorker.getNodeWrapper(id2);
 					if(n1==null) {
-						output.println(error("Node "+id+" not found."));
-						output.flush();
+						error(output,"Node "+id+" not found.",includeHeaders);
 						return;
 					}
 					if(n2==null) {
-						output.println(error("Node "+id2+" not found."));
-						output.flush();
+						error(output,"Node "+id2+" not found.",includeHeaders);
 						return;
 					}
 					try {
-						output.println(success(
-							n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject()
-						));
+						success(output,n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject(),includeHeaders);
 					} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 							| IllegalArgumentException | InvocationTargetException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					break;
+					return;
 					
 				case "update":
 					id=getQSValue("id",parameters);
 					current=getQSValue("current",parameters);
-					output.println(success(
-						graph.dbNodeWorker.updateDocument(id, "current", Integer.parseInt(current)==1).toJsonObject()
-					));
-					break;
+					success(output,graph.dbNodeWorker.updateDocument(id, "current", Integer.parseInt(current)==1).toJsonObject(),includeHeaders);
+					return;
 				}
 				break;
 	
 			case "nodes":
 				if(path.length<3) {
-					output.println(error("Choose one of: delete, add, update"));
-					output.flush();
+					error(output,"Choose one of: delete, add, update",includeHeaders);
 					return;
 				}
 	
@@ -684,33 +721,32 @@ public class ServerDispatch implements Runnable {
 				case "delete":
 					id=getQSValue("id",parameters);
 					if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
-					output.println(success(EntityFactory.toJsonElement(graph.dbNodeWorker.deleteNode(ArangoKey.fromString(id)),false)));
-					break;
+					success(output,EntityFactory.toJsonElement(graph.dbNodeWorker.deleteNode(ArangoKey.fromString(id)),false),includeHeaders);
+					return;
 
 				case "deleteleaf":
 					id=getQSValue("id",parameters);
 					if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
-					output.println(success(EntityFactory.toJsonElement(graph.dbNodeWorker.deleteLeafNode(ArangoKey.fromString(id)),false)));
-					break;
+					success(output, EntityFactory.toJsonElement(graph.dbNodeWorker.deleteLeafNode(ArangoKey.fromString(id)),false), includeHeaders);
+					return;
 	
 				case "setsynonym":
 					from=getQSValue("from",parameters);
 					to=getQSValue("to",parameters);
 					graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(from)).setSynonymOf(graph.dbNodeWorker.getTaxEntVertex(ArangoKey.fromString(to)));
-					output.println(success("Ok"));
-					break;
+					success(output, "Ok", includeHeaders);
+					return;
 					
 				case "detachsynonym":
 					from=getQSValue("from",parameters);
 					to=getQSValue("to",parameters);
 					graph.dbNodeWorker.detachSynonym(ArangoKey.fromString(from), ArangoKey.fromString(to));
-					output.println(success("Ok"));
-					break;
+					success(output, "Ok", includeHeaders);
+					return;
 
 				case "add":
 					if(path.length<4) {
-						output.println(error("Choose the node type: taxent"));
-						output.flush();
+						error(output,"Choose the node type: taxent",includeHeaders);
 						return;
 					}
 					switch(path[3]) {
@@ -721,52 +757,38 @@ public class ServerDispatch implements Runnable {
 						annot=getQSValue("annot",parameters);
 						id=getQSValue("parent",parameters);
 						current=getQSValue("current",parameters);
-						output.println(success(
-							graph.dbNodeWorker.createTaxEntChild(ArangoKey.fromString(id), name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), annot, current==null ? null : Integer.parseInt(current)==1).toString()
-						));
-						break;
+						success(output, graph.dbNodeWorker.createTaxEntChild(ArangoKey.fromString(id), name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), annot, current==null ? null : Integer.parseInt(current)==1).toString(), includeHeaders);
+						return;
 						
 					case "taxent":	// this only adds a free taxent
 						name=getQSValue("name",parameters);
 						author=getQSValue("author",parameters);
 						rank=getQSValue("rank",parameters);
-						
-						output.println(success(
-							graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject()
-						));
-						break;
+						success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
+						return;
 						
 					case "attribute":
 						name=getQSValue("name",parameters);
 						shortName=getQSValue("shortname",parameters);
 						description=getQSValue("description",parameters);
-						
-						output.println(success(
-							graph.dbNodeWorker.createAttributeNode(name, shortName, description).toJsonObject()
-						));
-						break;
+						success(output, graph.dbNodeWorker.createAttributeNode(name, shortName, description).toJsonObject(), includeHeaders);
+						return;
 					
 					case "character":
 						name=getQSValue("name",parameters);
 						shortName=getQSValue("shortname",parameters);
 						description=getQSValue("description",parameters);
-						
-						output.println(success(
-							graph.dbNodeWorker.createCharacterNode(name, shortName, description).toJsonObject()
-						));
-						break;
+						success(output, graph.dbNodeWorker.createCharacterNode(name, shortName, description).toJsonObject(), includeHeaders);
+						return;
 						
 					default:
-						output.println(error("Invalid node type"));
-						output.flush();
+						error(output,"Invalid node type",includeHeaders);
 						return;
 					}
-					break;
-					
+										
 				case "update":
 					if(path.length<4) {
-						output.println(error("Choose the node type: taxent"));
-						output.flush();
+						error(output,"Choose the node type: taxent",includeHeaders);
 						return;
 					}
 					switch(path[3]) {
@@ -777,19 +799,18 @@ public class ServerDispatch implements Runnable {
 						comment=getQSValue("comment",parameters);
 						current=getQSValue("current",parameters);
 						
-						output.println(success(
+						success(output, 
 							graph.dbNodeWorker.updateTaxEntNode(
 								TaxEnt.newFromHandle(graph,getQSValue("id",parameters))
 								, name
 								, rank== null ? null : TaxonRanks.getRankFromValue(Integer.parseInt(rank))
 								, current==null ? null : Integer.parseInt(current)==1
 								, author, comment).toJsonObject()
-						));
-						break;
+							, includeHeaders);
+						return;
 	
 					default:
-						output.println(error("Invalid node type"));
-						output.flush();
+						error(output,"Invalid node type",includeHeaders);
 						return;
 					}
 				}
@@ -802,13 +823,11 @@ public class ServerDispatch implements Runnable {
 	
 			case "specieslists":	// manage species lists (add, update, etc.)
 				if(!(parameters instanceof JsonObject)) {
-					output.println(error("You must POST a JSON document for these methods."));
-					output.flush();
+					error(output,"You must POST a JSON document for these methods.",includeHeaders);
 					return;
 				}
 				if(path.length<3) {
-					output.println(error("Choose one of: add"));
-					output.flush();
+					error(output,"Choose one of: add",includeHeaders);
 					return;
 				}
 				JsonObject jpar=(JsonObject) parameters;
@@ -820,23 +839,45 @@ public class ServerDispatch implements Runnable {
 						else			// it's only one species list
 							graph.dbDataUploader.addSpeciesLists(jpar);
 					} catch (FloraOnException e) {
-						output.println(error("Error: "+e.getMessage()));
+						error(output,"Error: "+e.getMessage(),includeHeaders);
+						return;
 					}
 					break;
 				}			
 				break;
 				
 			default:
-				output.println(error("Unknown command: "+path[1]));
-				break;
+				error(output,"Unknown command: "+path[1],includeHeaders);
+				return;
 			}
     	} catch (ArangoException | FloraOnException e) {
-    		output.println(error(e.getMessage()));
+    		error(output,e.getMessage(),includeHeaders);
+    		return;
     	} catch (URISyntaxException e3) {
-			output.println(error(e3.getMessage()));
-			output.flush();
+			error(output,e3.getMessage(),includeHeaders);
 			return;
 		}
     	output.flush();
+	}
+	
+	public static void processCommand(URI url,List<NameValuePair> params,FloraOnDriver graph,OutputStream outputStream,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
+		PrintWriter output;
+    	String command=url.getPath();
+    	String[] path=command.split("/");
+    	
+    	if(path.length>=2 && path[1].equals("admin")) {
+    		// here we pass a stream cause the content may be binary
+    		HttpServer.processRequest(url,outputStream,graph);
+    		return;
+    	}
+    	// the content is text
+    	output = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
+    	
+    	if(path.length<2) {
+    		error(output, "This is Flora-On. Missing parameters. Are you looking for the web admin? Go to http://localhost:9000/admin/", includeHeaders);
+    		return;
+    	}
+    	
+    	processCommand(url, params, graph, output, includeHeaders);
 	}
 }

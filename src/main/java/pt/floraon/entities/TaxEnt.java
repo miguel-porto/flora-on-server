@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import com.arangodb.ArangoException;
 import com.arangodb.CursorResult;
+import com.arangodb.NonUniqueResultException;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -333,15 +334,27 @@ public class TaxEnt extends GeneralNodeWrapper {
 	public void canBeChildOf(TaxEntVertex taxon) throws TaxonomyException {
 		if(baseNode.rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank");
 		if(this.isSpeciesOrInferior()) {
-			if(baseNode.getName().toLowerCase().indexOf(taxon.getName().toLowerCase()) != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
+			if(baseNode.getName().toLowerCase().indexOf(taxon.getName().toLowerCase()+" ") != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
 			// TODO: more tests for name validity
 		}
 	}
-	
-	public TaxEnt getParentTaxon() {
-		// TODO: get parent
-		//dsasdgf
-		return null;
+
+	/**
+	 * Gets the current taxonomic parent of this taxon.
+	 * @return
+	 * @throws ArangoException
+	 * @throws TaxonomyException if there is more than one current parent (this is a taxonomic violation)
+	 */
+	public TaxEntVertex getParentTaxon() throws ArangoException, TaxonomyException {
+		String query=String.format("FOR n IN NEIGHBORS(%1$s,%2$s,'%3$s','outbound',{current:true},{includeData:true}) RETURN n"
+			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),this.baseNode._id);
+		TaxEntVertex out;
+		try {
+			out=this.graph.driver.executeAqlQuery(query,null,null,TaxEntVertex.class).getUniqueResult();
+		} catch (NonUniqueResultException e) {
+			throw new TaxonomyException("The taxon "+this.baseNode.getFullName()+" has more than one current parent taxon. This must be fixed.");
+		}
+		return out; 
 	}
 	/**
 	 * Gets the parents of an hybrid

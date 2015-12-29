@@ -10,7 +10,7 @@ function actionButtonClick(ev) {
 	var el=document.getElementById('taxdetails');
 	switch(ev.target.id) {
 	case 'addsynonym':
-		if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {alert('You must select a taxon from the list.');return;}
+		if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {alert('You must select a taxon from the drop-down list. Type some initial letters to find taxa.');return;}
 		var key=document.getElementById('boxsynonym').getAttribute('data-key');
 		var to=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
 		postJSON('/nodes/setsynonym',{from:key,to:to},function(rt) {
@@ -159,9 +159,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	addEvent('scroll',document,function(ev) {
 		var td=document.getElementById('taxdetails');
 		var lb=document.getElementById('left-bar');
-		if(document.documentElement.scrollTop>TOPBARSIZE) {
-			lb.style.marginTop=(document.documentElement.scrollTop-TOPBARSIZE)+'px';
-			if(td) td.style.marginTop=(document.documentElement.scrollTop-TOPBARSIZE)+'px';
+		var st=document.body.scrollTop || document.documentElement.scrollTop;
+		if(st>TOPBARSIZE) {
+			lb.style.marginTop=(st - TOPBARSIZE)+'px';
+			if(td) td.style.marginTop=(st - TOPBARSIZE)+'px';
 		} else {
 			lb.style.marginTop='0';
 			if(td) td.style.marginTop='0';
