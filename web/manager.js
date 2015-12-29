@@ -188,12 +188,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		var el=getParentbyTag(ev.target,'li');
 		var key=el.getAttribute('data-key');
 		if(el.classList.contains('loading')) return;
-		loadTaxDetails(key,document.getElementById('taxdetails'));
 		if(el.querySelector('ul')) {
 			el.removeChild(el.querySelector('ul'));
 			return;
 		}
 		el.classList.add('loading');
+		loadTaxDetails(key,document.getElementById('taxdetails'));
 		loadTreeNode(el,null);
 	});
 	
@@ -211,8 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function loadTreeNode(el,callback) {
 	var key=el.getAttribute('data-key');
-	el.classList.remove('loading');
 	fetchAJAX('/lists/tree?fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
+		el.classList.remove('loading');
 		var html=createHTML(rt);
 		el.appendChild(html);
 		if(callback) callback();
