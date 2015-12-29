@@ -67,6 +67,7 @@ public class FloraOnDriver {
 	public final NodeWorker dbNodeWorker;
 	public final DataUploader dbDataUploader;
 	public final SpecificQueries dbSpecificQueries;
+	private String territory=null;
 	
 	public FloraOnDriver(String dbname) throws ArangoException {
         ArangoConfigure configure = new ArangoConfigure();
@@ -213,6 +214,9 @@ public class FloraOnDriver {
 		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
 	}
 	
+	public void setTerritory(String territory) {
+		this.territory=territory;
+	}
 	/**
 	 * Gets the complete list of taxa in the DB
 	 * @return
