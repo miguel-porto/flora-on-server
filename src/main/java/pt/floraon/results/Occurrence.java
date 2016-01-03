@@ -142,7 +142,7 @@ public class Occurrence implements ResultItem {
 	}
 	
 	@Override
-	public String toHTMLTableRow() {
+	public String toHTMLTableRow(Object obj) {
 		StringBuilder sb=new StringBuilder();
 		sb.append("<tr><td>"+this.inventoryKey+"</td><td>"+this.name+"</td><td>"+this.location[0]+"</td><td>"+this.location[1]+"</td><td>"+NativeStatus.getStateFromCode(this.nativeStatus)+"</td><td>"+PhenologicalStates.getStateFromCode(this.phenoState)+"</td><td>"+this.dateInserted+"</td><td>"+this.confidence+"</td><td>"+this.validated+"</td><td>"+this.uuid+"</td><td>");
 		for(String s:this.observers)

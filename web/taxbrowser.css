@@ -134,6 +134,7 @@ svg.noentnames .node text {display:none;}
 .link.HAS_QUALITY {stroke:#03f;stroke-width:1px;fill:none;stroke-dasharray:3,3;}
 .link.ATTRIBUTE_OF {stroke:#53f;stroke-width:2px;fill:none;}
 .link.OBSERVED_IN {stroke:#f3f;stroke-width:1px;fill:none;stroke-dasharray:3,3;}
+.link.EXISTS_IN {stroke:#f3f;stroke-width:2px;fill:none;stroke-dasharray:3,3;}
 .link.OBSERVED_BY {stroke:#f3f;stroke-width:1px;fill:none;}
 .link.selected {fill:#f55 !important;stroke-width:2px;stroke:#f00 !important;}
 

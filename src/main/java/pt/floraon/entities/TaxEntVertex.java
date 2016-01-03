@@ -139,7 +139,7 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 	}
 
 	@Override
-	public String toHTMLTableRow() {
+	public String toHTMLTableRow(Object obj) {
 		return "<tr><td>"+this.getFullName(true)+"</td></tr>";
 	}
 

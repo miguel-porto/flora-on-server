@@ -7,5 +7,18 @@ package pt.floraon.entities;
  *
  */
 public class TerritoryVertex extends GeneralDBNode {
-	String name,shortName,polygon;
+	protected String name,shortName,polygon;
+	
+	public TerritoryVertex(String name, String shortName) {
+		this.name=name;
+		this.shortName=shortName;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+
+	public String getShortName() {
+		return this.shortName;
+	}
 }

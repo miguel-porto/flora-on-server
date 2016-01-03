@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.net.URI;
@@ -69,24 +68,48 @@ import pt.floraon.driver.TaxonomyException;
 import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
+import pt.floraon.entities.Territory;
+import pt.floraon.entities.TerritoryVertex;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ChecklistEntry;
+import pt.floraon.results.NamesAndTerritoriesResult;
+import pt.floraon.results.NativeStatusResult;
 import pt.floraon.results.Occurrence;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleNameResult;
 import pt.floraon.results.SimpleTaxonResult;
-
+/**
+ * Class to handle a single request
+ * @author miguel
+ *
+ */
 public class ServerDispatch implements Runnable {
     protected Socket clientSocket = null;
-    protected String serverText   = null;
     protected FloraOnDriver graph=null;
     protected MultiThreadedServer thr;
+    protected String territory;
 
-    public ServerDispatch(Socket clientSocket, String serverText,FloraOnDriver graph,MultiThreadedServer thr) {
+    /**
+     * Constructor for a socket connection
+     * @param clientSocket
+     * @param graph
+     * @param thr
+     */
+    public ServerDispatch(Socket clientSocket,FloraOnDriver graph,MultiThreadedServer thr) {
         this.clientSocket = clientSocket;
-        this.serverText   = serverText;
         this.graph=graph;
         this.thr=thr;
+    }
+
+    /**
+     * Constructor for a direct connections
+     * @param clientSocket
+     * @param graph
+     * @param thr
+     */
+    public ServerDispatch(FloraOnDriver graph, String territory) {
+        this.graph=graph;
+        this.territory=territory;
     }
     
 	@SuppressWarnings("unchecked")
@@ -142,7 +165,7 @@ public class ServerDispatch implements Runnable {
 			output.print(httpres.toString()+"\r\n");
 			output.print("\r\n");
 		}
-		output.print(success(obj, header));
+		output.println(success(obj, header));
 		output.flush();
 	}
 
@@ -153,7 +176,7 @@ public class ServerDispatch implements Runnable {
 			output.print(httpres.toString()+"\r\n");
 			output.print("\r\n");
 		}
-		output.print(success(obj));
+		output.println(success(obj));
 		output.flush();
 	}
 
@@ -164,19 +187,26 @@ public class ServerDispatch implements Runnable {
 			output.print(httpres.toString()+"\r\n");
 			output.print("\r\n");
 		}
-		output.print(success(obj));
+		output.println(success(obj));
 		output.flush();
 	}
 
 	private static void error(PrintWriter output, String obj, boolean includeHeaders) {
 		if(includeHeaders) {
 			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
+			httpres.addHeader(new BasicHeader("Content-Type","application/json; charset=utf-8"));
 			output.print(httpres.toString()+"\r\n");
 			output.print("\r\n");
 		}
-		output.print("{\"success\":false,\"msg\":\""+obj+"\"}");
+		output.println("{\"success\":false,\"msg\":\""+obj+"\"}");
 		output.flush();
+	}
+	
+	private static boolean errorIfAnyNull(PrintWriter output, boolean includeHeaders, Object... pars) {
+		for(Object o : pars) {
+			if(o == null) {error(output, "Missing parameter.", includeHeaders);return true;}
+		}
+		return false;
 	}
 
 // dispatch a request to port 9000
@@ -203,11 +233,20 @@ public class ServerDispatch implements Runnable {
         		return;
         	}
         	RequestLine requestline=req.getRequestLine();
+        	
         	URI url=new URIBuilder(requestline.getUri()).build();
+        	
+        	String[] path=url.getPath().split("/");
+        	String tmp1=path[1];
+        	if(tmp1.startsWith("_")) {		// check whether we want to set the universe to a given territory or not
+        		territory=tmp1.replaceFirst("_", "");
+        		url=new URIBuilder(requestline.getUri().replaceFirst("/_[a-zA-Z0-9]+/", "/")).build();
+        	} else
+        		territory=null;
 
         	switch(requestline.getMethod()) {
         	case "GET":
-        		processCommand(url,this.graph,ostr,true);
+        		processCommand(url,ostr,true);
         		break;
         	case "POST":
             	InputStream contentStream = null;
@@ -246,7 +285,7 @@ public class ServerDispatch implements Runnable {
                 			System.out.println("NAME: "+nvp.getName()+"; value: "+nvp.getValue());
                 		}
                 	}
-                	processCommand(url,qs,this.graph,ostr,true);
+                	processCommand(url,qs,ostr,true);
                 	break;
                 	
                 case "multipart/form-data":
@@ -269,7 +308,7 @@ public class ServerDispatch implements Runnable {
 					// a read or write error occurred
 						break;
 					}
-					processCommand(url,params,this.graph,ostr,true);
+					processCommand(url,params,ostr,true);
 //					for(NameValuePair nvp : params) System.out.println("NAME: "+nvp.getName()+"; value: "+nvp.getValue());
                 	break;
 
@@ -299,25 +338,25 @@ public class ServerDispatch implements Runnable {
 		}
     }
 	
-	public static void processCommand(String command,FloraOnDriver graph,OutputStream outputStream,boolean headers) throws URISyntaxException, IOException, FloraOnException {
+	public void processCommand(String command,OutputStream outputStream,boolean headers) throws URISyntaxException, IOException, FloraOnException {
 		URI url=new URI("/"+command.trim());
-		processCommand(url,graph,outputStream,headers);
+		processCommand(url,outputStream,headers);
 	}
 	
-	public static void processCommand(String command,FloraOnDriver graph,PrintWriter output,boolean headers) throws URISyntaxException, IOException, FloraOnException {
+	public void processCommand(String command,PrintWriter output,boolean headers) throws URISyntaxException, IOException, FloraOnException {
 		URI url=new URI("/"+command.trim());
-		processCommand(url,graph,output,headers);
+		processCommand(url,output,headers);
 	}
 	
-	public static void processCommand(URI url,FloraOnDriver graph,PrintWriter output,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
-		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,output,headers);
+	public void processCommand(URI url,PrintWriter output,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
+		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),output,headers);
 	}
 
-	public static void processCommand(URI url,FloraOnDriver graph,OutputStream outputStream,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
-		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),graph,outputStream,headers);
+	public void processCommand(URI url,OutputStream outputStream,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
+		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),outputStream,headers);
 	}
 	
-	public static void processCommand(URI url,List<NameValuePair> params,FloraOnDriver graph,PrintWriter output,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
+	public void processCommand(URI url,List<NameValuePair> params,PrintWriter output,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
 		String command=url.getPath();
 		String[] path=command.split("/");
 		JsonObject jobj;
@@ -340,6 +379,10 @@ public class ServerDispatch implements Runnable {
     	
     	ListIterator<String> part=Arrays.asList(path).listIterator();
     	part.next();		// skip first
+    	String tmpt=part.next();
+    	if(tmpt.startsWith("_")) {		// check whether we want to set the universe to a given territory or not
+    		territory=tmpt.replaceFirst("_", "");
+    	} else part.previous();
 
     	try {
 	    	switch(part.next()) {
@@ -367,7 +410,7 @@ public class ServerDispatch implements Runnable {
 				rp=new ResultProcessor<SimpleTaxonResult>(it);
 				switch(format) {
 				case "html":
-					rp.toHTMLTable(output);
+					rp.toHTMLTable(output,null);
 					break;
 					
 				case "json":
@@ -392,10 +435,31 @@ public class ServerDispatch implements Runnable {
 				output.flush();
 				break;
 				
+			case "territories":
+				if(!part.hasNext()) {
+					error(output,"Choose one of: set",includeHeaders);
+					return;
+				}
+				switch(part.next()) {
+				case "set":
+					from=getQSValue("taxon",parameters);		// the taxon id
+					to=getQSValue("territory",parameters);
+					query=getQSValue("status",parameters);
+					if(errorIfAnyNull(output, includeHeaders, from, to, query)) return;
+					Territory terr=new Territory(graph, graph.dbNodeWorker.getTerritoryFromShortName(to));
+					NativeStatus nst=null;
+					if(!query.toUpperCase().equals("NULL")) nst=NativeStatus.valueOf(query.toUpperCase());
+					terr.setTaxEntNativeStatus(ArangoKey.fromString(from), nst);
+					success(output, nst==null ? "NULL" : nst.toString().toUpperCase(), includeHeaders);
+					return;
+				}
+				break;
+				
 			case "lists":
 				String htmlClass=null;
+				Object opt=null;
 				if(!part.hasNext()) {
-					error(output,"Choose one of: checklist, species, tree",includeHeaders);
+					error(output,"Choose one of: checklist, species, speciesterritories, tree",includeHeaders);
 					return;
 				}
 				format=getQSValue("fmt",parameters);
@@ -409,8 +473,17 @@ public class ServerDispatch implements Runnable {
 					break;
 				
 				case "species":
-					Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(true);
+					Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(true, SimpleNameResult.class, territory);
 					rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
+					break;
+
+				case "speciesterritories":
+					Iterator<NamesAndTerritoriesResult> speciesterr=graph.dbSpecificQueries.getAllSpeciesOrInferior(true, NamesAndTerritoriesResult.class, territory);
+					rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
+					List<String> opt1=new ArrayList<String>();
+					for(TerritoryVertex tv : graph.territories)
+						opt1.add(tv.getShortName());
+					opt=opt1;
 					break;
 					
 				case "tree":
@@ -447,7 +520,7 @@ public class ServerDispatch implements Runnable {
 						break;
 					case "html":
 					case "htmltable":
-						rpchk.toHTMLTable(output);		// FIXME headers?
+						rpchk.toHTMLTable(output, opt);		// FIXME headers?
 						break;
 					case "csv":
 						output.println(rpchk.toCSVTable());		// FIXME headers
@@ -551,22 +624,20 @@ public class ServerDispatch implements Runnable {
 				//String fmt=getQSValue("fmt",params);
 				switch(what) {		// the 'w' parameter of the URL querystring
 				case "main":	// CHECKLIST
-					output.print("<div id=\"main\" class=\"checklist\"><h1>List of all accepted names</h1>");
-					ServerDispatch.processCommand("lists/species?fmt=htmltable", graph, output, false);
+					output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names</h1>");
+					processCommand("lists/speciesterritories?fmt=htmltable", output, false);
 					output.print("</div>");
 					break;
 				case "tree":
 					output.print("<div id=\"main\" class=\"taxman-holder\"><div id=\"taxtree\" class=\"taxtree-holder\">");
-					output.flush();
-					ServerDispatch.processCommand("lists/tree?rank=class&fmt=htmllist", graph, output, false);
+					processCommand("lists/tree?rank=class&fmt=htmllist", output, false);
 					output.print("</div>");
 					output.print("<div id=\"taxdetails\"><h2>Click a taxon on the tree to edit</h2></div>");
 					output.print("</div>");
 					break;
 				case "families":
 					output.print("<div id=\"main\" class=\"taxman-holder\"><div id=\"taxtree\" class=\"taxtree-holder\">");
-					output.flush();
-					ServerDispatch.processCommand("lists/tree?rank=family&fmt=htmllist", graph, output, false);
+					processCommand("lists/tree?rank=family&fmt=htmllist", output, false);
 					output.print("</div>");
 					output.print("<div id=\"taxdetails\"><h2>Click a taxon on the tree to edit</h2></div>");
 					output.print("</div>");
@@ -586,30 +657,69 @@ public class ServerDispatch implements Runnable {
 					}
 					output.print("<table><tr><td>ID</td><td>"+tev.baseNode.getID()+"</td></tr>");
 					output.print("<tr><td>Rank</td><td>"+tev.baseNode.getRank().toString()+"</td></tr></table>");
+					output.print("<div id=\"taxoninfo\">");
+					
+					output.print("<div id=\"taxonnativestatus\"><h3>Native status</h3>");
+					ResultProcessor<NativeStatusResult> rpnsr=new ResultProcessor<NativeStatusResult>(graph.dbSpecificQueries.getTaxonNativeStatus(tev.getArangoKey()).iterator());
+					rpnsr.toHTMLTable(output, null);
+					output.print("</div>");
+					
 					Iterator<TaxEntVertex> it1=tev.getSynonyms().iterator();
 					TaxEntVertex tev1;
-					if(it1.hasNext()) output.print("<h3>Synonyms</h3><ul class=\"synonyms\">");
+					output.print("<div id=\"taxonsynonyms\"><h3>Synonyms</h3><ul class=\"synonyms\">");
 					while(it1.hasNext()) {
 						tev1=it1.next();
 						output.print("<li data-key=\""+tev1.getID()+"\">");
 						output.print(tev1.getFullName());
 						output.print("<div class=\"button remove\">detach</div></li>");
-						output.print(it1.hasNext() ? "" : "</ul>");
 					}
+					output.print("</ul></div>");
+					output.print("</div>");	// taxoninfo
+					
 					output.print("<div class=\"toggler off\" id=\"updatetaxonbox\"><h1>Change name <span class=\"info\">changes this taxon</span></h1><div class=\"content\"><table><tr><td>New name</td><td>");
 					output.print("<input type=\"text\" name=\"name\" value=\""+tev.baseNode.getName()+"\"/></td></tr><tr><td>New author</td><td><input type=\"text\" name=\"author\" value=\""+(tev.baseNode.getAuthor()==null ? "" : tev.baseNode.getAuthor())+"\"/></td></tr><tr><td>New annotation</td><td><input type=\"text\" name=\"annot\" value=\""+(tev.baseNode.getAnnotation() == null ? "" : tev.baseNode.getAnnotation())+"\"/></td></tr></table><input type=\"button\" value=\"Update\" class=\"actionbutton\" id=\"updatetaxon\"/></div></div>");
+
+					output.print("<div class=\"toggler off\" id=\"addnativestatusbox\"><h1>Add/change native status <span class=\"info\">adds a new, or updates, the native status to a territory</span></h1><div class=\"content\">");
+					output.print("This taxon <select name=\"status\">"
+						+ "<option value=\"NATIVE\">is NATIVE to</option>"
+						+ "<option value=\"ENDEMIC\">is ENDEMIC to</option>"
+						+ "<option value=\"EXOTIC\">is EXOTIC in</option>"
+						+ "<option value=\"UNCERTAIN\">is DOUBTFULLY NATIVE to</option>"
+						+ "<option value=\"NULL\">does NOT occur in</option></select>");
+					output.print("<select name=\"territory\">");
+					Iterator<TerritoryVertex> ittv1 = graph.dbGeneralQueries.getAllTerritories(false).iterator();
+					TerritoryVertex tv1;
+					while(ittv1.hasNext()) {
+						tv1=ittv1.next();
+						output.print("<option value=\""+tv1.getShortName()+"\">"+tv1.getName()+"</option>");
+					}
+					output.print("</select> <input type=\"button\" value=\"Add / Update\" class=\"actionbutton\" id=\"addnativestatus\"/>");
+					output.print("</div></div>");
+
 					break;
 					
 				case "validate":
 					// TODO taxonomic validation
 					break;
 				
+				case "territories":
+					output.print("<div id=\"main\"><h1>Territories</h1>");
+					TerritoryVertex tv;
+					output.print("<p>page under construction</p><ul class=\"territories\">");
+					Iterator<TerritoryVertex> ittv = graph.dbGeneralQueries.getAllTerritories(false).iterator();
+					while(ittv.hasNext()) {
+						tv=ittv.next();
+						output.print("<li>"+tv.getName()+"</li>");
+					}
+					output.print("</ul></div>");
+					break;
+					
 				case "query":
 					query=getQSValue("q",params);
 					output.print("<div id=\"main\"><h2>Enter your query</h2><form id=\"freequery\"><input type=\"text\" id=\"querybox\" name=\"query\" value=\""+(query == null ? "" : query)+"\"/><input type=\"submit\" value=\"Search!\"/></form>");
 					output.flush();
 					if(query!=null)
-						ServerDispatch.processCommand("query?q="+URLEncoder.encode(query, StandardCharsets.UTF_8.name())+"&fmt=html", graph, output, false);
+						processCommand("query?q="+URLEncoder.encode(query, StandardCharsets.UTF_8.name())+"&fmt=html", output, false);
 					output.print("</div>");
 					break;
 					
@@ -855,14 +965,13 @@ public class ServerDispatch implements Runnable {
     	output.flush();
 	}
 	
-	public static void processCommand(URI url,List<NameValuePair> params,FloraOnDriver graph,OutputStream outputStream,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
+	public void processCommand(URI url,List<NameValuePair> params,OutputStream outputStream,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
 		PrintWriter output;
-    	String command=url.getPath();
-    	String[] path=command.split("/");
+    	String[] path=url.getPath().split("/");
     	
     	if(path.length>=2 && path[1].equals("admin")) {
     		// here we pass a stream cause the content may be binary
-    		HttpServer.processRequest(url,outputStream,graph);
+    		HttpServer.processRequest(url,outputStream,this);
     		return;
     	}
     	// the content is text
@@ -873,6 +982,6 @@ public class ServerDispatch implements Runnable {
     		return;
     	}
     	
-    	processCommand(url, params, graph, output, includeHeaders);
+    	processCommand(url, params, output, includeHeaders);
 	}
 }

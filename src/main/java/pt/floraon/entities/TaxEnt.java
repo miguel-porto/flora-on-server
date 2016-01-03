@@ -263,7 +263,6 @@ public class TaxEnt extends GeneralNodeWrapper {
 			return 1;
 		} else return 0;*/
 	}
-
 	
 	public Boolean isSpecies() {
 		return this.baseNode.getRankValue()==TaxonRanks.SPECIES.getValue();

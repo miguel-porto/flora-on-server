@@ -123,7 +123,7 @@ public final class Constants {
 		OBSERVED_BY(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_BY.class),
     	HAS_QUALITY(Facets.MORPHOLOGY,pt.floraon.entities.HAS_QUALITY.class),
     	ATTRIBUTE_OF(Facets.TAXONOMY,pt.floraon.entities.ATTRIBUTE_OF.class),
-		EXISTS_IN(Facets.TAXONOMY,pt.floraon.entities.EXISTS_IN.class);
+		EXISTS_IN(Facets.OCCURRENCE,pt.floraon.entities.EXISTS_IN.class);
     	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;

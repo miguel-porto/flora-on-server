@@ -14,6 +14,7 @@ import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
 import jline.console.completer.StringsCompleter;
+import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
@@ -26,6 +27,7 @@ import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.TaxEntVertex;
+import pt.floraon.entities.Territory;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
@@ -39,6 +41,7 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
+    	ServerDispatch server=new ServerDispatch(graph, null);
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
@@ -82,16 +85,27 @@ public class FloraOnShell {
 	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomia_full_novo.csv"), false);
 	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/stepping_stones.csv"), false);
 	            		System.out.println("Reading morphology");
-	            		graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
+	            		//graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
-	            		//generateRandomSpeciesLists(graph,10000);
+	            		generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
+	            		System.out.println("\nCreating some territories");
+	            		Territory pt=Territory.newFromName(graph, "Portugal", "pt", (ArangoKey)null);
+	            		Territory lu=Territory.newFromName(graph, "Portugal Continental", "lu", pt.getArangoKey());
+	            		Territory az=Territory.newFromName(graph, "Açores", "az", pt.getArangoKey());
+	            		Territory ma=Territory.newFromName(graph, "Madeira", "ma", pt.getArangoKey());
+	            		TaxEnt te=graph.dbNodeWorker.findTaxEnt("Aetheorhiza bulbosa subsp. bulbosa");
+	            		lu.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.NATIVE);
+	            		az.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);
+	            		ma.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.NATURALIZED);
+	            		te=graph.dbNodeWorker.findTaxEnt("Allium ursinum subsp. ursinum");
+	            		pt.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);
 	            		continue;
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {           		
-						ServerDispatch.processCommand(line.substring(1), graph, System.out,false);
+	            		server.processCommand(line.substring(1), System.out,false);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);
 	    				long start = System.nanoTime();

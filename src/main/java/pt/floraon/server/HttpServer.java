@@ -36,11 +36,11 @@ import pt.floraon.driver.FloraOnException;
  *
  */
 public final class HttpServer {
-	static void processRequest(URI url,OutputStream outputStream,FloraOnDriver graph) throws FileNotFoundException, IOException {
+	static void processRequest(URI url,OutputStream outputStream,ServerDispatch server) throws FileNotFoundException, IOException {
 		PrintWriter out=null;
     	String command=url.getPath();
     	String[] path=command.split("/");
-		if(path.length<3) path=new String[] {"","admin","index.html"};
+		if(path[path.length-1].equals("admin")) path=new String[] {"","admin","index.html"};
 		HttpResponse res=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
 		Pattern ext=Pattern.compile("\\.([a-zA-Z]+)$",Pattern.CASE_INSENSITIVE);
 		Matcher match=ext.matcher(path[path.length-1].trim());
@@ -87,12 +87,16 @@ public final class HttpServer {
 		out.flush();
 
 		File page;
-		String address;
-		if(path.length==3)
-			address="web/"+path[2];
-		else
-			address="web/"+path[2]+"/"+path[3];
-		page=new File(address);
+		StringBuilder address=new StringBuilder();
+		for(int i=0;i<path.length;i++) {
+			if(path[i].equals("admin")) {
+				address.append("web");
+				for(int j=i+1;j<path.length;j++) {
+					address.append("/").append(path[j]);
+				}
+			}
+		}
+		page=new File(address.toString());
 		
 		if(processFile) {	// it's an HTML file, look for dynamic content <!-- CONTENT:/address -->
 			Pattern cnt=Pattern.compile("<!-- CONTENT:([a-zA-Z0-9_/?=%+-]+) -->");
@@ -109,7 +113,7 @@ public final class HttpServer {
 						List<NameValuePair> mergeparams=new ArrayList<NameValuePair>(paramscnt);
 						mergeparams.addAll(params);	// merge the content query variables with the parent query variables
 						// NOTE: if there are duplicate keys, the content query variables take precedence!
-						ServerDispatch.processCommand(urlcnt, mergeparams, graph, outputStream, false);
+						server.processCommand(urlcnt, mergeparams, outputStream, false);
 						//ServerDispatch.processCommand(urlcnt, mergeparams, graph, baos, false);
 					} catch (FloraOnException e) {
 						out.println("Error: "+e.getMessage());
@@ -130,7 +134,7 @@ public final class HttpServer {
 				if(address.equals("web/checklist.csv")) {
 					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
 					try {
-						ServerDispatch.processCommand("lists/checklist?fmt=csv", graph, baos,false);
+						server.processCommand("lists/checklist?fmt=csv", baos,false);
 					} catch (URISyntaxException e1) {
 						out.println("Error");
 					} catch (FloraOnException e1) {

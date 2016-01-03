@@ -1,9 +1,96 @@
 //var treeNodeToolbar=createHTML('<div class="tools"><div class="button" data-cmd="delete"/>x</div><div class="button" data-cmd="add"/>add</div></div>');
 var TOPBARSIZE=85;
+var nativeStatus=['NULL','NATIVE','ENDEMIC','EXOTIC','UNCERTAIN'];
 var clickEvent = new MouseEvent('click', {
 	'view': window,
 	'bubbles': true,
 	'cancelable': true
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+	addEvent('scroll',document,function(ev) {
+		var td=document.getElementById('taxdetails');
+		var lb=document.getElementById('left-bar');
+		var st=document.body.scrollTop || document.documentElement.scrollTop;
+		if(st>TOPBARSIZE) {
+			lb.style.marginTop=(st - TOPBARSIZE)+'px';
+			if(td) td.style.marginTop=(st - TOPBARSIZE)+'px';
+		} else {
+			lb.style.marginTop='0';
+			if(td) td.style.marginTop='0';
+		}
+	});
+
+	var tr=document.querySelectorAll('#main.species tr');
+	for(var i=0;i<tr.length;i++) {
+		addEvent('click',tr[i],function(ev) {
+			var par=getParentbyTag(ev.target,'tr');
+			var td=par.querySelector('td');
+		});
+	}
+	
+	tr=document.querySelector('#main.checklist table');
+	addEvent('click',tr,function(ev) {
+		if(ev.target.tagName=='DIV' && ev.target.classList.contains('territory')) {
+			var terr=ev.target.innerHTML;
+			var nst=-1;
+			for(var i=0;i<nativeStatus.length;i++) {
+				if(ev.target.classList.contains(nativeStatus[i])) {
+					if(i==nativeStatus.length-1)
+						nst=0;
+					else
+						nst=i+1;
+					break;
+				}
+			}
+			if(nst==-1) nst=1;
+			var tr=getParentbyTag(ev.target,'tr');
+//			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
+			postJSON('/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]},function(rt) {
+				rt=JSON.parse(rt);
+				if(rt.success) {
+					if(nst==0)
+						ev.target.classList.remove(nativeStatus[nativeStatus.length-1]);
+					else {
+						ev.target.classList.remove(nativeStatus[nst-1]);
+						ev.target.classList.add(nativeStatus[nst]);
+					}
+				} else
+					alert(rt.msg);
+			});
+		}
+	});
+	
+/*	var forms=document.querySelectorAll('form.poster');
+	for(var i=0;i<forms.length;i++) {
+		addEvent('submit',forms[i],formPoster);
+	}*/
+	
+// attach the click+expand tree node
+	var lis=document.querySelector('.taxtree-holder>ul');
+	addEvent('click',lis,function(ev) {
+		var el=getParentbyTag(ev.target,'li');
+		var key=el.getAttribute('data-key');
+		if(el.classList.contains('loading')) return;
+		if(el.querySelector('ul')) {
+			el.removeChild(el.querySelector('ul'));
+			return;
+		}
+		el.classList.add('loading');
+		loadTaxDetails(key,document.getElementById('taxdetails'));
+		loadTreeNode(el,null);
+	});
+	
+	var qs=document.getElementById('freequery');
+	if(qs) {
+		addEvent('submit',qs,function(ev) {
+			ev.preventDefault();
+			var q=document.getElementById('querybox').value;
+			if(q) {
+				window.location.search='w=query&q='+encodeURIComponent(q);
+			}
+		});
+	}
 });
 
 function actionButtonClick(ev) {
@@ -47,7 +134,7 @@ function actionButtonClick(ev) {
 		break;
 
 	case 'deletetaxon':
-		if(!confirm('Are you sure you want to delete this taxon?')) break;
+		if(!confirm('Are you sure you want to delete this taxon? This cannot be undone!')) break;
 		var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
 		postJSON('/nodes/deleteleaf',{id:parent},function(rt) {
 			rt=JSON.parse(rt);
@@ -70,6 +157,24 @@ function actionButtonClick(ev) {
 			,id:parent
 		}
 		updateTaxon(obj);
+		break;
+	
+	case 'addnativestatus':
+		var cb=document.getElementById('addnativestatusbox');
+		var taxon=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+		var obj={
+			taxon: taxon
+			,territory: cb.querySelector('select[name=territory]').value
+			,status: cb.querySelector('select[name=status]').value
+		};
+		postJSON('/territories/set',obj,function(rt) {
+			rt=JSON.parse(rt);
+			if(rt.success) {
+				loadTaxDetails(taxon,document.getElementById('taxdetails'));
+			} else
+				alert(rt.msg);
+		});
+
 		break;
 	}
 }
@@ -154,60 +259,6 @@ function loadTaxDetails(key,el) {
 
 	});
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-	addEvent('scroll',document,function(ev) {
-		var td=document.getElementById('taxdetails');
-		var lb=document.getElementById('left-bar');
-		var st=document.body.scrollTop || document.documentElement.scrollTop;
-		if(st>TOPBARSIZE) {
-			lb.style.marginTop=(st - TOPBARSIZE)+'px';
-			if(td) td.style.marginTop=(st - TOPBARSIZE)+'px';
-		} else {
-			lb.style.marginTop='0';
-			if(td) td.style.marginTop='0';
-		}
-	});
-	
-	var tr=document.querySelectorAll('#main.species tr');
-	for(var i=0;i<tr.length;i++) {
-		addEvent('click',tr[i],function(ev) {
-			var par=getParentbyTag(ev.target,'tr');
-			var td=par.querySelector('td');
-		});
-	}
-	
-	var forms=document.querySelectorAll('form.poster');
-	for(var i=0;i<forms.length;i++) {
-		addEvent('submit',forms[i],formPoster);
-	}
-	
-// attach the click+expand tree node
-	var lis=document.querySelector('.taxtree-holder>ul');
-	addEvent('click',lis,function(ev) {
-		var el=getParentbyTag(ev.target,'li');
-		var key=el.getAttribute('data-key');
-		if(el.classList.contains('loading')) return;
-		if(el.querySelector('ul')) {
-			el.removeChild(el.querySelector('ul'));
-			return;
-		}
-		el.classList.add('loading');
-		loadTaxDetails(key,document.getElementById('taxdetails'));
-		loadTreeNode(el,null);
-	});
-	
-	var qs=document.getElementById('freequery');
-	if(qs) {
-		addEvent('submit',qs,function(ev) {
-			ev.preventDefault();
-			var q=document.getElementById('querybox').value;
-			if(q) {
-				window.location.search='w=query&q='+encodeURIComponent(q);
-			}
-		});
-	}
-});
 
 function loadTreeNode(el,callback) {
 	var key=el.getAttribute('data-key');

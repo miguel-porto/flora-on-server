@@ -37,7 +37,7 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	}
 
 	@Override
-	public String toHTMLTableRow() {
+	public String toHTMLTableRow(Object obj) {
 		return "<tr><td>"+this.count+"</td><td>"+this._id+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
 	}
 

@@ -14,4 +14,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 	public EXISTS_IN(NativeStatus nativeStatus) {
 		this.nativeStatus=nativeStatus;
 	}
+
+	public EXISTS_IN(NativeStatus nativeStatus,String from,String to) {
+		this.nativeStatus=nativeStatus;
+		this._from=from;
+		this._to=to;
+	}
 }

@@ -676,6 +676,7 @@ function forceTick(e) {
 		case 'HAS_QUALITY':
 		case 'OBSERVED_IN':
 		case 'OBSERVED_BY':
+		case 'EXISTS_IN':
 			return('M'+d.target.x+' '+d.target.y+'L'+(d.source.x)+' '+(d.source.y));
 			break;
 		}
@@ -839,6 +840,10 @@ function onUpdateData() {
 		case 'character':
 			el=document.createElementNS("http://www.w3.org/2000/svg", 'circle');
 			el.setAttribute('r','10');
+			break;
+		case 'territory':
+			el=document.createElementNS("http://www.w3.org/2000/svg", 'path');
+			el.setAttribute('d','M0 7.8l9 0l-9 -15.6l-9 15.6Z');
 			break;
 		}
 		return el;

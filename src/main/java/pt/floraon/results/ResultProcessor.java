@@ -55,18 +55,23 @@ public class ResultProcessor<T extends ResultItem> {
 		sb.append("<table>");
     	while (this.results.hasNext()) {
     		tmp=this.results.next();
-    		sb.append(tmp.toHTMLTableRow());
+    		sb.append(tmp.toHTMLTableRow(null));
     	}
     	sb.append("</table>");
     	return sb.toString();
 	}
 
-	public void toHTMLTable(PrintWriter output) {
+	/**
+	 * Outputs the results as an HTML table
+	 * @param output
+	 * @param obj Optional data object needed by some implementations of {@link ResultItem} 
+	 */
+	public void toHTMLTable(PrintWriter output,Object obj) {
 		T tmp;
 		output.print("<table>");
     	while (this.results.hasNext()) {
     		tmp=this.results.next();
-    		output.print(tmp.toHTMLTableRow());
+    		output.print(tmp.toHTMLTableRow(obj));
     	}
     	output.print("</table>");
     	output.flush();

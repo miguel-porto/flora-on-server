@@ -1,5 +1,5 @@
 html,body {margin:0;padding:0;font-family: 'Lato',sans-serif;}
-table {border-spacing:0;margin:3px;}
+table {border-spacing:0;margin:0px;}
 table td {padding:3px;}
 a {text-decoration:none;}
 h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
@@ -15,7 +15,14 @@ ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0
 ul.menu li:hover {background-color:#ff7;}
 .info {font-size:0.8em;color:gray;font-style:italic;font-weight:normal;}
 p.error {color:red;font-weight:bold;}
-
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
 .button {
 	cursor:pointer;
 	border-radius:5px;
@@ -56,6 +63,25 @@ div.toggler.off .content {display:none;}
 }
 */
 .checklist table tr.notcurrent {color:#999;}
+.checklist table div.territory {
+	border-radius:50%;
+	border:2px solid #fff;
+	font-size:1.2em;
+	float:left;
+	width:1.4em;height:1.4em;
+	text-align:center;
+	line-height:1.4em;
+	margin-left:3px;
+	cursor:pointer;
+	background-color:#eee;
+	padding:1px;
+}
+
+.checklist table div.territory:hover {box-shadow:0 0 2px #0f0;}
+.checklist table div.territory.NATIVE {background-color:#afa;border:2px solid #fff;}
+.checklist table div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;}
+.checklist table div.territory.EXOTIC {background-color:#faa;border:2px solid #fff;}
+.checklist table div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
 
 #main-holder {
 	display:flex;
@@ -80,6 +106,7 @@ div.toggler.off .content {display:none;}
 .taxman-holder {
 	display:flex;
 	position:relative;
+	align-items:flex-start;
 }
 
 .taxtree-holder ul {
@@ -111,18 +138,28 @@ div.toggler.off .content {display:none;}
 
 #taxtree {min-width:300px}
 
-#taxdetails {flex-grow:1;background-color:#eee;border-radius:6px;margin:0 8px;}
-#taxdetails .synonyms {padding:0;margin:0}
-#taxdetails .synonyms li {
+#taxdetails {flex-grow:1;background-color:#eee;border-radius:6px;margin:0 8px;padding:3px;}
+#taxoninfo {display:flex;width:100%}
+#taxoninfo>div {border-radius:5px;margin:5px;padding:0px;border:2px solid #cdf;}
+#taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}
+#taxonnativestatus {flex-grow:1}
+
+#taxonsynonyms {flex-grow:1}
+#taxonsynonyms .synonyms {padding:0;margin:0}
+#taxonsynonyms .synonyms li {
 	font-style:italic;
 	list-style-type:none;
 	margin:3px;
+	white-space:nowrap;
 }
+
+#taxonsynonyms .synonyms .button.remove {float:none;display:inline-block;}
 
 #taxdetails ul.currentstatus {text-align:center}
 #taxdetails ul.currentstatus .current,#taxdetails ul.currentstatus .notcurrent {color:gray}
 #taxdetails ul.currentstatus .current.selected {color:#070;background-color:#9f9;text-transform:uppercase;}
 #taxdetails ul.currentstatus .notcurrent.selected {color:#700;text-transform:uppercase;background-color:#f99}
+
 
 ul.suggestions {
 	display:inline-block;

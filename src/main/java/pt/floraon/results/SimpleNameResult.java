@@ -4,11 +4,14 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import com.google.gson.internal.LinkedTreeMap;
+
 public class SimpleNameResult implements ResultItem {
 	protected String name;		// taxon canonical name
 	protected String _id,author;
 	protected Boolean leaf=null;
 	protected Boolean current=null;
+	protected LinkedTreeMap<String,String> territories;
 
 	@Override
 	public void toCSVLine(CSVPrinter rec) throws IOException {
@@ -18,7 +21,7 @@ public class SimpleNameResult implements ResultItem {
 	}
 
 	@Override
-	public String toHTMLTableRow() {
+	public String toHTMLTableRow(Object obj) {
 		return "<tr"+(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))+"><td data-key=\""+this._id+"\"><i>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</i></td><td>"+this.author+"</td></tr>";
 	}
 

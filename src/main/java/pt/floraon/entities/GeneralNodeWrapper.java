@@ -88,5 +88,28 @@ public abstract class GeneralNodeWrapper {
 			return 1;
 		} else return 0;
 	}
-	
+
+	/**
+	 * Sets in the DB this node as PART_OF another node. Only adds a new relation if it doesn't exist.
+	 * @param parent
+	 * @return
+	 * @throws ArangoException
+	 * @throws FloraOnException
+	 */
+	public int setPART_OF(ArangoKey parent) throws ArangoException, FloraOnException {
+		if(baseNode._id==null) throw new FloraOnException("Node "+baseNode._id+" not attached to DB");
+
+		// checks whether there is already a PART_OF relation between these two nodes
+		String query=String.format(
+			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
+			,baseNode._id,parent.toString(),RelTypes.PART_OF.toString());
+		
+		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
+		
+		if(nrel==0) {
+			this.graph.driver.createEdge(RelTypes.PART_OF.toString(), new PART_OF(true), baseNode._id, parent.toString(), false, false);
+			return 1;
+		} else return 0;
+	}
+
 }

@@ -98,6 +98,10 @@ public class GraphUpdateResult {
 		}
 		return GraphUpdateResult.emptyResultJson();
 	}
+	
+	public List<String> getUpdatedHandles() {
+		return documentHandles;
+	}
 
 	private static JsonObject emptyResultJson() {
 		JsonObject out=new JsonObject();
