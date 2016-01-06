@@ -72,12 +72,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		var el=getParentbyTag(ev.target,'li');
 		var key=el.getAttribute('data-key');
 		if(el.classList.contains('loading')) return;
+		loadTaxDetails(key,document.getElementById('taxdetails'));
 		if(el.querySelector('ul')) {
 			el.removeChild(el.querySelector('ul'));
 			return;
 		}
 		el.classList.add('loading');
-		loadTaxDetails(key,document.getElementById('taxdetails'));
 		loadTreeNode(el,null);
 	});
 	

@@ -1074,9 +1074,12 @@ public class FloraOnDriver {
 		}
 	
 		/**
-		 * Gets all species or inferior ranks.
+		 * Gets all species or inferior ranks, optionally filtered by those that exist in the given territory.
+		 * Note that when onlyLeafNodes is true and territory is not null, some taxa may be omitted from the list,
+		 * namely those which have inferior taxa but are bond to a territory (and not the inferior taxa). 
 		 * @param onlyLeafNodes true to return only the terminal nodes.
 		 * @return An Iterator of any class that extends SimpleNameResult
+		 * @territory The territory to filter taxa, or null if no filter is wanted.
 		 * @throws ArangoException
 		 */
 		public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, String territory) throws ArangoException {
@@ -1088,13 +1091,19 @@ public class FloraOnDriver {
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
 					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString());
 			} else {
-				query=String.format("FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN FLATTEN(FOR v1 IN GRAPH_TRAVERSAL('taxgraph', t, 'inbound', {filterVertices: [{isSpeciesOrInf: true}], vertexFilterMethod:'exclude'}) RETURN v1[*].vertex) "
-						+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
-						+ "%1$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
-						+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
-						, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);
+				if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist.");
+				query=String.format(
+					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN (FOR v1 IN NEIGHBORS(territory, EXISTS_IN, t, 'inbound') RETURN DOCUMENT(v1)) "
+					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
+					+ "%1$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
+					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
+					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);
+/*					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN FLATTEN(FOR v1 IN GRAPH_TRAVERSAL('taxgraph', t, 'inbound', {filterVertices: [{isSpeciesOrInf: true}], vertexFilterMethod:'exclude'}) RETURN v1[*].vertex) "
+					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
+					+ "%1$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
+					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
+					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);*/
 			}
-			System.out.println(query);
 	    	CursorResult<T> vertexCursor=driver.executeAqlQuery(query, null, null, T);
 	    	return vertexCursor.iterator();
 		}
@@ -1300,10 +1309,12 @@ public class FloraOnDriver {
 	     * @param simulate
 	     * @return
 	     * @throws IOException
+	     * @throws FloraOnException 
+	     * @throws ArangoException 
 	     * @throws TaxonomyException
 	     * @throws QueryException
 	     */
-		public Map<String,Integer> uploadTaxonomyListFromStream(InputStream stream,boolean simulate) throws IOException {
+		public Map<String,Integer> uploadTaxonomyListFromStream(InputStream stream,boolean simulate) throws IOException, ArangoException, FloraOnException {
 	    	Integer nnodes=0,nrels=0,nrecs=0;
 	    	Reader freader;
 
@@ -1311,15 +1322,33 @@ public class FloraOnDriver {
 			Iterator<CSVRecord> records = CSVFormat.EXCEL.withDelimiter('\t').withQuote('"').parse(freader).iterator();
 			CSVRecord record=records.next();
 
-			int ncolumns;
-			Boolean hasOldId=false;
-			if(record.get(record.size()-1).equals("id")) {ncolumns=record.size()-1;hasOldId=true;} else ncolumns=record.size();
-			String[] names=new String[ncolumns];
-			for(int i=0;i<ncolumns;i++) names[i]=record.get(i);
+			Integer nRankColumns=null;
+			Integer oldIdColumn=null;
+			String col;
+			Map<Integer,Territory> territories=new HashMap<Integer,Territory>();
+			
+			for(int i=0;i<record.size();i++) {
+				col=record.get(i);
+				if(col.equals("id")) {
+					if(nRankColumns==null) nRankColumns=i;
+					oldIdColumn=i;
+				}
+				if(col.startsWith("territory:")) {	// create the territories
+					if(nRankColumns==null) nRankColumns=i;
+					String shortName=col.substring(col.indexOf(":")+1);
+					Territory tv = Territory.newFromName(FloraOnDriver.this, shortName, shortName, (ArangoKey)null);
+					System.out.println("Added territory: "+shortName);
+					territories.put(i, tv);
+				}
+			}
+			if(nRankColumns==null) nRankColumns=record.size();
+			
+			String[] rankNames=new String[nRankColumns];
+			for(int i=0;i<nRankColumns;i++) rankNames[i]=record.get(i);
 
 			System.out.print("Reading file ");
 			try {
-				TaxEnt n,parentNode;
+				TaxEnt curTaxEnt,parentNode;
 				TaxEnt parsedName;
 				boolean pastspecies;	// true after the column species has passed (so to know when to append names to genus)
 				while(records.hasNext()) {
@@ -1328,44 +1357,50 @@ public class FloraOnDriver {
 					if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
 					if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
 					parentNode=null;
-					n=null;
+					curTaxEnt=null;
 					pastspecies=false;
-					for(int i=0;i<names.length;i++) {
+					for(int i=0;i<rankNames.length;i++) {
 						try {
 							parsedName=TaxEnt.parse(record.get(i));
 						} catch (TaxonomyException e) {
 							// is it an empty cell? skip. 
 							continue;
 						}
-						if(names[i].equals("species")) pastspecies=true;
+						if(rankNames[i].equals("species")) pastspecies=true;
 						parsedName.setCurrent(true);
 						// special cases: if species or lower rank, must prepend genus.
-						if(pastspecies) parsedName.setName(parentNode.baseNode.getName()+" "+(names[i].equals("species") ? "" : (infraRanks.containsKey(names[i]) ? infraRanks.get(names[i]) : names[i])+" ")+parsedName.baseNode.getName());
+						if(pastspecies) parsedName.setName(parentNode.baseNode.getName()+" "+(rankNames[i].equals("species") ? "" : (infraRanks.containsKey(rankNames[i]) ? infraRanks.get(rankNames[i]) : rankNames[i])+" ")+parsedName.baseNode.getName());
 						
-						parsedName.setRank(TaxonRanks.valueOf(names[i].toUpperCase()).getValue());
+						parsedName.setRank(TaxonRanks.valueOf(rankNames[i].toUpperCase()).getValue());
 						if(pastspecies && parsedName.baseNode.getAuthor()==null) parsedName.setAuthor(parentNode.baseNode.getAuthor());
 						//System.out.println(parsedname.name);
-						n=dbNodeWorker.findTaxEnt(parsedName.baseNode);
+						curTaxEnt=dbNodeWorker.findTaxEnt(parsedName.baseNode);
 						
-						if(n==null) {	// if node does not exist, add it.
-							n=TaxEnt.newFromTaxEnt(FloraOnDriver.this,parsedName);
+						if(curTaxEnt==null) {	// if node does not exist, add it.
+							curTaxEnt=TaxEnt.newFromTaxEnt(FloraOnDriver.this,parsedName);
 							//System.out.println("ADD "+parsedName.name);System.out.flush();
 							nnodes++;
 						} else {	// if it exists, update its rank and authority.
 							//System.out.println("EXISTS "+parsedName.baseNode.getFullName());System.out.flush();
-							n.setRank(parsedName.baseNode.getRankValue());
-							if(parsedName.baseNode.getAuthor()!=null) n.setAuthor(parsedName.baseNode.getAuthor());
-							n.commit();
+							curTaxEnt.setRank(parsedName.baseNode.getRankValue());
+							if(parsedName.baseNode.getAuthor()!=null) curTaxEnt.setAuthor(parsedName.baseNode.getAuthor());
+							curTaxEnt.commit();
 						}
 						if(parentNode!=null) {	// create PART_OF relationship to previous column
-							nrels+=n.setPART_OF(parentNode.baseNode);
+							nrels+=curTaxEnt.setPART_OF(parentNode.baseNode);
 						}
-						parentNode=n;
+						parentNode=curTaxEnt;
 					}
  
-					if(hasOldId) {
-						n.setOldId(Integer.parseInt(record.get(record.size()-1)));
-						n.commit();
+					if(oldIdColumn != null) {
+						curTaxEnt.setOldId(Integer.parseInt(record.get(oldIdColumn)));
+						curTaxEnt.commit();
+					}
+					
+					for(Entry<Integer,Territory> terr : territories.entrySet()) {	// bind this taxon with the territories with the given native status
+						String ns=record.get(terr.getKey());
+						if(ns!=null && !ns.equals(""))
+							terr.getValue().setTaxEntNativeStatus(curTaxEnt.getArangoKey(), NativeStatus.valueOf(ns.toUpperCase()));
 					}
 				}
 			} catch (FloraOnException | ArangoException e) {
@@ -1380,7 +1415,7 @@ public class FloraOnDriver {
 			return out;
 		}
 
-		public Map<String,Integer> uploadTaxonomyListFromFile(String file,boolean simulate) throws IOException {
+		public Map<String,Integer> uploadTaxonomyListFromFile(String file,boolean simulate) throws IOException, ArangoException, FloraOnException {
 	    	File tl=new File(file);
 	    	if(!tl.canRead()) throw new IOException("Cannot read input file "+file);
 	    	return uploadTaxonomyListFromStream(new FileInputStream(file),simulate);

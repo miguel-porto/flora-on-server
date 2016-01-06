@@ -82,7 +82,7 @@ public class FloraOnShell {
 	            	if(line.equals("\\q")) System.exit(0);
 	            	if(line.equals("\\sampledata")) {
 	            		System.out.println("Reading sample taxonomy");
-	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomia_full_novo.csv"), false);
+	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomia_final.csv"), false);
 	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/stepping_stones.csv"), false);
 	            		System.out.println("Reading morphology");
 	            		//graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
@@ -90,7 +90,7 @@ public class FloraOnShell {
 	            		generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
-	            		System.out.println("\nCreating some territories");
+	            		/*System.out.println("\nCreating some territories");
 	            		Territory pt=Territory.newFromName(graph, "Portugal", "pt", (ArangoKey)null);
 	            		Territory lu=Territory.newFromName(graph, "Portugal Continental", "lu", pt.getArangoKey());
 	            		Territory az=Territory.newFromName(graph, "Açores", "az", pt.getArangoKey());
@@ -100,7 +100,7 @@ public class FloraOnShell {
 	            		az.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);
 	            		ma.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.NATURALIZED);
 	            		te=graph.dbNodeWorker.findTaxEnt("Allium ursinum subsp. ursinum");
-	            		pt.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);
+	            		pt.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);*/
 	            		continue;
 	            	}
 	            	

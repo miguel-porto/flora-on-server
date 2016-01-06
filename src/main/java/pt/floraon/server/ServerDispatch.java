@@ -473,12 +473,12 @@ public class ServerDispatch implements Runnable {
 					break;
 				
 				case "species":
-					Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(true, SimpleNameResult.class, territory);
+					Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, territory);
 					rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
 					break;
 
 				case "speciesterritories":
-					Iterator<NamesAndTerritoriesResult> speciesterr=graph.dbSpecificQueries.getAllSpeciesOrInferior(true, NamesAndTerritoriesResult.class, territory);
+					Iterator<NamesAndTerritoriesResult> speciesterr=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, territory);
 					rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
 					List<String> opt1=new ArrayList<String>();
 					for(TerritoryVertex tv : graph.territories)
@@ -624,7 +624,10 @@ public class ServerDispatch implements Runnable {
 				//String fmt=getQSValue("fmt",params);
 				switch(what) {		// the 'w' parameter of the URL querystring
 				case "main":	// CHECKLIST
-					output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names</h1>");
+					if(territory!=null) 
+						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names existing in "+graph.dbNodeWorker.getTerritoryFromShortName(territory).getName()+"</h1>");
+					else
+						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names</h1>");
 					processCommand("lists/speciesterritories?fmt=htmltable", output, false);
 					output.print("</div>");
 					break;
@@ -701,7 +704,7 @@ public class ServerDispatch implements Runnable {
 				case "validate":
 					// TODO taxonomic validation
 					break;
-				
+/*				
 				case "territories":
 					output.print("<div id=\"main\"><h1>Territories</h1>");
 					TerritoryVertex tv;
@@ -712,7 +715,7 @@ public class ServerDispatch implements Runnable {
 						output.print("<li>"+tv.getName()+"</li>");
 					}
 					output.print("</ul></div>");
-					break;
+					break;*/
 					
 				case "query":
 					query=getQSValue("q",params);
