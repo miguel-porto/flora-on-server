@@ -1,5 +1,8 @@
 package pt.floraon.results;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class NamesAndTerritoriesResult extends SimpleNameResult implements ResultItem {
@@ -9,14 +12,19 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		List<String> territories=(List<String>) obj;
 		int i;
 		StringBuilder sb=new StringBuilder();
-		sb.append("<tr data-key=\"").append(this._id).append("\"")
-			.append(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))
-			.append("><td><i>")
-			.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
-			.append(this.name)
-			.append("</i></td><td>")
-			.append(this.author)
-			.append("</td><td>");
+		try {
+			sb.append("<tr data-key=\"").append(this._id).append("\"")
+				.append(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))
+				.append("><td><a href=\"?w=taxondetailspage&id="+URLEncoder.encode(this._id, StandardCharsets.UTF_8.name())+"\"><i>")
+				.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
+				.append(this.name)
+				.append("</i></a></td><td>")
+				.append(this.author)
+				.append("</td><td>");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		for(String t : territories) {
 			if(this.territories.containsKey(t))

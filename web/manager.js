@@ -91,6 +91,9 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 	}
+	
+	var td=document.getElementById('taxdetails');
+	if(td) attachTaxDetailsHandlers(td);
 });
 
 function actionButtonClick(ev) {
@@ -185,7 +188,9 @@ function updateTaxon(obj) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 			loadTaxDetails(obj.id,el);
-			var li=document.getElementById('taxtree').querySelector('li[data-key="'+obj.id+'"]');
+			var li=document.getElementById('taxtree');
+			if(!li) return;	// no taxon tree
+			li=li.querySelector('li[data-key="'+obj.id+'"]');
 			var par=li.parentNode.parentNode;
 			if(par.tagName=='LI') {
 				par.removeChild(par.querySelector('ul'));
@@ -204,60 +209,63 @@ function loadTaxDetails(key,el) {
 	if(!key) {el.innerHTML='';return;}
 	fetchAJAX('/admin/taxdetails.html?id='+encodeURIComponent(key),function(rt) {
 		el.innerHTML=rt;
-		attachSuggestionHandler('boxsynonym');
-		
-		var act=el.querySelectorAll('.actionbutton');
-		for(var i=0;i<act.length;i++) {
-			addEvent('click',act[i],actionButtonClick);
-		}
-		
-// togglers
-		var tog=el.querySelectorAll('div.toggler h1');
-		for(var i=0;i<tog.length;i++) {
-			addEvent('click',tog[i],function(ev) {
-				var el=getParentbyTag(ev.target,'h1');
-				el.parentNode.classList.toggle('off');
-			});
-		}
-		
-// current / not current buttons
-		var els=document.querySelectorAll('#taxdetails ul.currentstatus li');
-		for(var i=0;i<els.length;i++) {
-			addEvent('click',els[i],function(ev) {
-				if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
-				ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
-				ev.target.classList.add('selected');
-
-				var cb=document.getElementById('updatetaxonbox');
-				var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
-				var obj={
-					name:cb.querySelector('input[name=name]').value
-					,author:cb.querySelector('input[name=author]').value
-					,comment:cb.querySelector('input[name=annot]').value
-					,id:parent
-					,current:ev.target.classList.contains('current') ? 1 : 0
-				}
-				updateTaxon(obj);
-			});
-		}
-		
-// detach synonyms
-		var els=document.querySelectorAll('#taxdetails ul.synonyms div.button.remove');
-		for(var i=0;i<els.length;i++) {
-			addEvent('click',els[i],function(ev) {
-				var from=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
-				var to=ev.target.parentNode.getAttribute('data-key');
-				postJSON('/nodes/detachsynonym',{from:from,to:to},function(rt) {
-					rt=JSON.parse(rt);
-					if(rt.success)
-						loadTaxDetails(from,el);
-					else
-						alert(rt.msg);
-				});
-			});
-		}
-
+		attachTaxDetailsHandlers(el);
 	});
+}
+
+function attachTaxDetailsHandlers(el) {
+	attachSuggestionHandler('boxsynonym');
+	
+	var act=el.querySelectorAll('.actionbutton');
+	for(var i=0;i<act.length;i++) {
+		addEvent('click',act[i],actionButtonClick);
+	}
+	
+// togglers
+	var tog=el.querySelectorAll('div.toggler h1');
+	for(var i=0;i<tog.length;i++) {
+		addEvent('click',tog[i],function(ev) {
+			var el=getParentbyTag(ev.target,'h1');
+			el.parentNode.classList.toggle('off');
+		});
+	}
+	
+// current / not current buttons
+	var els=document.querySelectorAll('#taxdetails ul.currentstatus li');
+	for(var i=0;i<els.length;i++) {
+		addEvent('click',els[i],function(ev) {
+			if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
+			ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
+			ev.target.classList.add('selected');
+
+			var cb=document.getElementById('updatetaxonbox');
+			var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+			var obj={
+				name:cb.querySelector('input[name=name]').value
+				,author:cb.querySelector('input[name=author]').value
+				,comment:cb.querySelector('input[name=annot]').value
+				,id:parent
+				,current:ev.target.classList.contains('current') ? 1 : 0
+			}
+			updateTaxon(obj);
+		});
+	}
+	
+// detach synonyms
+	var els=document.querySelectorAll('#taxdetails ul.synonyms div.button.remove');
+	for(var i=0;i<els.length;i++) {
+		addEvent('click',els[i],function(ev) {
+			var from=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+			var to=ev.target.parentNode.getAttribute('data-key');
+			postJSON('/nodes/detachsynonym',{from:from,to:to},function(rt) {
+				rt=JSON.parse(rt);
+				if(rt.success)
+					loadTaxDetails(from,el);
+				else
+					alert(rt.msg);
+			});
+		});
+	}
 }
 
 function loadTreeNode(el,callback) {

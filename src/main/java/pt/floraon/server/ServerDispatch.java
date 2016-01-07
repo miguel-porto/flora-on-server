@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -218,7 +217,7 @@ public class ServerDispatch implements Runnable {
 			e1.printStackTrace();
 		}
         //try(BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));) {
-
+//		output = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
 		try(InputStream in = clientSocket.getInputStream();) {
         	HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         	SessionInputBufferImpl buf = new SessionInputBufferImpl(metrics, 2048);
@@ -276,7 +275,7 @@ public class ServerDispatch implements Runnable {
                 //ereq.setEntity(ent);
                 switch(contentType) {
                 case "application/x-www-form-urlencoded":
-                	List<NameValuePair> qs=URLEncodedUtils.parse(EntityUtils.toString(ent),Charset.defaultCharset());
+                	List<NameValuePair> qs=URLEncodedUtils.parse(EntityUtils.toString(ent),StandardCharsets.UTF_8);
                 	for(NameValuePair nvp : qs) {
                 		if(nvp.getValue()==null) {
                 			JsonObject jo=(JsonObject) new JsonParser().parse(nvp.getName());
@@ -298,7 +297,7 @@ public class ServerDispatch implements Runnable {
 							String name=pp.parse(multipartStream.readHeaders(),';').get("name");
 							tmp=new ByteArrayOutputStream();
 							multipartStream.readBodyData(tmp);
-							params.add(new BasicNameValuePair(name,tmp.toString()));
+							params.add(new BasicNameValuePair(name,tmp.toString(StandardCharsets.UTF_8.name())));
 							nextPart = multipartStream.readBoundary();
 						}
 					} catch(MultipartStream.MalformedStreamException e) {
@@ -349,11 +348,11 @@ public class ServerDispatch implements Runnable {
 	}
 	
 	public void processCommand(URI url,PrintWriter output,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
-		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),output,headers);
+		processCommand(url,URLEncodedUtils.parse(url,StandardCharsets.UTF_8.name()),output,headers);
 	}
 
 	public void processCommand(URI url,OutputStream outputStream,boolean headers) throws QueryException, TaxonomyException, IOException, FloraOnException {
-		processCommand(url,URLEncodedUtils.parse(url,Charset.defaultCharset().toString()),outputStream,headers);
+		processCommand(url,URLEncodedUtils.parse(url,StandardCharsets.UTF_8.name()),outputStream,headers);
 	}
 	
 	public void processCommand(URI url,List<NameValuePair> params,PrintWriter output,boolean includeHeaders) throws QueryException, TaxonomyException, IOException {
@@ -628,6 +627,7 @@ public class ServerDispatch implements Runnable {
 						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names existing in "+graph.dbNodeWorker.getTerritoryFromShortName(territory).getName()+"</h1>");
 					else
 						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names</h1>");
+					output.print("<p>Click on a taxon to edit it</p>");
 					processCommand("lists/speciesterritories?fmt=htmltable", output, false);
 					output.print("</div>");
 					break;
@@ -636,6 +636,22 @@ public class ServerDispatch implements Runnable {
 					processCommand("lists/tree?rank=class&fmt=htmllist", output, false);
 					output.print("</div>");
 					output.print("<div id=\"taxdetails\"><h2>Click a taxon on the tree to edit</h2></div>");
+					output.print("</div>");
+					break;
+				case "taxondetailspage":
+					output.print("<div id=\"taxdetails\">");
+					ByteArrayOutputStream  baos=new ByteArrayOutputStream();
+					try {
+						//processCommand("webadmin?w=taxondetails&id="+getQSValue("id",params), baos,false);
+						processCommand("admin/taxdetails.html?id="+getQSValue("id",params), baos,false);
+					} catch (URISyntaxException e1) {
+						output.println("Error");
+					} catch (FloraOnException e1) {
+						output.println("Error: "+e1.getMessage());
+					}
+					baos.close();
+					output.write(baos.toString(StandardCharsets.UTF_8.name()));
+
 					output.print("</div>");
 					break;
 				case "families":
@@ -974,7 +990,7 @@ public class ServerDispatch implements Runnable {
     	
     	if(path.length>=2 && path[1].equals("admin")) {
     		// here we pass a stream cause the content may be binary
-    		HttpServer.processRequest(url,outputStream,this);
+    		HttpServer.processRequest(url,outputStream,this,includeHeaders);
     		return;
     	}
     	// the content is text

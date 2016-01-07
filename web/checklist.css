@@ -62,7 +62,7 @@ div.toggler.off .content {display:none;}
 	padding:2px 8px;
 }
 */
-.checklist table tr.notcurrent {color:#999;}
+.checklist table tr.notcurrent {color:#aaa !important;background-color:#f7f7f7;}
 .checklist table div.territory {
 	border-radius:50%;
 	border:2px solid #fff;

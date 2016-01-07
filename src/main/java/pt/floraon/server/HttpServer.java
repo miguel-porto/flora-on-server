@@ -36,7 +36,7 @@ import pt.floraon.driver.FloraOnException;
  *
  */
 public final class HttpServer {
-	static void processRequest(URI url,OutputStream outputStream,ServerDispatch server) throws FileNotFoundException, IOException {
+	static void processRequest(URI url,OutputStream outputStream,ServerDispatch server, Boolean includeHeaders) throws FileNotFoundException, IOException {
 		PrintWriter out=null;
     	String command=url.getPath();
     	String[] path=command.split("/");
@@ -82,9 +82,11 @@ public final class HttpServer {
 		//res.addHeader("Set-Cookie","c1=adsfg; path=/; domain=\".app.localhost:9000\"");
 		// get querystring
 		List<NameValuePair> params=URLEncodedUtils.parse(url,Charset.defaultCharset().toString());
-		out.print(res.toString()+"\r\n");
-		out.print("\r\n");
-		out.flush();
+		if(includeHeaders) {
+			out.print(res.toString()+"\r\n");
+			out.print("\r\n");
+			out.flush();
+		}
 
 		File page;
 		StringBuilder address=new StringBuilder();
