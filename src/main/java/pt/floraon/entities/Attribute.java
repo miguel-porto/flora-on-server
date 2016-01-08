@@ -35,6 +35,12 @@ public class Attribute extends GeneralNodeWrapper {
 		this.graph=graph;
 	}
 
+	public Attribute(String name,String shortName,String description) throws ArangoException {
+		super.baseNode=new AttributeVertex(name,shortName,description);
+		this.baseNode=(AttributeVertex)super.baseNode;
+	}
+
+	@Deprecated
 	public Attribute(FloraOnDriver graph, String name,String shortName,String description) throws ArangoException {
 		super.baseNode=new AttributeVertex(name,shortName,description);
 		this.baseNode=(AttributeVertex)super.baseNode;
@@ -43,6 +49,14 @@ public class Attribute extends GeneralNodeWrapper {
 		super.baseNode._id=vertexEntity.getDocumentHandle();
 	}
 
+	public static Attribute newFromName(FloraOnDriver driver, String name,String shortName,String description) throws ArangoException {
+		Attribute out=new Attribute(name, shortName, description);
+		out.graph=driver;
+		VertexEntity<AttributeVertex> tmp=driver.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.attribute.toString(), out.baseNode, false);
+		out.baseNode._id=tmp.getDocumentHandle();
+		out.baseNode._key=tmp.getDocumentKey();
+		return out;
+	}
 
 	/**
 	 * Associates this attribute with a taxon {@link TaxEnt}.

@@ -13,6 +13,12 @@ public class TerritoryVertex extends GeneralDBNode {
 		this.name=name;
 		this.shortName=shortName;
 	}
+
+	public TerritoryVertex(Territory te) {
+		this.name=te.baseNode.name;
+		this.shortName=te.baseNode.shortName;
+		this.polygon=te.baseNode.polygon;
+	}
 	
 	public String getName() {
 		return this.name;

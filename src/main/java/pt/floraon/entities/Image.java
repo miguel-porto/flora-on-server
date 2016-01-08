@@ -33,7 +33,7 @@ public class Image extends GeneralNodeWrapper {
 		this.graph=graph;
 	}
 	@Override
-	void commit() throws FloraOnException, ArangoException {
+	public void commit() throws FloraOnException, ArangoException {
 		if(!this.dirty) return;
 		if(baseNode._id==null) {	// it was created from CSV record
 			Author aut=graph.dbNodeWorker.getAuthorById(idAut);

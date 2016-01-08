@@ -12,12 +12,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		var td=document.getElementById('taxdetails');
 		var lb=document.getElementById('left-bar');
 		var st=document.body.scrollTop || document.documentElement.scrollTop;
-		if(st>TOPBARSIZE) {
+		
+		if(st > TOPBARSIZE)
 			lb.style.marginTop=(st - TOPBARSIZE)+'px';
-			if(td) td.style.marginTop=(st - TOPBARSIZE)+'px';
-		} else {
+		else
 			lb.style.marginTop='0';
-			if(td) td.style.marginTop='0';
+			
+		if(td) {
+			var bcr=td.getBoundingClientRect();
+			if(bcr.height > window.innerHeight) {
+				if(st + window.innerHeight > TOPBARSIZE + bcr.height+16 )
+					td.style.marginTop=(window.innerHeight - (bcr.height+16+TOPBARSIZE - st))+'px';
+				else
+					td.style.marginTop='0';
+			} else {
+				if(st > TOPBARSIZE)
+					td.style.marginTop=(st - TOPBARSIZE)+'px';
+				else
+					td.style.marginTop='0';
+			}
 		}
 	});
 

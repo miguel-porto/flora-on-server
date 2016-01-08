@@ -155,6 +155,8 @@ svg.noentnames .node text {display:none;}
 
 .node.character circle {fill:#00f;stroke:blue;}
 
+.node.territory path {fill:#aff;stroke:gray;}
+
 .node.fixed circle {fill:#f00;}
 .node.selected circle,.node.selected path {fill:#f00 !important;stroke:#070 !important;stroke-width:3px !important;}
 .node.selected circle {fill:#f00 !important;stroke:#070 !important;stroke-width:3px !important;transform:scale(1.5);}

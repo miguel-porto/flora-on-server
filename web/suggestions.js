@@ -8,7 +8,7 @@ function attachSuggestionHandler(elid) {
 			document.getElementById('suggestions').innerHTML='';
 			return;
 		}
-		fetchAJAX('/suggestions?limit=10&q='+encodeURIComponent(input.value), function(rt) {
+		fetchAJAX('/suggestions?limit=30&q='+encodeURIComponent(input.value), function(rt) {
 			document.getElementById('suggestions').innerHTML=rt;
 			makeSuggestionBox(document.getElementById('suggestions').querySelector('ul.suggestions'), input.id);
 		});

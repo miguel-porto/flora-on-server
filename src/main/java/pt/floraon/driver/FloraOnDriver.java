@@ -386,6 +386,7 @@ public class FloraOnDriver {
 	     * @throws ArangoException
 	     * @throws TaxonomyException 
 	     */
+		@Deprecated
 	    public GraphUpdateResult createTaxEntNode(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws ArangoException, TaxonomyException {
 	    	return GraphUpdateResult.fromHandle(
     			FloraOnDriver.this, TaxEnt.newFromName(FloraOnDriver.this,name,author,rank,annotation,current).getID()
@@ -569,7 +570,14 @@ public class FloraOnDriver {
 			node.commit();
 			return GraphUpdateResult.fromHandle(FloraOnDriver.this, node.getID());
 		}
-		
+
+		public GraphUpdateResult updateTerritoryNode(Territory node,String name,String shortName) throws ArangoException, FloraOnException {
+			node.setName(name);
+			node.setShortName(shortName);
+			node.commit();
+			return GraphUpdateResult.fromHandle(FloraOnDriver.this, node.getID());
+		}
+
 		/**
 		 * Deletes one node and all connected edges
 		 * @param id The document handle
@@ -684,6 +692,24 @@ public class FloraOnDriver {
 			return (res==null || res.equals("[]")) ? GraphUpdateResult.emptyResult() : GraphUpdateResult.fromJson(res.substring(1, res.length()-1));
 		}
 
+		public GraphUpdateResult getAllNodesOfType(NodeTypes nodeType) {
+			String query=String.format("RETURN {nodes:(FOR v IN %1$s "
+					+ "RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"
+					+ ",links:[]}"
+					,nodeType.toString()
+				);
+				String res;
+				try {
+					res = driver.executeAqlQueryJSON(query, null, null);
+				} catch (ArangoException e) {
+					System.err.println(e.getErrorMessage());
+					return GraphUpdateResult.emptyResult();
+				}
+				// NOTE: server responses are always an array, but here we always have one element, so we remove the []
+				return (res==null || res.equals("[]")) ? GraphUpdateResult.emptyResult() : GraphUpdateResult.fromJson(res.substring(1, res.length()-1));
+			
+		}
+		
 		public GeneralDBNode getNode(ArangoKey id) throws ArangoException {
 			return driver.getDocument(id.toString(), GeneralDBNode.class).getEntity();
 		}
@@ -968,7 +994,7 @@ public class FloraOnDriver {
 	    public CursorResult<SimpleNameResult> findSuggestions(String query, Integer limit) throws ArangoException {
 	    	String limitQ;
 	    	if(limit!=null) limitQ=" LIMIT "+limit; else limitQ="";
-	    	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank"+limitQ+" RETURN v",query);
+	    	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank DESC"+limitQ+" RETURN v",query);
 	    	return driver.executeAqlQuery(_query, null, null, SimpleNameResult.class);
 	    	// TODO levenshtein, etc.
 	    }
@@ -1104,6 +1130,7 @@ public class FloraOnDriver {
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
 					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);*/
 			}
+			//System.out.println(query);
 	    	CursorResult<T> vertexCursor=driver.executeAqlQuery(query, null, null, T);
 	    	return vertexCursor.iterator();
 		}

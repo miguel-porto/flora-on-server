@@ -13,7 +13,7 @@ public class GeneralNodeWrapperImpl extends GeneralNodeWrapper {
 	}
 
 	@Override
-	void commit() throws FloraOnException, ArangoException {
+	public void commit() throws FloraOnException, ArangoException {
 		// TODO Auto-generated method stub
 		
 	}

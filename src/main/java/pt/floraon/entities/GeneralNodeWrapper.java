@@ -21,7 +21,7 @@ public abstract class GeneralNodeWrapper {
 	 * @throws IOException
 	 * @throws ArangoException
 	 */
-	abstract void commit() throws FloraOnException, ArangoException;
+	public abstract void commit() throws FloraOnException, ArangoException;
 
 	public String getID() {
 		return baseNode._id;

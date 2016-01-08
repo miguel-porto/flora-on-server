@@ -103,7 +103,12 @@ public class YlemParser {
 					tmps=wsi.next();
 					try {
 						qp.matchLists.add(		// add all the matches of this word combination
-							mat=new MatchList(tmps,this.graph.dbGeneralQueries.queryMatcher(tmps, StringMatchTypes.PARTIAL, new String[] {NodeTypes.taxent.toString(),NodeTypes.attribute.toString()}))
+							mat=new MatchList(tmps,this.graph.dbGeneralQueries.queryMatcher(tmps
+								, StringMatchTypes.PARTIAL
+								, new String[] {
+									NodeTypes.taxent.toString()
+									,NodeTypes.attribute.toString()
+									,NodeTypes.territory.toString()}))
 						);
 						if(mat.matches.size()>0) wsi.markAsUsed();		// if there are matches, remove these words from further processing (to save time, but ideally they should be all processed)
 						System.out.println(Constants.ANSI_YELLOW+"[Matcher] "+Constants.ANSI_RESET+"Query: \""+tmps+"\"");

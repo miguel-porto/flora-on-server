@@ -60,6 +60,7 @@ import com.google.gson.JsonSyntaxException;
 
 import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.QueryException;
@@ -71,6 +72,7 @@ import pt.floraon.entities.Territory;
 import pt.floraon.entities.TerritoryVertex;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ChecklistEntry;
+import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.NamesAndTerritoriesResult;
 import pt.floraon.results.NativeStatusResult;
 import pt.floraon.results.Occurrence;
@@ -841,6 +843,11 @@ public class ServerDispatch implements Runnable {
 					output.print(graph.dbNodeWorker.getAllCharacters().toString());
 					output.flush();
 					break;
+
+				case "getallterritories":
+					output.print(graph.dbNodeWorker.getAllNodesOfType(NodeTypes.territory).toString());
+					output.flush();
+					break;
 					
 				case "delete":
 					id=getQSValue("id",parameters);
@@ -883,12 +890,26 @@ public class ServerDispatch implements Runnable {
 						current=getQSValue("current",parameters);
 						success(output, graph.dbNodeWorker.createTaxEntChild(ArangoKey.fromString(id), name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), annot, current==null ? null : Integer.parseInt(current)==1).toString(), includeHeaders);
 						return;
+					
+					case "territory":
+						name=getQSValue("name",parameters);
+						shortName=getQSValue("shortname",parameters);
+						success(output
+							, GraphUpdateResult.fromHandle(graph, Territory.newFromName(graph, name, shortName, (ArangoKey)null).getID()).toJsonObject() 
+							, includeHeaders);
+						return;
 						
 					case "taxent":	// this only adds a free taxent
 						name=getQSValue("name",parameters);
 						author=getQSValue("author",parameters);
 						rank=getQSValue("rank",parameters);
-						success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
+				    	success(output
+							, GraphUpdateResult.fromHandle(
+				    			graph
+				    			, TaxEnt.newFromName(graph,name,author,TaxonRanks.getRankFromValue(Integer.parseInt(rank)),null,true).getID() ).toJsonObject()
+							, includeHeaders);
+							
+						//success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
 						return;
 						
 					case "attribute":
@@ -930,6 +951,18 @@ public class ServerDispatch implements Runnable {
 								, rank== null ? null : TaxonRanks.getRankFromValue(Integer.parseInt(rank))
 								, current==null ? null : Integer.parseInt(current)==1
 								, author, comment).toJsonObject()
+							, includeHeaders);
+						return;
+
+					case "territory":
+						name=getQSValue("name",parameters);
+						shortName=getQSValue("shortName",parameters);
+						
+						success(output, 
+							graph.dbNodeWorker.updateTerritoryNode(
+								new Territory(graph, graph.dbNodeWorker.getNode(ArangoKey.fromString(getQSValue("id",parameters)), TerritoryVertex.class))
+								, name
+								, shortName).toJsonObject()
 							, includeHeaders);
 						return;
 	

@@ -1,6 +1,8 @@
 package pt.floraon.entities;
 
 
+import java.util.Objects;
+
 import com.arangodb.ArangoException;
 import com.arangodb.entity.marker.VertexEntity;
 
@@ -8,6 +10,7 @@ import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.NodeTypes;
 
@@ -77,10 +80,25 @@ public class Territory extends GeneralNodeWrapper {
 		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 	}
 	
-	@Override
-	void commit() throws FloraOnException, ArangoException {
-		// TODO Auto-generated method stub
-		
+	public void setName(String name) throws TaxonomyException {
+		if(Objects.equals(name, baseNode.name)) return;
+		if(name==null || name.trim().length()==0) throw new TaxonomyException("Territory must have a name");
+		baseNode.name = name;
+		this.dirty=true;
 	}
 
+	public void setShortName(String shortName) throws TaxonomyException {
+		if(Objects.equals(shortName, baseNode.shortName)) return;
+		if(shortName==null || shortName.trim().length()==0) throw new TaxonomyException("Territory must have a short name");
+		baseNode.shortName = shortName;
+		this.dirty=true;
+	}
+
+	@Override
+	public void commit() throws FloraOnException, ArangoException {
+		if(!this.dirty) return;
+		if(baseNode._id==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
+		this.graph.driver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), baseNode._key, new TerritoryVertex(this), false);
+		this.dirty=false;
+	}
 }
