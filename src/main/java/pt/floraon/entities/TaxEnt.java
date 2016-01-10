@@ -282,7 +282,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 		String query="RETURN LENGTH(FOR e IN PART_OF FILTER e._to=='"+baseNode._id+"' RETURN e)";
 		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult()==0;
 	}
-	
+
 	/**
 	 * Gets the chain of synonyms associated with this taxon (excluding self). Note that only true SYNONYMs are returned (no PART_OF).
 	 * @return
@@ -292,7 +292,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 	 */
 	public CursorResult<TaxEntVertex> getSynonyms() throws ArangoException, FloraOnException {
 		if(this.graph==null) throw new FloraOnException("Node "+baseNode.name+" not attached to DB");
-		String query=String.format("FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'any',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex"
+		String query=String.format("FOR u IN UNIQUE(FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'inbound',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex) RETURN u"
 			,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),this.baseNode._id
 		);
 		return this.graph.driver.executeAqlQuery(query,null,null,TaxEntVertex.class);

@@ -13,6 +13,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.TerritoryTypes;
 
 public class Territory extends GeneralNodeWrapper {
 	public TerritoryVertex baseNode;
@@ -29,13 +30,13 @@ public class Territory extends GeneralNodeWrapper {
 		this.graph=graph;
 	}
 
-	private Territory(String name,String shortName) {
-		this.baseNode=new TerritoryVertex(name, shortName);
+	private Territory(String name,String shortName, TerritoryTypes type, String theme) throws FloraOnException {
+		this.baseNode=new TerritoryVertex(name, shortName, type, theme, true);
 		super.baseNode=this.baseNode;
 	}
-	
-	public static Territory newFromName(FloraOnDriver driver,String name,String shortName, TerritoryVertex parent) throws ArangoException, FloraOnException {
-		Territory out=new Territory(name, shortName);
+
+	public static Territory newFromName(FloraOnDriver driver, String name, String shortName, TerritoryTypes type, String theme, TerritoryVertex parent) throws ArangoException, FloraOnException {
+		Territory out=new Territory(name, shortName, type, theme);
 		out.graph=driver;
 		VertexEntity<TerritoryVertex> tmp=driver.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), out.baseNode, false);
 		out.baseNode._id=tmp.getDocumentHandle();
@@ -48,9 +49,9 @@ public class Territory extends GeneralNodeWrapper {
 		return out;
 	}
 
-	public static Territory newFromName(FloraOnDriver driver,String name,String shortName, ArangoKey parent) throws ArangoException, FloraOnException {
+	public static Territory newFromName(FloraOnDriver driver,String name,String shortName, TerritoryTypes type, String theme, ArangoKey parent) throws ArangoException, FloraOnException {
 		// NOTE: parent is not checked for the node type. It must be a territory, but is not checked. This is done in the validation.
-		Territory out=new Territory(name, shortName);
+		Territory out=new Territory(name, shortName, type, theme);
 		out.graph=driver;
 		VertexEntity<TerritoryVertex> tmp=driver.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), out.baseNode, false);
 		out.baseNode._id=tmp.getDocumentHandle();
@@ -87,10 +88,29 @@ public class Territory extends GeneralNodeWrapper {
 		this.dirty=true;
 	}
 
+	public void setShowInChecklist(boolean show) throws TaxonomyException {
+		if(Objects.equals(show, baseNode.showInChecklist)) return;
+		baseNode.showInChecklist = show;
+		this.dirty=true;
+	}
+
 	public void setShortName(String shortName) throws TaxonomyException {
 		if(Objects.equals(shortName, baseNode.shortName)) return;
 		if(shortName==null || shortName.trim().length()==0) throw new TaxonomyException("Territory must have a short name");
 		baseNode.shortName = shortName;
+		this.dirty=true;
+	}
+
+	public void setTheme(String theme) throws TaxonomyException {
+		if(Objects.equals(theme, baseNode.theme)) return;
+		baseNode.theme = theme;
+		this.dirty=true;
+	}
+
+	public void setType(TerritoryTypes type) throws TaxonomyException {
+		if(type==null) throw new TaxonomyException("Territory must have a type");
+		if(Objects.equals(type.toString(), baseNode.territoryType)) return;
+		baseNode.territoryType = type.toString();
 		this.dirty=true;
 	}
 

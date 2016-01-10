@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import com.arangodb.ArangoException;
 
 import pt.floraon.driver.ArangoKey;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Constants.RelTypes;
@@ -52,7 +53,7 @@ public abstract class GeneralNodeWrapper {
 	public GraphUpdateResult createRelationshipTo(GeneralDBNode parent,RelTypes type) throws IOException, ArangoException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if(baseNode._id==null) throw new IOException("Node "+baseNode._id+" not attached to DB");
 
-		// checks whether there is already a PART_OF relation between these two nodes
+		// checks whether there is already a relation of this type between these two nodes
 		String query=String.format(
 			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
 			,baseNode._id,parent._id,type.toString());
@@ -60,10 +61,18 @@ public abstract class GeneralNodeWrapper {
 		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 		
 		if(nrel==0) {
-			return GraphUpdateResult.fromHandles(this.graph, new String[] {
-				this.graph.driver.createEdge(type.toString(), type.getEdge(), baseNode._id, parent._id, false, false).getDocumentHandle()
-				,baseNode._id,parent._id
-			});
+			if(type.getDirectionality().equals(Constants.Directionality.UNIDIRECTIONAL)) {
+				return GraphUpdateResult.fromHandles(this.graph, new String[] {
+					this.graph.driver.createEdge(type.toString(), type.getEdge(), baseNode._id, parent._id, false, false).getDocumentHandle()
+					,baseNode._id,parent._id
+				});
+			} else {	// in bidirectional links we add two links so that we don't have to worry abound directionality in queries
+				return GraphUpdateResult.fromHandles(this.graph, new String[] {
+					this.graph.driver.createEdge(type.toString(), type.getEdge(), baseNode._id, parent._id, false, false).getDocumentHandle()
+					,this.graph.driver.createEdge(type.toString(), type.getEdge(), parent._id, baseNode._id, false, false).getDocumentHandle()
+					,baseNode._id,parent._id
+				});
+			}
 		} else return GraphUpdateResult.emptyResult();
 	}
 	

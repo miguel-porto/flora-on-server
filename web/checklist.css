@@ -15,6 +15,9 @@ ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0
 ul.menu li:hover {background-color:#ff7;}
 .info {font-size:0.8em;color:gray;font-style:italic;font-weight:normal;}
 p.error {color:red;font-weight:bold;}
+div.paging {text-align:center;background-color:#eee;padding:3px;}
+div.paging .legend {float:left;}
+
 .noselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;

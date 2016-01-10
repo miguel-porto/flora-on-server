@@ -58,7 +58,6 @@ import pt.floraon.entities.TerritoryVertex;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.results.NamesAndTerritoriesResult;
 import pt.floraon.results.NativeStatusResult;
 import pt.floraon.results.Occurrence;
 import pt.floraon.results.SimpleNameResult;
@@ -70,7 +69,7 @@ public class FloraOnDriver {
 	public final NodeWorker dbNodeWorker;
 	public final DataUploader dbDataUploader;
 	public final SpecificQueries dbSpecificQueries;
-	public final List<TerritoryVertex> territories;
+	public List<TerritoryVertex> countries;
 	
 	public FloraOnDriver(String dbname) throws ArangoException {
         ArangoConfigure configure = new ArangoConfigure();
@@ -102,8 +101,12 @@ public class FloraOnDriver {
 			e.printStackTrace();
 			throw new ArangoException(e.getMessage());
 		}
-        //driver.createFulltextIndex("taxent", "name");
-        this.territories=dbGeneralQueries.getAllTerritories(true).asList();
+        
+        updateVariables();
+	}
+	
+	public synchronized void updateVariables() throws ArangoException {
+		this.countries=dbGeneralQueries.getChecklistTerritories().asList();	//TerritoryTypes.COUNTRY
 	}
 	
 	/**
@@ -130,6 +133,19 @@ public class FloraOnDriver {
 			driver.createCollection(nt.toString(),co);
 		}
 
+		createTaxonomicGraph();
+		//createNativeStatusGraph();
+		
+		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
+		driver.createHashIndex("author", true, "idAut");
+		driver.createHashIndex("taxent", true, true, "oldId");
+		driver.createHashIndex("taxent", false, true, "rank");
+		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
+		driver.createHashIndex("territory", true, "shortName");
+		driver.createFulltextIndex("taxent", "name");
+	}
+	
+	private void createTaxonomicGraph() throws ArangoException {
 		List<EdgeDefinitionEntity> edgeDefinitions = new ArrayList<EdgeDefinitionEntity>();
 
 		// taxonomic relations
@@ -224,13 +240,36 @@ public class FloraOnDriver {
 		edgeDefinitions.add(edgeDefinition);
 
 		driver.createGraph(Constants.TAXONOMICGRAPHNAME, edgeDefinitions, null, true);
-		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
-		driver.createHashIndex("author", true, "idAut");
-		driver.createHashIndex("taxent", true, true, "oldId");
-		driver.createHashIndex("taxent", false, true, "rank");
-		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
 	}
-	
+/*
+	private void createNativeStatusGraph() throws ArangoException {
+		List<EdgeDefinitionEntity> edgeDefinitions = new ArrayList<EdgeDefinitionEntity>();
+
+		// taxonomic relations of territories
+		EdgeDefinitionEntity edgeDefinition = new EdgeDefinitionEntity();
+		edgeDefinition.setCollection(RelTypes.PART_OF.toString());
+		List<String> from = new ArrayList<String>();
+		from.add(NodeTypes.territory.toString());
+		edgeDefinition.setFrom(from);
+		List<String> to = new ArrayList<String>();
+		from.add(NodeTypes.territory.toString());
+		edgeDefinition.setTo(to);
+		edgeDefinitions.add(edgeDefinition);
+
+		// territory <- taxent
+		edgeDefinition = new EdgeDefinitionEntity();
+		edgeDefinition.setCollection(RelTypes.EXISTS_IN.toString());
+		from = new ArrayList<String>();
+		from.add(NodeTypes.taxent.toString());
+		edgeDefinition.setFrom(from);
+		to = new ArrayList<String>();
+		to.add(NodeTypes.territory.toString());
+		edgeDefinition.setTo(to);
+		edgeDefinitions.add(edgeDefinition);
+
+		driver.createGraph(Constants.NATIVESTATUSGRAPHNAME, edgeDefinitions, null, true);
+	}*/
+
 	/**
 	 * Gets the complete list of taxa in the DB
 	 * @return
@@ -401,7 +440,7 @@ public class FloraOnDriver {
 	     * @throws ArangoException
 	     * @throws FloraOnException 
 	     */
-	    public GraphUpdateResult createTerritory(String name,String shortName, ArangoKey parentId) throws ArangoException, FloraOnException {
+	    /*public GraphUpdateResult createTerritory(String name,String shortName, ArangoKey parentId) throws ArangoException, FloraOnException {
 	    	TerritoryVertex tv=null;
 	    	if(parentId!=null) tv=getNode(parentId,TerritoryVertex.class);
 	    	
@@ -412,7 +451,7 @@ public class FloraOnDriver {
 
 	    public GraphUpdateResult createTerritory(String name,String shortName) throws ArangoException, FloraOnException {
 	    	return createTerritory(name, shortName, null);
-	    }
+	    }*/
 
 	    /**
 	     * Creates a new taxonomic node bond to the given parent node. Ensures that this new node is taxonomically valid.
@@ -555,10 +594,15 @@ public class FloraOnDriver {
 		public GraphUpdateResult detachSynonym(ArangoKey from,ArangoKey to) throws ArangoException {
 			String query=String.format("LET e=FLATTEN("
 				+ "FOR v in TRAVERSAL(%1$s,%2$s,'%3$s','any',{paths:true,filterVertices:[{_id:'%4$s'}],vertexFilterMethod:'exclude'}) RETURN v.path.edges) "
-				+ "REMOVE e[LENGTH(e)-1] IN SYNONYM RETURN OLD"
+				+ "LET e1=e[LENGTH(e)-1] LET rem=[e1, (FOR e2 IN SYNONYM FILTER e2._to==e1._from && e2._from==e1._to RETURN e2)[0]]"
+				+ "FOR r IN rem REMOVE r IN SYNONYM RETURN OLD"
 				,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),from.toString(),to.toString());
-			SYNONYM deleted=driver.executeAqlQuery(query, null, null, SYNONYM.class).getUniqueResult();
-			return GraphUpdateResult.fromHandle(FloraOnDriver.this, deleted.getID());
+			System.out.println(query);
+			List<SYNONYM> deleted=driver.executeAqlQuery(query, null, null, SYNONYM.class).asList();
+			if(deleted.size()==1)
+				return GraphUpdateResult.fromHandle(FloraOnDriver.this, deleted.get(0).getID());
+			else
+				return GraphUpdateResult.fromHandles(FloraOnDriver.this, new String[] {deleted.get(0).getID(), deleted.get(1).getID()});
 		}
 		
 		public GraphUpdateResult updateTaxEntNode(TaxEnt node,String name,TaxonRanks rank,Boolean current,String author,String annotation) throws ArangoException, FloraOnException {
@@ -571,9 +615,13 @@ public class FloraOnDriver {
 			return GraphUpdateResult.fromHandle(FloraOnDriver.this, node.getID());
 		}
 
-		public GraphUpdateResult updateTerritoryNode(Territory node,String name,String shortName) throws ArangoException, FloraOnException {
+		public GraphUpdateResult updateTerritoryNode(ArangoKey id,String name,String shortName, TerritoryTypes type, String theme, boolean showInChecklist) throws ArangoException, FloraOnException {
+			Territory node = new Territory(FloraOnDriver.this, dbNodeWorker.getNode(id, TerritoryVertex.class));
 			node.setName(name);
 			node.setShortName(shortName);
+			node.setType(type);
+			node.setTheme(theme);
+			node.setShowInChecklist(showInChecklist);
 			node.commit();
 			return GraphUpdateResult.fromHandle(FloraOnDriver.this, node.getID());
 		}
@@ -810,7 +858,7 @@ public class FloraOnDriver {
 	    		collections=new String[1];
 	    		collections[0]="taxent";
 	    	}
-// FIXME SYNONYMS are bidirectional!
+// FIXME SYNONYMS are bidirectional, returned results say synonym even if no need for it to be traversed
 	    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
 	    		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
 					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
@@ -976,12 +1024,40 @@ public class FloraOnDriver {
 	     * @return
 	     * @throws ArangoException
 	     */
-	    public CursorResult<TerritoryVertex> getAllTerritories(boolean onlyLeafNodes) throws ArangoException {
+	    public CursorResult<TerritoryVertex> getAllTerritories(TerritoryTypes territoryType) throws ArangoException {
 	    	String query;
-	    	if(onlyLeafNodes)
-	    		query=String.format("FOR v IN %1$s FILTER LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e)==0 SORT v.name RETURN v",NodeTypes.territory.toString());
+	    	if(territoryType!=null)
+	    		query=String.format("FOR v IN %1$s FILTER v.territoryType=='%2$s' SORT v.name RETURN v",NodeTypes.territory.toString(), territoryType.toString());
 	    	else
 	    		query=String.format("FOR v IN %1$s SORT v.name RETURN v",NodeTypes.territory.toString());
+	    	return driver.executeAqlQuery(query, null, null, TerritoryVertex.class);
+	    }
+
+	    /**
+	     * Gets all territories and all the PART_OF relations between them
+	     * @param territoryType
+	     * @return
+	     * @throws ArangoException
+	     */
+	    public GraphUpdateResult getAllTerritoriesGraph(TerritoryTypes territoryType) throws ArangoException {
+	    	String query;
+	    	if(territoryType!=null)
+	    		query=String.format("FOR v IN %1$s FILTER v.territoryType=='%2$s' RETURN v._id",NodeTypes.territory.toString(), territoryType.toString());
+	    	else
+	    		query=String.format("FOR v IN %1$s SORT v.name RETURN v._id",NodeTypes.territory.toString());
+	    	String[] ids=new String[0];
+	    	ids=driver.executeAqlQuery(query, null, null, String.class).asList().toArray(ids);
+	    	return dbNodeWorker.getRelationshipsBetween(ids, new Facets[] {Facets.TAXONOMY});
+	    }
+
+	    /**
+	     * Gets the territories that should be listed in the checklist
+	     * @return
+	     * @throws ArangoException
+	     */
+	    public CursorResult<TerritoryVertex> getChecklistTerritories() throws ArangoException {
+	    	String query;
+    		query=String.format("FOR v IN %1$s FILTER v.showInChecklist==true SORT v.name RETURN v",NodeTypes.territory.toString());
 	    	return driver.executeAqlQuery(query, null, null, TerritoryVertex.class);
 	    }
 
@@ -1108,29 +1184,36 @@ public class FloraOnDriver {
 		 * @territory The territory to filter taxa, or null if no filter is wanted.
 		 * @throws ArangoException
 		 */
-		public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, String territory) throws ArangoException {
+		public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, String territory, Integer offset, Integer count) throws ArangoException {
 			String query;
+			boolean withLimit=false;
+			if(!(offset==null && count==null)) {
+				if(offset==null) offset=0;
+				if(count==null) count=50;
+				withLimit=true;
+			}
+// FIXME must traverse territory hierarchy, not fetch only the neighbor of the species!
 			if(territory==null) {
 				query=String.format("FOR v IN %2$s "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) FILTER v.isSpeciesOrInf==true "
-					+ "%1$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
+					+ "%1$s SORT v.name %3$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
-					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString());
+					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");
 			} else {
 				if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist.");
 				query=String.format(
 					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN (FOR v1 IN NEIGHBORS(territory, EXISTS_IN, t, 'inbound') RETURN DOCUMENT(v1)) "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
-					+ "%1$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
+					+ "%1$s SORT v.name %4$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
-					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);
+					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory, withLimit ? "LIMIT "+offset+","+count : "");
 /*					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN FLATTEN(FOR v1 IN GRAPH_TRAVERSAL('taxgraph', t, 'inbound', {filterVertices: [{isSpeciesOrInf: true}], vertexFilterMethod:'exclude'}) RETURN v1[*].vertex) "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
 					+ "%1$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) SORT v.name RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
 					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);*/
 			}
-			//System.out.println(query);
+			System.out.println(query);
 	    	CursorResult<T> vertexCursor=driver.executeAqlQuery(query, null, null, T);
 	    	return vertexCursor.iterator();
 		}
@@ -1363,7 +1446,7 @@ public class FloraOnDriver {
 				if(col.startsWith("territory:")) {	// create the territories
 					if(nRankColumns==null) nRankColumns=i;
 					String shortName=col.substring(col.indexOf(":")+1);
-					Territory tv = Territory.newFromName(FloraOnDriver.this, shortName, shortName, (ArangoKey)null);
+					Territory tv = Territory.newFromName(FloraOnDriver.this, shortName, shortName, TerritoryTypes.COUNTRY, null, (ArangoKey)null);
 					System.out.println("Added territory: "+shortName);
 					territories.put(i, tv);
 				}

@@ -34,6 +34,7 @@ function zoomed() {
 
 document.addEventListener('DOMContentLoaded', function() {
 	var query=getQueryVariable(window.location.search,'q');
+	var what=getQueryVariable(window.location.search,'w');
 	var dim=document.getElementById('taxbrowser').getBoundingClientRect();
 	zoom=d3.behavior.zoom().scaleExtent([0.1, 4]).on("zoom", zoomed);
 
@@ -65,7 +66,11 @@ document.addEventListener('DOMContentLoaded', function() {
 //				,reltypes:'<select name="reltype">'+rt.reltypes+'</select>'
 			};
 		}
-		loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae'},false,getVisibleFacets(),1);
+		
+		if(what) {
+			if(what=='territories') addTerritoryNodes();
+		} else
+			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae'},false,getVisibleFacets(),1);
 	});
 
 //	loadData({query:'crambe'},false,getVisibleFacets(),1);
@@ -187,12 +192,23 @@ function afterUpdateNode(rt) {
 
 function updateTaxNode(d,name,rank,author,comment,current) {
 //	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
-	fetchAJAX('/nodes/update/taxent?id='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment)
+	fetchAJAX('/nodes/update/taxent?id='+d._id
+		+'&name='+encodeURIComponent(name)
+		+'&rank='+encodeURIComponent(rank)
+		+'&current='+current
+		+'&author='+encodeURIComponent(author)
+		+'&comment='+encodeURIComponent(comment)
 		,afterUpdateNode);
 }
 
-function updateTerritoryNode(d,name,shortname) {
-	fetchAJAX('/nodes/update/territory?id='+d._id+'&name='+encodeURIComponent(name)+'&shortName='+encodeURIComponent(shortname),afterUpdateNode);
+function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
+	fetchAJAX('/nodes/update/territory?id='+d._id
+		+'&name='+encodeURIComponent(name)
+		+'&shortname='+encodeURIComponent(shortname)
+		+'&type='+encodeURIComponent(type)
+		+'&theme='+encodeURIComponent(theme)
+		+'&checklist='+checklist
+		,afterUpdateNode);
 }
 
 function updateAttributeNode(d,name,desc,shortname) {
@@ -360,16 +376,25 @@ function clickToolbar(ev) {
 			var pos=screenCoordsForSVGEl($('#taxbrowser svg')[0],this);
 			switch(d.type) {
 			case 'territory':
+				var tt=document.getElementById('territorytypes');
 				var html='<div class="window float" id="changename"><h1>Edit territory</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
 					+'<tr><td>Short name</td><td><input type="text" name="shortname" value="'+(d.shortName ? d.shortName : '')+'"/></td></tr>'
+					+'<tr><td>Type</td><td>'+tt.innerHTML+'</td></tr>'
+					+'<tr><td>Theme</td><td><input type="text" name="theme" value="'+(d.theme ? d.theme : '')+'"/></td></tr>'
+					+'<tr><td>Show in checklist</td><td class="status"><span data-value="true" class="label'+(d.showInChecklist ? ' selected' : '')+'">yes</span> | <span data-value="false" class="label'+(d.showInChecklist ? '' : ' selected')+'">no</span></td></tr>'
 					+'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
 				var el=createHTML(html);
+				var r=el.querySelector('option[value="'+d.territoryType+'"]');
+				if(r) r.setAttribute('selected','selected');
 				var callback=function(ev) {
 					var wnd=getParentbyClass(ev.target,'float');
 					var name=wnd.querySelector('input[name=name]').value;
 					var shortname=wnd.querySelector('input[name=shortname]').value;
+					var type=wnd.querySelector('select[name=territorytype]').value;
+					var theme=wnd.querySelector('input[name=theme]').value;
+					var checklist=wnd.querySelector('.status span.label.selected').getAttribute('data-value');
 					d.fixed=false;
-					updateTerritoryNode(d,name,shortname);
+					updateTerritoryNode(d,name,shortname,type,theme,checklist);
 				};
 				break;
 			case 'attribute':
@@ -410,15 +435,16 @@ function clickToolbar(ev) {
 					updateTaxNode(d,name,rank,author,comment,current);
 				};
 
-				var lbls=el.querySelectorAll('span.label');
-				for(var i=0;i<lbls.length;i++) addEvent('click',lbls[i],function(ev) {
-					if(ev.target.classList.contains('selected')) return;
-					var lbls=ev.target.parentNode.querySelectorAll('span.label');
-					for(var i=0;i<lbls.length;i++) lbls[i].classList.remove('selected');
-					ev.target.classList.add('selected');
-				});
 				break;
 			}
+			
+			var lbls=el.querySelectorAll('span.label');
+			for(var i=0;i<lbls.length;i++) addEvent('click',lbls[i],function(ev) {
+				if(ev.target.classList.contains('selected')) return;
+				var lbls=ev.target.parentNode.querySelectorAll('span.label');
+				for(var i=0;i<lbls.length;i++) lbls[i].classList.remove('selected');
+				ev.target.classList.add('selected');
+			});
 			
 			document.body.appendChild(el);
 			el=document.getElementById('changename');
@@ -506,14 +532,19 @@ function clickToolbar(ev) {
 		break;
 		
 	case 'but-newterritory':
-		var wnd=showWindow('<h1>Add new territory</h1><p>Territory name: <input type="text" name="name"/> Short name (only alphanumeric characters): <input type="text" name="shortname"/> <input type="button" value="Add"/></p><p class="info">info</p>',{close:true});
+		var tt=document.getElementById('territorytypes');
+		var wnd=showWindow('<h1>Add new territory</h1><p>Territory name: <input type="text" name="name"/> Short name (only alphanumeric characters): <input type="text" name="shortname"/> Type: '+tt.innerHTML+' Theme: <input type="text" name="theme"/> <input type="button" value="Add"/></p><p class="info">Theme can be left blank.</p>',{close:true});
 		addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
 			var tname=wnd.querySelector('input[name=name]').value;
 			var tsname=wnd.querySelector('input[name=shortname]').value;
-			fetchAJAX('/nodes/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname),function(rt) {				
+			var type=wnd.querySelector('select[name=territorytype]').value;
+			var theme=wnd.querySelector('input[name=theme]').value;
+			fetchAJAX('/nodes/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
 				rt=JSON.parse(rt);
-				console.log(rt.msg);
-				updateData(rt.msg.nodes,null);
+				if(!rt.success)
+					alert(rt.msg);
+				else
+					updateData(rt.msg.nodes,null);
 			});
 			hideWindow({target:wnd});
 		});
@@ -583,12 +614,7 @@ function clickToolbar(ev) {
 		});
 		break;
 	case 'but-territories':
-		fetchAJAX('/nodes/getallterritories',function(rt) {
-			rt=JSON.parse(rt);
-			var onlynew=mergeNodes(rt.nodes);
-			gdata.nodes=gdata.nodes.concat(onlynew);
-			onUpdateData();
-		});
+		addTerritoryNodes();
 		break;
 	case 'but-partof':
 		var linktype='PART_OF';
@@ -614,6 +640,22 @@ function clickToolbar(ev) {
 		}
 		break;
 	}
+}
+
+function addTerritoryNodes() {
+	fetchAJAX('/nodes/getallterritories',function(rt) {
+		var graph=JSON.parse(rt);
+console.log(graph);
+		if(!graph.success) return;
+		graph=graph.msg;
+		
+		updateData(graph.nodes,graph.links,null);
+
+/*		rt=JSON.parse(rt);
+		var onlynew=mergeNodes(rt.nodes);
+		gdata.nodes=gdata.nodes.concat(onlynew);
+		onUpdateData();*/
+	});
 }
 
 function collapseNode(n) {

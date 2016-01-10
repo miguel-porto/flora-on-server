@@ -61,6 +61,7 @@ import com.google.gson.JsonSyntaxException;
 import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.QueryException;
@@ -89,6 +90,7 @@ public class ServerDispatch implements Runnable {
     protected FloraOnDriver graph=null;
     protected MultiThreadedServer thr;
     protected String territory;
+    private final int PAGESIZE=250;		// number of species per checklist page
 
     /**
      * Constructor for a socket connection
@@ -474,15 +476,16 @@ public class ServerDispatch implements Runnable {
 					break;
 				
 				case "species":
-					Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, territory);
+					Iterator<SimpleNameResult> species=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, territory, null, null);
 					rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
 					break;
 
 				case "speciesterritories":
-					Iterator<NamesAndTerritoriesResult> speciesterr=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, territory);
+					from=getQSValue("offset",parameters);
+					Iterator<NamesAndTerritoriesResult> speciesterr=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, territory, from==null ? null : Integer.parseInt(from), PAGESIZE);
 					rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
 					List<String> opt1=new ArrayList<String>();
-					for(TerritoryVertex tv : graph.territories)
+					for(TerritoryVertex tv : graph.countries)
 						opt1.add(tv.getShortName());
 					opt=opt1;
 					break;
@@ -565,7 +568,7 @@ public class ServerDispatch implements Runnable {
 				}
 				return;
 				
-			case "reference":
+			case "reference":	// this is for HTML elements in the web admin
 				if(!part.hasNext()) {
 					error(output,"Choose one of: all, ranks",includeHeaders);
 					return;
@@ -607,6 +610,15 @@ public class ServerDispatch implements Runnable {
 					rk.append("</select>");
 					output.println(rk.toString());
 					break;
+					
+				case "territorytypes":
+					rk.append("<select name=\"territorytype\"><option value=\"null\">undefined</option>");
+					for(TerritoryTypes e : Constants.TerritoryTypes.values()) {
+						rk.append("<option value=\""+e.toString()+"\">"+e.toString()+"</option>");
+					}
+					rk.append("</select>");
+					output.println(rk.toString());
+					break;
 				}
 				break;
 				
@@ -625,12 +637,16 @@ public class ServerDispatch implements Runnable {
 				//String fmt=getQSValue("fmt",params);
 				switch(what) {		// the 'w' parameter of the URL querystring
 				case "main":	// CHECKLIST
+					if( (from=getQSValue("offset",parameters))==null ) from="0";
+					Integer offset=Integer.parseInt(from);
 					if(territory!=null) 
 						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names existing in "+graph.dbNodeWorker.getTerritoryFromShortName(territory).getName()+"</h1>");
 					else
 						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names</h1>");
 					output.print("<p>Click on a taxon to edit it</p>");
-					processCommand("lists/speciesterritories?fmt=htmltable", output, false);
+					output.print("<div class=\"paging\"><div class=\"legend\">Showing "+offset+" to "+(offset+PAGESIZE-1)+"</div><a href=\"?w=main&offset="+(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))+"\">&lt; previous</a> | <a href=\"?w=main&offset="+(offset+PAGESIZE)+"\">next &gt;</a></div>");
+					processCommand("lists/speciesterritories?fmt=htmltable&offset="+offset, output, false);
+					output.print("<div class=\"paging\"><div class=\"legend\">Showing "+offset+" to "+(offset+PAGESIZE-1)+"</div><a href=\"?w=main&offset="+(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))+"\">&lt; previous</a> | <a href=\"?w=main&offset="+(offset+PAGESIZE)+"\">next &gt;</a></div>");
 					output.print("</div>");
 					break;
 				case "tree":
@@ -708,7 +724,7 @@ public class ServerDispatch implements Runnable {
 						+ "<option value=\"UNCERTAIN\">is DOUBTFULLY NATIVE to</option>"
 						+ "<option value=\"NULL\">does NOT occur in</option></select>");
 					output.print("<select name=\"territory\">");
-					Iterator<TerritoryVertex> ittv1 = graph.dbGeneralQueries.getAllTerritories(false).iterator();
+					Iterator<TerritoryVertex> ittv1 = graph.dbGeneralQueries.getAllTerritories(null).iterator();
 					TerritoryVertex tv1;
 					while(ittv1.hasNext()) {
 						tv1=ittv1.next();
@@ -722,18 +738,18 @@ public class ServerDispatch implements Runnable {
 				case "validate":
 					// TODO taxonomic validation
 					break;
-/*				
+
 				case "territories":
-					output.print("<div id=\"main\"><h1>Territories</h1>");
+					output.print("<div id=\"main\"><h1>Territories</h1><p>Territory management is currently done in the <a href=\"graph.html?w=territories\">graphical manager</a>.</p>");
 					TerritoryVertex tv;
-					output.print("<p>page under construction</p><ul class=\"territories\">");
-					Iterator<TerritoryVertex> ittv = graph.dbGeneralQueries.getAllTerritories(false).iterator();
+					output.print("<ul class=\"territories\">");
+					Iterator<TerritoryVertex> ittv = graph.dbGeneralQueries.getAllTerritories(null).iterator();
 					while(ittv.hasNext()) {
 						tv=ittv.next();
 						output.print("<li>"+tv.getName()+"</li>");
 					}
 					output.print("</ul></div>");
-					break;*/
+					break;
 					
 				case "query":
 					query=getQSValue("q",params);
@@ -845,7 +861,9 @@ public class ServerDispatch implements Runnable {
 					break;
 
 				case "getallterritories":
-					output.print(graph.dbNodeWorker.getAllNodesOfType(NodeTypes.territory).toString());
+					success(output
+						, graph.dbGeneralQueries.getAllTerritoriesGraph(null).toJsonObject() 
+						, includeHeaders);
 					output.flush();
 					break;
 					
@@ -894,8 +912,11 @@ public class ServerDispatch implements Runnable {
 					case "territory":
 						name=getQSValue("name",parameters);
 						shortName=getQSValue("shortname",parameters);
+						rank=getQSValue("type",parameters);
+						annot=getQSValue("theme",parameters);
+
 						success(output
-							, GraphUpdateResult.fromHandle(graph, Territory.newFromName(graph, name, shortName, (ArangoKey)null).getID()).toJsonObject() 
+							, GraphUpdateResult.fromHandle(graph, Territory.newFromName(graph, name, shortName, rank==null ? TerritoryTypes.COUNTRY : TerritoryTypes.valueOf(rank), annot, (ArangoKey)null).getID()).toJsonObject() 
 							, includeHeaders);
 						return;
 						
@@ -956,13 +977,19 @@ public class ServerDispatch implements Runnable {
 
 					case "territory":
 						name=getQSValue("name",parameters);
-						shortName=getQSValue("shortName",parameters);
-						
-						success(output, 
+						shortName=getQSValue("shortname",parameters);
+						rank=getQSValue("type",parameters);
+						annot=getQSValue("theme",parameters);
+						if( (current=getQSValue("checklist",parameters))==null ) current="true";
+						success(output,
 							graph.dbNodeWorker.updateTerritoryNode(
-								new Territory(graph, graph.dbNodeWorker.getNode(ArangoKey.fromString(getQSValue("id",parameters)), TerritoryVertex.class))
+								ArangoKey.fromString(getQSValue("id",parameters))
 								, name
-								, shortName).toJsonObject()
+								, shortName
+								, TerritoryTypes.valueOf(rank)
+								, annot
+								, Boolean.parseBoolean(current)
+								).toJsonObject()
 							, includeHeaders);
 						return;
 	
@@ -1007,7 +1034,7 @@ public class ServerDispatch implements Runnable {
 				error(output,"Unknown command.",includeHeaders);
 				return;
 			}
-    	} catch (ArangoException | FloraOnException e) {
+    	} catch (ArangoException | FloraOnException | IllegalArgumentException e) {
     		error(output,e.getMessage(),includeHeaders);
     		return;
     	} catch (URISyntaxException e3) {

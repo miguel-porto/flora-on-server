@@ -114,28 +114,43 @@ public final class Constants {
 
 	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
 	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
-
+	public enum Directionality {UNIDIRECTIONAL, BIDIRECTIONAL};
+	
+	public enum TerritoryTypes {
+		COUNTRY
+		,GEOGRAPHIC_BOUNDARY
+		,BIOGEOGRAPHIC_BOUNDARY
+		,PROTECTED_AREA
+		,ADMINISTRATIVE_BOUNDARY
+	}
+	
 	public enum RelTypes {
-		PART_OF(Facets.TAXONOMY,PART_OF.class),
-		SYNONYM(Facets.TAXONOMY,pt.floraon.entities.SYNONYM.class),
-		HYBRID_OF(Facets.TAXONOMY,pt.floraon.entities.HYBRID_OF.class),
-		OBSERVED_IN(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_IN.class),
-		OBSERVED_BY(Facets.OCCURRENCE,pt.floraon.entities.OBSERVED_BY.class),
-    	HAS_QUALITY(Facets.MORPHOLOGY,pt.floraon.entities.HAS_QUALITY.class),
-    	ATTRIBUTE_OF(Facets.TAXONOMY,pt.floraon.entities.ATTRIBUTE_OF.class),
-		EXISTS_IN(Facets.OCCURRENCE,pt.floraon.entities.EXISTS_IN.class);
+		PART_OF(Facets.TAXONOMY, PART_OF.class, Directionality.UNIDIRECTIONAL),
+		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class, Directionality.BIDIRECTIONAL),
+		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class, Directionality.UNIDIRECTIONAL),
+		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class, Directionality.UNIDIRECTIONAL),
+		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class, Directionality.UNIDIRECTIONAL),
+    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class, Directionality.UNIDIRECTIONAL),
+    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class, Directionality.UNIDIRECTIONAL),
+		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class, Directionality.UNIDIRECTIONAL);
     	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
+		Directionality directionality;
 		Class<? extends GeneralDBEdge> edgeClass;
 		
-		RelTypes(Facets facet,Class<? extends GeneralDBEdge> cls) {
+		RelTypes(Facets facet,Class<? extends GeneralDBEdge> cls, Directionality directionality) {
 			this.facet=facet;
 			this.edgeClass=cls;
+			this.directionality=directionality;
 		}
 		
 		public Facets getFacet() {
 			return this.facet;
+		}
+
+		public Directionality getDirectionality() {
+			return this.directionality;
 		}
 		
 		public static RelTypes[] getRelTypesOfFacet(Facets facet) {
@@ -173,37 +188,8 @@ public final class Constants {
     	image,
     	territory			// a geographic territory (e.g. country)
     }
-/*
-	public static class Pair<L,R> implements Comparable<Pair<L,R>> {
-		  private final L left;
-		  private final R right;
 
-		  public Pair(L left, R right) {
-		    this.left = left;
-		    this.right = right;
-		  }
-
-		  public L getLeft() { return left; }
-		  public R getRight() { return right; }
-
-		  @Override
-		  public int hashCode() { return left.hashCode() ^ right.hashCode(); }
-
-		  @Override
-		  public boolean equals(Object o) {
-		    if (!(o instanceof Pair)) return false;
-			@SuppressWarnings("unchecked")
-			Pair<L,R> pairo = (Pair<L,R>) o;
-		    return (this.left.equals(pairo.getLeft()) && this.right.equals(pairo.getRight()));// || (this.left.equals(pairo.getRight()) && this.right.equals(pairo.getLeft()));
-		  }
-
-		@Override
-		public int compareTo(Pair<L, R> o) {
-			return this.getLeft().toString().compareTo(o.getLeft().toString());
-		}
-	}
-*/
-    static {
+	static {
     	for(Entry<Facets,RelTypes[]> f:FacetRelTypes.entrySet()) {
     		for(RelTypes rt:f.getValue()) {
     			RelTypesFacet.put(rt,f.getKey());
