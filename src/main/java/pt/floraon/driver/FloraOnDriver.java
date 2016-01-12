@@ -1192,15 +1192,27 @@ public class FloraOnDriver {
 				if(count==null) count=50;
 				withLimit=true;
 			}
-// FIXME must traverse territory hierarchy, not fetch only the neighbor of the species!
+// TODO territory traversal always yields an EXISTING NativeStatus. This could be more informative in case of endemics
 			if(territory==null) {
 				query=String.format("FOR v IN %2$s "
+					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
+					+ "FILTER v.isSpeciesOrInf==true %1$s SORT v.name %3$s "
+					+ "RETURN MERGE(KEEP(v,'_id','name','author','current'), {leaf: npar==0, territories: "
+					+ "(LET terr=SLICE(TRAVERSAL(taxent, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}),1) "
+					+ "LET upstr=UNIQUE(FLATTEN(FOR t IN terr "
+					+ "LET tt=TRAVERSAL(territory, PART_OF, t.vertex, 'outbound') "
+					+ "RETURN SLICE(tt[*].vertex.shortName,1) )) "
+					+ "RETURN MERGE(ZIP(upstr, (FOR i in 1..LENGTH(upstr) RETURN 'EXISTING'))"
+					+ ", ZIP(terr[*].vertex.shortName, terr[*].path.edges[0].nativeStatus) ))[0]})"
+					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");
+/*				query=String.format("FOR v IN %2$s "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) FILTER v.isSpeciesOrInf==true "
 					+ "%1$s SORT v.name %3$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
-					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");
+					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");*/
 			} else {
 				if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist.");
+// FIXME must traverse territories!
 				query=String.format(
 					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN (FOR v1 IN NEIGHBORS(territory, EXISTS_IN, t, 'inbound') RETURN DOCUMENT(v1)) "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
@@ -1213,7 +1225,7 @@ public class FloraOnDriver {
 					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
 					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory);*/
 			}
-			System.out.println(query);
+			//System.out.println(query);
 	    	CursorResult<T> vertexCursor=driver.executeAqlQuery(query, null, null, T);
 	    	return vertexCursor.iterator();
 		}

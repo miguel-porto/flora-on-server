@@ -644,9 +644,10 @@ public class ServerDispatch implements Runnable {
 					else
 						output.print("<div id=\"main\" class=\"checklist noselect\"><h1>List of all accepted names</h1>");
 					output.print("<p>Click on a taxon to edit it</p>");
-					output.print("<div class=\"paging\"><div class=\"legend\">Showing "+offset+" to "+(offset+PAGESIZE-1)+"</div><a href=\"?w=main&offset="+(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))+"\">&lt; previous</a> | <a href=\"?w=main&offset="+(offset+PAGESIZE)+"\">next &gt;</a></div>");
+					output.print("<div><div class=\"territory NATIVE\"></div> native <div class=\"territory ENDEMIC\"></div> endemic <div class=\"territory EXOTIC\"></div> exotic <div class=\"territory UNCERTAIN\"></div> doubtfully native <div class=\"territory EXISTING\"></div> existing</div>");
+					output.print("<div class=\"paging\"><div class=\"legend\">Showing taxa "+(offset+1)+" to "+(offset+PAGESIZE)+"</div><a href=\"?w=main&offset="+(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))+"\">&lt; previous</a> | <a href=\"?w=main&offset="+(offset+PAGESIZE)+"\">next &gt;</a></div>");
 					processCommand("lists/speciesterritories?fmt=htmltable&offset="+offset, output, false);
-					output.print("<div class=\"paging\"><div class=\"legend\">Showing "+offset+" to "+(offset+PAGESIZE-1)+"</div><a href=\"?w=main&offset="+(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))+"\">&lt; previous</a> | <a href=\"?w=main&offset="+(offset+PAGESIZE)+"\">next &gt;</a></div>");
+					output.print("<div class=\"paging\"><div class=\"legend\">Showing taxa "+(offset+1)+" to "+(offset+PAGESIZE)+"</div><a href=\"?w=main&offset="+(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))+"\">&lt; previous</a> | <a href=\"?w=main&offset="+(offset+PAGESIZE)+"\">next &gt;</a></div>");
 					output.print("</div>");
 					break;
 				case "tree":
@@ -679,6 +680,16 @@ public class ServerDispatch implements Runnable {
 					output.print("<div id=\"taxdetails\"><h2>Click a taxon on the tree to edit</h2></div>");
 					output.print("</div>");
 					break;
+				case "territoryfilters":
+					TerritoryVertex tv;
+					Iterator<TerritoryVertex> ittv = graph.dbGeneralQueries.getAllTerritories(null).iterator();
+					while(ittv.hasNext()) {
+						tv=ittv.next();
+						if(tv.getShowInChecklist())
+							output.print("<li><a href=\"/_"+tv.getShortName()+"/admin/?w=main\">"+tv.getShortName()+"</a></li>");
+					}
+					break;
+					
 				case "taxondetails":
 					id=getQSValue("id",params);
 					TaxEnt tev=graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(id));
@@ -740,15 +751,16 @@ public class ServerDispatch implements Runnable {
 					break;
 
 				case "territories":
-					output.print("<div id=\"main\"><h1>Territories</h1><p>Territory management is currently done in the <a href=\"graph.html?w=territories\">graphical manager</a>.</p>");
-					TerritoryVertex tv;
+					output.print("<div id=\"main\"><h1>Territories</h1><h2>Territory management is currently done in the <a href=\"graph.html?w=territories\">graphical manager</a>.</h2>");
+					/*TerritoryVertex tv;
 					output.print("<ul class=\"territories\">");
 					Iterator<TerritoryVertex> ittv = graph.dbGeneralQueries.getAllTerritories(null).iterator();
 					while(ittv.hasNext()) {
 						tv=ittv.next();
 						output.print("<li>"+tv.getName()+"</li>");
 					}
-					output.print("</ul></div>");
+					output.print("</ul>");*/
+					output.print("</div>");
 					break;
 					
 				case "query":

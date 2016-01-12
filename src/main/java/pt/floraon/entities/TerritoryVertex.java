@@ -39,6 +39,10 @@ public class TerritoryVertex extends GeneralDBNode {
 		return this.shortName;
 	}
 	
+	public Boolean getShowInChecklist() {
+		return this.showInChecklist==null ? false : this.showInChecklist;
+	}
+	
 	public TerritoryTypes getType() {
 		return TerritoryTypes.valueOf(this.territoryType);
 	}

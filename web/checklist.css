@@ -66,25 +66,31 @@ div.toggler.off .content {display:none;}
 }
 */
 .checklist table tr.notcurrent {color:#aaa !important;background-color:#f7f7f7;}
-.checklist table div.territory {
+div.territory {
 	border-radius:50%;
-	border:2px solid #fff;
+	border:2px solid #ddd;
 	font-size:1.2em;
-	float:left;
 	width:1.4em;height:1.4em;
 	text-align:center;
 	line-height:1.4em;
 	margin-left:3px;
 	cursor:pointer;
-	background-color:#eee;
+/*	background-color:#eee;*/
 	padding:1px;
+	display:inline-block;
+	vertical-align:middle;
 }
 
-.checklist table div.territory:hover {box-shadow:0 0 2px #0f0;}
-.checklist table div.territory.NATIVE {background-color:#afa;border:2px solid #fff;}
-.checklist table div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;}
-.checklist table div.territory.EXOTIC {background-color:#faa;border:2px solid #fff;}
-.checklist table div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
+div.territory:hover {box-shadow:0 0 2px #0f0;}
+div.territory.EXISTING {background-color:#ccc;border:2px solid #fff;}
+div.territory.NATIVE {background-color:#afa;border:2px solid #fff;}
+div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:30%;}
+div.territory.EXOTIC {background-color:#faa;border:2px solid #fff;}
+div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
+
+.checklist table div.territory {
+	float:left;
+}
 
 #main-holder {
 	display:flex;
