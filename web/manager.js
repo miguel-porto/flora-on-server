@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			fetchAJAX('/lists/checklist?fmt=csv',function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
-					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center"></p></div>');
+					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center">don\'t navigate away from this page...</p></div>');
 					var link=rt.msg;
 					timer=setInterval(function() {
 						fetchAJAX('/job/'+rt.msg+'?query=1',function(rt) {

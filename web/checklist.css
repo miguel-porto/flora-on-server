@@ -51,7 +51,7 @@ div.paging .legend {float:left;}
 }
 
 .window {
-	position:absolute;
+	position:fixed;
 	background:linear-gradient(#fff,#ddd);
 	box-shadow:0 0 36px 5px #aaa;
 	font-size:1.0em;
@@ -208,7 +208,7 @@ div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
 
 #taxtree {min-width:300px}
 
-#taxdetails {flex-grow:1;background-color:#eee;border-radius:6px;margin:0 8px;padding:3px;}
+#taxdetails {flex-grow:1;margin:0 8px;padding:3px;border-left:1px solid #aaa;background-color:#f4f4f4;}
 #taxoninfo {display:flex;width:100%}
 #taxoninfo>div {border-radius:5px;margin:5px;padding:0px;border:2px solid #cdf;}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}

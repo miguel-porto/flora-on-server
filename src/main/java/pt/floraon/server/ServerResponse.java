@@ -265,12 +265,14 @@ CookieSpec cookieSpec = new DefaultCookieSpec();
 */
         	
         	String[] path=url.getPath().split("/");
-        	String tmp1=path[1];
-        	if(tmp1.startsWith("_")) {		// check whether we want to set the universe to a given territory or not
-        		territory=tmp1.replaceFirst("_", "");
-        		url=new URIBuilder(requestline.getUri().replaceFirst("/_[a-zA-Z0-9]+/", "/")).build();
-        	} else
-        		territory=null;
+        	if(path.length>1) {
+        		String tmp1=path[1];
+        		if(tmp1.startsWith("_")) {		// check whether we want to set the universe to a given territory or not
+        			territory=tmp1.replaceFirst("_", "");
+        			url=new URIBuilder(requestline.getUri().replaceFirst("/_[a-zA-Z0-9]+/", "/")).build();
+        		} else
+        			territory=null;
+        	} else territory=null;
 
         	switch(requestline.getMethod()) {
         	case "GET":
@@ -1140,7 +1142,8 @@ CookieSpec cookieSpec = new DefaultCookieSpec();
     	output = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
     	
     	if(path.length<2) {
-    		error(output, "This is Flora-On. Missing parameters. Are you looking for the web admin? Go to http://localhost:9000/admin/", includeHeaders);
+    		if(includeHeaders) outputHttpResponseHeaders(HTMLResposeHeader(), output);
+    		output.println("<!DOCTYPE html><html><body><p>This is Flora-On. Missing parameters. Are you looking for the <a href=\"/admin/\">web admin</a>?</p></body></html>");
     		return;
     	}
     	
