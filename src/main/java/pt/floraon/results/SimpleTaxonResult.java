@@ -28,7 +28,7 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	protected Integer count;	// number of occurrences
 
 	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
+	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.count);
 		rec.print(this._id);
 		rec.print(Arrays.toString(this.reltypes));

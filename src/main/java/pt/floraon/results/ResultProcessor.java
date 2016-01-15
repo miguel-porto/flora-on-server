@@ -31,13 +31,21 @@ public class ResultProcessor<T extends ResultItem> {
 		this.type = type;
 	}*/
 
-	public String toCSVTable() {
+	public String toCSVTable(Object obj) {
 		StringBuffer sb=new StringBuffer();
 		CSVPrinter out;
+		T record;
+		boolean header=false;
 		try {
 			out = new CSVPrinter(sb,CSVFormat.DEFAULT.withQuote('\"'));
+			
 			while (this.results.hasNext()) {
-				this.results.next().toCSVLine(out);
+				record=this.results.next();
+				if(!header) {
+					record.getCSVHeader(out, obj);
+					header=true;
+				}
+				record.toCSVLine(out, obj);
 				out.println();
 			}
 			out.close();

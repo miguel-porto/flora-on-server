@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
@@ -27,6 +28,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
+import org.apache.http.util.EntityUtils;
 
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
@@ -36,7 +38,7 @@ import pt.floraon.driver.FloraOnException;
  *
  */
 public final class HttpServer {
-	static void processRequest(URI url,OutputStream outputStream,ServerDispatch server, Boolean includeHeaders) throws FileNotFoundException, IOException {
+	static void processRequest(URI url,OutputStream outputStream,ServerResponse server, Boolean includeHeaders) throws FileNotFoundException, IOException {
 		PrintWriter out=null;
     	String command=url.getPath();
     	String[] path=command.split("/");
@@ -45,6 +47,7 @@ public final class HttpServer {
 		Pattern ext=Pattern.compile("\\.([a-zA-Z]+)$",Pattern.CASE_INSENSITIVE);
 		Matcher match=ext.matcher(path[path.length-1].trim());
 		boolean processFile=false;
+
 		if(match.find()) {
 			switch(match.group(1)) {
 			case "html":
@@ -79,14 +82,10 @@ public final class HttpServer {
 			out = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
 			res.addHeader(new BasicHeader("Content-Type","text/html; charset=utf-8"));
 		}
-		//res.addHeader("Set-Cookie","c1=adsfg; path=/; domain=\".app.localhost:9000\"");
+		//res.addHeader("Set-Cookie","manag=adsfg; path=/; domain=flora-on.pt:9000");
 		// get querystring
 		List<NameValuePair> params=URLEncodedUtils.parse(url,Charset.defaultCharset().toString());
-		if(includeHeaders) {
-			out.print(res.toString()+"\r\n");
-			out.print("\r\n");
-			out.flush();
-		}
+		if(includeHeaders) ServerResponse.outputHttpResponseHeaders(res, out);
 
 		File page;
 		StringBuilder address=new StringBuilder();
@@ -98,6 +97,7 @@ public final class HttpServer {
 				}
 			}
 		}
+
 		page=new File(address.toString());
 		
 		if(processFile) {	// it's an HTML file, look for dynamic content <!-- CONTENT:/address -->

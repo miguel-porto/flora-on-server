@@ -5,6 +5,7 @@ import static pt.floraon.driver.Constants.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -25,7 +26,10 @@ import java.util.Map.Entry;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.ParameterParser;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.Header;
+import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -35,8 +39,13 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.cookie.CookieOrigin;
+import org.apache.http.cookie.CookieSpec;
+import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.cookie.DefaultCookieSpec;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
@@ -85,10 +94,10 @@ import pt.floraon.results.SimpleTaxonResult;
  * @author miguel
  *
  */
-public class ServerDispatch implements Runnable {
+public class ServerResponse implements Runnable {
     protected Socket clientSocket = null;
     protected FloraOnDriver graph=null;
-    protected MultiThreadedServer thr;
+    //protected MultiThreadedServer thr;
     protected String territory;
     private final int PAGESIZE=250;		// number of species per checklist page
 
@@ -98,10 +107,10 @@ public class ServerDispatch implements Runnable {
      * @param graph
      * @param thr
      */
-    public ServerDispatch(Socket clientSocket,FloraOnDriver graph,MultiThreadedServer thr) {
+    public ServerResponse(Socket clientSocket,FloraOnDriver graph) {
         this.clientSocket = clientSocket;
         this.graph=graph;
-        this.thr=thr;
+        //this.thr=thr;
     }
 
     /**
@@ -110,7 +119,7 @@ public class ServerDispatch implements Runnable {
      * @param graph
      * @param thr
      */
-    public ServerDispatch(FloraOnDriver graph, String territory) {
+    public ServerResponse(FloraOnDriver graph, String territory) {
         this.graph=graph;
         this.territory=territory;
     }
@@ -162,45 +171,37 @@ public class ServerDispatch implements Runnable {
 	}
 	
 	private static void success(PrintWriter output, JsonElement obj,JsonObject header, boolean includeHeaders) {
-		if(includeHeaders) {
-			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
-			output.print(httpres.toString()+"\r\n");
-			output.print("\r\n");
-		}
+		if(includeHeaders) outputHttpResponseHeaders(JSONResposeHeader(), output);
 		output.println(success(obj, header));
 		output.flush();
 	}
 
 	private static void success(PrintWriter output, JsonElement obj, boolean includeHeaders) {
-		if(includeHeaders) {
-			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
-			output.print(httpres.toString()+"\r\n");
-			output.print("\r\n");
-		}
+		if(includeHeaders) outputHttpResponseHeaders(JSONResposeHeader(), output);
 		output.println(success(obj));
 		output.flush();
 	}
 
 	private static void success(PrintWriter output, String obj, boolean includeHeaders) {
-		if(includeHeaders) {
-			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-			httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
-			output.print(httpres.toString()+"\r\n");
-			output.print("\r\n");
-		}
+		if(includeHeaders) outputHttpResponseHeaders(JSONResposeHeader(), output);
 		output.println(success(obj));
 		output.flush();
 	}
 
+	public static HttpResponse JSONResposeHeader() {
+		HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+		httpres.addHeader(new BasicHeader("Content-Type:","application/json; charset=utf-8"));
+		return httpres;
+	}
+	
+	public static HttpResponse HTMLResposeHeader() {
+		HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+		httpres.addHeader(new BasicHeader("Content-Type:","text/html; charset=utf-8"));
+		return httpres;
+	}
+	
 	private static void error(PrintWriter output, String obj, boolean includeHeaders) {
-		if(includeHeaders) {
-			HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-			httpres.addHeader(new BasicHeader("Content-Type","application/json; charset=utf-8"));
-			output.print(httpres.toString()+"\r\n");
-			output.print("\r\n");
-		}
+		if(includeHeaders) outputHttpResponseHeaders(JSONResposeHeader(), output);
 		output.println("{\"success\":false,\"msg\":\""+obj+"\"}");
 		output.flush();
 	}
@@ -236,8 +237,32 @@ public class ServerDispatch implements Runnable {
         		return;
         	}
         	RequestLine requestline=req.getRequestLine();
-        	
         	URI url=new URIBuilder(requestline.getUri()).build();
+/*        	
+CookieSpec cookieSpec = new DefaultCookieSpec();
+
+    ArrayList<Cookie> cookies = new ArrayList<Cookie>();
+    int port = (url.getPort() < 0) ? 80 : url.getPort();
+    boolean secure = "https".equals(url.getScheme());
+    CookieOrigin origin = new CookieOrigin("flora-on.pt", 9000, "/", false);
+    HeaderIterator ht=req.headerIterator("Cookie");
+    while(ht.hasNext()) {
+    	Header header=ht.nextHeader();
+        //BasicHeader header = new BasicHeader(SM.SET_COOKIE, cookieHeader);
+    	System.out.println(header.getName());
+    	if(header.getName().equals("Cookie")) {
+    		System.out.println(header.getValue());
+	        try {
+	            //cookies.addAll(cookieSpec.parse(header, origin));
+	            for(Cookie ck : cookieSpec.parse(header, origin)) {
+	            	System.out.println("********** "+ck.getName()+": "+ck.getValue());
+	            }
+	        } catch (MalformedCookieException e) {
+	            e.printStackTrace();
+	        }
+    	}
+    }
+*/
         	
         	String[] path=url.getPath().split("/");
         	String tmp1=path[1];
@@ -458,6 +483,50 @@ public class ServerDispatch implements Runnable {
 				}
 				break;
 				
+			case "download":
+				if(!part.hasNext()) {
+					error(output,"Choose one of: checklist",includeHeaders);
+					return;
+				}
+				switch(part.next()) {
+				case "checklist":
+					List<String> terr=new ArrayList<String>();
+					for(TerritoryVertex tv : graph.checklistTerritories)
+						terr.add(tv.getShortName());
+
+					ResultProcessor<NamesAndTerritoriesResult> rpchk1;
+					Iterator<NamesAndTerritoriesResult> chklst=graph.dbSpecificQueries.getAllSpeciesOrInferior(true, NamesAndTerritoriesResult.class, null, null, null);
+					rpchk1=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(chklst);
+					//rpchk1.toHTMLTable(output, terr);
+					output.println(rpchk1.toCSVTable(terr));
+					break;
+				}
+				break;
+				
+			case "job":
+				format=getQSValue("query",parameters);
+				Job job1=JobSubmitter.getJob(part.next());
+				if(job1==null) throw new FloraOnException("Job not found");
+				if(format!=null) {
+					success(output,job1.isReady().toString(), includeHeaders);
+					break;
+				}
+				InputStreamReader jobInput=job1.getInputStreamReader(StandardCharsets.UTF_8);
+				HttpResponse httpres1=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
+				switch(job1.getFileType().toLowerCase()) {
+				case "html":
+				case "htm":
+					httpres1.addHeader(new BasicHeader("Content-Type","text/html; charset=utf-8"));
+					break;
+				case "csv":
+					httpres1.addHeader(new BasicHeader("Content-Type","text/csv; charset=Windows-1252"));
+					httpres1.addHeader(new BasicHeader("Content-Disposition","attachment;Filename=\""+job1.getFileName()+"\""));
+					break;
+				}
+				outputHttpResponseHeaders(httpres1, output);
+				IOUtils.copy(jobInput, output);
+				break;
+				
 			case "lists":
 				String htmlClass=null;
 				Object opt=null;
@@ -470,9 +539,16 @@ public class ServerDispatch implements Runnable {
 				ResultProcessor<?> rpchk=null;
 				switch(part.next()) {
 				case "checklist":
-					List<ChecklistEntry> chklst=graph.getCheckList();
-					Collections.sort(chklst);
-					rpchk=(ResultProcessor<ChecklistEntry>) new ResultProcessor<ChecklistEntry>(chklst.iterator());
+					if(format.equals("csv")) {
+						Job job=JobSubmitter.newJob("download/checklist", "checklist.csv", new ServerResponse(null, this.graph));
+						success(output, job.getID(), includeHeaders);
+						output.close();
+						return;
+					} else {
+						List<ChecklistEntry> chklst=graph.getCheckList();
+						Collections.sort(chklst);
+						rpchk=(ResultProcessor<ChecklistEntry>) new ResultProcessor<ChecklistEntry>(chklst.iterator());
+					}
 					break;
 				
 				case "species":
@@ -485,7 +561,7 @@ public class ServerDispatch implements Runnable {
 					Iterator<NamesAndTerritoriesResult> speciesterr=graph.dbSpecificQueries.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, territory, from==null ? null : Integer.parseInt(from), PAGESIZE);
 					rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
 					List<String> opt1=new ArrayList<String>();
-					for(TerritoryVertex tv : graph.countries)
+					for(TerritoryVertex tv : graph.checklistTerritories)
 						opt1.add(tv.getShortName());
 					opt=opt1;
 					break;
@@ -527,7 +603,7 @@ public class ServerDispatch implements Runnable {
 						rpchk.toHTMLTable(output, opt);		// FIXME headers?
 						break;
 					case "csv":
-						output.println(rpchk.toCSVTable());		// FIXME headers
+						output.println(rpchk.toCSVTable(null));		// FIXME headers
 						break;
 					}
 				} else {
@@ -623,12 +699,7 @@ public class ServerDispatch implements Runnable {
 				break;
 				
 			case "webadmin":
-				if(includeHeaders) {
-					HttpResponse httpres=new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP",1,1),200,""));
-					httpres.addHeader(new BasicHeader("Content-Type:","text/html; charset=utf-8"));
-					output.print(httpres.toString()+"\r\n");
-					output.print("\r\n");
-				}
+				if(includeHeaders) outputHttpResponseHeaders(HTMLResposeHeader(), output);
 				String what=getQSValue("w",params);
 				if(what==null) {
 					output.print("<div id=\"main\"><h2>This is the Flora-On taxonomy manager</h2><p>To edit the checklist, choose <a href=\"?w=families\">Family tree</a> on the left.</p></div>");
@@ -1014,7 +1085,7 @@ public class ServerDispatch implements Runnable {
 	
 			case "occurrences":		// all options must return Occurrence lists!
 				ResultProcessor<Occurrence> rpo=new ResultProcessor<Occurrence>(graph.getAllOccurrences());
-				output.println(rpo.toCSVTable());
+				output.println(rpo.toCSVTable(null));
 				break;
 	
 			case "specieslists":	// manage species lists (add, update, etc.)
@@ -1074,5 +1145,19 @@ public class ServerDispatch implements Runnable {
     	}
     	
     	processCommand(url, params, output, includeHeaders);
+	}
+	
+	/**
+	 * Outputs the headers of an HTTP response
+	 * @param res
+	 * @param output
+	 */
+	public static void outputHttpResponseHeaders(HttpResponse res, PrintWriter output) {
+		output.print(res.getStatusLine().toString()+"\r\n");
+		for(Header h : res.getAllHeaders()) {
+			output.print(h.toString()+"\r\n");
+		}
+		output.print("\r\n");
+		output.flush();
 	}
 }

@@ -26,7 +26,7 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 		} else return co;
 	}
 	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
+	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.taxon);
 		rec.print(this.canonicalName);
 		rec.print(this.genus);
@@ -48,5 +48,13 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 	public String[] toStringArray() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	@Override
+	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
+		rec.print("scientificName");
+		rec.print("canonicalName");
+		rec.print("genus");
+		rec.print("family");
+		rec.print("order");
 	}
 }

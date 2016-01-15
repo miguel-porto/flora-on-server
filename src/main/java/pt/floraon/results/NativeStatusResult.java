@@ -12,7 +12,7 @@ public class NativeStatusResult implements ResultItem {
 	protected EXISTS_IN nativeStatus;
 
 	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
+	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -32,6 +32,11 @@ public class NativeStatusResult implements ResultItem {
 	public String[] toStringArray() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
+		// TODO Auto-generated method stub
 	}
 
 }

@@ -69,7 +69,7 @@ public class FloraOnDriver {
 	public final NodeWorker dbNodeWorker;
 	public final DataUploader dbDataUploader;
 	public final SpecificQueries dbSpecificQueries;
-	public List<TerritoryVertex> countries;
+	public List<TerritoryVertex> checklistTerritories;
 	
 	public FloraOnDriver(String dbname) throws ArangoException {
         ArangoConfigure configure = new ArangoConfigure();
@@ -106,7 +106,7 @@ public class FloraOnDriver {
 	}
 	
 	public synchronized void updateVariables() throws ArangoException {
-		this.countries=dbGeneralQueries.getChecklistTerritories().asList();	//TerritoryTypes.COUNTRY
+		this.checklistTerritories=dbGeneralQueries.getChecklistTerritories().asList();	//TerritoryTypes.COUNTRY
 	}
 	
 	/**
@@ -861,7 +861,7 @@ public class FloraOnDriver {
 // FIXME SYNONYMS are bidirectional, returned results say synonym even if no need for it to be traversed
 	    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
 	    		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
-					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+					+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude'], uniqueness: {vertices:'path', edges:'path'}}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
 					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_id:v2.vertex._id,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
 					+ "COLLECT k=o._id,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n, _id:k, leaf:l, match:UNIQUE(gr[*].o.source), reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
@@ -884,7 +884,7 @@ public class FloraOnDriver {
 				sb.append("'").append(collections[collections.length-1]).append("']");
 
 				query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
-					+ "FOR o IN FLATTEN(FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
+					+ "FOR o IN FLATTEN(FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude'], uniqueness: {vertices:'path', edges:'path'}}) "
 					+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
 					+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_id:v2.vertex._id,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
 					+ "COLLECT k=o._id,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_id:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"

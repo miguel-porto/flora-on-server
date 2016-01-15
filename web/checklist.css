@@ -50,6 +50,67 @@ div.paging .legend {float:left;}
 	box-shadow:0 0 3px #f77;
 }
 
+.window {
+	position:absolute;
+	background:linear-gradient(#fff,#ddd);
+	box-shadow:0 0 36px 5px #aaa;
+	font-size:1.0em;
+}
+
+.window p {
+	font-size:1.2em;
+}
+
+.window.float {
+	border-radius:6px;
+	border:1px solid #aaa;
+	padding:12px;
+	overflow:auto;
+}
+
+.window.float.center {
+	width:30%;
+	left:35%;
+	max-height:80%;
+	top:20%;
+}
+
+.window .wrap {margin:8px;}
+
+.window h1 {
+	margin:0;
+	font-size:1.2em;
+	font-weight:normal;
+	color:#06f;
+}
+
+.window .closebutton {
+	border-radius:50%;
+	position:absolute;
+	right:0;
+	bottom:0;
+	cursor:pointer;
+	margin:5px;
+	background-color:#f99;
+	width:1.25em;
+	height:1.25em;
+	text-align:center;
+	box-shadow:0 0 3px black,0 0 5px #fcc inset;
+
+}
+.window.float .closebutton {
+	top:0;bottom:auto;
+}
+
+.window .closebutton:hover {
+	background-color:orange;
+}
+
+.window .button {display:inline-block}
+
+.window .content {margin: 24px 4px;}
+
+
 div.toggler h1 {margin:8px 0 5px;font-size:1em;border-bottom:1px solid #99f;padding:0 4px 6px;cursor:pointer;text-align:left;margin-bottom:0}
 div.toggler h1:hover {background-color:#ff9;}
 div.toggler .content {border-radius:0px;background-color:white;padding:8px;margin:0 6px;}

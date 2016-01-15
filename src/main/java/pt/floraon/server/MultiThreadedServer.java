@@ -39,7 +39,7 @@ public class MultiThreadedServer implements Runnable {
                     "Error accepting client connection", e);
             }
             new Thread(
-                new ServerDispatch(clientSocket, graph, this)
+                new ServerResponse(clientSocket, graph)
             ).start();
         }
         System.out.println("Server Stopped.") ;

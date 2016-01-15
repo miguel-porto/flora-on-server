@@ -134,7 +134,7 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 	}
 
 	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
+	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.getFullName());
 	}
 
@@ -161,5 +161,10 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 			.append(this.getFullName(true))
 			.append("</li>");
 		return sb.toString();
+	}
+
+	@Override
+	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
+		rec.print("scientificName");
 	}
 }

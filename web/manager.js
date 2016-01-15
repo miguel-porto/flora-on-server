@@ -6,6 +6,7 @@ var clickEvent = new MouseEvent('click', {
 	'bubbles': true,
 	'cancelable': true
 });
+var timer;
 
 document.addEventListener('DOMContentLoaded', function() {
 	addEvent('scroll',document,function(ev) {
@@ -105,9 +106,60 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
+	qs=document.getElementById('download-checklist');
+	if(qs) {
+		addEvent('click',qs,function(ev) {
+			if(document.getElementById('checklink') || timer) return;
+			fetchAJAX('/lists/checklist?fmt=csv',function(rt) {
+				rt=JSON.parse(rt);
+				if(rt.success) {
+					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center"></p></div>');
+					var link=rt.msg;
+					timer=setInterval(function() {
+						fetchAJAX('/job/'+rt.msg+'?query=1',function(rt) {
+							rt=JSON.parse(rt);
+							if(rt.success) {
+								if(rt.msg=='true') {
+									clearInterval(timer);
+									timer=null;
+									var wnd1=document.getElementById('checklink');
+									if(wnd1) {
+										wnd1.querySelector('h1').innerHTML='Checklist ready!';
+										wnd1.querySelector('p.content').innerHTML='<a href="/job/'+link+'" target="_blank">click here to download</a>';
+									} else {
+										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/job/'+link+'" target="_blank">click here to download</a></p></div>');
+									}
+								}
+							} else {
+								clearInterval(timer);
+								timer=null;
+								alert(rt.msg);
+							}
+						});
+					}, 1000);
+				} else
+					alert(rt.msg);
+			});
+		});
+	}
+	
 	var td=document.getElementById('taxdetails');
 	if(td) attachTaxDetailsHandlers(td);
 });
+
+function showWindow(html) {
+	var frag=createHTML(html);
+	var wnd=frag.querySelector('.window');
+	document.body.appendChild(frag);
+	var cb=wnd.querySelector('.closebutton');
+	if(cb) addEvent('click',cb,removeWindow);
+	return wnd;
+}
+
+function removeWindow(ev) {
+	var wnd=getParentbyClass(ev.target,'window');
+	wnd.parentNode.removeChild(wnd);
+}
 
 function actionButtonClick(ev) {
 	var el=document.getElementById('taxdetails');

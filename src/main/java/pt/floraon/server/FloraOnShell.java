@@ -39,7 +39,7 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
-    	ServerDispatch server=new ServerDispatch(graph, null);
+    	ServerResponse server=new ServerResponse(graph, null);
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {

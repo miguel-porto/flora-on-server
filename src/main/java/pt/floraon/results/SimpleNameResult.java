@@ -14,7 +14,7 @@ public class SimpleNameResult implements ResultItem {
 	protected LinkedTreeMap<String,String> territories;
 
 	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
+	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this._id);
 		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
 		rec.print(this.author);
@@ -42,5 +42,12 @@ public class SimpleNameResult implements ResultItem {
 	@Override
 	public boolean equals(Object o) {
 		return this._id.equals(((SimpleNameResult)o)._id);
+	}
+
+	@Override
+	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
+		rec.print("id");
+		rec.print("canonicalName");
+		rec.print("authority");
 	}
 }

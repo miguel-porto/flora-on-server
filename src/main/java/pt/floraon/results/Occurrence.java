@@ -119,7 +119,7 @@ public class Occurrence implements ResultItem {
 	}
 	
 	@Override
-	public void toCSVLine(CSVPrinter rec) throws IOException {
+	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		StringBuffer sb1=new StringBuffer();
 		rec.print(this.inventoryKey);
 		rec.print(this.year);
@@ -160,5 +160,11 @@ public class Occurrence implements ResultItem {
 	public String[] toStringArray() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 }
