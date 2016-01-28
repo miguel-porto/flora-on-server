@@ -130,7 +130,7 @@ div.toggler.off .content {display:none;}
 div.territory {
 	border-radius:50%;
 	border:2px solid #ddd;
-	font-size:1.2em;
+	font-size:1em;
 	width:1.4em;height:1.4em;
 	text-align:center;
 	line-height:1.4em;
@@ -208,7 +208,7 @@ div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
 
 #taxtree {min-width:300px}
 
-#taxdetails {flex-grow:1;margin:0 8px;padding:3px;border-left:1px solid #aaa;background-color:#f4f4f4;}
+.taxdetails {flex-grow:1;margin:0 8px;padding:3px;border-left:1px solid #aaa;background-color:#f4f4f4;}
 #taxoninfo {display:flex;width:100%}
 #taxoninfo>div {border-radius:5px;margin:5px;padding:0px;border:2px solid #cdf;}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}
@@ -225,10 +225,10 @@ div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
 
 #taxonsynonyms .synonyms .button.remove {float:none;display:inline-block;}
 
-#taxdetails ul.currentstatus {text-align:center}
-#taxdetails ul.currentstatus .current,#taxdetails ul.currentstatus .notcurrent {color:gray}
-#taxdetails ul.currentstatus .current.selected {color:#070;background-color:#9f9;text-transform:uppercase;}
-#taxdetails ul.currentstatus .notcurrent.selected {color:#700;text-transform:uppercase;background-color:#f99}
+.taxdetails ul.currentstatus {text-align:center}
+.taxdetails ul.currentstatus .current,#taxdetails ul.currentstatus .notcurrent {color:gray}
+.taxdetails ul.currentstatus .current.selected {color:#070;background-color:#9f9;text-transform:uppercase;}
+.taxdetails ul.currentstatus .notcurrent.selected {color:#700;text-transform:uppercase;background-color:#f99}
 
 
 ul.suggestions {

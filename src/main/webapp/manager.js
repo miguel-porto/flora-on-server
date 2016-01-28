@@ -10,7 +10,7 @@ var timer;
 
 document.addEventListener('DOMContentLoaded', function() {
 	addEvent('scroll',document,function(ev) {
-		var td=document.getElementById('taxdetails');
+		var td=document.querySelector('.taxdetails');
 		var lb=document.getElementById('left-bar');
 		var st=document.body.scrollTop || document.documentElement.scrollTop;
 		
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			if(nst==-1) nst=1;
 			var tr=getParentbyTag(ev.target,'tr');
 //			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
-			postJSON('/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]},function(rt) {
+			postJSON('/floraon/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					if(nst==0)
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		var el=getParentbyTag(ev.target,'li');
 		var key=el.getAttribute('data-key');
 		if(el.classList.contains('loading')) return;
-		loadTaxDetails(key,document.getElementById('taxdetails'));
+		loadTaxDetails(key,document.querySelector('.taxdetails'));
 		if(el.querySelector('ul')) {
 			el.removeChild(el.querySelector('ul'));
 			return;
@@ -110,13 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	if(qs) {
 		addEvent('click',qs,function(ev) {
 			if(document.getElementById('checklink') || timer) return;
-			fetchAJAX('/lists/checklist?fmt=csv',function(rt) {
+			fetchAJAX('/floraon/api/lists?w=checklist&fmt=csv',function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center">don\'t navigate away from this page...</p></div>');
 					var link=rt.msg;
 					timer=setInterval(function() {
-						fetchAJAX('/job/'+rt.msg+'?query=1',function(rt) {
+						fetchAJAX('/floraon/api/job/'+rt.msg+'?query=1',function(rt) {
 							rt=JSON.parse(rt);
 							if(rt.success) {
 								if(rt.msg=='true') {
@@ -125,9 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
 									var wnd1=document.getElementById('checklink');
 									if(wnd1) {
 										wnd1.querySelector('h1').innerHTML='Checklist ready!';
-										wnd1.querySelector('p.content').innerHTML='<a href="/job/'+link+'" target="_blank">click here to download</a>';
+										wnd1.querySelector('p.content').innerHTML='<a href="/floraon/api/job/'+link+'" target="_blank">click here to download</a>';
 									} else {
-										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/job/'+link+'" target="_blank">click here to download</a></p></div>');
+										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/floraon/api/job/'+link+'" target="_blank">click here to download</a></p></div>');
 									}
 								}
 							} else {
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
-	var td=document.getElementById('taxdetails');
+	var td=document.querySelector('.taxdetails');
 	if(td) attachTaxDetailsHandlers(td);
 });
 
@@ -162,13 +162,13 @@ function removeWindow(ev) {
 }
 
 function actionButtonClick(ev) {
-	var el=document.getElementById('taxdetails');
+	var el=document.querySelector('.taxdetails');
 	switch(ev.target.id) {
 	case 'addsynonym':
 		if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {alert('You must select a taxon from the drop-down list. Type some initial letters to find taxa.');return;}
 		var key=document.getElementById('boxsynonym').getAttribute('data-key');
-		var to=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
-		postJSON('/nodes/setsynonym',{from:key,to:to},function(rt) {
+		var to=getCurrentTaxon();
+		postJSON('/floraon/api/nodes/setsynonym',{from:key,to:to},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success)
 				loadTaxDetails(to,el);
@@ -179,7 +179,7 @@ function actionButtonClick(ev) {
 
 	case 'addchild':
 		var cb=document.getElementById('addchildbox');
-		var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+		var parent=getCurrentTaxon();
 		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
@@ -189,7 +189,7 @@ function actionButtonClick(ev) {
 			,current:cb.querySelector('input[name=current]').checked ? 1 : 0
 		}
 
-		postJSON('/nodes/add/inferiortaxent',obj,function(rt) {
+		postJSON('/floraon/api/nodes/add/inferiortaxent',obj,function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(rt.msg,el);
@@ -203,8 +203,8 @@ function actionButtonClick(ev) {
 
 	case 'deletetaxon':
 		if(!confirm('Are you sure you want to delete this taxon? This cannot be undone!')) break;
-		var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
-		postJSON('/nodes/deleteleaf',{id:parent},function(rt) {
+		var parent=getCurrentTaxon();
+		postJSON('/floraon/api/nodes/deleteleaf',{id:parent},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(null,el);
@@ -217,7 +217,7 @@ function actionButtonClick(ev) {
 	
 	case 'updatetaxon':
 		var cb=document.getElementById('updatetaxonbox');
-		var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+		var parent=getCurrentTaxon();
 		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
@@ -229,16 +229,16 @@ function actionButtonClick(ev) {
 	
 	case 'addnativestatus':
 		var cb=document.getElementById('addnativestatusbox');
-		var taxon=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+		var taxon=getCurrentTaxon();
 		var obj={
 			taxon: taxon
 			,territory: cb.querySelector('select[name=territory]').value
 			,status: cb.querySelector('select[name=status]').value
 		};
-		postJSON('/territories/set',obj,function(rt) {
+		postJSON('/floraon/api/territories/set',obj,function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
-				loadTaxDetails(taxon,document.getElementById('taxdetails'));
+				loadTaxDetails(taxon,document.querySelector('.taxdetails'));
 			} else
 				alert(rt.msg);
 		});
@@ -248,8 +248,8 @@ function actionButtonClick(ev) {
 }
 
 function updateTaxon(obj) {
-	postJSON('/nodes/update/taxent',obj,function(rt) {
-		var el=document.getElementById('taxdetails');
+	postJSON('/floraon/api/nodes/update/taxent',obj,function(rt) {
+		var el=document.querySelector('.taxdetails');
 		rt=JSON.parse(rt);
 		if(rt.success) {
 			loadTaxDetails(obj.id,el);
@@ -272,10 +272,18 @@ function updateTaxon(obj) {
 
 function loadTaxDetails(key,el) {
 	if(!key) {el.innerHTML='';return;}
-	fetchAJAX('/admin/taxdetails.html?id='+encodeURIComponent(key),function(rt) {
+	fetchAJAX('/floraon/api/taxdetails?id='+encodeURIComponent(key),function(rt) {
 		el.innerHTML=rt;
 		attachTaxDetailsHandlers(el);
 	});
+}
+
+function getCurrentTaxon() {
+	var parent=document.querySelector('.taxdetails input[name=nodekey]')
+	if(parent)
+		return parent.value;
+	else
+		return null;
 }
 
 function attachTaxDetailsHandlers(el) {
@@ -296,7 +304,7 @@ function attachTaxDetailsHandlers(el) {
 	}
 	
 // current / not current buttons
-	var els=document.querySelectorAll('#taxdetails ul.currentstatus li');
+	var els=document.querySelectorAll('.taxdetails ul.currentstatus li');
 	for(var i=0;i<els.length;i++) {
 		addEvent('click',els[i],function(ev) {
 			if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
@@ -304,7 +312,7 @@ function attachTaxDetailsHandlers(el) {
 			ev.target.classList.add('selected');
 
 			var cb=document.getElementById('updatetaxonbox');
-			var parent=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+			var parent=getCurrentTaxon();
 			var obj={
 				name:cb.querySelector('input[name=name]').value
 				,author:cb.querySelector('input[name=author]').value
@@ -317,12 +325,12 @@ function attachTaxDetailsHandlers(el) {
 	}
 	
 // detach synonyms
-	var els=document.querySelectorAll('#taxdetails ul.synonyms div.button.remove');
+	var els=document.querySelectorAll('.taxdetails ul.synonyms div.button.remove');
 	for(var i=0;i<els.length;i++) {
 		addEvent('click',els[i],function(ev) {
-			var from=document.getElementById('taxdetails').querySelector('input[name=nodekey]').value;
+			var from=getCurrentTaxon();
 			var to=ev.target.parentNode.getAttribute('data-key');
-			postJSON('/nodes/detachsynonym',{from:from,to:to},function(rt) {
+			postJSON('/floraon/api/nodes/detachsynonym',{from:from,to:to},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success)
 					loadTaxDetails(from,el);
@@ -335,7 +343,7 @@ function attachTaxDetailsHandlers(el) {
 
 function loadTreeNode(el,callback) {
 	var key=el.getAttribute('data-key');
-	fetchAJAX('/lists/tree?fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
+	fetchAJAX('/floraon/api/lists?w=tree&fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
 		el.classList.remove('loading');
 		var html=createHTML(rt);
 		el.appendChild(html);

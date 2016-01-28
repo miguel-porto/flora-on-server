@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pt.floraon.server</groupId>
 	<artifactId>Flora-On-server</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
 	<name>Flora-On-server</name>
 	<url>http://maven.apache.org</url>
@@ -73,9 +73,27 @@
 			<artifactId>jline</artifactId>
 			<version>2.11</version>
 		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.0-b01</version>
+			<scope>provided</scope>
+		</dependency>
+		
+<dependency>
+    <groupId>jstl</groupId>
+    <artifactId>jstl</artifactId>
+    <version>1.2</version>
+</dependency>
+<dependency>
+    <groupId>taglibs</groupId>
+    <artifactId>standard</artifactId>
+    <version>1.1.2</version>
+</dependency>
 	</dependencies>
 	
 	<build>
+	<finalName>floraon</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -88,34 +106,28 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<mainClass>pt.floraon.server.Server</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
 				<version>1.10</version>
 				<configuration>
 					<programs>
 						<program>
-							<mainClass>pt.floraon.server.Server</mainClass>
-							<id>floraond</id>
-						</program>
-						<program>
 							<mainClass>pt.floraon.server.FloraOnShell</mainClass>
 							<id>floraonsh</id>
 						</program>
 					</programs>
+				</configuration>
+			</plugin>
+		
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>tomcat-maven-plugin</artifactId>
+				<configuration>
+					<url>http://localhost:8080/manager/text</url>
+					<server>mytomcat</server>
+					<path>/floraon</path>
+			        <username>admin</username>
+		            <password>admin</password>
 				</configuration>
 			</plugin>
 		</plugins>

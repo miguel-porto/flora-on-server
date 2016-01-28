@@ -39,7 +39,7 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
-    	ServerResponse server=new ServerResponse(graph, null);
+    	//ServerResponse server=new ServerResponse(graph, null);
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
@@ -79,31 +79,20 @@ public class FloraOnShell {
 	            	if(line.equals("")) continue;
 	            	if(line.equals("\\q")) System.exit(0);
 	            	if(line.equals("\\sampledata")) {
-	            		System.out.println("Reading sample taxonomy");
-	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomia_final.csv"), false);
-	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/stepping_stones.csv"), false);
+	            		System.out.println("Reading sample taxonomy (Flora of Portugal)");
+	            		//graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomia_final.csv"), false);
+	            		//graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/stepping_stones.csv"), false);
 	            		System.out.println("Reading morphology");
-	            		//graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
+	            		graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
-	            		generateRandomSpeciesLists(graph,50);
+	            		//generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
-	            		/*System.out.println("\nCreating some territories");
-	            		Territory pt=Territory.newFromName(graph, "Portugal", "pt", (ArangoKey)null);
-	            		Territory lu=Territory.newFromName(graph, "Portugal Continental", "lu", pt.getArangoKey());
-	            		Territory az=Territory.newFromName(graph, "Açores", "az", pt.getArangoKey());
-	            		Territory ma=Territory.newFromName(graph, "Madeira", "ma", pt.getArangoKey());
-	            		TaxEnt te=graph.dbNodeWorker.findTaxEnt("Aetheorhiza bulbosa subsp. bulbosa");
-	            		lu.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.NATIVE);
-	            		az.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);
-	            		ma.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.NATURALIZED);
-	            		te=graph.dbNodeWorker.findTaxEnt("Allium ursinum subsp. ursinum");
-	            		pt.setTaxEntNativeStatus(te.getArangoKey(), NativeStatus.EXOTIC);*/
 	            		continue;
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {           		
-	            		server.processCommand(line.substring(1), System.out,false);
+	            		//server.processCommand(line.substring(1), System.out,false);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);
 	    				long start = System.nanoTime();
@@ -122,25 +111,13 @@ public class FloraOnShell {
 	
 	    				System.out.printf("[%.3f sec]\n", (double)elapsedTime/1000000000);
 	            	}
-				} catch (QueryException e) {
+				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ArangoException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (TaxonomyException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (URISyntaxException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (FloraOnException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				} 
             	
 /*            	if(line.equals("\\u")) {
 	            	try {

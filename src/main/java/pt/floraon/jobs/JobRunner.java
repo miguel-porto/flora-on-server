@@ -1,37 +1,44 @@
-package pt.floraon.server;
+package pt.floraon.jobs;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 
+import com.arangodb.ArangoException;
+
+import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
 
-public class Job implements Runnable {
+/**
+ * Runs the commands meant to be run asynchronously to a file to be downloaded.
+ * Add command code in the run() method.
+ * @author miguel
+ *
+ */
+public class JobRunner implements Runnable {
 	private OutputStream outputStream;
 	private File tmpFile;
 	private boolean isClosed,hasError=false;
-	private String uuid, url, desiredFileName;
-	private ServerResponse server;
+	private String uuid, desiredFileName, errorMessage;
+	private FloraOnDriver driver;
+	private Job job;
 	
-	
-	public Job(String url, String desiredFileName, ServerResponse server) throws IOException {
+	public JobRunner(Job job, String desiredFileName, FloraOnDriver driver) throws IOException {
 		tmpFile=File.createTempFile("floraon_", null);
 		outputStream= new FileOutputStream(tmpFile);
 		isClosed=false;
 		uuid=UUID.randomUUID().toString();
 		this.desiredFileName=desiredFileName;
-		this.url=url;
-		this.server=server;
+		this.job=job;
+		this.driver=driver;
 	}
 	
 	public String getID() {
@@ -43,19 +50,19 @@ public class Job implements Runnable {
 	}
 	
 	public Boolean isReady() throws FloraOnException {
-		if(hasError) throw new FloraOnException("Error occurred during processing");
+		if(hasError) throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
 		return isClosed;
 	}
-	
+/*	
 	public InputStream getInputStream() throws FloraOnException, FileNotFoundException {
 		if(!isClosed) throw new FloraOnException("Job hasn't finished yet");
-		if(hasError) throw new FloraOnException("Error occurred during processing");
+		if(hasError) throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
 		return new FileInputStream(this.tmpFile);
 	}
-
+*/
 	public InputStreamReader getInputStreamReader(Charset charset) throws FloraOnException, FileNotFoundException {
 		if(!isClosed) throw new FloraOnException("Job hasn't finished yet");
-		if(hasError) throw new FloraOnException("Error occurred during processing");
+		if(hasError) throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
 		return new InputStreamReader(new FileInputStream(this.tmpFile), charset);
 	}
 	
@@ -66,11 +73,11 @@ public class Job implements Runnable {
 	@Override
 	public void run() {
 		try {
-			server.processCommand(this.url,this.outputStream,false);
-			this.outputStream.close();
+			this.job.run(this.driver, this.outputStream);
 			isClosed=true;
-		} catch (URISyntaxException | IOException | FloraOnException e) {
+		} catch (ArangoException | FloraOnException e) {
 			this.hasError=true;
+			this.errorMessage=e.getMessage();
 			try {
 				this.outputStream.close();
 				isClosed=true;

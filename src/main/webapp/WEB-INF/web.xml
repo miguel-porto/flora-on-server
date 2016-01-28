@@ -1,0 +1,101 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" 
+	id="WebApp_ID" version="3.0">
+<listener>
+    <listener-class>pt.floraon.server.Startup</listener-class>
+</listener>
+
+<servlet>
+   <servlet-name>WebAdmin</servlet-name>
+   <servlet-class>pt.floraon.server.WebAdmin</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>Query</servlet-name>
+   <servlet-class>pt.floraon.server.Query</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>Lists</servlet-name>
+   <servlet-class>pt.floraon.server.Lists</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>TaxDetails</servlet-name>
+   <servlet-class>pt.floraon.server.TaxDetails</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>JobDownload</servlet-name>
+   <servlet-class>pt.floraon.jobs.JobDownload</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>Suggestions</servlet-name>
+   <servlet-class>pt.floraon.server.Suggestions</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>NodeWorker</servlet-name>
+   <servlet-class>pt.floraon.server.NodeWorker</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>GraphWorker</servlet-name>
+   <servlet-class>pt.floraon.server.GraphWorker</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>Territories</servlet-name>
+   <servlet-class>pt.floraon.server.Territories</servlet-class>
+</servlet>
+
+<servlet-mapping>
+   <servlet-name>WebAdmin</servlet-name>
+   <url-pattern>/admin</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>TaxDetails</servlet-name>
+   <url-pattern>/api/taxdetails/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>JobDownload</servlet-name>
+   <url-pattern>/api/job/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>Suggestions</servlet-name>
+   <url-pattern>/api/suggestions</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>NodeWorker</servlet-name>
+   <url-pattern>/api/nodes/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>GraphWorker</servlet-name>
+   <url-pattern>/graph/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>Territories</servlet-name>
+   <url-pattern>/api/territories/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>Lists</servlet-name>
+   <url-pattern>/api/lists/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>Query</servlet-name>
+   <url-pattern>/api/query</url-pattern>
+</servlet-mapping>
+
+</web-app>

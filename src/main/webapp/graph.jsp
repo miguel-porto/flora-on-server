@@ -1,13 +1,12 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Taxonomy browser</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link rel="stylesheet" type="text/css" href="taxbrowser.css"/>
+	<link rel="stylesheet" type="text/css" href="graphbrowser.css"/>
 	<script type="text/javascript" src="d3.min.js"></script>
 	<script type="text/javascript" src="basefunctions.js"></script>
-	<script type="text/javascript" src="taxbrowser.js"></script>
+	<script type="text/javascript" src="graphbrowser.js"></script>
 </head>
 <body>
 <div id="main-wrap">
@@ -57,9 +56,8 @@
 	</div>
 </div>
 <div id="wait-screen">Working...</div>
-<div id="territorytypes">
-<!-- CONTENT:/reference/territorytypes -->
-</div>
+<div id="territorytypes"><jsp:include page="/graph/reference/territorytypes"></jsp:include></div>
+<div id="taxonranks"><jsp:include page="/graph/reference/ranks"></jsp:include></div>
 </body>
 </html>
 

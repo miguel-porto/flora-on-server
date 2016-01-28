@@ -1,3 +1,4 @@
+// FIXME change ajax to postJSON!!!
 var force,svg;
 var nodes,links,node,link,gdata={nodes:[],links:[]};
 var colorcircle=['#f33','#f55','#f77','#f99','#fbb','#fdd'];
@@ -34,7 +35,7 @@ function zoomed() {
 
 document.addEventListener('DOMContentLoaded', function() {
 	var query=getQueryVariable(window.location.search,'q');
-	var what=getQueryVariable(window.location.search,'w');
+	var what=getQueryVariable(window.location.search,'show');
 	var dim=document.getElementById('taxbrowser').getBoundingClientRect();
 	zoom=d3.behavior.zoom().scaleExtent([0.1, 4]).on("zoom", zoomed);
 
@@ -53,15 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	force.on("tick",forceTick);
 	
-//	fetchAJAX('worker.php?w=reference',function(rt) {
-	fetchAJAX('/reference/all',function(rt) {
+	fetchAJAX('/floraon/graph/reference/all',function(rt) {
 		rt=JSON.parse(rt);
 		if(!rt.success) {
 			document.getElementById('main-wrap').innerHTML='<p class="error">'+rt.msg+'</p>';
 		} else {
 			reference={
-				ranks:'<select name="taxonrank">'+rt.msg.rankelement+'</select>'
-				,rankmap:rt.msg.rankmap
+				rankmap:rt.msg.rankmap
 				,facets:rt.msg.facets
 //				,reltypes:'<select name="reltype">'+rt.reltypes+'</select>'
 			};
@@ -94,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if(ev.which==13) {
 			var v=document.getElementById('querytool').value;
 			//fetchAJAX('worker.php?w=query&q='+encodeURIComponent(v),function(rt) {
-			fetchAJAX('/query?fmt=html&q='+encodeURIComponent(v),function(rt) {
+			fetchAJAX('/floraon/api/query?fmt=html&q='+encodeURIComponent(v),function(rt) {
 				var el=document.getElementById('queryresults');
 				if(el) el.parentNode.removeChild(el);
 				var html='<div class="window float center" id="queryresults"><div class="closebutton">close</div><h1>Query results</h1>'+rt
@@ -165,8 +164,7 @@ function removeEl(ev) {
 }
 
 function updateLink(d,current) {
-//	fetchAJAX('worker.php?w=changelink&i='+d._id+'&current='+current,function(rt) {
-	fetchAJAX('/links/update?id='+d._id+'&current='+current,function(rt) {
+	fetchAJAX('/floraon/graph/links/update?id='+d._id+'&current='+current,function(rt) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 		console.log(rt.msg);
@@ -192,7 +190,7 @@ function afterUpdateNode(rt) {
 
 function updateTaxNode(d,name,rank,author,comment,current) {
 //	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
-	fetchAJAX('/nodes/update/taxent?id='+d._id
+	fetchAJAX('/floraon/api/nodes/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
 		+'&current='+current
@@ -202,7 +200,7 @@ function updateTaxNode(d,name,rank,author,comment,current) {
 }
 
 function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
-	fetchAJAX('/nodes/update/territory?id='+d._id
+	fetchAJAX('/floraon/api/nodes/update/territory?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&shortname='+encodeURIComponent(shortname)
 		+'&type='+encodeURIComponent(type)
@@ -413,8 +411,9 @@ function clickToolbar(ev) {
 				};
 				break;
 			case 'taxent':
+				var tt=document.getElementById('taxonranks');
 				var html='<div class="window float" id="changename"><h1>Edit node</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
-					+'<tr><td>Rank</td><td>'+reference.ranks+'</td></tr>'
+					+'<tr><td>Rank</td><td>'+tt.innerHTML+'</td></tr>'
 					+'<tr><td>Author</td><td><input type="text" name="author" value="'+(d.author ? d.author : '')+'"/></td></tr>'
 					+'<tr><td>Annotation<br/>(e.g. <i>sensu x</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
 					+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
@@ -539,7 +538,7 @@ function clickToolbar(ev) {
 			var tsname=wnd.querySelector('input[name=shortname]').value;
 			var type=wnd.querySelector('select[name=territorytype]').value;
 			var theme=wnd.querySelector('input[name=theme]').value;
-			fetchAJAX('/nodes/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
+			fetchAJAX('/floraon/api/nodes/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
 				rt=JSON.parse(rt);
 				if(!rt.success)
 					alert(rt.msg);
@@ -553,12 +552,13 @@ function clickToolbar(ev) {
 	case 'but-newnode':
 		switch(getPage()) {
 		case 'tax':
-			var wnd=showWindow('<h1>Add new taxon</h1><p>Taxon name: <input type="text" name="taxonname"/> Authority: <input type="text" name="taxonauth"/> Rank: '+reference.ranks+' <input type="button" value="Add"/></p><p class="info">If adding a species or an inferior rank, include the whole name (genus, epithets). Note that you can only connect a species to a genus if the genus part of species name matches the genus.</p>',{close:true});
+			var tt=document.getElementById('taxonranks');
+			var wnd=showWindow('<h1>Add new taxon</h1><p>Taxon name: <input type="text" name="taxonname"/> Authority: <input type="text" name="taxonauth"/> Rank: '+tt.innerHTML+' <input type="button" value="Add"/></p><p class="info">If adding a species or an inferior rank, include the whole name (genus, epithets). Note that you can only connect a species to a genus if the genus part of species name matches the genus.</p>',{close:true});
 			addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
 				var tname=wnd.querySelector('input[name=taxonname]').value;
 				var tauth=wnd.querySelector('input[name=taxonauth]').value;
 				var trank=wnd.querySelector('select[name=taxonrank]').value;
-				fetchAJAX('/nodes/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {				
+				fetchAJAX('/floraon/api/nodes/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {				
 					rt=JSON.parse(rt);
 					console.log(rt.msg);
 					updateData(rt.msg.nodes,null);
@@ -606,7 +606,7 @@ function clickToolbar(ev) {
 		});
 		break;
 	case 'but-characters':
-		fetchAJAX('/nodes/getallcharacters',function(rt) {
+		fetchAJAX('/floraon/api/nodes/getallcharacters',function(rt) {
 			rt=JSON.parse(rt);
 			var onlynew=mergeNodes(rt.nodes);
 			gdata.nodes=gdata.nodes.concat(onlynew);
@@ -643,7 +643,7 @@ function clickToolbar(ev) {
 }
 
 function addTerritoryNodes() {
-	fetchAJAX('/nodes/getallterritories',function(rt) {
+	fetchAJAX('/floraon/api/nodes/getallterritories',function(rt) {
 		var graph=JSON.parse(rt);
 console.log(graph);
 		if(!graph.success) return;
@@ -680,7 +680,7 @@ function collapseNode(n) {
 
 function deleteEntity(d,type) {
 //	if(type=='node') {
-		fetchAJAX('/nodes/delete?id='+d._id,function(rt) {
+		fetchAJAX('/floraon/api/nodes/delete?id='+d._id,function(rt) {
 			rt=JSON.parse(rt);
 			var toremove=[];
 			if(rt.success) {
@@ -831,7 +831,7 @@ function loadData(d,add,facets,depth) {
 	}
 	if(!facets) facets=['TAXONOMY'];
 //	d3.json('worker.php?w=neigh&f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
-	d3.json('/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
+	d3.json('/floraon/graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
 console.log(graph);
 		if(!graph.success) return;
 		if(graph.msg.nodes.length>300) {
@@ -1042,7 +1042,7 @@ function clickNode(d) {
 			var srcid=document.querySelector('.window input[name=srcid]').value;
 			var tarid=d._id;
 			var linktype=document.querySelector('.window input[name=linktype]').value;
-			fetchAJAX('/links/add?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {			
+			fetchAJAX('/floraon/graph/links/add?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {			
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					console.log(rt.msg);

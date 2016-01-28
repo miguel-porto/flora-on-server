@@ -1192,8 +1192,7 @@ public class FloraOnDriver {
 				if(count==null) count=50;
 				withLimit=true;
 			}
-// TODO territory traversal always yields an EXISTING NativeStatus. This could be more informative in case of endemics
-/*
+/* This is the general query.
 LET terr=SLICE(TRAVERSAL(taxent, EXISTS_IN, 'taxent/3014731409815', 'outbound', {maxDepth:1,paths:true}),1)
 LET upstr=(FOR t IN terr
     LET tt=TRAVERSAL(territory, PART_OF, t.vertex, 'outbound')
@@ -1221,7 +1220,7 @@ RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY("MERGE",inferr) )
 					+ "(LET terr=SLICE(TRAVERSAL(taxent, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}),1) "
 					+ "LET upstr=(FOR t IN terr LET tt=TRAVERSAL(territory, PART_OF, t.vertex, 'outbound') LET bs=t.path.edges[0].nativeStatus "
 					+ "RETURN {baseStatus: ZIP([t.vertex.shortName], [bs]), upstreamStatus: ZIP(SLICE(tt[*].vertex.shortName,1), (FOR i IN 2..LENGTH(tt) RETURN bs == 'ENDEMIC' ? 'ENDEMIC' : 'EXISTING')) }) "
-					+ "LET bs=LENGTH(upstr) == 1 ? upstr[0].baseStatus : APPLY('MERGE',upstr[*].baseStatus) LET an=UNIQUE(FLATTEN(FOR up IN upstr RETURN ATTRIBUTES(up.upstreamStatus))) LET anc=MINUS(an, ATTRIBUTES(bs)) "
+					+ "LET bs=LENGTH(upstr) == 1 ? upstr[0].baseStatus : APPLY('MERGE',upstr[*].baseStatus) LET an=UNIQUE(FLATTEN(FOR up IN upstr RETURN ATTRIBUTES(up.upstreamStatus))) LET anc=LENGTH(an)>0 ? MINUS(an, ATTRIBUTES(bs)) : [] "
 					+ "LET inferr=(FOR ut IN anc LET tmp=REMOVE_VALUE(UNIQUE(FOR up IN upstr RETURN TRANSLATE(ut,up.upstreamStatus,null)),null) RETURN ZIP([ut], [LENGTH(tmp) == 1 ? tmp[0] : POSITION(tmp,'ENDEMIC',false) ? 'ENDEMIC' : 'EXISTING']) )"
 					+ "RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY('MERGE',inferr) ) "
 					+ ")[0]})"
@@ -1233,12 +1232,19 @@ RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY("MERGE",inferr) )
 					, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");*/
 			} else {
 				if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist.");
-// FIXME must traverse territories like the above!
+// FIXME must traverse territories downwards in thr 1st line! Wait for ArangoDB 2.8
 				query=String.format(
-					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN (FOR v1 IN NEIGHBORS(territory, EXISTS_IN, t, 'inbound') RETURN DOCUMENT(v1)) "
+					"FOR te IN territory FILTER te.shortName=='%3$s' FOR v IN (FOR v1 IN NEIGHBORS(territory, EXISTS_IN, te, 'inbound') RETURN DOCUMENT(v1)) "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
-					+ "%1$s SORT v.name %4$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
-					+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
+					+ "%1$s SORT v.name %4$s "
+					+ "RETURN MERGE(KEEP(v,'_id','name','author','current'), {leaf: npar==0, territories: "
+					+ "(LET terr=SLICE(TRAVERSAL(taxent, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}),1) "
+					+ "LET upstr=(FOR t IN terr LET tt=TRAVERSAL(territory, PART_OF, t.vertex, 'outbound') LET bs=t.path.edges[0].nativeStatus "
+					+ "RETURN {baseStatus: ZIP([t.vertex.shortName], [bs]), upstreamStatus: ZIP(SLICE(tt[*].vertex.shortName,1), (FOR i IN 2..LENGTH(tt) RETURN bs == 'ENDEMIC' ? 'ENDEMIC' : 'EXISTING')) }) "
+					+ "LET bs=LENGTH(upstr) == 1 ? upstr[0].baseStatus : APPLY('MERGE',upstr[*].baseStatus) LET an=UNIQUE(FLATTEN(FOR up IN upstr RETURN ATTRIBUTES(up.upstreamStatus))) LET anc=LENGTH(an)>0 ? MINUS(an, ATTRIBUTES(bs)) : [] "
+					+ "LET inferr=(FOR ut IN anc LET tmp=REMOVE_VALUE(UNIQUE(FOR up IN upstr RETURN TRANSLATE(ut,up.upstreamStatus,null)),null) RETURN ZIP([ut], [LENGTH(tmp) == 1 ? tmp[0] : POSITION(tmp,'ENDEMIC',false) ? 'ENDEMIC' : 'EXISTING']) )"
+					+ "RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY('MERGE',inferr) ) "
+					+ ")[0]})"
 					, onlyLeafNodes ? " FILTER npar==0" : "", NodeTypes.taxent.toString(), territory, withLimit ? "LIMIT "+offset+","+count : "");
 /*					"FOR t IN territory FILTER t.shortName=='%3$s' FOR v IN FLATTEN(FOR v1 IN GRAPH_TRAVERSAL('taxgraph', t, 'inbound', {filterVertices: [{isSpeciesOrInf: true}], vertexFilterMethod:'exclude'}) RETURN v1[*].vertex) "
 					+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "

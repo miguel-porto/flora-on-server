@@ -1,6 +1,9 @@
 package pt.floraon.entities;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.csv.CSVPrinter;
 
@@ -119,6 +122,10 @@ public class TaxEntVertex extends GeneralDBNode implements ResultItem {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+	public String getURLEncodedName() throws UnsupportedEncodingException {
+		return URLEncoder.encode(this.name, StandardCharsets.UTF_8.name());
 	}
 	
 	public String getAuthor() {

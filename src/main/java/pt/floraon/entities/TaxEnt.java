@@ -175,6 +175,9 @@ public class TaxEnt extends GeneralNodeWrapper {
 		return new TaxEnt(graph,graph.driver.getDocument(handle, TaxEntVertex.class).getEntity());
 	}
 	
+	public TaxEntVertex getBaseNode() {
+		return this.baseNode;
+	}
 	/**
 	 * Gets the corresponding VertexEntity in the DB
 	 * @return

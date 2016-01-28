@@ -17,7 +17,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		try {
 			sb.append("<tr data-key=\"").append(this._id).append("\"")
 				.append(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))
-				.append("><td><a href=\"?w=taxondetailspage&id="+URLEncoder.encode(this._id, StandardCharsets.UTF_8.name())+"\"><i>")
+				.append("><td><a href=\"/floraon/admin?w=taxdetails&id="+URLEncoder.encode(this._id, StandardCharsets.UTF_8.name())+"\"><i>")
 				.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
 				.append(this.name)
 				.append("</i></a></td><td>")

@@ -1,19 +1,22 @@
 # Flora-On server
-Java server to manage and query online biodiversity databases, including a "fluid" taxonomy system, species traits and habitats, and species occurrences.
+Database server to manage and query biodiversity databases, including modules for managing taxonomy, species traits, habitats and species occurrences.
+The main highlight is the graph-based approach to taxonomy (and traits and habitats aswell), backed by the power of [ArangoDB](http://www.arangodb.com/).
 
 **This project is currently under "intense" development and is not usable as it stands now**
-## What it is (or aims to be)
+## What it is
 It is a fully equipped system for building biodiversity-data websites, providing powerful querying services and data upload and management services.
 It offers tools to query and manage taxonomy, traits, ecology and occurrence data.
 
 All the data is stored in a graph (using [ArangoDB](http://www.arangodb.com/)), which confers it great advantages over classic relational databases.
 For example, taxonomy needs not follow a strictly hierarchical model, and you can have, for instance, species which are part of other species (when the former is not currently accepted);
 or you can group certain populations in non-taxonomic nodes, for instance, when some populations of a given species differ in a certain trait but are not formally recognized as an independent taxon on its own.
+Synonyms can be perfectly integrated in the taxonomic graph and linked with all relevant taxa without loss of information.
 
 ## Installation
 1. Download and install ArangoDB
-2. Clone Flora-On into a local folder
-3. In the console, compile with Maven: `mvn package appassembler:assemble`
+2. Install Tomcat7
+3. Clone Flora-On into a local folder
+4. In the console, compile and deploy with Maven: `mvn tomcat:deploy`
 
 ## Using
 
@@ -23,7 +26,7 @@ In Flora-On shell, you can start by typing `\sampledata` to load some sample dat
 Then, directly type any query in the Flora-On shell to fetch matching species.
 
 ### Flora-On server
-Type `./run start` to launch Flora-On server. In the browser, go to localhost:9000/admin for the web admin (under development)
+Navigate to `http://localhost:8080/floraon/admin` for the management interface.
 
 Stay tuned for updates!
 
