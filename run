@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-console/target/appassembler/bin/floraonsh
+java -jar 'console/target/Flora-On-server-shell-1.0-SNAPSHOT-jar-with-dependencies.jar'
+#console/target/appassembler/bin/floraonsh
 

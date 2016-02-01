@@ -1,24 +1,11 @@
 package pt.floraon.server;
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-
 import javax.servlet.*;
 import javax.servlet.http.*;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.ArangoKey;
-import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.TaxonomyException;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.TaxEntVertex;
-import pt.floraon.entities.TerritoryVertex;
-import pt.floraon.results.NativeStatusResult;
-import pt.floraon.results.ResultProcessor;
 
 public class WebAdmin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
