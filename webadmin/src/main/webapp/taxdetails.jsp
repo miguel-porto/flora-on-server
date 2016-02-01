@@ -57,7 +57,9 @@
 					<option value="ENDEMIC">is ENDEMIC to</option>
 					<option value="EXOTIC">is EXOTIC in</option>
 					<option value="UNCERTAIN">is DOUBTFULLY NATIVE to</option>
-					<option value="NULL">does NOT occur in</option></select>
+					<option value="POSSIBLY_EXTINCT">is POSSIBLY EXTINCT in</option>
+					<option value="EXTINCT">is EXTINCT in</option>
+					<option value="NULL">has no status in</option></select>
 				<select name="territory">
 					<c:forEach var="territory" items="${territories}">
 						<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>

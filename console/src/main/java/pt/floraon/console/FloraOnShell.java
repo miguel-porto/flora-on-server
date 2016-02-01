@@ -75,12 +75,12 @@ public class FloraOnShell {
 	            	if(line.equals("\\q")) System.exit(0);
 	            	if(line.equals("\\sampledata")) {
 	            		System.out.println("Reading sample taxonomy (Flora of Portugal)");
-	            		//graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomia_final.csv"), false);
-	            		//graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/stepping_stones.csv"), false);
+	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomy.csv"), false);
+	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/orders.csv"), false);
 	            		System.out.println("Reading morphology");
 	            		graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
-	            		//generateRandomSpeciesLists(graph,50);
+	            		generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
 	            		continue;
@@ -111,6 +111,9 @@ public class FloraOnShell {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (ArangoException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FloraOnException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} 

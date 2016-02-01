@@ -94,13 +94,14 @@ public final class Constants {
 
 	public enum NativeStatus {
 		WILD((short)0)
-		,UNCERTAIN_SPONTANEITY((short)1)
-		,NATURALIZED((short)2)
-		,ENDEMIC((short)3)
 		,NATIVE((short)0)
-		,EXOTIC((short)2)
 		,EXISTING((short)0)
-		,PROBABLY_EXTINCT((short)4);
+		,UNCERTAIN((short)1)
+		,NATURALIZED((short)2)
+		,EXOTIC((short)2)
+		,ENDEMIC((short)3)
+		,POSSIBLY_EXTINCT((short)4)
+		,EXTINCT((short)5);
 		
 		private final Short code;
 		NativeStatus (Short code) {

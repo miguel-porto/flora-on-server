@@ -143,11 +143,19 @@ div.territory {
 }
 
 div.territory:hover {box-shadow:0 0 2px #0f0;}
-div.territory.EXISTING {background-color:#ccc;border:2px solid #fff;}
+div.territory.EXISTING {background-color:#ccf;border:2px solid #fff;}
 div.territory.NATIVE {background-color:#afa;border:2px solid #fff;}
 div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:30%;}
 div.territory.EXOTIC {background-color:#faa;border:2px solid #fff;}
 div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
+div.territory.EXTINCT {background-color:#000;border:2px solid #000;color:white;font-weight:bold;}
+div.territory.POSSIBLY_EXTINCT {
+	/*background-color:#777;border:2px solid #000;color:white;font-weight:bold;*/
+	background-color: #777;
+	background-image: linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
+	background-size:50px 50px;
+	border:2px solid #000;color:white;font-weight:bold;
+}
 
 .checklist table div.territory {
 	float:left;

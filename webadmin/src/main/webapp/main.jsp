@@ -66,7 +66,7 @@
 	<c:when test="${(what=='main') || (what==null)}">
 		<div id="main" class="checklist noselect"><h1>List of all accepted names<c:out value="${territory}"></c:out></h1>
 		<c:if test="${sessionScope.user!=null}"><p>Click on a taxon to edit it</p></c:if>
-		<div><div class="territory NATIVE"></div> native <div class="territory ENDEMIC"></div> endemic <div class="territory EXOTIC"></div> exotic <div class="territory UNCERTAIN"></div> doubtfully native <div class="territory EXISTING"></div> existing</div>
+		<div><div class="territory NATIVE"></div> native <div class="territory ENDEMIC"></div> endemic <div class="territory EXOTIC"></div> exotic <div class="territory UNCERTAIN"></div> doubtfully native <div class="territory EXISTING"></div> existing <div class="territory POSSIBLY_EXTINCT"></div> possibly extinct <div class="territory EXTINCT"></div> extinct</div>
 		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&offset=${offset+PAGESIZE}">next &gt;</a></div>
 		<jsp:include page="/api/lists?w=speciesterritories&fmt=htmltable&offset=${offset}"></jsp:include>
 		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&offset=${offset+PAGESIZE}">next &gt;</a></div>
