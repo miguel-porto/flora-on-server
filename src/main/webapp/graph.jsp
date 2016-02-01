@@ -1,3 +1,4 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,24 +14,32 @@
 	<div id="taxbrowser"></div>
 	<div id="toolbar" data-page="tax">
 		<ul id="linklist"></ul>
-		<div id="but-editsession" class="button">Open edit session</div>
-		<div id="but-logout" class="button">Close edit session</div>
-		<div id="but-clean" class="button">Clean</div>
-		<div id="but-delnode" class="button">Delete node/link</div>
+		<c:if test="${sessionScope.user!=null}">
+			<input type="hidden" id="loggedin" name="loggedin" value="${sessionScope.user}"/>
+		</c:if>
+		<!-- <div id="but-editsession" class="button">Open edit session</div>
+		<div id="but-logout" class="button">Close edit session</div> -->
 		<div class="box">
-		<div class="title"><p>Node tools</p></div>
-		<div id="but-newnode" class="button">New taxon</div>
-		<div id="but-newterritory" class="button">New territory</div>
-		<!--<div id="but-orphan" class="button">Load orphan</div>-->
-		<div id="but-characters" class="button">Load characters</div>
-		<div id="but-territories" class="button">Load territories</div>
+			<div id="but-clean" class="button">Clean</div>
+			<!--<div id="but-orphan" class="button">Load orphan</div>-->
+			<div id="but-characters" class="button">Load characters</div>
+			<div id="but-territories" class="button">Load territories</div>
 		</div>
-		<div class="box">
-		<div class="title"><p>Create new link</p></div>
-		<div id="but-partof" class="button">PART_OF</div>
-		<div id="but-synonym" class="button">SYNONYM</div>
-		<div id="but-parent" class="button">HYBRID_OF</div>
-		</div>
+		<c:if test="${sessionScope.user!=null}">
+			<div class="box">
+				<div class="title"><p>Node tools</p></div>
+				<div id="but-delnode" class="button">Delete node/link</div>
+				<div id="but-newnode" class="button">New taxon</div>
+				<div id="but-newterritory" class="button">New territory</div>
+			</div>
+			<div class="box">
+				<div class="title"><p>Create new link</p></div>
+				<div id="but-partof" class="button">PART_OF</div>
+				<div id="but-synonym" class="button">SYNONYM</div>
+				<div id="but-parent" class="button">HYBRID_OF</div>
+			</div>
+		</c:if>
+		
 		<!--<div class="box">
 		<div class="title"><p>Upload CSVs</p></div>
 		<div id="but-uploadbase" class="button">Base taxonomy</div>

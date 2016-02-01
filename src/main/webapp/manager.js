@@ -168,7 +168,7 @@ function actionButtonClick(ev) {
 		if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {alert('You must select a taxon from the drop-down list. Type some initial letters to find taxa.');return;}
 		var key=document.getElementById('boxsynonym').getAttribute('data-key');
 		var to=getCurrentTaxon();
-		postJSON('/floraon/api/nodes/setsynonym',{from:key,to:to},function(rt) {
+		postJSON('/floraon/api/update/setsynonym',{from:key,to:to},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success)
 				loadTaxDetails(to,el);
@@ -189,7 +189,7 @@ function actionButtonClick(ev) {
 			,current:cb.querySelector('input[name=current]').checked ? 1 : 0
 		}
 
-		postJSON('/floraon/api/nodes/add/inferiortaxent',obj,function(rt) {
+		postJSON('/floraon/api/update/add/inferiortaxent',obj,function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(rt.msg,el);
@@ -204,7 +204,7 @@ function actionButtonClick(ev) {
 	case 'deletetaxon':
 		if(!confirm('Are you sure you want to delete this taxon? This cannot be undone!')) break;
 		var parent=getCurrentTaxon();
-		postJSON('/floraon/api/nodes/deleteleaf',{id:parent},function(rt) {
+		postJSON('/floraon/api/update/deleteleaf',{id:parent},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(null,el);
@@ -248,7 +248,7 @@ function actionButtonClick(ev) {
 }
 
 function updateTaxon(obj) {
-	postJSON('/floraon/api/nodes/update/taxent',obj,function(rt) {
+	postJSON('/floraon/api/update/update/taxent',obj,function(rt) {
 		var el=document.querySelector('.taxdetails');
 		rt=JSON.parse(rt);
 		if(rt.success) {
@@ -305,32 +305,34 @@ function attachTaxDetailsHandlers(el) {
 	
 // current / not current buttons
 	var els=document.querySelectorAll('.taxdetails ul.currentstatus li');
-	for(var i=0;i<els.length;i++) {
-		addEvent('click',els[i],function(ev) {
-			if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
-			ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
-			ev.target.classList.add('selected');
-
-			var cb=document.getElementById('updatetaxonbox');
-			var parent=getCurrentTaxon();
-			var obj={
-				name:cb.querySelector('input[name=name]').value
-				,author:cb.querySelector('input[name=author]').value
-				,comment:cb.querySelector('input[name=annot]').value
-				,id:parent
-				,current:ev.target.classList.contains('current') ? 1 : 0
-			}
-			updateTaxon(obj);
-		});
-	}
+	var cb=document.getElementById('updatetaxonbox');
+	if(cb) {
+		for(var i=0;i<els.length;i++) {
+			addEvent('click',els[i],function(ev) {
+				if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
+				ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
+				ev.target.classList.add('selected');
 	
+				var cb=document.getElementById('updatetaxonbox');
+				var parent=getCurrentTaxon();
+				var obj={
+					name:cb.querySelector('input[name=name]').value
+					,author:cb.querySelector('input[name=author]').value
+					,comment:cb.querySelector('input[name=annot]').value
+					,id:parent
+					,current:ev.target.classList.contains('current') ? 1 : 0
+				}
+				updateTaxon(obj);
+			});
+		}
+	}	
 // detach synonyms
 	var els=document.querySelectorAll('.taxdetails ul.synonyms div.button.remove');
 	for(var i=0;i<els.length;i++) {
 		addEvent('click',els[i],function(ev) {
 			var from=getCurrentTaxon();
 			var to=ev.target.parentNode.getAttribute('data-key');
-			postJSON('/floraon/api/nodes/detachsynonym',{from:from,to:to},function(rt) {
+			postJSON('/floraon/api/update/detachsynonym',{from:from,to:to},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success)
 					loadTaxDetails(from,el);

@@ -2,6 +2,7 @@ package pt.floraon.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ public class FloraOnServlet extends HttpServlet {
 	protected FloraOnDriver graph;
 	private static final long serialVersionUID = 2390926316338894377L;
 	private HttpServletResponse thisResponse;
+	private HttpServletRequest thisRequest;
 	
 	protected void error(String obj) throws IOException {
 		thisResponse.setContentType("application/json");
@@ -76,6 +78,9 @@ public class FloraOnServlet extends HttpServlet {
 		thisResponse.getWriter().println("{\"success\":true,\"msg\":\""+obj+"\"}");
 	}
 	
+	protected boolean isAuthenticated(HttpServletRequest request) {
+		return request.getSession().getAttribute("user")!=null;
+	}
 	/**
 	 * Gets the called path, either if it was jsp:included or requested by browser
 	 * @param request
@@ -103,7 +108,10 @@ public class FloraOnServlet extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		this.thisResponse=response;
+		this.thisRequest=request;
 		try {
 			doFloraOnGet(request, response);
 		} catch (ArangoException | FloraOnException e) {
@@ -113,7 +121,10 @@ public class FloraOnServlet extends HttpServlet {
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		this.thisResponse=response;
+		this.thisRequest=request;
 		try {
 			doFloraOnPost(request, response);
 		} catch (ArangoException | FloraOnException e) {
@@ -123,12 +134,12 @@ public class FloraOnServlet extends HttpServlet {
 
 	public String getParameter(HttpServletRequest request, String name) throws IOException, ServletException {
 		String tmp;
-		if(request.getContentType()==null)
-			tmp = request.getParameter(name);
-		else if(request.getContentType().contains("multipart/formdata")) {
-			tmp = request.getPart("rank")==null ? null : IOUtils.toString(request.getPart("rank").getInputStream(), StandardCharsets.UTF_8);
-		} else tmp = request.getParameter(name);
-		return tmp;
+		if(thisRequest.getContentType()==null)
+			tmp = thisRequest.getParameter(name);
+		else if(thisRequest.getContentType().contains("multipart/formdata")) {
+			tmp = thisRequest.getPart("rank")==null ? null : IOUtils.toString(thisRequest.getPart("rank").getInputStream(), StandardCharsets.UTF_8);
+		} else tmp = thisRequest.getParameter(name);
+		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
 	}
 	
 	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {}

@@ -8,9 +8,19 @@
     <listener-class>pt.floraon.server.Startup</listener-class>
 </listener>
 
+
+<welcome-file-list>
+    <welcome-file>admin</welcome-file>
+</welcome-file-list>
+
 <servlet>
    <servlet-name>WebAdmin</servlet-name>
    <servlet-class>pt.floraon.server.WebAdmin</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>UserLogin</servlet-name>
+   <servlet-class>pt.floraon.server.UserLogin</servlet-class>
 </servlet>
 
 <servlet>
@@ -44,8 +54,13 @@
 </servlet>
 
 <servlet>
-   <servlet-name>GraphWorker</servlet-name>
-   <servlet-class>pt.floraon.server.GraphWorker</servlet-class>
+   <servlet-name>NodeReader</servlet-name>
+   <servlet-class>pt.floraon.server.NodeReader</servlet-class>
+</servlet>
+
+<servlet>
+   <servlet-name>GraphReader</servlet-name>
+   <servlet-class>pt.floraon.server.GraphReader</servlet-class>
 </servlet>
 
 <servlet>
@@ -56,6 +71,11 @@
 <servlet-mapping>
    <servlet-name>WebAdmin</servlet-name>
    <url-pattern>/admin</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>UserLogin</servlet-name>
+   <url-pattern>/login</url-pattern>
 </servlet-mapping>
 
 <servlet-mapping>
@@ -74,12 +94,17 @@
 </servlet-mapping>
 
 <servlet-mapping>
-   <servlet-name>NodeWorker</servlet-name>
-   <url-pattern>/api/nodes/*</url-pattern>
+   <servlet-name>NodeReader</servlet-name>
+   <url-pattern>/api/read/*</url-pattern>
 </servlet-mapping>
 
 <servlet-mapping>
-   <servlet-name>GraphWorker</servlet-name>
+   <servlet-name>NodeWorker</servlet-name>
+   <url-pattern>/api/update/*</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>GraphReader</servlet-name>
    <url-pattern>/graph/*</url-pattern>
 </servlet-mapping>
 

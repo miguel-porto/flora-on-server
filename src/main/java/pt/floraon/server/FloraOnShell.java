@@ -39,8 +39,6 @@ public class FloraOnShell {
 			e2.printStackTrace();
 			return;
 		}
-    	//ServerResponse server=new ServerResponse(graph, null);
-    	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
 			System.out.println(Constants.ANSI_WHITE+graph.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+graph.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+graph.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET+"\n");
@@ -91,7 +89,8 @@ public class FloraOnShell {
 	            		continue;
 	            	}
 	            	
-	            	if(line.startsWith("\\")) {           		
+	            	if(line.startsWith("\\")) {
+	            		// FIXME: must fetch local URL
 	            		//server.processCommand(line.substring(1), System.out,false);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);

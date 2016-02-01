@@ -164,7 +164,7 @@ function removeEl(ev) {
 }
 
 function updateLink(d,current) {
-	fetchAJAX('/floraon/graph/links/update?id='+d._id+'&current='+current,function(rt) {
+	fetchAJAX('/floraon/api/update/update/links?id='+d._id+'&current='+current,function(rt) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 		console.log(rt.msg);
@@ -190,7 +190,7 @@ function afterUpdateNode(rt) {
 
 function updateTaxNode(d,name,rank,author,comment,current) {
 //	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
-	fetchAJAX('/floraon/api/nodes/update/taxent?id='+d._id
+	fetchAJAX('/floraon/api/update/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
 		+'&current='+current
@@ -200,7 +200,7 @@ function updateTaxNode(d,name,rank,author,comment,current) {
 }
 
 function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
-	fetchAJAX('/floraon/api/nodes/update/territory?id='+d._id
+	fetchAJAX('/floraon/api/update/update/territory?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&shortname='+encodeURIComponent(shortname)
 		+'&type='+encodeURIComponent(type)
@@ -538,7 +538,7 @@ function clickToolbar(ev) {
 			var tsname=wnd.querySelector('input[name=shortname]').value;
 			var type=wnd.querySelector('select[name=territorytype]').value;
 			var theme=wnd.querySelector('input[name=theme]').value;
-			fetchAJAX('/floraon/api/nodes/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
+			fetchAJAX('/floraon/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
 				rt=JSON.parse(rt);
 				if(!rt.success)
 					alert(rt.msg);
@@ -558,7 +558,7 @@ function clickToolbar(ev) {
 				var tname=wnd.querySelector('input[name=taxonname]').value;
 				var tauth=wnd.querySelector('input[name=taxonauth]').value;
 				var trank=wnd.querySelector('select[name=taxonrank]').value;
-				fetchAJAX('/floraon/api/nodes/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {				
+				fetchAJAX('/floraon/api/update/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {				
 					rt=JSON.parse(rt);
 					console.log(rt.msg);
 					updateData(rt.msg.nodes,null);
@@ -606,9 +606,13 @@ function clickToolbar(ev) {
 		});
 		break;
 	case 'but-characters':
-		fetchAJAX('/floraon/api/nodes/getallcharacters',function(rt) {
+		fetchAJAX('/floraon/api/read/getallcharacters',function(rt) {
 			rt=JSON.parse(rt);
-			var onlynew=mergeNodes(rt.nodes);
+			if(!rt.success) {
+				alert(rt.msg);
+				return;
+			}
+			var onlynew=mergeNodes(rt.msg.nodes);
 			gdata.nodes=gdata.nodes.concat(onlynew);
 			onUpdateData();
 		});
@@ -643,10 +647,12 @@ function clickToolbar(ev) {
 }
 
 function addTerritoryNodes() {
-	fetchAJAX('/floraon/api/nodes/getallterritories',function(rt) {
+	fetchAJAX('/floraon/api/read/getallterritories',function(rt) {
 		var graph=JSON.parse(rt);
-console.log(graph);
-		if(!graph.success) return;
+		if(!graph.success) {
+			alert(graph.msg);
+			return;
+		}
 		graph=graph.msg;
 		
 		updateData(graph.nodes,graph.links,null);
@@ -680,7 +686,7 @@ function collapseNode(n) {
 
 function deleteEntity(d,type) {
 //	if(type=='node') {
-		fetchAJAX('/floraon/api/nodes/delete?id='+d._id,function(rt) {
+		fetchAJAX('/floraon/api/update/delete?id='+d._id,function(rt) {
 			rt=JSON.parse(rt);
 			var toremove=[];
 			if(rt.success) {
@@ -930,8 +936,9 @@ function onUpdateData() {
 }
 
 function clickLink(d) {
+	var logged=document.getElementById('loggedin');
 	var seln=$('#taxbrowser .link.selected');
-	if(seln.length>0) {
+	if(seln.length>0 && logged) {
 		var seldatum=d3.select(seln[0]).datum();
 		if(seldatum._id==d._id) {
 			clickToolbar.call(this,{target:{datum:d,id:'but-editlink'}});
@@ -1019,7 +1026,7 @@ function screenCoordsForSVGEl(svg,el){
 function clickNode(d) {
 	if(d3.event.defaultPrevented) return; // ignore drag
 	d3.event.preventDefault();
-	var logged=document.getElementById('but-logout');
+	var logged=document.getElementById('loggedin');
 	
 	var seln=$('#taxbrowser .node.selected');
 	if(seln.length>0) {
@@ -1042,7 +1049,7 @@ function clickNode(d) {
 			var srcid=document.querySelector('.window input[name=srcid]').value;
 			var tarid=d._id;
 			var linktype=document.querySelector('.window input[name=linktype]').value;
-			fetchAJAX('/floraon/graph/links/add?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {			
+			fetchAJAX('/floraon/api/update/add/link?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {			
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					console.log(rt.msg);

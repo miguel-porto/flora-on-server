@@ -21,10 +21,15 @@ public class Territories extends FloraOnServlet {
 
 	@Override
 	public void doFloraOnPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+		if(!isAuthenticated(request)) {
+			error("You must login to do this operation!");
+			return;
+		}
+
 		ListIterator<String> part=this.getPathIterator(request);
 		while(!part.next().equals("territories"));
 		String from, to, query;
-		
+
 		if(!part.hasNext()) {
 			error("Choose one of: set");
 			return;

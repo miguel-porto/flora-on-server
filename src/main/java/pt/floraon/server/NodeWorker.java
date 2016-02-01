@@ -1,6 +1,7 @@
 package pt.floraon.server;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
@@ -13,8 +14,10 @@ import com.arangodb.entity.EntityFactory;
 
 import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.GraphUpdateResult;
@@ -34,19 +37,16 @@ public class NodeWorker extends FloraOnServlet {
 		String part;
 		String rank, current, name, author, annot, id, shortName, description, from, to;
 		
-		ListIterator<String> partIt=this.getPathIterator(request);
-		while(!(part=partIt.next()).equals("nodes"));
-		part=partIt.next();
+		if(!isAuthenticated(request)) {
+			error("You must login to do this operation!");
+			return;
+		}
 		
-		switch(part) {
-		case "getallcharacters":
-			response.getWriter().print(graph.dbNodeWorker.getAllCharacters().toString());
-			break;
+		ListIterator<String> partIt=this.getPathIterator(request);
+		while(!(part=partIt.next()).equals("update"));
+		part=partIt.next();
 
-		case "getallterritories":
-			success(graph.dbGeneralQueries.getAllTerritoriesGraph(null).toJsonObject());
-			break;
-			
+		switch(part) {
 		case "delete":
 			id=getParameter(request, "id");
 			if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
@@ -72,13 +72,40 @@ public class NodeWorker extends FloraOnServlet {
 			graph.dbNodeWorker.detachSynonym(ArangoKey.fromString(from), ArangoKey.fromString(to));
 			success("Ok");
 			return;
-
+			
 		case "add":
 			if(!partIt.hasNext()) {
 				error("Choose the node type: taxent");
 				return;
 			}
 			switch(partIt.next()) {
+			case "link":
+				id=request.getParameter("from");
+				String id2=request.getParameter("to");
+				String type=request.getParameter("type");
+				if(id==null || id.trim().length()<1 || id2==null || id2.trim().length()<1 || type==null) {
+					error("You must provide relationship type and two document handles 'from' and 'to'");
+					return;
+				}
+
+				GeneralNodeWrapperImpl n1=graph.dbNodeWorker.getNodeWrapper(id);
+				GeneralNodeWrapperImpl n2=graph.dbNodeWorker.getNodeWrapper(id2);
+				if(n1==null) {
+					error("Node "+id+" not found.");
+					return;
+				}
+				if(n2==null) {
+					error("Node "+id2+" not found.");
+					return;
+				}
+				try {
+					success(n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject());
+				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+						| IllegalArgumentException | InvocationTargetException e1) {
+					e1.printStackTrace();
+				}
+				return;
+				
 			case "inferiortaxent":	// this adds a bond taxent child of the given parent and ensures it is taxonomically valid
 				name=getParameter(request, "name");
 				author=getParameter(request, "author");
@@ -138,6 +165,12 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 			}
 			switch(partIt.next()) {
+			case "links":
+				id=request.getParameter("id");
+				current=request.getParameter("current");
+				success(graph.dbNodeWorker.updateDocument(id, "current", Integer.parseInt(current)==1).toJsonObject());
+				return;
+
 			case "taxent":
 				rank = getParameter(request, "rank");
 				current = getParameter(request, "current");

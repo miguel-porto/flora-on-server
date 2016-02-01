@@ -336,7 +336,7 @@ public class TaxEnt extends GeneralNodeWrapper {
 	public void canBeChildOf(TaxEntVertex taxon) throws TaxonomyException {
 		if(baseNode.current && baseNode.rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank, unless it is set as not current");
 		if(this.isSpeciesOrInferior()) {
-			if(baseNode.getName().toLowerCase().indexOf(taxon.getName().toLowerCase()+" ") != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
+			if(baseNode.current && baseNode.getName().toLowerCase().indexOf(taxon.getName().toLowerCase()+" ") != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
 			// TODO: more tests for name validity
 		}
 	}

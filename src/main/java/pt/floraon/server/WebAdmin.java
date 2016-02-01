@@ -27,15 +27,22 @@ public class WebAdmin extends FloraOnServlet {
 	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
+		
+		/*
+		if (user != null) {
+		    request.getSession().setAttribute("user", user); // Put user in session.
+		    response.sendRedirect("/secured/home.jsp"); // Go to some start page.
+		} else {
+		    request.setAttribute("error", "Unknown login, try again"); // Set error msg for ${error}
+		    request.getRequestDispatcher("/login.jsp").forward(request, response); // Go back to login page.
+		}*/
+		
 		String what=request.getParameter("w"),from;
 		String query=request.getParameter("q");
+		if(what==null) what="main";
 		request.setAttribute("what", what);
 		if(query!=null) request.setAttribute("query", query);
-		if(what==null) {
-			//out.print("<div id=\"main\"><h2>This is the Flora-On taxonomy manager</h2><p>To edit the checklist, choose <a href=\"?w=families\">Family tree</a> on the left.</p></div>");
-			request.getRequestDispatcher("/main.jsp").forward(request, response);
-			return;
-		}
+
 		switch(what) {		// the 'w' parameter of the URL querystring
 		case "main":	// CHECKLIST
 			if( (from=request.getParameter("offset"))==null ) from="0";

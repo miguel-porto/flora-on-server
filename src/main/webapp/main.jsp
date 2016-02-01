@@ -11,6 +11,12 @@
 	<script type="text/javascript" src="manager.js"></script>
 </head>
 <body>
+<c:if test="${sessionScope.user!=null}">
+	<form action="login" method="post" id="logoutform">
+   		<input type="hidden" name="logout" value="1"/>
+   		<input type="submit" value="Logout"/>
+	</form>				
+</c:if>
 <h1>Taxonomy & Checklist Manager</h1>
 <div style="position:absolute;right:3px;top:3px"><a href="https://github.com/miguel-porto/flora-on-server" target="_blank">fork me on GitHub</a></div>
 <ul class="menu">
@@ -20,6 +26,7 @@
 <div id="main-holder">
 	<div id="left-bar">
 		<ul>
+			<li><a href="?w=login">Login</a></li>
 			<li><a href="?w=main">Taxon list</a></li>
 			<li><a href="?w=families">Family tree</a></li>
 			<li><a href="?w=tree">Whole tree</a></li>
@@ -30,12 +37,35 @@
 	</div>
  
 	<c:choose>
-	<c:when test="${what==null}">
-		<div id="main"><h2>This is the Flora-On taxonomy manager</h2><p>To edit the checklist, choose <a href="?w=families">Family tree</a> on the left.</p></div>
+	<c:when test="${what=='login'}">
+		<div id="main"><h2>This is the Flora-On taxonomy manager</h2>
+		<c:choose>
+			<c:when test="${sessionScope.user==null}">
+				<p>To edit the checklist, you must login and choose <a href="?w=families">Family tree</a> on the left.</p>
+				<form action="login" method="post" id="loginform">
+					<table>
+					<c:if test="${param.reason!=null }">
+					Not found.
+					</c:if>
+					<tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
+					<tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
+					</table>
+		    		<input type="submit" value="Login"/>
+				</form>
+			</c:when>
+			<c:otherwise>
+				<p>Welcome <c:out value="${sessionScope.user.getUsername()} (${sessionScope.user.getRole()})"></c:out>, go ahead and edit!</p>
+				<form action="login" method="post">
+		    		<input type="hidden" name="logout" value="1"/>
+		    		<input type="submit" value="Logout"/>
+				</form>				
+			</c:otherwise>			
+		</c:choose>
+		</div>
 	</c:when>
-	<c:when test="${what=='main'}">
+	<c:when test="${(what=='main') || (what==null)}">
 		<div id="main" class="checklist noselect"><h1>List of all accepted names<c:out value="${territory}"></c:out></h1>
-		<p>Click on a taxon to edit it</p>
+		<c:if test="${sessionScope.user!=null}"><p>Click on a taxon to edit it</p></c:if>
 		<div><div class="territory NATIVE"></div> native <div class="territory ENDEMIC"></div> endemic <div class="territory EXOTIC"></div> exotic <div class="territory UNCERTAIN"></div> doubtfully native <div class="territory EXISTING"></div> existing</div>
 		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&offset=${offset+PAGESIZE}">next &gt;</a></div>
 		<jsp:include page="/api/lists?w=speciesterritories&fmt=htmltable&offset=${offset}"></jsp:include>
@@ -74,7 +104,6 @@
 		</div>
 	</c:when>
 	</c:choose>
-	
 </div>
 </body>
 </html>

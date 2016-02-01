@@ -1,7 +1,6 @@
 package pt.floraon.server;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
@@ -17,10 +16,9 @@ import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.GeneralNodeWrapperImpl;
 import pt.floraon.entities.TaxEnt;
 
-public class GraphWorker extends FloraOnServlet {
+public class GraphReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
@@ -104,49 +102,6 @@ public class GraphWorker extends FloraOnServlet {
 					success(graph.dbNodeWorker.getNeighbors(ids[0],fac).toJsonObject());
 				else
 					success(graph.dbNodeWorker.getRelationshipsBetween(ids,fac).toJsonObject());
-			}
-			break;
-			
-		case "links":
-			String id2, current;
-			if(!partIt.hasNext()) {
-				error("Choose one of: add, update");
-				return;
-			}
-			
-			switch(partIt.next()) {
-			case "add":
-				id=request.getParameter("from");
-				id2=request.getParameter("to");
-				String type=request.getParameter("type");
-				if(id==null || id.trim().length()<1 || id2==null || id2.trim().length()<1 || type==null) {
-					error("You must provide relationship type and two document handles 'from' and 'to'");
-					return;
-				}
-
-				GeneralNodeWrapperImpl n1=graph.dbNodeWorker.getNodeWrapper(id);
-				GeneralNodeWrapperImpl n2=graph.dbNodeWorker.getNodeWrapper(id2);
-				if(n1==null) {
-					error("Node "+id+" not found.");
-					return;
-				}
-				if(n2==null) {
-					error("Node "+id2+" not found.");
-					return;
-				}
-				try {
-					success(n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject());
-				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-						| IllegalArgumentException | InvocationTargetException e1) {
-					e1.printStackTrace();
-				}
-				return;
-				
-			case "update":
-				id=request.getParameter("id");
-				current=request.getParameter("current");
-				success(graph.dbNodeWorker.updateDocument(id, "current", Integer.parseInt(current)==1).toJsonObject());
-				return;
 			}
 			break;
 		}

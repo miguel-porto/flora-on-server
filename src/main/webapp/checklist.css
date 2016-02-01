@@ -247,3 +247,19 @@ ul.suggestions li.selected {
 /*	border:1px solid red;*/
 	background:rgba(127,127,0,0.4);
 }
+
+#loginform {
+	width:30%;
+	border-radius:0px;
+	box-shadow:0 0 3px #999;
+	padding:5px;
+	margin:20px auto;
+	background:linear-gradient(#fff,#e7e7e7);
+}
+#loginform input[type=text],#loginform input[type=password] {
+	width:50%
+}
+
+#logoutform {
+	float:left;
+}
