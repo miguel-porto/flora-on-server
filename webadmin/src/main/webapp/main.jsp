@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Taxonomy & Checklist Manager</title>
+	<title>Taxonomy &amp; Checklist Manager</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="checklist.css"/>
@@ -17,7 +17,7 @@
    		<input type="submit" value="Logout"/>
 	</form>				
 </c:if>
-<h1>Taxonomy & Checklist Manager</h1>
+<h1>Taxonomy &amp; Checklist Manager</h1>
 <div style="position:absolute;right:3px;top:3px"><a href="https://github.com/miguel-porto/flora-on-server" target="_blank">fork me on GitHub</a></div>
 <ul class="menu">
 <li id="download-checklist">Download checklist</li>

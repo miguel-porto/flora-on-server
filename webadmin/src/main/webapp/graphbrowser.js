@@ -202,7 +202,7 @@ function updateTaxNode(d,name,rank,author,comment,current) {
 function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
 	fetchAJAX('/floraon/api/update/update/territory?id='+d._id
 		+'&name='+encodeURIComponent(name)
-		+'&shortname='+encodeURIComponent(shortname)
+		+'&shortName='+encodeURIComponent(shortname)
 		+'&type='+encodeURIComponent(type)
 		+'&theme='+encodeURIComponent(theme)
 		+'&checklist='+checklist

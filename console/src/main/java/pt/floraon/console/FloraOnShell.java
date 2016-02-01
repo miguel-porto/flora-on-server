@@ -1,7 +1,6 @@
-package pt.floraon.server;
+package pt.floraon.console;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -17,8 +16,6 @@ import jline.console.completer.StringsCompleter;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.QueryException;
-import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.PhenologicalStates;

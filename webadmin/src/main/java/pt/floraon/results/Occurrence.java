@@ -72,7 +72,7 @@ public class Occurrence implements ResultItem {
 		occ.uuid = record.get(18).replace("\"", "");
 		occ.weight = Integer.parseInt(record.get(17));
 		occ.comment = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : tmp.replace("\n", "");
-		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.UNCERTAIN.getCode();
+		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.UNCERTAIN_SPONTANEITY.getCode();
 		occ.dateInserted = (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp;
 // FIXME: column 13!		
 		return occ;

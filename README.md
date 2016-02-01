@@ -14,9 +14,9 @@ Synonyms can be perfectly integrated in the taxonomic graph and linked with all 
 
 ## Installation
 1. Download and install ArangoDB
-2. Install Tomcat7
+2. Install Tomcat
 3. Clone Flora-On into a local folder
-4. In the console, compile and deploy with Maven: `mvn tomcat:deploy`
+4. In the console, compile and deploy with Maven: `mvn clean package tomcat:deploy`
 
 ## Using
 

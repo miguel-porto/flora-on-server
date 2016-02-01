@@ -64,7 +64,7 @@ public class GraphReader extends FloraOnServlet {
 				break;
 				
 			case "territorytypes":
-				rk.append("<select name=\"territorytype\"><option value=\"null\">undefined</option>");
+				rk.append("<select name=\"territorytype\"><option value=\"NOT_SET\">undefined</option>");
 				for(TerritoryTypes e : Constants.TerritoryTypes.values()) {
 					rk.append("<option value=\""+e.toString()+"\">"+e.toString()+"</option>");
 				}

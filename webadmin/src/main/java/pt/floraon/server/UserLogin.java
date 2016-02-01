@@ -28,6 +28,7 @@ public class UserLogin extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(request.getParameter("logout")!=null) {
 			request.getSession().removeAttribute("user");
+			response.sendRedirect("admin?w=login");
 		} else {
 			String username=request.getParameter("username");
 			String password=request.getParameter("password");
@@ -52,8 +53,8 @@ public class UserLogin extends HttpServlet {
 					break;
 				}
 			}
+			response.sendRedirect("admin?w=login&reason=notfound");
 		}
-		response.sendRedirect("admin?w=login&reason=notfound");
 		//request.getRequestDispatcher("/main.jsp").forward(request, response);
 	}
 }
