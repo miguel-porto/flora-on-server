@@ -11,7 +11,7 @@ public class WebAdmin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
 		

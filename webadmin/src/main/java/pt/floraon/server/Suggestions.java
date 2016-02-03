@@ -3,8 +3,6 @@ package pt.floraon.server;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.arangodb.ArangoException;
 
@@ -16,10 +14,10 @@ public class Suggestions extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
-		String query=getParameter(request,"q");
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
+		String query=getParameter("q");
 		if(query==null) return;
-		String lim=getParameter(request, "limit");
+		String lim=getParameter("limit");
 		Integer limit;
 		try {
 			limit=Integer.parseInt(lim);

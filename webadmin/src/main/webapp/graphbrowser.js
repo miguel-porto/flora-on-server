@@ -538,7 +538,7 @@ function clickToolbar(ev) {
 			var tsname=wnd.querySelector('input[name=shortname]').value;
 			var type=wnd.querySelector('select[name=territorytype]').value;
 			var theme=wnd.querySelector('input[name=theme]').value;
-			fetchAJAX('/floraon/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortname='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
+			fetchAJAX('/floraon/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
 				rt=JSON.parse(rt);
 				if(!rt.success)
 					alert(rt.msg);

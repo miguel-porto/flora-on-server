@@ -22,16 +22,16 @@ public class TaxDetails extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
 		String id=request.getParameter("id");
-		TaxEnt tev=graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(id));
-		ResultProcessor<NativeStatusResult> rpnsr=new ResultProcessor<NativeStatusResult>(graph.dbSpecificQueries.getTaxonNativeStatus(tev.getArangoKey()).iterator());
+		TaxEnt taxent=graph.dbNodeWorker.getTaxEnt(ArangoKey.fromString(id));
+		ResultProcessor<NativeStatusResult> rpnsr=new ResultProcessor<NativeStatusResult>(graph.dbSpecificQueries.getTaxonNativeStatus(taxent.getArangoKey()).iterator());
 		
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		rpnsr.toHTMLTable(new PrintWriter(baos), null);
 		baos.close();
 
-		request.setAttribute("taxent", tev);
+		request.setAttribute("taxent", taxent);
 		request.setAttribute("nativeStatusTable", baos.toString());
 		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", graph.dbGeneralQueries.getAllTerritories(null).iterator());

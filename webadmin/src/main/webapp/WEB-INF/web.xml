@@ -68,6 +68,12 @@
    <servlet-class>pt.floraon.server.Territories</servlet-class>
 </servlet>
 
+<servlet>
+   <servlet-name>FileUploader</servlet-name>
+   <servlet-class>pt.floraon.server.FileUploader</servlet-class>
+</servlet>
+
+
 <servlet-mapping>
    <servlet-name>WebAdmin</servlet-name>
    <url-pattern>/admin</url-pattern>
@@ -121,6 +127,11 @@
 <servlet-mapping>
    <servlet-name>Query</servlet-name>
    <url-pattern>/api/query</url-pattern>
+</servlet-mapping>
+
+<servlet-mapping>
+   <servlet-name>FileUploader</servlet-name>
+   <url-pattern>/upload</url-pattern>
 </servlet-mapping>
 
 </web-app>

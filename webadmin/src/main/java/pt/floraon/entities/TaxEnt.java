@@ -12,6 +12,7 @@ import com.arangodb.NonUniqueResultException;
 import com.arangodb.entity.marker.VertexEntity;
 import com.google.gson.internal.LinkedTreeMap;
 
+import pt.floraon.driver.ArangoKey;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
@@ -34,11 +35,16 @@ public class TaxEnt extends GeneralNodeWrapper {
 		this.dirty=false;
 		this.vertexEntity=null;
 	}
-
-	public TaxEnt(TaxEntVertex tev) {
+/*
+	private TaxEnt(TaxEntVertex tev) {
 		super.baseNode=tev;
 		this.baseNode=(TaxEntVertex)super.baseNode;
-	}
+	}*/
+	
+	/*public static TaxEnt getFromId(FloraOnDriver graph, ArangoKey id) throws ArangoException {
+		TaxEnt out=new TaxEnt(graph, graph.driver.getDocument(id.toString(), TaxEntVertex.class).getEntity());
+		return out;
+	}*/
 	
 	public TaxEnt(FloraOnDriver graph,TaxEntVertex tev) {
 		super.baseNode=tev;
@@ -365,5 +371,21 @@ public class TaxEnt extends GeneralNodeWrapper {
 	public List<TaxEnt> getHybridAncestry() {
 		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
+	}
+	
+	/**
+	 * Gets and array of territories which altogether comprise the endemic range of the taxon.
+	 * @return
+	 * @throws ArangoException 
+	 */
+	public String[] getEndemismDegree() throws ArangoException {
+		// FIXME this is not finished!! must traverse SYNONYMS, etc.
+		String query=String.format(
+			"FOR v IN 1..1 OUTBOUND '%1$s' %2$s RETURN v.name"
+			,this.getID(),RelTypes.EXISTS_IN.toString()
+		);
+		List<String> list=this.graph.driver.executeAqlQuery(query,null,null,String.class).asList();
+		String[] out = list.toArray(new String[list.size()]);
+		return out;
 	}
 }

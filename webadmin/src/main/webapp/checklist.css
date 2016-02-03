@@ -142,11 +142,11 @@ div.territory {
 	vertical-align:middle;
 }
 
-div.territory:hover {box-shadow:0 0 2px #0f0;}
-div.territory.EXISTING {background-color:#ccf;border:2px solid #fff;}
-div.territory.NATIVE {background-color:#afa;border:2px solid #fff;}
+div.territory:hover {box-shadow:0 0 2px 1px #0f0;}
+div.territory.EXISTING {background-color:#ccf;border:2px solid #ccf;}
+div.territory.NATIVE {background-color:#afa;border:2px solid #afa;}
 div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:30%;}
-div.territory.EXOTIC {background-color:#faa;border:2px solid #fff;}
+div.territory.EXOTIC {background-color:#faa;border:2px solid #faa;}
 div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
 div.territory.EXTINCT {background-color:#000;border:2px solid #000;color:white;font-weight:bold;}
 div.territory.POSSIBLY_EXTINCT {

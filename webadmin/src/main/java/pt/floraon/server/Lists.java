@@ -31,7 +31,7 @@ public class Lists extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
 		String htmlClass=null,from;
 		Object opt=null;
 		PrintWriter out;

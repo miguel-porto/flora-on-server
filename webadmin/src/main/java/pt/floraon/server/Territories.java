@@ -5,8 +5,6 @@ import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.arangodb.ArangoException;
 
@@ -20,7 +18,7 @@ public class Territories extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnPost() throws ServletException, IOException, ArangoException, FloraOnException {
 		if(!isAuthenticated(request)) {
 			error("You must login to do this operation!");
 			return;
@@ -36,9 +34,9 @@ public class Territories extends FloraOnServlet {
 		}
 		switch(part.next()) {
 		case "set":
-			from=getParameter(request,"taxon");		// the taxon id
-			to=getParameter(request,"territory");
-			query=getParameter(request,"status");
+			from=getParameter("taxon");		// the taxon id
+			to=getParameter("territory");
+			query=getParameter("status");
 			if(errorIfAnyNull(response, from, to, query)) return;
 			Territory terr=new Territory(graph, graph.dbNodeWorker.getTerritoryFromShortName(to));
 			NativeStatus nst=null;

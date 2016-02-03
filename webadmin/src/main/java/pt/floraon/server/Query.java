@@ -21,7 +21,7 @@ public class Query extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
 		String query=request.getParameter("q");
 		String format=request.getParameter("fmt");
 		if(errorIfAnyNull(query)) return;

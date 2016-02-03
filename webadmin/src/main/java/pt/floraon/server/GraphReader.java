@@ -22,7 +22,7 @@ public class GraphReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
 		String id,query;
 		StringBuilder rk=new StringBuilder();
 

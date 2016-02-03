@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.arangodb.ArangoException;
 
@@ -15,17 +13,14 @@ public class NodeReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response)
+	public void doFloraOnGet()
 			throws ServletException, IOException, ArangoException, FloraOnException {
-		String part;
 		
 		ListIterator<String> partIt=this.getPathIterator(request);
-		while(!(part=partIt.next()).equals("read"));
-		part=partIt.next();
+		while(!partIt.next().equals("read"));
 		
-		switch(part) {
+		switch(partIt.next()) {
 		case "getallcharacters":
-			//response.getWriter().print(graph.dbNodeWorker.getAllCharacters().toString());
 			success(graph.dbNodeWorker.getAllCharacters().toJsonObject());
 			break;
 

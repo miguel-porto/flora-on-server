@@ -467,6 +467,7 @@ public class FloraOnDriver {
 	     */
 	    public ArangoKey createTaxEntChild(ArangoKey parent,String name,String author,TaxonRanks rank,String annotation,Boolean current) throws FloraOnException, ArangoException {
 	    	TaxEnt par=this.getTaxEnt(parent);
+	    	//TaxEnt par=TaxEnt.getFromId(FloraOnDriver.this, parent);
 	    	TaxEnt child=new TaxEnt(name, author, rank.getValue(), annotation, current);
 	    	child.canBeChildOf(par.baseNode);
 	    	//if(par.baseNode.getRankValue() >= rank.getValue()) throw new TaxonomyException("Rank must be lower than parent rank");

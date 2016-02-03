@@ -1,11 +1,16 @@
 package pt.floraon.console;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.commons.io.IOUtils;
 
 import com.arangodb.ArangoException;
 
@@ -82,12 +87,13 @@ public class FloraOnShell {
 	            		System.out.println("\nGenerating random species lists");
 	            		generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
-	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/40_records.csv
+	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/100records.csv
 	            		continue;
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {
-	            		// FIXME: must fetch local URL
+            		    URL url = new URL("http://localhost:8080/floraon/"+line.substring(1));
+            		    IOUtils.copy(url.openStream(), System.out);
 	            		//server.processCommand(line.substring(1), System.out,false);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);

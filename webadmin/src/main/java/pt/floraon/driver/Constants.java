@@ -92,6 +92,10 @@ public final class Constants {
     	}
 	}
 
+	public enum OccurrenceStatus {
+		OCCURS,COMMON,RARE,POSSIBLY_EXTINCT,EXTINCT;
+	}
+	
 	public enum NativeStatus {
 		WILD((short)0)
 		,NATIVE((short)0)
@@ -99,9 +103,7 @@ public final class Constants {
 		,UNCERTAIN((short)1)
 		,NATURALIZED((short)2)
 		,EXOTIC((short)2)
-		,ENDEMIC((short)3)
-		,POSSIBLY_EXTINCT((short)4)
-		,EXTINCT((short)5);
+		,ENDEMIC((short)3);
 		
 		private final Short code;
 		NativeStatus (Short code) {

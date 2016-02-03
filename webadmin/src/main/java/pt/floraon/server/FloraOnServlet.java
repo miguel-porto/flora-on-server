@@ -1,8 +1,6 @@
 package pt.floraon.server;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +25,13 @@ public class FloraOnServlet extends HttpServlet {
 	protected String territory=null;
 	protected FloraOnDriver graph;
 	private static final long serialVersionUID = 2390926316338894377L;
-	private HttpServletResponse thisResponse;
-	private HttpServletRequest thisRequest;
+	protected HttpServletResponse response;
+	protected HttpServletRequest request;
 	
 	protected void error(String obj) throws IOException {
-		thisResponse.setContentType("application/json");
-		thisResponse.setCharacterEncoding("UTF-8");
-		thisResponse.getWriter().println("{\"success\":false,\"msg\":\""+obj+"\"}");
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().println("{\"success\":false,\"msg\":\""+obj+"\"}");
 	}
 	
 	protected boolean errorIfAnyNull(Object... pars) throws IOException {
@@ -61,21 +59,21 @@ public class FloraOnServlet extends HttpServlet {
 		out.addProperty("success", true);
 		out.add("msg", obj);
 
-		thisResponse.setContentType("application/json");
-		thisResponse.setCharacterEncoding("UTF-8");
-		thisResponse.getWriter().println(out.toString());
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().println(out.toString());
 	}
 
 	protected void success(JsonElement obj) throws IOException {
-		thisResponse.setContentType("application/json");
-		thisResponse.setCharacterEncoding("UTF-8");
-		thisResponse.getWriter().println("{\"success\":true,\"msg\":"+obj.toString()+"}");
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().println("{\"success\":true,\"msg\":"+obj.toString()+"}");
 	}
 
 	protected void success(String obj) throws IOException {
-		thisResponse.setContentType("application/json");
-		thisResponse.setCharacterEncoding("UTF-8");
-		thisResponse.getWriter().println("{\"success\":true,\"msg\":\""+obj+"\"}");
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().println("{\"success\":true,\"msg\":\""+obj+"\"}");
 	}
 	
 	protected boolean isAuthenticated(HttpServletRequest request) {
@@ -110,10 +108,10 @@ public class FloraOnServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		this.thisResponse=response;
-		this.thisRequest=request;
+		this.response=response;
+		this.request=request;
 		try {
-			doFloraOnGet(request, response);
+			doFloraOnGet();
 		} catch (ArangoException | FloraOnException e) {
 			error(e.getMessage());
 		}
@@ -123,25 +121,25 @@ public class FloraOnServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		this.thisResponse=response;
-		this.thisRequest=request;
+		this.response=response;
+		this.request=request;
 		try {
-			doFloraOnPost(request, response);
+			doFloraOnPost();
 		} catch (ArangoException | FloraOnException e) {
 			error(e.getMessage());
 		}
 	}
 
-	public String getParameter(HttpServletRequest request, String name) throws IOException, ServletException {
+	public String getParameter(String name) throws IOException, ServletException {
 		String tmp;
-		if(thisRequest.getContentType()==null)
-			tmp = thisRequest.getParameter(name);
-		else if(thisRequest.getContentType().contains("multipart/formdata")) {
-			tmp = thisRequest.getPart("rank")==null ? null : IOUtils.toString(thisRequest.getPart("rank").getInputStream(), StandardCharsets.UTF_8);
-		} else tmp = thisRequest.getParameter(name);
+		if(request.getContentType()==null)
+			tmp = request.getParameter(name);
+		else if(request.getContentType().contains("multipart/formdata")) {
+			tmp = request.getPart("rank")==null ? null : IOUtils.toString(request.getPart("rank").getInputStream(), StandardCharsets.UTF_8);
+		} else tmp = request.getParameter(name);
 		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
 	}
 	
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {}
-	public void doFloraOnPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {}
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {}
+	public void doFloraOnPost() throws ServletException, IOException, ArangoException, FloraOnException {}
 }

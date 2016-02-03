@@ -20,8 +20,8 @@ public class JobDownload extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ArangoException, FloraOnException {
-		String format=request.getParameter("query");
+	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
+		String format=getParameter("query");
 		ListIterator<String> partIt=this.getPathIterator(request);
 		while(!partIt.next().equals("job"));
 

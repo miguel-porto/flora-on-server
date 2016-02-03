@@ -17,8 +17,6 @@
 		<c:if test="${sessionScope.user!=null}">
 			<input type="hidden" id="loggedin" name="loggedin" value="${sessionScope.user}"/>
 		</c:if>
-		<!-- <div id="but-editsession" class="button">Open edit session</div>
-		<div id="but-logout" class="button">Close edit session</div> -->
 		<div class="box">
 			<div id="but-clean" class="button">Clean</div>
 			<!--<div id="but-orphan" class="button">Load orphan</div>-->

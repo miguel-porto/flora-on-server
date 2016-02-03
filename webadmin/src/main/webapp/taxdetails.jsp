@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <div>
 <h1>${taxent.getBaseNode().getFullName(true)}</h1>
@@ -20,8 +21,13 @@
 	<c:if test = "${catchException != null}">
 		<p class="error">There are taxonomic errors in this taxon. Please revise it or its parent relationships:<br/>ERROR: ${catchException.getMessage()}</p>
 	</c:if>
-	<table><tr><td>ID</td><td><c:out value="${taxent.getBaseNode().getID() }"></c:out></td></tr>
-	<tr><td>Rank</td><td><c:out value="${taxent.getBaseNode().getRank().toString() }"></c:out></td></tr></table>
+	<table>
+		<tr><td>ID</td><td><c:out value="${taxent.getBaseNode().getID() }"></c:out></td></tr>
+		<tr><td>Rank</td><td><c:out value="${taxent.getBaseNode().getRank().toString() }"></c:out></td></tr>
+		<tr><td>Endemic to</td><td>
+			<c:out value="${fn:join(taxent.getEndemismDegree(),', ')}, "></c:out>
+		</td></tr>
+	</table>
 	<div id="taxoninfo">
 		<div id="taxonnativestatus">
 			<h3>Native status</h3>
