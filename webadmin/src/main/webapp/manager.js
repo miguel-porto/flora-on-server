@@ -218,13 +218,16 @@ function actionButtonClick(ev) {
 	case 'updatetaxon':
 		var cb=document.getElementById('updatetaxonbox');
 		var parent=getCurrentTaxon();
+		// TODO: make formdata from html form directly
 		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
 			,comment:cb.querySelector('input[name=annot]').value
+			,rank:cb.querySelector('input[name=rank]').value
+			,current:cb.querySelector('input[name=current]').value
 			,id:parent
 		}
-		updateTaxon(obj);
+		updateTaxon(obj,true);
 		break;
 	
 	case 'addnativestatus':
@@ -247,7 +250,9 @@ function actionButtonClick(ev) {
 	}
 }
 
-function updateTaxon(obj) {
+function updateTaxon(obj, replace) {
+	obj.replace=replace ? 1 : 0;
+	//console.log(obj);
 	postJSON('/floraon/api/update/update/taxent',obj,function(rt) {
 		var el=document.querySelector('.taxdetails');
 		rt=JSON.parse(rt);
@@ -312,17 +317,17 @@ function attachTaxDetailsHandlers(el) {
 				if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
 				ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
 				ev.target.classList.add('selected');
-	
 				var cb=document.getElementById('updatetaxonbox');
 				var parent=getCurrentTaxon();
 				var obj={
-					name:cb.querySelector('input[name=name]').value
+					/*name:cb.querySelector('input[name=name]').value
 					,author:cb.querySelector('input[name=author]').value
 					,comment:cb.querySelector('input[name=annot]').value
-					,id:parent
+					,*/id:parent
 					,current:ev.target.classList.contains('current') ? 1 : 0
 				}
-				updateTaxon(obj);
+				console.log(obj);
+				updateTaxon(obj,false);
 			});
 		}
 	}	

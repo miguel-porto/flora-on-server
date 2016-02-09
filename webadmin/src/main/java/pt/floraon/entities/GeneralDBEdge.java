@@ -2,7 +2,9 @@ package pt.floraon.entities;
 
 import com.arangodb.entity.EntityFactory;
 
-public class GeneralDBEdge {
+import pt.floraon.driver.Constants.RelTypes;
+
+public abstract class GeneralDBEdge {
 	protected String _id;
 	protected String _from;
 	protected String _to;
@@ -14,4 +16,6 @@ public class GeneralDBEdge {
 	public String getID() {
 		return this._id;
 	}
+	
+	public abstract RelTypes getType();
 }

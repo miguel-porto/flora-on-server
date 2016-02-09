@@ -3,19 +3,25 @@ package pt.floraon.server;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import com.arangodb.ArangoException;
+import pt.floraon.arangodriver.FloraOnArangoDriver;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.FloraOn;
 
-import pt.floraon.driver.FloraOnDriver;
-
+/**
+ * Runs on webapp servlet startup
+ * @author miguel
+ *
+ */
 public class Startup implements ServletContextListener {
+	//public static FloraOnInt FloraOnDriver;
+	
 	public void contextInitialized(ServletContextEvent sce) {
-		FloraOnDriver graph;
-    	try {
-    		graph=new FloraOnDriver("flora");
-		} catch (ArangoException e2) {
-			e2.printStackTrace();
-			return;
+		FloraOn FloraOnDriver=null;
+		try {
+			FloraOnDriver = new FloraOnArangoDriver("flora");
+		} catch (FloraOnException e) {
+			e.printStackTrace();
 		}
-		sce.getServletContext().setAttribute("graph", graph);
+		sce.getServletContext().setAttribute("driver", FloraOnDriver);
 	}
 }

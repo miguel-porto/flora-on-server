@@ -2,30 +2,30 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <div>
-<h1>${taxent.getBaseNode().getFullName(true)}</h1>
+<h1>${taxent.getFullName(true)}</h1>
 <ul class="menu currentstatus">
-	<li class="current${taxent.getBaseNode().isCurrent() ? ' selected' : ''}">current</li>
-	<li class="notcurrent${taxent.getBaseNode().isCurrent() ? '' : ' selected'}">not current</li>
+	<li class="current${taxent.getCurrent() ? ' selected' : ''}">current</li>
+	<li class="notcurrent${taxent.getCurrent() ? '' : ' selected'}">not current</li>
 </ul>
 <ul class="menu">
-	<li><a href="?w=graph&q=${taxent.getBaseNode().getURLEncodedName()}">View in graph</a></li>
-	<c:if test="${taxent.isLeafNode() && sessionScope.user!=null}">
+	<li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li>
+	<c:if test="${taxentWrapper.isLeafNode() && sessionScope.user!=null}">
 		<li id="deletetaxon" class="actionbutton">Delete taxon</li>
 	</c:if>
 </ul>
-	<input type="hidden" name="nodekey" value="${taxent.getBaseNode().getID()}"/>
+	<input type="hidden" name="nodekey" value="${taxent.getID().toString()}"/>
 	<c:catch var ="catchException">
-   		<c:out value="${taxent.canBeChildOf(taxent.getParentTaxon()) }"></c:out>
+   		<c:out value="${taxent.canBeChildOf(taxentWrapper.getParentTaxon()) }"></c:out>
 	</c:catch>
 	
 	<c:if test = "${catchException != null}">
 		<p class="error">There are taxonomic errors in this taxon. Please revise it or its parent relationships:<br/>ERROR: ${catchException.getMessage()}</p>
 	</c:if>
 	<table>
-		<tr><td>ID</td><td><c:out value="${taxent.getBaseNode().getID() }"></c:out></td></tr>
-		<tr><td>Rank</td><td><c:out value="${taxent.getBaseNode().getRank().toString() }"></c:out></td></tr>
+		<tr><td>ID</td><td><c:out value="${taxent.getID().toString() }"></c:out></td></tr>
+		<tr><td>Rank</td><td><c:out value="${taxent.getRank().toString() }"></c:out></td></tr>
 		<tr><td>Endemic to</td><td>
-			<c:out value="${fn:join(taxent.getEndemismDegree(),', ')}, "></c:out>
+			<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}, "></c:out>
 		</td></tr>
 	</table>
 	<div id="taxoninfo">
@@ -35,7 +35,7 @@
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 		<ul class="synonyms">
-		<c:forEach var="synonym" items="${taxent.getSynonyms().iterator()}">
+		<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
   			<li data-key="${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out><div class="button remove">detach</div></li>
 		</c:forEach>
 		</ul>
@@ -47,10 +47,12 @@
 			<h1>Change name <span class="info">changes this taxon</span></h1>
 			<div class="content">
 				<table>
-					<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getBaseNode().getName()}"/></td></tr>
-					<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getBaseNode().getAuthor()==null ? '' : taxent.getBaseNode().getAuthor()}"/></td></tr>
-					<tr><td>New annotation</td><td><input type="text" name="annot" value="${taxent.getBaseNode().getAnnotation() == null ? '' : taxent.getBaseNode().getAnnotation()}"/></td></tr>
+					<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
+					<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
+					<tr><td>New annotation</td><td><input type="text" name="annot" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
 				</table>
+				<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
+				<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
 				<input type="button" value="Update" class="actionbutton" id="updatetaxon"/>
 			</div>
 		</div>

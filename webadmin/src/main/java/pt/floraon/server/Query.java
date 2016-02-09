@@ -6,10 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import com.arangodb.ArangoException;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.FloraOnException;
@@ -21,7 +18,7 @@ public class Query extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		String query=request.getParameter("q");
 		String format=request.getParameter("fmt");
 		if(errorIfAnyNull(query)) return;
@@ -29,7 +26,7 @@ public class Query extends FloraOnServlet {
 		Iterator<SimpleTaxonResult> it;
 		ResultProcessor<SimpleTaxonResult> rp;
 		
-		YlemParser ylem=new YlemParser(graph,query);
+		YlemParser ylem=new YlemParser(driver,query);
 		long start = System.nanoTime();
 		List<SimpleTaxonResult> res=ylem.execute();
 		long elapsedTime = System.nanoTime() - start;

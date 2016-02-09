@@ -4,16 +4,13 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.jsoup.Jsoup;
 
-import com.arangodb.ArangoException;
-
-import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
-import pt.floraon.entities.Author;
+import pt.floraon.entities.OBSERVED_IN;
 import pt.floraon.entities.SpeciesList;
-import pt.floraon.entities.TaxEnt;
 
 /**
  * Represents the occurrence of one taxon. Note that this is a class which has no representation in the DB. It is constructed by extracting info from a {@link SpeciesList},
@@ -22,22 +19,35 @@ import pt.floraon.entities.TaxEnt;
  *
  */
 public class Occurrence implements ResultItem {
-	/**
-	 * NOTE: the field names must be exactly equal to the corresponding fields in the classes OBSERVED_IN and SpeciesList
-	 * They don't need to be all here, though, just the relevant ones.
-	 */
-	protected String uuid,comment,dateInserted;			// from OBSERVED_IN
+	protected OBSERVED_IN observation;
+	protected SpeciesList speciesList;
+	/*protected String uuid,publicComment,privateComment,dateInserted;// from OBSERVED_IN
 	protected Short confidence,validated,nativeStatus,phenoState;	// from OBSERVED_IN
-	protected Integer weight;										// from OBSERVED_IN
-	protected Float[] location={null,null};							// from SpeciesList
-	protected Integer year,month,day,precision/*,area*/;			// from SpeciesList
-	protected String pubNotes,privNotes,habitat;					// from SpeciesList
+	protected Integer weight;										// from OBSERVED_IN*/
+/*	protected Float[] location={null,null};							// from SpeciesList
+	protected Integer year,month,day,precision;						// from SpeciesList
+	protected String pubNotes,privNotes,habitat;					// from SpeciesList*/
 
 	protected String name,inventoryKey;
 	protected Integer idEnt;
 	protected String[] observers;	// this first of the array is the main observer
 	protected Integer[] idauts;
 	
+	public void setName(String name) {
+		this.name=name;
+	}
+	public Integer getIdEnt() {
+		return this.idEnt;
+	}
+	public Integer[] getIdAuts() {
+		return this.idauts;
+	}
+	public OBSERVED_IN getObservation() {
+		return this.observation;
+	}
+	public SpeciesList getSpeciesList() {
+		return this.speciesList;
+	}
 	/**
 	 * Creates a new occurrence from a record of a CSV imported file, Flora-On style.  This does not add anything to DB.
 	 * @param record
@@ -46,17 +56,34 @@ public class Occurrence implements ResultItem {
 	 */
 	public static Occurrence fromCSVline(CSVRecord record) throws FloraOnException {
 		String tmp;
-		if(record.size()!=19) throw new FloraOnException("Record #"+record.getRecordNumber()+" did not have 19 fields.");
+		if(record.size()!=20) throw new FloraOnException("Record #"+record.getRecordNumber()+" did not have 20 fields.");
 		Occurrence occ=new Occurrence();
 
 		String[] idautsstr=record.get(7).replace("\"", "").split(",");	// there may be several authors. The 1st is the main.
 		occ.idauts=new Integer[idautsstr.length];
 		for(int i=0;i<idautsstr.length;i++) occ.idauts[i]=Integer.parseInt(idautsstr[i]); 
 		
-		if(!(tmp=record.get(1).replace("\"", "")).equals("\\N")) occ.year=Integer.parseInt(tmp);
+		Integer precision=Integer.parseInt(record.get(8));
+		switch(precision) {
+	    case 0: precision=1;break;
+	    case 1: precision=100;break;
+	    case 2: precision=1000;break;
+	    case 3: precision=10000;break;
+	    }
+		
+		occ.idEnt=Integer.parseInt(record.get(4));
+		occ.speciesList = new SpeciesList(
+			Float.parseFloat(record.get(5))
+			,Float.parseFloat(record.get(6))
+			,(tmp=record.get(1).replace("\"", "")).equals("\\N") ? null : Integer.parseInt(tmp)
+			,(tmp=record.get(2).replace("\"", "")).equals("\\N") ? null : Integer.parseInt(tmp)
+			,(tmp=record.get(3).replace("\"", "")).equals("\\N") ? null : Integer.parseInt(tmp)
+			,precision
+			,null,null,false,null,null
+		);
+		/*if(!(tmp=record.get(1).replace("\"", "")).equals("\\N")) occ.year=Integer.parseInt(tmp);
 		if(!(tmp=record.get(2).replace("\"", "")).equals("\\N")) occ.month=Integer.parseInt(tmp);
 		if(!(tmp=record.get(3).replace("\"", "")).equals("\\N")) occ.day=Integer.parseInt(tmp);
-		occ.idEnt=Integer.parseInt(record.get(4));
 		occ.location[0]=Float.parseFloat(record.get(5));
 		occ.location[1]=Float.parseFloat(record.get(6));
 		occ.precision=Integer.parseInt(record.get(8));
@@ -65,86 +92,58 @@ public class Occurrence implements ResultItem {
 	    case 1: occ.precision=100;break;
 	    case 2: occ.precision=1000;break;
 	    case 3: occ.precision=10000;break;
-	    }
-		occ.confidence = Short.parseShort(record.get(11));
+	    }*/
+		
+		occ.observation = new OBSERVED_IN(
+			Short.parseShort(record.get(11))
+			, Short.parseShort(record.get(9))
+			, (int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.FLOWER : PhenologicalStates.UNKNOWN
+			, record.get(18).replace("\"", "")
+			, Integer.parseInt(record.get(17))
+			, (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : Jsoup.parse(tmp.replace("\n", "")).text()
+			, (tmp = record.get(13).replace("\"", "")).equals("\\N") ? null : Jsoup.parse(tmp.replace("\n", "")).text()
+			, Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD : NativeStatus.UNCERTAIN
+			, (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp);
+		
+		/*occ.confidence = Short.parseShort(record.get(11));
 		occ.validated = Short.parseShort(record.get(9));
 		occ.phenoState = (int)Integer.parseInt(record.get(14)) == 1 ? PhenologicalStates.FLOWER.getCode() : PhenologicalStates.UNKNOWN.getCode();
 		occ.uuid = record.get(18).replace("\"", "");
 		occ.weight = Integer.parseInt(record.get(17));
-		occ.comment = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : tmp.replace("\n", "");
+		occ.publicComment = (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : Jsoup.parse(tmp.replace("\n", "")).text();
+		occ.privateComment = (tmp = record.get(13).replace("\"", "")).equals("\\N") ? null : Jsoup.parse(tmp.replace("\n", "")).text();
 		occ.nativeStatus = Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD.getCode() : NativeStatus.UNCERTAIN.getCode();
-		occ.dateInserted = (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp;
-// FIXME: column 13!		
+		occ.dateInserted = (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp;*/
 		return occ;
 	}
-	
-	/**
-	 * Writes this occurrence to DB. This may involve creating a new SpeciesList and/or creating a new OBSERVED_IN relation.
-	 * Does not add anything if an very similar occurrence already exists.
-	 * @param graph
-	 * @return
-	 * @throws ArangoException 
-	 * @throws FloraOnException 
-	 */
-	public void commit(FloraOnDriver graph) throws ArangoException, FloraOnException {
-		// search for an existing species list in the same coordinates, same author and same date
-		SpeciesList sl = graph.dbSpecificQueries.findExistingSpeciesList(idauts[0],location[0],location[1],year,month,day,3);
-		Author autnode;
-		if(sl == null) {	// add new specieslist
-			autnode = graph.dbNodeWorker.getAuthorById(idauts[0]);		//find 1st author (main)
-			if(autnode == null)
-				throw new FloraOnException("Cannot find main author with idAut="+idauts[0]);
-			else {	// first author exists and taxon exists, create node
-				sl = new SpeciesList(graph,location[0],location[1],year,month,day,precision,null,null,false,null,null);
-				sl.setObservedBy(autnode, true);
-			}
-			
-			// add supplementary observers
-			for(int i=1;i<idauts.length;i++) {
-				autnode = graph.dbNodeWorker.getAuthorById(idauts[i]);		//find 1st author (main)
-				if(autnode == null)			// SKIP line, main observer is compulsory
-					throw new FloraOnException("Cannot find author with idAut="+idauts[i]);
-				else
-					sl.setObservedBy(autnode, false);
-			}
-		}
 		
-		TaxEnt taxnode = graph.dbNodeWorker.getTaxEntById(idEnt);	// find taxon with ident, we assume there's only one!
-
-		if(taxnode == null)	// taxon not found! SKIP line
-			throw new FloraOnException("Taxon with oldID "+idEnt+" not found.");
-		
-		this.name=taxnode.baseNode.getName();
-		taxnode.setObservedIn(sl, confidence, validated, PhenologicalStates.getStateFromCode(phenoState), uuid, weight, comment, NativeStatus.getStateFromCode(nativeStatus), dateInserted);
-	}
-	
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		StringBuffer sb1=new StringBuffer();
 		rec.print(this.inventoryKey);
-		rec.print(this.year);
-		rec.print(this.month);
-		rec.print(this.day);
+		rec.print(this.speciesList.getYear());
+		rec.print(this.speciesList.getMonth());
+		rec.print(this.speciesList.getDay());
 		rec.print(this.name);
-		rec.print(this.location[0]);
-		rec.print(this.location[1]);
+		rec.print(this.speciesList.getLocation()[0]);
+		rec.print(this.speciesList.getLocation()[1]);
 		for(String s:this.observers) sb1.append(s+", ");
 		rec.print(sb1.toString());
-		rec.print(this.precision);
-		rec.print(this.validated);
-		rec.print(this.comment);
-		rec.print(this.confidence);
-		rec.print(this.dateInserted);
-		rec.print(PhenologicalStates.getStateFromCode(this.phenoState));
-		rec.print(NativeStatus.getStateFromCode(this.nativeStatus));
-		rec.print(this.weight);
-		rec.print(this.uuid);
+		rec.print(this.speciesList.getPrecision());
+		rec.print(this.observation.getValidated());
+		rec.print(this.observation.getPublicComment());
+		rec.print(this.observation.getConfidence());
+		rec.print(this.observation.getDateInserted());
+		rec.print(this.observation.getPhenoState());
+		rec.print(this.observation.getNativeStatus());
+		rec.print(this.observation.getWeight());
+		rec.print(this.observation.getUUID());
 	}
 	
 	@Override
 	public String toHTMLTableRow(Object obj) {
 		StringBuilder sb=new StringBuilder();
-		sb.append("<tr><td>"+this.inventoryKey+"</td><td>"+this.name+"</td><td>"+this.location[0]+"</td><td>"+this.location[1]+"</td><td>"+NativeStatus.getStateFromCode(this.nativeStatus)+"</td><td>"+PhenologicalStates.getStateFromCode(this.phenoState)+"</td><td>"+this.dateInserted+"</td><td>"+this.confidence+"</td><td>"+this.validated+"</td><td>"+this.uuid+"</td><td>");
+		sb.append("<tr><td>"+this.inventoryKey+"</td><td>"+this.name+"</td><td>"+this.speciesList.getLocation()[0]+"</td><td>"+this.speciesList.getLocation()[1]+"</td><td>"+this.observation.getNativeStatus()+"</td><td>"+this.observation.getPhenoState()+"</td><td>"+this.observation.getDateInserted()+"</td><td>"+this.observation.getConfidence()+"</td><td>"+this.observation.getValidated()+"</td><td>"+this.observation.getUUID()+"</td><td>");
 		for(String s:this.observers)
 			sb.append(s+", ");
 		sb.append("</td></tr>");
@@ -153,7 +152,7 @@ public class Occurrence implements ResultItem {
 
 	@Override
 	public String toHTMLListItem() {
-		return "<li>"+this.location[0]+", "+this.location[1]+"</li>";
+		return "<li>"+this.speciesList.getLocation()[0]+", "+this.speciesList.getLocation()[1]+"</li>";
 	}
 	
 	@Override

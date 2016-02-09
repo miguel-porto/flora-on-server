@@ -1,141 +1,70 @@
 package pt.floraon.entities;
 
-import java.io.IOException;
-import java.util.Iterator;
-
-import com.arangodb.ArangoException;
-import com.arangodb.entity.marker.VertexEntity;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.Constants.NodeTypes;
-
-public class SpeciesList extends GeneralNodeWrapper {
-	public SpeciesListVertex baseNode;
-	private VertexEntity<SpeciesListVertex> vertexEntity=null;
-	private FloraOnDriver graph;
-
-	public SpeciesList(Float latitude, Float longitude, Integer year, Integer month, Integer day,Integer precision) {
-		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision);
-		this.baseNode=(SpeciesListVertex)super.baseNode;
-	}
-
-	public SpeciesList(FloraOnDriver graph,Float latitude, Float longitude, Integer year, Integer month, Integer day,Integer precision) throws ArangoException {
-		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision);
-		this.baseNode=(SpeciesListVertex)super.baseNode;
-		this.graph=graph;
-		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), this.baseNode, false);
-		super.baseNode._id=this.vertexEntity.getDocumentHandle();
-	}
+public class SpeciesList extends GeneralDBNode {
+	protected Float[] location={null,null};
+	protected Integer year,month,day,precision,area;
+	protected String pubNotes,privNotes,habitat;
+	protected Boolean complete;		// did the observer identify all species he was able to?
 	
-	public SpeciesList(FloraOnDriver graph,Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String pubNotes,Boolean complete,String privNotes,String habitat) throws ArangoException {
-		super.baseNode=new SpeciesListVertex(latitude, longitude, year, month, day, precision, area, pubNotes, complete, privNotes, habitat);
-		this.baseNode=(SpeciesListVertex)super.baseNode;
-		this.graph=graph;
-		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), this.baseNode, false);
-		super.baseNode._id=this.vertexEntity.getDocumentHandle();
+	public Float[] getLocation() {
+		return this.location;
 	}
-
-	public SpeciesList(SpeciesListVertex slv) {
-		super.baseNode=slv;
-		this.baseNode=(SpeciesListVertex)super.baseNode;
+	public Integer getYear() {
+		return this.year;
 	}
-	
-	public SpeciesList(FloraOnDriver fog,SpeciesListVertex slv) {
-		super.baseNode=slv;
-		this.baseNode=(SpeciesListVertex)super.baseNode;
-		this.graph=fog;
+	public Integer getMonth() {
+		return this.month;
 	}
-	
-	/**
-	 * Constructs a new species list from a JSON document as documented in the wiki.
-	 * @param graph
-	 * @param sl A {@link JsonObject} as documented <a href="https://github.com/miguel-porto/flora-on-server/wiki/Document-formats-for-uploading-data">here</a>.
-	 * @throws FloraOnException
-	 * @throws ArangoException
-	 */
-	public SpeciesList(FloraOnDriver graph,JsonObject sl) throws FloraOnException, ArangoException {
-		if(!(sl.has("latitude") && sl.has("longitude") && sl.has("precision") && sl.has("authors") && sl.has("taxa"))) throw new FloraOnException("Species list document must have at least the fields latitude, longitude, precision, authors, taxa.");
-		JsonElement tmp;
-		// TODO HERE!!!
-		super.baseNode=new SpeciesListVertex(
-			sl.get("latitude").getAsFloat()
-			, sl.get("longitude").getAsFloat()
-			, (tmp=sl.get("year")) == null ? null : tmp.getAsInt()
-			, (tmp=sl.get("month")) == null ? null : tmp.getAsInt()
-			, (tmp=sl.get("day")).isJsonNull() ? null : tmp.getAsInt()
-			, sl.get("precision").getAsInt()
-			, (tmp=sl.get("area")) == null ? null : tmp.getAsInt()
-			, (tmp=sl.get("pubNotes")) == null ? null : tmp.getAsString()
-			, (tmp=sl.get("complete")) == null ? null : tmp.getAsBoolean()
-			, (tmp=sl.get("privNotes")).isJsonNull() ? null : tmp.getAsString()
-			, (tmp=sl.get("habitat")) == null ? null : tmp.getAsString()
-			);
-		this.baseNode=(SpeciesListVertex)super.baseNode;
-		this.graph=graph;
-		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), this.baseNode, false);
-		super.baseNode._id=this.vertexEntity.getDocumentHandle();
+	public Integer getDay() {
+		return this.day;
 	}
-
-	public void setPrecision(Integer precision) {
-		baseNode.precision=precision;
-		this.dirty=true;
-	}
-	
 	public Integer getPrecision() {
-		return baseNode.precision;
+		return this.precision;
 	}
-
-	@Override
-	public String toString() {
-		return "Species list at "+baseNode.location[0]+"º "+baseNode.location[1]+"º on "+baseNode.year+"/"+baseNode.month+"/"+baseNode.day;
+	public Integer getArea() {
+		return this.area;
 	}
-	/**
-	 * Create a new OBSERVED_BY between this species list and an author. If it exists already, nothing happens.
-	 * @param aut The {@link Author}
-	 * @param isMainAuthor Whether this is the main author (whose name comes first) or a secondary author (order arbitrary)
-	 * @return 1 if relation was created, 0 if not
-	 * @throws IOException
-	 * @throws ArangoException
-	 */
-	public int setObservedBy(Author aut,Boolean isMainAuthor) throws FloraOnException, ArangoException {
-// TODO if it is main observer, can only be one!
-		if(baseNode._id==null) throw new FloraOnException("Species list not attached to DB");
-		String query=String.format("FOR au IN author FILTER au.idAut==%2$d UPSERT {_from:'%1$s',_to:au._id} INSERT {_from:'%1$s',_to:au._id,main:%3$b} UPDATE {} IN OBSERVED_BY RETURN OLD ? 0 : 1",baseNode.getID(),aut.baseNode.idAut,isMainAuthor);
-//		System.out.println(query);
-		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
+	public String getPubNotes() {
+		return this.pubNotes;
 	}
-
-	/**
-	 * Create a new OBSERVED_BY between this species list and an author. If it exists already, nothing happens.
-	 * @param idaut The ID of the author
-	 * @param isMainAuthor
-	 * @return
-	 * @throws IOException
-	 * @throws ArangoException
-	 */
-	public int setObservedBy(int idaut,Boolean isMainAuthor) throws IOException, ArangoException {
-		if(baseNode._id==null || this.graph==null) throw new IOException("Species list not attached to DB");
-		String query=String.format("FOR au IN author FILTER au.idAut==%2$d UPSERT {_from:'%1$s',_to:au._id} INSERT {_from:'%1$s',_to:au._id,main:%3$b} UPDATE {} IN OBSERVED_BY RETURN OLD ? 0 : 1",baseNode.getID(),idaut,isMainAuthor);
-//		System.out.println(query);
-		return this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
+	public String getPrivNotes() {
+		return this.privNotes;
 	}
-
-	/**
-	 * Gets all the species of this species list
-	 * @return
-	 */
-	public Iterator<TaxEntVertex> getSpecies() {
-		// TODO Gets all the species of this species list
-		return null;
+	public String getHabitat() {
+		return this.habitat;
 	}
-
-	@Override
-	public void commit() {
-		// TODO Auto-generated method stub
-		
+	public Boolean getComplete() {
+		return this.complete;
+	}
+	
+	public SpeciesList(Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision,Integer area,String pubNotes,Boolean complete,String privNotes,String habitat) {
+		this.location[0]=latitude;
+		this.location[1]=longitude;
+		this.year=year;
+		this.month=month;
+		this.day=day;
+		this.precision=precision;
+		this.area=area;
+		this.pubNotes=pubNotes;
+		this.complete=complete;
+		this.privNotes=privNotes;
+		this.habitat=habitat;
+	}
+	
+	public SpeciesList(Float latitude,Float longitude,Integer year,Integer month,Integer day,Integer precision) {
+		this(latitude, longitude, year, month, day, precision, null, null, null, null, null);
+	}
+	
+	public SpeciesList(SpeciesList sl) {
+		super(sl);
+		this.location[0]=sl.location[0];
+		this.location[1]=sl.location[1];
+		this.year=sl.year;
+		this.month=sl.month;
+		this.day=sl.day;
+		this.precision=sl.precision;
+		this.area=sl.area;
+		this.pubNotes=sl.pubNotes;
+		this.complete=sl.complete;
 	}
 }

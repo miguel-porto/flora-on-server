@@ -6,12 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-
-import com.arangodb.ArangoException;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.server.FloraOnServlet;
@@ -20,9 +16,9 @@ public class JobDownload extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
-		String format=getParameter("query");
-		ListIterator<String> partIt=this.getPathIterator(request);
+	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+		String format=getParameterAsString("query");
+		ListIterator<String> partIt=this.getPathIterator();
 		while(!partIt.next().equals("job"));
 
 		JobRunner job1=JobSubmitter.getJob(partIt.next());

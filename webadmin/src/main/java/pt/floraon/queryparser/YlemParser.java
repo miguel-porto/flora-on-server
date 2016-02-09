@@ -6,10 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.arangodb.ArangoException;
-
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.FloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
@@ -23,8 +22,8 @@ import pt.floraon.results.SimpleTaxonResult;
 public class YlemParser {
 	private String[] preParsers={"GeoPointParser"};		// regex-based parsers, which don't need to find matches in the DB
 	private String[] query=new String[1];
-	private FloraOnDriver graph;
-	public YlemParser(FloraOnDriver graph,String query) {
+	private FloraOn graph;
+	public YlemParser(FloraOn graph,String query) {
 		this.query[0]=query;//.trim().replaceAll(" +", " ");
 		this.graph=graph;
 	}
@@ -75,7 +74,7 @@ public class YlemParser {
 		try {
 			for(String parser : preParsers) {
 				myClass = Class.forName("pt.floraon.queryparser."+parser);
-				Class<?>[] types = {FloraOnDriver.class, QueryObject.class};
+				Class<?>[] types = {FloraOn.class, QueryObject.class};
 				Constructor<?> constructor = myClass.getConstructor(types);
 				
 				Object[] parameters = {this.graph, qs};
@@ -103,7 +102,7 @@ public class YlemParser {
 					tmps=wsi.next();
 					try {
 						qp.matchLists.add(		// add all the matches of this word combination
-							mat=new MatchList(tmps,this.graph.dbGeneralQueries.queryMatcher(tmps
+							mat=new MatchList(tmps, this.graph.getQueryDriver().queryMatcher(tmps
 								, StringMatchTypes.PARTIAL
 								, new String[] {
 									NodeTypes.taxent.toString()
@@ -120,7 +119,7 @@ public class YlemParser {
 								System.out.println(Constants.ANSI_YELLOW+"        * "+Constants.ANSI_RESET+mt.toString());
 							}
 						}
-					} catch (ArangoException e) {
+					} catch (DatabaseException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -130,7 +129,7 @@ public class YlemParser {
 		}
 
 		// RESULT PHASE
-		List <SimpleTaxonResult> tmp;
+		List<SimpleTaxonResult> tmp;
 		Match thisMatch;
 		for(QueryPiece qp : qs.queryPieces) {		// process each query piece independently and intersect results
 			for(MatchList ml : qp.matchLists) {
@@ -139,14 +138,14 @@ public class YlemParser {
 						thisMatch=ml.matches.get(0);
 						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_RESET+"Fetch: \""+thisMatch.query+"\""+(thisMatch.rank!=null ? " ("+thisMatch.getRank().toString()+")" : ""));
 						// take the most relevant match
-						tmp=graph.dbGeneralQueries.fetchMatchSpecies(ml.matches.get(0),false);
+						tmp=graph.getQueryDriver().fetchMatchSpecies(ml.matches.get(0),false);
 						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_GREENBOLD+"Found "+tmp.size()+Constants.ANSI_RESET+" results.");
 						if(qs.results==null)
 							qs.results=tmp;
 						else
 							qs.results=SimpleTaxonResult.mergeSimpleTaxonResultLists(qs.results, tmp);
 					}
-				} catch (ArangoException e) {
+				} catch (DatabaseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

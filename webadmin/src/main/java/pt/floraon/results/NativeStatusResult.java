@@ -5,10 +5,10 @@ import java.io.IOException;
 import org.apache.commons.csv.CSVPrinter;
 
 import pt.floraon.entities.EXISTS_IN;
-import pt.floraon.entities.TerritoryVertex;
+import pt.floraon.entities.Territory;
 
 public class NativeStatusResult implements ResultItem {
-	protected TerritoryVertex territory;
+	protected Territory territory;
 	protected EXISTS_IN nativeStatus;
 
 	@Override

@@ -4,9 +4,9 @@ import java.io.OutputStream;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.FloraOn;
 
 public interface Job {
-	public void run(FloraOnDriver driver, OutputStream out) throws ArangoException, FloraOnException;
+	public void run(FloraOn driver, OutputStream out) throws ArangoException, FloraOnException;
 }

@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import com.arangodb.ArangoException;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants;
@@ -22,14 +19,11 @@ public class GraphReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		String id,query;
 		StringBuilder rk=new StringBuilder();
+		ListIterator<String> partIt=this.getPathIteratorAfter("graph");
 
-		ListIterator<String> partIt=this.getPathIterator(request);	
-
-		while(!partIt.next().equals("graph"));
-		
 		switch(partIt.next()) {
 		case "reference":
 			if(!partIt.hasNext()) {
@@ -75,12 +69,12 @@ public class GraphReader extends FloraOnServlet {
 			break;
 
 		case "getneighbors":
-			id=request.getParameter("id");
-			query=request.getParameter("q");
+			id=getParameterAsString("id");
+			query=getParameterAsString("q");
 			if(errorIfAllNull(response, id, query)) return;
 
 			String infacets[];
-			String facets=request.getParameter("f");
+			String facets=getParameterAsString("f");
 			// get the facets we want to show
 			if(facets==null || facets.equals(""))
 				infacets=new String[]{"taxonomy"};
@@ -91,17 +85,17 @@ public class GraphReader extends FloraOnServlet {
 			for(int i=0;i<infacets.length;i++) fac[i]=Facets.valueOf(infacets[i].toUpperCase());
 
 			if(id==null) {
-				TaxEnt te=graph.dbNodeWorker.findTaxEnt(query);
+				TaxEnt te=driver.getNodeWorkerDriver().getTaxEntByName(query);
 				if(te==null)
-					success(graph.dbNodeWorker.getNeighbors(null,fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getNeighbors(null,fac).toJsonObject());
 				else
-					success(graph.dbNodeWorker.getNeighbors(te.getID(),fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(te.getID()),fac).toJsonObject());
 			} else {
 				String[] ids=id.split(",");
 				if(ids.length==1)
-					success(graph.dbNodeWorker.getNeighbors(ids[0],fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(ids[0]),fac).toJsonObject());
 				else
-					success(graph.dbNodeWorker.getRelationshipsBetween(ids,fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getRelationshipsBetween(ids,fac).toJsonObject());
 			}
 			break;
 		}

@@ -131,7 +131,7 @@
 
 <servlet-mapping>
    <servlet-name>FileUploader</servlet-name>
-   <url-pattern>/upload</url-pattern>
+   <url-pattern>/upload/*</url-pattern>
 </servlet-mapping>
 
 </web-app>

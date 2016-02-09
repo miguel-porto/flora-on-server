@@ -1,40 +1,34 @@
 package pt.floraon.entities;
 
-import com.arangodb.ArangoException;
-import com.arangodb.entity.marker.VertexEntity;
-
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnDriver;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.Constants.NodeTypes;
-
-public class Author extends GeneralNodeWrapper {
-	public AuthorVertex baseNode;
-	private VertexEntity<AuthorVertex> vertexEntity=null;
-
-	public Author(Integer idAut, String name, String email, String acronym,String username,Integer level) {
-		this.baseNode=new AuthorVertex(idAut, name, email, acronym, username, level);
-		super.baseNode=this.baseNode;
+public class Author extends GeneralDBNode {
+	protected Integer idAut;
+	protected String name;
+	protected String email;
+	protected String acronym;
+	protected Integer level;
+	protected String username;
+	
+	
+	public Author(Integer idAut,String name,String email,String acronym,String username,Integer level) {
+		this.idAut=idAut;
+		this.name=name;
+		this.email=email;
+		this.acronym=acronym;
+		this.username=username;
+		this.level=level;
 	}
 	
-	public Author(FloraOnDriver graph,Integer idAut, String name, String email, String acronym,String username,Integer level) throws ArangoException {
-		this.baseNode=new AuthorVertex(idAut, name, email, acronym, username, level);
-		super.baseNode=this.baseNode;
-		this.graph=graph;
-		this.vertexEntity=graph.driver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.author.toString(), this.baseNode, false);
-		super.baseNode._id=this.vertexEntity.getDocumentHandle();
+	public Author(Author aut) {
+		super(aut);
+		this.idAut=aut.idAut;
+		this.name=aut.name;
+		this.email=aut.email;
+		this.acronym=aut.acronym;
+		this.username=aut.username;
+		this.level=aut.level;
 	}
-
-	public Author(FloraOnDriver graph, AuthorVertex aut) {
-		this.baseNode=aut;
-		super.baseNode=this.baseNode;
-		this.graph=graph;
+	
+	public Integer getIdAut() {
+		return this.idAut;
 	}
-
-	@Override
-	public void commit() throws FloraOnException, ArangoException {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

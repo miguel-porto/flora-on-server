@@ -11,6 +11,14 @@ public abstract class GeneralDBNode {
 		return _id;
 	}
 	
+	public void setID(String id) {
+		this._id=id;
+	}
+
+	public void setKey(String key) {
+		this._key=key;
+	}
+
 	public GeneralDBNode(GeneralDBNode n) {
 		this._id=n._id;
 		this._key=n._key;

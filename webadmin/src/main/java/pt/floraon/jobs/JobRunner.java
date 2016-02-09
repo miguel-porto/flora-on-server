@@ -14,8 +14,8 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.FloraOn;
 
 /**
  * Runs the commands meant to be run asynchronously to a file to be downloaded.
@@ -28,10 +28,10 @@ public class JobRunner implements Runnable {
 	private File tmpFile;
 	private boolean isClosed,hasError=false;
 	private String uuid, desiredFileName, errorMessage;
-	private FloraOnDriver driver;
+	private FloraOn driver;
 	private Job job;
 	
-	public JobRunner(Job job, String desiredFileName, FloraOnDriver driver) throws IOException {
+	public JobRunner(Job job, String desiredFileName, FloraOn driver) throws IOException {
 		tmpFile=File.createTempFile("floraon_", null);
 		outputStream= new FileOutputStream(tmpFile);
 		isClosed=false;

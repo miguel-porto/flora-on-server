@@ -1,26 +1,51 @@
 package pt.floraon.server;
 
-import java.io.File;
+import java.io.IOException;
+import java.util.ListIterator;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import com.arangodb.entity.EntityFactory;
+
+import pt.floraon.driver.CSVFileProcessor;
+import pt.floraon.driver.FloraOnException;
 
 public class FileUploader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	private String filePath;
 	
-	public void init() {
+	/*public void init() {
 		filePath = getServletContext().getInitParameter("file-upload"); 
+	}*/
+	
+	/**
+	 * The GET method is for processing files stored in the local server.
+	 */
+	@Override
+	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+		CSVFileProcessor cfp=new CSVFileProcessor(driver);
+		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
+		
+		switch(partIt.next()) {
+		case "authors":
+			success(
+				EntityFactory.toJsonElement(cfp.uploadAuthorsFromFile(getParameterAsString("file")), false)	// TODO: don't use EntityFactory 
+			);
+			break;
+		
+		case "occurrences":
+			success(
+				EntityFactory.toJsonElement(cfp.uploadRecordsFromFile(getParameterAsString("file")), false) // TODO: don't use EntityFactory
+			);
+			break;
+		}
 	}
 	
-	
-	
-public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+	/**
+	 * Upload a file, store it locally and call the processing routine.
+	 */
+	@Override
+	public void doFloraOnPost() throws ServletException {
       // Check that we have a file upload request
 	/*
   boolean isMultipart = ServletFileUpload.isMultipartContent(request);

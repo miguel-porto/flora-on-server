@@ -1,17 +1,17 @@
 package pt.floraon.queryparser;
 
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOn;
 
 public abstract class TokenParser implements Comparable<TokenParser> {
-	protected FloraOnDriver graph;
+	protected FloraOn graph;
 	protected QueryObject currentQueryObj;
 	protected String classname;
 	//protected List<String> afterQuery=new ArrayList<String>();
 
 	protected abstract Integer getOrder();
 	public abstract QueryObject parse();
-	public TokenParser(FloraOnDriver graph,QueryObject query) {
+	public TokenParser(FloraOn graph,QueryObject query) {
 		this.currentQueryObj=query;
 		this.graph=graph;
 		this.classname=Constants.ANSI_YELLOW+"["+this.getClass().getSimpleName()+"] "+Constants.ANSI_RESET;

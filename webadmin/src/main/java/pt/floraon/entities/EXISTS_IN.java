@@ -1,9 +1,10 @@
 package pt.floraon.entities;
 
 import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.RelTypes;
 
 /**
- * Describes the association of one taxon to one {@link TerritoryVertex}.
+ * Describes the association of one taxon to one {@link Territory}.
  * It is not meant to describe the observation of a taxon in an inventory, for that we use {@link OBSERVED_IN}
  * @author miguel
  *
@@ -20,4 +21,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this._from=from;
 		this._to=to;
 	}
+	
+	@Override
+	public RelTypes getType() {
+		return RelTypes.EXISTS_IN;
+	}
+
 }

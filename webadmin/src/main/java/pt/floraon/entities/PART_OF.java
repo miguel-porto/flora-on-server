@@ -1,5 +1,7 @@
 package pt.floraon.entities;
 
+import pt.floraon.driver.Constants.RelTypes;
+
 public class PART_OF extends GeneralDBEdge {
 	public boolean current;
 	
@@ -10,4 +12,9 @@ public class PART_OF extends GeneralDBEdge {
 	public PART_OF(boolean current) {
 		this.current=current;
 	}
+	@Override
+	public RelTypes getType() {
+		return RelTypes.PART_OF;
+	}
+
 }

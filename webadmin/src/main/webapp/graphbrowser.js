@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		
 		if(what) {
-			if(what=='territories') addTerritoryNodes();
+			if(what=='territories') addNodeBatch('getallterritories');
 		} else
 			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae'},false,getVisibleFacets(),1);
 	});
@@ -606,19 +606,10 @@ function clickToolbar(ev) {
 		});
 		break;
 	case 'but-characters':
-		fetchAJAX('/floraon/api/read/getallcharacters',function(rt) {
-			rt=JSON.parse(rt);
-			if(!rt.success) {
-				alert(rt.msg);
-				return;
-			}
-			var onlynew=mergeNodes(rt.msg.nodes);
-			gdata.nodes=gdata.nodes.concat(onlynew);
-			onUpdateData();
-		});
+		addNodeBatch('getallcharacters');
 		break;
 	case 'but-territories':
-		addTerritoryNodes();
+		addNodeBatch('getallterritories');
 		break;
 	case 'but-partof':
 		var linktype='PART_OF';
@@ -646,8 +637,8 @@ function clickToolbar(ev) {
 	}
 }
 
-function addTerritoryNodes() {
-	fetchAJAX('/floraon/api/read/getallterritories',function(rt) {
+function addNodeBatch(batch) {
+	fetchAJAX('/floraon/api/read/'+batch,function(rt) {
 		var graph=JSON.parse(rt);
 		if(!graph.success) {
 			alert(graph.msg);

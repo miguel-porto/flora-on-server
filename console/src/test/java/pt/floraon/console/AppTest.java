@@ -1,11 +1,10 @@
 package pt.floraon.console;
 
-import com.arangodb.ArangoException;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.arangodriver.FloraOnArangoDriver;
+import pt.floraon.driver.FloraOnException;
 
 /**
  * Unit test for simple App.
@@ -33,11 +32,11 @@ public class AppTest
 
     public void testApp() {
     	// TODO: record upload test!!!
-    	FloraOnDriver fog=null;
+    	FloraOnArangoDriver fog=null;
     	try {
-			fog=new FloraOnDriver("flora");
-		} catch (ArangoException e2) {
-			fail(e2.getErrorMessage());
+			fog=new FloraOnArangoDriver("flora");
+		} catch (FloraOnException e2) {
+			fail(e2.getMessage());
 		}
 
     	if(fog==null) fail("Unable to create database.");

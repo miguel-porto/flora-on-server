@@ -1,50 +1,41 @@
 package pt.floraon.console;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.io.IOUtils;
 
-import com.arangodb.ArangoException;
 
 import jline.TerminalFactory;
 import jline.console.ConsoleReader;
 import jline.console.completer.FileNameCompleter;
 import jline.console.completer.StringsCompleter;
+import pt.floraon.arangodriver.FloraOnArangoDriver;
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnDriver;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.FloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
-import pt.floraon.driver.Constants.PhenologicalStates;
-import pt.floraon.entities.Author;
-import pt.floraon.entities.SpeciesList;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.TaxEntVertex;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
 
 public class FloraOnShell {
     public static void main( String[] args ) throws ParseException, IOException {
-    	FloraOnDriver graph;
+    	FloraOn graph;
     	try {
-			graph=new FloraOnDriver("flora");
-		} catch (ArangoException e2) {
+			graph=new FloraOnArangoDriver("flora");
+		} catch (FloraOnException e2) {
 			e2.printStackTrace();
 			return;
 		}
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
-			System.out.println(Constants.ANSI_WHITE+graph.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+graph.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+graph.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET+"\n");
-		} catch (ArangoException e1) {
+			System.out.println(Constants.ANSI_WHITE+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET+"\n");
+		} catch (FloraOnException e1) {
 			System.out.println("Some fatal error reading database. Aborting.");
 			System.out.println(e1.getMessage());
 			System.exit(1);
@@ -80,14 +71,14 @@ public class FloraOnShell {
 	            	if(line.equals("\\q")) System.exit(0);
 	            	if(line.equals("\\sampledata")) {
 	            		System.out.println("Reading sample taxonomy (Flora of Portugal)");
-	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomy.csv"), false);
-	            		graph.dbDataUploader.uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/orders.csv"), false);
+	            		graph.getCSVFileProcessor().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomy.csv"), false);
+	            		graph.getCSVFileProcessor().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/orders.csv"), false);
 	            		System.out.println("Reading morphology");
-	            		graph.dbDataUploader.uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
+	            		graph.getCSVFileProcessor().uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
-	            		generateRandomSpeciesLists(graph,50);
+	            		//generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
-	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/100records.csv
+	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/100records
 	            		continue;
 	            	}
 	            	
@@ -116,27 +107,10 @@ public class FloraOnShell {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (ArangoException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (FloraOnException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} 
-            	
-/*            	if(line.equals("\\u")) {
-	            	try {
-	                	//fog.getDataUploader().uploadTaxonomyListFromFile("/media/miguel/Brutal/SPB/Flora-On/Taxonomia/Grafo/taxonomia_full_novo.csv",false);
-	                	fog.getDataUploader().uploadMorphologyFromCSV("/home/miguel/Desktop/morfologia(2).csv");
-	                	//fog.getDataUploader().uploadTaxonomyListFromFile("/media/miguel/Brutal/SPB/Flora-On/Taxonomia/Grafo/stepping_stones.csv",false);
-	            		//fog.getDataUploader().uploadAuthorsFromFile("/home/miguel/authors-uFI1sC");
-	                	//fog.getDataUploader().uploadRecordsFromFile("/home/miguel/records-9zitZT");
-	                	continue;
-	        		} catch (IOException | NumberFormatException e1) {
-	        			e1.printStackTrace();
-	        			continue;
-	        		}
-            	}*/
+				}
             }
         } finally {
             try {
@@ -191,51 +165,6 @@ public class FloraOnShell {
 */
 
         
-        try {
-        	System.out.println("N: "+graph.driver.getDocuments("taxent").size());
-/*
-        	DocumentEntity<TaxEnt> doc=fog.driver.getDocument(root.getDocumentHandle(),TaxEnt.class);
-        	System.out.println(doc.getEntity().getName());
-        	TraversalQueryOptions tqo=new TraversalQueryOptions(); 
-        	tqo.setDirection(Direction.ANY);
-        	tqo.setStartVertex(root.getDocumentHandle());
-        	tqo.setGraphName("exp");
-        	tqo.setMaxDepth((long) 6);
-        	//tqo.setFilter("if(path.edges.length>3) return 'prune'; else return 'exclude';");
-        	tqo.setFilter("if(vertex.rank=='species') return 'prune'; else return 'exclude';");*/
-        	//tqo.setFilter("if(config.datasource.graph._neighbors(vertex).length<2) return 'prune'; else return 'exclude';");
-        	//tqo.setVisitor("if (!result) {result = {vertices:[] };} if (! result.hasOwnProperty('visited')) { result.visited = { vertices: [ ] }; } result.visited.vertices.push({name:vertex._id});");
-
-/*        	
-            DocumentCursor<BaseDocument> rs=fog.driver.executeDocumentQuery("FOR v in graph_vertices('exp',{}) return v"//"FOR v in graph_traversal('exp',{rank:'kingdom'},'any') return v"
-            		, null, null, BaseDocument.class);
-            
-            Iterator<BaseDocument> iterator = rs.entityIterator();
-            while (iterator.hasNext()) {
-                BaseDocument aDocument = iterator.next();
-                System.out.println("Key: " + aDocument.getProperties().get("name"));
-            }*/
-            
-        	/*
-        	TraversalEntity<TaxEnt,PART_OF> te=fog.driver.getTraversal(tqo, TaxEnt.class, PART_OF.class);
-
-    		for(VertexEntity<TaxEnt> ve:te.getVertices()) {
-    			System.out.println(ve.getEntity().getID()+": "+ve.getEntity().name);
-    		}*/
-        	
-/*
-        	for(PathEntity<TaxEnt,PART_OF> pe:te.getPaths()) {
-        		System.out.println( pe.toString());
-        		for(VertexEntity<TaxEnt> ve:pe.getVertices()) {
-        			//System.out.print(ve.getEntity().dummy+" | ");
-        			System.out.print(ve.getDocumentKey()+" | ");
-        		}
-        		System.out.print("\n");
-        	}*/
-		} catch (ArangoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
         /*
         DocumentEntity<TaxEnt> d1;
         DocumentEntity<TaxEnt> d2;
@@ -256,7 +185,7 @@ public class FloraOnShell {
 		}
         */
     }
-    
+    /*
     public static void generateRandomSpeciesLists(FloraOnDriver fog,int number) {
     	SpeciesList sln;
     	Author autnode=null;
@@ -291,7 +220,7 @@ public class FloraOnShell {
 				}
 				Iterator<TaxEntVertex> itte=fog.dbNodeWorker.getTaxEntsByIds(idents);
 				while(itte.hasNext()) {
-					new TaxEnt(fog,itte.next()).setObservedIn(sln, (short)0, (short)1, PhenologicalStates.UNKNOWN, null, 10000, null, NativeStatus.WILD, null);
+					new TaxEnt(fog,itte.next()).setObservedIn(sln, (short)0, (short)1, PhenologicalStates.UNKNOWN, null, 10000, null, null, NativeStatus.WILD, null);
 				}
 				if(i % 100==0) {System.out.print(".");System.out.flush();}
 				if(i % 1000==0) {System.out.print(i);System.out.flush();}
@@ -299,5 +228,5 @@ public class FloraOnShell {
 				e.printStackTrace();
 			}
     	}
-    }
+    }*/
 }

@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.arangodb.ArangoException;
-
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnDriver;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.FloraOn;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
 import pt.floraon.results.SimpleTaxonResult;
@@ -23,7 +22,7 @@ public final class GeoPointParser extends TokenParser {
 	private final int RADIUS=15000;
 	private Pattern pattern=Pattern.compile("perto: *(-?[0-9.,]+) *(-?[0-9.,]+)",Pattern.CASE_INSENSITIVE);
 	
-	public GeoPointParser(FloraOnDriver graph, QueryObject query) {
+	public GeoPointParser(FloraOn graph, QueryObject query) {
 		super(graph, query);
 	}
 
@@ -47,8 +46,8 @@ public final class GeoPointParser extends TokenParser {
 				}		
 				if(lat!=null && lng!=null) {
 					try {
-						res=this.graph.dbSpecificQueries.findListTaxaWithin(lat,lng,RADIUS);
-					} catch (ArangoException e) {
+						res=graph.getQueryDriver().findListTaxaWithin(lat,lng,RADIUS);
+					} catch (FloraOnException e) {
 						e.printStackTrace();
 					}
 				}

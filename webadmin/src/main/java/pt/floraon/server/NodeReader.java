@@ -5,27 +5,22 @@ import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 
-import com.arangodb.ArangoException;
-
 import pt.floraon.driver.FloraOnException;
 
 public class NodeReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet()
-			throws ServletException, IOException, ArangoException, FloraOnException {
-		
-		ListIterator<String> partIt=this.getPathIterator(request);
-		while(!partIt.next().equals("read"));
+	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+		ListIterator<String> partIt=this.getPathIteratorAfter("read");
 		
 		switch(partIt.next()) {
 		case "getallcharacters":
-			success(graph.dbNodeWorker.getAllCharacters().toJsonObject());
+			success(driver.getListDriver().getAllCharacters().toJsonObject());
 			break;
 
 		case "getallterritories":
-			success(graph.dbGeneralQueries.getAllTerritoriesGraph(null).toJsonObject());
+			success(driver.getListDriver().getAllTerritoriesGraph(null).toJsonObject());
 			break;
 		}
 	}

@@ -1,9 +1,6 @@
 package pt.floraon.server;
 import java.io.*;
 import javax.servlet.*;
-import javax.servlet.http.*;
-
-import com.arangodb.ArangoException;
 
 import pt.floraon.driver.FloraOnException;
 
@@ -11,7 +8,7 @@ public class WebAdmin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, ArangoException, FloraOnException {
+	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
 		
@@ -37,7 +34,7 @@ public class WebAdmin extends FloraOnServlet {
 			if(territory==null)
 				request.setAttribute("territory", "");
 			else
-				request.setAttribute("territory", " existing in "+graph.dbNodeWorker.getTerritoryFromShortName(territory).getName());
+				request.setAttribute("territory", " existing in "+driver.getNodeWorkerDriver().getTerritoryFromShortName(territory).getName());
 			request.setAttribute("offset", offset);
 			request.setAttribute("PAGESIZE", PAGESIZE);
 			break;
