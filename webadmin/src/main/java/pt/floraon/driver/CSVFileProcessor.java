@@ -21,6 +21,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
@@ -331,6 +332,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 				}
 
 				if(oldIdColumn != null) { 	// FIXME: OldId
+					nwd.updateDocument(driver.asNodeKey(curTaxEnt.getID()), "oldId", (Integer)Integer.parseInt(record.get(oldIdColumn)));
 					//curTaxEnt.setOldId(Integer.parseInt(record.get(oldIdColumn)));
 					//curTaxEnt.commit();
 				}
@@ -338,7 +340,8 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 				for(Entry<Integer,Territory> terr : territories.entrySet()) {	// bind this taxon with the territories with the given native status
 					String ns=record.get(terr.getKey());
 					if(ns!=null && !ns.equals(""))
-						driver.wrapTaxEnt(driver.asNodeKey(curTaxEnt.getID())).setNativeStatus(driver.asNodeKey(terr.getValue().getID()), NativeStatus.valueOf(ns.toUpperCase()));
+						driver.wrapTaxEnt(driver.asNodeKey(curTaxEnt.getID())).setNativeStatus(
+							driver.asNodeKey(terr.getValue().getID()), NativeStatus.fromString(ns.toUpperCase()), OccurrenceStatus.OCCURS);
 				}
 			}
 		} catch (FloraOnException e) {

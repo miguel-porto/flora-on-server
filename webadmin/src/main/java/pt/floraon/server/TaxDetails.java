@@ -32,6 +32,7 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("nativeStatusTable", baos.toString());
 		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
+		request.setAttribute("occurrenceStatus", Constants.OccurrenceStatus.values());
 		
 		response.setContentType("text/html");
 		request.getRequestDispatcher("/taxdetails.jsp").include(request, response);

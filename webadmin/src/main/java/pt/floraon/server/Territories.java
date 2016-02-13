@@ -9,6 +9,7 @@ import javax.servlet.annotation.MultipartConfig;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.entities.Territory;
 
 @MultipartConfig
@@ -23,7 +24,7 @@ public class Territories extends FloraOnServlet {
 		}
 
 		ListIterator<String> part=this.getPathIteratorAfter("territories");
-		String to, query;
+		String to, tmp1, tmp2;
 
 		if(!part.hasNext()) {
 			error("Choose one of: set");
@@ -33,15 +34,18 @@ public class Territories extends FloraOnServlet {
 		case "set":
 			INodeKey from=getParameterAsKey("taxon");		// the taxon id
 			to=getParameterAsString("territory");
-			query=getParameterAsString("status");
-			if(errorIfAnyNull(response, from, to, query)) return;
+			tmp1=getParameterAsString("nativeStatus");
+			tmp2=getParameterAsString("occurrenceStatus");
+			if(errorIfAnyNull(response, from, to, tmp1)) return;
 			Territory terr=NWD.getTerritoryFromShortName(to);
-			//Territory terr=new Territory(graph, graph.dbNodeWorker.getTerritoryFromShortName(to));
-			NativeStatus nst=null;
-			if(!query.toUpperCase().equals("NULL")) nst=NativeStatus.valueOf(query.toUpperCase());
-			driver.wrapTaxEnt(from).setNativeStatus(driver.asNodeKey(terr.getID()), nst);
-			//terr.setTaxEntNativeStatus(ArangoKey.fromString(from), nst);
-			success( nst==null ? "NULL" : nst.toString().toUpperCase());
+			NativeStatus nstatus=null;
+			OccurrenceStatus ostatus=null;
+			if(!tmp1.toUpperCase().equals("NULL")) {
+				nstatus=NativeStatus.fromString(tmp1.toUpperCase());
+				ostatus=tmp2==null ? null : OccurrenceStatus.valueOf(tmp2.toUpperCase());
+			}
+			driver.wrapTaxEnt(from).setNativeStatus(driver.asNodeKey(terr.getID()), nstatus, ostatus);
+			success( nstatus==null ? "NULL" : nstatus.toString().toUpperCase());
 			break;
 			
 		default:

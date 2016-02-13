@@ -19,7 +19,7 @@ public class NativeStatusResult implements ResultItem {
 
 	@Override
 	public String toHTMLTableRow(Object obj) {
-		return "<tr><td>"+this.territory.getName()+"</td><td class=\""+this.nativeStatus.nativeStatus.toString()+"\">"+this.nativeStatus.nativeStatus.toString()+"</td></tr>";
+		return "<tr><td>"+this.territory.getName()+"</td><td class=\""+this.nativeStatus.getNativeStatus().toString()+"\">"+this.nativeStatus.getNativeStatus().toString()+", "+this.nativeStatus.getOccurrenceStatus().toString()+"</td></tr>";
 	}
 
 	@Override

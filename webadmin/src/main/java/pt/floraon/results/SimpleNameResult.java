@@ -4,14 +4,12 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
-import com.google.gson.internal.LinkedTreeMap;
-
 public class SimpleNameResult implements ResultItem {
 	protected String name;		// taxon canonical name
 	protected String _id,author;
 	protected Boolean leaf=null;
 	protected Boolean current=null;
-	protected LinkedTreeMap<String,String> territories;
+	//protected LinkedTreeMap<String,String> territories;
 
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {

@@ -145,28 +145,42 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 			if(count==null) count=50;
 			withLimit=true;
 		}
-/* This is the general query.
-LET terr=SLICE(TRAVERSAL(taxent, EXISTS_IN, 'taxent/3014731409815', 'outbound', {maxDepth:1,paths:true}),1)
-LET upstr=(FOR t IN terr
-LET tt=TRAVERSAL(territory, PART_OF, t.vertex, 'outbound')
-LET bs=t.path.edges[0].nativeStatus
-RETURN {
-    baseStatus: ZIP([t.vertex.shortName], [bs])
-    ,upstreamStatus: ZIP(
-        SLICE(tt[*].vertex.shortName,1)
-        , (FOR i IN 2..LENGTH(tt) RETURN bs == 'ENDEMIC' ? 'ENDEMIC' : 'EXISTING')
-    )
-})
-LET bs=LENGTH(upstr) == 1 ? upstr[0].baseStatus : APPLY("MERGE",upstr[*].baseStatus)
-LET an=UNIQUE(FLATTEN(FOR up IN upstr RETURN ATTRIBUTES(up.upstreamStatus)))
-LET anc=MINUS(an, ATTRIBUTES(bs))
-LET inferr=(FOR ut IN anc
-LET tmp=REMOVE_VALUE(UNIQUE(FOR up IN upstr RETURN TRANSLATE(ut,up.upstreamStatus,null)),null)
-RETURN ZIP([ut], [LENGTH(tmp) == 1 ? tmp[0] : POSITION(tmp,'ENDEMIC',false) ? 'ENDEMIC' : 'EXISTING']) )
-RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY("MERGE",inferr) )
+/* This is the original query.
+FOR taxon IN taxent
+	//LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==taxon._id RETURN e)
+	LET npar=LENGTH(FOR v,e,p IN 1..1 INBOUND taxon PART_OF FILTER p.vertices[LENGTH(p.vertices)-1].current==true RETURN p.vertices[LENGTH(p.vertices)-1])
+    FILTER taxon.isSpeciesOrInf==true && npar==0 SORT taxon.name
+    RETURN MERGE(KEEP(taxon,'_id','name','author','current'), {leaf: npar==0, territories:UNIQUE(
+        FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM
+            FILTER p.vertices[LENGTH(p.vertices)-1].showInChecklist==true       // stop in a territory marked for checklist
+            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='taxent' LIMIT 1 RETURN e1)     // did it climb taxonomic PART_OF?
+            LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1)       // this is the 1st EXISTS_IN edge
+            LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='territory' LIMIT 1 RETURN e1)    // only returns e1 if it climbs up a territory PART_OF
+            RETURN {
+                existsId:ns[0]._id
+                ,nativeStatus: ns[0].nativeStatus
+                ,occurrenceStatus: ns[0].occurrenceStatus
+                ,territory: p.vertices[LENGTH(p.vertices)-1].shortName
+                ,inferred: LENGTH(base)!=0
+                ,uncertain: LENGTH(upstr)!=0
+            }
+        )
+    })
 */
 		if(territory==null) {
-			query=String.format("FOR v IN %2$s "
+			query=String.format("FOR taxon IN %2$s "
+				+ "LET npar=LENGTH(FOR v,e,p IN 1..1 INBOUND taxon PART_OF FILTER p.vertices[LENGTH(p.vertices)-1].current==true RETURN p.vertices[LENGTH(p.vertices)-1]) "
+				+ "FILTER taxon.isSpeciesOrInf==true %1$s SORT taxon.name %3$s "
+				+ "RETURN MERGE(KEEP(taxon,'_id','name','author','current'), {leaf: npar==0, territories:UNIQUE("
+				+ "FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM "
+				+ "FILTER p.vertices[LENGTH(p.vertices)-1].showInChecklist==true "
+				+ "LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='taxent' LIMIT 1 RETURN e1) "
+				+ "LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1) "
+				+ "LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='territory' LIMIT 1 RETURN e1) RETURN {"
+				+ "existsId:ns[0]._id,nativeStatus: ns[0].nativeStatus,occurrenceStatus: ns[0].occurrenceStatus"
+				+ ",territory: p.vertices[LENGTH(p.vertices)-1].shortName,inferred: LENGTH(base)!=0,uncertain: LENGTH(upstr)!=0 })})"
+				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");
+/*			query=String.format("FOR v IN %2$s "
 				+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
 				+ "FILTER v.isSpeciesOrInf==true %1$s SORT v.name %3$s "
 				+ "RETURN MERGE(KEEP(v,'_id','name','author','current'), {leaf: npar==0, territories: "
@@ -177,16 +191,11 @@ RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY("MERGE",inferr) )
 				+ "LET inferr=(FOR ut IN anc LET tmp=REMOVE_VALUE(UNIQUE(FOR up IN upstr RETURN TRANSLATE(ut,up.upstreamStatus,null)),null) RETURN ZIP([ut], [LENGTH(tmp) == 1 ? tmp[0] : POSITION(tmp,'ENDEMIC',false) ? 'ENDEMIC' : 'EXISTING']) )"
 				+ "RETURN MERGE(bs, LENGTH(inferr) == 1 ? inferr[0] : APPLY('MERGE',inferr) ) "
 				+ ")[0]})"
-				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");
-/*				query=String.format("FOR v IN %2$s "
-				+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) FILTER v.isSpeciesOrInf==true "
-				+ "%1$s SORT v.name %3$s LET terr=TRAVERSAL(%2$s, EXISTS_IN, v, 'outbound', {maxDepth:1,paths:true}) RETURN {_id:v._id,name:v.name,author:v.author,leaf:npar==0, current:v.current"
-				+ ", territories:(LET d=SLICE(terr,1) RETURN ZIP(d[*].vertex.shortName, d[*].path.edges[0].nativeStatus))[0]}"	//DOCUMENT(terr)[*].shortName
 				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");*/
 		} else {
 			if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist.");
 //FIXME must traverse territories downwards in thr 1st line! Wait for ArangoDB 2.8
-			query=String.format(
+			query=String.format(	// FIXME update with the above
 				"FOR te IN territory FILTER te.shortName=='%3$s' FOR v IN (FOR v1 IN NEIGHBORS(territory, EXISTS_IN, te, 'inbound') RETURN DOCUMENT(v1)) "
 				+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
 				+ "%1$s SORT v.name %4$s "

@@ -103,7 +103,8 @@ public final class Constants {
 		,UNCERTAIN((short)1)
 		,NATURALIZED((short)2)
 		,EXOTIC((short)2)
-		,ENDEMIC((short)3);
+		,ENDEMIC((short)3)
+		,ERROR((short)-1);
 		
 		private final Short code;
 		NativeStatus (Short code) {
@@ -114,17 +115,24 @@ public final class Constants {
 			return code;
 		}
 		
-    	public static NativeStatus getStateFromCode(Short code) {
+    	public static NativeStatus fromCode(Short code) {
     		for(NativeStatus tr:values()) {
     			if(Objects.equals(tr.code, code)) return tr;
     		}
-    		return null;
+    		return NativeStatus.ERROR;
     	}
+
+    	public static NativeStatus fromString(String name) {
+    		for(NativeStatus tr:values()) {
+    			if(Objects.equals(tr.toString(), name)) return tr;
+    		}
+    		return NativeStatus.ERROR;
+    	}
+
 	}
 
 	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
 	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
-	public enum Directionality {UNIDIRECTIONAL, BIDIRECTIONAL};
 	
 	public enum TerritoryTypes {
 		COUNTRY
@@ -136,34 +144,28 @@ public final class Constants {
 	}
 	
 	public enum RelTypes {
-		PART_OF(Facets.TAXONOMY, PART_OF.class, Directionality.UNIDIRECTIONAL),
-		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class, Directionality.BIDIRECTIONAL),
-		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class, Directionality.UNIDIRECTIONAL),
-		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class, Directionality.UNIDIRECTIONAL),
-		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class, Directionality.UNIDIRECTIONAL),
-    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class, Directionality.UNIDIRECTIONAL),
-    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class, Directionality.UNIDIRECTIONAL),
-		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class, Directionality.UNIDIRECTIONAL);
+		PART_OF(Facets.TAXONOMY, PART_OF.class),
+		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class),
+		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class),
+		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class),
+		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class),
+    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class),
+    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class),
+		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class);
     	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
-		Directionality directionality;
 		Class<? extends GeneralDBEdge> edgeClass;
 		
-		RelTypes(Facets facet,Class<? extends GeneralDBEdge> cls, Directionality directionality) {
+		RelTypes(Facets facet,Class<? extends GeneralDBEdge> cls) {
 			this.facet=facet;
 			this.edgeClass=cls;
-			this.directionality=directionality;
 		}
 		
 		public Facets getFacet() {
 			return this.facet;
 		}
 
-		public Directionality getDirectionality() {
-			return this.directionality;
-		}
-		
 		public static RelTypes[] getRelTypesOfFacet(Facets facet) {
 			List<RelTypes> out=new ArrayList<RelTypes>();
 			for(RelTypes art:RelTypes.values()) {

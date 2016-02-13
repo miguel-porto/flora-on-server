@@ -199,6 +199,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	public String getAuthor() {
 		return author;
 	}
+	
+	public Integer getOldId() {
+		return this.oldId;
+	}
 
 	public String getAnnotation() {
 		return annotation;

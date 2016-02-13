@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import com.arangodb.ArangoException;
 
-import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.FloraOn;
@@ -33,7 +32,7 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 	public int setPART_OF(INodeKey parent) throws FloraOnException {
 		return this.createRelationshipTo(parent, new PART_OF(true));
 	}
-	
+
 	@Override
 	public GraphUpdateResult createRelationshipTo(INodeKey parent,RelTypes type) throws FloraOnException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String baseId=node.toString();
@@ -48,18 +47,10 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 			Integer nrel=dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 			
 			if(nrel==0) {
-				if(type.getDirectionality().equals(Constants.Directionality.UNIDIRECTIONAL)) {	// TODO: do we need bidirectional links yet? 
-					return new GraphUpdateResult(driver, new String[] {
-						dbDriver.createEdge(type.toString(), type.getEdge(), baseId, parentId, false, false).getDocumentHandle()
-						,baseId,parentId
-					});
-				} else {	// in bidirectional links we add two links so that we don't have to worry abound directionality in queries
-					return new GraphUpdateResult(driver, new String[] {
-						dbDriver.createEdge(type.toString(), type.getEdge(), baseId, parentId, false, false).getDocumentHandle()
-						,dbDriver.createEdge(type.toString(), type.getEdge(), parentId, baseId, false, false).getDocumentHandle()
-						,baseId,parentId
-					});
-				}
+				return new GraphUpdateResult(driver, new String[] {
+					dbDriver.createEdge(type.toString(), type.getEdge(), baseId, parentId, false, false).getDocumentHandle()
+					,baseId,parentId
+				});
 			} else return GraphUpdateResult.emptyResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());

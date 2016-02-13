@@ -58,7 +58,7 @@ public class OBSERVED_IN extends GeneralDBEdge {
 		return this.validated;
 	}
 	public NativeStatus getNativeStatus() {
-		return NativeStatus.getStateFromCode(this.nativeStatus);
+		return NativeStatus.fromCode(this.nativeStatus);
 	}
 	public PhenologicalStates getPhenoState() {
 		return PhenologicalStates.getStateFromCode(this.phenoState);

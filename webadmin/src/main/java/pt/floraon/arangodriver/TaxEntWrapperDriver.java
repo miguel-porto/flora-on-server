@@ -17,6 +17,7 @@ import pt.floraon.driver.ITaxEntWrapper;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.NodeTypes;
+import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.entities.EXISTS_IN;
@@ -135,7 +136,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 	
 	@Override
-	public int setNativeStatus(INodeKey territory, NativeStatus status) throws FloraOnException {
+	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus) throws FloraOnException {
 		String query;
 		if(status == null) {	// remove the EXISTS_IN link, if it exists
 			query=String.format(
@@ -143,7 +144,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				,node.toString()
 				,territory.toString());
 		} else {				// create or update the EXISTS_IN link
-			EXISTS_IN a=new EXISTS_IN(status, node.toString(), territory.toString());
+			EXISTS_IN a=new EXISTS_IN(status, occurrenceStatus, node.toString(), territory.toString());
 			query=String.format(
 				"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN EXISTS_IN RETURN OLD ? 0 : 1"
 				,node.toString()

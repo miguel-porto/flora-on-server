@@ -106,6 +106,14 @@ public interface INodeWorker {
 	 * @throws ArangoException 
 	 */
 	public GraphUpdateResult detachSynonym(INodeKey from,INodeKey to) throws FloraOnException;
+	/**
+	 * Low-level document updater. Adds or changes any attribute in any node.
+	 * @param id
+	 * @param key
+	 * @param value
+	 * @return
+	 * @throws FloraOnException
+	 */
     public GraphUpdateResult updateDocument(INodeKey id,String key,Object value) throws FloraOnException;
     /**
      * Updates or replaces a TaxEnt node in the DB. 

@@ -214,8 +214,10 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public GraphUpdateResult detachSynonym(INodeKey from,INodeKey to) throws FloraOnException {
 		String query=String.format("LET e=FLATTEN("
 			+ "FOR v in TRAVERSAL(%1$s,%2$s,'%3$s','any',{paths:true,filterVertices:[{_id:'%4$s'}],vertexFilterMethod:'exclude'}) RETURN v.path.edges) "
-			+ "LET e1=e[LENGTH(e)-1] LET rem=[e1, (FOR e2 IN SYNONYM FILTER e2._to==e1._from && e2._from==e1._to RETURN e2)[0]]"
-			+ "FOR r IN rem REMOVE r IN SYNONYM RETURN OLD"
+			//+ "LET e1=e[LENGTH(e)-1] LET rem=[e1, (FOR e2 IN SYNONYM FILTER e2._to==e1._from && e2._from==e1._to RETURN e2)[0]]"
+			//+ "FOR r IN rem REMOVE r IN SYNONYM RETURN OLD"
+			+ "LET e1=e[LENGTH(e)-1] "
+			+ "REMOVE e1 IN SYNONYM RETURN OLD"
 			,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),from.toString(),to.toString());
 		//System.out.println(query);
 		List<SYNONYM> deleted;
@@ -392,8 +394,9 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
 	public Iterator<NativeStatusResult> getTaxonNativeStatus(INodeKey id) throws FloraOnException {
-		String query=String.format("LET terr=TRAVERSAL(taxent, EXISTS_IN, '%1$s', 'outbound', {maxDepth:1,paths:true}) "
-			+ "FOR v IN SLICE(terr,1) RETURN {territory: v.vertex, nativeStatus:v.path.edges[0]}", id.toString());
+/*		String query=String.format("LET terr=TRAVERSAL(taxent, EXISTS_IN, '%1$s', 'outbound', {maxDepth:1,paths:true}) "
+			+ "FOR v IN SLICE(terr,1) RETURN {territory: v.vertex, nativeStatus:v.path.edges[0]}", id.toString());*/
+		String query=String.format("FOR v,e IN 1..100 OUTBOUND '%1$s' EXISTS_IN RETURN {territory: v, nativeStatus:e}", id.toString());
 		try {
 			return dbDriver.executeAqlQuery(query, null, null, NativeStatusResult.class).iterator();
 		} catch (ArangoException e) {

@@ -130,17 +130,19 @@ div.toggler.off .content {display:none;}
 div.territory {
 	border-radius:50%;
 	border:2px solid #ddd;
-	font-size:1em;
-	width:1.4em;height:1.4em;
+	font-size:0.85em;
+	width:1.8em;height:1.8em;
 	text-align:center;
-	line-height:1.4em;
+	line-height:1.8em;
 	margin-left:3px;
 	cursor:pointer;
-/*	background-color:#eee;*/
 	padding:1px;
 	display:inline-block;
 	vertical-align:middle;
+	position:relative;
+	overflow:hidden;
 }
+div.territory>div {position:absolute;top:0;left:0;width:100%;height:100%}
 
 div.territory:hover {box-shadow:0 0 2px 1px #0f0;}
 div.territory.EXISTING {background-color:#ccf;border:2px solid #ccf;}
@@ -148,14 +150,33 @@ div.territory.NATIVE {background-color:#afa;border:2px solid #afa;}
 div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:30%;}
 div.territory.EXOTIC {background-color:#faa;border:2px solid #faa;}
 div.territory.UNCERTAIN {background-color:#dd0;border:2px solid #ff0;}
-div.territory.EXTINCT {background-color:#000;border:2px solid #000;color:white;font-weight:bold;}
-div.territory.POSSIBLY_EXTINCT {
-	/*background-color:#777;border:2px solid #000;color:white;font-weight:bold;*/
-	background-color: #777;
-	background-image: linear-gradient(45deg, black 25%, transparent 25%, transparent 75%, black 75%, black),linear-gradient(-45deg, black 25%, transparent 25%, transparent 75%, black 75%, black);
-	background-size:50px 50px;
-	border:2px solid #000;color:white;font-weight:bold;
+
+div.territory .uncertain {
+	background-image:linear-gradient(45deg
+		, transparent 15%, rgba(255,255,255,0.7) 15%, rgba(255,255,255,0.7) 25%, transparent 25%
+		, transparent 40%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.7) 50%, transparent 50%
+		, transparent 65%, rgba(255,255,255,0.7) 65%, rgba(255,255,255,0.7) 75%, transparent 75%
+		, transparent 90%, rgba(255,255,255,0.7) 90%, rgba(255,255,255,0.7));
 }
+div.territory .EXTINCT {
+	background-color: rgba(0,0,0,0.1);
+	background-image: linear-gradient(90deg, transparent 40%, black 40%, black 60%, transparent 60%, transparent)
+		,linear-gradient(0deg, transparent 50%, black 50%, black 70%, transparent 70%, transparent);
+	background-size:70% 70%;
+	background-position:center;
+	background-repeat: no-repeat;
+}
+div.territory .POSSIBLY_EXTINCT {
+	background-color: rgba(0,0,0,0.1);
+	background-image: linear-gradient(-45deg, rgba(0,0,0,0.5) 50%, transparent 50%, transparent);
+	background-size:100% 100%;
+}
+
+div.territory .RARE {
+	background-image: radial-gradient(rgba(255,0,0,0.6) 30%, transparent 45%, transparent);
+	background-size:100% 100%;
+}
+
 
 .checklist table div.territory {
 	float:left;

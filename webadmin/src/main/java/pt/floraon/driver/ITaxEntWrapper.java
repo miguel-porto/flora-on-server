@@ -8,6 +8,7 @@ import java.util.List;
 import com.arangodb.ArangoException;
 
 import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
@@ -90,9 +91,9 @@ public interface ITaxEntWrapper {
 	/**
 	 * Sets the native status of this TaxEnt in the given territory
 	 * @param territory
-	 * @param status If set to null, the relationship is removed.
+	 * @param nativeStatus If set to null, the relationship is removed.
 	 * @return
 	 * @throws FloraOnException
 	 */
-	public int setNativeStatus(INodeKey territory, NativeStatus status) throws FloraOnException;
+	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus) throws FloraOnException;
 }

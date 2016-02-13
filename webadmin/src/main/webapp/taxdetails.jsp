@@ -23,6 +23,9 @@
 	</c:if>
 	<table>
 		<tr><td>ID</td><td><c:out value="${taxent.getID().toString() }"></c:out></td></tr>
+		<c:if test = "${taxent.getOldId() != null}">
+			<tr><td>Legacy ID</td><td><c:out value="${taxent.getOldId().toString() }"></c:out></td></tr>
+		</c:if>
 		<tr><td>Rank</td><td><c:out value="${taxent.getRank().toString() }"></c:out></td></tr>
 		<tr><td>Endemic to</td><td>
 			<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}, "></c:out>
@@ -36,7 +39,7 @@
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 		<ul class="synonyms">
 		<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
-  			<li data-key="${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out><div class="button remove">detach</div></li>
+  			<li data-key="${synonym.getID()}"><a href="admin?w=taxdetails&id=${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></a> <div class="button remove">detach</div></li>
 		</c:forEach>
 		</ul>
 		</div>
@@ -60,17 +63,20 @@
 		<div class="toggler off" id="addnativestatusbox">
 			<h1>Add/change native status <span class="info">adds a new, or updates, the native status to a territory</span></h1>
 			<div class="content">
-				This taxon <select name="status">
+				This taxon <select name="nativeStatus">
 					<option value="NATIVE">is NATIVE to</option>
 					<option value="ENDEMIC">is ENDEMIC to</option>
 					<option value="EXOTIC">is EXOTIC in</option>
 					<option value="UNCERTAIN">is DOUBTFULLY NATIVE to</option>
-					<option value="POSSIBLY_EXTINCT">is POSSIBLY EXTINCT in</option>
-					<option value="EXTINCT">is EXTINCT in</option>
 					<option value="NULL">has no status in</option></select>
 				<select name="territory">
 					<c:forEach var="territory" items="${territories}">
 						<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
+					</c:forEach>
+				</select> and is 
+				<select name="occurrenceStatus">
+					<c:forEach var="ostatus" items="${occurrenceStatus}">
+						<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
 					</c:forEach>
 				</select> <input type="button" value="Add / Update" class="actionbutton" id="addnativestatus"/>
 			</div>

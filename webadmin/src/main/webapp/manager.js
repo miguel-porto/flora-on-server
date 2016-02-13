@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			if(nst==-1) nst=1;
 			var tr=getParentbyTag(ev.target,'tr');
 //			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
-			postJSON('/floraon/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]},function(rt) {
+			postJSON('/floraon/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, nativeStatus:nativeStatus[nst]},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					if(nst==0)
@@ -236,7 +236,8 @@ function actionButtonClick(ev) {
 		var obj={
 			taxon: taxon
 			,territory: cb.querySelector('select[name=territory]').value
-			,status: cb.querySelector('select[name=status]').value
+			,nativeStatus: cb.querySelector('select[name=nativeStatus]').value
+			,occurrenceStatus: cb.querySelector('select[name=occurrenceStatus]').value
 		};
 		postJSON('/floraon/api/territories/set',obj,function(rt) {
 			rt=JSON.parse(rt);
