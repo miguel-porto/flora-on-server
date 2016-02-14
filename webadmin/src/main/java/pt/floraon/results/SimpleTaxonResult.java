@@ -12,7 +12,7 @@ import org.apache.commons.csv.CSVPrinter;
  * Represents the "taxonomic result" of a query, i.e. the simplified and aggregated information gathered from all taxa that
  * matched the query.<br/>Fields:
  * <ul>
- * <li>_key: the key of the matched species (or inferior rank)</li>
+ * <li>_id: the key of the matched species (or inferior rank)</li>
  * <li>name: the name of the matched species (or inferior rank)</li>
  * <li>match[]: the array of matching starting nodes that lead to this match</li>
  * <li>reltypes[]: the distinct types of relationships that were traversed from "match" to "name"</li>

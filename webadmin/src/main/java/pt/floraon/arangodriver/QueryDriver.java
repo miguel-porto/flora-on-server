@@ -18,7 +18,7 @@ import pt.floraon.driver.IQuery;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.SimpleNameResult;
@@ -144,7 +144,7 @@ public class QueryDriver extends BaseFloraOnDriver implements IQuery {
     }
     
 	@Override
-    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections,TaxonRanks rank) throws DatabaseException {
+    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections,TaxonRank rank) throws DatabaseException {
     	// TODO put vertex collection restrictions in the options
     	String query;
     	q=q.toLowerCase().trim();
@@ -162,7 +162,7 @@ public class QueryDriver extends BaseFloraOnDriver implements IQuery {
 		default:
 			break;
     	}
-    	String leaf=onlyLeafNodes ? " FILTER nedg==0" : "";
+    	String leaf=onlyLeafNodes ? " FILTER nedg==0" : " ";
     	
     	if(rank!=null) {
     		if(filter=="")
@@ -175,24 +175,39 @@ public class QueryDriver extends BaseFloraOnDriver implements IQuery {
     		collections=new String[1];
     		collections[0]="taxent";
     	}
-//FIXME SYNONYMS are bidirectional, returned results say synonym even if no need for it to be traversed
-    	if(collections.length==1) {	// if there's only one collection, it's faster not to use GRAPH_VERTICES (as of 2.7)
+/* original query
+LET base=(FOR v IN attribute FILTER v.name=='Flores rosa' RETURN v._id)
+FOR v IN base
+    FOR v1,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN
+        LET last=LAST(p.vertices)
+        FILTER last.isSpeciesOrInf==true
+        LET nedg=LENGTH(FOR e1 IN PART_OF FILTER e1._to==last._id RETURN e1)
+        RETURN {
+            _key: last._id
+            ,name: last.name
+            ,match: [v]
+            ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
+            ,leaf: nedg==0
+        }
+ */
+//FIXME returned results say synonym even if no need for it to be traversed? does this happen?
+    	if(collections.length==1) {
+    		query=String.format("LET base=(FOR v IN %1$s FILTER "+filter+" RETURN v._id) "
+    				+ "FOR v IN base FOR v1,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN "
+    				+ "LET last=LAST(p.vertices) FILTER last.isSpeciesOrInf==true "
+    				+ "LET nedg=LENGTH(FOR e1 IN PART_OF FILTER e1._to==last._id RETURN e1)"+leaf
+    				+ "RETURN {_id: last._id,name: last.name,match: [v],reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection),leaf: nedg==0}"
+    			,collections[0],q);
+/*    		
     		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
 				+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude'], uniqueness: {vertices:'path', edges:'path'}}) "
 				+ "RETURN FLATTEN(FOR v2 IN v1[*] LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2.vertex._id RETURN e)"+leaf+" "
 				+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_id:v2.vertex._id,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
 				+ "COLLECT k=o._id,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n, _id:k, leaf:l, match:UNIQUE(gr[*].o.source), reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
-				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);
-/*
-	    	query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) "
-	        		+ "FOR o IN FLATTEN(FOR v IN base "
-	    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
-	    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
-	    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
-	    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,match:gr[*].o.source,leaf:l}"
-	    				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);*/
+				,Constants.TAXONOMICGRAPHNAME,q,collections[0]);*/
 		} else {
 			// TODO may this option should be removed? we don't want queries with ambiguous results (from matches of different collections)
+			System.out.println("This is deprecated!");
 			StringBuilder sb=new StringBuilder();
 			sb.append("[");
 			for(int i=0;i<collections.length-1;i++) {
@@ -206,23 +221,7 @@ public class QueryDriver extends BaseFloraOnDriver implements IQuery {
 				+ "RETURN {source:v,name:v2.vertex.name,annotation:v2.vertex.annotation,_id:v2.vertex._id,leaf:nedg==0,edges: (FOR ed IN v2.path.edges RETURN PARSE_IDENTIFIER(ed._id).collection)})) "
 				+ "COLLECT k=o._id,n=(o.annotation==null ? o.name : CONCAT(o.name,' [',o.annotation,']')),l=o.leaf INTO gr RETURN {name:n,_id:k,leaf:l,match:UNIQUE(gr[*].o.source),reltypes:UNIQUE(FLATTEN(gr[*].o.edges))}"
 				,Constants.TAXONOMICGRAPHNAME,q,sb.toString());
-/*				
-	    	query=String.format("LET base=(FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) FILTER "+filter+" RETURN v._id) "
-	        		+ "FOR o IN FLATTEN(FOR v IN base "
-	    				+ "FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
-	    				+ "RETURN (FOR v2 IN v1[*].vertex LET nedg=LENGTH(FOR e IN PART_OF FILTER e._to==v2._id RETURN e)"+leaf+" "		//LET nedg=LENGTH(GRAPH_EDGES('%1$s',v2,{direction:'inbound'}))"+leaf+" "
-	    				+ "RETURN {source:v,name:v2.name,_key:v2._key,leaf:nedg==0})) "
-	    				+ "COLLECT k=o._key,n=o.name,l=o.leaf INTO gr RETURN {name:n,_key:k,leaf:l,match:gr[*].o.source}"
-	    				,Constants.TAXONOMICGRAPHNAME,q,sb.toString());*/
 		}
-/*    	
-    	String query=String.format("FOR v IN UNIQUE(FLATTEN(FOR v IN GRAPH_TRAVERSAL('%1$s',"
-    			//+ "FOR v IN attribute "
-    			+ "FOR v IN GRAPH_VERTICES('%1$s',{},{vertexCollectionRestriction:%3$s}) "
-    			+ "FILTER "+filter+" RETURN v,'inbound',{paths:false,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude']}) "
-    			+ "RETURN v[*].vertex)) LET nedg=LENGTH(GRAPH_EDGES('taxgraph',v,{direction:'inbound'})) "+leaf+" RETURN {name:v.name,_key:v._key,leaf:nedg==0}"
-    			, Constants.TAXONOMICGRAPHNAME,q,vertexCollectionRestrictions);*/
-    	//System.out.println(query);
     	CursorResult<SimpleTaxonResult> vertexCursor;
 		try {
 			vertexCursor = dbDriver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);

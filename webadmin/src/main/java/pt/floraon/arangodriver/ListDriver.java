@@ -18,7 +18,7 @@ import pt.floraon.driver.IListDriver;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
@@ -225,7 +225,7 @@ FOR taxon IN taxent
 	}
 
 	@Override
-	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException {
+	public Iterator<TaxEnt> getAllOfRank(TaxonRank rank) throws FloraOnException {
 		String query=String.format("FOR v IN %1$s FILTER v.rank==%2$d SORT v.name RETURN v"
 			,NodeTypes.taxent.toString(),rank.getValue());
     	CursorResult<TaxEnt> vertexCursor;

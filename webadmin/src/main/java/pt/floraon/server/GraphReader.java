@@ -11,7 +11,7 @@ import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 
@@ -35,7 +35,7 @@ public class GraphReader extends FloraOnServlet {
 			case "all":
 				JsonObject jobj=new JsonObject();
 				JsonObject ranks=new JsonObject();	// a map to convert rank numbers to names
-				for(TaxonRanks e : Constants.TaxonRanks.values()) {
+				for(TaxonRank e : Constants.TaxonRank.values()) {
 					ranks.addProperty(e.getValue().toString(), e.toString());
 				}
 				jobj.add("rankmap", ranks);
@@ -50,7 +50,7 @@ public class GraphReader extends FloraOnServlet {
 
 			case "ranks":
 				rk.append("<select name=\"taxonrank\">");
-				for(TaxonRanks e : Constants.TaxonRanks.values()) {
+				for(TaxonRank e : Constants.TaxonRank.values()) {
 					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
 				}
 				rk.append("</select>");

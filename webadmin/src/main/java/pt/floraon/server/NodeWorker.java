@@ -12,7 +12,7 @@ import com.arangodb.entity.EntityFactory;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
@@ -111,7 +111,7 @@ public class NodeWorker extends FloraOnServlet {
 				id=getParameterAsKey("parent");
 				current=getParameterAsString("current");
 				success(driver.wrapTaxEnt(id).createTaxEntChild(
-					name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank))
+					name, author, TaxonRank.getRankFromValue(Integer.parseInt(rank))
 					, annot, current==null ? null : Integer.parseInt(current)==1
 				).toString());
 				return;
@@ -136,7 +136,7 @@ public class NodeWorker extends FloraOnServlet {
 				
 		    	success(
 	    			new GraphUpdateResult(driver
-    					, NWD.createTaxEntFromName(name,author,TaxonRanks.getRankFromValue(Integer.parseInt(rank)),null,true).getID()).toJsonObject()
+    					, NWD.createTaxEntFromName(name,author,TaxonRank.getRankFromValue(Integer.parseInt(rank)),null,true).getID()).toJsonObject()
 				);
 				//success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
 				return;

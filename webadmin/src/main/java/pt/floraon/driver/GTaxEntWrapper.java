@@ -1,6 +1,6 @@
 package pt.floraon.driver;
 
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.HAS_QUALITY;
 import pt.floraon.entities.SYNONYM;
@@ -21,7 +21,7 @@ public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEn
 	}
 
 	@Override
-    public INodeKey createTaxEntChild(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws FloraOnException {
+    public INodeKey createTaxEntChild(String name,String author,TaxonRank rank,String annotation,Boolean current) throws FloraOnException {
     	TaxEnt child=new TaxEnt(name, rank.getValue(), author, annotation, current, null);
     	child.canBeChildOf(driver.getNodeWorkerDriver().getTaxEntById(node));
     	child=driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(child);

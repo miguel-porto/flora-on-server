@@ -2,7 +2,7 @@ package pt.floraon.queryparser;
 
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 
 /**
  * Represents a match in the database. The purpose is to list all possible matches of a given query string in the database, so that they can be ordered
@@ -26,9 +26,9 @@ public class Match {
 		return StringMatchTypes.values()[this.matchType];
 	}
 	
-	public TaxonRanks getRank() {
+	public TaxonRank getRank() {
 		if(this.rank==null) return null;
-		return TaxonRanks.getRankFromValue(this.rank);
+		return TaxonRank.getRankFromValue(this.rank);
 	}
 	
 	public NodeTypes getNodeType() {

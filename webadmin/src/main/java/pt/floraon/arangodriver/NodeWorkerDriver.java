@@ -24,7 +24,7 @@ import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.Author;
@@ -46,7 +46,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 	
 	@Override
-	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws TaxonomyException, FloraOnException {
+	public TaxEnt createTaxEntFromName(String name,String author,TaxonRank rank,String annotation,Boolean current) throws TaxonomyException, FloraOnException {
 		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, annotation, current, null);
 		try {
 			VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
@@ -362,7 +362,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     		if(n==null)	// node doesn't exist
     			return null;
 
-    		if(q.getRankValue()==null || q.getRankValue().equals(TaxonRanks.NORANK.getValue()) || n.getRankValue()==null) return n; else {
+    		if(q.getRankValue()==null || q.getRankValue().equals(TaxonRank.NORANK.getValue()) || n.getRankValue()==null) return n; else {
 				if(!n.getRankValue().equals(q.getRankValue())) return null; else return n;
 			}	    		
     	} catch (NonUniqueResultException e) {	// multiple nodes with this name. Search the one of the right rank
@@ -374,7 +374,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			} catch (ArangoException e1) {
 				throw new DatabaseException(e1.getMessage());
 			}
-			if(q.getRankValue()==null || q.getRankValue().equals(TaxonRanks.NORANK.getValue())) throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
+			if(q.getRankValue()==null || q.getRankValue().equals(TaxonRank.NORANK.getValue())) throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
 
 			Iterator<VertexEntity<TaxEnt>> ns=vc.iterator();
 			n=null;
@@ -382,7 +382,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			while(ns.hasNext()) {
 				//n1=ns.next().getEntity();
 				n1=new TaxEnt(ns.next().getEntity());
-				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
+				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(TaxonRank.NORANK.getValue())) {
 					if(n!=null) throw new QueryException("More than one node with name "+q.getName()+" and rank "+q.getRank().toString()); else n=n1;
 				}
 			}

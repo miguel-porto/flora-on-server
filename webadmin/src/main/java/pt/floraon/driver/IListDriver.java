@@ -3,7 +3,7 @@ package pt.floraon.driver;
 import java.util.Iterator;
 import java.util.List;
 
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
@@ -35,7 +35,7 @@ public interface IListDriver {
 	 * @return
 	 * @throws ArangoException
 	 */
-	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException;
+	public Iterator<TaxEnt> getAllOfRank(TaxonRank rank) throws FloraOnException;
 	/**
      * Gets all territories.
      * @return

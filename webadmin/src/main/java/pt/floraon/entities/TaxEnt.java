@@ -10,7 +10,7 @@ import org.apache.commons.csv.CSVPrinter;
 import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.driver.TaxonomyException;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.results.ResultItem;
 
 /**
@@ -32,7 +32,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		super(te);
 		this.name=te.name;
 		this.rank=te.rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRank.SPECIES.getValue();
 		this.annotation=te.annotation;
 		this.author=te.author;
 		this.current=te.current;
@@ -58,7 +58,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		
 		if(name!=null) this.name=name.trim();
 		this.rank=rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRank.SPECIES.getValue();
 		
 		if(author!=null && author.trim().length()==0) this.author=null;
 		else if(author!=null) this.author=author.trim();
@@ -89,7 +89,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		
 		if(name!=null) this.name=name;
 		if(rank!=null) this.rank=rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRank.SPECIES.getValue();
 		
 		if(author!=null && author.trim().length()==0) this.author=null;
 		else if(author!=null) this.author=author;
@@ -136,7 +136,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 
 		this.name=doc.get("name").toString();
 		this.rank=((Float)Float.parseFloat(doc.get("rank").toString())).intValue();
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRank.SPECIES.getValue();
 		this.annotation=doc.get("annotation")==null ? null : doc.get("annotation").toString();
 		this.author=doc.get("author")==null ? null : doc.get("author").toString();
 		this.current=Boolean.parseBoolean(doc.get("current").toString());
@@ -144,11 +144,11 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	}
 
 	public Boolean isSpecies() {
-		return this.getRankValue()==TaxonRanks.SPECIES.getValue();
+		return this.getRankValue()==TaxonRank.SPECIES.getValue();
 	}
 	
 	public Boolean isSpeciesOrInferior() {
-		return this.getRankValue()>=TaxonRanks.SPECIES.getValue();
+		return this.getRankValue()>=TaxonRank.SPECIES.getValue();
 	}
 
 	/**
@@ -170,7 +170,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 * @return
 	 */
 	public String getFullName(boolean htmlFormatted) {
-		if(htmlFormatted && rank>=TaxonRanks.GENUS.getValue())
+		if(htmlFormatted && rank>=TaxonRank.GENUS.getValue())
 			return "<i>"+name+"</i>"+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
 		else
 			return name+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
@@ -180,8 +180,8 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		return getFullName(false);
 	}
 
-	public TaxonRanks getRank() {
-		return TaxonRanks.getRankFromValue(rank);
+	public TaxonRank getRank() {
+		return TaxonRank.getRankFromValue(rank);
 	}
 
 	/**

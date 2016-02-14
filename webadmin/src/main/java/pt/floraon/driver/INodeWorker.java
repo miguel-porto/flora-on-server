@@ -6,7 +6,7 @@ import com.arangodb.ArangoException;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants.Facets;
-import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.TaxonRank;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.Author;
@@ -34,7 +34,7 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws TaxonomyException, FloraOnException;
+	public TaxEnt createTaxEntFromName(String name,String author,TaxonRank rank,String annotation,Boolean current) throws TaxonomyException, FloraOnException;
     /**
 	 * Creates a new taxon and adds it to DB.
 	 * @param driver

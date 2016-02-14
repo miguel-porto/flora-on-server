@@ -86,7 +86,7 @@ public class Lists extends FloraOnServlet {
 
 			if(rank!=null) {
 				htmlClass=rank.toUpperCase();
-				Iterator<TaxEnt> res1=LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()));
+				Iterator<TaxEnt> res1=LD.getAllOfRank(TaxonRank.valueOf(rank.toUpperCase()));
 				rpchk=(ResultProcessor<TaxEnt>) new ResultProcessor<TaxEnt>(res1);
 			}
 			break;
