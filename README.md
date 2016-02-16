@@ -1,16 +1,21 @@
 # Flora-On server
 Database server to manage and query biodiversity databases, including modules for managing taxonomy, species traits, habitats and species occurrences.
-The main highlight is the graph-based approach to taxonomy (and traits and habitats aswell), backed by the power of [ArangoDB](http://www.arangodb.com/).
+The main highlight is the graph-based approach to taxonomy, traits and habitats, which is backed by the power of [ArangoDB](http://www.arangodb.com/) and which confers it great advantages over classic relational databases.
+
+## The new taxonomic concept in Flora-On
+The main highlight of Flora-On server is its new approach to taxonomy. All the taxonomic data is stored in a graph. However, the graph nodes do not represent the formal taxonomic entities, but represent groups of populations that may, or may not, be labelled with a formal taxonomic name, i.e., that may, or may not, correspond to formal taxonomic entities. There can be nodes without a name, for example, to represent certain populations of a species which differ consistently in a given trait, but no one has assigned a name to them yet. In this sense, the hierarchy of the taxonomic nodes does not need to strictly follow the taxonomic rules, and you can have, for example, species which are "part of" other species, or even genera that are part of some species - it just depends on the interpretation given. You can basically do whatever graph structure you need to represent reality, as long as you stick into the idea that nodes are *groups of populations*, not formal taxonomic entities.
+
+The purpose of this approach is to greatly simplify the problems faced by biodiversity data managers when matching occurrence data to names, in a constantly changing taxonomic world. You don't need to change anything here when there are taxonomic revisions - better said, you *should not* change anything. Whenever a new combination appears, all you have to do is add it to the graph as a new node, and create the appropriate relationships with existing nodes, so that the Flora-On query algorithms can find their way through the graph - from the occurrence data, traits and habitat data, to the formally accepted taxonomic entities. As long as all the relationships between nodes are correctly defined, Flora-On will know what to show you when you ask for some formal taxonomic name - it just follows all the paths that lead to the queried node.
+
+Basically there are two types of realtionships between nodes: PART_OF and SYNONYM. If node A is PART_OF node B, it means that the populations represented by node A are included in those represented by node B (note: not necessarily *all* included). If node A is SYNONYM of node B, it means that they represent exactly the same populations, so they are totally interchangeable - this is used when you need to provide different taxonomic names for the same thing, as long as you are sure that they do represent *exactly* the same thing, otherwise you should use a PART_OF relationship appropriately.
+
+As you might expect, all the types of data are also stored in the same graph, i.e., occurrence data, traits, habitats, images, etc., and nodes of these other types of data are connected to the "taxonomic" nodes. Further, both the habitat sub-graph and the traits sub-graph are subjected to their own taxonomy, so you can have habitat A which is PART_OF habitat B, and taxon C which EXISTS_IN habitat A and HAS_ATTRIBUTE D.
+
+This is where all the magic lives - the full integration of all kinds of data in the same graph and all its relationships, so that Flora-On quickly finds and shows the data you are looking for, circunventing all the usual problems associated with the constant taxonomic changes.
+
+Finally, all features are exposed in an API that can easily be used to implement your own biodiversity web site backed by Flora-On server.
 
 **This project is currently under "intense" development and is not usable as it stands now**
-## What it is
-It is a fully equipped system for building biodiversity-data websites, providing powerful querying services and data upload and management services.
-It offers tools to query and manage taxonomy, traits, ecology and occurrence data.
-
-All the data is stored in a graph (using [ArangoDB](http://www.arangodb.com/)), which confers it great advantages over classic relational databases.
-For example, taxonomy needs not follow a strictly hierarchical model, and you can have, for instance, species which are part of other species (when the former is not currently accepted);
-or you can group certain populations in non-taxonomic nodes, for instance, when some populations of a given species differ in a certain trait but are not formally recognized as an independent taxon on its own.
-Synonyms can be perfectly integrated in the taxonomic graph and linked with all relevant taxa without loss of information.
 
 ## Installation
 1. Download and install ArangoDB
