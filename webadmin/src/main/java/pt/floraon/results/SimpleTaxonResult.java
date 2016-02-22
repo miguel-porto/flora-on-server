@@ -26,28 +26,37 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	protected String[] match;
 	protected String[] reltypes;
 	protected Integer count;	// number of occurrences
+	protected Boolean partim=false;
+	
+	public String[] getReltypes() {
+		return this.reltypes;
+	}
+	
+	public boolean getPartim() {
+		return this.partim;
+	}
 
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.count);
-		rec.print(this._id);
+		rec.print(this.taxent.getID());
 		rec.print(Arrays.toString(this.reltypes));
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
+		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotation()+(this.partim ? " (partim)" : ""));
 		rec.print(Arrays.toString(this.match));
 	}
 
 	@Override
 	public String toHTMLTableRow(Object obj) {
-		return "<tr><td>"+this.count+"</td><td>"+this._id+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
+		return "<tr><td>"+this.count+"</td><td>"+this.taxent.getID()+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotation()+(this.partim ? " <i>partim</i>" : "")+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
 	}
 
 	@Override
 	public String[] toStringArray() {
 		return new String[] {
 			this.count==null ? null : this.count.toString()
-			,this._id
+			,this.taxent.getID()
 			,Arrays.toString(this.reltypes)
-			,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name
+			,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotation()+(this.partim ? " (partim)" : "")
 			,Arrays.toString(this.match)
 		};
 	}

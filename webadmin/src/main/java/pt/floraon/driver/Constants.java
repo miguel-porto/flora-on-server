@@ -34,7 +34,7 @@ public final class Constants {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}
 	
-	public enum TaxonRank {
+	public enum TaxonRanks {
 		NORANK("non-taxonomic rank",1000),CLASS("Class",50),FAMILY("Family",100),FORM("Form",240),GENUS("Genus",140),KINGDOM("Kingdom",10)
     	,ORDER("Order",80),PHYLUM("Phylum (Division)",30),SECTION("Section",160),SERIES("Series",180),SPECIES("Species",200),SUBCLASS("Subclass",60)
     	,SUBGENUS("Subgenus",150),SUBFAMILY("Subfamily",110),SUBFORM("Subform",250),SUBKINGDOM("Subkingdom",20),SUBORDER("Suborder",90)
@@ -43,7 +43,7 @@ public final class Constants {
     
 		private final String name;
 		private final Integer value;
-    	TaxonRank(String name,Integer value) {
+    	TaxonRanks(String name,Integer value) {
 			this.name=name;
 			this.value=value;
 		}
@@ -56,8 +56,8 @@ public final class Constants {
     		return this.value;
     	}
     	
-    	public static TaxonRank getRankFromValue(Integer value) {
-    		for(TaxonRank tr:values()) {
+    	public static TaxonRanks getRankFromValue(Integer value) {
+    		for(TaxonRanks tr:values()) {
     			if(Objects.equals(tr.value, value)) return tr;
     		}
     		return null;
@@ -144,14 +144,15 @@ public final class Constants {
 	}
 	
 	public enum RelTypes {
-		PART_OF(Facets.TAXONOMY, PART_OF.class),
+		PART_OF(Facets.TAXONOMY, PART_OF.class),								// taxonomic hierarchy
 		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class),
 		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class),
 		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class),
 		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class),
     	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class),
     	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class),
-		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class);
+		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class),
+		BELONGS_TO(Facets.TAXONOMY, pt.floraon.entities.BELONGS_TO.class);		// territory hierarchy
     	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
@@ -211,13 +212,13 @@ public final class Constants {
     }
     
     public static String CHECKLISTFIELDS=
-    		"{rank:"+TaxonRank.SPECIES.getValue()+"}"
-    		+ ",{rank:"+TaxonRank.FORM.getValue()+"}"
-			+ ",{rank:"+TaxonRank.SUBSPECIES.getValue()+"}"
-			+ ",{rank:"+TaxonRank.VARIETY.getValue()+"}"
-			+ ",{rank:"+TaxonRank.GENUS.getValue()+"}"
-			+ ",{rank:"+TaxonRank.FAMILY.getValue()+"}"
-			+ ",{rank:"+TaxonRank.ORDER.getValue()+"}";
+    		"{rank:"+TaxonRanks.SPECIES.getValue()+"}"
+    		+ ",{rank:"+TaxonRanks.FORM.getValue()+"}"
+			+ ",{rank:"+TaxonRanks.SUBSPECIES.getValue()+"}"
+			+ ",{rank:"+TaxonRanks.VARIETY.getValue()+"}"
+			+ ",{rank:"+TaxonRanks.GENUS.getValue()+"}"
+			+ ",{rank:"+TaxonRanks.FAMILY.getValue()+"}"
+			+ ",{rank:"+TaxonRanks.ORDER.getValue()+"}";
 
 	public static Map<String,String> infraRanks;
     static {

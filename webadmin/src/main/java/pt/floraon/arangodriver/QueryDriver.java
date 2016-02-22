@@ -18,7 +18,7 @@ import pt.floraon.driver.IQuery;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.SimpleNameResult;
@@ -139,12 +139,12 @@ public class QueryDriver extends BaseFloraOnDriver implements IQuery {
     }
 
 	@Override
-    public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes) throws DatabaseException {
-    	return speciesTextQuerySimple(match.query,match.getMatchType(),onlyLeafNodes,new String[]{match.getNodeType().toString()},match.getRank());
+    public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes,boolean onlyCurrent) throws DatabaseException {
+    	return speciesTextQuerySimple(match.query,match.getMatchType(),onlyLeafNodes,onlyCurrent,new String[]{match.getNodeType().toString()},match.getRank());
     }
     
 	@Override
-    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections,TaxonRank rank) throws DatabaseException {
+    public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,boolean onlyCurrent,String[] collections,TaxonRanks rank) throws DatabaseException {
     	// TODO put vertex collection restrictions in the options
     	String query;
     	q=q.toLowerCase().trim();
@@ -180,24 +180,73 @@ LET base=(FOR v IN attribute FILTER v.name=='Flores rosa' RETURN v._id)
 FOR v IN base
     FOR v1,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN
         LET last=LAST(p.vertices)
-        FILTER last.isSpeciesOrInf==true
-        LET nedg=LENGTH(FOR e1 IN PART_OF FILTER e1._to==last._id RETURN e1)
-        RETURN {
-            _key: last._id
+        FILTER last.isSpeciesOrInf && last.current 
+        LET nedg=LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND last PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)
+        RETURN DISTINCT {
+            _id: last._id
             ,name: last.name
             ,match: [v]
             ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
             ,leaf: nedg==0
         }
  */
-//FIXME returned results say synonym even if no need for it to be traversed? does this happen?
-    	if(collections.length==1) {
-    		query=String.format("LET base=(FOR v IN %1$s FILTER "+filter+" RETURN v._id) "
-    				+ "FOR v IN base FOR v1,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN "
-    				+ "LET last=LAST(p.vertices) FILTER last.isSpeciesOrInf==true "
-    				+ "LET nedg=LENGTH(FOR e1 IN PART_OF FILTER e1._to==last._id RETURN e1)"+leaf
-    				+ "RETURN {_id: last._id,name: last.name,match: [v],reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection),leaf: nedg==0}"
+    	
+/*
+ LET base=(FOR v IN taxent FILTER v.name=='Erodium cicutarium' RETURN v._id)
+FOR final IN FLATTEN(FOR v IN base
+    LET allr=(FOR last,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN
+        FILTER last.isSpeciesOrInf 
+        LET nedg=LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND last PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)
+        RETURN DISTINCT {
+            taxent: MERGE(last, {leaf: nedg==0}), match: [v]
+            ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
+            ,partim: false
+        })
+    // add the self match if it is species or inferior
+    LET vd=DOCUMENT(v)
+    LET allr1=vd.isSpeciesOrInf ? APPEND(allr,[{
+        taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0})
+        , match: [vd._id], reltypes: []
+        ,partim: false
+    }]) : allr
+    // now we have all results, both current and not current
+    LET real=(FOR r IN allr1 FILTER r.taxent.current RETURN r)     // return current as is
+    LET partim=(FOR r IN allr1 FILTER !r.taxent.current        // pick the not current and climb up to the first current
+        FOR uv,ue,up IN 1..10 OUTBOUND r.taxent PART_OF
+            FILTER uv.current && uv.isSpeciesOrInf && uv._id!=v && LENGTH(FOR tmp1 IN up.vertices FILTER tmp1.current RETURN 1)==1
+            LET nedg=LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND uv PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)
+            RETURN DISTINCT {
+                taxent: MERGE(uv,{leaf: nedg==0})
+                ,match: [v]
+                ,reltypes: r.reltypes
+                ,partim: true
+            })
+    RETURN UNION_DISTINCT(real,partim)
+) RETURN final
+ */
+    	if(collections.length==1) {	// TODO for attributes, the traverser should climb taxonomy uphill when current node is not current
+    		if(onlyCurrent) {
+				query=String.format("LET base=(FOR v IN %1$s FILTER "+filter+" RETURN v._id) "
+					+ "FOR final IN FLATTEN(FOR v IN base LET allr=(FOR last,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN "
+					+ "FILTER last.isSpeciesOrInf LET nedg=LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND last PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1) "+leaf
+			        + "RETURN DISTINCT {taxent: MERGE(last, {leaf: nedg==0}), match: [v],reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection),partim: false}) "
+			    	+ "LET vd=DOCUMENT(v) LET allr1=vd.isSpeciesOrInf ? APPEND(allr,[{taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0}), match: [vd._id], reltypes: [],partim: false}]) : allr "
+					+ "LET real=(FOR r IN allr1 FILTER r.taxent.current RETURN r) "
+					+ "LET partim=(FOR r IN allr1 FILTER !r.taxent.current FOR uv,ue,up IN 1..10 OUTBOUND r.taxent PART_OF "
+					+ "FILTER uv.current && uv.isSpeciesOrInf && uv._id!=v && LENGTH(FOR tmp1 IN up.vertices FILTER tmp1.current RETURN 1)==1 "
+					+ "LET nedg=LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND uv PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1) "+leaf
+					+ "RETURN DISTINCT {taxent: MERGE(uv,{leaf: nedg==0}),match: [v],reltypes: r.reltypes,partim: true}) "
+					+ "RETURN UNION_DISTINCT(real,partim)) RETURN final"
+					,collections[0],q);
+    		} else {
+    			query=String.format("LET base=(FOR v IN %1$s FILTER "+filter+" RETURN v._id) "
+    				+ "FOR final IN FLATTEN(FOR v IN base LET res=(FOR last,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN "
+    				+ "FILTER last.isSpeciesOrInf "
+    				+ "LET nedg=LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND last PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] RETURN last1)"+leaf
+    				+ "RETURN DISTINCT {taxent:MERGE(last, {leaf: nedg==0}), match: [v],reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)})"
+    				+ "LET vd=DOCUMENT(v) LET allr1=vd.isSpeciesOrInf ? APPEND(res,[{taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0}), match: [vd._id], reltypes: [],partim: false}]) : res RETURN allr1) RETURN final"
     			,collections[0],q);
+    		}
 /*    		
     		query=String.format("LET base=(FOR v IN %3$s FILTER "+filter+" RETURN v._id) FOR o IN FLATTEN("
 				+ "FOR v IN base FOR v1 IN GRAPH_TRAVERSAL('%1$s',v,'inbound',{paths:true,filterVertices:[{isSpeciesOrInf:true}],vertexFilterMethod:['exclude'], uniqueness: {vertices:'path', edges:'path'}}) "

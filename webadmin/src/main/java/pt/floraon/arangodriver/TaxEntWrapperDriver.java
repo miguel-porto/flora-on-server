@@ -80,9 +80,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public String[] getEndemismDegree() throws FloraOnException {
-		// FIXME this is not finished!! must traverse SYNONYMS, etc.
 		String query=String.format(
-			"FOR v IN 1..1 OUTBOUND '%1$s' %2$s RETURN v.name"
+			"FOR v,e,p IN 1..100 OUTBOUND '%1$s' ANY SYNONYM,EXISTS_IN,PART_OF "
+			+ "FILTER LAST(p.edges).nativeStatus=='ENDEMIC' RETURN v.name"
 			,node,RelTypes.EXISTS_IN.toString()
 		);
 		List<String> list;
@@ -154,6 +154,19 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+	}
+
+	@Override
+	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
+		
+		String query=String.format("FOR v,e,p IN 1..1 INBOUND '%2$s' %1$s FILTER !v.current RETURN LAST(p.vertices)"
+			,RelTypes.PART_OF.toString(),node
+		);
+		try {
+			return dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).iterator();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}

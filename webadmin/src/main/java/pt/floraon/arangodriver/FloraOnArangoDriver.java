@@ -5,10 +5,12 @@ import static pt.floraon.driver.Constants.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.arangodb.ArangoConfigure;
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
+import com.arangodb.entity.CollectionEntity;
 import com.arangodb.entity.CollectionOptions;
 import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.EdgeDefinitionEntity;
@@ -103,8 +105,10 @@ public class FloraOnArangoDriver implements FloraOn {
 			StringsResultEntity dbs=driver.getDatabases();
 			if(!dbs.getResult().contains(dbname))
 				initializeNewGraph(dbname);
-			else
-				driver.setDefaultDatabase(dbname);        
+			else {
+				driver.setDefaultDatabase(dbname);
+				checkCollections(dbname);
+			}
 		} catch (ArangoException e) {
 			System.err.println("ERROR initializing the graph: "+e.getMessage());
 			e.printStackTrace();
@@ -178,19 +182,9 @@ public class FloraOnArangoDriver implements FloraOn {
 		driver.createDatabase(dbname, ue);
 		driver.setDefaultDatabase(dbname);
 		
-		// create a collection for each nodetype
-		for(NodeTypes nt:NodeTypes.values()) {
-			driver.createCollection(nt.toString());
-		}
-		
-		CollectionOptions co=new CollectionOptions();
-		co.setType(CollectionType.EDGE);
-		for(RelTypes nt:RelTypes.values()) {
-			driver.createCollection(nt.toString(),co);
-		}
+		checkCollections(dbname);
 
-		createTaxonomicGraph();
-		//createNativeStatusGraph();
+		createTaxonomicGraph();	// TODO we don't need managed graphs any more, I think...
 		
 		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
 		driver.createHashIndex("author", true, "idAut");
@@ -199,6 +193,27 @@ public class FloraOnArangoDriver implements FloraOn {
 		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
 		driver.createHashIndex("territory", true, "shortName");
 		driver.createFulltextIndex("taxent", "name");
+	}
+	
+	private void checkCollections(String dbname) throws ArangoException {
+		Map<String,CollectionEntity> collections=driver.getCollections().getNames();
+		
+		// create a collection for each nodetype
+		for(NodeTypes nt:NodeTypes.values()) {
+			if(!collections.containsKey(nt.toString())) {
+				System.out.println("Creating collection: "+nt.toString());
+				driver.createCollection(nt.toString());
+			}
+		}
+		
+		CollectionOptions co=new CollectionOptions();
+		co.setType(CollectionType.EDGE);
+		for(RelTypes nt:RelTypes.values()) {
+			if(!collections.containsKey(nt.toString())) {
+				System.out.println("Creating collection: "+nt.toString());
+				driver.createCollection(nt.toString(),co);
+			}
+		}
 	}
 	
 	private void createTaxonomicGraph() throws ArangoException {

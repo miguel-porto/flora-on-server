@@ -3,7 +3,7 @@ package pt.floraon.driver;
 import java.util.Iterator;
 import java.util.List;
 
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
@@ -28,14 +28,14 @@ public interface IListDriver {
 	 * @territory The territory to filter taxa, or null if no filter is wanted.
 	 * @throws ArangoException
 	 */
-    public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, String territory, Integer offset, Integer count) throws FloraOnException;
+    public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, Integer offset, Integer count) throws FloraOnException;
 	/**
 	 * Gets all the taxent nodes of the given rank
 	 * @param rank
 	 * @return
 	 * @throws ArangoException
 	 */
-	public Iterator<TaxEnt> getAllOfRank(TaxonRank rank) throws FloraOnException;
+	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException;
 	/**
      * Gets all territories.
      * @return

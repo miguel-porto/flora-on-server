@@ -10,7 +10,7 @@ import com.arangodb.ArangoException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
 
@@ -19,13 +19,21 @@ public interface ITaxEntWrapper {
 	public Boolean isHybrid();
 	public boolean isLeafNode() throws FloraOnException;
 	/**
-	 * Gets the chain of synonyms associated with this taxon (excluding self). Note that only true SYNONYMs are returned (no PART_OF).
+	 * Gets the chain of synonyms associated with this taxon (excluding self). Note that only true SYNONYMs are returned (no PART_OF). See {@link getIncludedTaxa}
 	 * @return
 	 * @throws ArangoException
 	 * @throws FloraOnException 
 	 * @throws IOException 
 	 */
 	public Iterator<TaxEnt> getSynonyms() throws FloraOnException;
+	/**
+	 * Gets the taxa which are PART_OF this taxon and are not current.
+	 * @return
+	 * @throws ArangoException
+	 * @throws FloraOnException 
+	 * @throws IOException 
+	 */
+	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException;
 	/**
 	 * Gets the current taxonomic parent of this taxon.
 	 * @return
@@ -80,7 +88,7 @@ public interface ITaxEntWrapper {
      * @throws FloraOnException
      * @throws ArangoException
      */
-    public INodeKey createTaxEntChild(String name,String author,TaxonRank rank,String annotation,Boolean current) throws FloraOnException;
+    public INodeKey createTaxEntChild(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws FloraOnException;
 	/**
 	 * Gets the immediate children of the given TaxEnt node
 	 * @param id

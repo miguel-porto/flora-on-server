@@ -1,6 +1,7 @@
 package pt.floraon.arangodriver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +25,7 @@ import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.Author;
@@ -46,7 +47,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 	
 	@Override
-	public TaxEnt createTaxEntFromName(String name,String author,TaxonRank rank,String annotation,Boolean current) throws TaxonomyException, FloraOnException {
+	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws TaxonomyException, FloraOnException {
 		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, annotation, current, null);
 		try {
 			VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
@@ -279,14 +280,22 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	@Override
 	public GraphUpdateResult getRelationshipsBetween(String[] id, Facets[] facets) {
 		RelTypes[] art=RelTypes.getRelTypesOfFacets(facets);
+    	String rt=Arrays.toString(art);
+    	rt=rt.substring(1, rt.length()-1);
+
 		String query=String.format("RETURN {nodes:(FOR n IN %2$s "
 			+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
-			+ ",links:(FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
-			+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
-			+ "RETURN MERGE(d,{type:PARSE_IDENTIFIER(d).collection}))}"	//{id:d._id,source:d._from,target:d._to,current:d.current,type:PARSE_IDENTIFIER(d).collection})}"
-			,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
+			+ ",links:("
+			//+ "FOR n IN GRAPH_EDGES('%1$s',%2$s,{edgeCollectionRestriction:%3$s}) "
+			//+ "LET d=DOCUMENT(n) FILTER d._from IN %2$s && d._to IN %2$s"
+			//+ "RETURN MERGE(d,{type:PARSE_IDENTIFIER(d).collection}))}"
+			+ "FOR start IN %2$s FOR v,e IN 1..1 ANY start %3$s FILTER e._from IN %2$s && e._to IN %2$s"
+			+ "RETURN MERGE(e,{type:PARSE_IDENTIFIER(e).collection}))}"
+			,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),rt
+			//,Constants.TAXONOMICGRAPHNAME,EntityFactory.toJsonString(id),EntityFactory.toJsonString(art)
 		);
 		String res=null;
+		System.out.println(query);
 		try {
 			res = dbDriver.executeAqlQueryJSON(query, null, null);
 		} catch (ArangoException e) {
@@ -362,7 +371,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     		if(n==null)	// node doesn't exist
     			return null;
 
-    		if(q.getRankValue()==null || q.getRankValue().equals(TaxonRank.NORANK.getValue()) || n.getRankValue()==null) return n; else {
+    		if(q.getRankValue()==null || q.getRankValue().equals(TaxonRanks.NORANK.getValue()) || n.getRankValue()==null) return n; else {
 				if(!n.getRankValue().equals(q.getRankValue())) return null; else return n;
 			}	    		
     	} catch (NonUniqueResultException e) {	// multiple nodes with this name. Search the one of the right rank
@@ -374,7 +383,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			} catch (ArangoException e1) {
 				throw new DatabaseException(e1.getMessage());
 			}
-			if(q.getRankValue()==null || q.getRankValue().equals(TaxonRank.NORANK.getValue())) throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
+			if(q.getRankValue()==null || q.getRankValue().equals(TaxonRanks.NORANK.getValue())) throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
 
 			Iterator<VertexEntity<TaxEnt>> ns=vc.iterator();
 			n=null;
@@ -382,7 +391,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			while(ns.hasNext()) {
 				//n1=ns.next().getEntity();
 				n1=new TaxEnt(ns.next().getEntity());
-				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(TaxonRank.NORANK.getValue())) {
+				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
 					if(n!=null) throw new QueryException("More than one node with name "+q.getName()+" and rank "+q.getRank().toString()); else n=n1;
 				}
 			}

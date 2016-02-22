@@ -7,7 +7,7 @@ import com.arangodb.ArangoException;
 
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.results.SimpleNameResult;
@@ -58,7 +58,7 @@ public interface IQuery {
 	 * @throws DatabaseException 
      * @throws ArangoException 
      */
-	public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes) throws DatabaseException;
+	public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes,boolean onlyCurrent) throws DatabaseException;
     /**
      * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
      * <b>This is the main query function.</b> 
@@ -70,7 +70,7 @@ public interface IQuery {
      * @throws DatabaseException 
      * @throws ArangoException
      */
-	public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,String[] collections,TaxonRank rank) throws DatabaseException;
+	public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,boolean onlyCurrent,String[] collections,TaxonRanks rank) throws DatabaseException;
     /**
      * Gets a list of suggested names similar to the query
      * @param query

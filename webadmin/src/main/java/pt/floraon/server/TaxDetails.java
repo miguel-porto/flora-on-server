@@ -30,7 +30,7 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("taxent", taxent);
 		request.setAttribute("taxentWrapper", driver.wrapTaxEnt(driver.asNodeKey(taxent.getID())));
 		request.setAttribute("nativeStatusTable", baos.toString());
-		request.setAttribute("TaxonRanks", Constants.TaxonRank.values());
+		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
 		request.setAttribute("occurrenceStatus", Constants.OccurrenceStatus.values());
 		

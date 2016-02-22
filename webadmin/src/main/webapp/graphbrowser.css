@@ -128,6 +128,7 @@ svg.noentnames .node text {display:none;}
 .link.SYNONYM {stroke:#ddd;stroke-width:2px;fill:white !important}
 .link.SYNONYM.current {stroke:blue;}
 .link.PART_OF.current {fill:#7c7;}
+.link.BELONGS_TO {fill:#747;}
 .link.HYBRID_OF {stroke:#c7c;stroke-width:0px;fill:#c7c;}
 .link.FEEDING {stroke:#f36;stroke-width:2px;fill:none;stroke-opacity:0.5;}	/*stroke-dasharray:5,3;*/
 .link.PARASITIZING {stroke:#f36;stroke-width:1.5px;fill:none;stroke-dasharray:3,2;}

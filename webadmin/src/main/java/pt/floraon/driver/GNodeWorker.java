@@ -8,7 +8,11 @@ import pt.floraon.entities.Author;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.results.Occurrence;
-
+/**
+ * General DB-free routines for working with nodes. Any implementation should extend this class.
+ * @author miguel
+ *
+ */
 public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWorker {
     public GNodeWorker(FloraOn driver) {
 		super(driver);

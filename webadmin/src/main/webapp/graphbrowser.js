@@ -35,6 +35,7 @@ function zoomed() {
 
 document.addEventListener('DOMContentLoaded', function() {
 	var query=getQueryVariable(window.location.search,'q');
+	var ids=getQueryVariable(window.location.search,'id');
 	var what=getQueryVariable(window.location.search,'show');
 	var dim=document.getElementById('taxbrowser').getBoundingClientRect();
 	zoom=d3.behavior.zoom().scaleExtent([0.1, 4]).on("zoom", zoomed);
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if(what) {
 			if(what=='territories') addNodeBatch('getallterritories');
 		} else
-			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae'},false,getVisibleFacets(),1);
+			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae', ids: ids ? ids.split(',') : null},false,getVisibleFacets(),1);
 	});
 
 //	loadData({query:'crambe'},false,getVisibleFacets(),1);
@@ -615,6 +616,8 @@ function clickToolbar(ev) {
 		var linktype='PART_OF';
 	case 'but-parent':
 		if(!linktype) var linktype='HYBRID_OF';
+	case 'but-belongs':
+		if(!linktype) var linktype='BELONGS_TO';
 	case 'but-hasquality':
 		if(!linktype) var linktype='HAS_QUALITY';
 	case 'but-synonym':
@@ -725,6 +728,7 @@ function forceTick(e) {
 		var dy=d.target.y-d.source.y;
 		switch(d.type) {
 		case 'PART_OF':
+		case 'BELONGS_TO':
 			return('M'+(d.target.x+dy/40)+' '+(d.target.y-dx/40)+'l'+(-dy/20)+' '+(dx/20)+'L'+d.source.x+' '+d.source.y+'Z');
 		case 'SYNONYM':
 			return('M'+(d.target.x+dy/30)+' '+(d.target.y-dx/30)+'L'+(d.source.x+dy/30)+' '+(d.source.y-dx/30)+'L'+(d.source.x-dy/30)+' '+(d.source.y+dx/30)+'L'+(d.target.x-dy/30)+' '+(d.target.y+dx/30)+'Z');

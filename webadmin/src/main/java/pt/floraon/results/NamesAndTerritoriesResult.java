@@ -94,13 +94,13 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		List<String> allTerritories=(List<String>) obj;
 		StringBuilder sb=new StringBuilder();
 		try {
-			sb.append("<tr data-key=\"").append(this._id).append("\"")
-				.append(this.current==null ? "" : (this.current ? "" : " class=\"notcurrent\""))
-				.append("><td><a href=\"/floraon/admin?w=taxdetails&id="+URLEncoder.encode(this._id, StandardCharsets.UTF_8.name())+"\"><i>")
+			sb.append("<tr data-key=\"").append(this.taxent.getID()).append("\"")
+				.append(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))
+				.append("><td><a href=\"/floraon/admin?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
 				.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
-				.append(this.name)
+				.append(this.taxent.getNameWithAnnotation())
 				.append("</i></a></td><td>")
-				.append(this.author)
+				.append(this.taxent.getAuthor())
 				.append("</td><td>");
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
@@ -122,7 +122,6 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			}
 		}
 		sb.append("</td></tr>");
-		System.out.println("Output "+this.name);
 		return sb.toString();
 	}
 	
@@ -132,19 +131,17 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		Status tmp;
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
-		rec.print(this._id);
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.name);
-		rec.print(this.author);
+		rec.print(this.taxent.getID());
+		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotation());
+		rec.print(this.taxent.getAuthor());
 		if(this.territories==null) return;
 
 		for(String t : allTerritories) {
 			if(tStatus.containsKey(t)) {
 				tmp=tStatus.get(t);
 				if(tmp.occurrenceStatus!=null && tmp.occurrenceStatus!=OccurrenceStatus.OCCURS)
-					rec.print(tmp.nativeStatus.toString()+"; "+tmp.occurrenceStatus.toString());
-				else rec.print(tmp.nativeStatus.toString());
-				/*if(tmp.uncertain)		TODO: what if uncertain?
-					sb.append("<div class=\"uncertain\"></div>");*/
+					rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString()+"; "+tmp.occurrenceStatus.toString());
+				else rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString());
 			} else
 				rec.print("");
 		}

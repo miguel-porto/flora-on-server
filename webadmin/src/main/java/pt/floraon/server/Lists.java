@@ -56,14 +56,14 @@ public class Lists extends FloraOnServlet {
 		
 		case "species":
 			Iterator<SimpleNameResult> species;
-			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, territory, null, null);
+			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, false, territory, null, null);
 			rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
 			break;
 
 		case "speciesterritories":
 			from=request.getParameter("offset");
 			Iterator<NamesAndTerritoriesResult> speciesterr;
-			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, territory, from==null ? null : Integer.parseInt(from), PAGESIZE);
+			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, false, territory, from==null ? null : Integer.parseInt(from), PAGESIZE);
 			rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
 			List<String> opt1=new ArrayList<String>();
 			for(Territory tv : driver.getChecklistTerritories())
@@ -86,7 +86,7 @@ public class Lists extends FloraOnServlet {
 
 			if(rank!=null) {
 				htmlClass=rank.toUpperCase();
-				Iterator<TaxEnt> res1=LD.getAllOfRank(TaxonRank.valueOf(rank.toUpperCase()));
+				Iterator<TaxEnt> res1=LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()));
 				rpchk=(ResultProcessor<TaxEnt>) new ResultProcessor<TaxEnt>(res1);
 			}
 			break;

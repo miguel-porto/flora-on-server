@@ -4,7 +4,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
@@ -129,7 +132,8 @@ public class YlemParser {
 		}
 
 		// RESULT PHASE
-		List<SimpleTaxonResult> tmp;
+		List<SimpleTaxonResult> tmp1;
+		Map<String,SimpleTaxonResult> tmp;
 		Match thisMatch;
 		for(QueryPiece qp : qs.queryPieces) {		// process each query piece independently and intersect results
 			for(MatchList ml : qp.matchLists) {
@@ -138,12 +142,22 @@ public class YlemParser {
 						thisMatch=ml.matches.get(0);
 						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_RESET+"Fetch: \""+thisMatch.query+"\""+(thisMatch.rank!=null ? " ("+thisMatch.getRank().toString()+")" : ""));
 						// take the most relevant match
-						tmp=graph.getQueryDriver().fetchMatchSpecies(ml.matches.get(0),false);
-						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_GREENBOLD+"Found "+tmp.size()+Constants.ANSI_RESET+" results.");
+						tmp1=graph.getQueryDriver().fetchMatchSpecies(ml.matches.get(0),true,true);
+						// when there is more than one path to the result node, it will come out repeatedly, one time for each path.
+						// so we make this unique here, and choose the shortest path.
+						tmp=new HashMap<String,SimpleTaxonResult>();
+						for(SimpleTaxonResult str : tmp1) {
+							if(tmp.containsKey(str.getTaxonId())) {
+								if(tmp.get(str.getTaxonId()).getReltypes().length > str.getReltypes().length || tmp.get(str.getTaxonId()).getPartim()) tmp.put(str.getTaxonId(), str);
+							} else
+								tmp.put(str.getTaxonId(), str);
+						}
+						tmp1=new ArrayList<SimpleTaxonResult>(tmp.values());
+						System.out.println(Constants.ANSI_YELLOW+"[Fetcher] "+Constants.ANSI_GREENBOLD+"Found "+tmp1.size()+Constants.ANSI_RESET+" results.");
 						if(qs.results==null)
-							qs.results=tmp;
+							qs.results=tmp1;
 						else
-							qs.results=SimpleTaxonResult.mergeSimpleTaxonResultLists(qs.results, tmp);
+							qs.results=SimpleTaxonResult.mergeSimpleTaxonResultLists(qs.results, tmp1);
 					}
 				} catch (DatabaseException e) {
 					// TODO Auto-generated catch block
@@ -156,7 +170,7 @@ public class YlemParser {
 		if(noMatch.size()>0) {		// is there anything left to parse?
 			System.out.println(Constants.ANSI_RED+"Could not understand: "+Arrays.toString(noMatch.toArray())+Constants.ANSI_RESET);
 		}
-
+		Collections.sort(qs.results);
 		return qs.results;
 	}
 }

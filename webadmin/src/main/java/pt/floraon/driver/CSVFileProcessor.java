@@ -22,7 +22,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.Author;
@@ -302,7 +302,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 
 					parsedName.update(
 						name
-						, TaxonRank.valueOf(rankNames[i].toUpperCase()).getValue()
+						, TaxonRanks.valueOf(rankNames[i].toUpperCase()).getValue()
 						, author
 						, null
 						, true);

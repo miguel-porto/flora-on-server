@@ -18,7 +18,7 @@ import pt.floraon.driver.IListDriver;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.driver.Constants.TaxonRank;
+import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
@@ -137,7 +137,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 
 	@Override
-	public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, String territory, Integer offset, Integer count) throws FloraOnException {
+	public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, Integer offset, Integer count) throws FloraOnException {
 		String query;
 		boolean withLimit=false;
 		if(!(offset==null && count==null)) {
@@ -145,41 +145,61 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 			if(count==null) count=50;
 			withLimit=true;
 		}
-/* This is the original query.
-FOR taxon IN taxent
-	//LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==taxon._id RETURN e)
+/* This is the original query. TODO traverse the taxonomy downwards
+FOR taxon IN taxent LIMIT 10
 	LET npar=LENGTH(FOR v,e,p IN 1..1 INBOUND taxon PART_OF FILTER p.vertices[LENGTH(p.vertices)-1].current==true RETURN p.vertices[LENGTH(p.vertices)-1])
     FILTER taxon.isSpeciesOrInf==true && npar==0 SORT taxon.name
-    RETURN MERGE(KEEP(taxon,'_id','name','author','current'), {leaf: npar==0, territories:UNIQUE(
-        FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM
-            FILTER p.vertices[LENGTH(p.vertices)-1].showInChecklist==true       // stop in a territory marked for checklist
-            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='taxent' LIMIT 1 RETURN e1)     // did it climb taxonomic PART_OF?
+    RETURN {taxent: MERGE(taxon, {leaf: npar==0}), territories:UNIQUE(
+        FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM,BELONGS_TO
+            FILTER v.showInChecklist==true       // stop in a territory marked for checklist
+            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' LIMIT 1 RETURN e1)     // did it climb taxonomic PART_OF?
             LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1)       // this is the 1st EXISTS_IN edge
-            LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='territory' LIMIT 1 RETURN e1)    // only returns e1 if it climbs up a territory PART_OF
+            LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='BELONGS_TO' LIMIT 1 RETURN e1)    // only returns e1 if it climbs up a territory PART_OF
             RETURN {
                 existsId:ns[0]._id
                 ,nativeStatus: ns[0].nativeStatus
                 ,occurrenceStatus: ns[0].occurrenceStatus
-                ,territory: p.vertices[LENGTH(p.vertices)-1].shortName
+                ,territory: v.shortName
                 ,inferred: LENGTH(base)!=0
                 ,uncertain: LENGTH(upstr)!=0
             }
         )
-    })
+    }
 */
 		if(territory==null) {
-			query=String.format("FOR taxon IN %2$s "
-				+ "LET npar=LENGTH(FOR v,e,p IN 1..1 INBOUND taxon PART_OF FILTER p.vertices[LENGTH(p.vertices)-1].current==true RETURN p.vertices[LENGTH(p.vertices)-1]) "
-				+ "FILTER taxon.isSpeciesOrInf==true %1$s SORT taxon.name %3$s "
-				+ "RETURN MERGE(KEEP(taxon,'_id','name','author','current'), {leaf: npar==0, territories:UNIQUE("
-				+ "FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM "
+			query=String.format("FOR taxon IN %2$s " + 
+				"	LET npar=LENGTH(FOR v IN 1..1 INBOUND taxon PART_OF FILTER v.current==true RETURN v) " + 
+				"    FILTER taxon.isSpeciesOrInf==true %1$s %4$s SORT taxon.name %3$s " + 
+				"    RETURN {taxent: MERGE(taxon, {leaf: npar==0}), territories:UNIQUE( " + 
+				"        FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM,BELONGS_TO " + 
+				"            FILTER v.showInChecklist==true " + 
+				"            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' LIMIT 1 RETURN e1) " + 
+				"            LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1) " + 
+				"            LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='BELONGS_TO' LIMIT 1 RETURN e1) " + 
+				"            RETURN { " + 
+				"                existsId:ns[0]._id " + 
+				"                ,nativeStatus: ns[0].nativeStatus " + 
+				"                ,occurrenceStatus: ns[0].occurrenceStatus " + 
+				"                ,territory: v.shortName " + 
+				"                ,inferred: LENGTH(base)!=0 " + 
+				"                ,uncertain: LENGTH(upstr)!=0 " + 
+				"            } " + 
+				"        ) " + 
+				"    } "
+				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "", onlyCurrent ? "&& taxon.current" : "");
+/*			query=String.format("FOR taxon IN %2$s "
+				+ "LET npar=LENGTH(FOR v,e,p IN 1..1 INBOUND taxon PART_OF LET last=p.vertices[LENGTH(p.vertices)-1] FILTER last.current==true RETURN last) "
+				+ "FILTER taxon.isSpeciesOrInf==true %1$s %4$s SORT taxon.name %3$s "
+				//+ "RETURN MERGE(KEEP(taxon,'_id','name','author','current'), {leaf: npar==0, territories:UNIQUE("
+				+ "RETURN {taxent: MERGE(taxon, {leaf: npar==0}), territories:UNIQUE("
+				+ "FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM,BELONGS_TO "
 				+ "FILTER p.vertices[LENGTH(p.vertices)-1].showInChecklist==true "
 				+ "LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='taxent' LIMIT 1 RETURN e1) "
 				+ "LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1) "
-				+ "LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='PART_OF' && PARSE_IDENTIFIER(e1._to).collection=='territory' LIMIT 1 RETURN e1) RETURN {"
+				+ "LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='BELONGS_TO' && PARSE_IDENTIFIER(e1._to).collection=='territory' LIMIT 1 RETURN e1) RETURN {"
 				+ "existsId:ns[0]._id,nativeStatus: ns[0].nativeStatus,occurrenceStatus: ns[0].occurrenceStatus"
-				+ ",territory: p.vertices[LENGTH(p.vertices)-1].shortName,inferred: LENGTH(base)!=0,uncertain: LENGTH(upstr)!=0 })})"
-				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "");
+				+ ",territory: p.vertices[LENGTH(p.vertices)-1].shortName,inferred: LENGTH(base)!=0,uncertain: LENGTH(upstr)!=0 })}"
+				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "", onlyCurrent ? "&& taxon.current" : "");*/
 /*			query=String.format("FOR v IN %2$s "
 				+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
 				+ "FILTER v.isSpeciesOrInf==true %1$s SORT v.name %3$s "
@@ -225,7 +245,7 @@ FOR taxon IN taxent
 	}
 
 	@Override
-	public Iterator<TaxEnt> getAllOfRank(TaxonRank rank) throws FloraOnException {
+	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException {
 		String query=String.format("FOR v IN %1$s FILTER v.rank==%2$d SORT v.name RETURN v"
 			,NodeTypes.taxent.toString(),rank.getValue());
     	CursorResult<TaxEnt> vertexCursor;

@@ -35,6 +35,7 @@
 				<div id="but-partof" class="button">PART_OF</div>
 				<div id="but-synonym" class="button">SYNONYM</div>
 				<div id="but-parent" class="button">HYBRID_OF</div>
+				<div id="but-belongs" class="button">BELONGS_TO</div>
 			</div>
 		</c:if>
 		

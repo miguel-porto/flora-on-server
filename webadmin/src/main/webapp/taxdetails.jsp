@@ -8,7 +8,8 @@
 	<li class="notcurrent${taxent.getCurrent() ? '' : ' selected'}">not current</li>
 </ul>
 <ul class="menu">
-	<li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li>
+	<!-- <li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li> -->
+	<li><a href="?w=graph&id=${taxent.getIDURLEncoded()}">View in graph</a></li>
 	<c:if test="${taxentWrapper.isLeafNode() && sessionScope.user!=null}">
 		<li id="deletetaxon" class="actionbutton">Delete taxon</li>
 	</c:if>
@@ -37,12 +38,21 @@
 			${nativeStatusTable }		
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
-		<ul class="synonyms">
-		<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
-  			<li data-key="${synonym.getID()}"><a href="admin?w=taxdetails&id=${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></a> <div class="button remove">detach</div></li>
-		</c:forEach>
-		</ul>
+			<ul class="synonyms">
+			<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
+	  			<li data-key="${synonym.getID()}"><a href="admin?w=taxdetails&id=${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></a> <div class="button remove">detach</div></li>
+			</c:forEach>
+			</ul>
 		</div>
+		<c:if test="${taxent.isSpeciesOrInferior() && taxent.getCurrent()}">
+			<div id="taxonsynonyms"><h3>Included taxa</h3>
+				<ul class="synonyms">
+				<c:forEach var="included" items="${taxentWrapper.getIncludedTaxa()}">
+		  			<li data-key="${included.getID()}"><a href="admin?w=taxdetails&id=${included.getID()}"><c:out value="${included.getFullName()}"></c:out></a></li>
+				</c:forEach>
+				</ul>
+			</div>
+		</c:if>
 	</div>
 	
 	<c:if test="${sessionScope.user!=null}">

@@ -239,7 +239,7 @@ div.territory .RARE {
 
 .taxdetails {flex-grow:1;margin:0 8px;padding:3px;border-left:1px solid #aaa;background-color:#f4f4f4;}
 #taxoninfo {display:flex;width:100%}
-#taxoninfo>div {border-radius:5px;margin:5px;padding:0px;border:2px solid #cdf;}
+#taxoninfo>div {border-radius:5px;margin:5px;padding:0px;border:2px solid #cdf;flex:1 1 33%}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}
 #taxonnativestatus {flex-grow:1}
 
@@ -249,7 +249,7 @@ div.territory .RARE {
 	font-style:italic;
 	list-style-type:none;
 	margin:3px;
-	white-space:nowrap;
+	/*white-space:nowrap;*/
 }
 
 #taxonsynonyms .synonyms .button.remove {float:none;display:inline-block;}
