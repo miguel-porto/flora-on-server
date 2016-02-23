@@ -21,7 +21,7 @@ public class WebAdmin extends FloraOnServlet {
 		    request.getRequestDispatcher("/login.jsp").forward(request, response); // Go back to login page.
 		}*/
 		
-		String what=request.getParameter("w"),from;
+		String what=request.getParameter("w");
 		String query=request.getParameter("q");
 		if(what==null) what="main";
 		request.setAttribute("what", what);
@@ -29,13 +29,13 @@ public class WebAdmin extends FloraOnServlet {
 
 		switch(what) {		// the 'w' parameter of the URL querystring
 		case "main":	// CHECKLIST
-			if( (from=request.getParameter("offset"))==null ) from="0";
-			Integer offset=Integer.parseInt(from);
+			Integer offset=getParameterAsIntegerNoNull("offset");
 			if(territory==null)
 				request.setAttribute("territory", "");
 			else
 				request.setAttribute("territory", " existing in "+driver.getNodeWorkerDriver().getTerritoryFromShortName(territory).getName());
 			request.setAttribute("offset", offset);
+			request.setAttribute("filter", getParameterAsString("filter"));
 			request.setAttribute("PAGESIZE", PAGESIZE);
 			break;
 			

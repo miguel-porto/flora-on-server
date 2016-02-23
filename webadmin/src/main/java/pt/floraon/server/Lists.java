@@ -29,7 +29,7 @@ public class Lists extends FloraOnServlet {
 	
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		String htmlClass=null,from;
+		String htmlClass=null;
 		Object opt=null;
 		PrintWriter out;
 		String what=request.getParameter("w");
@@ -56,14 +56,15 @@ public class Lists extends FloraOnServlet {
 		
 		case "species":
 			Iterator<SimpleNameResult> species;
-			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, false, territory, null, null);
+			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, false, territory, null, null, null);
 			rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
 			break;
-
+// get the full or partial list of names and statuses in each territory
 		case "speciesterritories":
-			from=request.getParameter("offset");
+			Integer offset=getParameterAsInteger("offset");
+			String filter=getParameterAsString("filter");
 			Iterator<NamesAndTerritoriesResult> speciesterr;
-			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, false, territory, from==null ? null : Integer.parseInt(from), PAGESIZE);
+			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, false, territory, filter, offset, PAGESIZE);
 			rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
 			List<String> opt1=new ArrayList<String>();
 			for(Territory tv : driver.getChecklistTerritories())

@@ -23,7 +23,7 @@ public class ChecklistDownload implements Job {
 			terr.add(tv.getShortName());
 		
 		ResultProcessor<NamesAndTerritoriesResult> rpchk1;
-		Iterator<NamesAndTerritoriesResult> chklst=driver.getListDriver().getAllSpeciesOrInferior(true, NamesAndTerritoriesResult.class, true, null, null, null);
+		Iterator<NamesAndTerritoriesResult> chklst=driver.getListDriver().getAllSpeciesOrInferior(true, NamesAndTerritoriesResult.class, true, null, null, null, null);
 		rpchk1=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(chklst);
 		out.print(rpchk1.toCSVTable(terr));
 		out.close();

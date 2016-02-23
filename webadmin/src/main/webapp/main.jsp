@@ -69,9 +69,9 @@
 		<div style="padding:6px;"><div class="territory NATIVE"></div> native <div class="territory ENDEMIC"></div> endemic <div class="territory EXOTIC"></div> exotic <div class="territory UNCERTAIN"></div> doubtfully native <div class="territory EXISTING"></div> existing
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="territory EXISTING"><div class="RARE"></div></div> rare <div class="territory EXISTING"><div class="POSSIBLY_EXTINCT"></div></div> possibly extinct <div class="territory EXISTING"><div class="EXTINCT"></div></div> extinct
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="territory EXISTING"><div class="uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> possibly with this status</span></div>
-		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&offset=${offset+PAGESIZE}">next &gt;</a></div>
-		<jsp:include page="/api/lists?w=speciesterritories&fmt=htmltable&offset=${offset}"></jsp:include>
-		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&offset=${offset+PAGESIZE}">next &gt;</a></div>
+		<div class="paging"><div id="filterbox">Filter: <input type="text" id="filtertext" placeholder="type filter text" value="${filter}"/></div><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&filter=${filter}&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&filter=${filter}&offset=${offset+PAGESIZE}">next &gt;</a><p style="clear:both"/></div>
+		<jsp:include page="/api/lists?w=speciesterritories&fmt=htmltable&offset=${offset}&filter=${filter}"></jsp:include>
+		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&filter=${filter}&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&filter=${filter}&offset=${offset+PAGESIZE}">next &gt;</a><p style="clear:both"/></div>
 		</div>
 	</c:when>
 	<c:when test="${what=='families'}">

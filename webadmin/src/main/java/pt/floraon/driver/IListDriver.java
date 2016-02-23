@@ -28,7 +28,7 @@ public interface IListDriver {
 	 * @territory The territory to filter taxa, or null if no filter is wanted.
 	 * @throws ArangoException
 	 */
-    public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, Integer offset, Integer count) throws FloraOnException;
+    public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException;
 	/**
 	 * Gets all the taxent nodes of the given rank
 	 * @param rank

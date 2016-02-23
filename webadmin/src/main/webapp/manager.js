@@ -106,6 +106,22 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
+// filter box for checklist
+	qs=document.getElementById('filtertext');
+	if(qs) {
+		addEvent('keyup', qs, function(ev) {
+			var input=ev.target;
+			if(ev.keyCode==13) {
+				var txt=input.value.trim();
+				if(txt.length==0) {
+					window.location.search='?w=main';
+				} else {
+					window.location.search='?w=main&filter='+encodeURIComponent(txt)+'&offset=0';
+				}
+			}
+		});
+	}
+	
 	qs=document.getElementById('download-checklist');
 	if(qs) {
 		addEvent('click',qs,function(ev) {

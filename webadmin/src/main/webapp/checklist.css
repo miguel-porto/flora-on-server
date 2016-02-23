@@ -15,8 +15,10 @@ ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0
 ul.menu li:hover {background-color:#ff7;}
 .info {font-size:0.8em;color:gray;font-style:italic;font-weight:normal;}
 p.error {color:red;font-weight:bold;}
-div.paging {text-align:center;background-color:#eee;padding:3px;}
-div.paging .legend {float:left;}
+div.paging {text-align:center;padding:5px;border-bottom:2px solid #09f;margin-bottom:5px;}
+div.paging #filterbox {float:left;}
+div.paging #filterbox input {width:140px;}
+div.paging .legend {float:right;}
 
 .noselect {
     -webkit-touch-callout: none;
@@ -188,7 +190,8 @@ div.territory .RARE {
 }
 
 #left-bar {
-	background-color:#eee;
+	border-right:2px solid #09f;
+	padding-right:5px;
 }
 
 #left-bar ul {
@@ -206,6 +209,11 @@ div.territory .RARE {
 	display:flex;
 	position:relative;
 	align-items:flex-start;
+}
+
+.taxtree-holder {
+	padding-right:5px;
+	border-right:2px solid #09f;
 }
 
 .taxtree-holder ul {
@@ -237,7 +245,7 @@ div.territory .RARE {
 
 #taxtree {min-width:300px}
 
-.taxdetails {flex-grow:1;margin:0 8px;padding:3px;border-left:1px solid #aaa;background-color:#f4f4f4;}
+.taxdetails {flex-grow:1;margin:0 8px;padding:3px;}/*background-color:#f4f4f4;*/
 #taxoninfo {display:flex;width:100%}
 #taxoninfo>div {border-radius:5px;margin:5px;padding:0px;border:2px solid #cdf;flex:1 1 33%}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}

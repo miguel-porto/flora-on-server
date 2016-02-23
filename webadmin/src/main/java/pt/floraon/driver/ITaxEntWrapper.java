@@ -21,23 +21,18 @@ public interface ITaxEntWrapper {
 	/**
 	 * Gets the chain of synonyms associated with this taxon (excluding self). Note that only true SYNONYMs are returned (no PART_OF). See {@link getIncludedTaxa}
 	 * @return
-	 * @throws ArangoException
 	 * @throws FloraOnException 
-	 * @throws IOException 
 	 */
 	public Iterator<TaxEnt> getSynonyms() throws FloraOnException;
 	/**
 	 * Gets the taxa which are PART_OF this taxon and are not current.
 	 * @return
-	 * @throws ArangoException
 	 * @throws FloraOnException 
-	 * @throws IOException 
 	 */
 	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException;
 	/**
 	 * Gets the current taxonomic parent of this taxon.
 	 * @return
-	 * @throws ArangoException
 	 * @throws TaxonomyException if there is more than one current parent (this is a taxonomic violation)
 	 */
 	public TaxEnt getParentTaxon() throws FloraOnException;

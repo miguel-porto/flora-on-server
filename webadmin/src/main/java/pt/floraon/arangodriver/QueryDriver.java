@@ -284,7 +284,7 @@ FOR final IN FLATTEN(FOR v IN base
     public Iterator<SimpleNameResult> findSuggestions(String query, Integer limit) throws FloraOnException {
     	String limitQ;
     	if(limit!=null) limitQ=" LIMIT "+limit; else limitQ="";
-    	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank DESC"+limitQ+" RETURN v",query);
+    	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank DESC"+limitQ+" RETURN {taxent:v}",query);
     	try {
 			return dbDriver.executeAqlQuery(_query, null, null, SimpleNameResult.class).iterator();
 		} catch (ArangoException e) {
