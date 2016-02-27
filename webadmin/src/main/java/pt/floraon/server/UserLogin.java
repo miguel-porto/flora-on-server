@@ -16,9 +16,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class UserLogin extends HttpServlet {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	@Override

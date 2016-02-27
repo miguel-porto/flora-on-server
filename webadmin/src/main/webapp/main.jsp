@@ -64,7 +64,7 @@
 		</div>
 	</c:when>
 	<c:when test="${(what=='main') || (what==null)}">
-		<div id="main" class="checklist noselect"><h1>List of all accepted names<c:out value="${territory}"></c:out></h1>
+		<div id="main" class="noselect"><h1>List of all names<c:out value="${territory}"></c:out></h1>
 		<c:if test="${sessionScope.user!=null}"><p>Click on a taxon to edit it</p></c:if>
 		<div style="padding:6px;"><div class="territory NATIVE"></div> native <div class="territory ENDEMIC"></div> endemic <div class="territory EXOTIC"></div> exotic <div class="territory UNCERTAIN"></div> doubtfully native <div class="territory EXISTING"></div> existing
 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="territory EXISTING"><div class="RARE"></div></div> rare <div class="territory EXISTING"><div class="POSSIBLY_EXTINCT"></div></div> possibly extinct <div class="territory EXISTING"><div class="EXTINCT"></div></div> extinct
@@ -107,6 +107,7 @@
 	</c:when>
 	</c:choose>
 </div>
+<div id="loader"><div id="loadermsg">Loading...</div></div>
 </body>
 </html>
 

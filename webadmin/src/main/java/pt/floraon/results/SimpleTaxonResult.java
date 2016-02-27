@@ -18,6 +18,7 @@ import org.apache.commons.csv.CSVPrinter;
  * <li>reltypes[]: the distinct types of relationships that were traversed from "match" to "name"</li>
  * <li>leaf: whether this entry is a leaf node or not</li>
  * <li>count: the number of occurrences of this species (if applicable)</li>
+ * <li>notcurrentpath: if true, this result is not reachable under current taxonomy</li>
  * </ul>
  * @author Miguel Porto
  *
@@ -27,6 +28,7 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	protected String[] reltypes;
 	protected Integer count;	// number of occurrences
 	protected Boolean partim=false;
+	protected Boolean notcurrentpath=false;
 	
 	public String[] getReltypes() {
 		return this.reltypes;
@@ -34,6 +36,25 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 	
 	public boolean getPartim() {
 		return this.partim;
+	}
+	
+	public boolean getNotCurrentPath() {
+		return this.notcurrentpath;
+	}
+	
+	/**
+	 * Check whether the path leading to this result is better than the path leading to str. This may involve several conditions, see code. 
+	 * @param str SimpleTaxonResult to compare
+	 * @return
+	 */
+	public boolean hasPriorityOver(SimpleTaxonResult str) {
+		if(this.notcurrentpath && !str.notcurrentpath)	// current path always has priority, no matter how long it is
+			return false;
+		if(this.partim && !str.partim)					// full matches have priority
+			return false;
+		if(this.reltypes.length > str.reltypes.length)	// shorter paths have priority
+			return false;
+		return true;
 	}
 
 	@Override
@@ -47,13 +68,29 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 
 	@Override
 	public String toHTMLTableRow(Object obj) {
-		return "<tr><td>"+this.count+"</td><td>"+this.taxent.getID()+"</td><td>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotation()+(this.partim ? " <i>partim</i>" : "")+"</td><td>"+Arrays.toString(this.reltypes)+"</td></tr>";
+		StringBuilder sb=new StringBuilder();
+		sb.append("<tr")
+			.append(this.taxent.getCurrent() ? "><td>" : " class=\"notcurrent\"><td>")
+			.append(this.count==null ? "" : this.count)
+			.append(this.notcurrentpath ? "not reachable ":"")
+			.append(this.partim ? "partim ":"")
+			.append("</td><td>")
+			.append(this.taxent.getID())
+			.append("</td><td>")
+			.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
+			.append(this.taxent.getNameWithAnnotation())
+			//.append(this.partim ? " <i>partim</i>" : "")
+			.append("</td><td>")
+			.append(Arrays.toString(this.reltypes))
+			.append("</td></tr>");
+		return sb.toString();
 	}
 
 	@Override
 	public String[] toStringArray() {
 		return new String[] {
-			this.count==null ? null : this.count.toString()
+			//this.count==null ? null : this.count.toString()
+			(this.notcurrentpath ? "not reachable ":"")+(this.partim ? "partim ":"")
 			,this.taxent.getID()
 			,Arrays.toString(this.reltypes)
 			,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotation()+(this.partim ? " (partim)" : "")

@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 	}
 	
-	tr=document.querySelector('#main.checklist table');
+	tr=document.querySelector('#main table.taxonlist');
 	addEvent('click',tr,function(ev) {
 		if(ev.target.tagName=='DIV' && ev.target.classList.contains('territory')) {
 			var terr=ev.target.innerHTML;

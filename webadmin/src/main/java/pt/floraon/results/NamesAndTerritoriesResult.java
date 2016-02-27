@@ -140,7 +140,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			if(tStatus.containsKey(t)) {
 				tmp=tStatus.get(t);
 				if(tmp.occurrenceStatus!=null && tmp.occurrenceStatus!=OccurrenceStatus.OCCURS)
-					rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString()+"; "+tmp.occurrenceStatus.toString());
+					rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString()+" ("+tmp.occurrenceStatus.toString()+")");
 				else rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString());
 			} else
 				rec.print("");

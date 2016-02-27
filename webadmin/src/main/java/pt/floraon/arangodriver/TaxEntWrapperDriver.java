@@ -81,8 +81,8 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	@Override
 	public String[] getEndemismDegree() throws FloraOnException {
 		String query=String.format(
-			"FOR v,e,p IN 1..100 OUTBOUND '%1$s' ANY SYNONYM,EXISTS_IN,PART_OF "
-			+ "FILTER LAST(p.edges).nativeStatus=='ENDEMIC' RETURN v.name"
+			"FOR v,e IN 1..100 OUTBOUND '%1$s' ANY SYNONYM,EXISTS_IN,PART_OF "
+			+ "FILTER e.nativeStatus=='ENDEMIC' RETURN v.name"
 			,node,RelTypes.EXISTS_IN.toString()
 		);
 		List<String> list;

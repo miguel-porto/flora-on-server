@@ -29,7 +29,7 @@
 		</c:if>
 		<tr><td>Rank</td><td><c:out value="${taxent.getRank().toString() }"></c:out></td></tr>
 		<tr><td>Endemic to</td><td>
-			<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}, "></c:out>
+			<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}"></c:out>
 		</td></tr>
 	</table>
 	<div id="taxoninfo">

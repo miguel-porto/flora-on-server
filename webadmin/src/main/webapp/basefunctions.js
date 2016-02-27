@@ -77,10 +77,23 @@ function loadXMLDoc(doc,onopen) {
     xmlhttp.send();
 }
 
+function showLoader() {
+	var el=document.getElementById('loader');
+	if(el) el.style.display='block';
+}
+
+function hideLoader() {
+	var el=document.getElementById('loader');
+	if(el) el.style.display='none';
+}
 function fetchAJAX(addr,callback) {
+	//showLoader();
 	loadXMLDoc(addr,function(xmlo) {
 		xmlo=xmlo.target;
-		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
+		if(xmlo.readyState == 4 && xmlo.status == 200) {
+			//hideLoader();
+			callback(xmlo.responseText);
+		}
 	});
 }
 

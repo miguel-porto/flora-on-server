@@ -6,12 +6,14 @@ h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
 h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}
 h3 {margin:0}
 p {margin:3px;}
+#loader {position:fixed;width:100%;height:100%;top:0;left:0;text-align:center;font-size:3em;display:none;}
+#loader #loadermsg {margin:20% 35%;padding:10px;background-color:rgba(255,255,255,0.35);box-shadow:0 0 5px black;border-radius:12px;text-align:center;}
 ::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
 :-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
 ::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
 :-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
 ul.menu {padding:0}
-ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;cursor:pointer}
+ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;cursor:pointer;background:linear-gradient(170deg,#fff,#f2f2f2);}
 ul.menu li:hover {background-color:#ff7;}
 .info {font-size:0.8em;color:gray;font-style:italic;font-weight:normal;}
 p.error {color:red;font-weight:bold;}
@@ -128,7 +130,7 @@ div.toggler.off .content {display:none;}
 	padding:2px 8px;
 }
 */
-.checklist table tr.notcurrent {color:#aaa !important;background-color:#f7f7f7;}
+table.taxonlist tr.notcurrent {color:#aaa !important;background-color:#f7f7f7;}
 div.territory {
 	border-radius:50%;
 	border:2px solid #ddd;
@@ -179,10 +181,7 @@ div.territory .RARE {
 	background-size:100% 100%;
 }
 
-
-.checklist table div.territory {
-	float:left;
-}
+table.taxonlist div.territory {float:left;}
 
 #main-holder {
 	display:flex;

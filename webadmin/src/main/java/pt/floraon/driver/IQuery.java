@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.arangodb.ArangoException;
 
+import pt.floraon.arangodriver.ArangoKey;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
@@ -52,7 +53,9 @@ public interface IQuery {
      */
 	public List<Match> queryMatcher(String q,StringMatchTypes matchtype,String[] collections) throws DatabaseException;
 	/**
-     * Fetches all species (or inferior rank) downstream the given match
+     * Fetches all species (or inferior rank) downstream the given match.
+     * <b>This is the main high-level query function</b>
+     * This function processes results from the DB so that each species appears only once.
      * @param match A {@link Match} created by {@link queryMatcher}
      * @return
 	 * @throws DatabaseException 
@@ -61,7 +64,8 @@ public interface IQuery {
 	public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes,boolean onlyCurrent) throws DatabaseException;
     /**
      * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
-     * <b>This is the main query function.</b> 
+     * <b>This is the main low-level query function.</b>
+     * It does not process the results, so it returns all possible paths that lead to each species (or inferior)
      * @param q The query as a String. It is matched as a whole to the node 'name' attribute.
      * @param matchtype Type of match desired (exact, partial or prefix).
      * @param onlyLeafNodes true to return only leaf nodes. If false, all species or inferior rank nodes are returned.
@@ -71,6 +75,7 @@ public interface IQuery {
      * @throws ArangoException
      */
 	public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,boolean onlyCurrent,String[] collections,TaxonRanks rank) throws DatabaseException;
+	public List<SimpleTaxonResult> speciesTextQuerySimple(ArangoKey node,boolean onlyLeafNodes,boolean onlyCurrent) throws DatabaseException;
     /**
      * Gets a list of suggested names similar to the query
      * @param query

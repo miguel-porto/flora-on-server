@@ -168,7 +168,7 @@ FOR taxon IN taxent LIMIT 10
 */
 		if(territory==null) {
 			query=String.format("FOR taxon IN %2$s " + (filter==null ? "" : "FILTER LIKE(taxon.name, '%%%5$s%%', true) ") +  
-				"	LET npar=LENGTH(FOR v IN 1..1 INBOUND taxon PART_OF FILTER v.current==true RETURN v) " + 
+				"	LET npar=LENGTH(FOR v IN 1..1 INBOUND taxon PART_OF %6$s RETURN v) " + 
 				"    FILTER taxon.isSpeciesOrInf==true %1$s %4$s SORT taxon.name %3$s " + 
 				"    RETURN {taxent: MERGE(taxon, {leaf: npar==0}), territories:UNIQUE( " + 
 				"        FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM,BELONGS_TO " + 
@@ -186,7 +186,13 @@ FOR taxon IN taxent LIMIT 10
 				"            } " + 
 				"        ) " + 
 				"    } "
-				, onlyLeafNodes ? "&& npar==0" : "", NodeTypes.taxent.toString(), withLimit ? "LIMIT "+offset+","+count : "", onlyCurrent ? "&& taxon.current" : "", filter);
+				, onlyLeafNodes ? "&& npar==0" : ""
+				, NodeTypes.taxent.toString()
+				, withLimit ? "LIMIT "+offset+","+count : ""
+				, onlyCurrent ? "&& taxon.current" : ""
+				, filter
+				, onlyCurrent ? "FILTER v.current==true" : ""
+			);
 /*			query=String.format("FOR v IN %2$s "
 				+ "LET npar=LENGTH(FOR e IN PART_OF FILTER e._to==v._id RETURN e) "
 				+ "FILTER v.isSpeciesOrInf==true %1$s SORT v.name %3$s "
