@@ -53,7 +53,8 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public Iterator<TaxEnt> getSynonyms() throws FloraOnException {
-		String query=String.format("FOR u IN UNIQUE(FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'inbound',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex) RETURN u"
+		String query=String.format(//"FOR u IN UNIQUE(FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'inbound',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex) RETURN u"
+			"FOR v IN 1..100 ANY '%3$s' %2$s FILTER v._id!='%3$s' RETURN DISTINCT v"
 			,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),node
 		);
 		try {
@@ -65,8 +66,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public TaxEnt getParentTaxon() throws TaxonomyException, DatabaseException {
-		String query=String.format("FOR n IN NEIGHBORS(%1$s,%2$s,'%3$s','outbound',{current:true},{includeData:true}) RETURN n"
-			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node);
+		String query=String.format(//"FOR n IN NEIGHBORS(%1$s,%2$s,'%3$s','outbound',{current:true},{includeData:true}) RETURN n"
+			"FOR v,e IN 1..1 OUTBOUND '%3$s' %2$s FILTER v.current && e.current RETURN v"
+			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node.toString());
 		TaxEnt out;
 		try {
 			out=dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).getUniqueResult();
@@ -162,7 +164,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	@Override
 	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
 		
-		String query=String.format("FOR v,e,p IN 1..1 INBOUND '%2$s' %1$s FILTER !v.current RETURN LAST(p.vertices)"
+		String query=String.format("FOR v IN 1..1 INBOUND '%2$s' %1$s FILTER !v.current RETURN v"
 			,RelTypes.PART_OF.toString(),node
 		);
 		try {

@@ -158,7 +158,7 @@ public class YlemParser {
 		if(noMatch.size()>0) {		// is there anything left to parse?
 			System.out.println(Constants.ANSI_RED+"Could not understand: "+Arrays.toString(noMatch.toArray())+Constants.ANSI_RESET);
 		}
-		Collections.sort(qs.results);
+		if(qs.results!=null) Collections.sort(qs.results);
 		return qs.results;
 	}
 }
