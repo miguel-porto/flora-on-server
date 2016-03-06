@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	var query=getQueryVariable(window.location.search,'q');
 	var ids=getQueryVariable(window.location.search,'id');
 	var what=getQueryVariable(window.location.search,'show');
+	var depth=getQueryVariable(window.location.search,'depth');
 	var dim=document.getElementById('taxbrowser').getBoundingClientRect();
 	zoom=d3.behavior.zoom().scaleExtent([0.1, 4]).on("zoom", zoomed);
 
@@ -70,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if(what) {
 			if(what=='territories') addNodeBatch('getallterritories');
 		} else
-			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae', ids: ids ? ids.split(',') : null},false,getVisibleFacets(),1);
+			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae', ids: ids ? ids.split(',') : null},false,getVisibleFacets(), depth ? depth : 3);
 	});
 
 //	loadData({query:'crambe'},false,getVisibleFacets(),1);
@@ -251,6 +252,13 @@ function clickToolbar(ev) {
 	} else var el=ev.target;
 	
 	switch(el.id) {
+	case 'but-depth':
+		var what=getQueryVariable(window.location.search,'show');
+		var query=getQueryVariable(window.location.search,'q');
+		var ids=getQueryVariable(window.location.search,'id');
+		if(what!='territories')
+			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae', ids: ids ? ids.split(',') : null}, true, getVisibleFacets(), el.getAttribute('data-depth'));
+		break;
 	case 'but-showtaxonomy':
 	case 'but-showecology':
 	case 'but-showmorphology':
@@ -788,9 +796,10 @@ function mergeLinks(newlinks) {
 	var sourceids=gdata.links.map(function(d) {return(d.source._id);});
 	var targetids=gdata.links.map(function(d) {return(d.target._id);});
 	var onlynew=newlinks.filter(function(d) {
-		if(sourceids.indexOf(d.source)==-1 || targetids.indexOf(d.target)==-1) return(true);
+		//if(sourceids.indexOf(d.source)==-1 || targetids.indexOf(d.target)==-1) return(true);
+		if(sourceids.indexOf(d._from)==-1 || targetids.indexOf(d._to)==-1) return(true);
 		for(var i=0;i<sourceids.length;i++) {
-			if(sourceids[i]==d.source && targetids[i]==d.target) {
+			if(sourceids[i]==d._from && targetids[i]==d._to) {
 				gdata.links[i].current=d.current;
 				return(false);
 			}
@@ -832,12 +841,12 @@ function loadData(d,add,facets,depth) {
 	}
 	if(!facets) facets=['TAXONOMY'];
 //	d3.json('worker.php?w=neigh&f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
-	d3.json('/floraon/graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
+	d3.json('/floraon/graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : '0'), function(error, graph) {
 console.log(graph);
 		if(!graph.success) return;
-		if(graph.msg.nodes.length>300) {
+		if(graph.msg.nodes.length>500) {
 			showRelationships(d);
-			showWindow('<p>Sorry, this would result in more than 300 nodes. I won\'t do it.</p>',{timer:2000});
+			showWindow('<p>Sorry, this would result in '+graph.msg.nodes.length+' nodes. I won\'t do it.</p>',{timer:2000});
 			return;
 		}
 		graph=graph.msg;
@@ -850,7 +859,6 @@ console.log(graph);
 			updateData(graph.nodes,graph.links,d);
 			showRelationships(d);
 		}
-		
 	});
 }
 
@@ -869,6 +877,7 @@ function onUpdateData() {
 
 	force.stop();
 	force.nodes(gdata.nodes).links(gdata.links);
+	
 	node=node.data(gdata.nodes, function(d) { return d._id;});
 	node.attr('class',function(d) {
 		return('node '+d.type+' '+(d.rank ? reference.rankmap[''+d.rank].toLowerCase() : '')+(this.hasClass('selected') ? ' selected' : '')+(d.current ? '' : ' notcurrent'));
@@ -1038,7 +1047,7 @@ function clickNode(d) {
 	}
 	
 	var cmd=document.querySelector('.window input[name=command]');
-	if(cmd) {
+	if(cmd) {	// any command invoked?
 		switch(cmd.value) {
 		case 'addlink':
 			var srcid=document.querySelector('.window input[name=srcid]').value;
@@ -1059,10 +1068,10 @@ function clickNode(d) {
 			
 			break;
 		}
-	} else {	
+	} else {	// just a normal click
 		clearSelected(document.querySelector('#taxbrowser'));
 		this.addClass('selected');
-		loadData(d,true,getVisibleFacets());
+		loadData(d,true,getVisibleFacets(),1);
 	}
 }
 

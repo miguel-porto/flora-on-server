@@ -18,6 +18,14 @@
 			<input type="hidden" id="loggedin" name="loggedin" value="${sessionScope.user}"/>
 		</c:if>
 		<div class="box">
+			<div class="title"><p>Expand depth</p></div>
+			<div id="but-depth" data-depth="1" class="button round">1</div>
+			<div id="but-depth" data-depth="2" class="button round">2</div>
+			<div id="but-depth" data-depth="3" class="button round">3</div>
+			<div id="but-depth" data-depth="4" class="button round">4</div>
+			<p style="clear:both"/>
+		</div>
+		<div class="box">
 			<div id="but-clean" class="button">Clean</div>
 			<!--<div id="but-orphan" class="button">Load orphan</div>-->
 			<div id="but-characters" class="button">Load characters</div>
@@ -36,6 +44,7 @@
 				<div id="but-synonym" class="button">SYNONYM</div>
 				<div id="but-parent" class="button">HYBRID_OF</div>
 				<div id="but-belongs" class="button">BELONGS_TO</div>
+				<div id="but-hasquality" class="button">HAS_QUALITY</div>
 			</div>
 		</c:if>
 		

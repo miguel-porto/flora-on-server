@@ -9,7 +9,7 @@
 </ul>
 <ul class="menu">
 	<!-- <li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li> -->
-	<li><a href="?w=graph&id=${taxent.getIDURLEncoded()}">View in graph</a></li>
+	<li><a href="?w=graph&depth=2&id=${taxent.getIDURLEncoded()}">View in graph</a></li>
 	<c:if test="${taxentWrapper.isLeafNode() && sessionScope.user!=null}">
 		<li id="deletetaxon" class="actionbutton">Delete taxon</li>
 	</c:if>
@@ -77,7 +77,7 @@
 					<option value="NATIVE">is NATIVE to</option>
 					<option value="ENDEMIC">is ENDEMIC to</option>
 					<option value="EXOTIC">is EXOTIC in</option>
-					<option value="UNCERTAIN">is DOUBTFULLY NATIVE to</option>
+					<option value="DOUBTFULLY_NATIVE">is DOUBTFULLY NATIVE to</option>
 					<option value="NULL">has no status in</option></select>
 				<select name="territory">
 					<c:forEach var="territory" items="${territories}">

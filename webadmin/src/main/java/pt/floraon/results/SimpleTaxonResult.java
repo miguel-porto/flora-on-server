@@ -2,11 +2,14 @@ package pt.floraon.results;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.csv.CSVPrinter;
+
+import pt.floraon.entities.TaxEnt;
 
 /**
  * Represents the "taxonomic result" of a query, i.e. the simplified and aggregated information gathered from all taxa that
@@ -24,7 +27,7 @@ import org.apache.commons.csv.CSVPrinter;
  *
  */
 public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
-	protected String[] match;
+	protected TaxEnt[] match;
 	protected String[] reltypes;
 	protected Integer count;	// number of occurrences
 	protected Boolean partim=false;
@@ -59,21 +62,26 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
+		// TODO obsolete!
 		rec.print(this.count);
 		rec.print(this.taxent.getID());
 		rec.print(Arrays.toString(this.reltypes));
 		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotation()+(this.partim ? " (partim)" : ""));
-		rec.print(Arrays.toString(this.match));
+		rec.print(Arrays.toString(this.match));		// FIXME handle the array!
 	}
 
 	@Override
 	public String toHTMLTableRow(Object obj) {
 		StringBuilder sb=new StringBuilder();
+		StringBuilder sb1=new StringBuilder();
+		for(TaxEnt s:this.match) sb1.append(s.getID()+", ");
+		
 		sb.append("<tr")
 			.append(this.taxent.getCurrent() ? "><td>" : " class=\"notcurrent\"><td>")
 			.append(this.count==null ? "" : this.count)
+			.append((this.match[0].getCurrent() == null || this.match[0].getCurrent()) ? "":"non-current match ")	// FIXME handle the array!
 			.append(this.notcurrentpath ? "not reachable ":"")
-			.append(this.partim ? "partim ":"")
+			.append(this.partim ? "included in ":"")
 			.append("</td><td>")
 			.append(this.taxent.getID())
 			.append("</td><td>")
@@ -88,13 +96,15 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 
 	@Override
 	public String[] toStringArray() {
+		StringBuilder sb=new StringBuilder();
+		for(TaxEnt s:this.match) sb.append(s.getID()+", ");
 		return new String[] {
 			//this.count==null ? null : this.count.toString()
-			(this.notcurrentpath ? "not reachable ":"")+(this.partim ? "partim ":"")
+			(this.notcurrentpath ? "not reachable ":"")+(this.partim ? "included in ":"")
 			,this.taxent.getID()
 			,Arrays.toString(this.reltypes)
 			,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotation()+(this.partim ? " (partim)" : "")
-			,Arrays.toString(this.match)
+			,sb.toString()
 		};
 	}
 	
@@ -108,18 +118,20 @@ public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
 		if(l1==null) return l2;
 		if(l2==null) return l1;
 		l1.retainAll(l2);
-		Set<String> s1=new HashSet<String>();
+		Set<TaxEnt> s1=new HashSet<TaxEnt>();
+		Set<String> s2=new HashSet<String>();
 		for(SimpleTaxonResult str:l1) {
 			int io=l2.indexOf(str);
 			s1.addAll(Arrays.asList(str.match));
 			s1.addAll(Arrays.asList(l2.get(io).match));
+			//Collections.sort(s1);
 			str.match=s1.toArray(str.match);
 			s1.clear();
 			
-			s1.addAll(Arrays.asList(str.reltypes));
-			s1.addAll(Arrays.asList(l2.get(io).reltypes));
-			str.reltypes=s1.toArray(str.reltypes);
-			s1.clear();
+			s2.addAll(Arrays.asList(str.reltypes));
+			s2.addAll(Arrays.asList(l2.get(io).reltypes));
+			str.reltypes=s2.toArray(str.reltypes);
+			s2.clear();
 		}
 		return l1;
 	}

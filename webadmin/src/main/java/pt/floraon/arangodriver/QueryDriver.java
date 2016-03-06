@@ -157,9 +157,10 @@ FOR final IN FLATTEN(FOR v IN base
     LET allr=(FOR last,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN
         FILTER last.isSpeciesOrInf 
         LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND last PART_OF FILTER v2.current==true RETURN v2)
-        LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current==false LIMIT 1 RETURN ve)
+        //LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current==false LIMIT 1 RETURN ve)
+        LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve)
         RETURN DISTINCT {
-            taxent: MERGE(last, {leaf: nedg==0}), match: [v]
+            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)]
             ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
             ,partim: false
             ,notcurrentpath: notcur>0
@@ -168,7 +169,7 @@ FOR final IN FLATTEN(FOR v IN base
     LET vd=DOCUMENT(v)
     LET allr1=vd.isSpeciesOrInf ? APPEND(allr,[{
         taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0})
-        , match: [vd._id], reltypes: []
+        , match: [vd], reltypes: []
         ,partim: false
         ,notcurrentpath: false //vd.current!=null && !vd.current
     }]) : allr
@@ -180,10 +181,10 @@ FOR final IN FLATTEN(FOR v IN base
             LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND uv PART_OF FILTER v2.current==true RETURN v2)
             RETURN DISTINCT {
                 taxent: MERGE(uv,{leaf: nedg==0})
-                ,match: [v]
+                ,match: [DOCUMENT(v)]
                 ,reltypes: r.reltypes
                 ,partim: true
-                ,notcurrentpath: true
+                ,notcurrentpath: false
             })
     RETURN UNION_DISTINCT(allr1,partim)
 ) RETURN final
@@ -196,9 +197,10 @@ FOR final IN FLATTEN(FOR v IN base
         LET notcuredge=LENGTH(FOR e2 IN p.edges FILTER e2.current==false LIMIT 1 RETURN e2)
         FILTER notcuredge==0	// do not traverse not current edges
         LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND last PART_OF RETURN v2)
-        LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current!=null && !ve.current LIMIT 1 RETURN ve)
+        //LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current!=null && !ve.current LIMIT 1 RETURN ve)
+        LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve)
         RETURN DISTINCT {
-            taxent: MERGE(last, {leaf: nedg==0}), match: [v]
+            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)]
             ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
             ,partim: false
             ,notcurrentpath: notcur>0
@@ -207,7 +209,7 @@ FOR final IN FLATTEN(FOR v IN base
     LET vd=DOCUMENT(v)
     LET allr1=vd.isSpeciesOrInf ? APPEND(res,[{
         taxent: MERGE(vd, {leaf: LENGTH(FOR v2 IN 1..1 INBOUND vd PART_OF RETURN v2)==0})
-        , match: [vd._id], reltypes: []
+        , match: [vd], reltypes: []
         , partim: false
         , notcurrentpath: false // vd.current!=null && !vd.current
         }]) : res
@@ -224,9 +226,9 @@ FOR final IN FLATTEN(FOR v IN base
 				"    LET allr=(FOR last,e,p IN 1..100 INBOUND v PART_OF,ANY SYNONYM,HYBRID_OF,HAS_QUALITY,EXISTS_IN " + 
 				"        FILTER last.isSpeciesOrInf  " + 
 				"        LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND last PART_OF FILTER v2.current==true RETURN v2) " + leaf +
-				"        LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current==false LIMIT 1 RETURN ve) " + 
+				"        LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve) " + 
 				"        RETURN DISTINCT { " + 
-				"            taxent: MERGE(last, {leaf: nedg==0}), match: [v] " + 
+				"            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)] " + 
 				"            ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection) " + 
 				"            ,partim: false " + 
 				"            ,notcurrentpath: notcur>0 " + 
@@ -234,7 +236,7 @@ FOR final IN FLATTEN(FOR v IN base
 				"    LET vd=DOCUMENT(v) " + 
 				"    LET allr1=vd.isSpeciesOrInf ? APPEND(allr,[{ " + 
 				"        taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0}) " + 
-				"        , match: [vd._id], reltypes: [] " + 
+				"        , match: [vd], reltypes: [] " + 
 				"        ,partim: false " + 
 				"        ,notcurrentpath: false " + 
 				"    }]) : allr " + 
@@ -245,10 +247,10 @@ FOR final IN FLATTEN(FOR v IN base
 				"            LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND uv PART_OF FILTER v2.current==true RETURN v2) " + leaf +
 				"            RETURN DISTINCT { " + 
 				"                taxent: MERGE(uv,{leaf: nedg==0}) " + 
-				"                ,match: [v] " + 
+				"                ,match: [DOCUMENT(v)] " + 
 				"                ,reltypes: r.reltypes " + 
 				"                ,partim: true " + 
-				"                ,notcurrentpath: true " + 
+				"                ,notcurrentpath: false " + 
 				"            }) " + 
 				"    RETURN UNION_DISTINCT(allr1,partim) " + // real,partim
 				") RETURN final "; 
@@ -260,9 +262,9 @@ FOR final IN FLATTEN(FOR v IN base
 				"        LET notcuredge=LENGTH(FOR e2 IN p.edges FILTER e2.current==false LIMIT 1 RETURN e2) " + 
 				"        FILTER notcuredge==0 " + 
 				"        LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND last PART_OF RETURN v2) " + leaf + 
-				"        LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current!=null && !ve.current LIMIT 1 RETURN ve) " + 
+				"        LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve) " + 
 				"        RETURN DISTINCT { " + 
-				"            taxent: MERGE(last, {leaf: nedg==0}), match: [v] " + 
+				"            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)] " + 
 				"            ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection) " + 
 				"            ,partim: false " + 
 				"            ,notcurrentpath: notcur>0 " + 
@@ -270,7 +272,7 @@ FOR final IN FLATTEN(FOR v IN base
 				"    LET vd=DOCUMENT(v) " + 
 				"    LET allr1=vd.isSpeciesOrInf ? APPEND(res,[{ " + 
 				"        taxent: MERGE(vd, {leaf: LENGTH(FOR v2 IN 1..1 INBOUND vd PART_OF RETURN v2)==0}) " + 
-				"        , match: [vd._id], reltypes: [] " + 
+				"        , match: [vd], reltypes: [] " + 
 				"        , partim: false " + 
 				"        , notcurrentpath: false " + 
 				"        }]) : res " + 
@@ -304,7 +306,7 @@ FOR final IN FLATTEN(FOR v IN base
 	public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws DatabaseException {
 		String query=String.format("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$d) "
 				+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,%5$s,sl,'inbound',{},{includeData:true}) "
-				+ "RETURN {match:sl._id,name:n.name,_id:n._id}) "
+				+ "RETURN {match:sl,name:n.name,_id:n._id}) "
 				+ "COLLECT k=o._id,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_id:k,match:ma,count:LENGTH(ma),reltypes:['%5$s']}"
 				,NodeTypes.specieslist.toString(),latitude,longitude,distance,RelTypes.OBSERVED_IN.toString());
 		//System.out.println(query);

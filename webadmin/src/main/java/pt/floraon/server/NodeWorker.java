@@ -179,7 +179,7 @@ public class NodeWorker extends FloraOnServlet {
 					getParameterAsKey("id")
 					,new TaxEnt(
 						getParameterAsString("name")
-						,getParameterAsInteger("rank")
+						,getParameterAsInteger("rank",null)
 						,getParameterAsString("author")
 						,getParameterAsString("comment")
 						,getParameterAsBoolean("current")

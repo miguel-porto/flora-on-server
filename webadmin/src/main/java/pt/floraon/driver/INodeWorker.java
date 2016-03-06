@@ -140,7 +140,7 @@ public interface INodeWorker {
 	 * @return A JSON string with an array of vertices ('nodes') and an array of edges ('links') of the form {nodes[],links:[]}
 	 * @throws ArangoException
 	 */
-	public GraphUpdateResult getNeighbors(INodeKey id, Facets[] facets);
+	public GraphUpdateResult getNeighbors(INodeKey id, Facets[] facets, Integer depth);
 	/**
 	 * Gets all the native status that this taxon has, i.e., all the associations between a {@link Territory} and a {@link EXISTS_IN} relationship.
 	 * @param id

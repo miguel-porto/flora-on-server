@@ -113,12 +113,12 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 					tmp=tStatus.get(t);
 					sb.append("<div class=\"territory ").append(tmp.nativeStatus.toString()).append("\">");
 					if(tmp.occurrenceStatus!=null)
-						sb.append("<div class=\"").append(tmp.occurrenceStatus.toString()).append("\">").append("</div>");
+						sb.append("<div class=\"occurrencestatus ").append(tmp.occurrenceStatus.toString()).append("\">").append("</div>");
 					if(tmp.uncertain)
-						sb.append("<div class=\"uncertain\"></div>");
-					sb.append(t).append("</div>");
+						sb.append("<div class=\"occurrencestatus uncertain\"></div>");
+					sb.append("<div class=\"legend\">").append(t).append("</div></div>");
 				} else
-					sb.append("<div class=\"territory\">").append(t).append("</div>");
+					sb.append("<div class=\"territory\"><div class=\"legend\">").append(t).append("</div></div>");
 			}
 		}
 		sb.append("</td></tr>");

@@ -306,15 +306,25 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public GraphUpdateResult getNeighbors(INodeKey id, Facets[] facets) {
+	public GraphUpdateResult getNeighbors(INodeKey id, Facets[] facets, Integer depth) {
 		if(id==null) return GraphUpdateResult.emptyResult();
 		RelTypes[] art=RelTypes.getRelTypesOfFacets(facets);
-		String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
+		String artconc=Arrays.toString(art);
+		artconc=artconc.substring(1, artconc.length()-1);
+		/*String query=String.format("RETURN {nodes:(FOR n IN APPEND(['%2$s'],GRAPH_NEIGHBORS('%1$s','%2$s',{edgeCollectionRestriction:%3$s})) "
 			+ "LET v=DOCUMENT(n) RETURN MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection}))"//{id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
 			+ ",links:(FOR n IN GRAPH_EDGES('%1$s','%2$s',{edgeCollectionRestriction:%3$s}) "
 			+ "LET d=DOCUMENT(n) RETURN MERGE(d,{type:PARSE_IDENTIFIER(d).collection}))}"	//source:d._from,target:d._to,
 			,Constants.TAXONOMICGRAPHNAME,id.toString(),EntityFactory.toJsonString(art)
-		);
+		);*/
+		String query=String.format("RETURN {nodes: " + 
+		"    APPEND( " + 
+		"        [MERGE(DOCUMENT('%1$s'),{type:PARSE_IDENTIFIER('%1$s').collection})] " + 
+		"        ,(FOR v IN 1..%3$d ANY '%1$s' %2$s RETURN DISTINCT MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection})) " + 
+		"    ) " + 
+		"    ,links:(FOR v,e IN 1..%3$d ANY '%1$s' %2$s RETURN DISTINCT MERGE(e,{type:PARSE_IDENTIFIER(e._id).collection})) " + 
+		"} ",id.toString(), artconc, depth);
+		//System.out.println(query);
 		
 /*		String query=String.format("FOR p IN GRAPH_TRAVERSAL('%1$s','%2$s','any',{paths:true,maxDepth:1}) "
 			+ "RETURN {nodes:(FOR v IN p[*].vertex RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"

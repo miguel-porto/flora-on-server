@@ -1,5 +1,6 @@
 html,body {height:100%;margin:0;padding:0;font-family:sans-serif;overflow:hidden;font-size:0.9em}
 .button {box-shadow:0 0 3px #aaa;margin:8px;padding:4px;cursor:pointer;border-radius:8px;background-color:white;}
+.button.round {margin:8px;padding:4px;border-radius:50%;width:1em;height:1em;float:left;text-align:center;line-height:1em;}
 .button:not(.dead):hover {box-shadow:0 0 3px #070;background:linear-gradient(#fff,#cfc);}
 .button:not(.dead).selected {box-shadow:0 0 3px #070;background:linear-gradient(#cfc,#7f5);}
 .button .pin {box-shadow:0 0 3px #000;width:1.25em;height:1.25em;float:right;border-radius:50%;}

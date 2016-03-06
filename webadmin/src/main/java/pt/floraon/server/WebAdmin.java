@@ -29,7 +29,7 @@ public class WebAdmin extends FloraOnServlet {
 
 		switch(what) {		// the 'w' parameter of the URL querystring
 		case "main":	// CHECKLIST
-			Integer offset=getParameterAsIntegerNoNull("offset");
+			Integer offset=getParameterAsInteger("offset",0);
 			if(territory==null)
 				request.setAttribute("territory", "");
 			else

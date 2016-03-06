@@ -71,6 +71,8 @@ public class GraphReader extends FloraOnServlet {
 		case "getneighbors":
 			id=getParameterAsString("id");
 			query=getParameterAsString("q");
+			Integer depth=getParameterAsInteger("d",1);
+			
 			if(errorIfAllNull(response, id, query)) return;
 
 			String infacets[];
@@ -87,13 +89,13 @@ public class GraphReader extends FloraOnServlet {
 			if(id==null) {
 				TaxEnt te=driver.getNodeWorkerDriver().getTaxEntByName(query);
 				if(te==null)
-					success(driver.getNodeWorkerDriver().getNeighbors(null,fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getNeighbors(null,fac,depth).toJsonObject());
 				else
-					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(te.getID()),fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(te.getID()),fac,depth).toJsonObject());
 			} else {
 				String[] ids=id.split(",");
 				if(ids.length==1)
-					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(ids[0]),fac).toJsonObject());
+					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(ids[0]),fac,depth).toJsonObject());
 				else
 					success(driver.getNodeWorkerDriver().getRelationshipsBetween(ids,fac).toJsonObject());
 			}

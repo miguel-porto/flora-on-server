@@ -93,14 +93,16 @@ public final class Constants {
 	}
 
 	public enum OccurrenceStatus {
-		OCCURS,COMMON,RARE,POSSIBLY_EXTINCT,EXTINCT;
+		OCCURS,COMMON,RARE,POSSIBLY_EXTINCT,EXTINCT
+		,UNCERTAIN_OCCURRENCE		// it is not certain if the taxon occurs or not, because of taxonomic problems
+		,POSSIBLE_OCCURRENCE;		// it might occur given its distribution and habitat, but there are no records at all
 	}
 	
 	public enum NativeStatus {
 		WILD((short)0)
 		,NATIVE((short)0)
-		,EXISTING((short)0)
-		,UNCERTAIN((short)1)
+		,EXISTING((short)0)						// it exists with different status depending on the sub-territory
+		,DOUBTFULLY_NATIVE((short)1)			// it might be native, but there are also reasons to suspect the opposite
 		,NATURALIZED((short)2)
 		,EXOTIC((short)2)
 		,ENDEMIC((short)3)

@@ -102,7 +102,7 @@ public class Occurrence implements ResultItem {
 			, Integer.parseInt(record.get(17))
 			, (tmp = record.get(10).replace("\"", "")).equals("\\N") ? null : Jsoup.parse(tmp.replace("\n", "")).text()
 			, (tmp = record.get(13).replace("\"", "")).equals("\\N") ? null : Jsoup.parse(tmp.replace("\n", "")).text()
-			, Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD : NativeStatus.UNCERTAIN
+			, Integer.parseInt(record.get(15))==0 ? NativeStatus.WILD : NativeStatus.DOUBTFULLY_NATIVE
 			, (tmp = record.get(12).replace("\"", "")).equals("\\N") ? null : tmp);
 		
 		/*occ.confidence = Short.parseShort(record.get(11));

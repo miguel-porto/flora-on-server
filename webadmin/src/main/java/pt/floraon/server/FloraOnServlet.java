@@ -174,19 +174,11 @@ public class FloraOnServlet extends HttpServlet {
 		return driver.asNodeKey(getParameterAsString(name));
 	}
 
-	public Integer getParameterAsInteger(String name) throws IOException, ServletException, FloraOnException {
+	public Integer getParameterAsInteger(String name,Integer nullValue) throws IOException, ServletException, FloraOnException {
 		try {
 			return Integer.parseInt(getParameterAsString(name));
 		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-
-	public Integer getParameterAsIntegerNoNull(String name) throws IOException, ServletException, FloraOnException {
-		try {
-			return Integer.parseInt(getParameterAsString(name));
-		} catch (NumberFormatException e) {
-			return 0;
+			return nullValue;
 		}
 	}
 

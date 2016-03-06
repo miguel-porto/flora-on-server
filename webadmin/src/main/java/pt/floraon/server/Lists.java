@@ -61,7 +61,7 @@ public class Lists extends FloraOnServlet {
 			break;
 // get the full or partial list of names and statuses in each territory
 		case "speciesterritories":
-			Integer offset=getParameterAsInteger("offset");
+			Integer offset=getParameterAsInteger("offset",null);
 			String filter=getParameterAsString("filter");
 			Iterator<NamesAndTerritoriesResult> speciesterr;
 			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, false, territory, filter, offset, PAGESIZE);
