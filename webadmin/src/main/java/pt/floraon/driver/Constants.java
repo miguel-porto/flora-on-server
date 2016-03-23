@@ -94,23 +94,28 @@ public final class Constants {
 
 	public enum OccurrenceStatus {
 		OCCURS,COMMON,RARE,POSSIBLY_EXTINCT,EXTINCT
-		,UNCERTAIN_OCCURRENCE		// it is not certain if the taxon occurs or not, because of taxonomic problems
-		,POSSIBLE_OCCURRENCE;		// it might occur given its distribution and habitat, but there are no records at all
+		,ABSENT_BUT_REPORTED_IN_ERROR
+		,UNCERTAIN_OCCURRENCE		// This taxon presumably exists, but it is not certain if the taxon occurs or not, because of taxonomic problems
+		,QUESTIONABLE				// There is (little) evidence for the presence of a taxon but it might exist
+		,POSSIBLE_OCCURRENCE;		// it might occur given its distribution and habitat, but there is no evidence at all
 	}
 	
 	public enum NativeStatus {
-		WILD((short)0)
-		,NATIVE((short)0)
-		,EXISTING((short)0)						// it exists with different status depending on the sub-territory
-		,DOUBTFULLY_NATIVE((short)1)			// it might be native, but there are also reasons to suspect the opposite
-		,NATURALIZED((short)2)
-		,EXOTIC((short)2)
-		,ENDEMIC((short)3)
-		,ERROR((short)-1);
+		NATIVE((short)0, "is NATIVE to")
+		,EXISTING((short)0, "EXISTS in")						// it exists with different status depending on the sub-territory
+		,DOUBTFULLY_NATIVE((short)1, "is DOUBTFULLY NATIVE to")			// it might be native, but there are also reasons to suspect the opposite
+		,DOUBTFULLY_INTRODUCED((short)1, "is DOUBTFULLY INTRODUCED in")		// it might be introduced, but there are also reasons to suspect the opposite
+		,EXOTIC((short)2, "is EXOTIC in")
+		,ENDEMIC((short)3, "is ENDEMIC to")
+		,NEAR_ENDEMIC((short)4, "is NEAR ENDEMIC to")					// quasi-endemic (say, more than 80% of its populations in the territory)
+		,ERROR((short)-1, "ERROR");
 		
 		private final Short code;
-		NativeStatus (Short code) {
+		private final String verbose;
+		
+		NativeStatus (Short code,String verbose) {
 			this.code=code;
+			this.verbose=verbose;
 		}
 		
 		public Short getCode() {
@@ -129,6 +134,10 @@ public final class Constants {
     			if(Objects.equals(tr.toString(), name)) return tr;
     		}
     		return NativeStatus.ERROR;
+    	}
+    	
+    	public String toVerboseString() {
+    		return this.verbose;
     	}
 
 	}

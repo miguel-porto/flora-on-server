@@ -67,17 +67,18 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	@Override
 	public TaxEnt getParentTaxon() throws TaxonomyException, DatabaseException {
 		String query=String.format(//"FOR n IN NEIGHBORS(%1$s,%2$s,'%3$s','outbound',{current:true},{includeData:true}) RETURN n"
-			"FOR v,e IN 1..1 OUTBOUND '%3$s' %2$s FILTER v.current && e.current RETURN v"
-			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node.toString());
+			"FOR v,e IN 1..1 OUTBOUND '%3$s' %2$s,%4$s FILTER v.current && (HAS(e,'current') && e.current) || !HAS(e,'current') RETURN v"
+			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node.toString(),RelTypes.HYBRID_OF.toString());
 		TaxEnt out;
 		try {
 			out=dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).getUniqueResult();
 		} catch (NonUniqueResultException e) {
-			throw new TaxonomyException("The taxon "+node.toString()+" has more than one current parent taxon. This must be fixed.");
+			throw new TaxonomyException("The taxon "+node.toString()+" has more than one current parent taxon. This must be fixed.");	// TODO: what about hybrids?
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-		return out; 
+		//if(out==null) throw new TaxonomyException("The taxon "+node.toString()+" has no parent taxon. This must be fixed.");
+		return out;
 	}
 
 	@Override
@@ -128,8 +129,12 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public Iterator<TaxEnt> getChildren() throws FloraOnException {
-		String query=String.format("FOR v IN NEIGHBORS(%1$s, %2$s, '%3$s', 'inbound') LET v1=DOCUMENT(v) SORT v1.name RETURN v1"
-			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node);
+//		String query=String.format("FOR v IN NEIGHBORS(%1$s, %2$s, '%3$s', 'inbound') LET v1=DOCUMENT(v) SORT v1.name RETURN v1",NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node);
+		String query=String.format("FOR v1 IN (FOR v,e,p IN 1..2 INBOUND '%2$s' %1$s,%3$s FILTER "
+				+ "(LENGTH(p.edges)==1 && PARSE_IDENTIFIER(p.edges[0]).collection=='PART_OF') || "
+				+ "(LENGTH(p.edges)==2 && PARSE_IDENTIFIER(p.edges[0]).collection=='PART_OF' && PARSE_IDENTIFIER(p.edges[1]).collection=='HYBRID_OF') "
+				+ "RETURN DISTINCT v) SORT v1.name RETURN v1"
+				,RelTypes.PART_OF.toString(),node,RelTypes.HYBRID_OF.toString());
 	    try {
 			return dbDriver.executeAqlQuery(query, null, null, TaxEnt.class).iterator();
 		} catch (ArangoException e) {

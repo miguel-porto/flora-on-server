@@ -270,7 +270,8 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		//Territory node = new Territory(FloraOnDriver.this, dbNodeWorker.getNode(id, TerritoryVertex.class));
     	node.update(name, shortName, type, theme, showInChecklist);
     	try {
-			dbDriver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), driver.asNodeKey(node.getID()).getDBKey(), node, false);
+    		dbDriver.updateDocument(node.getID(), node, false);
+			//dbDriver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), driver.asNodeKey(node.getID()).getDBKey(), node, false);
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}

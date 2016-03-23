@@ -45,11 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
 	
 	tr=document.querySelector('#main table.taxonlist');
 	addEvent('click',tr,function(ev) {
-		if(ev.target.tagName=='DIV' && ev.target.classList.contains('territory')) {
-			var terr=ev.target.innerHTML;
+		var el=getParentbyClass(ev.target,'territory');
+		if(el) {
+			var terr=el.querySelector('div').innerHTML;
 			var nst=-1;
 			for(var i=0;i<nativeStatus.length;i++) {
-				if(ev.target.classList.contains(nativeStatus[i])) {
+				if(el.classList.contains(nativeStatus[i])) {
 					if(i==nativeStatus.length-1)
 						nst=0;
 					else
@@ -64,10 +65,10 @@ document.addEventListener('DOMContentLoaded', function() {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					if(nst==0)
-						ev.target.classList.remove(nativeStatus[nativeStatus.length-1]);
+						el.classList.remove(nativeStatus[nativeStatus.length-1]);
 					else {
-						ev.target.classList.remove(nativeStatus[nst-1]);
-						ev.target.classList.add(nativeStatus[nst]);
+						el.classList.remove(nativeStatus[nst-1]);
+						el.classList.add(nativeStatus[nst]);
 					}
 				} else
 					alert(rt.msg);

@@ -69,16 +69,18 @@
 		<div id="legendpanel">
 		Native Status: <div class="territory NATIVE"></div> native&nbsp;
 		<div class="territory ENDEMIC"></div> endemic&nbsp;
+		<div class="territory NEAR_ENDEMIC"></div> <i>quasi</i>-endemic&nbsp;
 		<div class="territory EXOTIC"></div> exotic&nbsp;
 		<div class="territory DOUBTFULLY_NATIVE"></div> doubtfully native&nbsp;
-		<div class="territory EXISTING"></div> existing (status not explicitly assigned)
+		<div class="territory DOUBTFULLY_INTRODUCED"></div> doubtfully introduced&nbsp;
+		<div class="territory EXISTING"></div> existing (different status depending on sub-territory)
 		<br/>
 		Occurrence Status: <div class="territory EXISTING"><div class="occurrencestatus RARE"></div></div> rare&nbsp;
 		<div class="territory EXISTING"><div class="occurrencestatus POSSIBLY_EXTINCT"></div></div> possibly extinct&nbsp;
 		<div class="territory EXISTING"><div class="occurrencestatus EXTINCT"></div></div> extinct &nbsp;
 		<div class="territory EXISTING"><div class="occurrencestatus UNCERTAIN_OCCURRENCE"></div></div> of uncertain occurrence&nbsp;
 		<div class="territory EXISTING"><div class="occurrencestatus POSSIBLE_OCCURRENCE"></div></div> of possible occurrence&nbsp;
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="territory EXISTING"><div class="occurrencestatus uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> possibly with this status</span></div>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<div class="territory EXISTING"><div class="occurrencestatus uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> shall it occur, then it is with this status</span></div>
 		<div class="paging"><div id="filterbox">Filter: <input type="text" id="filtertext" placeholder="type filter text" value="${filter}"/></div><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&filter=${filter}&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&filter=${filter}&offset=${offset+PAGESIZE}">next &gt;</a><p style="clear:both"/></div>
 		<jsp:include page="/api/lists?w=speciesterritories&fmt=htmltable&offset=${offset}&filter=${filter}"></jsp:include>
 		<div class="paging"><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&filter=${filter}&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&filter=${filter}&offset=${offset+PAGESIZE}">next &gt;</a><p style="clear:both"/></div>

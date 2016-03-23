@@ -158,6 +158,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 * @throws TaxonomyException 
 	 */
 	public void canBeChildOf(TaxEnt taxon) throws TaxonomyException {
+		if(taxon==null) return;
 		if(current && rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank, unless it is set as not current");
 		if(this.isSpeciesOrInferior()) {
 			if(current && getName().toLowerCase().indexOf(taxon.getName().toLowerCase()+" ") != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");

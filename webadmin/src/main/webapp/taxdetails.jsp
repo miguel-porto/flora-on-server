@@ -74,10 +74,9 @@
 			<h1>Add/change native status <span class="info">adds a new, or updates, the native status to a territory</span></h1>
 			<div class="content">
 				This taxon <select name="nativeStatus">
-					<option value="NATIVE">is NATIVE to</option>
-					<option value="ENDEMIC">is ENDEMIC to</option>
-					<option value="EXOTIC">is EXOTIC in</option>
-					<option value="DOUBTFULLY_NATIVE">is DOUBTFULLY NATIVE to</option>
+					<c:forEach var="nstatus" items="${nativeStatus}">
+						<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
+					</c:forEach>
 					<option value="NULL">has no status in</option></select>
 				<select name="territory">
 					<c:forEach var="territory" items="${territories}">

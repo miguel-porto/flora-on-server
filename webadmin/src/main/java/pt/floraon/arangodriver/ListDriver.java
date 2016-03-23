@@ -152,7 +152,7 @@ FOR taxon IN taxent LIMIT 10
     RETURN {taxent: MERGE(taxon, {leaf: npar==0}), territories:UNIQUE(
         FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM,BELONGS_TO
             FILTER v.showInChecklist==true       // stop in a territory marked for checklist
-            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' LIMIT 1 RETURN e1)     // did it climb taxonomic PART_OF?
+            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' RETURN e1)     // did it climb taxonomic PART_OF?
             LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1)       // this is the 1st EXISTS_IN edge
             LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='BELONGS_TO' LIMIT 1 RETURN e1)    // only returns e1 if it climbs up a territory PART_OF
             RETURN {
@@ -161,7 +161,7 @@ FOR taxon IN taxent LIMIT 10
                 ,occurrenceStatus: ns[0].occurrenceStatus
                 ,territory: v.shortName
                 ,inferred: LENGTH(base)!=0
-                ,uncertain: LENGTH(upstr)!=0
+                ,uncertain: LENGTH(upstr)!=0, taxpathlen: LENGTH(upstr)
             }
         )
     }
@@ -172,9 +172,11 @@ FOR taxon IN taxent LIMIT 10
 				"    FILTER taxon.isSpeciesOrInf==true %1$s %4$s SORT taxon.name %3$s " + 
 				"    RETURN {taxent: MERGE(taxon, {leaf: npar==0}), territories:UNIQUE( " + 
 				"        FOR v,e,p IN 1..100 OUTBOUND taxon EXISTS_IN,PART_OF,ANY SYNONYM,BELONGS_TO " + 
-				"            FILTER v.showInChecklist==true " + 
-				"            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' LIMIT 1 RETURN e1) " + 
-				"            LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1) " + 
+				"            FILTER HAS(v,'showInChecklist')==true " + 
+				//"            FILTER v.showInChecklist==true " +
+				"            LET upstr=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1._id).collection=='PART_OF' RETURN e1) " + 
+				"            LET ns=(FOR e1 IN p.edges FILTER e1.nativeStatus!=NULL LIMIT 1 RETURN e1) " +
+				"			 filter length(ns)>0 "+
 				"            LET base=(FOR e1 IN p.edges FILTER PARSE_IDENTIFIER(e1).collection=='BELONGS_TO' LIMIT 1 RETURN e1) " + 
 				"            RETURN { " + 
 				"                existsId:ns[0]._id " + 
@@ -182,7 +184,7 @@ FOR taxon IN taxent LIMIT 10
 				"                ,occurrenceStatus: ns[0].occurrenceStatus " + 
 				"                ,territory: v.shortName " + 
 				"                ,inferred: LENGTH(base)!=0 " + 
-				"                ,uncertain: LENGTH(upstr)!=0 " + 
+				"                ,uncertain: LENGTH(upstr)!=0, taxpathlen: LENGTH(upstr) " + 
 				"            } " + 
 				"        ) " + 
 				"    } "
