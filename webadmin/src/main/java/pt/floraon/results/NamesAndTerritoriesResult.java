@@ -80,7 +80,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 				if(tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString()) && tmp2.taxpathlen==minEndemicTaxLen) nend++;
 				certain|=(!tmp2.uncertain); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
 			}
-// TODO: when is endemic from a territory, what should we do with sub-territories?
+// TODO: when is endemic from a territory, what should we do with sub-territories? for example juniperus navicularis
 			//System.out.println(tmp1.size()+" - "+endemics.size());
 			if(nend>0 && nend==endemics.get(minEndemicTaxLen).size()) {		// if all endemic relations lead to this territory, then it is endemic, no matter the status in any other territory
 				Set<String> oss=new HashSet<String>();
@@ -150,7 +150,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 				.append(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))
 				.append("><td><a href=\"/floraon/admin?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
 				.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
-				.append(this.taxent.getNameWithAnnotation())
+				.append(this.taxent.getNameWithAnnotationOnly())
 				.append("</i></a></td><td>")
 				.append(this.taxent.getAuthor())
 				.append("</td><td>");
@@ -184,7 +184,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
 		rec.print(this.taxent.getID());
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotation());
+		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotationOnly());
 		rec.print(this.taxent.getAuthor());
 		if(this.territories==null) return;
 

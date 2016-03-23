@@ -22,7 +22,9 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	protected String name;
 	protected Integer rank;
 	protected String annotation;
+	protected String sensu;
 	protected String author;
+	protected String in;
 	protected Boolean current;
 	protected Integer gbifKey;
 	protected Boolean isSpeciesOrInf;
@@ -53,7 +55,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		this.gbifKey=gbifKey;
 	}*/
 
-	public TaxEnt(String name,Integer rank,String author,String annotation,Boolean current,Integer gbifKey) throws TaxonomyException {
+	public TaxEnt(String name,Integer rank,String author,String sensu,String annotation,Boolean current,Integer gbifKey) throws TaxonomyException {
 		if(name!=null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
 		
 		if(name!=null) this.name=name.trim();
@@ -66,12 +68,15 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		if(annotation!=null && annotation.trim().length()==0) this.annotation=null;
 		else if(annotation!=null) this.annotation=annotation.trim();
 
+		if(sensu!=null && sensu.trim().length()==0) this.sensu=null;
+		else if(sensu!=null) this.sensu=sensu.trim();
+
 		this.current=current;
 		this.gbifKey=gbifKey;
 	}
 
 	public TaxEnt(String name,Integer rank,String author,String annotation) throws TaxonomyException {
-		this(name, rank, author, annotation, null, null);
+		this(name, rank, author, null, annotation, null, null);
 	}
 
 	/**
@@ -172,9 +177,13 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 */
 	public String getFullName(boolean htmlFormatted) {
 		if(htmlFormatted && rank>=TaxonRanks.GENUS.getValue())
-			return "<i>"+name+"</i>"+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
+			return "<i>"+name+"</i>"+(author!=null ? " "+this.author : "")
+				+ (sensu!=null ? " <i>sensu</i> "+sensu : "")
+				+ (annotation!=null ? " ["+this.annotation+"]" : "");
 		else
-			return name+(author!=null ? " "+this.author : "")+(annotation!=null ? " ["+this.annotation+"]" : "");
+			return name+(author!=null ? " "+this.author : "")
+				+ (sensu!=null ? " sensu "+sensu : "")
+				+ (annotation!=null ? " ["+this.annotation+"]" : "");
 	}
 	
 	public String getFullName() {
@@ -193,8 +202,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		return this.name;
 	}
 
-	public String getNameWithAnnotation() {
-		return this.name+(annotation!=null ? " ["+this.annotation+"]" : "");
+	public String getNameWithAnnotationOnly() {
+		return this.name
+			+ (sensu!=null ? " <i>sensu</i> "+this.sensu : "")
+			+ (annotation!=null ? " ["+this.annotation+"]" : "");
 	}
 
 	public String getURLEncodedName() throws UnsupportedEncodingException {
@@ -211,6 +222,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 
 	public String getAnnotation() {
 		return annotation;
+	}
+
+	public String getSensu() {
+		return sensu;
 	}
 
 	public Integer getRankValue() {

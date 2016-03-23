@@ -83,7 +83,7 @@ public interface ITaxEntWrapper {
      * @throws FloraOnException
      * @throws ArangoException
      */
-    public INodeKey createTaxEntChild(String name,String author,TaxonRanks rank,String annotation,Boolean current) throws FloraOnException;
+    public INodeKey createTaxEntChild(String name,String author,TaxonRanks rank,String sensu, String annotation,Boolean current) throws FloraOnException;
 	/**
 	 * Gets the immediate children of the given TaxEnt node
 	 * @param id

@@ -239,6 +239,7 @@ function actionButtonClick(ev) {
 		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
+			,sensu:cb.querySelector('input[name=sensu]').value
 			,comment:cb.querySelector('input[name=annot]').value
 			,rank:cb.querySelector('input[name=rank]').value
 			,current:cb.querySelector('input[name=current]').value

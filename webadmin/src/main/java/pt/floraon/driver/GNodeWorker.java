@@ -20,7 +20,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 
     @Override
 	public TaxEnt createTaxEntFromTaxEnt(TaxEnt te) throws TaxonomyException, FloraOnException {
-		return createTaxEntFromName(te.getName(), te.getAuthor(), te.getRank(), te.getAnnotation(), te.getCurrent());
+		return createTaxEntFromName(te.getName(), te.getAuthor(), te.getRank(), te.getSensu(), te.getAnnotation(), te.getCurrent());
 	}
 
     /**

@@ -62,6 +62,7 @@
 				<table>
 					<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
 					<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
+					<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
 					<tr><td>New annotation</td><td><input type="text" name="annot" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
 				</table>
 				<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>

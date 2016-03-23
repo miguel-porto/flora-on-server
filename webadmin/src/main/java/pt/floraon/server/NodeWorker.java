@@ -30,7 +30,7 @@ public class NodeWorker extends FloraOnServlet {
 	@Override
 	public void doFloraOnPost()
 			throws ServletException, IOException, FloraOnException {
-		String rank, current, name, author, annot, shortName;
+		String rank, current, name, annot, shortName;
 		INodeKey from, to, id;
 		
 		if(!isAuthenticated()) {
@@ -104,15 +104,12 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 				
 			case "inferiortaxent":	// this adds a bond taxent child of the given parent and ensures it is taxonomically valid
-				name=getParameterAsString("name");
-				author=getParameterAsString("author");
-				rank=getParameterAsString("rank");
-				annot=getParameterAsString("annot");
-				id=getParameterAsKey("parent");
 				current=getParameterAsString("current");
-				success(driver.wrapTaxEnt(id).createTaxEntChild(
-					name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank))
-					, annot, current==null ? null : Integer.parseInt(current)==1
+				success(driver.wrapTaxEnt(getParameterAsKey("parent")).createTaxEntChild(
+					getParameterAsString("name")
+					, getParameterAsString("author")
+					, TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null))
+					, getParameterAsString("sensu"), getParameterAsString("annot"), current==null ? null : Integer.parseInt(current)==1
 				).toString());
 				return;
 
@@ -130,13 +127,12 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 				
 			case "taxent":	// this only adds a free taxent
-				name=getParameterAsString("name");
-				author=getParameterAsString("author");
-				rank=getParameterAsString("rank");
-				
 		    	success(
 	    			new GraphUpdateResult(driver
-    					, NWD.createTaxEntFromName(name,author,TaxonRanks.getRankFromValue(Integer.parseInt(rank)),null,true).getID()).toJsonObject()
+    					, NWD.createTaxEntFromName(
+							getParameterAsString("name")
+							,getParameterAsString("author")
+							,TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null)),null,null,true).getID()).toJsonObject()
 				);
 				//success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
 				return;
@@ -181,6 +177,7 @@ public class NodeWorker extends FloraOnServlet {
 						getParameterAsString("name")
 						,getParameterAsInteger("rank",null)
 						,getParameterAsString("author")
+						,getParameterAsString("sensu")
 						,getParameterAsString("comment")
 						,getParameterAsBoolean("current")
 						,null

@@ -190,14 +190,16 @@ function afterUpdateNode(rt) {
 	chg.parentNode.removeChild(chg);
 }
 
-function updateTaxNode(d,name,rank,author,comment,current) {
+function updateTaxNode(d,name,rank,author,sensu,comment,current) {
 //	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
 	fetchAJAX('/floraon/api/update/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
 		+'&current='+current
 		+'&author='+encodeURIComponent(author)
+		+'&sensu='+encodeURIComponent(sensu)
 		+'&comment='+encodeURIComponent(comment)
+		+'&replace=true'
 		,afterUpdateNode);
 }
 
@@ -208,6 +210,7 @@ function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
 		+'&type='+encodeURIComponent(type)
 		+'&theme='+encodeURIComponent(theme)
 		+'&checklist='+checklist
+		+'&replace=true'
 		,afterUpdateNode);
 }
 
@@ -424,7 +427,8 @@ function clickToolbar(ev) {
 				var html='<div class="window float" id="changename"><h1>Edit node</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
 					+'<tr><td>Rank</td><td>'+tt.innerHTML+'</td></tr>'
 					+'<tr><td>Author</td><td><input type="text" name="author" value="'+(d.author ? d.author : '')+'"/></td></tr>'
-					+'<tr><td>Annotation<br/>(e.g. <i>sensu x</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
+					+'<tr><td><i>Sensu</i></td><td><input type="text" name="sensu" value="'+(d.sensu ? d.sensu : '')+'"/></td></tr>'
+					+'<tr><td>Annotation<br/>(e.g. <i>yellow flowers</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
 					+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
 					+'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
 					//<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
@@ -436,11 +440,12 @@ function clickToolbar(ev) {
 					var name=wnd.querySelector('input[name=name]').value;
 					var rank=wnd.querySelector('select[name=taxonrank]').value;
 					var author=wnd.querySelector('input[name=author]').value;
+					var sensu=wnd.querySelector('input[name=sensu]').value;
 					var comment=wnd.querySelector('input[name=comment]').value;
 					//var lbls=[].map.call(wnd.querySelectorAll('span.label'),function(x) {return x.textContent;});
 					var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
 					d.fixed=false;
-					updateTaxNode(d,name,rank,author,comment,current);
+					updateTaxNode(d,name,rank,author,sensu,comment,current);
 				};
 
 				break;
