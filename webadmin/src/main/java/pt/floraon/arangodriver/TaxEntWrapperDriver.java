@@ -143,7 +143,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 	
 	@Override
-	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus) throws FloraOnException {
+	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrenceStatus) throws FloraOnException {
 		String query;
 		if(status == null) {	// remove the EXISTS_IN link, if it exists
 			query=String.format(
@@ -151,12 +151,12 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				,node.toString()
 				,territory.toString());
 		} else {				// create or update the EXISTS_IN link
-			EXISTS_IN a=new EXISTS_IN(status, occurrenceStatus, node.toString(), territory.toString());
+			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, uncertainOccurrenceStatus, node.toString(), territory.toString());
 			query=String.format(
 				"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN EXISTS_IN RETURN OLD ? 0 : 1"
 				,node.toString()
 				,territory.toString()
-				,a.toJSONString());
+				,eIn.toJSONString());
 		}
 
 		try {

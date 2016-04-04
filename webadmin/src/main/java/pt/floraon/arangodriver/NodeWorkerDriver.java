@@ -249,7 +249,8 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public GraphUpdateResult updateTaxEntNode(INodeKey node,TaxEnt newTaxEnt, boolean replace) throws FloraOnException {
 		if(replace && newTaxEnt.getRank()==null) throw new TaxonomyException("Taxon must have a rank");
     	try {
-			dbDriver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), node.getDBKey(), newTaxEnt, !replace);
+    		dbDriver.updateDocument(node.getID(), newTaxEnt, !replace);
+			//dbDriver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), node.getDBKey(), newTaxEnt, !replace);
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}

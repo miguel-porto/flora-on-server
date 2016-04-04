@@ -24,11 +24,16 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 	private class Status {
 		protected NativeStatus nativeStatus;
 		protected OccurrenceStatus occurrenceStatus;
-		protected Boolean uncertain;
-		protected Status(String nativeStatus, String os, Boolean unc) {
+		protected Boolean possibly,uncertainOccurrenceStatus;
+		protected Status(String nativeStatus, String occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly) {
 			this.nativeStatus = NativeStatus.fromString(nativeStatus.toUpperCase());
-			this.occurrenceStatus = os==null ? null : OccurrenceStatus.valueOf(os.toUpperCase());
-			this.uncertain=unc;
+			try {
+				this.occurrenceStatus = occurrenceStatus==null ? null : OccurrenceStatus.valueOf(occurrenceStatus.toUpperCase());
+			} catch (IllegalArgumentException e) {		// NOTE: if constant is not found, assume it is PRESENT
+				this.occurrenceStatus = OccurrenceStatus.PRESENT;
+			}
+			this.uncertainOccurrenceStatus=uncertainOccurrence;
+			this.possibly=possibly;
 		}
 	}
 	/**
@@ -67,8 +72,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		
 		int nend;
 		boolean certain;
-		Boolean anyNotInferred;
-		TerritoryStatus tmp2,tmp3;
+		TerritoryStatus tmp2;
 		Iterator<TerritoryStatus> it1;
 		for(Entry<String,List<TerritoryStatus>> e : ts.entrySet()) {	// for each unique territory
 			tStatusList=e.getValue();
@@ -78,9 +82,11 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			while(it.hasNext()) {	// count # of endemic relations in this territory. NOTE: this assumes that there are no repeated endemic relations in the data (we could use a SET to avoid this assumption)
 				tmp2=it.next();
 				if(tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString()) && tmp2.taxpathlen==minEndemicTaxLen) nend++;
-				certain|=(!tmp2.uncertain); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
+				certain|=(tmp2.taxpathlen==0); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
 			}
 // TODO: when is endemic from a territory, what should we do with sub-territories? for example juniperus navicularis
+// TODO: Capanula dieckii occurrecen status não propaga
+			//dsf
 			//System.out.println(tmp1.size()+" - "+endemics.size());
 			if(nend>0 && nend==endemics.get(minEndemicTaxLen).size()) {		// if all endemic relations lead to this territory, then it is endemic, no matter the status in any other territory
 				Set<String> oss=new HashSet<String>();
@@ -90,10 +96,34 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 					if(tmp2.taxpathlen==minEndemicTaxLen && tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString())) oss.add(tmp2.occurrenceStatus);
 				}				
 				out.put(e.getKey(), new Status(NativeStatus.ENDEMIC.toString()
-					, oss.size()==1 ? oss.iterator().next() : OccurrenceStatus.OCCURS.toString(), !certain)	// if the endemism is of one child only, then the occurrence status remains the same, otherwise it is undetermined
+					, oss.size()==1 ? oss.iterator().next() : OccurrenceStatus.PRESENT.toString(), false, !certain)	// if the endemism is of one child only, then the occurrence status remains the same, otherwise it is undetermined
 					);
-			} else {	// not endemic, or endemic also from other territory that is not child of this one
-				//out.put(e.getKey(), new Status(NativeStatus.EXISTING.toString(), OccurrenceStatus.OCCURS.toString(), !certain ));
+			} else {	// not endemic, or endemic also from other territory that is not child of this one - that is to say, any endemic status actually means native.
+				TerritoryStatus thisStatus=null;
+				it1=tStatusList.iterator();
+				int better;
+				// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
+				// 3: not inferred and certain
+				// 2: inferred and certain
+				// 1: not inferred and uncertain
+				// 0: inferred and uncertain
+				// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
+				while(it1.hasNext()) {
+					tmp2=it1.next();
+					if(tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString()))
+						tmp2.nativeStatus=NativeStatus.NATIVE.toString();	// we know that this taxon is not endemic (see above), so we directly change endemic to native
+					if(thisStatus==null) thisStatus=tmp2; else {
+						better=thisStatus.compareTo(tmp2);
+						if(better<0)	// tmp2 is better, replace status!
+							thisStatus=tmp2;
+						else if(better==0) {	// tmp2 is equally good, check statuses
+							if(!thisStatus.nativeStatus.equals(tmp2.nativeStatus)) thisStatus.nativeStatus=NativeStatus.EXISTING.toString();
+							if(thisStatus.occurrenceStatus==null || !thisStatus.occurrenceStatus.equals(tmp2.occurrenceStatus)) thisStatus.occurrenceStatus=OccurrenceStatus.PRESENT.toString();
+						}
+					}
+				}
+				out.put(e.getKey(), new Status(thisStatus.nativeStatus, thisStatus.occurrenceStatus, thisStatus.uncertainOccurrence, thisStatus.taxpathlen>0 ));
+				/*
 				// search for a not inferred relation
 				anyNotInferred=false;
 				it1=tStatusList.iterator();
@@ -114,25 +144,36 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 				}
 				if(anyNotInferred==null)	// there is more than one assigned native status to this territory!
 					out.put(e.getKey(), new Status(NativeStatus.ERROR.toString(), OccurrenceStatus.OCCURS.toString(), !certain ));
-				else if(!anyNotInferred) {	// all statuses are inferred, check if there are different statuses
+				else if(!anyNotInferred) {	// all statuses are inferred from a subterritory
+					// count the number of different native statuses and different occurrence statuses
 					Set<String> ns=new HashSet<String>();
+					Set<String> os=new HashSet<String>();
 					it1=tStatusList.iterator();
 					tmp3=null;
 					while(it1.hasNext()) {
 						tmp2=it1.next();
 						if(tmp2.inferred) {
 							ns.add(tmp2.nativeStatus);
+							if(tmp2.occurrenceStatus!=null) os.add(tmp2.occurrenceStatus);
 							tmp3=tmp2;
 						}
 					}
 					if(ns.size()==1) {
-						out.put(e.getKey(), new Status(tmp3.nativeStatus.toString().equals("ENDEMIC") ? NativeStatus.EXISTING.toString() : tmp3.nativeStatus.toString(), tmp3.occurrenceStatus==null ? OccurrenceStatus.OCCURS.toString() : tmp3.occurrenceStatus.toString(), !certain ));
+						out.put(e.getKey(), new Status(
+							tmp3.nativeStatus.equals(NativeStatus.ENDEMIC.toString()) ? NativeStatus.EXISTING.toString() : tmp3.nativeStatus.toString()
+							, tmp3.occurrenceStatus==null ? OccurrenceStatus.OCCURS.toString() : tmp3.occurrenceStatus.toString()
+							, !certain ));
 					} else
-						out.put(e.getKey(), new Status(NativeStatus.EXISTING.toString(), OccurrenceStatus.OCCURS.toString(), !certain ));
+						out.put(e.getKey(), new Status(
+							NativeStatus.EXISTING.toString()
+							, os.size()==1 ? (tmp3.occurrenceStatus==null ? OccurrenceStatus.OCCURS.toString() : tmp3.occurrenceStatus.toString()) : OccurrenceStatus.OCCURS.toString()
+							, !certain ));
 				} else	// at least one status is not inferred
-					out.put(e.getKey(), new Status(tmp3.nativeStatus.toString().equals("ENDEMIC") ? NativeStatus.NATIVE.toString() : tmp3.nativeStatus, tmp3.occurrenceStatus, !certain ));
+					out.put(e.getKey(), new Status(
+						tmp3.nativeStatus.equals(NativeStatus.ENDEMIC.toString()) ? NativeStatus.NATIVE.toString() : tmp3.nativeStatus
+						, tmp3.occurrenceStatus
+						, !certain ));*/
 			}
-			
 		}
 		
 		return out;
@@ -160,17 +201,19 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		}
 		
 		if(this.territories!=null) {
-			for(String t : allTerritories) {
-				if(tStatus.containsKey(t)) {
-					tmp=tStatus.get(t);
+			for(String terr : allTerritories) {
+				if(tStatus.containsKey(terr)) {
+					tmp=tStatus.get(terr);
 					sb.append("<div class=\"territory ").append(tmp.nativeStatus.toString()).append("\">");
 					if(tmp.occurrenceStatus!=null)
 						sb.append("<div class=\"occurrencestatus ").append(tmp.occurrenceStatus.toString()).append("\">").append("</div>");
-					if(tmp.uncertain)
+					if(tmp.possibly)
 						sb.append("<div class=\"occurrencestatus uncertain\"></div>");
-					sb.append("<div class=\"legend\">").append(t).append("</div></div>");
+					if(tmp.uncertainOccurrenceStatus!=null && tmp.uncertainOccurrenceStatus)
+						sb.append("UNCERT");
+					sb.append("<div class=\"legend\">").append(terr).append("</div></div>");
 				} else
-					sb.append("<div class=\"territory\"><div class=\"legend\">").append(t).append("</div></div>");
+					sb.append("<div class=\"territory\"><div class=\"legend\">").append(terr).append("</div></div>");
 			}
 		}
 		sb.append("</td></tr>");
@@ -191,9 +234,9 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		for(String t : allTerritories) {
 			if(tStatus.containsKey(t)) {
 				tmp=tStatus.get(t);
-				if(tmp.occurrenceStatus!=null && tmp.occurrenceStatus!=OccurrenceStatus.OCCURS)
-					rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString()+" ("+tmp.occurrenceStatus.toString()+")");
-				else rec.print((tmp.uncertain ? "?" : "")+tmp.nativeStatus.toString());
+				if(tmp.occurrenceStatus!=null && tmp.occurrenceStatus!=OccurrenceStatus.PRESENT)
+					rec.print((tmp.possibly ? "?" : "")+tmp.nativeStatus.toString()+" ("+tmp.occurrenceStatus.toString()+")");
+				else rec.print((tmp.possibly ? "?" : "")+tmp.nativeStatus.toString());
 			} else
 				rec.print("");
 		}

@@ -200,6 +200,7 @@ function actionButtonClick(ev) {
 		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
+			,sensu:cb.querySelector('input[name=sensu]').value
 			,annot:cb.querySelector('input[name=annot]').value
 			,parent:parent
 			,rank:cb.querySelector('select[name=rank]').value
@@ -251,11 +252,12 @@ function actionButtonClick(ev) {
 	case 'addnativestatus':
 		var cb=document.getElementById('addnativestatusbox');
 		var taxon=getCurrentTaxon();
-		var obj={
+		var obj={	// TODO: use formdata from form!
 			taxon: taxon
 			,territory: cb.querySelector('select[name=territory]').value
 			,nativeStatus: cb.querySelector('select[name=nativeStatus]').value
 			,occurrenceStatus: cb.querySelector('select[name=occurrenceStatus]').value
+			,uncertain: cb.querySelector('input[name=uncertain]').checked ? 1 : 0
 		};
 		postJSON('/floraon/api/territories/set',obj,function(rt) {
 			rt=JSON.parse(rt);

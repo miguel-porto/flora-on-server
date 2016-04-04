@@ -88,7 +88,9 @@
 					<c:forEach var="ostatus" items="${occurrenceStatus}">
 						<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
 					</c:forEach>
-				</select> <input type="button" value="Add / Update" class="actionbutton" id="addnativestatus"/>
+				</select>
+				<label><input type="checkbox" value="1" name="uncertain"/> occurrence is uncertain</label>
+				<input type="button" value="Add / Update" class="actionbutton" id="addnativestatus"/>
 			</div>
 		</div>
 	
@@ -106,6 +108,7 @@
 				<table>
 				<tr><td>Name</td><td><input type="text" name="name" placeholder="complete scientific name without author"/></td></tr>
 				<tr><td>Author</td><td><input type="text" name="author"/></td></tr>
+				<tr><td><i>sensu</i></td><td><input type="text" name="sensu"/></td></tr>
 				<tr><td>Annotation</td><td><input type="text" name="annot"/></td></tr>
 				<tr><td>Rank</td><td>
 					<select name="rank">

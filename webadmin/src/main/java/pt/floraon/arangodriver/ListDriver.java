@@ -160,6 +160,7 @@ FOR taxon IN taxent LIMIT 10
                 existsId:ns[0]._id
                 ,nativeStatus: ns[0].nativeStatus
                 ,occurrenceStatus: ns[0].occurrenceStatus
+                ,uncertainOccurrence: ns[0].uncertainOccurrenceStatus
                 ,territory: v.shortName
                 ,inferred: LENGTH(base)!=0
                 ,uncertain: LENGTH(upstr)!=0, taxpathlen: LENGTH(upstr)
@@ -181,7 +182,8 @@ FOR taxon IN taxent LIMIT 10
 				"            RETURN { " + 
 				"                existsId:ns[0]._id " + 
 				"                ,nativeStatus: ns[0].nativeStatus " + 
-				"                ,occurrenceStatus: ns[0].occurrenceStatus " + 
+				"                ,occurrenceStatus: ns[0].occurrenceStatus "
+				+ ",uncertainOccurrence: ns[0].uncertainOccurrenceStatus " + 
 				"                ,territory: v.shortName " + 
 				"                ,inferred: LENGTH(base)!=0 " + 
 				"                ,uncertain: LENGTH(upstr)!=0, taxpathlen: LENGTH(upstr) " + 

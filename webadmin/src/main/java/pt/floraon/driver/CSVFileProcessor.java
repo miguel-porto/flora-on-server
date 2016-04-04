@@ -341,7 +341,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 					String ns=record.get(terr.getKey());
 					if(ns!=null && !ns.equals(""))
 						driver.wrapTaxEnt(driver.asNodeKey(curTaxEnt.getID())).setNativeStatus(
-							driver.asNodeKey(terr.getValue().getID()), NativeStatus.fromString(ns.toUpperCase()), OccurrenceStatus.OCCURS);
+							driver.asNodeKey(terr.getValue().getID()), NativeStatus.fromString(ns.toUpperCase()), OccurrenceStatus.PRESENT, false);
 				}
 			}
 		} catch (FloraOnException e) {

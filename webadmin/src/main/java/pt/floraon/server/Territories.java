@@ -44,7 +44,7 @@ public class Territories extends FloraOnServlet {
 				nstatus=NativeStatus.fromString(tmp1.toUpperCase());
 				ostatus=tmp2==null ? null : OccurrenceStatus.valueOf(tmp2.toUpperCase());
 			}
-			driver.wrapTaxEnt(from).setNativeStatus(driver.asNodeKey(terr.getID()), nstatus, ostatus);
+			driver.wrapTaxEnt(from).setNativeStatus(driver.asNodeKey(terr.getID()), nstatus, ostatus, getParameterAsBoolean("uncertain"));
 			success( nstatus==null ? "NULL" : nstatus.toString().toUpperCase());
 			break;
 			

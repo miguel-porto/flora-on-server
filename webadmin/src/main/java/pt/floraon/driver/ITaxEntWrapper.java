@@ -98,5 +98,5 @@ public interface ITaxEntWrapper {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus) throws FloraOnException;
+	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrenceStatus) throws FloraOnException;
 }

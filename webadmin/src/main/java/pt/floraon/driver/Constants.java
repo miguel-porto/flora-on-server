@@ -92,14 +92,28 @@ public final class Constants {
     	}
 	}
 
-	public enum OccurrenceStatus {
-		OCCURS,COMMON,RARE,POSSIBLY_EXTINCT,EXTINCT
-		,ABSENT_BUT_REPORTED_IN_ERROR
-		,UNCERTAIN_OCCURRENCE		// This taxon presumably exists, but it is not certain if the taxon occurs or not, because of taxonomic problems
-		,QUESTIONABLE				// There is (little) evidence for the presence of a taxon but it might exist
-		,POSSIBLE_OCCURRENCE;		// it might occur given its distribution and habitat, but there is no evidence at all
+	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
+	public enum OccurrenceStatus {		// this applies to the current status of the taxon in a given territory
+		PRESENT							// Taxon is currently present
+		,DOUBT_OVER_PRESENCE			// There is doubt over the presence of this taxon due to geographic issues
+		,POSSIBLE_OCCURRENCE			// Taxon might occur in the territory given its distribution and habitat elsewhere, but there is *no* evidence at all of its occurrence
+		,POSSIBLY_EXTINCT				// Taxon is possibly extinct: there are no recent observations, but it might still exist, according to expert's opinion
+		,EXTINCT						// Taxon is extinct: there are no recent observations, and it is unlikely that it might still exist, according to expert's opinion
+		,ABSENT_BUT_REPORTED_IN_ERROR	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
+		,ERROR							// Some error occurred
+		// The following are deprecated!!
+		,RARE,COMMON,OCCURS
+		,UNCERTAIN_OCCURRENCE			// Taxon presumably exists, but it is not certain if the taxon occurs or not, because of taxonomic problems
+		;
 	}
 	
+	public enum AbundanceLevel {
+		VERY_RARE						// Few populations with few individuals
+		,RARE
+		,OCCASIONAL
+		,COMMON
+		,VERY_COMMON
+	}
 	public enum NativeStatus {
 		NATIVE((short)0, "is NATIVE to")
 		,EXISTING((short)0, "EXISTS in")						// it exists with different status depending on the sub-territory

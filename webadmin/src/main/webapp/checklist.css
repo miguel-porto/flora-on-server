@@ -197,6 +197,8 @@ div.territory .occurrencestatus.POSSIBLE_OCCURRENCE {
 	background-image: linear-gradient(90deg, white 30%, rgba(255,255,255,0.4) 80%, transparent);
 }
 
+div.territory .occurrencestatus.ERROR {background-color:#f00;border:2px solid #f00;}
+
 table.taxonlist div.territory {float:left;}
 #legendpanel div.territory {width:1.2em;height:1.2em;}
 

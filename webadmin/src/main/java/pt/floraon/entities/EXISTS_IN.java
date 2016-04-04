@@ -13,10 +13,14 @@ import pt.floraon.driver.Constants.RelTypes;
 public class EXISTS_IN extends GeneralDBEdge {
 	protected NativeStatus nativeStatus;
 	protected OccurrenceStatus occurrenceStatus;
+	/**
+	 * If true, it is uncertain the identity of the taxon in this territory, but, shall the identification be correct, then it occurs with the reported NativeStatus and OccurrenceStatus.
+	 */
+	protected Boolean uncertainOccurrenceStatus;
 	
 	public EXISTS_IN(NativeStatus nativeStatus) {
 		this.nativeStatus=nativeStatus;
-		this.occurrenceStatus=OccurrenceStatus.OCCURS;
+		this.occurrenceStatus=OccurrenceStatus.PRESENT;
 	}
 
 	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus) {
@@ -24,9 +28,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this.occurrenceStatus=occurrenceStatus;
 	}
 
-	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, String from, String to) {
+	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertain, String from, String to) {
 		this.nativeStatus=nativeStatus;
 		this.occurrenceStatus=occurrenceStatus;
+		this.uncertainOccurrenceStatus=uncertain;
 		this._from=from;
 		this._to=to;
 	}
@@ -36,7 +41,19 @@ public class EXISTS_IN extends GeneralDBEdge {
 	}
 	
 	public OccurrenceStatus getOccurrenceStatus() {
-		return this.occurrenceStatus==null ? OccurrenceStatus.OCCURS : this.occurrenceStatus;
+		if(this.occurrenceStatus == OccurrenceStatus.RARE
+			|| this.occurrenceStatus == OccurrenceStatus.COMMON
+			|| this.occurrenceStatus == OccurrenceStatus.OCCURS
+			|| this.occurrenceStatus == OccurrenceStatus.UNCERTAIN_OCCURRENCE) return OccurrenceStatus.ERROR;
+		return this.occurrenceStatus==null ? OccurrenceStatus.PRESENT : this.occurrenceStatus;	// assume it is present, if no information is given, or if an error has occurred (value not found in enum)
+	}
+	
+	/**
+	 * Is the OccurrenceStatus uncetain in terms of taxonomy (i.e. is the taxon possibly misidentified)? 
+	 * @return
+	 */
+	public Boolean isUncertainOccurrenceStatus() {
+		return this.uncertainOccurrenceStatus;
 	}
 	
 	@Override
