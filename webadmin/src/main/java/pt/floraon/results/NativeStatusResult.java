@@ -4,9 +4,15 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.Territory;
 
+/**
+ * Represents one association between a territory and a taxon (NOTE: the taxon is not referred in this class)
+ * @author miguel
+ *
+ */
 public class NativeStatusResult implements ResultItem {
 	protected Territory territory;
 	protected EXISTS_IN nativeStatus;
@@ -19,7 +25,10 @@ public class NativeStatusResult implements ResultItem {
 
 	@Override
 	public String toHTMLTableRow(Object obj) {
-		return "<tr><td>"+this.territory.getName()+"</td><td class=\""+this.nativeStatus.getNativeStatus().toString()+"\">"+this.nativeStatus.getNativeStatus().toString()+", "+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td></tr>";
+		if(this.nativeStatus.getNativeStatus()==null)
+			return "<tr><td>"+this.territory.getName()+"</td><td class=\""+NativeStatus.ERROR.toString()+"\">"+NativeStatus.ERROR.toString()+", "+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td></tr>";
+		else
+			return "<tr><td>"+this.territory.getName()+"</td><td class=\""+this.nativeStatus.getNativeStatus().toString()+"\">"+this.nativeStatus.getNativeStatus().toString()+", "+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td></tr>";
 	}
 
 	@Override

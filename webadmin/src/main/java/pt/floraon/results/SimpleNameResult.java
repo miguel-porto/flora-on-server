@@ -8,11 +8,7 @@ import pt.floraon.entities.TaxEnt;
 
 public class SimpleNameResult implements ResultItem,Comparable<SimpleNameResult> {
 	protected TaxEnt taxent;
-	/*protected String name;		// taxon canonical name
-	protected String _id,author;
-	protected Boolean current=null;*/
 	protected Boolean leaf=null;
-	//protected LinkedTreeMap<String,String> territories;
 
 	public String getTaxonId() {
 		return this.taxent.getID();

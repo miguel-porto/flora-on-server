@@ -95,10 +95,11 @@ public final class Constants {
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
 	public enum OccurrenceStatus {		// this applies to the current status of the taxon in a given territory
 		PRESENT							// Taxon is currently present
-		,DOUBT_OVER_PRESENCE			// There is doubt over the presence of this taxon due to geographic issues
+		,DOUBT_OVER_PRESENCE			// There is doubt over the presence of this taxon due to geographic issues (NOTE: doubt because of taxonomic issues is treated in another field)
 		,POSSIBLE_OCCURRENCE			// Taxon might occur in the territory given its distribution and habitat elsewhere, but there is *no* evidence at all of its occurrence
-		,POSSIBLY_EXTINCT				// Taxon is possibly extinct: there are no recent observations, but it might still exist, according to expert's opinion
-		,EXTINCT						// Taxon is extinct: there are no recent observations, and it is unlikely that it might still exist, according to expert's opinion
+		,ASSUMED_PRESENT				// Taxon has not been observed recently but there are past unequivocal evidences of its occurrence and there are no reasons to suppose that it might have gone extinct.
+		,POSSIBLY_EXTINCT				// Taxon is possibly extinct: there are no recent observations, so we assume it may be extinct, but it might still exist, according to expert's opinion
+		,EXTINCT						// Taxon is extinct: there are no recent observations, and it is very unlikely that it might still exist, according to expert's opinion
 		,ABSENT_BUT_REPORTED_IN_ERROR	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
 		,ERROR							// Some error occurred
 		// The following are deprecated!!
@@ -107,21 +108,19 @@ public final class Constants {
 		;
 	}
 	
-	public enum AbundanceLevel {
-		VERY_RARE						// Few populations with few individuals
-		,RARE
-		,OCCASIONAL
-		,COMMON
-		,VERY_COMMON
-	}
 	public enum NativeStatus {
 		NATIVE((short)0, "is NATIVE to")
-		,EXISTING((short)0, "EXISTS in")						// it exists with different status depending on the sub-territory
+		,ASSUMED_NATIVE((short)0, "is ASSUMED to be NATIVE to")
 		,DOUBTFULLY_NATIVE((short)1, "is DOUBTFULLY NATIVE to")			// it might be native, but there are also reasons to suspect the opposite
-		,DOUBTFULLY_INTRODUCED((short)1, "is DOUBTFULLY INTRODUCED in")		// it might be introduced, but there are also reasons to suspect the opposite
+		,NATIVE_REINTRODUCED((short)1, "is NATIVE but REINTRODUCED to")
+		,CRYPTOGENIC((short)0, "is CRYPTOGENIC in")
+		,DOUBTFULLY_EXOTIC((short)1, "is DOUBTFULLY EXOTIC in")		// it might be introduced, but there are also reasons to suspect the opposite
+		,ASSUMED_EXOTIC((short)1, "is ASSUMED to be EXOTIC in")
 		,EXOTIC((short)2, "is EXOTIC in")
-		,ENDEMIC((short)3, "is ENDEMIC to")
-		,NEAR_ENDEMIC((short)4, "is NEAR ENDEMIC to")					// quasi-endemic (say, more than 80% of its populations in the territory)
+		,EXOTIC_REINTRODUCED((short)2, "is EXOTIC but REINTRODUCED in")
+		//,ENDEMIC((short)3, "is ENDEMIC to")
+		,NEAR_ENDEMIC((short)4, "is NEAR ENDEMIC to")					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
+		,EXISTING((short)0, "EXISTS in")								// it exists with different status depending on the sub-territory
 		,ERROR((short)-1, "ERROR");
 		
 		private final Short code;
@@ -156,6 +155,20 @@ public final class Constants {
 
 	}
 
+	public enum AbundanceLevel {
+		VERY_RARE						// Few populations with few individuals
+		,RARE
+		,OCCASIONAL
+		,COMMON
+		,VERY_COMMON
+	}
+
+	public enum WorldDistributionCompleteness {		// "Whether or not the plant-area records in the DB represent the complete world native distribution for the plant"
+		DISTRIBUTION_COMPLETE
+		,DISTRIBUTION_INCOMPLETE
+		,NOT_KNOWN
+	}
+	
 	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
 	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
 	

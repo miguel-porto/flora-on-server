@@ -11,6 +11,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.Constants.WorldDistributionCompleteness;
 import pt.floraon.results.ResultItem;
 
 /**
@@ -29,6 +30,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	protected Integer gbifKey;
 	protected Boolean isSpeciesOrInf;
 	protected Integer oldId;
+	protected WorldDistributionCompleteness worldDistributionCompleteness;
 	
 	public TaxEnt(TaxEnt te) {
 		super(te);
@@ -190,6 +192,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		return getFullName(false);
 	}
 
+	public WorldDistributionCompleteness getWorldDistributionCompleteness() {
+		return this.worldDistributionCompleteness;
+	}
+	
 	public TaxonRanks getRank() {
 		return TaxonRanks.getRankFromValue(rank);
 	}

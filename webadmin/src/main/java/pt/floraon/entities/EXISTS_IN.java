@@ -52,8 +52,8 @@ public class EXISTS_IN extends GeneralDBEdge {
 	 * Is the OccurrenceStatus uncetain in terms of taxonomy (i.e. is the taxon possibly misidentified)? 
 	 * @return
 	 */
-	public Boolean isUncertainOccurrenceStatus() {
-		return this.uncertainOccurrenceStatus;
+	public boolean isUncertainOccurrenceStatus() {
+		return this.uncertainOccurrenceStatus==null ? false : this.uncertainOccurrenceStatus;
 	}
 	
 	@Override
