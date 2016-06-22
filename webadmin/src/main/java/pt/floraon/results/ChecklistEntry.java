@@ -57,4 +57,9 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 		rec.print("family");
 		rec.print("order");
 	}
+	@Override
+	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

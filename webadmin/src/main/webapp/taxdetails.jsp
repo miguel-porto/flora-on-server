@@ -1,9 +1,9 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
-<div>
+<div class="${sessionScope.user!=null ? 'editable' : '' }">
 <h1>${taxent.getFullName(true)}</h1>
-<ul class="menu currentstatus">
+<ul class="menu multiplesel" id="currentstatus">
 	<li class="current${taxent.getCurrent() ? ' selected' : ''}">current</li>
 	<li class="notcurrent${taxent.getCurrent() ? '' : ' selected'}">not current</li>
 </ul>
@@ -34,8 +34,18 @@
 	</table>
 	<div id="taxoninfo">
 		<div id="taxonnativestatus">
-			<h3>Native status</h3>
-			${nativeStatusTable }		
+			<h3>Native status list</h3>
+			${nativeStatusTable }
+			<ul class="menu multiplesel" id="worlddistribution">
+				<li class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
+				<li class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
+				<li class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
+			</ul>
+			<form>
+				<label><input type="radio" name="worldDistributionCompleteness" value="DISTRIBUTION_COMPLETE"/>complete distribution</label>
+				<label><input type="radio" name="worldDistributionCompleteness" value="DISTRIBUTION_INCOMPLETE"/>incomplete distribution</label>
+				<label><input type="radio" name="worldDistributionCompleteness" value="NOT_KNOWN"/>not known</label>
+			</form>
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">
@@ -45,7 +55,7 @@
 			</ul>
 		</div>
 		<c:if test="${taxent.isSpeciesOrInferior() && taxent.getCurrent()}">
-			<div id="taxonsynonyms"><h3>Included taxa</h3>
+			<div id="taxonincluded"><h3>Included taxa</h3>
 				<ul class="synonyms">
 				<c:forEach var="included" items="${taxentWrapper.getIncludedTaxa()}">
 		  			<li data-key="${included.getID()}"><a href="admin?w=taxdetails&id=${included.getID()}"><c:out value="${included.getFullName()}"></c:out></a></li>
@@ -59,15 +69,20 @@
 		<div class="toggler off" id="updatetaxonbox">
 			<h1>Change name <span class="info">changes this taxon</span></h1>
 			<div class="content">
-				<table>
-					<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
-					<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
-					<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
-					<tr><td>New annotation</td><td><input type="text" name="annot" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
-				</table>
-				<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
-				<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
-				<input type="button" value="Update" class="actionbutton" id="updatetaxon"/>
+				<form class="poster" data-path="/floraon/api/update/update/taxent">
+					<table>
+						<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
+						<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
+						<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
+						<tr><td>New annotation</td><td><input type="text" name="annotation" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
+					</table>
+					<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
+					<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
+					<input type="hidden" name="id" value="${taxent.getID()}"/>
+					<input type="hidden" name="replace" value="1"/>
+					<!-- <input type="button" value="Update" class="actionbutton" id="updatetaxon"/>-->
+					<input type="submit" value="Update"/>
+				</form>
 			</div>
 		</div>
 	
@@ -105,21 +120,25 @@
 		<div class="toggler off" id="addchildbox">
 			<h1>Add new sub-taxon <span class="info">creates a new taxon and adds it as a child of this taxon</span></h1>
 			<div class="content">
-				<table>
-				<tr><td>Name</td><td><input type="text" name="name" placeholder="complete scientific name without author"/></td></tr>
-				<tr><td>Author</td><td><input type="text" name="author"/></td></tr>
-				<tr><td><i>sensu</i></td><td><input type="text" name="sensu"/></td></tr>
-				<tr><td>Annotation</td><td><input type="text" name="annot"/></td></tr>
-				<tr><td>Rank</td><td>
-					<select name="rank">
-						<c:forEach var="rank" items="${TaxonRanks}">
-							<option value="${rank.getValue().toString()}"><c:out value="${rank.getName()}"></c:out></option>
-						</c:forEach>
-					</select>
-				</td></tr>
-				<tr><td>Currently accepted?</td><td><input type="checkbox" name="current" checked="checked"/></td></tr>
-				</table>
-				<input type="button" value="Add" class="actionbutton" id="addchild"/>
+				<form class="poster" data-path="/floraon/api/update/add/inferiortaxent">
+					<table>
+					<tr><td>Name</td><td><input type="text" name="name" placeholder="complete scientific name without author"/></td></tr>
+					<tr><td>Author</td><td><input type="text" name="author"/></td></tr>
+					<tr><td><i>sensu</i></td><td><input type="text" name="sensu"/></td></tr>
+					<tr><td>Annotation</td><td><input type="text" name="annot"/></td></tr>
+					<tr><td>Rank</td><td>
+						<select name="rank">
+							<c:forEach var="rank" items="${TaxonRanks}">
+								<option value="${rank.getValue().toString()}"><c:out value="${rank.getName()}"></c:out></option>
+							</c:forEach>
+						</select>
+					</td></tr>
+					<tr><td>Currently accepted?</td><td><input type="checkbox" name="current" checked="checked"/></td></tr>
+					</table>
+					<input type="hidden" name="parent" value="${taxent.getID().toString()}"/>
+					<!-- <input type="button" value="Add" class="actionbutton" id="addchild"/> -->
+					<input type="submit" value="Add"/>
+				</form>
 			</div>
 		</div>
 	</c:if>

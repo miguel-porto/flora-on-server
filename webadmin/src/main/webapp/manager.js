@@ -76,10 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	});
 	
-/*	var forms=document.querySelectorAll('form.poster');
-	for(var i=0;i<forms.length;i++) {
-		addEvent('submit',forms[i],formPoster);
-	}*/
+	attachFormPosters();
 	
 // attach the click+expand tree node
 	var lis=document.querySelector('.taxtree-holder>ul');
@@ -237,16 +234,17 @@ function actionButtonClick(ev) {
 		var cb=document.getElementById('updatetaxonbox');
 		var parent=getCurrentTaxon();
 		// TODO: make formdata from html form directly
-		var obj={
+/*		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
 			,sensu:cb.querySelector('input[name=sensu]').value
-			,comment:cb.querySelector('input[name=annot]').value
+			,annotation:cb.querySelector('input[name=annotation]').value
 			,rank:cb.querySelector('input[name=rank]').value
 			,current:cb.querySelector('input[name=current]').value
 			,id:parent
+			,worldDistr: 'dff'sdfsdf
 		}
-		updateTaxon(obj,true);
+		updateTaxon(obj,true);*/
 		break;
 	
 	case 'addnativestatus':
@@ -312,8 +310,40 @@ function getCurrentTaxon() {
 		return null;
 }
 
+function multipleSelectionButtonClick(ev) {
+	if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
+	ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
+	ev.target.classList.add('selected');
+	
+	var el=getParentbyTag(ev.target,'ul');
+	var parent=getCurrentTaxon();
+	switch(el.id) {
+	case 'currentstatus':
+		var obj={
+			id:parent
+			,current:ev.target.classList.contains('current') ? 1 : 0
+		}
+		updateTaxon(obj,false);
+		break;
+	
+	case 'worlddistribution':
+		// TODO: change worlkd distr
+		break;
+	}
+	
+}
+
+function attachFormPosters() {
+	var forms=document.querySelectorAll('form.poster');
+	for(var i=0;i<forms.length;i++) {
+		addEvent('submit',forms[i],formPoster);
+	}
+}
+
 function attachTaxDetailsHandlers(el) {
 	attachSuggestionHandler('boxsynonym');
+	attachFormPosters();
+//	form add não adiciona taxon
 	
 	var act=el.querySelectorAll('.actionbutton');
 	for(var i=0;i<act.length;i++) {
@@ -330,28 +360,14 @@ function attachTaxDetailsHandlers(el) {
 	}
 	
 // current / not current buttons
-	var els=document.querySelectorAll('.taxdetails ul.currentstatus li');
 	var cb=document.getElementById('updatetaxonbox');
 	if(cb) {
+		var els=document.querySelectorAll('.taxdetails ul.menu.multiplesel li');
 		for(var i=0;i<els.length;i++) {
-			addEvent('click',els[i],function(ev) {
-				if(ev.target.tagName!='LI' || ev.target.classList.contains('selected')) return;
-				ev.target.parentNode.querySelector('li.selected').classList.remove('selected');
-				ev.target.classList.add('selected');
-				var cb=document.getElementById('updatetaxonbox');
-				var parent=getCurrentTaxon();
-				var obj={
-					/*name:cb.querySelector('input[name=name]').value
-					,author:cb.querySelector('input[name=author]').value
-					,comment:cb.querySelector('input[name=annot]').value
-					,*/id:parent
-					,current:ev.target.classList.contains('current') ? 1 : 0
-				}
-				console.log(obj);
-				updateTaxon(obj,false);
-			});
+			addEvent('click',els[i],multipleSelectionButtonClick);
 		}
-	}	
+	}
+	
 // detach synonyms
 	var els=document.querySelectorAll('.taxdetails ul.synonyms div.button.remove');
 	for(var i=0;i<els.length;i++) {
@@ -386,7 +402,12 @@ function loadTreeNode(el,callback) {
 function formPoster(ev) {
 		ev.preventDefault();
 		postAJAXForm(ev.target.getAttribute('data-path'),ev.target,function(rt) {
-			alert(rt);
+			var rt1=JSON.parse(rt);
+			if(rt1.success) {
+				alert(rt);
+			} else
+				alert(rt1.msg);
+
 		});
 }
 

@@ -57,7 +57,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		this.gbifKey=gbifKey;
 	}*/
 
-	public TaxEnt(String name,Integer rank,String author,String sensu,String annotation,Boolean current,Integer gbifKey) throws TaxonomyException {
+	public TaxEnt(String name,Integer rank,String author,String sensu,String annotation,Boolean current,Integer gbifKey, WorldDistributionCompleteness worldDistributionCompleteness) throws TaxonomyException {
 		if(name!=null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
 		
 		if(name!=null) this.name=name.trim();
@@ -75,10 +75,11 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 
 		this.current=current;
 		this.gbifKey=gbifKey;
+		this.worldDistributionCompleteness=worldDistributionCompleteness;
 	}
 
 	public TaxEnt(String name,Integer rank,String author,String annotation) throws TaxonomyException {
-		this(name, rank, author, null, annotation, null, null);
+		this(name, rank, author, null, annotation, null, null, null);
 	}
 
 	/**
@@ -193,7 +194,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	}
 
 	public WorldDistributionCompleteness getWorldDistributionCompleteness() {
-		return this.worldDistributionCompleteness;
+		return this.worldDistributionCompleteness == null ? WorldDistributionCompleteness.NOT_KNOWN : this.worldDistributionCompleteness;
 	}
 	
 	public TaxonRanks getRank() {
@@ -275,5 +276,11 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	@Override
 	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
 		rec.print("scientificName");
+	}
+
+	@Override
+	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

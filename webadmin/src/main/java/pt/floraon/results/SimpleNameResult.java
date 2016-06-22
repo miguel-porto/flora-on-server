@@ -56,4 +56,10 @@ public class SimpleNameResult implements ResultItem,Comparable<SimpleNameResult>
 	public int compareTo(SimpleNameResult arg0) {
 		return this.taxent.getName().compareTo(arg0.taxent.getName());
 	}
+
+	@Override
+	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

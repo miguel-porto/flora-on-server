@@ -194,12 +194,25 @@ public class FloraOnServlet extends HttpServlet {
 		String tmp=getParameterAsString(name);
 		if(tmp==null) return false;				// parameter absent
 		if(tmp.trim().length()==0) return true;	// present
+		if(tmp.equals("on")) return true;		// for HTML checkboxes
 		try {
 			if(Boolean.parseBoolean(tmp) || Integer.parseInt(tmp)!=0) return true;	// true or not zero
 		} catch (NumberFormatException e) {
 			return false;		// any other case
 		}
 		return false;
+	}
+
+	public <T extends Enum<T>> T getParameterAsEnum (String name, Class<T> T) throws IOException, ServletException, FloraOnException {
+		T out;
+		String value=getParameterAsString(name);
+		if(value==null) return null;
+		try {
+			out=Enum.valueOf(T, value);
+		} catch (IllegalArgumentException e) {
+			throw new FloraOnException("Illegal value: "+value);
+		}
+		return out;
 	}
 
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {}

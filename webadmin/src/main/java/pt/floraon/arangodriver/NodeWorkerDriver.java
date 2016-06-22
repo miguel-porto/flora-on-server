@@ -10,6 +10,7 @@ import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
 import com.arangodb.NonUniqueResultException;
 import com.arangodb.VertexCursor;
+import com.arangodb.entity.DocumentEntity;
 import com.arangodb.entity.EntityFactory;
 import com.arangodb.entity.marker.VertexEntity;
 
@@ -48,9 +49,10 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	
 	@Override
 	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String sensu, String annotation,Boolean current) throws TaxonomyException, FloraOnException {
-		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null);
+		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null, null);
 		try {
-			VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
+			//VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
+			DocumentEntity<TaxEnt> ve=dbDriver.createDocument(NodeTypes.taxent.toString(), out);
 			out=ve.getEntity();
 			out.setID(ve.getDocumentHandle());
 			out.setKey(ve.getDocumentKey());
@@ -170,6 +172,28 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public String[] deleteLeafNode(INodeKey id) throws FloraOnException {
 		List<String> deleted=new ArrayList<String>();
 		String tmp;
+		String query=String.format(
+			"LET ne=LENGTH(FOR v,e IN 1..1 INBOUND '%1$s' PART_OF, HYBRID_OF, OUTBOUND OBSERVED_IN, OUTBOUND HAS_QUALITY, OUTBOUND EXISTS_IN RETURN e) "
+			+"FILTER ne==0 "
+			+"FOR a IN PUSH((FOR v,e IN 1..1 ANY '%1$s' PART_OF, HYBRID_OF, SYNONYM RETURN e._id), '%1$s', true) RETURN a"
+			,id.toString());
+		try {
+			Iterator<String> toDelete = dbDriver.executeAqlQuery(query,null,null,String.class).iterator();
+			while(toDelete.hasNext()) {
+				tmp=toDelete.next();
+				dbDriver.deleteDocument(tmp);
+				deleted.add(tmp);
+			}
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+		if(deleted.size()==0) throw new FloraOnException("Node has children, data, or is parent of an hybrid");
+		return deleted.toArray(new String[0]);
+	}
+/*
+	public String[] deleteLeafNode(INodeKey id) throws FloraOnException {
+		List<String> deleted=new ArrayList<String>();
+		String tmp;
 		// TODO check for attributes upon delete!
 		String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s',{direction:'inbound'}) COLLECT WITH COUNT INTO cou RETURN cou"
 			,Constants.TAXONOMICGRAPHNAME,id);
@@ -192,7 +216,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		}
 		return deleted.toArray(new String[0]);
 	}
-
+*/
 	@Override
 	public GeneralDBNode getNode(INodeKey id) throws FloraOnException {
 		try {

@@ -181,16 +181,18 @@ public final class Constants {
 		,NOT_SET
 	}
 	
+	// All types of relationships in the graph
 	public enum RelTypes {
-		PART_OF(Facets.TAXONOMY, PART_OF.class),								// taxonomic hierarchy
-		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class),
-		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class),
-		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class),
-		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class),
-    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class),
-    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class),
-		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class),
-		BELONGS_TO(Facets.TAXONOMY, pt.floraon.entities.BELONGS_TO.class);		// territory hierarchy
+		PART_OF(Facets.TAXONOMY, PART_OF.class),								// TaxEnt PART_OF TaxEnt
+		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class),			// TaxEnt SYNONYM TaxEnt
+		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class),		// TaxEnt HYBRID_OF TaxEnt
+		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class),	// TaxEnt OBSERVED_IN SpeciesList
+		//IDENTIFIED_AS(Facets.OCCURRENCE, pt.floraon.entities.IDENTIFIED_AS.class),
+		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class),	// SpeciesList OBSERVED_BY Author
+    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class),	// TaxEnt HAS_QUALITY Attribute
+    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class),	// Attribute ATTRIBUTE_OF Character
+		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class),		// TaxEnt EXISTS_IN Territory
+		BELONGS_TO(Facets.TAXONOMY, pt.floraon.entities.BELONGS_TO.class);		// Territory BELONGS_TO Territory
     	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;

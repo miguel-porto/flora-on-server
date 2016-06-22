@@ -55,6 +55,10 @@ function loadXMLDocPOSTJSON(doc,obj,onopen) {
 function loadXMLDocPOST(doc,formElement,onopen) {
     var xmlhttp = new XMLHttpRequest();
 	var params = new FormData(formElement);
+/*	var tmp;
+	for(var pair of params.entries()) {
+	   console.log(pair[0]+ ', '+ pair[1]); 
+	}*/
 	xmlhttp.open("POST", doc, true);
 //	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xmlhttp.setRequestHeader("Content-length", params.length);

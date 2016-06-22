@@ -14,6 +14,7 @@ import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.driver.Constants.WorldDistributionCompleteness;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.GraphUpdateResult;
@@ -104,12 +105,11 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 				
 			case "inferiortaxent":	// this adds a bond taxent child of the given parent and ensures it is taxonomically valid
-				current=getParameterAsString("current");
 				success(driver.wrapTaxEnt(getParameterAsKey("parent")).createTaxEntChild(
 					getParameterAsString("name")
 					, getParameterAsString("author")
 					, TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null))
-					, getParameterAsString("sensu"), getParameterAsString("annot"), current==null ? null : Integer.parseInt(current)==1
+					, getParameterAsString("sensu"), getParameterAsString("annot"), getParameterAsBoolean("current")
 				).toString());
 				return;
 
@@ -178,9 +178,11 @@ public class NodeWorker extends FloraOnServlet {
 						,getParameterAsInteger("rank",null)
 						,getParameterAsString("author")
 						,getParameterAsString("sensu")
-						,getParameterAsString("comment")
+						,getParameterAsString("annotation")
 						,getParameterAsBoolean("current")
 						,null
+						,getParameterAsEnum("worldDistr", WorldDistributionCompleteness.class)
+						
 					), getParameterAsBoolean("replace")).toJsonObject());
 				/*
 				success(NWD.updateTaxEntNode(

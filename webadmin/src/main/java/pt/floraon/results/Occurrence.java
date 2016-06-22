@@ -166,4 +166,9 @@ public class Occurrence implements ResultItem {
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

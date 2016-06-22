@@ -76,9 +76,14 @@ public class ResultProcessor<T extends ResultItem> {
 	 */
 	public void toHTMLTable(PrintWriter output,Object obj) {
 		T tmp;
+		boolean header=false;
 		output.print("<table class=\"taxonlist\">");
     	while (this.results.hasNext()) {
     		tmp=this.results.next();
+    		if(!header) {
+    			output.print(tmp.getHTMLTableHeader(obj));
+    			header=true;
+    		}
     		output.print(tmp.toHTMLTableRow(obj));
     	}
     	output.print("</table>");

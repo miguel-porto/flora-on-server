@@ -91,11 +91,10 @@ public interface INodeWorker {
 	 */
 	public String[] deleteNode(INodeKey id) throws FloraOnException;
 	/**
-	 * Deletes one node and all connected edges if the node is a leaf node.
+	 * Deletes one node and all connected edges if the node is a leaf node and if it has no data associated.
 	 * @param id
 	 * @return
-	 * @throws ArangoException
-	 * @throws FloraOnException 
+	 * @throws FloraOnException if there is data associated with the node (e.g. EXISTS_IN, HAS_QUALITY, OBSERVED_IN)
 	 */
 	public String[] deleteLeafNode(INodeKey id) throws FloraOnException;
 	public <T extends GeneralDBNode> T getNode(INodeKey id, Class<T> cls) throws FloraOnException;
