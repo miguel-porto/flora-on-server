@@ -1,5 +1,6 @@
 package pt.floraon.entities;
 
+import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.RelTypes;
@@ -13,6 +14,7 @@ import pt.floraon.driver.Constants.RelTypes;
 public class EXISTS_IN extends GeneralDBEdge {
 	protected NativeStatus nativeStatus;
 	protected OccurrenceStatus occurrenceStatus;
+	protected AbundanceLevel abundanceLevel;
 	/**
 	 * If true, it is uncertain the identity of the taxon in this territory, but, shall the identification be correct, then it occurs with the reported NativeStatus and OccurrenceStatus.
 	 */
@@ -23,12 +25,13 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this.occurrenceStatus=OccurrenceStatus.PRESENT;
 	}
 
-	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus) {
+	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel) {
 		this.nativeStatus=nativeStatus;
 		this.occurrenceStatus=occurrenceStatus;
+		this.abundanceLevel=abundanceLevel;
 	}
 
-	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertain, String from, String to) {
+	public EXISTS_IN(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertain, String from, String to) {
 		this.nativeStatus=nativeStatus;
 		this.occurrenceStatus=occurrenceStatus;
 		this.uncertainOccurrenceStatus=uncertain;
@@ -38,6 +41,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 	
 	public NativeStatus getNativeStatus() {
 		return this.nativeStatus==null ? NativeStatus.ERROR : this.nativeStatus;
+	}
+
+	public AbundanceLevel getAbundanceLevel() {
+		return this.abundanceLevel==null ? AbundanceLevel.NOT_SPECIFIED : this.abundanceLevel;
 	}
 	
 	public OccurrenceStatus getOccurrenceStatus() {

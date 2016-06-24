@@ -74,10 +74,10 @@ public class ResultProcessor<T extends ResultItem> {
 	 * @param output
 	 * @param obj Optional data object needed by some implementations of {@link ResultItem} 
 	 */
-	public void toHTMLTable(PrintWriter output,Object obj) {
+	public void toHTMLTable(PrintWriter output,String cls, Object obj) {
 		T tmp;
 		boolean header=false;
-		output.print("<table class=\"taxonlist\">");
+		output.print("<table class=\""+cls+"\">");
     	while (this.results.hasNext()) {
     		tmp=this.results.next();
     		if(!header) {

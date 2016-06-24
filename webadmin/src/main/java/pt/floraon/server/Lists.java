@@ -110,7 +110,7 @@ public class Lists extends FloraOnServlet {
 			case "htmltable":
 				response.setContentType("text/html");
 				out=response.getWriter();
-				rpchk.toHTMLTable(out, opt);
+				rpchk.toHTMLTable(out, "taxonlist", opt);
 				break;
 			case "csv":
 				response.setContentType("text/csv");

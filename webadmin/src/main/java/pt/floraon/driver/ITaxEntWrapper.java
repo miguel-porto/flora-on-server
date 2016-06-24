@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.arangodb.ArangoException;
 
+import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
@@ -98,5 +99,5 @@ public interface ITaxEntWrapper {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrenceStatus) throws FloraOnException;
+	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertainOccurrenceStatus) throws FloraOnException;
 }

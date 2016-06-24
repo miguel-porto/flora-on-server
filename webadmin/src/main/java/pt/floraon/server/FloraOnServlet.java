@@ -190,7 +190,7 @@ public class FloraOnServlet extends HttpServlet {
 	 * @throws ServletException
 	 * @throws FloraOnException
 	 */
-	public boolean getParameterAsBoolean(String name) throws IOException, ServletException, FloraOnException {
+	public boolean getParameterAsBooleanNoNull(String name) throws IOException, ServletException, FloraOnException {
 		String tmp=getParameterAsString(name);
 		if(tmp==null) return false;				// parameter absent
 		if(tmp.trim().length()==0) return true;	// present
@@ -203,10 +203,16 @@ public class FloraOnServlet extends HttpServlet {
 		return false;
 	}
 
+	public Boolean getParameterAsBoolean(String name) throws IOException, ServletException, FloraOnException {
+		String tmp=getParameterAsString(name);
+		if(tmp==null) return null;				// parameter absent
+		return getParameterAsBooleanNoNull(name);
+	}
+
 	public <T extends Enum<T>> T getParameterAsEnum (String name, Class<T> T) throws IOException, ServletException, FloraOnException {
 		T out;
 		String value=getParameterAsString(name);
-		if(value==null) return null;
+		if(value==null || value.toUpperCase().equals("NULL")) return null;
 		try {
 			out=Enum.valueOf(T, value);
 		} catch (IllegalArgumentException e) {

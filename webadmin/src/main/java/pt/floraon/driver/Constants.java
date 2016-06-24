@@ -108,31 +108,45 @@ public final class Constants {
 		;
 	}
 	
+	public enum Native_Exotic {
+		NATIVE, EXOTIC;
+	}
+	
 	public enum NativeStatus {
-		NATIVE((short)0, "is NATIVE to")
-		,ASSUMED_NATIVE((short)0, "is ASSUMED to be NATIVE to")
-		,DOUBTFULLY_NATIVE((short)1, "is DOUBTFULLY NATIVE to")			// it might be native, but there are also reasons to suspect the opposite
-		,NATIVE_REINTRODUCED((short)1, "is NATIVE but REINTRODUCED to")
-		,CRYPTOGENIC((short)0, "is CRYPTOGENIC in")
-		,DOUBTFULLY_EXOTIC((short)1, "is DOUBTFULLY EXOTIC in")		// it might be introduced, but there are also reasons to suspect the opposite
-		,ASSUMED_EXOTIC((short)1, "is ASSUMED to be EXOTIC in")
-		,EXOTIC((short)2, "is EXOTIC in")
-		,EXOTIC_REINTRODUCED((short)2, "is EXOTIC but REINTRODUCED in")
+		NATIVE((short)0, "NATIVE to", Native_Exotic.NATIVE)
+		,ASSUMED_NATIVE((short)0, "ASSUMED to be NATIVE to", Native_Exotic.NATIVE)
+		,DOUBTFULLY_NATIVE((short)1, "DOUBTFULLY NATIVE to", Native_Exotic.NATIVE)			// it might be native, but there are also reasons to suspect the opposite
+		,NATIVE_REINTRODUCED((short)1, "NATIVE but REINTRODUCED to", Native_Exotic.NATIVE)
+		,CRYPTOGENIC((short)0, "CRYPTOGENIC in", Native_Exotic.EXOTIC)
+		,DOUBTFULLY_EXOTIC((short)1, "DOUBTFULLY EXOTIC in", Native_Exotic.EXOTIC)		// it might be introduced, but there are also reasons to suspect the opposite
+		,ASSUMED_EXOTIC((short)1, "ASSUMED to be EXOTIC in", Native_Exotic.EXOTIC)
+		,EXOTIC((short)2, "EXOTIC in", Native_Exotic.EXOTIC)
+		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC)
 		//,ENDEMIC((short)3, "is ENDEMIC to")
-		,NEAR_ENDEMIC((short)4, "is NEAR ENDEMIC to")					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
-		,EXISTING((short)0, "EXISTS in")								// it exists with different status depending on the sub-territory
-		,ERROR((short)-1, "ERROR");
+		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
+		,EXISTING((short)0, "EXISTS in", null)								// it exists with different status depending on the sub-territory
+		,ERROR((short)-1, "ERROR", null);
 		
 		private final Short code;
 		private final String verbose;
+		private final Native_Exotic nativeExotic;
 		
-		NativeStatus (Short code,String verbose) {
+		NativeStatus (Short code,String verbose, Native_Exotic nativeExotic) {
 			this.code=code;
 			this.verbose=verbose;
+			this.nativeExotic=nativeExotic;
 		}
 		
 		public Short getCode() {
 			return code;
+		}
+		
+		public static List<NativeStatus> getNatives() {
+			List<NativeStatus> out=new ArrayList<NativeStatus>(); 
+			for(NativeStatus tr:values()) {
+				if(tr.nativeExotic == Native_Exotic.NATIVE) out.add(tr); 
+			}
+			return out;
 		}
 		
     	public static NativeStatus fromCode(Short code) {
@@ -149,6 +163,10 @@ public final class Constants {
     		return NativeStatus.ERROR;
     	}
     	
+    	public Native_Exotic isNativeOrExotic() {
+    		return this.nativeExotic;
+    	}
+    	
     	public String toVerboseString() {
     		return this.verbose;
     	}
@@ -161,6 +179,7 @@ public final class Constants {
 		,OCCASIONAL
 		,COMMON
 		,VERY_COMMON
+		,NOT_SPECIFIED
 	}
 
 	public enum WorldDistributionCompleteness {		// "Whether or not the plant-area records in the DB represent the complete world native distribution for the plant"
@@ -169,6 +188,7 @@ public final class Constants {
 		,NOT_KNOWN
 	}
 	
+	public static NativeStatus[] NativeStatuses=NativeStatus.getNatives().toArray(new NativeStatus[0]);	// the NativeStatus which are considered Native.
 	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
 	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
 	
@@ -266,5 +286,30 @@ public final class Constants {
         infraRanks.put("subspecies","subsp.");
         infraRanks.put("form","f.");
         infraRanks.put("variety","var.");
+    }
+    
+    @SafeVarargs
+	public static <E extends Enum<E>> String implode(String separator, E... data) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.length - 1; i++) {
+            if (!data[i].toString().matches(" *")) {
+                sb.append(data[i]);
+                sb.append(separator);
+            }
+        }
+        sb.append(data[data.length - 1].toString().trim());
+        return sb.toString();
+    }
+    
+    public static String implode(String separator, String... data) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < data.length - 1; i++) {
+            if (!data[i].matches(" *")) {
+                sb.append(data[i]);
+                sb.append(separator);
+            }
+        }
+        sb.append(data[data.length - 1].trim());
+        return sb.toString();
     }
 }

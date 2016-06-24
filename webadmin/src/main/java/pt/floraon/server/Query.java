@@ -41,7 +41,7 @@ public class Query extends FloraOnServlet {
 		switch(format) {
 		case "html":
 			response.setContentType("text/html");
-			rp.toHTMLTable(response.getWriter(),null);
+			rp.toHTMLTable(response.getWriter(), "taxonlist", null);
 			break;
 			
 		case "json":

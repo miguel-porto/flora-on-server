@@ -15,6 +15,7 @@ import pt.floraon.driver.GTaxEntWrapper;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.ITaxEntWrapper;
 import pt.floraon.driver.TaxonomyException;
+import static pt.floraon.driver.Constants.*;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.OccurrenceStatus;
@@ -84,10 +85,12 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	@Override
 	public String[] getEndemismDegree() throws FloraOnException {
 		String query=String.format(
-			"FOR v,e IN 1..100 OUTBOUND '%1$s' ANY SYNONYM,EXISTS_IN,PART_OF "
-			+ "FILTER e.nativeStatus=='ENDEMIC' RETURN v.name"
-			,node,RelTypes.EXISTS_IN.toString()
+			"FILTER DOCUMENT('%1$s').worldDistributionCompleteness=='DISTRIBUTION_COMPLETE' "
+			+"FOR v,e IN 1..100 OUTBOUND '%1$s' ANY SYNONYM,EXISTS_IN,PART_OF "
+			+"FILTER e.nativeStatus IN [%3$s] RETURN v.name"
+			,node,RelTypes.EXISTS_IN.toString(),"'"+implode("','",NativeStatuses)+"'"
 		);
+		
 		List<String> list;
 		try {
 			list = dbDriver.executeAqlQuery(query,null,null,String.class).asList();
@@ -143,7 +146,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 	
 	@Override
-	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrenceStatus) throws FloraOnException {
+	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertainOccurrenceStatus) throws FloraOnException {
 		String query;
 		if(status == null) {	// remove the EXISTS_IN link, if it exists
 			query=String.format(
@@ -151,7 +154,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				,node.toString()
 				,territory.toString());
 		} else {				// create or update the EXISTS_IN link
-			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, uncertainOccurrenceStatus, node.toString(), territory.toString());
+			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, abundanceLevel, uncertainOccurrenceStatus, node.toString(), territory.toString());
 			query=String.format(
 				"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN EXISTS_IN RETURN OLD ? 0 : 1"
 				,node.toString()
@@ -168,7 +171,6 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
-		
 		String query=String.format("FOR v IN 1..1 INBOUND '%2$s' %1$s FILTER !v.current RETURN v"
 			,RelTypes.PART_OF.toString(),node
 		);

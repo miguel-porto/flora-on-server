@@ -8,6 +8,7 @@ import javax.servlet.annotation.MultipartConfig;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.entities.Territory;
@@ -24,7 +25,7 @@ public class Territories extends FloraOnServlet {
 		}
 
 		ListIterator<String> part=this.getPathIteratorAfter("territories");
-		String to, tmp1, tmp2;
+		String to;
 
 		if(!part.hasNext()) {
 			error("Choose one of: set");
@@ -34,17 +35,16 @@ public class Territories extends FloraOnServlet {
 		case "set":
 			INodeKey from=getParameterAsKey("taxon");		// the taxon id
 			to=getParameterAsString("territory");
-			tmp1=getParameterAsString("nativeStatus");
-			tmp2=getParameterAsString("occurrenceStatus");
-			if(errorIfAnyNull(response, from, to, tmp1)) return;
+			if(errorIfAnyNull(response, from, to)) return;
 			Territory terr=NWD.getTerritoryFromShortName(to);
 			NativeStatus nstatus=null;
-			OccurrenceStatus ostatus=null;
-			if(!tmp1.toUpperCase().equals("NULL")) {
-				nstatus=NativeStatus.fromString(tmp1.toUpperCase());
-				ostatus=tmp2==null ? null : OccurrenceStatus.valueOf(tmp2.toUpperCase());
-			}
-			driver.wrapTaxEnt(from).setNativeStatus(driver.asNodeKey(terr.getID()), nstatus, ostatus, getParameterAsBoolean("uncertain"));
+			driver.wrapTaxEnt(from).setNativeStatus(
+				driver.asNodeKey(terr.getID())
+				, getParameterAsEnum("nativeStatus", NativeStatus.class)
+				, getParameterAsEnum("occurrenceStatus", OccurrenceStatus.class)
+				, getParameterAsEnum("abundanceLevel", AbundanceLevel.class)
+				, getParameterAsBooleanNoNull("uncertain")
+			);
 			success( nstatus==null ? "NULL" : nstatus.toString().toUpperCase());
 			break;
 			

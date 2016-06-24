@@ -230,11 +230,10 @@ function actionButtonClick(ev) {
 		});
 		break;
 	
-	case 'updatetaxon':
+/*	case 'updatetaxon':
 		var cb=document.getElementById('updatetaxonbox');
 		var parent=getCurrentTaxon();
-		// TODO: make formdata from html form directly
-/*		var obj={
+		var obj={
 			name:cb.querySelector('input[name=name]').value
 			,author:cb.querySelector('input[name=author]').value
 			,sensu:cb.querySelector('input[name=sensu]').value
@@ -244,8 +243,8 @@ function actionButtonClick(ev) {
 			,id:parent
 			,worldDistr: 'dff'sdfsdf
 		}
-		updateTaxon(obj,true);*/
-		break;
+		updateTaxon(obj,true);
+		break;*/
 	
 	case 'addnativestatus':
 		var cb=document.getElementById('addnativestatusbox');
@@ -319,15 +318,18 @@ function multipleSelectionButtonClick(ev) {
 	var parent=getCurrentTaxon();
 	switch(el.id) {
 	case 'currentstatus':
-		var obj={
+		updateTaxon({
 			id:parent
 			,current:ev.target.classList.contains('current') ? 1 : 0
-		}
-		updateTaxon(obj,false);
+		},false);
 		break;
 	
 	case 'worlddistribution':
 		// TODO: change worlkd distr
+		updateTaxon({
+			id:parent
+			,worldDistributionCompleteness:ev.target.getAttribute('data-value')
+		},false);
 		break;
 	}
 	
@@ -343,8 +345,7 @@ function attachFormPosters() {
 function attachTaxDetailsHandlers(el) {
 	attachSuggestionHandler('boxsynonym');
 	attachFormPosters();
-//	form add não adiciona taxon
-	
+
 	var act=el.querySelectorAll('.actionbutton');
 	for(var i=0;i<act.length;i++) {
 		addEvent('click',act[i],actionButtonClick);

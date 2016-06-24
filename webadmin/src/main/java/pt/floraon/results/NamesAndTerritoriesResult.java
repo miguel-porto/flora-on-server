@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,7 +16,9 @@ import java.util.Set;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.NativeStatus;
+import pt.floraon.driver.Constants.Native_Exotic;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.WorldDistributionCompleteness;
 
@@ -51,13 +54,15 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		Map<Integer,Set<String>> endemics=new HashMap<Integer,Set<String>>();// HashSet<String>();		// to count how many endemic relations it has
 		List<TerritoryStatus> tStatusList;
 		Iterator<TerritoryStatus> it;
+		List<NativeStatus> natives=Arrays.asList(Constants.NativeStatuses);
 		
 		Integer minEndemicTaxLen=null;
 		if(isEndemic) {		// compile the endemic relations per taxonomic depth level
 			it=territories.iterator();
 			while(it.hasNext()) {
 				tmp=it.next();
-				if(tmp.nativeStatus.equals(NativeStatus.NATIVE.toString())) {
+				if(natives.contains(NativeStatus.fromString(tmp.nativeStatus))) {
+				//if(tmp.nativeStatus.equals(NativeStatus.NATIVE.toString())) {
 					if(minEndemicTaxLen==null || minEndemicTaxLen>tmp.taxpathlen) minEndemicTaxLen=tmp.taxpathlen;
 					if(!endemics.containsKey(tmp.taxpathlen))
 						endemics.put(tmp.taxpathlen, new HashSet<String>());
@@ -87,11 +92,11 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			it=tStatusList.iterator();
 			while(it.hasNext()) {	// count # of endemic relations in this territory. NOTE: this assumes that there are no repeated endemic relations in the data (we could use a SET to avoid this assumption)
 				tmp2=it.next();
-				if(isEndemic && tmp2.nativeStatus.equals(NativeStatus.NATIVE.toString()) && tmp2.taxpathlen==minEndemicTaxLen) nend++;
+				//if(isEndemic && tmp2.nativeStatus.equals(NativeStatus.NATIVE.toString()) && tmp2.taxpathlen==minEndemicTaxLen) nend++;
+				if(isEndemic && NativeStatus.fromString(tmp2.nativeStatus).isNativeOrExotic() == Native_Exotic.NATIVE && tmp2.taxpathlen==minEndemicTaxLen) nend++;
 				certain|=(tmp2.taxpathlen==0); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
 			}
 // TODO: when is endemic from a territory, what should we do with sub-territories? for example juniperus navicularis
-// TODO: Capanula dieckii occurrecen status não propaga
 			//dsf
 			//System.out.println(tmp1.size()+" - "+endemics.size());
 			if(nend>0 && nend==endemics.get(minEndemicTaxLen).size()) {		// if all endemic relations lead to this territory, then it is endemic, no matter the status in any other territory
@@ -128,7 +133,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 						}
 					}
 				}
-				out.put(e.getKey(), new Status(thisStatus.nativeStatus, thisStatus.occurrenceStatus, thisStatus.uncertainOccurrence, thisStatus.taxpathlen>0, false ));
+				out.put(e.getKey(), new Status(thisStatus.nativeStatus.toString(), thisStatus.occurrenceStatus, thisStatus.uncertainOccurrence, thisStatus.taxpathlen>0, false ));
 				/*
 				// search for a not inferred relation
 				anyNotInferred=false;

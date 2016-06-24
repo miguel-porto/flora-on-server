@@ -26,9 +26,9 @@ public class NativeStatusResult implements ResultItem {
 	@Override
 	public String toHTMLTableRow(Object obj) {
 		if(this.nativeStatus.getNativeStatus()==null)
-			return "<tr><td>"+this.territory.getName()+"</td><td class=\""+NativeStatus.ERROR.toString()+"\">"+NativeStatus.ERROR.toString()+"</td><td>"+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td></tr>";
+			return "<tr><td>"+this.territory.getName()+"</td><td class=\""+NativeStatus.ERROR.toString()+"\">"+NativeStatus.ERROR.toString()+"</td><td>"+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td><td>"+this.nativeStatus.getAbundanceLevel().toString()+"</td></tr>";
 		else
-			return "<tr><td>"+this.territory.getName()+"</td><td class=\""+this.nativeStatus.getNativeStatus().toString()+"\">"+this.nativeStatus.getNativeStatus().toString()+"</td><td>"+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td></tr>";
+			return "<tr><td>"+this.territory.getName()+"</td><td class=\""+this.nativeStatus.getNativeStatus().toString()+"\">"+this.nativeStatus.getNativeStatus().toString()+"</td><td>"+this.nativeStatus.getOccurrenceStatus().toString()+(this.nativeStatus.isUncertainOccurrenceStatus() ? " (uncertain)" : "")+"</td><td>"+this.nativeStatus.getAbundanceLevel().toString()+"</td></tr>";
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class NativeStatusResult implements ResultItem {
 
 	@Override
 	public String getHTMLTableHeader(Object obj) {
-		return "<tr><th>Territory</th><th>Native St.</th><th>Occurrence St.</th></tr>";
+		return "<tr><th>Territory</th><th>Native Status</th><th>Occurrence Status</th><th>Abundance Level</th></tr>";
 	}
 
 }

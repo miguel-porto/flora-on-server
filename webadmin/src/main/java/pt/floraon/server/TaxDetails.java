@@ -24,7 +24,7 @@ public class TaxDetails extends FloraOnServlet {
 		ResultProcessor<NativeStatusResult> rpnsr=new ResultProcessor<NativeStatusResult>(driver.getNodeWorkerDriver().getTaxonNativeStatus(id));
 		
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
-		rpnsr.toHTMLTable(new PrintWriter(baos), null);
+		rpnsr.toHTMLTable(new PrintWriter(baos), "nativestatus", null);
 		baos.close();
 
 		request.setAttribute("taxent", taxent);
@@ -33,6 +33,7 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
 		request.setAttribute("occurrenceStatus", Constants.OccurrenceStatus.values());
+		request.setAttribute("abundanceLevel", Constants.AbundanceLevel.values());
 		request.setAttribute("nativeStatus", Constants.NativeStatus.values());
 		
 		response.setContentType("text/html");

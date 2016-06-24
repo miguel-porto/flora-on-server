@@ -109,7 +109,7 @@ public class NodeWorker extends FloraOnServlet {
 					getParameterAsString("name")
 					, getParameterAsString("author")
 					, TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null))
-					, getParameterAsString("sensu"), getParameterAsString("annot"), getParameterAsBoolean("current")
+					, getParameterAsString("sensu"), getParameterAsString("annot"), getParameterAsBooleanNoNull("current")
 				).toString());
 				return;
 
@@ -165,7 +165,7 @@ public class NodeWorker extends FloraOnServlet {
 			case "links":
 				success(
 					NWD.updateDocument(
-						getParameterAsKey("id"), "current", getParameterAsBoolean("current")
+						getParameterAsKey("id"), "current", getParameterAsBooleanNoNull("current")
 					).toJsonObject());
 				return;
 
@@ -181,9 +181,9 @@ public class NodeWorker extends FloraOnServlet {
 						,getParameterAsString("annotation")
 						,getParameterAsBoolean("current")
 						,null
-						,getParameterAsEnum("worldDistr", WorldDistributionCompleteness.class)
+						,getParameterAsEnum("worldDistributionCompleteness", WorldDistributionCompleteness.class)
 						
-					), getParameterAsBoolean("replace")).toJsonObject());
+					), getParameterAsBooleanNoNull("replace")).toJsonObject());
 				/*
 				success(NWD.updateTaxEntNode(
 					NWD.getTaxEnt(getParameterAsArangoKey("id"))
