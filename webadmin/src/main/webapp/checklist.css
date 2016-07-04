@@ -26,7 +26,7 @@ div.paging #filterbox {float:left;}
 div.paging #filterbox input {width:140px;}
 div.paging .legend {float:right;}
 
-form label input {vertical-align:middle;}
+label input {vertical-align:middle;}
 
 .noselect {
     -webkit-touch-callout: none;
@@ -275,7 +275,7 @@ table.taxonlist div.territory {float:left;}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}
 #taxoninfo>div#taxonnativestatus {flex-grow:2}
 #taxonnativestatus table {width:100%;}
-.editable #taxonnativestatus table tr:hover td {color:#f55;cursor:pointer;text-decoration:line-through;}
+/*.editable #taxonnativestatus table tr:hover td {color:#f55;cursor:pointer;text-decoration:line-through;}*/
 
 #taxonsynonyms {flex-grow:1}
 #taxonsynonyms .synonyms {padding:0;margin:0}

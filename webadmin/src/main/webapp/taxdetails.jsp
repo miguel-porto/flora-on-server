@@ -35,38 +35,43 @@
 	<div id="taxoninfo">
 		<div id="taxonnativestatus">
 			<h3>Native status list</h3>
-			${nativeStatusTable }
-			<table><tr>
-				<td>
-					<select name="territory">
-						<c:forEach var="territory" items="${territories}">
-							<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
-						</c:forEach>
-					</select>
-				</td>
-				<td>
-					<select name="nativeStatus">
-						<c:forEach var="nstatus" items="${nativeStatus}">
-							<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
-						</c:forEach>
-						<option value="NULL">has no status in</option>
-					</select>
-				</td>
-				<td>
-					<select name="occurrenceStatus">
-						<c:forEach var="ostatus" items="${occurrenceStatus}">
-							<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
-						</c:forEach>
-					</select>
-				</td>
-				<td>
-					<select name="abundanceLevel">
-						<c:forEach var="alevel" items="${abundanceLevel}">
-							<option value="${alevel.toString()}"><c:out value="${alevel.toString()}"></c:out></option>
-						</c:forEach>
-					</select>
-				</td>
-			</tr></table>
+			<table>
+				${nativeStatusTable }
+				<c:if test="${sessionScope.user!=null}">
+				<tr>
+					<td>
+						<select name="territory">
+							<c:forEach var="territory" items="${territories}">
+								<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
+							</c:forEach>
+						</select>
+					</td>
+					<td>
+						<select name="nativeStatus">
+							<c:forEach var="nstatus" items="${nativeStatus}">
+								<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
+							</c:forEach>
+							<option value="NULL">has no status in</option>
+						</select>
+					</td>
+					<td>
+						<select name="occurrenceStatus">
+							<c:forEach var="ostatus" items="${occurrenceStatus}">
+								<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
+							</c:forEach>
+						</select>
+						<label><input type="checkbox" value="1" name="uncertain"/> occurrence is uncertain</label>
+					</td>
+					<td>
+						<select name="abundanceLevel">
+							<c:forEach var="alevel" items="${abundanceLevel}">
+								<option value="${alevel.toString()}"><c:out value="${alevel.toString()}"></c:out></option>
+							</c:forEach>
+						</select>
+					</td>
+				</tr>
+				</c:if>
+			</table>
 			<ul class="menu multiplesel" id="worlddistribution">
 				<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
 				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>

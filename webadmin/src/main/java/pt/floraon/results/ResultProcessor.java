@@ -75,19 +75,29 @@ public class ResultProcessor<T extends ResultItem> {
 	 * @param obj Optional data object needed by some implementations of {@link ResultItem} 
 	 */
 	public void toHTMLTable(PrintWriter output,String cls, Object obj) {
-		T tmp;
-		boolean header=false;
 		output.print("<table class=\""+cls+"\">");
-    	while (this.results.hasNext()) {
-    		tmp=this.results.next();
-    		if(!header) {
-    			output.print(tmp.getHTMLTableHeader(obj));
-    			header=true;
-    		}
-    		output.print(tmp.toHTMLTableRow(obj));
-    	}
+		getHTMLTableRows(output, obj);
     	output.print("</table>");
     	output.flush();
+	}
+	
+	/**
+	 * Outputs the result as the HTML table rows (without the TABLE tag)
+	 * @param output
+	 * @param obj
+	 */
+	public void getHTMLTableRows(PrintWriter output, Object obj) {
+		T tmp;
+		boolean header=false;
+		while (this.results.hasNext()) {
+			tmp=this.results.next();
+			if(!header) {
+				output.print(tmp.getHTMLTableHeader(obj));
+				header=true;
+			}
+			output.print(tmp.toHTMLTableRow(obj));
+		}
+		output.flush();
 	}
 
 	/**

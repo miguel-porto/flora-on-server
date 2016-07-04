@@ -174,12 +174,12 @@ public final class Constants {
 	}
 
 	public enum AbundanceLevel {
-		VERY_RARE						// Few populations with few individuals
-		,RARE
-		,OCCASIONAL
-		,COMMON
+		NOT_SPECIFIED
 		,VERY_COMMON
-		,NOT_SPECIFIED
+		,COMMON
+		,OCCASIONAL
+		,RARE
+		,VERY_RARE						// Few populations with few individuals
 	}
 
 	public enum WorldDistributionCompleteness {		// "Whether or not the plant-area records in the DB represent the complete world native distribution for the plant"
