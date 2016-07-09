@@ -48,7 +48,7 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 			
 			if(nrel==0) {
 				return new GraphUpdateResult(driver, new String[] {
-					dbDriver.createEdge(type.toString(), type.getEdge(), baseId, parentId, false, false).getDocumentHandle()
+					dbDriver.createEdge(type.toString(), type.getEdge(), baseId, parentId, false).getDocumentHandle()
 					,baseId,parentId
 				});
 			} else return GraphUpdateResult.emptyResult();
@@ -70,7 +70,7 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 		try {
 			Integer nrel=dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 			if(nrel==0) {
-				dbDriver.createEdge(edge.getType().toString(), edge, baseId, parentId, false, false);
+				dbDriver.createEdge(edge.getType().toString(), edge, baseId, parentId, false);
 				return 1;
 			} else return 0;
 		} catch (ArangoException e) {

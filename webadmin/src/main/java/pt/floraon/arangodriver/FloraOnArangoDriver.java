@@ -2,6 +2,13 @@ package pt.floraon.arangodriver;
 
 import static pt.floraon.driver.Constants.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -95,10 +102,26 @@ public class FloraOnArangoDriver implements FloraOn {
 		return id==null ? null : new ArangoKey(id);
 	}
 	
-	public FloraOnArangoDriver(String dbname) throws FloraOnException {
+	public FloraOnArangoDriver(String dbname, String basedir) throws FloraOnException {
+		File account=new File(basedir+"/arangodb_login.txt");
+		
+		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
+		BufferedReader fr;
+		String username, pass;
+		try {
+			fr = new BufferedReader(new FileReader(account));
+			username=fr.readLine();
+			pass=fr.readLine();
+			fr.close();
+		} catch (IOException e1) {
+			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
+		}
+
         ArangoConfigure configure = new ArangoConfigure();
         configure.init();
         configure.setDefaultDatabase(dbname);
+        configure.setUser(username);
+        configure.setPassword(pass);
         driver = new ArangoDriver(configure);
 
         try {

@@ -32,14 +32,15 @@ public class AppTest
 
     public void testApp() {
     	// TODO: record upload test!!!
-    	FloraOnArangoDriver fog=null;
+    	/*FloraOnArangoDriver fog=null;
     	try {
 			fog=new FloraOnArangoDriver("flora");
 		} catch (FloraOnException e2) {
 			fail(e2.getMessage());
 		}
 
-    	if(fog==null) fail("Unable to create database.");
+    	if(fog==null) fail("Unable to create database.");*/
+    	
 /*
     	try {
 			fog.dbDataUploader.uploadTaxonomyListFromStream(fog.getClass().getResourceAsStream("/taxonomia_full_novo.csv"), false);

@@ -48,10 +48,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 	}
 	
 	public OccurrenceStatus getOccurrenceStatus() {
-		if(this.occurrenceStatus == OccurrenceStatus.RARE
+		/*if(this.occurrenceStatus == OccurrenceStatus.RARE
 			|| this.occurrenceStatus == OccurrenceStatus.COMMON
 			|| this.occurrenceStatus == OccurrenceStatus.OCCURS
-			|| this.occurrenceStatus == OccurrenceStatus.UNCERTAIN_OCCURRENCE) return OccurrenceStatus.ERROR;
+			|| this.occurrenceStatus == OccurrenceStatus.UNCERTAIN_OCCURRENCE) return OccurrenceStatus.ERROR;*/
 		return this.occurrenceStatus==null ? OccurrenceStatus.PRESENT : this.occurrenceStatus;	// assume it is present, if no information is given, or if an error has occurred (value not found in enum)
 	}
 	

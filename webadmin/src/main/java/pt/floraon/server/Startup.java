@@ -1,5 +1,7 @@
 package pt.floraon.server;
 
+import java.io.File;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -17,8 +19,9 @@ public class Startup implements ServletContextListener {
 	
 	public void contextInitialized(ServletContextEvent sce) {
 		FloraOn FloraOnDriver=null;
+		File dir = new File(sce.getServletContext().getRealPath("/")).getParentFile();
 		try {
-			FloraOnDriver = new FloraOnArangoDriver("flora");
+			FloraOnDriver = new FloraOnArangoDriver("flora", dir.getAbsolutePath());
 		} catch (FloraOnException e) {
 			e.printStackTrace();
 		}

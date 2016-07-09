@@ -103,8 +103,8 @@ public final class Constants {
 		,ABSENT_BUT_REPORTED_IN_ERROR	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
 		,ERROR							// Some error occurred
 		// The following are deprecated!!
-		,RARE,COMMON,OCCURS
-		,UNCERTAIN_OCCURRENCE			// Taxon presumably exists, but it is not certain if the taxon occurs or not, because of taxonomic problems
+		//,RARE,COMMON,OCCURS
+		//,UNCERTAIN_OCCURRENCE			// Taxon presumably exists, but it is not certain if the taxon occurs or not, because of taxonomic problems
 		;
 	}
 	
