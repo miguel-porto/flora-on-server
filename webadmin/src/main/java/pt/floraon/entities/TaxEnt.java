@@ -283,4 +283,21 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb=new StringBuilder();
+		sb.append("Name: ")
+			.append(name+"; ")
+			.append("Rank: ").append(rank.toString()).append("; ")
+			.append("Annot: ").append(annotation).append("; ")
+			.append("Sensu: ").append(sensu).append("; ")
+			.append("Author: ").append(author).append("; ")
+			.append("in: ").append(in).append("; ")
+			.append("current: ").append(current).append("; ")
+			.append("isSpeciesOrInf: ").append(isSpeciesOrInf).append("; ")
+			.append("oldId: ").append(oldId).append("; ")
+			.append("worldDistributionCompleteness: ").append(worldDistributionCompleteness).append("; ");
+		return sb.toString();
+	}
 }

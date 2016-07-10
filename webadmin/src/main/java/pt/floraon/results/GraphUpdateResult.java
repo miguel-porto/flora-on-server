@@ -8,7 +8,7 @@ import java.util.Map;
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
 import com.arangodb.entity.DocumentEntity;
-import com.arangodb.entity.EntityFactory;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -59,6 +59,7 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public JsonElement toJsonObject() {
+		Gson gson = new Gson();
 		if(this.jsonRepresentation!=null) return (new JsonParser()).parse(this.jsonRepresentation);
 		if(this.nodes==null && this.links==null && this.documentHandles==null) return GraphUpdateResult.emptyResultJson();
 		
@@ -67,8 +68,9 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 			Object tmp1;
 			this.links=new ArrayList<Map>();
 			this.nodes=new ArrayList<Map>();
+			// FIXME: there must not be use of Arango here!!
 			try {
-				Iterator<DocumentEntity<Map>> dc=dbDriver.executeDocumentQuery("FOR d IN DOCUMENT("+EntityFactory.toJsonString(this.documentHandles)+") RETURN MERGE(d,{type:PARSE_IDENTIFIER(d._id).collection})", null, null, Map.class).iterator();
+				Iterator<DocumentEntity<Map>> dc=dbDriver.executeDocumentQuery("FOR d IN DOCUMENT("+gson.toJson(this.documentHandles)+") RETURN MERGE(d,{type:PARSE_IDENTIFIER(d._id).collection})", null, null, Map.class).iterator();
 				while(dc.hasNext()) {
 					tmp=dc.next().getEntity();
 					tmp1=tmp.get("_from");
@@ -83,8 +85,8 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 				e.printStackTrace();
 			}
 			JsonObject out=new JsonObject();
-			out.add("nodes", EntityFactory.toJsonElement(this.nodes, false));
-			out.add("links", EntityFactory.toJsonElement(this.links, false));
+			out.add("nodes", gson.toJsonTree(this.nodes));
+			out.add("links", gson.toJsonTree(this.links));
 			return out;
 		}
 		return GraphUpdateResult.emptyResultJson();

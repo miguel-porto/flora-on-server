@@ -150,7 +150,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public String[] deleteNode(INodeKey id) throws FloraOnException {
 		List<String> deleted=new ArrayList<String>();
 		String tmp;
-		String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s') RETURN e"
+		String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s') RETURN e"	// FIXME: update to Arango 3.0
 			,Constants.TAXONOMICGRAPHNAME,id);
 
 		try {

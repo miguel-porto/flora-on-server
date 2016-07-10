@@ -2,6 +2,8 @@ package pt.floraon.console;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -26,8 +28,10 @@ import pt.floraon.results.SimpleTaxonResult;
 public class FloraOnShell {
     public static void main( String[] args ) throws ParseException, IOException {
     	FloraOn graph;
+    	Path currentRelativePath = Paths.get("");
+    	String path = currentRelativePath.toAbsolutePath().toString();
     	try {
-			graph=new FloraOnArangoDriver("flora");
+			graph=new FloraOnArangoDriver("flora", path);
 		} catch (FloraOnException e2) {
 			e2.printStackTrace();
 			return;

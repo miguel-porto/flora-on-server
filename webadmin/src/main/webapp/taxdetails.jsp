@@ -35,6 +35,8 @@
 	<div id="taxoninfo">
 		<div id="taxonnativestatus">
 			<h3>Native status list</h3>
+			<form class="poster" data-path="/floraon/api/territories/set">
+			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 			<table>
 				${nativeStatusTable }
 				<c:if test="${sessionScope.user!=null}">
@@ -72,6 +74,8 @@
 				</tr>
 				</c:if>
 			</table>
+			<input type="submit" value="Add / update"/>
+			</form>
 			<ul class="menu multiplesel" id="worlddistribution">
 				<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
 				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
@@ -115,8 +119,8 @@
 					<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
 					<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
 					<input type="hidden" name="id" value="${taxent.getID()}"/>
+					<input type="hidden" name="worldDistributionCompleteness" value="${taxent.getWorldDistributionCompleteness()}"/>
 					<input type="hidden" name="replace" value="1"/>
-					<!-- <input type="button" value="Update" class="actionbutton" id="updatetaxon"/>-->
 					<input type="submit" value="Update"/>
 				</form>
 			</div>

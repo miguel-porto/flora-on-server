@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -84,7 +85,7 @@ public class FloraOnServlet extends HttpServlet {
 	protected void success(JsonElement obj) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":true,\"msg\":"+obj.toString()+"}");
+		response.getWriter().println("{\"success\":true,\"msg\":"+new Gson().toJson(obj.toString())+"}");
 	}
 
 	protected void success(String obj) throws IOException {
@@ -165,7 +166,7 @@ public class FloraOnServlet extends HttpServlet {
 		if(request.getContentType()==null)
 			tmp = request.getParameter(name);
 		else if(request.getContentType().contains("multipart/formdata")) {
-			tmp = request.getPart("rank")==null ? null : IOUtils.toString(request.getPart("rank").getInputStream(), StandardCharsets.UTF_8);
+			tmp = request.getPart(name)==null ? null : IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8);
 		} else tmp = request.getParameter(name);
 		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
 	}

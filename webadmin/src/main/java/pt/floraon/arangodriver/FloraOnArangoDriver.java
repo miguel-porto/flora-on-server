@@ -4,11 +4,8 @@ import static pt.floraon.driver.Constants.*;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -131,6 +128,8 @@ public class FloraOnArangoDriver implements FloraOn {
 			else {
 				driver.setDefaultDatabase(dbname);
 				checkCollections(dbname);
+				if(!driver.getGraphList().contains(Constants.TAXONOMICGRAPHNAME))
+					createTaxonomicGraph();
 			}
 		} catch (ArangoException e) {
 			System.err.println("ERROR initializing the graph: "+e.getMessage());

@@ -35,6 +35,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this.nativeStatus=nativeStatus;
 		this.occurrenceStatus=occurrenceStatus;
 		this.uncertainOccurrenceStatus=uncertain;
+		this.abundanceLevel=abundanceLevel;
 		this._from=from;
 		this._to=to;
 	}
