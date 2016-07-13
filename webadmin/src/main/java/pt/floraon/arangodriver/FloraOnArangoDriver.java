@@ -101,8 +101,7 @@ public class FloraOnArangoDriver implements FloraOn {
 	
 	public FloraOnArangoDriver(String dbname, String basedir) throws FloraOnException {
 		File account=new File(basedir+"/arangodb_login.txt");
-		
-		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
+		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the folder "+basedir);
 		BufferedReader fr;
 		String username, pass;
 		try {
@@ -113,7 +112,6 @@ public class FloraOnArangoDriver implements FloraOn {
 		} catch (IOException e1) {
 			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
 		}
-
         ArangoConfigure configure = new ArangoConfigure();
         configure.init();
         configure.setDefaultDatabase(dbname);
@@ -136,13 +134,11 @@ public class FloraOnArangoDriver implements FloraOn {
 			e.printStackTrace();
 			throw new FloraOnException(e.getMessage());
 		}
-        
         NWD=new NodeWorkerDriver(this);
         QD=new QueryDriver(this);
         LD=new ListDriver(this);
         CSV=new CSVFileProcessor(this);
         updateVariables();
-
         //TEWrF=new TaxEntWrapperFactory();
         //NWrF=new NodeWrapperFactory();
 		//sc.setAttribute("NodeWrapperFactory", NWrF);

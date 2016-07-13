@@ -403,7 +403,6 @@ function loadTreeNode(el,callback) {
 function formPoster(ev) {
 	ev.preventDefault();
 	postAJAXForm(ev.target.getAttribute('data-path'),ev.target,function(rt) {
-		console.log(rt);
 		var rt1=JSON.parse(rt);
 		if(rt1.success) {
 			window.location.reload();

@@ -14,7 +14,11 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
-
+/**
+ * Services for the graph manager
+ * @author miguel
+ *
+ */
 public class GraphReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -69,11 +73,11 @@ public class GraphReader extends FloraOnServlet {
 			break;
 
 		case "getneighbors":
-			id=getParameterAsString("id");
-			query=getParameterAsString("q");
 			Integer depth=getParameterAsInteger("d",1);
-			
-			if(errorIfAllNull(response, id, query)) return;
+			errorIfAllNull(
+				response,
+				id = getParameterAsString("id"),
+				query = getParameterAsString("q"));
 
 			String infacets[];
 			String facets=getParameterAsString("f");

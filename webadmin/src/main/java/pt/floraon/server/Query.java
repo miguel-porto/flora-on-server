@@ -14,14 +14,21 @@ import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
 
+/**
+ * The Ylem query (all-in-one search)
+ * @author miguel
+ *
+ */
 public class Query extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		String query=request.getParameter("q");
+		String query;
 		String format=request.getParameter("fmt");
-		if(errorIfAnyNull(query)) return;
+
+		errorIfAnyNull(query = request.getParameter("q"));
+		
 		if(format==null) format="json";
 		Iterator<SimpleTaxonResult> it;
 		ResultProcessor<SimpleTaxonResult> rp;

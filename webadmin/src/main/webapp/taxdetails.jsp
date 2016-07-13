@@ -81,11 +81,6 @@
 				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
 				<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
 			</ul>
-			<form>
-				<label><input type="radio" name="worldDistributionCompleteness" value="DISTRIBUTION_COMPLETE"/>complete distribution</label>
-				<label><input type="radio" name="worldDistributionCompleteness" value="DISTRIBUTION_INCOMPLETE"/>incomplete distribution</label>
-				<label><input type="radio" name="worldDistributionCompleteness" value="NOT_KNOWN"/>not known</label>
-			</form>
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">

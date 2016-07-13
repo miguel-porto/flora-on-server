@@ -6,6 +6,7 @@ import java.util.ListIterator;
 import javax.servlet.ServletException;
 
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.INodeKey;
 
 public class NodeReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
@@ -21,6 +22,15 @@ public class NodeReader extends FloraOnServlet {
 
 		case "getallterritories":
 			success(driver.getListDriver().getAllTerritoriesGraph(null).toJsonObject());
+			break;
+			
+		case "taxoninfo":
+			INodeKey key;
+			String name;
+			errorIfAllNull(
+				key = getParameterAsKey("key")
+				, name = getParameterAsString("name"));
+			
 			break;
 		}
 	}

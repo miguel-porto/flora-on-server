@@ -3,6 +3,8 @@ package pt.floraon.driver;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gson.JsonObject;
+
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
@@ -12,11 +14,15 @@ import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.SimpleNameResult;
 
 public interface IListDriver {
+	/**
+	 * Gets the complete list of taxa in the DB
+	 * @return
+	 */
 	public List<ChecklistEntry> getCheckList();
     /**
      * Gets the territories that should be listed in the checklist
      * @return
-     * @throws ArangoException
+     * @throws FloraOnException
      */
     public Iterator<Territory> getChecklistTerritories() throws FloraOnException;
 	/**
@@ -26,7 +32,7 @@ public interface IListDriver {
 	 * @param onlyLeafNodes true to return only the terminal nodes.
 	 * @return An Iterator of any class that extends SimpleNameResult
 	 * @territory The territory to filter taxa, or null if no filter is wanted.
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 */
     public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException;
 	/**
@@ -54,4 +60,17 @@ public interface IListDriver {
 	 * @return
 	 */
 	public GraphUpdateResult getAllCharacters();
+
+	/**
+	 * Gets information about one given taxon.
+	 * @param key
+	 * @return
+	 */
+	public JsonObject getTaxonInfo(INodeKey key);
+	/**
+	 * Gets information about one given taxon.
+	 * @param taxonName
+	 * @return
+	 */
+	public JsonObject getTaxonInfo(String taxonName);
 }

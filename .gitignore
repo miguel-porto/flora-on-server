@@ -17,3 +17,6 @@ hs_err_pid*
 
 target/
 sampledata/
+
+arangodb_login.txt
+

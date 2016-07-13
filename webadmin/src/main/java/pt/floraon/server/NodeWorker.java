@@ -170,7 +170,6 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 
 			case "taxent":
-				//public TaxEnt(String name,Integer rank,String author,String annotation,Boolean current,Integer gbifKey) throws TaxonomyException {
 				success(NWD.updateTaxEntNode(
 					getParameterAsKey("id")
 					,new TaxEnt(

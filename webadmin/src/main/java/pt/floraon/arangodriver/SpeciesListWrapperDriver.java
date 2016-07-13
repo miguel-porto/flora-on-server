@@ -16,7 +16,7 @@ public class SpeciesListWrapperDriver extends NodeWrapperDriver implements ISpec
 
 	@Override
 	public int setObservedBy(int idaut,Boolean isMainAuthor) throws FloraOnException {
-		String query=String.format("FOR au IN author FILTER au.idAut==%2$d UPSERT {_from:'%1$s',_to:au._id} INSERT {_from:'%1$s',_to:au._id,main:%3$b} UPDATE {} IN OBSERVED_BY RETURN OLD ? 0 : 1",node.getID(),idaut,isMainAuthor);
+		String query=String.format(Messages.getString("SpeciesListWrapperDriver.0"),node.getID(),idaut,isMainAuthor); //$NON-NLS-1$
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {
@@ -27,7 +27,7 @@ public class SpeciesListWrapperDriver extends NodeWrapperDriver implements ISpec
 	@Override
 	public int setObservedBy(Author aut, Boolean isMainAuthor) throws FloraOnException {
 // TODO if it is main observer, can only be one!
-		String query=String.format("FOR au IN author FILTER au.idAut==%2$d UPSERT {_from:'%1$s',_to:au._id} INSERT {_from:'%1$s',_to:au._id,main:%3$b} UPDATE {} IN OBSERVED_BY RETURN OLD ? 0 : 1",node.getID(),aut.getIdAut(),isMainAuthor);
+		String query=String.format(Messages.getString("SpeciesListWrapperDriver.1"),node.getID(),aut.getIdAut(),isMainAuthor); //$NON-NLS-1$
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {

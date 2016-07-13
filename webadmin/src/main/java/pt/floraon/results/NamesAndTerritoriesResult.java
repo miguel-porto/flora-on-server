@@ -28,7 +28,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 	private class Status {
 		protected NativeStatus nativeStatus;
 		protected OccurrenceStatus occurrenceStatus;
-		protected Boolean possibly, uncertainOccurrenceStatus, endemic;
+		protected Boolean possibly, uncertainOccurrence, endemic;
 		protected Status(String nativeStatus, String occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic) {
 			this.nativeStatus = NativeStatus.fromString(nativeStatus.toUpperCase());
 			try {
@@ -36,7 +36,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			} catch (IllegalArgumentException e) {		// NOTE: if constant is not found, assume it is PRESENT
 				this.occurrenceStatus = OccurrenceStatus.PRESENT;
 			}
-			this.uncertainOccurrenceStatus=uncertainOccurrence;
+			this.uncertainOccurrence=uncertainOccurrence;
 			this.possibly=possibly;
 			this.endemic=endemic;
 		}
@@ -220,7 +220,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 						sb.append("<div class=\"occurrencestatus ").append(status.occurrenceStatus.toString()).append("\">").append("</div>");
 					if(status.possibly)
 						sb.append("<div class=\"occurrencestatus uncertain\"></div>");
-					if(status.uncertainOccurrenceStatus!=null && status.uncertainOccurrenceStatus)
+					if(status.uncertainOccurrence!=null && status.uncertainOccurrence)
 						sb.append("<div class=\"occurrencestatus UNCERTAIN_OCCURRENCE\"></div>");
 					sb.append("<div class=\"legend\">").append(terr).append("</div></div>");
 				} else

@@ -33,9 +33,11 @@ public class Territories extends FloraOnServlet {
 		}
 		switch(part.next()) {
 		case "set":
-			INodeKey from=getParameterAsKey("taxon");		// the taxon id
-			to=getParameterAsString("territory");
-			if(errorIfAnyNull(response, from, to)) return;
+			INodeKey from;
+			errorIfAnyNull(response,
+				from = getParameterAsKey("taxon"),		// the taxon id
+				to = getParameterAsString("territory"));
+
 			Territory terr=NWD.getTerritoryFromShortName(to);
 			NativeStatus nstatus=null;
 			driver.wrapTaxEnt(from).setNativeStatus(

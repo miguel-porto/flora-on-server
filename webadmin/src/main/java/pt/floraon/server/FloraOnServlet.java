@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -52,20 +51,18 @@ public class FloraOnServlet extends HttpServlet {
 		response.getWriter().println("{\"success\":false,\"msg\":\""+obj+"\"}");
 	}
 	
-	protected boolean errorIfAnyNull(Object... pars) throws IOException {
+	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
 		for(Object o : pars) {
-			if(o == null) {error("Missing parameter.");return true;}
+			if(o == null) throw new FloraOnException("Missing parameter.");
 		}
-		return false;
 	}
 
-	protected boolean errorIfAllNull(Object... pars) throws IOException {
+	protected void errorIfAllNull(Object... pars) throws FloraOnException {
 		Boolean resp=true;
 		for(Object o : pars) {
 			resp = resp && (o==null);
 		}
-		if(resp) {error("Missing parameter.");return true;}
-		return false;
+		if(resp) throw new FloraOnException("Missing parameter.");
 	}
 
 	protected void success(JsonElement obj,JsonObject header) throws IOException {
@@ -85,7 +82,7 @@ public class FloraOnServlet extends HttpServlet {
 	protected void success(JsonElement obj) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":true,\"msg\":"+new Gson().toJson(obj.toString())+"}");
+		response.getWriter().println("{\"success\":true,\"msg\":"+obj.toString()+"}");
 	}
 
 	protected void success(String obj) throws IOException {
@@ -161,6 +158,13 @@ public class FloraOnServlet extends HttpServlet {
 		}
 	}
 
+	/**
+	 * Gets the parameter as a String or null.
+	 * @param name
+	 * @return
+	 * @throws IOException
+	 * @throws ServletException
+	 */
 	public String getParameterAsString(String name) throws IOException, ServletException {
 		String tmp;
 		if(request.getContentType()==null)
