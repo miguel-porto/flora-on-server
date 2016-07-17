@@ -1,6 +1,9 @@
 package pt.floraon.console;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -88,8 +91,20 @@ public class FloraOnShell {
 	            	}
 	            	
 	            	if(line.startsWith("\\")) {
-            		    URL url = new URL("http://localhost:8080/floraon/"+line.substring(1));
-            		    IOUtils.copy(url.openStream(), System.out);
+	            		String[] req = line.substring(1).split("\\?");
+	            		URI uri = new URI("http",null,"localhost",8080,"/floraon/"+req[0], req.length > 1 ? req[1] : null, null);	// to escape characters
+	            		URL url = uri.toURL();
+            		    System.out.println("Fetching "+url.toString());
+            		    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            		    switch(conn.getResponseCode()) {
+            		    case 200:
+            		    	IOUtils.copy(url.openStream(), System.out);
+            		    	break;
+            		    case 500:
+            		    	System.out.println(Constants.ANSI_RED+"HTTP Error 500"+Constants.ANSI_RESET);
+            		    	IOUtils.copy(conn.getErrorStream(), System.out);
+            		    	break;
+            		    }
 	            		//server.processCommand(line.substring(1), System.out,false);
 	            	} else {
 	    				YlemParser ylem=new YlemParser(graph,line);
@@ -113,6 +128,9 @@ public class FloraOnShell {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (FloraOnException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

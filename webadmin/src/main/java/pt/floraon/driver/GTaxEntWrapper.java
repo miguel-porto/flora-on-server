@@ -7,11 +7,11 @@ import pt.floraon.entities.SYNONYM;
 import pt.floraon.entities.TaxEnt;
 
 public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEntWrapper {
-	protected INodeKey node;
+	protected INodeKey thisNode;
 	private INodeWrapper NWD;
 	public GTaxEntWrapper(FloraOn driver, INodeKey node) {
 		super(driver);
-		this.node=node;
+		this.thisNode=node;
 		NWD=(INodeWrapper) driver.wrapNode(node);
 	}
 	
@@ -23,22 +23,22 @@ public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEn
 	@Override
     public INodeKey createTaxEntChild(String name,String author,TaxonRanks rank,String sensu,String annotation,Boolean current) throws FloraOnException {
     	TaxEnt child=new TaxEnt(name, rank.getValue(), author, sensu, annotation, current, null, null);
-    	child.canBeChildOf(driver.getNodeWorkerDriver().getTaxEntById(node));
+    	child.canBeChildOf(driver.getNodeWorkerDriver().getTaxEntById(thisNode));
     	child=driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(child);
-    	driver.wrapNode(driver.asNodeKey(child.getID())).setPART_OF(node);
+    	driver.wrapNode(driver.asNodeKey(child.getID())).setPART_OF(thisNode);
     	return driver.asNodeKey(child.getID());
     }
     
     @Override
 	public void setSynonymOf(TaxEnt tev) throws FloraOnException {
-		if(node.equals(tev.getID())) throw new TaxonomyException("Cannot add a synonym of itself");
+		if(thisNode.equals(tev.getID())) throw new TaxonomyException("Cannot add a synonym of itself");
 		// FIXME
 		if(tev.getCurrent()) {
-			driver.getNodeWorkerDriver().updateDocument(node, "current", false);
+			driver.getNodeWorkerDriver().updateDocument(thisNode, "current", false);
 			//node.update(null, null, null, null, false);
 			//driver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), node.getID(), node, false);
 		}
-		driver.wrapNode(node).createRelationshipTo(driver.asNodeKey(tev.getID()), new SYNONYM());
+		driver.wrapNode(thisNode).createRelationshipTo(driver.asNodeKey(tev.getID()), new SYNONYM());
 	}
 	
 	@Override

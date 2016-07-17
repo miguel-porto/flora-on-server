@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import com.google.gson.JsonElement;
+
 /**
  * Defines a result item of a query, which can be output in different formats.
  * @author miguel
@@ -16,4 +18,5 @@ public interface ResultItem {
 	public String toHTMLTableRow(Object obj);	// optional data object needed by some implementations
 	public String toHTMLListItem();
 	public String[] toStringArray();
+	public JsonElement toJson();
 }

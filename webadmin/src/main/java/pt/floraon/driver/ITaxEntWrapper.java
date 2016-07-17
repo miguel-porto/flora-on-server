@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.arangodb.ArangoException;
 
@@ -14,6 +15,7 @@ import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.results.ListOfTerritoryStatus.Status;
 
 public interface ITaxEntWrapper {
 	public int createRelationshipTo(INodeKey parent, GeneralDBEdge edge) throws FloraOnException;
@@ -100,4 +102,10 @@ public interface ITaxEntWrapper {
 	 * @throws FloraOnException
 	 */
 	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertainOccurrenceStatus) throws FloraOnException;
+	/**
+	 * Infers the NativeStatus of this TaxEnt for all territories marked for checklist
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Map<String, Status> getInferredNativeStatus() throws FloraOnException;
 }

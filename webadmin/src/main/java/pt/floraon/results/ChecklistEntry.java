@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import com.google.gson.JsonElement;
+
 /**
  * Represents an output line in the downloaded checklist
  * @author miguel
@@ -59,6 +61,11 @@ public class ChecklistEntry implements ResultItem, Comparable<ChecklistEntry> {
 	}
 	@Override
 	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public JsonElement toJson() {
 		// TODO Auto-generated method stub
 		return null;
 	}

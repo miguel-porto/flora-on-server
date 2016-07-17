@@ -4,9 +4,15 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
-import pt.floraon.entities.TaxEnt;
+import com.google.gson.JsonElement;
 
-public class SimpleNameResult implements ResultItem,Comparable<SimpleNameResult> {
+import pt.floraon.entities.TaxEnt;
+/**
+ * Represents a TaxEnt result without further info.
+ * @author miguel
+ *
+ */
+public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntResult> {
 	protected TaxEnt taxent;
 	protected Boolean leaf=null;
 
@@ -42,7 +48,7 @@ public class SimpleNameResult implements ResultItem,Comparable<SimpleNameResult>
 
 	@Override
 	public boolean equals(Object o) {
-		return this.taxent.getID().equals(((SimpleNameResult)o).taxent.getID());
+		return this.taxent.getID().equals(((SimpleTaxEntResult)o).taxent.getID());
 	}
 
 	@Override
@@ -53,12 +59,18 @@ public class SimpleNameResult implements ResultItem,Comparable<SimpleNameResult>
 	}
 
 	@Override
-	public int compareTo(SimpleNameResult arg0) {
+	public int compareTo(SimpleTaxEntResult arg0) {
 		return this.taxent.getName().compareTo(arg0.taxent.getName());
 	}
 
 	@Override
 	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public JsonElement toJson() {
 		// TODO Auto-generated method stub
 		return null;
 	}

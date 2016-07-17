@@ -7,7 +7,11 @@ import javax.servlet.ServletException;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
-
+/**
+ * API endpoint to query node data
+ * @author miguel
+ *
+ */
 public class NodeReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -27,11 +31,22 @@ public class NodeReader extends FloraOnServlet {
 		case "taxoninfo":
 			INodeKey key;
 			String name;
+			Integer oldid;
 			errorIfAllNull(
 				key = getParameterAsKey("key")
-				, name = getParameterAsString("name"));
-			
+				, name = getParameterAsString("name")
+				, oldid = getParameterAsInteger("oldid", null)
+			);
+			if(key != null)
+				success(driver.getListDriver().getTaxonInfo(key));
+			else if(name != null)
+				success(driver.getListDriver().getTaxonInfo(name, getParameterAsBooleanNoNull("current")));
+			else
+				success(driver.getListDriver().getTaxonInfo(oldid));
 			break;
+			
+		default:
+			error("Path not found.");
 		}
 	}
 }

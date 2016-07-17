@@ -6,7 +6,7 @@ import javax.servlet.ServletException;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.results.ResultProcessor;
-import pt.floraon.results.SimpleNameResult;
+import pt.floraon.results.SimpleTaxEntResult;
 
 public class Suggestions extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
@@ -22,7 +22,7 @@ public class Suggestions extends FloraOnServlet {
 		} catch (NumberFormatException e) {
 			limit=null;
 		}
-		ResultProcessor<SimpleNameResult> rp1 = new ResultProcessor<SimpleNameResult>(driver.getQueryDriver().findSuggestions(query, limit));
+		ResultProcessor<SimpleTaxEntResult> rp1 = new ResultProcessor<SimpleTaxEntResult>(driver.getQueryDriver().findSuggestions(query, limit));
 		response.setContentType("text/html");
 		response.getWriter().println(rp1.toHTMLList("suggestions"));
 	}

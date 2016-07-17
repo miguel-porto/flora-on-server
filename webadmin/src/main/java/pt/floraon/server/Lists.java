@@ -21,9 +21,9 @@ import pt.floraon.jobs.ChecklistDownload;
 import pt.floraon.jobs.JobSubmitter;
 import pt.floraon.jobs.JobRunner;
 import pt.floraon.results.ChecklistEntry;
-import pt.floraon.results.NamesAndTerritoriesResult;
+import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.ResultProcessor;
-import pt.floraon.results.SimpleNameResult;
+import pt.floraon.results.SimpleTaxEntResult;
 public class Lists extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -55,17 +55,17 @@ public class Lists extends FloraOnServlet {
 			break;
 		
 		case "species":
-			Iterator<SimpleNameResult> species;
-			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleNameResult.class, false, territory, null, null, null);
-			rpchk=(ResultProcessor<SimpleNameResult>) new ResultProcessor<SimpleNameResult>(species);
+			Iterator<SimpleTaxEntResult> species;
+			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleTaxEntResult.class, false, territory, null, null, null);
+			rpchk=(ResultProcessor<SimpleTaxEntResult>) new ResultProcessor<SimpleTaxEntResult>(species);
 			break;
 // get the full or partial list of names and statuses in each territory
 		case "speciesterritories":
 			Integer offset=getParameterAsInteger("offset",null);
 			String filter=getParameterAsString("filter");
-			Iterator<NamesAndTerritoriesResult> speciesterr;
-			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, NamesAndTerritoriesResult.class, false, territory, filter, offset, PAGESIZE);
-			rpchk=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(speciesterr);
+			Iterator<TaxEntAndNativeStatusResult> speciesterr;
+			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, TaxEntAndNativeStatusResult.class, false, territory, filter, offset, PAGESIZE);
+			rpchk=(ResultProcessor<TaxEntAndNativeStatusResult>) new ResultProcessor<TaxEntAndNativeStatusResult>(speciesterr);
 			List<String> opt1=new ArrayList<String>();
 			for(Territory tv : driver.getChecklistTerritories())
 				opt1.add(tv.getShortName());

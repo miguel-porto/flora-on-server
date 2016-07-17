@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import com.google.gson.JsonElement;
+
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.Territory;
@@ -51,6 +53,12 @@ public class NativeStatusResult implements ResultItem {
 	@Override
 	public String getHTMLTableHeader(Object obj) {
 		return "<tr><th>Territory</th><th>Native Status</th><th>Occurrence Status</th><th>Abundance Level</th></tr>";
+	}
+
+	@Override
+	public JsonElement toJson() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

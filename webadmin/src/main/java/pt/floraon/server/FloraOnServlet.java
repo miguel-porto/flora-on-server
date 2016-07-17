@@ -46,6 +46,7 @@ public class FloraOnServlet extends HttpServlet {
 	}
 	
 	protected void error(String obj) throws IOException {
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().println("{\"success\":false,\"msg\":\""+obj+"\"}");

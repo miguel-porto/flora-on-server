@@ -11,7 +11,7 @@ import com.arangodb.ArangoException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.FloraOn;
 import pt.floraon.entities.Territory;
-import pt.floraon.results.NamesAndTerritoriesResult;
+import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.ResultProcessor;
 
 public class ChecklistDownload implements Job {
@@ -22,9 +22,9 @@ public class ChecklistDownload implements Job {
 		for(Territory tv : driver.getChecklistTerritories())
 			terr.add(tv.getShortName());
 		
-		ResultProcessor<NamesAndTerritoriesResult> rpchk1;
-		Iterator<NamesAndTerritoriesResult> chklst=driver.getListDriver().getAllSpeciesOrInferior(true, NamesAndTerritoriesResult.class, true, null, null, null, null);
-		rpchk1=(ResultProcessor<NamesAndTerritoriesResult>) new ResultProcessor<NamesAndTerritoriesResult>(chklst);
+		ResultProcessor<TaxEntAndNativeStatusResult> rpchk1;
+		Iterator<TaxEntAndNativeStatusResult> chklst=driver.getListDriver().getAllSpeciesOrInferior(true, TaxEntAndNativeStatusResult.class, true, null, null, null, null);
+		rpchk1=(ResultProcessor<TaxEntAndNativeStatusResult>) new ResultProcessor<TaxEntAndNativeStatusResult>(chklst);
 		out.print(rpchk1.toCSVTable(terr));
 		out.close();
 	}

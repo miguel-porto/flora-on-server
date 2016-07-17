@@ -34,7 +34,7 @@
 	</table>
 	<div id="taxoninfo">
 		<div id="taxonnativestatus">
-			<h3>Native status list</h3>
+			<h3>Native status assigned to this taxon</h3>
 			<form class="poster" data-path="/floraon/api/territories/set">
 			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 			<table>
@@ -74,13 +74,22 @@
 				</tr>
 				</c:if>
 			</table>
-			<input type="submit" value="Add / update"/>
+			<c:if test="${sessionScope.user!=null}"><input type="submit" value="Add / update"/></c:if>
 			</form>
 			<ul class="menu multiplesel" id="worlddistribution">
 				<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
 				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
 				<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
 			</ul>
+			<h3>Inferred Native Status</h3>
+			<table>
+				<c:forEach var="ins" items="${inferredNativeStatus}">
+					<tr>
+					<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
+					<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
+					</tr>
+				</c:forEach>
+			</table>
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">

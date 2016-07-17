@@ -3,10 +3,15 @@ package pt.floraon.arangodriver;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
 import com.arangodb.NonUniqueResultException;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
@@ -24,6 +29,10 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.OBSERVED_IN;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.results.ListOfTerritoryStatus;
+import pt.floraon.results.TerritoryStatus;
+import pt.floraon.results.ListOfTerritoryStatus.Status;
+import pt.floraon.results.TaxEntAndNativeStatusResult;
 
 /**
  * A node wrapper for TaxEnt-specific operations. A TaxEnt must be provided to work on.
@@ -44,7 +53,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	
 	@Override
 	public boolean isLeafNode() throws FloraOnException {
-		String query="RETURN LENGTH(FOR e IN PART_OF FILTER e._to=='"+node+"' RETURN e)";
+		String query=String.format(AQLQueries.getString("TaxEntWrapperDriver.0"), thisNode);
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult()==0;
 		} catch (ArangoException e) {
@@ -55,8 +64,8 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	@Override
 	public Iterator<TaxEnt> getSynonyms() throws FloraOnException {
 		String query=String.format(//"FOR u IN UNIQUE(FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'inbound',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex) RETURN u"
-			"FOR v IN 1..100 ANY '%3$s' %2$s FILTER v._id!='%3$s' RETURN DISTINCT v"
-			,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),node
+			AQLQueries.getString("TaxEntWrapperDriver.1")
+			,RelTypes.SYNONYM.toString(),thisNode
 		);
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).iterator();
@@ -68,13 +77,13 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	@Override
 	public TaxEnt getParentTaxon() throws TaxonomyException, DatabaseException {
 		String query=String.format(//"FOR n IN NEIGHBORS(%1$s,%2$s,'%3$s','outbound',{current:true},{includeData:true}) RETURN n"
-			"FOR v,e IN 1..1 OUTBOUND '%3$s' %2$s,%4$s FILTER v.current && (HAS(e,'current') && e.current) || !HAS(e,'current') RETURN v"
-			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node.toString(),RelTypes.HYBRID_OF.toString());
+			AQLQueries.getString("TaxEntWrapperDriver.2")
+			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),thisNode.toString(),RelTypes.HYBRID_OF.toString());
 		TaxEnt out;
 		try {
 			out=dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).getUniqueResult();
 		} catch (NonUniqueResultException e) {
-			throw new TaxonomyException("The taxon "+node.toString()+" has more than one current parent taxon. This must be fixed.");	// TODO: what about hybrids?
+			throw new TaxonomyException("The taxon "+thisNode.toString()+" has more than one current parent taxon. This must be fixed.");	// TODO: what about hybrids?
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
@@ -84,12 +93,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public String[] getEndemismDegree() throws FloraOnException {
-		String query=String.format(
-			"FILTER DOCUMENT('%1$s').worldDistributionCompleteness=='DISTRIBUTION_COMPLETE' "
-			+"FOR v,e IN 1..100 OUTBOUND '%1$s' ANY SYNONYM,EXISTS_IN,PART_OF "
-			+"FILTER e.nativeStatus IN [%3$s] RETURN v.name"
-			,node,RelTypes.EXISTS_IN.toString(),"'"+implode("','",NativeStatuses)+"'"
-		);
+		String query=AQLQueries.getString("TaxEntWrapperDriver.3", thisNode, RelTypes.EXISTS_IN.toString(), "'"+implode("','",NativeStatuses)+"'");
 		
 		List<String> list;
 		try {
@@ -101,6 +105,18 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		return out;
 	}
 
+	@Override
+	public Map<String,Status> getInferredNativeStatus() throws FloraOnException {
+		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString());
+		TaxEntAndNativeStatusResult list;
+		try {
+			list =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+		return list.getInferredNativeStatus();		
+	}
+
 	public List<TaxEnt> getHybridAncestry() {
 		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
@@ -108,36 +124,22 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public int setObservedIn(INodeKey slist,Short doubt,Short validated,PhenologicalStates state,String uuid,Integer weight,String pubnotes,String privnotes,NativeStatus nstate,String dateInserted) throws FloraOnException {
-		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,privnotes,nstate,dateInserted,node.toString(),slist.getID().toString());
+		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,privnotes,nstate,dateInserted,thisNode.toString(),slist.getID().toString());
 		String query=String.format(
-			"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN OBSERVED_IN RETURN OLD ? 0 : 1"
-			,node
-			,slist.getID()
-			,a.toJSONString());
-		//System.out.println(query);
+			AQLQueries.getString("TaxEntWrapperDriver.4")
+			,thisNode, slist.getID(), a.toJSONString());
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-
-		/*
-		String query=String.format("FOR v IN GRAPH_EDGES ('%1$s',{_from:'%2$s',_to:'%3$s'},{}) COLLECT WITH COUNT INTO l RETURN l",Constants.TAXONOMICGRAPHNAME,this.getID(),slist.getID());
-		Integer nrel=this.graph.driver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
-		if(nrel==0) {
-			this.graph.driver.createEdge(AllRelTypes.OBSERVED_IN.toString(), new OBSERVED_IN(doubt,state), this.getID(), slist.getID(), false, false);
-			return 1;
-		} else return 0;*/
 	}
 
 	@Override
 	public Iterator<TaxEnt> getChildren() throws FloraOnException {
-//		String query=String.format("FOR v IN NEIGHBORS(%1$s, %2$s, '%3$s', 'inbound') LET v1=DOCUMENT(v) SORT v1.name RETURN v1",NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),node);
-		String query=String.format("FOR v1 IN (FOR v,e,p IN 1..2 INBOUND '%2$s' %1$s,%3$s FILTER "
-				+ "(LENGTH(p.edges)==1 && PARSE_IDENTIFIER(p.edges[0]).collection=='PART_OF') || "
-				+ "(LENGTH(p.edges)==2 && PARSE_IDENTIFIER(p.edges[0]).collection=='PART_OF' && PARSE_IDENTIFIER(p.edges[1]).collection=='HYBRID_OF') "
-				+ "RETURN DISTINCT v) SORT v1.name RETURN v1"
-				,RelTypes.PART_OF.toString(),node,RelTypes.HYBRID_OF.toString());
+		String query=String.format(
+			AQLQueries.getString("TaxEntWrapperDriver.5")
+			,RelTypes.PART_OF.toString(),thisNode,RelTypes.HYBRID_OF.toString());
 	    try {
 			return dbDriver.executeAqlQuery(query, null, null, TaxEnt.class).iterator();
 		} catch (ArangoException e) {
@@ -150,14 +152,14 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		String query;
 		if(status == null) {	// remove the EXISTS_IN link, if it exists
 			query=String.format(
-				"FOR e IN EXISTS_IN FILTER e._from=='%1$s' && e._to=='%2$s' REMOVE e IN EXISTS_IN RETURN OLD ? 0 : 1"
-				,node.toString()
+				AQLQueries.getString("TaxEntWrapperDriver.6")
+				,thisNode.toString()
 				,territory.toString());
 		} else {				// create or update the EXISTS_IN link
-			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, abundanceLevel, uncertainOccurrenceStatus, node.toString(), territory.toString());
+			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, abundanceLevel, uncertainOccurrenceStatus, thisNode.toString(), territory.toString());
 			query=String.format(
-				"UPSERT {_from:'%1$s',_to:'%2$s'} INSERT %3$s UPDATE %3$s IN EXISTS_IN RETURN OLD ? 0 : 1"
-				,node.toString()
+				AQLQueries.getString("TaxEntWrapperDriver.7")
+				,thisNode.toString()
 				,territory.toString()
 				,eIn.toJSONString());
 		}
@@ -171,8 +173,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
-		String query=String.format("FOR v IN 1..1 INBOUND '%2$s' %1$s FILTER !v.current RETURN v"
-			,RelTypes.PART_OF.toString(),node
+		String query=String.format(
+			AQLQueries.getString("TaxEntWrapperDriver.8")
+			,RelTypes.PART_OF.toString(),thisNode
 		);
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).iterator();
@@ -180,5 +183,4 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 			throw new DatabaseException(e.getErrorMessage());
 		}
 	}
-
 }

@@ -29,6 +29,14 @@ public final class Constants {
 	public static final String ANSI_WHITE = "\u001B[37m";
 	public static final String ANSI_CYANBOLD = "\u001B[36;1m";
 	public static final String ANSI_GREENBOLD = "\u001B[32;1m";
+	public static final String ANSI_BGBLACK = "\u001B[40m";
+	public static final String ANSI_BGRED = "\u001B[41m";
+	public static final String ANSI_BGGREEN = "\u001B[42m";
+	public static final String ANSI_BGYELLOW = "\u001B[43m";
+	public static final String ANSI_BGBLUE = "\u001B[44m";
+	public static final String ANSI_BGMAGENTA = "\u001B[45m";
+	public static final String ANSI_BGCYAN = "\u001B[46m";
+	public static final String ANSI_BGWHITE = "\u001B[47m";
 	
 	public enum StringMatchTypes {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
@@ -303,13 +311,14 @@ public final class Constants {
     
     public static String implode(String separator, String... data) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < data.length - 1; i++) {
-            if (!data[i].matches(" *")) {
+        boolean any = false;
+        for (int i = 0; i < data.length; i++) {
+            if(data[i] != null && !data[i].matches(" *")) {
                 sb.append(data[i]);
-                sb.append(separator);
+                any = true;
+                if(i < data.length-1 && data[i+1] != null && !data[i+1].matches(" *")) sb.append(separator);
             }
         }
-        sb.append(data[data.length - 1].trim());
-        return sb.toString();
+    	return any ? sb.toString() : null;
     }
 }

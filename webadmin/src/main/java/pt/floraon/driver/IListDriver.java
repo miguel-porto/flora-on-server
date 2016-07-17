@@ -3,6 +3,7 @@ package pt.floraon.driver;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants.TaxonRanks;
@@ -11,7 +12,7 @@ import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.results.SimpleNameResult;
+import pt.floraon.results.SimpleTaxEntResult;
 
 public interface IListDriver {
 	/**
@@ -34,7 +35,7 @@ public interface IListDriver {
 	 * @territory The territory to filter taxa, or null if no filter is wanted.
 	 * @throws FloraOnException
 	 */
-    public <T extends SimpleNameResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException;
+    public <T extends SimpleTaxEntResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException;
 	/**
 	 * Gets all the taxent nodes of the given rank
 	 * @param rank
@@ -65,12 +66,21 @@ public interface IListDriver {
 	 * Gets information about one given taxon.
 	 * @param key
 	 * @return
+	 * @throws FloraOnException 
 	 */
-	public JsonObject getTaxonInfo(INodeKey key);
+	public JsonObject getTaxonInfo(INodeKey key) throws FloraOnException;
 	/**
 	 * Gets information about one given taxon.
 	 * @param taxonName
 	 * @return
+	 * @throws FloraOnException 
 	 */
-	public JsonObject getTaxonInfo(String taxonName);
+	public JsonElement getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException;
+	/**
+	 * Gets information about one given taxon.
+	 * @param oldId
+	 * @return
+	 * @throws FloraOnException
+	 */
+	public JsonObject getTaxonInfo(int oldId) throws FloraOnException;
 }

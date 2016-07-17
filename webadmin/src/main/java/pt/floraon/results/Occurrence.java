@@ -6,6 +6,8 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.jsoup.Jsoup;
 
+import com.google.gson.JsonElement;
+
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
@@ -21,13 +23,6 @@ import pt.floraon.entities.SpeciesList;
 public class Occurrence implements ResultItem {
 	protected OBSERVED_IN observation;
 	protected SpeciesList speciesList;
-	/*protected String uuid,publicComment,privateComment,dateInserted;// from OBSERVED_IN
-	protected Short confidence,validated,nativeStatus,phenoState;	// from OBSERVED_IN
-	protected Integer weight;										// from OBSERVED_IN*/
-/*	protected Float[] location={null,null};							// from SpeciesList
-	protected Integer year,month,day,precision;						// from SpeciesList
-	protected String pubNotes,privNotes,habitat;					// from SpeciesList*/
-
 	protected String name,inventoryKey;
 	protected Integer idEnt;
 	protected String[] observers;	// this first of the array is the main observer
@@ -168,6 +163,11 @@ public class Occurrence implements ResultItem {
 	}
 	@Override
 	public String getHTMLTableHeader(Object obj) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public JsonElement toJson() {
 		// TODO Auto-generated method stub
 		return null;
 	}

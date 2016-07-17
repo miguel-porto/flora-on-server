@@ -26,7 +26,7 @@ import pt.floraon.entities.TaxEnt;
  * @author Miguel Porto
  *
  */
-public class SimpleTaxonResult extends SimpleNameResult implements ResultItem {
+public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem {
 	protected TaxEnt[] match;
 	protected String[] reltypes;
 	protected Integer count;	// number of occurrences

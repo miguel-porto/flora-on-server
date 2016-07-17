@@ -44,6 +44,52 @@ public class FloraOnArangoDriver implements FloraOn {
 	private CSVFileProcessor CSV;
 	private List<Territory> checklistTerritories;
 	
+	public FloraOnArangoDriver(String dbname, String basedir) throws FloraOnException {
+		File account=new File(basedir+"/arangodb_login.txt");
+		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the folder "+basedir);
+		BufferedReader fr;
+		String username, pass;
+		try {
+			fr = new BufferedReader(new FileReader(account));
+			username=fr.readLine();
+			pass=fr.readLine();
+			fr.close();
+		} catch (IOException e1) {
+			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
+		}
+        ArangoConfigure configure = new ArangoConfigure();
+        configure.init();
+        configure.setDefaultDatabase(dbname);
+        configure.setUser(username);
+        configure.setPassword(pass);
+        driver = new ArangoDriver(configure);
+
+        try {
+			StringsResultEntity dbs=driver.getDatabases();
+			if(!dbs.getResult().contains(dbname))
+				initializeNewGraph(dbname);
+			else {
+				driver.setDefaultDatabase(dbname);
+				checkCollections(dbname);
+				if(!driver.getGraphList().contains(Constants.TAXONOMICGRAPHNAME))
+					createTaxonomicGraph();
+			}
+		} catch (ArangoException e) {
+			System.err.println("ERROR initializing the graph: "+e.getMessage());
+			e.printStackTrace();
+			throw new FloraOnException(e.getMessage());
+		}
+        NWD=new NodeWorkerDriver(this);
+        QD=new QueryDriver(this);
+        LD=new ListDriver(this);
+        CSV=new CSVFileProcessor(this);
+        updateVariables();
+        //TEWrF=new TaxEntWrapperFactory();
+        //NWrF=new NodeWrapperFactory();
+		//sc.setAttribute("NodeWrapperFactory", NWrF);
+		//sc.setAttribute("TaxEntWrapperFactory", TEWrF);
+	}
+
 	@Override
 	public Object getArangoDriver() {
 		return driver;
@@ -99,51 +145,6 @@ public class FloraOnArangoDriver implements FloraOn {
 		return id==null ? null : new ArangoKey(id);
 	}
 	
-	public FloraOnArangoDriver(String dbname, String basedir) throws FloraOnException {
-		File account=new File(basedir+"/arangodb_login.txt");
-		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the folder "+basedir);
-		BufferedReader fr;
-		String username, pass;
-		try {
-			fr = new BufferedReader(new FileReader(account));
-			username=fr.readLine();
-			pass=fr.readLine();
-			fr.close();
-		} catch (IOException e1) {
-			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
-		}
-        ArangoConfigure configure = new ArangoConfigure();
-        configure.init();
-        configure.setDefaultDatabase(dbname);
-        configure.setUser(username);
-        configure.setPassword(pass);
-        driver = new ArangoDriver(configure);
-
-        try {
-			StringsResultEntity dbs=driver.getDatabases();
-			if(!dbs.getResult().contains(dbname))
-				initializeNewGraph(dbname);
-			else {
-				driver.setDefaultDatabase(dbname);
-				checkCollections(dbname);
-				if(!driver.getGraphList().contains(Constants.TAXONOMICGRAPHNAME))
-					createTaxonomicGraph();
-			}
-		} catch (ArangoException e) {
-			System.err.println("ERROR initializing the graph: "+e.getMessage());
-			e.printStackTrace();
-			throw new FloraOnException(e.getMessage());
-		}
-        NWD=new NodeWorkerDriver(this);
-        QD=new QueryDriver(this);
-        LD=new ListDriver(this);
-        CSV=new CSVFileProcessor(this);
-        updateVariables();
-        //TEWrF=new TaxEntWrapperFactory();
-        //NWrF=new NodeWrapperFactory();
-		//sc.setAttribute("NodeWrapperFactory", NWrF);
-		//sc.setAttribute("TaxEntWrapperFactory", TEWrF);
-	}
 	/*
 	public FloraOnDriver(String dbname) throws ArangoException {
         ArangoConfigure configure = new ArangoConfigure();
@@ -210,6 +211,7 @@ public class FloraOnArangoDriver implements FloraOn {
 		driver.createHashIndex("taxent", false, true, "rank");
 		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
 		driver.createHashIndex("territory", true, "shortName");
+		driver.createHashIndex("taxent", false, true, "name");
 		driver.createFulltextIndex("taxent", "name");
 	}
 	

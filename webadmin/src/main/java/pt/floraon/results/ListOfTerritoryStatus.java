@@ -1,9 +1,5 @@
 package pt.floraon.results;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,25 +7,42 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-
-import org.apache.commons.csv.CSVPrinter;
+import java.util.Map.Entry;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.Native_Exotic;
 import pt.floraon.driver.Constants.OccurrenceStatus;
-import pt.floraon.driver.Constants.WorldDistributionCompleteness;
 
-public class NamesAndTerritoriesResult extends SimpleNameResult implements ResultItem {
-	protected List<TerritoryStatus> territories;
-	 
-	private class Status {
+public class ListOfTerritoryStatus {
+	protected List<TerritoryStatus> territoryStatusList;
+	
+	public ListOfTerritoryStatus(List<TerritoryStatus> list) {
+		this.territoryStatusList = list;
+	}
+	
+	public class Status {
 		protected NativeStatus nativeStatus;
 		protected OccurrenceStatus occurrenceStatus;
-		protected Boolean possibly, uncertainOccurrence, endemic;
-		protected Status(String nativeStatus, String occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic) {
+		/**
+		 * Status is assigned to a parent taxon. Should be read: it is not certain that it is this [sub-]taxon that exists in this territory,
+		 * but if it exists, then it is with this nativeStatus.
+		 */
+		protected Boolean possibly;
+		/**
+		 * Whether this taxon has been identified with certainty or not
+		 */
+		protected Boolean uncertainOccurrence;
+		/**
+		 * Wheter it is endemic in this territory (this can be inferred from the endemism in sub-territories)
+		 */
+		protected Boolean endemic;
+		/**
+		 * The long name of the territory this Status pertains to
+		 */
+		protected String territoryName;
+		protected Status(String nativeStatus, String occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic, String name) {
 			this.nativeStatus = NativeStatus.fromString(nativeStatus.toUpperCase());
 			try {
 				this.occurrenceStatus = occurrenceStatus==null ? null : OccurrenceStatus.valueOf(occurrenceStatus.toUpperCase());
@@ -39,14 +52,53 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			this.uncertainOccurrence=uncertainOccurrence;
 			this.possibly=possibly;
 			this.endemic=endemic;
+			this.territoryName = name;
+		}
+		
+		public NativeStatus getNativeStatus() {
+			return this.nativeStatus;
+		}
+
+		public OccurrenceStatus getOccurrenceStatus() {
+			return this.occurrenceStatus;
+		}
+		
+		public boolean getPossibly() {
+			return this.possibly;
+		}
+
+		public boolean getUncertainOccurrence() {
+			return this.uncertainOccurrence;
+		}
+
+		public boolean getIsEndemic() {
+			return this.endemic;
+		}
+
+		public String getTerritoryName() {
+			return this.territoryName;
+		}
+		
+		public String getVerbatimNativeStatus() {
+			StringBuilder sb = new StringBuilder();
+			String tmp1=null, tmp2=null;
+			if(this.endemic && this.nativeStatus.isNativeOrExotic() == Native_Exotic.NATIVE)
+				sb.append("ENDEMIC");
+			else
+				sb.append(this.nativeStatus.toString());
+			if(this.possibly != null && this.possibly) tmp1="if it exists";
+			if(this.uncertainOccurrence != null && this.uncertainOccurrence) tmp2="uncertain";
+			tmp1 = Constants.implode(", ", tmp1, tmp2);
+			if(tmp1 != null) sb.append(" (").append(tmp1).append(")");
+			return sb.toString();
 		}
 	}
+
 	/**
 	 * Computes the status of this taxon in each territory, by summarizing all the branches that connect the taxon with the territory
 	 * @return
 	 */
-	private Map<String,Status> computeTerritoryStatus() {
-		boolean isEndemic=(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
+	public Map<String,Status> computeTerritoryStatus(boolean isEndemic) {
 		// if isEndemic is true, then the taxon is endemic to all territories in which it is native (so, the "native" means "endemic")
 		Map<String,Status> out=new HashMap<String,Status>();
 		Map<String,List<TerritoryStatus>> ts=new HashMap<String,List<TerritoryStatus>>();
@@ -58,10 +110,11 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		
 		Integer minEndemicTaxLen=null;
 		if(isEndemic) {		// compile the endemic relations per taxonomic depth level
-			it=territories.iterator();
+			it=this.territoryStatusList.iterator();
 			while(it.hasNext()) {
 				tmp=it.next();
-				if(natives.contains(NativeStatus.fromString(tmp.nativeStatus))) {
+				if(NativeStatus.fromString(tmp.nativeStatus).isNativeOrExotic() == Native_Exotic.NATIVE) {
+				//if(natives.contains(NativeStatus.fromString(tmp.nativeStatus))) {
 				//if(tmp.nativeStatus.equals(NativeStatus.NATIVE.toString())) {
 					if(minEndemicTaxLen==null || minEndemicTaxLen>tmp.taxpathlen) minEndemicTaxLen=tmp.taxpathlen;
 					if(!endemics.containsKey(tmp.taxpathlen))
@@ -71,7 +124,7 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 			}
 		}
 		// compile, for each unique territory, all the status that lead to it, for this taxon.
-		it=territories.iterator();
+		it=this.territoryStatusList.iterator();
 		while(it.hasNext()) {
 			tmp=it.next();
 			if(!ts.containsKey(tmp.territory))
@@ -94,10 +147,9 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 				tmp2=it.next();
 				//if(isEndemic && tmp2.nativeStatus.equals(NativeStatus.NATIVE.toString()) && tmp2.taxpathlen==minEndemicTaxLen) nend++;
 				if(isEndemic && NativeStatus.fromString(tmp2.nativeStatus).isNativeOrExotic() == Native_Exotic.NATIVE && tmp2.taxpathlen==minEndemicTaxLen) nend++;
-				certain|=(tmp2.taxpathlen==0); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
+				certain |= (tmp2.taxpathlen==0); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
 			}
 // TODO: when is endemic from a territory, what should we do with sub-territories? for example juniperus navicularis
-			//dsf
 			//System.out.println(tmp1.size()+" - "+endemics.size());
 			if(nend>0 && nend==endemics.get(minEndemicTaxLen).size()) {		// if all endemic relations lead to this territory, then it is endemic, no matter the status in any other territory
 				Set<String> oss=new HashSet<String>();
@@ -106,9 +158,14 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 					tmp2=it1.next();
 					if(tmp2.taxpathlen==minEndemicTaxLen && tmp2.nativeStatus.equals(NativeStatus.NATIVE.toString())) oss.add(tmp2.occurrenceStatus);
 				}				
-				out.put(e.getKey(), new Status(NativeStatus.NATIVE.toString()
-					, oss.size()==1 ? oss.iterator().next() : OccurrenceStatus.PRESENT.toString(), false, !certain, true)	// if the endemism is of one child only, then the occurrence status remains the same, otherwise it is undetermined
-					);
+				out.put(e.getKey(), new Status(
+					NativeStatus.NATIVE.toString(),
+					oss.size()==1 ? oss.iterator().next() : OccurrenceStatus.PRESENT.toString(),
+					false,
+					!certain,
+					true,
+					e.getValue().get(0).territoryName)	// if the endemism is of one child only, then the occurrence status remains the same, otherwise it is undetermined
+				);
 			} else {	// not endemic, or endemic also from other territory that is not child of this one - that is to say, any endemic status actually means native.
 				TerritoryStatus thisStatus=null;
 				it1=tStatusList.iterator();
@@ -121,8 +178,6 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 				// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
 				while(it1.hasNext()) {
 					tmp2=it1.next();
-/*					if(tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString()))
-						tmp2.nativeStatus=NativeStatus.NATIVE.toString();	// we know that this taxon is not endemic (see above), so we directly change endemic to native*/
 					if(thisStatus==null) thisStatus=tmp2; else {
 						better=thisStatus.compareTo(tmp2);
 						if(better<0)	// tmp2 is better, replace status!
@@ -133,7 +188,14 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 						}
 					}
 				}
-				out.put(e.getKey(), new Status(thisStatus.nativeStatus.toString(), thisStatus.occurrenceStatus, thisStatus.uncertainOccurrence, thisStatus.taxpathlen>0, false ));
+				out.put(e.getKey(), new Status(
+					thisStatus.nativeStatus.toString(), 
+					thisStatus.occurrenceStatus,
+					thisStatus.uncertainOccurrence,
+					thisStatus.taxpathlen>0,
+					false,
+					e.getValue().get(0).territoryName )
+				);
 				/*
 				// search for a not inferred relation
 				anyNotInferred=false;
@@ -189,81 +251,4 @@ public class NamesAndTerritoriesResult extends SimpleNameResult implements Resul
 		
 		return out;
 	}
-	
-	@Override
-	public String toHTMLTableRow(Object obj) {
-		Map<String,Status> tStatus=computeTerritoryStatus();
-		Status status;
-		@SuppressWarnings("unchecked")
-		List<String> allTerritories=(List<String>) obj;
-		StringBuilder sb=new StringBuilder();
-		try {
-			sb.append("<tr data-key=\"").append(this.taxent.getID()).append("\"")
-				.append(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))
-				.append("><td><a href=\"/floraon/admin?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
-				.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
-				.append(this.taxent.getNameWithAnnotationOnly())
-				.append("</i></a></td><td>")
-				.append(this.taxent.getAuthor())
-				.append("</td><td>");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if(this.territories!=null) {
-			for(String terr : allTerritories) {
-				if(tStatus.containsKey(terr)) {
-					status=tStatus.get(terr);
-					sb.append("<div class=\"territory ").append(status.endemic ? "ENDEMIC" : status.nativeStatus.toString()).append("\">");
-					if(status.occurrenceStatus!=null)
-						sb.append("<div class=\"occurrencestatus ").append(status.occurrenceStatus.toString()).append("\">").append("</div>");
-					if(status.possibly)
-						sb.append("<div class=\"occurrencestatus uncertain\"></div>");
-					if(status.uncertainOccurrence!=null && status.uncertainOccurrence)
-						sb.append("<div class=\"occurrencestatus UNCERTAIN_OCCURRENCE\"></div>");
-					sb.append("<div class=\"legend\">").append(terr).append("</div></div>");
-				} else
-					sb.append("<div class=\"territory\"><div class=\"legend\">").append(terr).append("</div></div>");
-			}
-		}
-		sb.append("</td></tr>");
-		return sb.toString();
-	}
-	
-	@Override
-	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
-		Map<String,Status> tStatus=computeTerritoryStatus();
-		Status tmp;
-		@SuppressWarnings("unchecked")
-		List<String> allTerritories=(List<String>) obj;
-		rec.print(this.taxent.getID());
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotationOnly());
-		rec.print(this.taxent.getAuthor());
-		if(this.territories==null) return;
-
-		for(String t : allTerritories) {
-			if(tStatus.containsKey(t)) {
-				tmp=tStatus.get(t);
-				if(tmp.occurrenceStatus!=null && tmp.occurrenceStatus!=OccurrenceStatus.PRESENT)
-					rec.print((tmp.possibly ? "?" : "")+tmp.nativeStatus.toString()+" ("+tmp.occurrenceStatus.toString()+")");
-				else rec.print((tmp.possibly ? "?" : "")+tmp.nativeStatus.toString());
-			} else
-				rec.print("");
-		}
-	}
-
-	@Override
-	public void getCSVHeader(CSVPrinter rec, Object obj) throws IOException {
-		@SuppressWarnings("unchecked")
-		List<String> territories=(List<String>) obj;
-		rec.print("id");
-		rec.print("canonicalName");
-		rec.print("authority");
-		for(String t : territories) {
-			rec.print(t);
-		}
-		rec.println();
-	}
-
 }

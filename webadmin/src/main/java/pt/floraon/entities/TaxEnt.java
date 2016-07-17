@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.driver.TaxonomyException;
@@ -22,8 +24,11 @@ import pt.floraon.results.ResultItem;
 public class TaxEnt extends GeneralDBNode implements ResultItem {
 	protected String name;
 	protected Integer rank;
+	/**
+	 * Some character that distinguishes these populations from the parent taxon
+	 */
 	protected String annotation;
-	protected String sensu;
+	protected String sensu;		// TODO: this should come from a reference list
 	protected String author;
 	protected String in;
 	protected Boolean current;
@@ -299,5 +304,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 			.append("oldId: ").append(oldId).append("; ")
 			.append("worldDistributionCompleteness: ").append(worldDistributionCompleteness).append("; ");
 		return sb.toString();
+	}
+
+	@Override
+	public JsonElement toJson() {
+		return new Gson().toJsonTree(this);
 	}
 }

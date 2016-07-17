@@ -24,6 +24,8 @@ public class Startup implements ServletContextListener {
 			FloraOnDriver = new FloraOnArangoDriver("flora", dir.getAbsolutePath());
 		} catch (FloraOnException e) {
 			e.printStackTrace();
+			System.err.println("ERROR: "+e.getMessage());
+			return;
 		}
 		sce.getServletContext().setAttribute("driver", FloraOnDriver);
 	}

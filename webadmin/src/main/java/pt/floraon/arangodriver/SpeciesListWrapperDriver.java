@@ -16,7 +16,7 @@ public class SpeciesListWrapperDriver extends NodeWrapperDriver implements ISpec
 
 	@Override
 	public int setObservedBy(int idaut,Boolean isMainAuthor) throws FloraOnException {
-		String query=String.format(Messages.getString("SpeciesListWrapperDriver.0"),node.getID(),idaut,isMainAuthor); //$NON-NLS-1$
+		String query=String.format(AQLQueries.getString("SpeciesListWrapperDriver.0"),node.getID(),idaut,isMainAuthor); //$NON-NLS-1$
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {
@@ -27,7 +27,7 @@ public class SpeciesListWrapperDriver extends NodeWrapperDriver implements ISpec
 	@Override
 	public int setObservedBy(Author aut, Boolean isMainAuthor) throws FloraOnException {
 // TODO if it is main observer, can only be one!
-		String query=String.format(Messages.getString("SpeciesListWrapperDriver.1"),node.getID(),aut.getIdAut(),isMainAuthor); //$NON-NLS-1$
+		String query=String.format(AQLQueries.getString("SpeciesListWrapperDriver.1"),node.getID(),aut.getIdAut(),isMainAuthor); //$NON-NLS-1$
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {

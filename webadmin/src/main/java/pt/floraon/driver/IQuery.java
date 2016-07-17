@@ -11,7 +11,7 @@ import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
-import pt.floraon.results.SimpleNameResult;
+import pt.floraon.results.SimpleTaxEntResult;
 import pt.floraon.results.SimpleTaxonResult;
 
 /**
@@ -82,7 +82,7 @@ public interface IQuery {
      * @return
      * @throws ArangoException
      */
-	public Iterator<SimpleNameResult> findSuggestions(String query, Integer limit) throws FloraOnException;
+	public Iterator<SimpleTaxEntResult> findSuggestions(String query, Integer limit) throws FloraOnException;
 	/**
 	 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
 	 * Note that this only returns the TaxEnt nodes which are direct neighbors of the species list, independently of their taxonomic rank.

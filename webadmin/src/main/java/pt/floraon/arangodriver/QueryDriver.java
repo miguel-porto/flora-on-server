@@ -21,7 +21,7 @@ import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
-import pt.floraon.results.SimpleNameResult;
+import pt.floraon.results.SimpleTaxEntResult;
 import pt.floraon.results.SimpleTaxonResult;
 
 public class QueryDriver extends GQuery implements IQuery {
@@ -290,12 +290,12 @@ FOR final IN FLATTEN(FOR v IN base
     }
 
 	@Override
-    public Iterator<SimpleNameResult> findSuggestions(String query, Integer limit) throws FloraOnException {
+    public Iterator<SimpleTaxEntResult> findSuggestions(String query, Integer limit) throws FloraOnException {
     	String limitQ;
     	if(limit!=null) limitQ=" LIMIT "+limit; else limitQ="";
     	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank DESC"+limitQ+" RETURN {taxent:v}",query);
     	try {
-			return dbDriver.executeAqlQuery(_query, null, null, SimpleNameResult.class).iterator();
+			return dbDriver.executeAqlQuery(_query, null, null, SimpleTaxEntResult.class).iterator();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
