@@ -3,7 +3,6 @@ package pt.floraon.server;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 
@@ -13,7 +12,6 @@ import pt.floraon.driver.INodeKey;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.results.NativeStatusResult;
 import pt.floraon.results.ResultProcessor;
-import pt.floraon.results.ListOfTerritoryStatus.Status;
 
 public class TaxDetails extends FloraOnServlet {
 
@@ -32,7 +30,7 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("taxent", taxent);
 		request.setAttribute("taxentWrapper", driver.wrapTaxEnt(driver.asNodeKey(taxent.getID())));
 		request.setAttribute("nativeStatusTable", baos.toString());
-		request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus().entrySet());
+		request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus(null).entrySet());
 		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
 		request.setAttribute("occurrenceStatus", Constants.OccurrenceStatus.values());

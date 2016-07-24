@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.csv.CSVPrinter;
@@ -13,24 +15,32 @@ import org.apache.commons.csv.CSVPrinter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.WorldDistributionCompleteness;
-import pt.floraon.results.ListOfTerritoryStatus.Status;
+import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
-/**
- * A TaxEnt result with endemismDegree and NativeStatus in all territories marked for checklist.
- * @author miguel
- *
- */
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
 	protected List<TerritoryStatus> territories;
-	protected List<String> endemismDegree;
+
+	public Map<String,InferredStatus> getInferredNativeStatus(String territory) {
+		if(territory == null)
+			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
+		else
+			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
+	}
+	
+	public Set<String> getEndemismDegree() {
+		if(this.taxent.getWorldDistributionCompleteness() != Constants.WorldDistributionCompleteness.DISTRIBUTION_COMPLETE) return Collections.emptySet();
+		return new ListOfTerritoryStatus(territories).computeEndemismDegreeName();
+	}
 	
 	@Override
 	public String toHTMLTableRow(Object obj) {
 		if(this.taxent == null) return null;
-		Map<String,Status> tStatus = new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
-		Status status;
+		
+		Map<String,InferredStatus> tStatus = this.getInferredNativeStatus(null);
+		InferredStatus status;
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
 		StringBuilder sb=new StringBuilder();
@@ -67,15 +77,15 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		sb.append("</td></tr>");
 		return sb.toString();
 	}
-	
+
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		if(this.taxent == null) {
 			rec.print("");
 			return;
 		}
-		Map<String,Status> tStatus = new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
-		Status tmp;
+		Map<String,InferredStatus> tStatus = this.getInferredNativeStatus(null);
+		InferredStatus tmp;
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
 		rec.print(this.taxent.getID());
@@ -112,20 +122,17 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		JsonObject out = new JsonObject();
 		if(this.taxent == null) return out;
 		Gson gson = new Gson();
-		Map<String,Status> tStatus = new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
+		Map<String,InferredStatus> tStatus = this.getInferredNativeStatus(null);
 		out.add("taxon", gson.toJsonTree(this.taxent));
-		out.add("endemismDegree", gson.toJsonTree(this.endemismDegree));
+		out.add("endemismDegree", gson.toJsonTree(this.getEndemismDegree()));
 		JsonObject tst = new JsonObject();
 		if(this.territories!=null) {
-			for(Entry<String, Status> st : tStatus.entrySet()) {
+			for(Entry<String, InferredStatus> st : tStatus.entrySet()) {
 				tst.add(st.getKey(), gson.toJsonTree(st.getValue()));
 			}
 		}
 		out.add("territories", tst);
 		return out;
 	}
-	
-	public Map<String,Status> getInferredNativeStatus() {
-		return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
-	}
+
 }

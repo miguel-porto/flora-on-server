@@ -46,7 +46,7 @@ public class FloraOnArangoDriver implements FloraOn {
 	
 	public FloraOnArangoDriver(String dbname, String basedir) throws FloraOnException {
 		File account=new File(basedir+"/arangodb_login.txt");
-		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the folder "+basedir);
+		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in a file named arangodb_login.txt located in the folder "+basedir);
 		BufferedReader fr;
 		String username, pass;
 		try {
@@ -55,27 +55,25 @@ public class FloraOnArangoDriver implements FloraOn {
 			pass=fr.readLine();
 			fr.close();
 		} catch (IOException e1) {
-			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in the root folder of the webapps.");
+			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in a file named arangodb_login.txt locate in the root folder of the webapps.");
 		}
         ArangoConfigure configure = new ArangoConfigure();
         configure.init();
         configure.setDefaultDatabase(dbname);
         configure.setUser(username);
         configure.setPassword(pass);
-        driver = new ArangoDriver(configure);
+        driver = new ArangoDriver(configure, dbname);
 
         try {
-			StringsResultEntity dbs=driver.getDatabases();
+			StringsResultEntity dbs=driver.getDatabases(username, pass);
 			if(!dbs.getResult().contains(dbname))
 				initializeNewGraph(dbname);
 			else {
-				driver.setDefaultDatabase(dbname);
 				checkCollections(dbname);
 				if(!driver.getGraphList().contains(Constants.TAXONOMICGRAPHNAME))
 					createTaxonomicGraph();
 			}
 		} catch (ArangoException e) {
-			System.err.println("ERROR initializing the graph: "+e.getMessage());
 			e.printStackTrace();
 			throw new FloraOnException(e.getMessage());
 		}
@@ -220,6 +218,7 @@ public class FloraOnArangoDriver implements FloraOn {
 		
 		// create a collection for each nodetype
 		for(NodeTypes nt:NodeTypes.values()) {
+			//if(driver.getCollection(nt.toString()).getCount() == 0) {
 			if(!collections.containsKey(nt.toString())) {
 				System.out.println("Creating collection: "+nt.toString());
 				driver.createCollection(nt.toString());
@@ -229,6 +228,7 @@ public class FloraOnArangoDriver implements FloraOn {
 		CollectionOptions co=new CollectionOptions();
 		co.setType(CollectionType.EDGE);
 		for(RelTypes nt:RelTypes.values()) {
+			//if(driver.getCollection(nt.toString()).getCount() == 0) {
 			if(!collections.containsKey(nt.toString())) {
 				System.out.println("Creating collection: "+nt.toString());
 				driver.createCollection(nt.toString(),co);

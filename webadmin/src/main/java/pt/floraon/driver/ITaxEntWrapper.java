@@ -15,7 +15,7 @@ import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
-import pt.floraon.results.ListOfTerritoryStatus.Status;
+import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public interface ITaxEntWrapper {
 	public int createRelationshipTo(INodeKey parent, GeneralDBEdge edge) throws FloraOnException;
@@ -107,5 +107,5 @@ public interface ITaxEntWrapper {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	Map<String, Status> getInferredNativeStatus() throws FloraOnException;
+	Map<String, InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException;
 }

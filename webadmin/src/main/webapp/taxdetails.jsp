@@ -38,7 +38,7 @@
 			<form class="poster" data-path="/floraon/api/territories/set">
 			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 			<table>
-				${nativeStatusTable }
+				${nativeStatusTable}
 				<c:if test="${sessionScope.user!=null}">
 				<tr>
 					<td>

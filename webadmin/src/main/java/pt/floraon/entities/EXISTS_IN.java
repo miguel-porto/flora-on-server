@@ -43,6 +43,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 	public NativeStatus getNativeStatus() {
 		return this.nativeStatus==null ? NativeStatus.ERROR : this.nativeStatus;
 	}
+	
+	public void setNativeStatus(NativeStatus ns) {
+		this.nativeStatus = ns;
+	}
 
 	public AbundanceLevel getAbundanceLevel() {
 		return this.abundanceLevel==null ? AbundanceLevel.NOT_SPECIFIED : this.abundanceLevel;
@@ -54,6 +58,10 @@ public class EXISTS_IN extends GeneralDBEdge {
 			|| this.occurrenceStatus == OccurrenceStatus.OCCURS
 			|| this.occurrenceStatus == OccurrenceStatus.UNCERTAIN_OCCURRENCE) return OccurrenceStatus.ERROR;*/
 		return this.occurrenceStatus==null ? OccurrenceStatus.PRESENT : this.occurrenceStatus;	// assume it is present, if no information is given, or if an error has occurred (value not found in enum)
+	}
+	
+	public void setOccurrenceStatus(OccurrenceStatus os) {
+		this.occurrenceStatus = os;
 	}
 	
 	/**

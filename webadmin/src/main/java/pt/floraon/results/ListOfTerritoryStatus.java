@@ -1,19 +1,19 @@
 package pt.floraon.results;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.Native_Exotic;
 import pt.floraon.driver.Constants.OccurrenceStatus;
+import pt.floraon.entities.Territory;
 
 public class ListOfTerritoryStatus {
 	protected List<TerritoryStatus> territoryStatusList;
@@ -21,8 +21,8 @@ public class ListOfTerritoryStatus {
 	public ListOfTerritoryStatus(List<TerritoryStatus> list) {
 		this.territoryStatusList = list;
 	}
-	
-	public class Status {
+
+	public class InferredStatus {
 		protected NativeStatus nativeStatus;
 		protected OccurrenceStatus occurrenceStatus;
 		/**
@@ -42,10 +42,10 @@ public class ListOfTerritoryStatus {
 		 * The long name of the territory this Status pertains to
 		 */
 		protected String territoryName;
-		protected Status(String nativeStatus, String occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic, String name) {
-			this.nativeStatus = NativeStatus.fromString(nativeStatus.toUpperCase());
+		protected InferredStatus(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic, String name) {
+			this.nativeStatus = nativeStatus;
 			try {
-				this.occurrenceStatus = occurrenceStatus==null ? null : OccurrenceStatus.valueOf(occurrenceStatus.toUpperCase());
+				this.occurrenceStatus = occurrenceStatus==null ? null : occurrenceStatus;
 			} catch (IllegalArgumentException e) {		// NOTE: if constant is not found, assume it is PRESENT
 				this.occurrenceStatus = OccurrenceStatus.PRESENT;
 			}
@@ -53,6 +53,20 @@ public class ListOfTerritoryStatus {
 			this.possibly=possibly;
 			this.endemic=endemic;
 			this.territoryName = name;
+		}
+		
+		public InferredStatus(TerritoryStatus ts, Boolean endemic) {
+			this.nativeStatus = ts.existsIn.getNativeStatus();
+			try {
+				this.occurrenceStatus = ts.existsIn.getOccurrenceStatus() == null ? null : ts.existsIn.getOccurrenceStatus();
+			} catch (IllegalArgumentException e) {		// NOTE: if constant is not found, assume it is PRESENT
+				this.occurrenceStatus = OccurrenceStatus.PRESENT;
+			}
+			this.territoryName = ts.territory.getName();
+			this.uncertainOccurrence = ts.existsIn.isUncertainOccurrenceStatus();
+			this.possibly = ts.edges.contains(Constants.RelTypes.PART_OF.toString())
+				&& ts.direction.get(ts.edges.indexOf(Constants.RelTypes.PART_OF.toString())).equals("OUTBOUND");
+			this.endemic = endemic;
 		}
 		
 		public NativeStatus getNativeStatus() {
@@ -82,8 +96,8 @@ public class ListOfTerritoryStatus {
 		public String getVerbatimNativeStatus() {
 			StringBuilder sb = new StringBuilder();
 			String tmp1=null, tmp2=null;
-			if(this.endemic && this.nativeStatus.isNativeOrExotic() == Native_Exotic.NATIVE)
-				sb.append("ENDEMIC");
+			if(this.endemic && (this.nativeStatus.isNativeOrExotic() == null || this.nativeStatus.isNativeOrExotic() == Native_Exotic.NATIVE))
+				sb.append(this.nativeStatus.toString() + " (ENDEMIC)");
 			else
 				sb.append(this.nativeStatus.toString());
 			if(this.possibly != null && this.possibly) tmp1="if it exists";
@@ -95,160 +109,189 @@ public class ListOfTerritoryStatus {
 	}
 
 	/**
-	 * Computes the status of this taxon in each territory, by summarizing all the branches that connect the taxon with the territory
+	 * Computes the status of this taxon in each territory marked for checklist, by summarizing all the branches that connect the taxon with the territory
 	 * @return
 	 */
-	public Map<String,Status> computeTerritoryStatus(boolean isEndemic) {
-		// if isEndemic is true, then the taxon is endemic to all territories in which it is native (so, the "native" means "endemic")
-		Map<String,Status> out=new HashMap<String,Status>();
-		Map<String,List<TerritoryStatus>> ts=new HashMap<String,List<TerritoryStatus>>();
-		TerritoryStatus tmp;
-		Map<Integer,Set<String>> endemics=new HashMap<Integer,Set<String>>();// HashSet<String>();		// to count how many endemic relations it has
-		List<TerritoryStatus> tStatusList;
+	public Map<String,InferredStatus> computeTerritoryStatus(boolean worldDistributionComplete) {
+		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
+		TerritoryStatus thisStatus, tmp;
 		Iterator<TerritoryStatus> it;
-		List<NativeStatus> natives=Arrays.asList(Constants.NativeStatuses);
+		Set<Territory> endemismDegree = this.computeEndemismDegree();
+		boolean isEndemic;
+
+		// compile the territories marked for checklist
+		Set<Territory> terr = new HashSet<Territory>();
+		for(TerritoryStatus ts : this.territoryStatusList) {
+			if(ts.territory.getShowInChecklist())
+				terr.add(ts.territory);
+		}
 		
-		Integer minEndemicTaxLen=null;
-		if(isEndemic) {		// compile the endemic relations per taxonomic depth level
-			it=this.territoryStatusList.iterator();
+		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
+		// 3: not inferred and certain
+		// 2: inferred and certain
+		// 1: not inferred and uncertain
+		// 0: inferred and uncertain
+		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
+		for(Territory territory : terr) {
+			thisStatus = null;
+			// first check if it is endemic to this territory or not
+			if(worldDistributionComplete)
+				isEndemic = isEndemicToTerritory(endemismDegree, territory.getShortName());
+			else
+				isEndemic = false;
+
+			it = this.territoryStatusList.iterator();
 			while(it.hasNext()) {
 				tmp=it.next();
-				if(NativeStatus.fromString(tmp.nativeStatus).isNativeOrExotic() == Native_Exotic.NATIVE) {
-				//if(natives.contains(NativeStatus.fromString(tmp.nativeStatus))) {
-				//if(tmp.nativeStatus.equals(NativeStatus.NATIVE.toString())) {
-					if(minEndemicTaxLen==null || minEndemicTaxLen>tmp.taxpathlen) minEndemicTaxLen=tmp.taxpathlen;
-					if(!endemics.containsKey(tmp.taxpathlen))
-						endemics.put(tmp.taxpathlen, new HashSet<String>());
-					endemics.get(tmp.taxpathlen).add(tmp.existsId);
+				if(!tmp.territory.getShortName().equals(territory.getShortName())) continue;
+				if(thisStatus == null)
+					thisStatus = tmp;
+				else
+					thisStatus = thisStatus.merge(tmp);
+			}
+			out.put(territory.getShortName(), new InferredStatus(thisStatus, isEndemic));
+		}
+		return out;
+	}
+	
+	/**
+	 * Checks if this TaxEnt is endemic to the given territory
+	 * @param endemicTerritories
+	 * @param territory
+	 * @return
+	 */
+	private boolean isEndemicToTerritory(Set<Territory> endemicTerritories, String territoryShortName) {
+		TerritoryStatus tmp;
+		Iterator<TerritoryStatus> it;
+		Boolean isEndemic = null, chk;
+		// check if all the endemic territories are in the path of this territory
+//		List<String> eDegs = this.computeEndemismDegreeName();
+//		System.out.println("****\nChecking: "+territory);
+//		System.out.println("Endemic to: "+Constants.implode(", ", eDegs.toArray(new String[0])));
+		for(Territory terr : endemicTerritories) {
+			it = this.territoryStatusList.iterator();
+//			System.out.println("  Checking endemic terr: "+terr.getName());
+			chk = false;
+			while(it.hasNext()) {
+				tmp = it.next();
+				if(!tmp.territory.getShortName().equals(territoryShortName)) continue;
+				// for each territory path that leads to the inquired territory
+//				System.out.println(tmp.territory.getName()+": "+Constants.implode(", ", tmp.vertices.toArray(new String[0])));
+				if(tmp.vertices.contains(terr.getName())) {
+					// yes this endemic terr is on the path of the inquired territory
+					chk = true;
+					break;
 				}
 			}
+			// it is only endemic to the inquired territory if all the endemic territories are in the path of the inquired territory:
+			if(isEndemic == null) isEndemic = true;
+			isEndemic &= chk;
+			if(!isEndemic) break;
 		}
-		// compile, for each unique territory, all the status that lead to it, for this taxon.
-		it=this.territoryStatusList.iterator();
+		return isEndemic == null ? false : isEndemic;
+	}
+
+	/**
+	 * Computes the status of this taxon for the given territory, by summarizing all the branches that connect the taxon with the territory
+	 * @param territory The shortName of the {@link Territory}
+	 * @param worldDistributionComplete
+	 * @return
+	 */
+	public Map<String,InferredStatus> computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
+		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
+		TerritoryStatus thisStatus = null, tmp;
+		Iterator<TerritoryStatus> it;
+
+		// first check if it is endemic to this territory or not
+		boolean isEndemic = false;
+		if(worldDistributionComplete) {
+			isEndemic = isEndemicToTerritory(this.computeEndemismDegree(), territory);
+		}
+		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
+		// 3: not inferred and certain
+		// 2: inferred and certain
+		// 1: not inferred and uncertain
+		// 0: inferred and uncertain
+		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
+		it = this.territoryStatusList.iterator();
 		while(it.hasNext()) {
 			tmp=it.next();
-			if(!ts.containsKey(tmp.territory))
-				ts.put(tmp.territory, tStatusList=new ArrayList<TerritoryStatus>());
+			if(!tmp.territory.getShortName().equals(territory)) continue;
+			if(thisStatus == null)
+				thisStatus = tmp;
 			else
-				tStatusList=ts.get(tmp.territory);
-			tStatusList.add(tmp);
+				thisStatus = thisStatus.merge(tmp);
 		}
+		out.put(territory, new InferredStatus(thisStatus, isEndemic));
+		return out;
+	}
+	
+	/**
+	 * Gets the smallest geographical area that comprises all native occurrences of this TaxEnt.
+	 * This is usually an array of territories, as it does not perform aggregation.
+	 * See Constants.NativeStatus
+	 * @return
+	 */
+	public Set<Territory> computeEndemismDegree() {
+		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
+		Set<Territory> out = new HashSet<Territory>();
+		Set<String> terr = new HashSet<String>();
+		Map<String,Integer> existsIn = new HashMap<String,Integer>();
+		for(TerritoryStatus ts : this.territoryStatusList) {
+			// exclude non-native statuses, we just want endemism here
+			if(ts.existsIn.getNativeStatus().isNativeOrExotic() != Constants.Native_Exotic.NATIVE) continue;
+			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective depth
+			// each EXISTS_IN is a different territory route in the graph
+			existsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
+			// compile the base territories, i.e. those which have a native status directly assigned
+			if(!ts.edges.contains(Constants.RelTypes.BELONGS_TO.toString())) terr.add(ts.territory.getName());		// only add direct territory assignements
+		}
+		if(existsIn.size() == 0) return Collections.emptySet();
+		int minExistsInDepth = Collections.min(existsIn.values());
 		
-		int nend;
-		boolean certain;
-		TerritoryStatus tmp2;
-		Iterator<TerritoryStatus> it1;
-		for(Entry<String,List<TerritoryStatus>> e : ts.entrySet()) {	// for each unique territory
-			tStatusList=e.getValue();
-			nend=0;
-			certain=false;
-			it=tStatusList.iterator();
-			while(it.hasNext()) {	// count # of endemic relations in this territory. NOTE: this assumes that there are no repeated endemic relations in the data (we could use a SET to avoid this assumption)
-				tmp2=it.next();
-				//if(isEndemic && tmp2.nativeStatus.equals(NativeStatus.NATIVE.toString()) && tmp2.taxpathlen==minEndemicTaxLen) nend++;
-				if(isEndemic && NativeStatus.fromString(tmp2.nativeStatus).isNativeOrExotic() == Native_Exotic.NATIVE && tmp2.taxpathlen==minEndemicTaxLen) nend++;
-				certain |= (tmp2.taxpathlen==0); // || tmp2.nativeStatus.equals(NativeStatus.ENDEMIC.toString());	// if higher taxon is endemic, then all children are endemic for sure
-			}
-// TODO: when is endemic from a territory, what should we do with sub-territories? for example juniperus navicularis
-			//System.out.println(tmp1.size()+" - "+endemics.size());
-			if(nend>0 && nend==endemics.get(minEndemicTaxLen).size()) {		// if all endemic relations lead to this territory, then it is endemic, no matter the status in any other territory
-				Set<String> oss=new HashSet<String>();
-				it1=tStatusList.iterator();
-				while(it1.hasNext()) {
-					tmp2=it1.next();
-					if(tmp2.taxpathlen==minEndemicTaxLen && tmp2.nativeStatus.equals(NativeStatus.NATIVE.toString())) oss.add(tmp2.occurrenceStatus);
-				}				
-				out.put(e.getKey(), new Status(
-					NativeStatus.NATIVE.toString(),
-					oss.size()==1 ? oss.iterator().next() : OccurrenceStatus.PRESENT.toString(),
-					false,
-					!certain,
-					true,
-					e.getValue().get(0).territoryName)	// if the endemism is of one child only, then the occurrence status remains the same, otherwise it is undetermined
-				);
-			} else {	// not endemic, or endemic also from other territory that is not child of this one - that is to say, any endemic status actually means native.
-				TerritoryStatus thisStatus=null;
-				it1=tStatusList.iterator();
-				int better;
-				// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
-				// 3: not inferred and certain
-				// 2: inferred and certain
-				// 1: not inferred and uncertain
-				// 0: inferred and uncertain
-				// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
-				while(it1.hasNext()) {
-					tmp2=it1.next();
-					if(thisStatus==null) thisStatus=tmp2; else {
-						better=thisStatus.compareTo(tmp2);
-						if(better<0)	// tmp2 is better, replace status!
-							thisStatus=tmp2;
-						else if(better==0) {	// tmp2 is equally good, check statuses
-							if(!thisStatus.nativeStatus.equals(tmp2.nativeStatus)) thisStatus.nativeStatus=NativeStatus.EXISTING.toString();
-							if(thisStatus.occurrenceStatus==null || !thisStatus.occurrenceStatus.equals(tmp2.occurrenceStatus)) thisStatus.occurrenceStatus=OccurrenceStatus.PRESENT.toString();
-						}
-					}
-				}
-				out.put(e.getKey(), new Status(
-					thisStatus.nativeStatus.toString(), 
-					thisStatus.occurrenceStatus,
-					thisStatus.uncertainOccurrence,
-					thisStatus.taxpathlen>0,
-					false,
-					e.getValue().get(0).territoryName )
-				);
-				/*
-				// search for a not inferred relation
-				anyNotInferred=false;
-				it1=tStatusList.iterator();
-				tmp2=null;
-				tmp3=null;
-				int nnicert=0;
-				while(it1.hasNext()) {
-					tmp2=it1.next();
-					if(!tmp2.inferred) {
-						if(!tmp2.uncertain && nnicert>0) {
-							anyNotInferred=null;
-							break;
-						}
-						anyNotInferred=true;
-						if(!tmp2.uncertain) nnicert++;
-						tmp3=tmp2;
-					}
-				}
-				if(anyNotInferred==null)	// there is more than one assigned native status to this territory!
-					out.put(e.getKey(), new Status(NativeStatus.ERROR.toString(), OccurrenceStatus.OCCURS.toString(), !certain ));
-				else if(!anyNotInferred) {	// all statuses are inferred from a subterritory
-					// count the number of different native statuses and different occurrence statuses
-					Set<String> ns=new HashSet<String>();
-					Set<String> os=new HashSet<String>();
-					it1=tStatusList.iterator();
-					tmp3=null;
-					while(it1.hasNext()) {
-						tmp2=it1.next();
-						if(tmp2.inferred) {
-							ns.add(tmp2.nativeStatus);
-							if(tmp2.occurrenceStatus!=null) os.add(tmp2.occurrenceStatus);
-							tmp3=tmp2;
-						}
-					}
-					if(ns.size()==1) {
-						out.put(e.getKey(), new Status(
-							tmp3.nativeStatus.equals(NativeStatus.ENDEMIC.toString()) ? NativeStatus.EXISTING.toString() : tmp3.nativeStatus.toString()
-							, tmp3.occurrenceStatus==null ? OccurrenceStatus.OCCURS.toString() : tmp3.occurrenceStatus.toString()
-							, !certain ));
-					} else
-						out.put(e.getKey(), new Status(
-							NativeStatus.EXISTING.toString()
-							, os.size()==1 ? (tmp3.occurrenceStatus==null ? OccurrenceStatus.OCCURS.toString() : tmp3.occurrenceStatus.toString()) : OccurrenceStatus.OCCURS.toString()
-							, !certain ));
-				} else	// at least one status is not inferred
-					out.put(e.getKey(), new Status(
-						tmp3.nativeStatus.equals(NativeStatus.ENDEMIC.toString()) ? NativeStatus.NATIVE.toString() : tmp3.nativeStatus
-						, tmp3.occurrenceStatus
-						, !certain ));*/
+		Set<String> exclude = new HashSet<String>();
+		// check, for each territory where the taxon is native, if it is contained in any of the others 
+		for(Entry<String, Integer> ei : existsIn.entrySet()) {	// for each EXISTS_IN route
+			if(!ei.getValue().equals(minExistsInDepth)) continue;	// the best inference is the minimum depth of EXISTS_IN
+			
+//			System.out.println("EI: "+ei.getKey());
+			// for each EXISTS_IN route
+			for(TerritoryStatus ts : this.territoryStatusList) {
+				if(!ts.existsIn.getID().equals(ei.getKey()) || ts.vertices.size() <= 2) continue;
+				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory)
+//				System.out.println(Constants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
+//				System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
+				if(!Collections.disjoint(ts.vertices.subList(2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
 			}
 		}
-		
+//		String[] ex=exclude.toArray(new String[exclude.size()]);
+//		System.out.println("Exclu: "+ Constants.implode(", ", ex));
+		int min;
+		TerritoryStatus mini;
+		for(Entry<String, Integer> ei : existsIn.entrySet()) {	// for each EXISTS_IN route
+			if(exclude.contains(ei.getKey())) continue;
+			
+			// for each EXISTS_IN route fetch the nearest territory
+			min = 1000;
+			mini = null;
+			for(TerritoryStatus ts : this.territoryStatusList) {
+				if(!ts.existsIn.getID().equals(ei.getKey())) continue;
+				if(ts.edges.size() < min) {
+					min = ts.edges.size();
+					mini = ts;
+				}
+			}
+			if(mini != null) out.add(mini.territory);
+		}
+		return out;
+	}
+	
+	public Set<String> computeEndemismDegreeName() {
+		Iterator<Territory> it = this.computeEndemismDegree().iterator();
+		Set<String> out = new HashSet<String>();
+		while(it.hasNext()) {
+			out.add(it.next().getName());
+		}
 		return out;
 	}
 }

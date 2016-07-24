@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
 import com.arangodb.NonUniqueResultException;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
@@ -29,9 +26,7 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.OBSERVED_IN;
 import pt.floraon.entities.TaxEnt;
-import pt.floraon.results.ListOfTerritoryStatus;
-import pt.floraon.results.TerritoryStatus;
-import pt.floraon.results.ListOfTerritoryStatus.Status;
+import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 
 /**
@@ -91,7 +86,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		return out;
 	}
 
-	@Override
+/*	@Override
 	public String[] getEndemismDegree() throws FloraOnException {
 		String query=AQLQueries.getString("TaxEntWrapperDriver.3", thisNode, RelTypes.EXISTS_IN.toString(), "'"+implode("','",NativeStatuses)+"'");
 		
@@ -103,18 +98,36 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		}
 		String[] out = list.toArray(new String[list.size()]);
 		return out;
+	}*/
+
+	@Override
+	public String[] getEndemismDegree() throws FloraOnException {
+		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString(), "", "");
+		TaxEntAndNativeStatusResult list;
+		
+		try {
+			list =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+		Set<String> tmp = list.getEndemismDegree();
+		String[] out = tmp.toArray(new String[tmp.size()]);
+		return out;
 	}
 
 	@Override
-	public Map<String,Status> getInferredNativeStatus() throws FloraOnException {
-		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString());
+	public Map<String,InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException {
+		String query=AQLQueries.getString("TaxEntWrapperDriver.9"
+			, thisNode.toString()
+			, territory == null ? "" : "&& v.shortName == '"+ territory +"'"
+			, "");//"&& v.showInChecklist");
 		TaxEntAndNativeStatusResult list;
 		try {
 			list =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-		return list.getInferredNativeStatus();		
+		return list.getInferredNativeStatus(territory);		
 	}
 
 	public List<TaxEnt> getHybridAncestry() {

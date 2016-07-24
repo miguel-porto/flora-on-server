@@ -1,8 +1,5 @@
 package pt.floraon.arangodriver;
 
-import static pt.floraon.driver.Constants.NativeStatuses;
-import static pt.floraon.driver.Constants.implode;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +8,6 @@ import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
 import com.arangodb.CursorResult;
 import com.arangodb.util.GraphVerticesOptions;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -153,8 +149,8 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 				, onlyLeafNodes ? "&& npar==0" : "" //$NON-NLS-1$ //$NON-NLS-2$
 				, NodeTypes.taxent.toString()
 				, withLimit ? "LIMIT "+offset+","+count : "" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				, onlyCurrent ? "&& taxon.current" : "" //$NON-NLS-1$ //$NON-NLS-2$
-				, filter == null ? "" : "FILTER LIKE(taxon.name, '%%" + filter + "%%', true) " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				, onlyCurrent ? "&& thistaxon.current" : "" //$NON-NLS-1$ //$NON-NLS-2$
+				, filter == null ? "" : "FILTER LIKE(thistaxon.name, '%%" + filter + "%%', true) " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				, onlyCurrent ? "FILTER v.current==true" : "" //$NON-NLS-1$ //$NON-NLS-2$
 			);
 		} else {
@@ -218,7 +214,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 	@Override
 	public JsonObject getTaxonInfo(INodeKey key) throws FloraOnException {
-		String query=AQLQueries.getString("ListDriver.24a", key.toString(), "'"+implode("','",NativeStatuses)+"'");
+		String query=AQLQueries.getString("ListDriver.24a", key.toString());
 
 		TaxEntAndNativeStatusResult result;
 		try {
@@ -234,7 +230,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	@Override
 	public JsonElement getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException {
 		JsonArray out = new JsonArray();
-		String query=AQLQueries.getString("ListDriver.24b", taxonName, "'"+implode("','",NativeStatuses)+"'", onlyCurrent ? "&& thistaxon.current" : "");
+		String query=AQLQueries.getString("ListDriver.24b", taxonName, onlyCurrent ? "&& thistaxon.current" : "");
 		Iterator<TaxEntAndNativeStatusResult> cursorResult;
 		try {
 			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).iterator();
@@ -250,7 +246,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 	@Override
 	public JsonObject getTaxonInfo(int oldId) throws FloraOnException {
-		String query=AQLQueries.getString("ListDriver.24c", oldId, "'"+implode("','",NativeStatuses)+"'");
+		String query=AQLQueries.getString("ListDriver.24c", oldId);
 
 		TaxEntAndNativeStatusResult result;
 		try {

@@ -17,7 +17,7 @@ import pt.floraon.driver.Constants.WorldDistributionCompleteness;
 import pt.floraon.results.ResultItem;
 
 /**
- * Represents a taxonomic entity in the DB.
+ * Represents a taxonomic entity.
  * @author miguel
  *
  */
