@@ -110,14 +110,10 @@ public final class Constants {
 		,EXTINCT						// Taxon is extinct: there are no recent observations, and it is very unlikely that it might still exist, according to expert's opinion
 		,ABSENT_BUT_REPORTED_IN_ERROR	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
 		,ERROR							// Some error occurred
-		// The following are deprecated!!
-		//,RARE,COMMON,OCCURS
-		//,UNCERTAIN_OCCURRENCE			// Taxon presumably exists, but it is not certain if the taxon occurs or not, because of taxonomic problems
-		;
 	}
 	
 	public enum Native_Exotic {
-		NATIVE, EXOTIC;
+		NATIVE, EXOTIC
 	}
 	
 	public enum NativeStatus {
@@ -130,7 +126,6 @@ public final class Constants {
 		,ASSUMED_EXOTIC((short)1, "ASSUMED to be EXOTIC in", Native_Exotic.EXOTIC)
 		,EXOTIC((short)2, "EXOTIC in", Native_Exotic.EXOTIC)
 		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC)
-		//,ENDEMIC((short)3, "is ENDEMIC to")
 		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
 		,EXISTING((short)0, "EXISTS in", null)								// it exists with different status depending on the sub-territory
 		,ERROR((short)-1, "ERROR", null);
@@ -190,13 +185,35 @@ public final class Constants {
 		,VERY_RARE						// Few populations with few individuals
 	}
 
-	public enum WorldDistributionCompleteness {		// "Whether or not the plant-area records in the DB represent the complete world native distribution for the plant"
+	public enum WorldNativeDistributionCompleteness {		// "Whether or not the plant-area records in the DB represent the complete world native distribution for the plant"
 		DISTRIBUTION_COMPLETE
 		,DISTRIBUTION_INCOMPLETE
 		,NOT_KNOWN
 	}
 	
-	public static NativeStatus[] NativeStatuses=NativeStatus.getNatives().toArray(new NativeStatus[0]);	// the NativeStatus which are considered Native.
+	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
+	public enum PlantIntroducedStatus {
+		APOPHYTE
+		,ARCHAEOPHYTE
+		,NEOPHYTE
+		,DIAPHYTE
+		,ARCHAEOAPOPHYTE
+		,NEOAPOPHYTE
+		,ARCHAEOEPECOPHYTE		// introduced before 1500 and living exclusively in ruderal communities
+		,ARCHAEOAGRIOPHYTE		// introduced before 1500 and living in natural or semi-natural communities
+		,NEOEPECOPHYTE			// introduced after 1500 and living exclusively in ruderal communities
+		,NEOAGRIOPHYTE			// introduced after 1500 and living in natural or semi-natural communities
+	}
+
+	public enum PlantNaturalizationDegree {
+		CASUAL
+		,NATURALIZED_OCCASIONAL
+		,NATURALIZED_DANGEROUS
+		,INVASIVE
+		,TRANSFORMER
+	}
+	
+	//public static NativeStatus[] NativeStatuses=NativeStatus.getNatives().toArray(new NativeStatus[0]);	// the NativeStatus which are considered Native.
 	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
 	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
 	

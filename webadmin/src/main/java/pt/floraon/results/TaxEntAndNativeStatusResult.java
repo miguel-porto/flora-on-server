@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.Constants.WorldDistributionCompleteness;
+import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
@@ -24,13 +24,13 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 
 	public Map<String,InferredStatus> getInferredNativeStatus(String territory) {
 		if(territory == null)
-			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
+			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
 		else
-			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldDistributionCompleteness.DISTRIBUTION_COMPLETE);
+			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
 	}
 	
 	public Set<String> getEndemismDegree() {
-		if(this.taxent.getWorldDistributionCompleteness() != Constants.WorldDistributionCompleteness.DISTRIBUTION_COMPLETE) return Collections.emptySet();
+		if(this.taxent.getWorldDistributionCompleteness() != Constants.WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE) return Collections.emptySet();
 		return new ListOfTerritoryStatus(territories).computeEndemismDegreeName();
 	}
 	

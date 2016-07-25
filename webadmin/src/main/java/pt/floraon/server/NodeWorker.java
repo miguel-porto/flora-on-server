@@ -14,7 +14,7 @@ import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.driver.Constants.WorldDistributionCompleteness;
+import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.GraphUpdateResult;
@@ -180,7 +180,7 @@ public class NodeWorker extends FloraOnServlet {
 						,getParameterAsString("annotation")
 						,getParameterAsBoolean("current")
 						,null
-						,getParameterAsEnum("worldDistributionCompleteness", WorldDistributionCompleteness.class)
+						,getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
 						
 					), getParameterAsBooleanNoNull("replace")).toJsonObject());
 				/*

@@ -13,7 +13,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.driver.Constants.WorldDistributionCompleteness;
+import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.results.ResultItem;
 
 /**
@@ -35,7 +35,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	protected Integer gbifKey;
 	protected Boolean isSpeciesOrInf;
 	protected Integer oldId;
-	protected WorldDistributionCompleteness worldDistributionCompleteness;
+	protected WorldNativeDistributionCompleteness worldDistributionCompleteness;
 	
 	public TaxEnt(TaxEnt te) {
 		super(te);
@@ -62,7 +62,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		this.gbifKey=gbifKey;
 	}*/
 
-	public TaxEnt(String name,Integer rank,String author,String sensu,String annotation,Boolean current,Integer gbifKey, WorldDistributionCompleteness worldDistributionCompleteness) throws TaxonomyException {
+	public TaxEnt(String name,Integer rank,String author,String sensu,String annotation,Boolean current,Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness) throws TaxonomyException {
 		if(name!=null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
 		
 		if(name!=null) this.name=name.trim();
@@ -198,8 +198,8 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		return getFullName(false);
 	}
 
-	public WorldDistributionCompleteness getWorldDistributionCompleteness() {
-		return this.worldDistributionCompleteness == null ? WorldDistributionCompleteness.NOT_KNOWN : this.worldDistributionCompleteness;
+	public WorldNativeDistributionCompleteness getWorldDistributionCompleteness() {
+		return this.worldDistributionCompleteness == null ? WorldNativeDistributionCompleteness.NOT_KNOWN : this.worldDistributionCompleteness;
 	}
 	
 	public TaxonRanks getRank() {
