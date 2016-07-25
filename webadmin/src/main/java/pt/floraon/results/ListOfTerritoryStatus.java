@@ -1,5 +1,6 @@
 package pt.floraon.results;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,10 +13,13 @@ import java.util.Set;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
-import pt.floraon.driver.Constants.Native_Exotic;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.entities.Territory;
-
+/**
+ * A wrapper class for a List<TerritoryStatus> which adds methods for inferring the NativeStatus in all territories.
+ * @author miguel
+ *
+ */
 public class ListOfTerritoryStatus {
 	protected List<TerritoryStatus> territoryStatusList;
 	
@@ -44,20 +48,6 @@ public class ListOfTerritoryStatus {
 		 * The long name of the territory this Status pertains to
 		 */
 		protected String territoryName;
-		
-		@Deprecated
-		protected InferredStatus(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic, String name) {
-			this.nativeStatus = nativeStatus;
-			try {
-				this.occurrenceStatus = occurrenceStatus==null ? null : occurrenceStatus;
-			} catch (IllegalArgumentException e) {		// NOTE: if constant is not found, assume it is PRESENT
-				this.occurrenceStatus = OccurrenceStatus.PRESENT;
-			}
-			this.uncertainOccurrence=uncertainOccurrence;
-			this.possibly=possibly;
-			this.endemic=endemic;
-			this.territoryName = name;
-		}
 		
 		public InferredStatus(TerritoryStatus ts, Boolean endemic) {
 			this.nativeStatus = ts.existsIn.getNativeStatus();
@@ -98,18 +88,20 @@ public class ListOfTerritoryStatus {
 			return this.territoryName;
 		}
 		
+		/**
+		 * Gets a textual description of the native status of this taxon.
+		 * @return
+		 */
 		public String getVerbatimNativeStatus() {
-			StringBuilder sb = new StringBuilder();
-			String tmp1=null, tmp2=null;
-			if(this.endemic && (this.nativeStatus.isNativeOrExotic() == null || this.nativeStatus.isNativeOrExotic() == Native_Exotic.NATIVE))
-				sb.append(this.nativeStatus.toString() + " (ENDEMIC)");
-			else
-				sb.append(this.nativeStatus.toString());
-			if(this.possibly != null && this.possibly) tmp1="if it exists";
-			if(this.uncertainOccurrence != null && this.uncertainOccurrence) tmp2="uncertain";
-			tmp1 = Constants.implode(", ", tmp1, tmp2);
-			if(tmp1 != null) sb.append(" (").append(tmp1).append(")");
-			return sb.toString();
+			List<String> qualifiers = new ArrayList<String>();
+			if(this.getOccurrenceStatus() != OccurrenceStatus.PRESENT) qualifiers.add(this.getOccurrenceStatus().toString());
+			if(this.getUncertainOccurrence()) qualifiers.add("uncertain");
+			if(this.getPossibly()) qualifiers.add("if it exists");
+			if(this.getIsEndemic()) qualifiers.add("ENDEMIC");
+			if(this.getAbundanceLevel() != AbundanceLevel.NOT_SPECIFIED) qualifiers.add(this.getAbundanceLevel().toString());
+			
+			return this.getNativeStatus().toString()
+				+ (qualifiers.size() > 0 ? " ("+Constants.implode(", ", qualifiers.toArray(new String[0]))+")" : "");
 		}
 	}
 

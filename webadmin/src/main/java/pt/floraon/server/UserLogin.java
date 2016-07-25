@@ -1,5 +1,8 @@
 package pt.floraon.server;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -27,15 +30,22 @@ public class UserLogin extends HttpServlet {
 			String username=request.getParameter("username");
 			String password=request.getParameter("password");
 			Document userDB=null;
+			File dir = new File(this.getServletContext().getRealPath("/")).getParentFile();
+
 			try {
 				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				userDB = dBuilder.parse(this.getClass().getResourceAsStream("/users.xml"));
+				userDB = dBuilder.parse(new FileInputStream(dir.getAbsolutePath() + "/users.xml"));
 				userDB.getDocumentElement().normalize();
-			} catch (ParserConfigurationException | SAXException | IOException e) {
+			} catch (ParserConfigurationException | SAXException e) {
 				e.printStackTrace();
 				response.sendRedirect("admin");
 				return;
+			} catch (FileNotFoundException e) {
+				throw new IOException("Cannot find file " + dir.getAbsolutePath() + "/users.xml");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 			NodeList users=userDB.getElementsByTagName("user");

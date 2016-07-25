@@ -103,7 +103,7 @@ public interface ITaxEntWrapper {
 	 */
 	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertainOccurrenceStatus) throws FloraOnException;
 	/**
-	 * Infers the NativeStatus of this TaxEnt for all territories marked for checklist
+	 * Infers the NativeStatus of this TaxEnt for all territories marked for checklist or for the given territory (as shortName)
 	 * @return
 	 * @throws FloraOnException
 	 */
