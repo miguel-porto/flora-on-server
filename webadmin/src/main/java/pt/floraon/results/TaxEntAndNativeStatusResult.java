@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.WorldDistributionCompleteness;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
@@ -93,12 +95,18 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print(this.taxent.getAuthor());
 		if(this.territories==null) return;
 
+		List<String> qualifiers = new ArrayList<String>();
+		
 		for(String t : allTerritories) {
 			if(tStatus.containsKey(t)) {
 				tmp=tStatus.get(t);
-				if(tmp.occurrenceStatus!=null && tmp.occurrenceStatus!=OccurrenceStatus.PRESENT)
-					rec.print((tmp.possibly ? "?" : "")+tmp.nativeStatus.toString()+" ("+tmp.occurrenceStatus.toString()+")");
-				else rec.print((tmp.possibly ? "?" : "")+tmp.nativeStatus.toString());
+				qualifiers.clear();
+				if(tmp.getOccurrenceStatus() != null && tmp.getOccurrenceStatus() != OccurrenceStatus.PRESENT) qualifiers.add(tmp.getOccurrenceStatus().toString());
+				if(tmp.getUncertainOccurrence()) qualifiers.add("uncertain");
+				if(tmp.getPossibly()) qualifiers.add("if it exists");
+				if(tmp.getIsEndemic()) qualifiers.add("ENDEMIC");
+				if(tmp.getAbundanceLevel() != AbundanceLevel.NOT_SPECIFIED) qualifiers.add(tmp.getAbundanceLevel().toString());
+				rec.print(tmp.nativeStatus.toString() + (qualifiers.size() > 0 ? " ("+Constants.implode(", ", qualifiers.toArray(new String[0]))+")" : ""));
 			} else
 				rec.print("");
 		}

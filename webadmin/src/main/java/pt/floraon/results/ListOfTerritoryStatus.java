@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.Native_Exotic;
 import pt.floraon.driver.Constants.OccurrenceStatus;
@@ -25,6 +26,7 @@ public class ListOfTerritoryStatus {
 	public class InferredStatus {
 		protected NativeStatus nativeStatus;
 		protected OccurrenceStatus occurrenceStatus;
+		protected AbundanceLevel abundanceLevel; 
 		/**
 		 * Status is assigned to a parent taxon. Should be read: it is not certain that it is this [sub-]taxon that exists in this territory,
 		 * but if it exists, then it is with this nativeStatus.
@@ -42,6 +44,8 @@ public class ListOfTerritoryStatus {
 		 * The long name of the territory this Status pertains to
 		 */
 		protected String territoryName;
+		
+		@Deprecated
 		protected InferredStatus(NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, Boolean uncertainOccurrence, Boolean possibly, Boolean endemic, String name) {
 			this.nativeStatus = nativeStatus;
 			try {
@@ -57,11 +61,8 @@ public class ListOfTerritoryStatus {
 		
 		public InferredStatus(TerritoryStatus ts, Boolean endemic) {
 			this.nativeStatus = ts.existsIn.getNativeStatus();
-			try {
-				this.occurrenceStatus = ts.existsIn.getOccurrenceStatus() == null ? null : ts.existsIn.getOccurrenceStatus();
-			} catch (IllegalArgumentException e) {		// NOTE: if constant is not found, assume it is PRESENT
-				this.occurrenceStatus = OccurrenceStatus.PRESENT;
-			}
+			this.abundanceLevel = ts.existsIn.getAbundanceLevel();
+			this.occurrenceStatus = ts.existsIn.getOccurrenceStatus();
 			this.territoryName = ts.territory.getName();
 			this.uncertainOccurrence = ts.existsIn.isUncertainOccurrenceStatus();
 			this.possibly = ts.edges.contains(Constants.RelTypes.PART_OF.toString())
@@ -76,7 +77,11 @@ public class ListOfTerritoryStatus {
 		public OccurrenceStatus getOccurrenceStatus() {
 			return this.occurrenceStatus;
 		}
-		
+
+		public AbundanceLevel getAbundanceLevel() {
+			return this.abundanceLevel;
+		}
+
 		public boolean getPossibly() {
 			return this.possibly;
 		}
