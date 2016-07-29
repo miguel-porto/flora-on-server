@@ -72,7 +72,7 @@
 		<div class="territory NEAR_ENDEMIC"></div> <i>quasi</i>-endemic&nbsp;
 		<div class="territory EXOTIC"></div> exotic&nbsp;
 		<div class="territory DOUBTFULLY_NATIVE"></div> doubtfully native&nbsp;
-		<div class="territory DOUBTFULLY_INTRODUCED"></div> doubtfully introduced&nbsp;
+		<div class="territory DOUBTFULLY_EXOTIC"></div> doubtfully exotic&nbsp;
 		<div class="territory EXISTING"></div> existing (different status depending on sub-territory)
 		<br/>
 		Occurrence Status: <div class="territory EXISTING"><div class="occurrencestatus RARE"></div></div> rare&nbsp;

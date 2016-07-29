@@ -81,15 +81,17 @@
 				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
 				<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
 			</ul>
-			<h3>Inferred Native Status</h3>
-			<table>
-				<c:forEach var="ins" items="${inferredNativeStatus}">
-					<tr>
-					<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
-					<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
-					</tr>
-				</c:forEach>
-			</table>
+			<c:if test="${inferredNativeStatus != null}">
+				<h3>Inferred Native Status</h3>
+				<table>
+					<c:forEach var="ins" items="${inferredNativeStatus}">
+						<tr>
+						<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
+						<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
+						</tr>
+					</c:forEach>
+				</table>
+			</c:if>
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">

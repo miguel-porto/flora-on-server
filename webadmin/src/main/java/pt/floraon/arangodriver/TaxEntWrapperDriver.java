@@ -102,7 +102,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public String[] getEndemismDegree() throws FloraOnException {
-		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString(), "", "");
+		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString(), "");
 		TaxEntAndNativeStatusResult list;
 		
 		try {
@@ -110,7 +110,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-		Set<String> tmp = list.getEndemismDegree();
+		Set<String> tmp = list.inferEndemismDegree();
 		String[] out = tmp.toArray(new String[tmp.size()]);
 		return out;
 	}
@@ -119,15 +119,14 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public Map<String,InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException {
 		String query=AQLQueries.getString("TaxEntWrapperDriver.9"
 			, thisNode.toString()
-			, territory == null ? "" : "&& v.shortName == '"+ territory +"'"
-			, "");//"&& v.showInChecklist");
-		TaxEntAndNativeStatusResult list;
+			, territory == null ? "" : "&& v.shortName == '"+ territory +"'");//"&& v.showInChecklist");
+		TaxEntAndNativeStatusResult listOfStatus;
 		try {
-			list =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
+			listOfStatus =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-		return list.getInferredNativeStatus(territory);		
+		return listOfStatus.inferNativeStatus(territory);		
 	}
 
 	public List<TaxEnt> getHybridAncestry() {

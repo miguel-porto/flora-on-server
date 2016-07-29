@@ -22,14 +22,14 @@ import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
 	protected List<TerritoryStatus> territories;
 
-	public Map<String,InferredStatus> getInferredNativeStatus(String territory) {
+	public Map<String,InferredStatus> inferNativeStatus(String territory) {
 		if(territory == null)
 			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
 		else
 			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
 	}
 	
-	public Set<String> getEndemismDegree() {
+	public Set<String> inferEndemismDegree() {
 		if(this.taxent.getWorldDistributionCompleteness() != Constants.WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE) return Collections.emptySet();
 		return new ListOfTerritoryStatus(territories).computeEndemismDegreeName();
 	}
@@ -41,7 +41,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	public String toHTMLTableRow(Object obj) {
 		if(this.taxent == null) return null;
 		
-		Map<String,InferredStatus> tStatus = this.getInferredNativeStatus(null);
+		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
 		InferredStatus status;
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
@@ -86,7 +86,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 			rec.print("");
 			return;
 		}
-		Map<String,InferredStatus> tStatus = this.getInferredNativeStatus(null);
+		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
 		rec.print(this.taxent.getID());
@@ -120,9 +120,9 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		JsonObject out = new JsonObject();
 		if(this.taxent == null) return out;
 		Gson gson = new Gson();
-		Map<String,InferredStatus> tStatus = this.getInferredNativeStatus(null);
+		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
 		out.add("taxon", gson.toJsonTree(this.taxent));
-		out.add("endemismDegree", gson.toJsonTree(this.getEndemismDegree()));
+		out.add("endemismDegree", gson.toJsonTree(this.inferEndemismDegree()));
 		JsonObject tst = new JsonObject();
 		if(this.territories!=null) {
 			for(Entry<String, InferredStatus> st : tStatus.entrySet()) {

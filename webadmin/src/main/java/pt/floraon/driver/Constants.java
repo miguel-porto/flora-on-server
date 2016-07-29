@@ -127,7 +127,7 @@ public final class Constants {
 		,EXOTIC((short)2, "EXOTIC in", Native_Exotic.EXOTIC)
 		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC)
 		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
-		,EXISTING((short)0, "EXISTS in", null)								// it exists with different status depending on the sub-territory
+		,MULTIPLE_STATUS((short)0, "EXISTS in", null)								// it exists with different status depending on the sub-territory or on the sub-taxa
 		,ERROR((short)-1, "ERROR", null);
 		
 		private final Short code;
@@ -166,8 +166,8 @@ public final class Constants {
     		return NativeStatus.ERROR;
     	}
     	
-    	public Native_Exotic isNativeOrExotic() {
-    		return this.nativeExotic;
+    	public boolean isNative() {
+    		return this.nativeExotic == Native_Exotic.NATIVE;
     	}
     	
     	public String toVerboseString() {
@@ -191,8 +191,11 @@ public final class Constants {
 		,NOT_KNOWN
 	}
 	
+	public interface IntroducedStatus {}		// interfaces are just for future extensions to other biological groups
+	public interface NaturalizationDegree {}
+	
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
-	public enum PlantIntroducedStatus {
+	public enum PlantIntroducedStatus implements IntroducedStatus {
 		APOPHYTE
 		,ARCHAEOPHYTE
 		,NEOPHYTE
@@ -205,7 +208,7 @@ public final class Constants {
 		,NEOAGRIOPHYTE			// introduced after 1500 and living in natural or semi-natural communities
 	}
 
-	public enum PlantNaturalizationDegree {
+	public enum PlantNaturalizationDegree implements NaturalizationDegree {
 		CASUAL
 		,NATURALIZED_OCCASIONAL
 		,NATURALIZED_DANGEROUS

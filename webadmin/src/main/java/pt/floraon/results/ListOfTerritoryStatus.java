@@ -229,43 +229,46 @@ public class ListOfTerritoryStatus {
 	 * See Constants.NativeStatus
 	 * @return
 	 */
-	public Set<Territory> computeEndemismDegree() {
+	public Set<Territory> computeEndemismDegree() {// dasgdasgf FIXME dittrichia viscosa!
 		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
 		Set<Territory> out = new HashSet<Territory>();
 		Set<String> terr = new HashSet<String>();
-		Map<String,Integer> existsIn = new HashMap<String,Integer>();
+		Map<String,Integer> nativeExistsIn = new HashMap<String,Integer>();
 		for(TerritoryStatus ts : this.territoryStatusList) {
 			// exclude non-native statuses, we just want endemism here
-			if(ts.existsIn.getNativeStatus().isNativeOrExotic() != Constants.Native_Exotic.NATIVE) continue;
+			if(!ts.existsIn.getNativeStatus().isNative()) continue;
 			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective depth
 			// each EXISTS_IN is a different territory route in the graph
-			existsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
+			nativeExistsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
 			// compile the base territories, i.e. those which have a native status directly assigned
 			if(!ts.edges.contains(Constants.RelTypes.BELONGS_TO.toString())) terr.add(ts.territory.getName());		// only add direct territory assignements
 		}
-		if(existsIn.size() == 0) return Collections.emptySet();
-		int minExistsInDepth = Collections.min(existsIn.values());
+		if(nativeExistsIn.size() == 0) return Collections.emptySet();	// it has not NATIVE status, so it's not endemic
+		int minExistsInDepth = Collections.min(nativeExistsIn.values());
+		//System.out.println("Size "+nativeExistsIn.size()+" min "+minExistsInDepth);
 		
 		Set<String> exclude = new HashSet<String>();
 		// check, for each territory where the taxon is native, if it is contained in any of the others 
-		for(Entry<String, Integer> ei : existsIn.entrySet()) {	// for each EXISTS_IN route
+		for(Entry<String, Integer> ei : nativeExistsIn.entrySet()) {	// for each EXISTS_IN route
 			if(!ei.getValue().equals(minExistsInDepth)) continue;	// the best inference is the minimum depth of EXISTS_IN
 			
-//			System.out.println("EI: "+ei.getKey());
+			//System.out.println("EI: "+ei.getKey());
 			// for each EXISTS_IN route
 			for(TerritoryStatus ts : this.territoryStatusList) {
-				if(!ts.existsIn.getID().equals(ei.getKey()) || ts.vertices.size() <= 2) continue;
-				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory)
-//				System.out.println(Constants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
-//				System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
-				if(!Collections.disjoint(ts.vertices.subList(2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
+				//if(!ts.existsIn.getID().equals(ei.getKey()) || ts.vertices.size() <= 2) continue;
+				if(!ts.existsIn.getID().equals(ei.getKey()) || Collections.frequency(ts.edges, "BELONGS_TO") == 0) continue;
+				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory, so there's a BELONGS_TO link)
+				//System.out.println(Constants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
+				//System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
+				// extract vertices after EXISTS_IN (so, territories)
+				if(!Collections.disjoint(ts.vertices.subList(minExistsInDepth + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
 			}
 		}
-//		String[] ex=exclude.toArray(new String[exclude.size()]);
-//		System.out.println("Exclu: "+ Constants.implode(", ", ex));
+		/*String[] ex=exclude.toArray(new String[exclude.size()]);
+		System.out.println("Exclu: "+ Constants.implode(", ", ex));*/
 		int min;
 		TerritoryStatus mini;
-		for(Entry<String, Integer> ei : existsIn.entrySet()) {	// for each EXISTS_IN route
+		for(Entry<String, Integer> ei : nativeExistsIn.entrySet()) {	// for each EXISTS_IN route
 			if(exclude.contains(ei.getKey())) continue;
 			
 			// for each EXISTS_IN route fetch the nearest territory

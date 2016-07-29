@@ -440,7 +440,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public Iterator<NativeStatusResult> getTaxonNativeStatus(INodeKey id) throws FloraOnException {
+	public Iterator<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException {
 /*		String query=String.format("LET terr=TRAVERSAL(taxent, EXISTS_IN, '%1$s', 'outbound', {maxDepth:1,paths:true}) "
 			+ "FOR v IN SLICE(terr,1) RETURN {territory: v.vertex, nativeStatus:v.path.edges[0]}", id.toString());*/
 		String query=String.format("FOR v,e IN 1..100 OUTBOUND '%1$s' EXISTS_IN RETURN {territory: v, nativeStatus:e}", id.toString());

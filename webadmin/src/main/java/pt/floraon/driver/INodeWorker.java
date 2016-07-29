@@ -146,5 +146,5 @@ public interface INodeWorker {
 	 * @return
 	 * @throws ArangoException
 	 */
-	public Iterator<NativeStatusResult> getTaxonNativeStatus(INodeKey id) throws FloraOnException;
+	public Iterator<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException;
 }

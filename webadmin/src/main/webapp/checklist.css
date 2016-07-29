@@ -165,7 +165,7 @@ div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius
 div.territory.NEAR_ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:35%;}
 div.territory.EXOTIC {background-color:#faa;border:2px solid #faa;}
 div.territory.DOUBTFULLY_NATIVE {background-color:#d2e102;border:2px solid #df0;}
-div.territory.DOUBTFULLY_INTRODUCED {background-color:#d90;border:2px solid #fd0;}
+div.territory.DOUBTFULLY_EXOTIC {background-color:#d90;border:2px solid #fd0;}
 div.territory.ERROR {background-color:#f00;border:2px solid #f00;}
 
 div.territory .occurrencestatus.uncertain {

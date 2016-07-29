@@ -51,7 +51,7 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 		if(better < 0)	// o is better, replace status!
 			return o;
 		else if(better==0) {	// tmp2 is equally good, check statuses
-			if(!this.existsIn.getNativeStatus().equals(o.existsIn.getNativeStatus())) this.existsIn.setNativeStatus(NativeStatus.EXISTING);
+			if(!this.existsIn.getNativeStatus().equals(o.existsIn.getNativeStatus())) this.existsIn.setNativeStatus(NativeStatus.MULTIPLE_STATUS);
 			if(this.existsIn.getOccurrenceStatus() == null || !this.existsIn.getOccurrenceStatus().equals(o.existsIn.getOccurrenceStatus())) this.existsIn.setOccurrenceStatus(OccurrenceStatus.PRESENT);
 			return this;
 		} else return this;
