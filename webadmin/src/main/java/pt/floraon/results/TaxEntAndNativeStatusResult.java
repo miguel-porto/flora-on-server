@@ -15,22 +15,25 @@ import org.apache.commons.csv.CSVPrinter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
+	/**
+	 * Is the native distribution complete for this taxon OR for any of its synonyms?
+	 * This implies that all synonyms must have been traversed to check if any of them has this field set to true.
+	 */
+	protected Boolean worldDistributionCompleteness;
 	protected List<TerritoryStatus> territories;
 
 	public Map<String,InferredStatus> inferNativeStatus(String territory) {
 		if(territory == null)
-			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
+			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.worldDistributionCompleteness);
 		else
-			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.taxent.getWorldDistributionCompleteness()!=null && this.taxent.getWorldDistributionCompleteness()==WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
+			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.worldDistributionCompleteness);
 	}
 	
 	public Set<String> inferEndemismDegree() {
-		if(this.taxent.getWorldDistributionCompleteness() != Constants.WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE) return Collections.emptySet();
+		if(!this.worldDistributionCompleteness) return Collections.emptySet();
 		return new ListOfTerritoryStatus(territories).computeEndemismDegreeName();
 	}
 	

@@ -6,6 +6,7 @@ import java.util.List;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
+import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.Territory;
 
@@ -31,6 +32,10 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 	 * The list of directions in which each edge was traversed. Corresponds 1:1 to the edges list.
 	 */
 	protected List<String> direction;
+	/**
+	 * The list of worldDistributionCompleteness of all traversed vertices (obviously null for non-TaxEnt vertices)
+	 */
+	protected List<WorldNativeDistributionCompleteness> worldDistributionCompleteness;
 
 	@Override
 	public int compareTo(TerritoryStatus o) {
