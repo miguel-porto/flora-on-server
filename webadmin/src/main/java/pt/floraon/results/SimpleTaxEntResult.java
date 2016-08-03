@@ -65,8 +65,7 @@ public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntRes
 
 	@Override
 	public String getHTMLTableHeader(Object obj) {
-		// TODO Auto-generated method stub
-		return null;
+		return "<tr><th>ID</th><th>Canonical name</th><th>Author</th></tr>";
 	}
 
 	@Override

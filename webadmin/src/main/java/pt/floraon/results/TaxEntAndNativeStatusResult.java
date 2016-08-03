@@ -15,6 +15,7 @@ import org.apache.commons.csv.CSVPrinter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
@@ -63,13 +64,17 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 			e.printStackTrace();
 		}
 		
+		boolean rare;
 		if(this.territories!=null) {
 			for(String terr : allTerritories) {
 				if(tStatus.containsKey(terr)) {
 					status=tStatus.get(terr);
+					rare = (status.getAbundanceLevel() != Constants.AbundanceLevel.NOT_SPECIFIED
+							&& status.getAbundanceLevel() != Constants.AbundanceLevel.VERY_COMMON &&
+							status.getAbundanceLevel() != Constants.AbundanceLevel.COMMON);
 					sb.append("<div class=\"territory ").append(status.endemic ? "ENDEMIC" : status.nativeStatus.toString()).append("\">");
 					if(status.occurrenceStatus!=null)
-						sb.append("<div class=\"occurrencestatus ").append(status.occurrenceStatus.toString()).append("\">").append("</div>");
+						sb.append("<div class=\"occurrencestatus ").append(status.occurrenceStatus.toString() + (rare ? " RARE" : "")).append("\">").append("</div>");
 					if(status.possibly)
 						sb.append("<div class=\"occurrencestatus uncertain\"></div>");
 					if(status.uncertainOccurrence!=null && status.uncertainOccurrence)
@@ -81,6 +86,11 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		}
 		sb.append("</td></tr>");
 		return sb.toString();
+	}
+
+	@Override
+	public String getHTMLTableHeader(Object obj) {
+		return "<tr><th>Canonical name</th><th>Author</th><th>Status in territories</th></tr>";
 	}
 
 	@Override

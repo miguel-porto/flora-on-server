@@ -94,6 +94,11 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 	}
 
 	@Override
+	public String getHTMLTableHeader(Object obj) {
+		return "<tr><th>Type of match</th><th>ID</th><th>Canonical name</th><th>Traversed relationship types</th></tr>";
+	}
+
+	@Override
 	public String[] toStringArray() {
 		StringBuilder sb=new StringBuilder();
 		for(TaxEnt s:this.match) sb.append(s.getID()+", ");

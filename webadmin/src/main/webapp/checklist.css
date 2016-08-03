@@ -159,22 +159,22 @@ div.territory .occurrencestatus {position:absolute;top:0;left:0;width:100%;heigh
 div.territory .legend {position:absolute;top:0;left:0;width:100%;height:100%;}
 
 div.territory:hover {box-shadow:0 0 2px 1px #0f0;}
-div.territory.EXISTING {background-color:#ccf;border:2px solid #ccf;}
 div.territory.NATIVE {background-color:#afa;border:2px solid #afa;}
+div.territory.ASSUMED_NATIVE {background-color:#afa;border:2px solid #8ae234;}
+div.territory.DOUBTFULLY_NATIVE {background-color:#d2e102;border:2px solid #df0;}
 div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:10%;}
 div.territory.NEAR_ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:35%;}
 div.territory.EXOTIC {background-color:#faa;border:2px solid #faa;}
-div.territory.DOUBTFULLY_NATIVE {background-color:#d2e102;border:2px solid #df0;}
 div.territory.DOUBTFULLY_EXOTIC {background-color:#d90;border:2px solid #fd0;}
+div.territory.CRYPTOGENIC {background-color:#2f69ff;border:2px solid #77f;}
+div.territory.MULTIPLE_STATUS {background-color:#ccf;border:2px solid #ccf;}
 div.territory.ERROR {background-color:#f00;border:2px solid #f00;}
+/* missing these:
+NATIVE_REINTRODUCED
+ASSUMED_EXOTIC
+EXOTIC_REINTRODUCED
+*/
 
-div.territory .occurrencestatus.uncertain {
-	background-image:linear-gradient(45deg
-		, transparent 15%, rgba(255,255,255,0.7) 15%, rgba(255,255,255,0.7) 25%, transparent 25%
-		, transparent 40%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.7) 50%, transparent 50%
-		, transparent 65%, rgba(255,255,255,0.7) 65%, rgba(255,255,255,0.7) 75%, transparent 75%
-		, transparent 90%, rgba(255,255,255,0.7) 90%, rgba(255,255,255,0.7));
-}
 div.territory .occurrencestatus.EXTINCT {
 	background-color: rgba(0,0,0,0.1);
 	background-image: linear-gradient(90deg, transparent 40%, black 40%, black 60%, transparent 60%, transparent)
@@ -189,6 +189,31 @@ div.territory .occurrencestatus.POSSIBLY_EXTINCT {
 	background-size:100% 100%;
 }
 
+div.territory .occurrencestatus.POSSIBLE_OCCURRENCE {
+	background-image: linear-gradient(90deg, white 30%, rgba(255,255,255,0.4) 80%, transparent);
+}
+
+div.territory .occurrencestatus.ASSUMED_PRESENT {
+	background-image:linear-gradient(0deg
+		, transparent 20%, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.7) 30%, transparent 30%
+		, transparent 50%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0.7) 60%, transparent 60%
+		, transparent 80%, rgba(255,255,255,0.7) 80%, rgba(255,255,255,0.7) 90%, transparent 90%
+		);
+}
+/* missing these:
+DOUBT_OVER_PRESENCE			// There is doubt over the presence of this taxon due to geographic issues (NOTE: doubt because of taxonomic issues is treated in another field)
+ABSENT_BUT_REPORTED_IN_ERROR	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
+*/
+
+/* other assorted flags */
+div.territory .occurrencestatus.uncertain {
+	background-image:linear-gradient(45deg
+		, transparent 15%, rgba(255,255,255,0.7) 15%, rgba(255,255,255,0.7) 25%, transparent 25%
+		, transparent 40%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.7) 50%, transparent 50%
+		, transparent 65%, rgba(255,255,255,0.7) 65%, rgba(255,255,255,0.7) 75%, transparent 75%
+		, transparent 90%, rgba(255,255,255,0.7) 90%, rgba(255,255,255,0.7));
+}
+
 div.territory .occurrencestatus.RARE {
 	background-image: radial-gradient(rgba(255,0,0,0.6) 30%, transparent 35%, transparent);
 	background-size:100% 100%;
@@ -199,9 +224,6 @@ div.territory .occurrencestatus.UNCERTAIN_OCCURRENCE {
 	background-size:100% 100%;
 }
 
-div.territory .occurrencestatus.POSSIBLE_OCCURRENCE {
-	background-image: linear-gradient(90deg, white 30%, rgba(255,255,255,0.4) 80%, transparent);
-}
 
 div.territory .occurrencestatus.ERROR {background-color:#f00;border:2px solid #f00;}
 
