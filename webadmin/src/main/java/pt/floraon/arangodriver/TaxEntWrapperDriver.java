@@ -119,7 +119,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public Map<String,InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException {
 		String query=AQLQueries.getString("TaxEntWrapperDriver.9"
 			, thisNode.toString()
-			, territory == null ? "" : "&& v.shortName == '"+ territory +"'");//"&& v.showInChecklist");
+			, territory == null ? "" : AQLQueries.getString("TaxEntWrapperDriver.9a", territory));
 		TaxEntAndNativeStatusResult listOfStatus;
 		try {
 			listOfStatus =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();

@@ -229,18 +229,21 @@ public class ListOfTerritoryStatus {
 	 * See Constants.NativeStatus
 	 * @return
 	 */
-	public Set<Territory> computeEndemismDegree() {	FIXME: narcissus portensis!! (talvez porque sinónimos)
+	public Set<Territory> computeEndemismDegree() {	// FIXME: narcissus portensis!! (talvez porque sinónimos)
 		// FIXME: the occurrence status should not propagate unless it is complete_dsitribution
 		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
 		Set<Territory> out = new HashSet<Territory>();
 		Set<String> terr = new HashSet<String>();
 		Map<String,Integer> nativeExistsIn = new HashMap<String,Integer>();
+		// compile all native NativeStatus
 		for(TerritoryStatus ts : this.territoryStatusList) {
 			// exclude non-native statuses, we just want endemism here
 			if(!ts.existsIn.getNativeStatus().isNative()) continue;
-			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective depth
+			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective taxonomic depth
 			// each EXISTS_IN is a different territory route in the graph
-			nativeExistsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
+			//nativeExistsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
+			// the taxonomic depth is the number of PART_OF relations
+			nativeExistsIn.put(ts.existsIn.getID(), Collections.frequency(ts.edges, Constants.RelTypes.PART_OF.toString()));
 			// compile the base territories, i.e. those which have a native status directly assigned
 			if(!ts.edges.contains(Constants.RelTypes.BELONGS_TO.toString())) terr.add(ts.territory.getName());		// only add direct territory assignements
 		}
@@ -261,8 +264,9 @@ public class ListOfTerritoryStatus {
 				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory, so there's a BELONGS_TO link)
 				//System.out.println(Constants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
 				//System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
+				//if(!Collections.disjoint(ts.vertices.subList(minExistsInDepth + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
 				// extract vertices after EXISTS_IN (so, territories)
-				if(!Collections.disjoint(ts.vertices.subList(minExistsInDepth + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
+				if(!Collections.disjoint(ts.vertices.subList(ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()) + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
 			}
 		}
 		/*String[] ex=exclude.toArray(new String[exclude.size()]);
