@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
+import com.arangodb.CursorResult;
 import com.arangodb.NonUniqueResultException;
 import com.arangodb.VertexCursor;
 import com.arangodb.entity.DocumentEntity;
@@ -147,19 +148,44 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 	
 	@Override
-	public String[] deleteNode(INodeKey id) throws FloraOnException {
+	public String[] deleteVertexOrEdge(INodeKey id) throws FloraOnException {
 		List<String> deleted=new ArrayList<String>();
-		String tmp;
-		String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s') RETURN e"	// FIXME: update to Arango 3.0
-			,Constants.TAXONOMICGRAPHNAME,id);
-
 		try {
-			Iterator<String> vertexCursor=dbDriver.executeAqlQuery(query, null, null, String.class).iterator();
-			while(vertexCursor.hasNext()) {
-				tmp=vertexCursor.next();
-				dbDriver.deleteDocument(tmp);
-				deleted.add(tmp);
+			switch(id.getDocType()) {
+			case EDGE:
+				dbDriver.graphDeleteEdge(Constants.TAXONOMICGRAPHNAME, id.getColletion(), id.getDBKey());
+				break;
+			
+			case VERTEX:
+				String query = AQLQueries.getString("NodeWorkerDriver.2", id.getID(), Constants.implode(",", RelTypes.values()));
+				String tmp;
+				CursorResult<String> tmp1 = dbDriver.executeAqlQuery(query,null,null,String.class);
+				if(tmp1.getWarnings().size() > 0)
+					throw new DatabaseException(tmp1.getWarnings().get(0).getMessage());
+				
+				Iterator<String> toDelete = tmp1.iterator();
+				while(toDelete.hasNext()) {
+					tmp=toDelete.next();
+					dbDriver.deleteDocument(tmp);
+					deleted.add(tmp);
+				}
+				dbDriver.deleteDocument(id.getID());
+				break;
+
+			case NONE:
+				throw new DatabaseException("Given key is not an edge nor a vertex.");
 			}
+			deleted.add(id.getID());
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+		return deleted.toArray(new String[0]);
+	}
+
+	@Override
+	public String[] deleteDocument(INodeKey id) throws FloraOnException {
+		List<String> deleted=new ArrayList<String>();
+		try {
 			dbDriver.deleteDocument(id.toString());
 			deleted.add(id.toString());
 		} catch (ArangoException e) {
@@ -167,7 +193,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		}
 		return deleted.toArray(new String[0]);
 	}
-	
+
 	@Override
 	public String[] deleteLeafNode(INodeKey id) throws FloraOnException {
 		List<String> deleted=new ArrayList<String>();
@@ -237,14 +263,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	
 	@Override
 	public GraphUpdateResult detachSynonym(INodeKey from,INodeKey to) throws FloraOnException {
-		String query=String.format("LET e=FLATTEN("
-			+ "FOR v in TRAVERSAL(%1$s,%2$s,'%3$s','any',{paths:true,filterVertices:[{_id:'%4$s'}],vertexFilterMethod:'exclude'}) RETURN v.path.edges) "
-			//+ "LET e1=e[LENGTH(e)-1] LET rem=[e1, (FOR e2 IN SYNONYM FILTER e2._to==e1._from && e2._from==e1._to RETURN e2)[0]]"
-			//+ "FOR r IN rem REMOVE r IN SYNONYM RETURN OLD"
-			+ "LET e1=e[LENGTH(e)-1] "
-			+ "REMOVE e1 IN SYNONYM RETURN OLD"
-			,NodeTypes.taxent.toString(),RelTypes.SYNONYM.toString(),from.toString(),to.toString());
-		//System.out.println(query);
+		String query = AQLQueries.getString("NodeWorkerDriver.1", from.toString(), to.toString());
 		List<SYNONYM> deleted;
 		try {
 			deleted = dbDriver.executeAqlQuery(query, null, null, SYNONYM.class).asList();

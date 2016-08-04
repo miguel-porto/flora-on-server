@@ -229,7 +229,7 @@ public class ListOfTerritoryStatus {
 	 * See Constants.NativeStatus
 	 * @return
 	 */
-	public Set<Territory> computeEndemismDegree() {	// FIXME: narcissus portensis!! (talvez porque sinónimos)
+	public Set<Territory> computeEndemismDegree() {
 		// FIXME: the occurrence status should not propagate unless it is complete_dsitribution
 		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
 		Set<Territory> out = new HashSet<Territory>();

@@ -56,6 +56,12 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 			return false;
 		if(this.reltypes.length > str.reltypes.length)	// shorter paths have priority
 			return false;
+		/* TODO: is this needed?
+		// now, if the match is of entities with the same name, choose the current
+		if(this.match[0].getName().equals(str.match[0].getName()))
+			if(!this.match[0].getCurrent() && str.match[0].getCurrent())
+				return false;
+		*/
 		return true;
 	}
 

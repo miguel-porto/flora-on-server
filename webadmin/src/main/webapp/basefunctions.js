@@ -26,14 +26,24 @@ function removeEvent(evnt,elem,func) {
 function postJSON(addr,obj,callback) {
 	loadXMLDocPOSTJSON(addr,obj,function(xmlo) {
 		xmlo=xmlo.target;
-		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
+		if(xmlo.readyState == 4) {
+			if(xmlo.status == 200) callback(xmlo.responseText); else {
+				var rt=JSON.parse(xmlo.responseText);
+				alert('ERROR: '+rt.msg);
+			}
+		}
 	});
 }
 
 function postAJAXForm(addr,formElement,callback) {
 	loadXMLDocPOST(addr,formElement,function(xmlo) {
 		xmlo=xmlo.target;
-		if(xmlo.readyState == 4 && xmlo.status == 200) callback(xmlo.responseText);
+		if(xmlo.readyState == 4) {
+			if(xmlo.status == 200) callback(xmlo.responseText); else {
+				var rt=JSON.parse(xmlo.responseText);
+				alert('ERROR: '+rt.msg);
+			}
+		}
 	});
 }
 
@@ -94,9 +104,11 @@ function fetchAJAX(addr,callback) {
 	//showLoader();
 	loadXMLDoc(addr,function(xmlo) {
 		xmlo=xmlo.target;
-		if(xmlo.readyState == 4 && xmlo.status == 200) {
-			//hideLoader();
-			callback(xmlo.responseText);
+		if(xmlo.readyState == 4) {
+			if(xmlo.status == 200) callback(xmlo.responseText); else {
+				var rt=JSON.parse(xmlo.responseText);
+				alert('ERROR: '+rt.msg);
+			}
 		}
 	});
 }

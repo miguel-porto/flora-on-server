@@ -71,9 +71,8 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public TaxEnt getParentTaxon() throws TaxonomyException, DatabaseException {
-		String query=String.format(//"FOR n IN NEIGHBORS(%1$s,%2$s,'%3$s','outbound',{current:true},{includeData:true}) RETURN n"
-			AQLQueries.getString("TaxEntWrapperDriver.2")
-			,NodeTypes.taxent.toString(),RelTypes.PART_OF.toString(),thisNode.toString(),RelTypes.HYBRID_OF.toString());
+		String query = AQLQueries.getString("TaxEntWrapperDriver.2", thisNode.toString());
+			
 		TaxEnt out;
 		try {
 			out=dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).getUniqueResult();
@@ -85,20 +84,6 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		//if(out==null) throw new TaxonomyException("The taxon "+node.toString()+" has no parent taxon. This must be fixed.");
 		return out;
 	}
-
-/*	@Override
-	public String[] getEndemismDegree() throws FloraOnException {
-		String query=AQLQueries.getString("TaxEntWrapperDriver.3", thisNode, RelTypes.EXISTS_IN.toString(), "'"+implode("','",NativeStatuses)+"'");
-		
-		List<String> list;
-		try {
-			list = dbDriver.executeAqlQuery(query,null,null,String.class).asList();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
-		}
-		String[] out = list.toArray(new String[list.size()]);
-		return out;
-	}*/
 
 	@Override
 	public String[] getEndemismDegree() throws FloraOnException {

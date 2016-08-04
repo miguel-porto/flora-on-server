@@ -132,30 +132,6 @@
 			</div>
 		</div>
 	
-		<div class="toggler off" id="addnativestatusbox">
-			<h1>Add/change native status <span class="info">adds a new, or updates, the native status to a territory</span></h1>
-			<div class="content">
-				This taxon <select name="nativeStatus">
-					<c:forEach var="nstatus" items="${nativeStatus}">
-						<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
-					</c:forEach>
-					<option value="NULL">has no status in</option></select>
-				<select name="territory">
-					<c:forEach var="territory" items="${territories}">
-						<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
-					</c:forEach>
-				</select> and is 
-				<select name="occurrenceStatus">
-					<c:forEach var="ostatus" items="${occurrenceStatus}">
-						<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
-					</c:forEach>
-				</select>
-				<label><input type="checkbox" value="1" name="uncertain"/> occurrence is uncertain</label>
-				<input type="button" value="Add / Update" class="actionbutton" id="addnativestatus"/>
-			</div>
-		</div>
-	
-		
 		<div class="toggler off">
 			<h1>Add new synonym <span class="info">binds an existing name as a synonym of this taxon</span></h1>
 			<div class="content">

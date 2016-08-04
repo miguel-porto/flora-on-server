@@ -84,12 +84,21 @@ public interface INodeWorker {
 	public Character getCharacterByName(String name) throws FloraOnException;
 
 	/**
-	 * Deletes one node and all connected edges
-	 * @param id The document handle
+	 * Deletes one edge or one vertex and <b>all</b> connected edges.<br/><br/>
+	 * <em>WARNING!</em> This function is dangerous! It will delete all edges connected to the given vertex.
+	 * @param id The document handle, can be an edge or a vertex
 	 * @return An array of the deleted document handles
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 */
-	public String[] deleteNode(INodeKey id) throws FloraOnException;
+	public String[] deleteVertexOrEdge(INodeKey id) throws FloraOnException;
+	/**
+	 * Low-level function to delete one document.<br/><br/>
+	 * <em>WARNING:</em> This does not check for graph consistency! An invalid graph may result.
+	 * @param id
+	 * @return
+	 * @throws FloraOnException
+	 */
+	public String[] deleteDocument(INodeKey id) throws FloraOnException;
 	/**
 	 * Deletes one node and all connected edges if the node is a leaf node and if it has no data associated.
 	 * @param id

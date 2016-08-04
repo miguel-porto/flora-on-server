@@ -165,21 +165,19 @@ function removeEl(ev) {
 	if(ev && ev.target) ev.target.parentNode.removeChild(ev.target);
 }
 
+/*
 function updateLink(d,current) {
 	fetchAJAX('/floraon/api/update/update/links?id='+d._id+'&current='+current,function(rt) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 		console.log(rt.msg);
 			updateData(rt.msg.nodes,rt.msg.links);
-		/*
-			console.log(rt.msg);
-			var ind=gdata.links.indexOf(d);
-			if(rt.msg.current) gdata.links[ind].current=true; else gdata.links[ind].current=undefined;*/
 		} else alert(rt.msg);
 		var chg=document.getElementById('changename');
 		chg.parentNode.removeChild(chg);
 	});
 }
+*/
 
 function afterUpdateNode(rt) {
 	rt=JSON.parse(rt);
@@ -482,7 +480,7 @@ function clickToolbar(ev) {
 			var pos=screenCoordsForSVGEl($('#taxbrowser svg')[0],this);
 			var html='<div class="window float" id="changename"><h1>Edit link</h1><table>'
 				+'<tr><td>Type</td><td>'+d.type+'</td></tr>'
-				+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
+				//+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
 				+'<tr><td colspan="2" style="text-align:center"><div class="button delete">Delete</div><div class="button cancel">Cancel</div></td></tr></table></div>';
 				//<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
 			var el=createHTML(html);
@@ -508,13 +506,13 @@ function clickToolbar(ev) {
 			addEvent('click',el.querySelector('.button.delete'),function(ev) {
 				var seln=$('#taxbrowser .link.selected');
 				var seldatum=d3.select(seln[0]).datum();
-				deleteEntity(seldatum,'link');
+				deleteEntity(seldatum);
 				var chg=document.getElementById('changename');
 				chg.parentNode.removeChild(chg);
 				force.resume();
 			});
 
-			var lbls=el.querySelectorAll('span.label');
+			/*var lbls=el.querySelectorAll('span.label');
 			for(var i=0;i<lbls.length;i++) addEvent('click',lbls[i],function(ev) {
 				if(ev.target.classList.contains('selected')) return;
 				var lbls=ev.target.parentNode.querySelectorAll('span.label');
@@ -524,7 +522,7 @@ function clickToolbar(ev) {
 				var wnd=getParentbyClass(ev.target,'float');
 				var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
 				updateLink(d,current);
-			});
+			});*/
 			return;
 		break;
 
@@ -600,14 +598,19 @@ function clickToolbar(ev) {
 
 	case 'but-delnode':
 		var seln=$('#taxbrowser .node.selected');
-		if(seln.length==0) {var what='link';seln=$('#taxbrowser .link.selected');} else var what='node';
+		if(seln.length==0) {
+			var what='link';
+			seln=$('#taxbrowser .link.selected');
+		} else {
+			if(!confirm('You\'re about to delete a vertex, ALL THE EDGES CONNECTING TO IT WILL BE DELETED ALSO. This cannot be undone! Proceed?')) break;
+		}
 
 		if(seln.length==0) {
 			showWindow('<p>You must select one node or link to delete</p>',{timer:3000});
 			break;
 		} else {
 			var seldatum=d3.select(seln[0]).datum();
-			deleteEntity(seldatum,what);
+			deleteEntity(seldatum);
 		}
 		break;
 	
@@ -691,44 +694,32 @@ function collapseNode(n) {
 	onUpdateData();
 }
 
-function deleteEntity(d,type) {
-//	if(type=='node') {
-		fetchAJAX('/floraon/api/update/delete?id='+d._id,function(rt) {
-			rt=JSON.parse(rt);
-			var toremove=[];
-			if(rt.success) {
-				showWindow('<p>Deleted '+rt.msg.length+' entities: '+rt.msg+'</p>',{timer:2000});
-				for(var i=0;i<gdata.links.length;i++) {
-					if(rt.msg.indexOf(gdata.links[i]._id)>-1) {
-						gdata.links.splice(i,1);
-						i--;
-					}
+function deleteEntity(d) {
+	fetchAJAX('/floraon/api/update/delete?id='+d._id,function(rt) {
+		rt=JSON.parse(rt);
+		var toremove=[];
+		if(rt.success) {
+			showWindow('<p>Deleted '+rt.msg.length+' entities: '+rt.msg+'</p>',{close:true});
+			for(var i=0;i<gdata.links.length;i++) {
+				if(rt.msg.indexOf(gdata.links[i]._id)>-1) {
+					gdata.links.splice(i,1);
+					i--;
 				}
-				for(i=0;i<gdata.nodes.length;i++) {
-					if(rt.msg.indexOf(gdata.nodes[i]._id)>-1) {
-						gdata.nodes.splice(i,1);
-						i--;
-					}
+			}
+			for(i=0;i<gdata.nodes.length;i++) {
+				if(rt.msg.indexOf(gdata.nodes[i]._id)>-1) {
+					gdata.nodes.splice(i,1);
+					i--;
 				}
+			}
 /*						for(var i=0;i<gdata.links.length;i++) {
 					if(gdata.links[i].source.id==seldatum.id || gdata.links[i].target.id==seldatum.id) toremove.push(i);
 				}
 				for(i=toremove.length-1;i>=0;i--) gdata.links.splice(toremove[i],1);
 				gdata.nodes.splice(seldatum.index,1);*/
-				onUpdateData();
-			} else alert(rt.msg);
-		});
-/*	} else {
-		fetchAJAX('worker.php?w=dellink&i='+d._id,function(rt) {
-			rt=JSON.parse(rt);
-			if(rt.success) {
-				for(var i=0;i<gdata.links.length;i++) {
-					if(gdata.links[i]._id==rt.msg[0]) {gdata.links.splice(i,1);break;}
-				}
-				onUpdateData();
-			} else alert(rt.msg);
-		});
-	}*/
+			onUpdateData();
+		} else alert(rt.msg);
+	});
 }
 
 function forceTick(e) {
@@ -805,7 +796,7 @@ function mergeLinks(newlinks) {
 		if(sourceids.indexOf(d._from)==-1 || targetids.indexOf(d._to)==-1) return(true);
 		for(var i=0;i<sourceids.length;i++) {
 			if(sourceids[i]==d._from && targetids[i]==d._to) {
-				gdata.links[i].current=d.current;
+				//gdata.links[i].current=d.current;
 				return(false);
 			}
 		}
@@ -891,7 +882,7 @@ function onUpdateData() {
 	node.exit().remove();
 	link=link.data(gdata.links);
 	link.attr('class',function(d) {
-		return('link '+d.type+(d.current ? ' current' : ''));
+		return('link '+d.type);	// (d.current ? ' current' : '')
 	});
 	link.exit().remove();
 	updateStrengths();
@@ -936,7 +927,7 @@ function onUpdateData() {
 	
 	tmp=link.enter();
 	tmp=tmp.insert('path','svg g').attr('class',function(d) {
-		return('link '+d.type+(d.current ? ' current' : ''));
+		return('link '+d.type);		// +(d.current ? ' current' : '')
 	}).on('click',clickLink);
 /*	link.enter().insert("line",'svg g').attr("class", function(d) {
 		return('link '+d.type+(d.current ? ' current' : ''));

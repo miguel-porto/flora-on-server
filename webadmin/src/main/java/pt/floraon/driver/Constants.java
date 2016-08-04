@@ -229,6 +229,7 @@ public final class Constants {
 		,NOT_SET
 	}
 	
+	public enum DocumentType {VERTEX, EDGE, NONE}
 	// All types of relationships in the graph
 	public enum RelTypes {
 		PART_OF(Facets.TAXONOMY, PART_OF.class),								// TaxEnt PART_OF TaxEnt

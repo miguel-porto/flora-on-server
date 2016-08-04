@@ -229,42 +229,6 @@ function actionButtonClick(ev) {
 				alert(rt.msg);
 		});
 		break;
-	
-/*	case 'updatetaxon':
-		var cb=document.getElementById('updatetaxonbox');
-		var parent=getCurrentTaxon();
-		var obj={
-			name:cb.querySelector('input[name=name]').value
-			,author:cb.querySelector('input[name=author]').value
-			,sensu:cb.querySelector('input[name=sensu]').value
-			,annotation:cb.querySelector('input[name=annotation]').value
-			,rank:cb.querySelector('input[name=rank]').value
-			,current:cb.querySelector('input[name=current]').value
-			,id:parent
-			,worldDistr: 'dff'sdfsdf
-		}
-		updateTaxon(obj,true);
-		break;*/
-	
-	case 'addnativestatus':
-		var cb=document.getElementById('addnativestatusbox');
-		var taxon=getCurrentTaxon();
-		var obj={	// TODO: use formdata from form!
-			taxon: taxon
-			,territory: cb.querySelector('select[name=territory]').value
-			,nativeStatus: cb.querySelector('select[name=nativeStatus]').value
-			,occurrenceStatus: cb.querySelector('select[name=occurrenceStatus]').value
-			,uncertain: cb.querySelector('input[name=uncertain]').checked ? 1 : 0
-		};
-		postJSON('/floraon/api/territories/set',obj,function(rt) {
-			rt=JSON.parse(rt);
-			if(rt.success) {
-				loadTaxDetails(taxon,document.querySelector('.taxdetails'));
-			} else
-				alert(rt.msg);
-		});
-
-		break;
 	}
 }
 

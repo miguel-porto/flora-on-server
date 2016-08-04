@@ -45,7 +45,7 @@ public class NodeWorker extends FloraOnServlet {
 		case "delete":
 			id=getParameterAsKey("id");
 			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
-			success(EntityFactory.toJsonElement(NWD.deleteNode(id),false));
+			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
 			return;
 
 		case "deleteleaf":
@@ -57,7 +57,7 @@ public class NodeWorker extends FloraOnServlet {
 		case "setsynonym":
 			from=getParameterAsKey("from");
 			to=getParameterAsKey("to");
-			driver.wrapTaxEnt(from).setSynonymOf(NWD.getTaxEntById(to));
+			driver.wrapTaxEnt(from).setSynonymOf(to);
 			//.setSynonymOf(graph.dbNodeWorker.getTaxEntVertex(ArangoKey.fromString(to)));
 			success("Ok");
 			return;
@@ -162,12 +162,12 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 			}
 			switch(partIt.next()) {
-			case "links":
+/*			case "links":
 				success(
 					NWD.updateDocument(
 						getParameterAsKey("id"), "current", getParameterAsBooleanNoNull("current")
 					).toJsonObject());
-				return;
+				return;*/
 
 			case "taxent":
 				success(NWD.updateTaxEntNode(

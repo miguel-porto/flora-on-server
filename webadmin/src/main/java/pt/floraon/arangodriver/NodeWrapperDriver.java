@@ -30,7 +30,7 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 
 	@Override
 	public int setPART_OF(INodeKey parent) throws FloraOnException {
-		return this.createRelationshipTo(parent, new PART_OF(true));
+		return this.createRelationshipTo(parent, new PART_OF());
 	}
 
 	@Override

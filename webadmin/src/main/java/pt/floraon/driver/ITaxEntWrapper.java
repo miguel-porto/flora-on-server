@@ -53,17 +53,9 @@ public interface ITaxEntWrapper {
 	/**
 	 * Sets this taxon as a synonym of given taxon. Automatically sets this taxon to not current.
 	 * @param tev
-	 * @throws ArangoException 
-	 * @throws IOException 
 	 * @throws FloraOnException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalArgumentException 
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
-	 * @throws SecurityException 
-	 * @throws NoSuchMethodException 
 	 */
-	public void setSynonymOf(TaxEnt tev) throws FloraOnException;
+	public void setSynonymOf(INodeKey tev) throws FloraOnException;
 	public int setObservedIn(INodeKey slist,Short doubt,Short validated,PhenologicalStates state,String uuid,Integer weight,String pubnotes,String privnotes,NativeStatus nstate,String dateInserted) throws FloraOnException;
 	/**
 	 * Associates this taxon with an {@link Attribute}.
