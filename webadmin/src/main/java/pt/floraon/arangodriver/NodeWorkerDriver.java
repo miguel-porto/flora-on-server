@@ -50,7 +50,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	
 	@Override
 	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String sensu, String annotation,Boolean current) throws TaxonomyException, FloraOnException {
-		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null, null);
+		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null, null, null);
 		try {
 			//VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
 			DocumentEntity<TaxEnt> ve=dbDriver.createDocument(NodeTypes.taxent.toString(), out);

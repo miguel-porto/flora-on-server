@@ -127,7 +127,7 @@ public interface INodeWorker {
      * Updates or replaces a TaxEnt node in the DB. 
      * @param node
      * @param newTaxEnt
-     * @param replace If true, null fields will be removed from the document; if false, null fields will keep their value. 
+     * @param replace If true, null fields will be removed from the document; if false, null fields will keep their original values in the DB. 
      * @return
      * @throws FloraOnException
      */

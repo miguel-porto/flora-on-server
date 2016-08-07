@@ -191,12 +191,10 @@ public final class Constants {
 		,NOT_KNOWN
 	}
 	
-	public interface IntroducedStatus {}		// interfaces are just for future extensions to other biological groups
-	public interface NaturalizationDegree {}
-	
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
-	public enum PlantIntroducedStatus implements IntroducedStatus {
-		APOPHYTE
+	public enum PlantIntroducedStatus {
+		NOT_SPECIFIED
+		,APOPHYTE
 		,ARCHAEOPHYTE
 		,NEOPHYTE
 		,DIAPHYTE
@@ -206,14 +204,17 @@ public final class Constants {
 		,ARCHAEOAGRIOPHYTE		// introduced before 1500 and living in natural or semi-natural communities
 		,NEOEPECOPHYTE			// introduced after 1500 and living exclusively in ruderal communities
 		,NEOAGRIOPHYTE			// introduced after 1500 and living in natural or semi-natural communities
+		,NOT_APPLICABLE
 	}
 
-	public enum PlantNaturalizationDegree implements NaturalizationDegree {
-		CASUAL
+	public enum PlantNaturalizationDegree {
+		NOT_SPECIFIED
+		,CASUAL
 		,NATURALIZED_OCCASIONAL
 		,NATURALIZED_DANGEROUS
 		,INVASIVE
 		,TRANSFORMER
+		,NOT_APPLICABLE
 	}
 	
 	//public static NativeStatus[] NativeStatuses=NativeStatus.getNatives().toArray(new NativeStatus[0]);	// the NativeStatus which are considered Native.

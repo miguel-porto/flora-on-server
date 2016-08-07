@@ -105,7 +105,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 	}
 
 	@Override
-	public String[] toStringArray() {
+	public String[] toStringArray() {	// TODO: should be the same fields as above
 		StringBuilder sb=new StringBuilder();
 		for(TaxEnt s:this.match) sb.append(s.getID()+", ");
 		return new String[] {

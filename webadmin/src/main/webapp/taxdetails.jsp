@@ -22,76 +22,19 @@
 	<c:if test = "${catchException != null}">
 		<p class="error">There are taxonomic errors in this taxon. Please revise it or its parent relationships:<br/>ERROR: ${catchException.getMessage()}</p>
 	</c:if>
-	<table>
-		<tr><td>ID</td><td><c:out value="${taxent.getID().toString() }"></c:out></td></tr>
-		<c:if test = "${taxent.getOldId() != null}">
-			<tr><td>Legacy ID</td><td><c:out value="${taxent.getOldId().toString() }"></c:out></td></tr>
-		</c:if>
-		<tr><td>Rank</td><td><c:out value="${taxent.getRank().toString() }"></c:out></td></tr>
-		<tr><td>Endemic to</td><td>
-			<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}"></c:out>
-		</td></tr>
-	</table>
 	<div id="taxoninfo">
-		<div id="taxonnativestatus">
-			<h3>Native status assigned to this taxon</h3>
-			<form class="poster" data-path="/floraon/api/territories/set">
-			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
+		<div id="generalinfo">
+			<h3>General info</h3>
 			<table>
-				${nativeStatusTable}
-				<c:if test="${sessionScope.user!=null}">
-				<tr>
-					<td>
-						<select name="territory">
-							<c:forEach var="territory" items="${territories}">
-								<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
-							</c:forEach>
-						</select>
-					</td>
-					<td>
-						<select name="nativeStatus">
-							<c:forEach var="nstatus" items="${nativeStatus}">
-								<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
-							</c:forEach>
-							<option value="NULL">has no status in</option>
-						</select>
-					</td>
-					<td>
-						<select name="occurrenceStatus">
-							<c:forEach var="ostatus" items="${occurrenceStatus}">
-								<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
-							</c:forEach>
-						</select>
-						<label><input type="checkbox" value="1" name="uncertain"/> occurrence is uncertain</label>
-					</td>
-					<td>
-						<select name="abundanceLevel">
-							<c:forEach var="alevel" items="${abundanceLevel}">
-								<option value="${alevel.toString()}"><c:out value="${alevel.toString()}"></c:out></option>
-							</c:forEach>
-						</select>
-					</td>
-				</tr>
+				<tr><td>ID</td><td><c:out value="${taxent.getID().toString() }"></c:out></td></tr>
+				<c:if test = "${taxent.getOldId() != null}">
+					<tr><td>Legacy ID</td><td><c:out value="${taxent.getOldId().toString() }"></c:out></td></tr>
 				</c:if>
+				<tr><td>Rank</td><td><c:out value="${taxent.getRank().toString() }"></c:out></td></tr>
+				<tr><td>Endemic to</td><td>
+					<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}"></c:out>
+				</td></tr>
 			</table>
-			<c:if test="${sessionScope.user!=null}"><input type="submit" value="Add / update"/></c:if>
-			</form>
-			<ul class="menu multiplesel" id="worlddistribution">
-				<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
-				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
-				<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
-			</ul>
-			<c:if test="${inferredNativeStatus != null}">
-				<h3>Inferred Native Status</h3>
-				<table>
-					<c:forEach var="ins" items="${inferredNativeStatus}">
-						<tr>
-						<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
-						<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
-						</tr>
-					</c:forEach>
-				</table>
-			</c:if>
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">
@@ -109,59 +52,157 @@
 				</ul>
 			</div>
 		</c:if>
+		<div id="taxonnativestatus">
+			<h3>Status assigned to this taxon</h3>
+			<form class="poster" data-path="/floraon/api/territories/set">
+			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
+			<table>
+				${nativeStatusTable}
+			</table>
+			</form>
+			<ul class="menu multiplesel" id="worlddistribution">
+				<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
+				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
+				<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
+			</ul>
+		</div>
+		<div>
+			<c:if test="${inferredNativeStatus != null}">
+				<h3>Inferred Native Status</h3>
+				<table>
+					<c:forEach var="ins" items="${inferredNativeStatus}">
+						<tr>
+						<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
+						<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
+						</tr>
+					</c:forEach>
+				</table>
+			</c:if>
+		</div>
+		<c:if test="${sessionScope.user!=null}">
+			<div id="editbox">
+				<h3>Add or modify data</h3>
+				<div class="toggler off" id="updatetaxonbox">
+					<h1>Change name <span class="info">changes this taxon</span></h1>
+					<div class="content">
+						<form class="poster" data-path="/floraon/api/update/update/taxent">
+							<table>
+								<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
+								<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
+								<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
+								<tr><td>New annotation</td><td><input type="text" name="annotation" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
+								<tr><td>New legacy ID</td><td><input type="text" name="oldId" value="${taxent.getOldId() == null ? '' : taxent.getOldId()}"/></td></tr>
+							</table>
+							<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
+							<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
+							<input type="hidden" name="id" value="${taxent.getID()}"/>
+							<input type="hidden" name="worldDistributionCompleteness" value="${taxent.getWorldDistributionCompleteness()}"/>
+							<input type="hidden" name="replace" value="1"/>
+							<input type="submit" value="Update"/>
+						</form>
+					</div>
+				</div>
+			
+				<div class="toggler off">
+					<h1>Add new synonym <span class="info">binds an existing name as a synonym of this taxon</span></h1>
+					<div class="content">
+						<p>Add <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="boxsynonym"/> as a synonym of this taxon. <input type="button" value="Add as a synonym" class="actionbutton" id="addsynonym"/></p>
+						<div id="suggestions"></div>
+					</div>
+				</div>
+				<div class="toggler off">
+					<h1>Add status in territory <span class="info">adds or changes the status of this taxon in territories</span></h1>
+					<div class="content">
+						<form class="poster" data-path="/floraon/api/territories/set">
+						<input type="hidden" name="taxon" value="${taxent.getID()}"/>
+						<table>
+							<tr>
+								<td>Territory</td>
+								<td>
+									<select name="territory">
+										<c:forEach var="territory" items="${territories}">
+											<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
+										</c:forEach>
+									</select>
+								</td>
+							</tr><tr>
+								<td>Native Status</td>
+								<td>
+									<select name="nativeStatus">
+										<c:forEach var="nstatus" items="${nativeStatus}">
+											<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
+										</c:forEach>
+										<option value="NULL">has no status in</option>
+									</select>
+								</td>
+							</tr><tr>
+								<td>Occurrence Status</td>
+								<td>
+									<select name="occurrenceStatus">
+										<c:forEach var="ostatus" items="${occurrenceStatus}">
+											<option value="${ostatus.toString()}"><c:out value="${ostatus.toString()}"></c:out></option>
+										</c:forEach>
+									</select>
+									<label style="display:inline-block"><input type="checkbox" value="1" name="uncertain"/> occurrence is uncertain</label>
+								</td>
+							</tr><tr>
+								<td>Abundance Level</td>
+								<td>
+									<select name="abundanceLevel">
+										<c:forEach var="alevel" items="${abundanceLevel}">
+											<option value="${alevel.toString()}"><c:out value="${alevel.toString()}"></c:out></option>
+										</c:forEach>
+									</select>
+								</td>
+							</tr><tr>
+								<td>Introduced Status</td>
+								<td>
+									<select name="introducedStatus">
+										<c:forEach var="istat" items="${introducedStatus}">
+											<option value="${istat.toString()}"><c:out value="${istat.toString()}"></c:out></option>
+										</c:forEach>
+									</select>
+								</td>
+							</tr><tr>
+								<td>Naturalization Degree</td>
+								<td>
+									<select name="naturalizationDegree">
+										<c:forEach var="ndeg" items="${naturalizationDegree}">
+											<option value="${ndeg.toString()}"><c:out value="${ndeg.toString()}"></c:out></option>
+										</c:forEach>
+									</select>
+								</td>
+							</tr>
+						</table>
+						<input type="submit" value="Add / update"/>
+						</form>
+					</div>
+				</div>
+				<div class="toggler off" id="addchildbox">
+					<h1>Add new sub-taxon <span class="info">creates a new taxon and adds it as a child of this taxon</span></h1>
+					<div class="content">
+						<form class="poster" data-path="/floraon/api/update/add/inferiortaxent">
+							<table>
+							<tr><td>Name</td><td><input type="text" name="name" placeholder="complete scientific name without author"/></td></tr>
+							<tr><td>Author</td><td><input type="text" name="author"/></td></tr>
+							<tr><td><i>sensu</i></td><td><input type="text" name="sensu"/></td></tr>
+							<tr><td>Annotation</td><td><input type="text" name="annot"/></td></tr>
+							<tr><td>Rank</td><td>
+								<select name="rank">
+									<c:forEach var="rank" items="${TaxonRanks}">
+										<option value="${rank.getValue().toString()}"><c:out value="${rank.getName()}"></c:out></option>
+									</c:forEach>
+								</select>
+							</td></tr>
+							<tr><td>Currently accepted?</td><td><input type="checkbox" name="current" checked="checked"/></td></tr>
+							</table>
+							<input type="hidden" name="parent" value="${taxent.getID().toString()}"/>
+							<!-- <input type="button" value="Add" class="actionbutton" id="addchild"/> -->
+							<input type="submit" value="Add"/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</c:if>
 	</div>
-	
-	<c:if test="${sessionScope.user!=null}">
-		<div class="toggler off" id="updatetaxonbox">
-			<h1>Change name <span class="info">changes this taxon</span></h1>
-			<div class="content">
-				<form class="poster" data-path="/floraon/api/update/update/taxent">
-					<table>
-						<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
-						<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
-						<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
-						<tr><td>New annotation</td><td><input type="text" name="annotation" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
-					</table>
-					<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
-					<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
-					<input type="hidden" name="id" value="${taxent.getID()}"/>
-					<input type="hidden" name="worldDistributionCompleteness" value="${taxent.getWorldDistributionCompleteness()}"/>
-					<input type="hidden" name="replace" value="1"/>
-					<input type="submit" value="Update"/>
-				</form>
-			</div>
-		</div>
-	
-		<div class="toggler off">
-			<h1>Add new synonym <span class="info">binds an existing name as a synonym of this taxon</span></h1>
-			<div class="content">
-				<p>Add <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="boxsynonym"/> as a synonym of this taxon. <input type="button" value="Add as a synonym" class="actionbutton" id="addsynonym"/></p>
-				<div id="suggestions"></div>
-			</div>
-		</div>
-		<div class="toggler off" id="addchildbox">
-			<h1>Add new sub-taxon <span class="info">creates a new taxon and adds it as a child of this taxon</span></h1>
-			<div class="content">
-				<form class="poster" data-path="/floraon/api/update/add/inferiortaxent">
-					<table>
-					<tr><td>Name</td><td><input type="text" name="name" placeholder="complete scientific name without author"/></td></tr>
-					<tr><td>Author</td><td><input type="text" name="author"/></td></tr>
-					<tr><td><i>sensu</i></td><td><input type="text" name="sensu"/></td></tr>
-					<tr><td>Annotation</td><td><input type="text" name="annot"/></td></tr>
-					<tr><td>Rank</td><td>
-						<select name="rank">
-							<c:forEach var="rank" items="${TaxonRanks}">
-								<option value="${rank.getValue().toString()}"><c:out value="${rank.getName()}"></c:out></option>
-							</c:forEach>
-						</select>
-					</td></tr>
-					<tr><td>Currently accepted?</td><td><input type="checkbox" name="current" checked="checked"/></td></tr>
-					</table>
-					<input type="hidden" name="parent" value="${taxent.getID().toString()}"/>
-					<!-- <input type="button" value="Add" class="actionbutton" id="addchild"/> -->
-					<input type="submit" value="Add"/>
-				</form>
-			</div>
-		</div>
-	</c:if>
 </div>

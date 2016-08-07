@@ -321,7 +321,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 								null
 								, parsedName.getRankValue()
 								, parsedName.getAuthor()
-								, null, null, null, null, null)
+								, null, null, null, null, null, null)
 							, false);
 								//null, parsedName.getRank(), null, parsedName.getAuthor()!=null ? parsedName.getAuthor() : null, null);
 					}
@@ -341,7 +341,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 					String ns=record.get(terr.getKey());
 					if(ns!=null && !ns.equals(""))
 						driver.wrapTaxEnt(driver.asNodeKey(curTaxEnt.getID())).setNativeStatus(
-							driver.asNodeKey(terr.getValue().getID()), NativeStatus.fromString(ns.toUpperCase()), OccurrenceStatus.PRESENT, null, false);
+							driver.asNodeKey(terr.getValue().getID()), NativeStatus.fromString(ns.toUpperCase()), OccurrenceStatus.PRESENT, null, null, null, false);
 				}
 			}
 		} catch (FloraOnException e) {

@@ -62,7 +62,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		this.gbifKey=gbifKey;
 	}*/
 
-	public TaxEnt(String name,Integer rank,String author,String sensu,String annotation,Boolean current,Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness) throws TaxonomyException {
+	public TaxEnt(String name, Integer rank, String author, String sensu, String annotation, Boolean current, Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness, Integer oldId) throws TaxonomyException {
 		if(name!=null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
 		
 		if(name!=null) this.name=name.trim();
@@ -80,11 +80,12 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 
 		this.current=current;
 		this.gbifKey=gbifKey;
+		this.oldId = oldId;
 		this.worldDistributionCompleteness=worldDistributionCompleteness;
 	}
 
 	public TaxEnt(String name,Integer rank,String author,String annotation) throws TaxonomyException {
-		this(name, rank, author, null, annotation, null, null, null);
+		this(name, rank, author, null, annotation, null, null, null, null);
 	}
 
 	/**

@@ -1,11 +1,17 @@
 //var treeNodeToolbar=createHTML('<div class="tools"><div class="button" data-cmd="delete"/>x</div><div class="button" data-cmd="add"/>add</div></div>');
 var TOPBARSIZE=85;
 var nativeStatus=['NULL','NATIVE','ENDEMIC','EXOTIC','UNCERTAIN'];
-var clickEvent = new MouseEvent('click', {
-	'view': window,
-	'bubbles': true,
-	'cancelable': true
-});
+if (typeof MouseEvent !== 'function') {
+	var clickEvent = document.createEvent("MouseEvent");
+	clickEvent.initMouseEvent("click",true,true,window,0,0,0,0,0,false,false,false,false,0,null);
+} else {
+	var clickEvent = new MouseEvent('click', {
+		'view': window,
+		'bubbles': true,
+		'cancelable': true
+	});
+}
+
 var timer;
 
 document.addEventListener('DOMContentLoaded', function() {

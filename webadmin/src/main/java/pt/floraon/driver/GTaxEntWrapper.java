@@ -22,7 +22,7 @@ public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEn
 
 	@Override
     public INodeKey createTaxEntChild(String name,String author,TaxonRanks rank,String sensu,String annotation,Boolean current) throws FloraOnException {
-    	TaxEnt child=new TaxEnt(name, rank.getValue(), author, sensu, annotation, current, null, null);
+    	TaxEnt child=new TaxEnt(name, rank.getValue(), author, sensu, annotation, current, null, null, null);
     	child.canBeChildOf(driver.getNodeWorkerDriver().getTaxEntById(thisNode));
     	child=driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(child);
     	driver.wrapNode(driver.asNodeKey(child.getID())).setPART_OF(thisNode);

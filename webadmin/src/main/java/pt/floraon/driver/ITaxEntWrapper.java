@@ -1,7 +1,6 @@
 package pt.floraon.driver;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +11,8 @@ import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
+import pt.floraon.driver.Constants.PlantIntroducedStatus;
+import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
@@ -87,17 +88,24 @@ public interface ITaxEntWrapper {
 	 */
 	public Iterator<TaxEnt> getChildren() throws FloraOnException;
 	/**
-	 * Sets the native status of this TaxEnt in the given territory
-	 * @param territory
-	 * @param nativeStatus If set to null, the relationship is removed.
-	 * @return
-	 * @throws FloraOnException
-	 */
-	public int setNativeStatus(INodeKey territory, NativeStatus nativeStatus, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertainOccurrenceStatus) throws FloraOnException;
-	/**
 	 * Infers the NativeStatus of this TaxEnt for all territories marked for checklist or for the given territory (as shortName)
 	 * @return
 	 * @throws FloraOnException
 	 */
 	Map<String, InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException;
+	/**
+	 * Sets the native status of this TaxEnt in the given territory
+	 * @param territory
+	 * @param status
+	 * @param occurrenceStatus
+	 * @param abundanceLevel
+	 * @param introducedStatus
+	 * @param naturalizationDegree
+	 * @param uncertainOccurrenceStatus
+	 * @return
+	 * @throws FloraOnException
+	 */
+	int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus,
+			AbundanceLevel abundanceLevel, PlantIntroducedStatus introducedStatus,
+			PlantNaturalizationDegree naturalizationDegree, Boolean uncertainOccurrenceStatus) throws FloraOnException;
 }

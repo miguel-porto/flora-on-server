@@ -37,6 +37,8 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("occurrenceStatus", Constants.OccurrenceStatus.values());
 		request.setAttribute("abundanceLevel", Constants.AbundanceLevel.values());
 		request.setAttribute("nativeStatus", Constants.NativeStatus.values());
+		request.setAttribute("introducedStatus", Constants.PlantIntroducedStatus.values());
+		request.setAttribute("naturalizationDegree", Constants.PlantNaturalizationDegree.values());
 		
 		response.setContentType("text/html");
 		request.getRequestDispatcher("/taxdetails.jsp").include(request, response);

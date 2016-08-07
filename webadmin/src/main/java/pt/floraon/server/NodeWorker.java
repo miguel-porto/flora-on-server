@@ -181,6 +181,7 @@ public class NodeWorker extends FloraOnServlet {
 						,getParameterAsBoolean("current")
 						,null
 						,getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
+						,getParameterAsInteger("oldId", null)
 						
 					), getParameterAsBooleanNoNull("replace")).toJsonObject());
 				/*

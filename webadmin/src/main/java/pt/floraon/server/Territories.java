@@ -11,6 +11,8 @@ import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
+import pt.floraon.driver.Constants.PlantIntroducedStatus;
+import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.entities.Territory;
 
 @MultipartConfig
@@ -45,6 +47,8 @@ public class Territories extends FloraOnServlet {
 				, getParameterAsEnum("nativeStatus", NativeStatus.class)
 				, getParameterAsEnum("occurrenceStatus", OccurrenceStatus.class)
 				, getParameterAsEnum("abundanceLevel", AbundanceLevel.class)
+				, getParameterAsEnum("introducedStatus", PlantIntroducedStatus.class)
+				, getParameterAsEnum("naturalizationDegree", PlantNaturalizationDegree.class)
 				, getParameterAsBooleanNoNull("uncertain")
 			);
 			success( nstatus==null ? "NULL" : nstatus.toString().toUpperCase());

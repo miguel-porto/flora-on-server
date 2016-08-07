@@ -19,7 +19,6 @@ import pt.floraon.driver.ITaxEntWrapper;
 import pt.floraon.driver.TaxonomyException;
 import static pt.floraon.driver.Constants.*;
 import pt.floraon.driver.Constants.NativeStatus;
-import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.RelTypes;
@@ -145,7 +144,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 	
 	@Override
-	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, Boolean uncertainOccurrenceStatus) throws FloraOnException {
+	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, PlantIntroducedStatus introducedStatus, PlantNaturalizationDegree naturalizationDegree, Boolean uncertainOccurrenceStatus) throws FloraOnException {
 		String query;
 		if(status == null) {	// remove the EXISTS_IN link, if it exists
 			query=String.format(
@@ -153,7 +152,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				,thisNode.toString()
 				,territory.toString());
 		} else {				// create or update the EXISTS_IN link
-			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, abundanceLevel, uncertainOccurrenceStatus, thisNode.toString(), territory.toString());
+			EXISTS_IN eIn=new EXISTS_IN(status, occurrenceStatus, abundanceLevel, introducedStatus, naturalizationDegree, uncertainOccurrenceStatus, thisNode.toString(), territory.toString());
 			query=String.format(
 				AQLQueries.getString("TaxEntWrapperDriver.7")
 				,thisNode.toString()
