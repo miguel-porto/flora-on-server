@@ -93,7 +93,11 @@ public class FloraOnServlet extends HttpServlet {
 	}
 	
 	protected boolean isAuthenticated() {
-		return request.getSession().getAttribute("user")!=null;
+		return request.getSession().getAttribute("user") != null;
+	}
+
+	protected boolean isAuthenticatedAsAdvanced() {
+		return request.getSession().getAttribute("user") != null && ((User)request.getSession().getAttribute("user")).getRole().equals("advanced");
 	}
 	/**
 	 * Gets the called path, either if it was jsp:included or requested by browser
@@ -188,14 +192,6 @@ public class FloraOnServlet extends HttpServlet {
 		}
 	}
 
-	/**
-	 * 
-	 * @param name
-	 * @return
-	 * @throws IOException
-	 * @throws ServletException
-	 * @throws FloraOnException
-	 */
 	public boolean getParameterAsBooleanNoNull(String name) throws IOException, ServletException, FloraOnException {
 		String tmp=getParameterAsString(name);
 		if(tmp==null) return false;				// parameter absent
@@ -212,6 +208,12 @@ public class FloraOnServlet extends HttpServlet {
 	public Boolean getParameterAsBoolean(String name) throws IOException, ServletException, FloraOnException {
 		String tmp=getParameterAsString(name);
 		if(tmp==null) return null;				// parameter absent
+		return getParameterAsBooleanNoNull(name);
+	}
+
+	public boolean getParameterAsBoolean(String name, boolean nullValue) throws IOException, ServletException, FloraOnException {
+		String tmp=getParameterAsString(name);
+		if(tmp==null) return nullValue;				// parameter absent
 		return getParameterAsBooleanNoNull(name);
 	}
 

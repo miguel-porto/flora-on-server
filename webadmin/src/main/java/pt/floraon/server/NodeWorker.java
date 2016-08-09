@@ -19,10 +19,14 @@ import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.GraphUpdateResult;
 
+/**
+ * Provides services to work with nodes and links (add, update, delete)
+ * @author miguel
+ *
+ */
 @MultipartConfig
 public class NodeWorker extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
-
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		doFloraOnPost();
@@ -31,7 +35,7 @@ public class NodeWorker extends FloraOnServlet {
 	@Override
 	public void doFloraOnPost()
 			throws ServletException, IOException, FloraOnException {
-		String rank, current, name, annot, shortName;
+		String rank, name, annot, shortName;
 		INodeKey from, to, id;
 		
 		if(!isAuthenticated()) {
@@ -44,7 +48,6 @@ public class NodeWorker extends FloraOnServlet {
 		switch(partIt.next()) {
 		case "delete":
 			id=getParameterAsKey("id");
-			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
 			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
 			return;
 
@@ -76,25 +79,9 @@ public class NodeWorker extends FloraOnServlet {
 			}
 			switch(partIt.next()) {
 			case "link":
-				from=getParameterAsKey("from");
-				to=getParameterAsKey("to");
-				
-				String type=request.getParameter("type");
-/*				if(id==null || id.trim().length()<1 || id2==null || id2.trim().length()<1 || type==null) {
-					error("You must provide relationship type and two document handles 'from' and 'to'");
-					return;
-				}
-												
-				GeneralNodeWrapperImpl n1=graph.dbNodeWorker.getNodeWrapper(id);
-				GeneralNodeWrapperImpl n2=graph.dbNodeWorker.getNodeWrapper(id2);
-				if(n1==null) {
-					error("Node "+id+" not found.");
-					return;
-				}
-				if(n2==null) {
-					error("Node "+id2+" not found.");
-					return;
-				}*/
+				from = getParameterAsKey("from");
+				to = getParameterAsKey("to");
+				String type = getParameterAsString("type");
 				try {
 					//success(n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject());
 					success(driver.wrapNode(from).createRelationshipTo(to, RelTypes.valueOf(type.toUpperCase())).toJsonObject());
@@ -195,18 +182,13 @@ public class NodeWorker extends FloraOnServlet {
 				return;
 				
 			case "territory":
-				name=getParameterAsString("name");
-				shortName=getParameterAsString("shortName");
-				rank=getParameterAsString("type");
-				annot=getParameterAsString("theme");
-				if( (current=getParameterAsString("checklist"))==null ) current="true";
 				success(NWD.updateTerritoryNode(
 					NWD.getNode(getParameterAsKey("id"), Territory.class)
-					, name
-					, shortName
-					, TerritoryTypes.valueOf(rank)
-					, annot
-					, Boolean.parseBoolean(current)
+					, getParameterAsString("name")
+					, getParameterAsString("shortName")
+					, getParameterAsEnum("type", TerritoryTypes.class)
+					, getParameterAsString("theme")
+					, getParameterAsBoolean("checklist", true)
 					).toJsonObject()
 				);
 				return;

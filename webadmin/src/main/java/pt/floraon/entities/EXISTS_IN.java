@@ -33,7 +33,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this.nativeStatus = nativeStatus;
 		this.occurrenceStatus = occurrenceStatus;
 		this.abundanceLevel = abundanceLevel;
-		if(this.nativeStatus.isNative()) {
+		if(this.nativeStatus.getNativeOrExotic() != introducedStatus.getNativeOrExotic()) {
 			this.introducedStatus = null;
 			this.naturalizationDegree = null;
 		} else {
@@ -66,7 +66,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 	}
 	
 	public PlantIntroducedStatus getIntroducedStatus() {
-		if(this.nativeStatus.isNative()) return PlantIntroducedStatus.NOT_APPLICABLE;
+		if(this.introducedStatus != null && this.nativeStatus.getNativeOrExotic() != this.introducedStatus.getNativeOrExotic()) return PlantIntroducedStatus.NOT_APPLICABLE;
 		if(this.introducedStatus == null) return PlantIntroducedStatus.NOT_SPECIFIED;
 		return this.introducedStatus;
 	}

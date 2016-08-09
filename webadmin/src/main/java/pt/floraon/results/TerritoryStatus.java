@@ -51,7 +51,7 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 	}
 	
 	
-	public TerritoryStatus merge(TerritoryStatus o) {
+	public TerritoryStatus merge(TerritoryStatus o) { // TODO: introducedStatus and Naturalizationdegree
 		int better = this.compareTo(o);
 		if(better < 0)	// o is better, replace status!
 			return o;

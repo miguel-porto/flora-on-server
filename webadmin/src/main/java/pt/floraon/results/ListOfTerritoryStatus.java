@@ -14,6 +14,8 @@ import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
+import pt.floraon.driver.Constants.PlantIntroducedStatus;
+import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.entities.Territory;
 /**
  * A wrapper class for a List<TerritoryStatus> which adds methods for inferring the NativeStatus in all territories.
@@ -31,6 +33,8 @@ public class ListOfTerritoryStatus {
 		protected NativeStatus nativeStatus;
 		protected OccurrenceStatus occurrenceStatus;
 		protected AbundanceLevel abundanceLevel; 
+		protected PlantIntroducedStatus introducedStatus;
+		protected PlantNaturalizationDegree naturalizationDegree;
 		/**
 		 * Status is assigned to a parent taxon. Should be read: it is not certain that it is this [sub-]taxon that exists in this territory,
 		 * but if it exists, then it is with this nativeStatus.
@@ -53,6 +57,8 @@ public class ListOfTerritoryStatus {
 			this.nativeStatus = ts.existsIn.getNativeStatus();
 			this.abundanceLevel = ts.existsIn.getAbundanceLevel();
 			this.occurrenceStatus = ts.existsIn.getOccurrenceStatus();
+			this.introducedStatus = ts.existsIn.getIntroducedStatus();
+			this.naturalizationDegree = ts.existsIn.getNaturalizationDegree();
 			this.territoryName = ts.territory.getName();
 			this.uncertainOccurrence = ts.existsIn.isUncertainOccurrenceStatus();
 			this.possibly = ts.edges.contains(Constants.RelTypes.PART_OF.toString())
@@ -70,6 +76,14 @@ public class ListOfTerritoryStatus {
 
 		public AbundanceLevel getAbundanceLevel() {
 			return this.abundanceLevel;
+		}
+		
+		public PlantIntroducedStatus getIntroducedStatus() {
+			return this.introducedStatus;
+		}
+
+		public PlantNaturalizationDegree getNaturalizationDegree() {
+			return this.naturalizationDegree;
 		}
 
 		public boolean getPossibly() {
@@ -99,6 +113,10 @@ public class ListOfTerritoryStatus {
 			if(this.getPossibly()) qualifiers.add("if it exists");
 			if(this.getIsEndemic()) qualifiers.add("ENDEMIC");
 			if(this.getAbundanceLevel() != AbundanceLevel.NOT_SPECIFIED) qualifiers.add(this.getAbundanceLevel().toString());
+			if(this.getIntroducedStatus() != PlantIntroducedStatus.NOT_SPECIFIED
+				&& this.getIntroducedStatus() != PlantIntroducedStatus.NOT_APPLICABLE) qualifiers.add(this.getIntroducedStatus().toString());
+			if(this.getNaturalizationDegree() != PlantNaturalizationDegree.NOT_SPECIFIED
+				&& this.getNaturalizationDegree() != PlantNaturalizationDegree.NOT_APPLICABLE) qualifiers.add(this.getNaturalizationDegree().toString());
 			
 			return this.getNativeStatus().toString()
 				+ (qualifiers.size() > 0 ? " ("+Constants.implode(", ", qualifiers.toArray(new String[0]))+")" : "");

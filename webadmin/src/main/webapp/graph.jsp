@@ -14,7 +14,7 @@
 	<div id="taxbrowser"></div>
 	<div id="toolbar" data-page="tax">
 		<ul id="linklist"></ul>
-		<c:if test="${sessionScope.user!=null}">
+		<c:if test="${sessionScope.user != null && sessionScope.user.getRole().equals('advanced') }">
 			<input type="hidden" id="loggedin" name="loggedin" value="${sessionScope.user}"/>
 		</c:if>
 		<div class="box">
@@ -31,7 +31,7 @@
 			<div id="but-characters" class="button">Load characters</div>
 			<div id="but-territories" class="button">Load territories</div>
 		</div>
-		<c:if test="${sessionScope.user!=null}">
+		<c:if test="${sessionScope.user != null && sessionScope.user.getRole().equals('advanced')}">
 			<div class="box">
 				<div class="title"><p>Node tools</p></div>
 				<div id="but-delnode" class="button">Delete node/link</div>

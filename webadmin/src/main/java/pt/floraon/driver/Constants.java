@@ -120,7 +120,7 @@ public final class Constants {
 		NATIVE((short)0, "NATIVE to", Native_Exotic.NATIVE)
 		,ASSUMED_NATIVE((short)0, "ASSUMED to be NATIVE to", Native_Exotic.NATIVE)
 		,DOUBTFULLY_NATIVE((short)1, "DOUBTFULLY NATIVE to", Native_Exotic.NATIVE)			// it might be native, but there are also reasons to suspect the opposite
-		,NATIVE_REINTRODUCED((short)1, "NATIVE but REINTRODUCED to", Native_Exotic.NATIVE)
+		,NATIVE_REINTRODUCED((short)1, "NATIVE but REINTRODUCED to", Native_Exotic.EXOTIC)
 		,CRYPTOGENIC((short)0, "CRYPTOGENIC in", Native_Exotic.EXOTIC)
 		,DOUBTFULLY_EXOTIC((short)1, "DOUBTFULLY EXOTIC in", Native_Exotic.EXOTIC)		// it might be introduced, but there are also reasons to suspect the opposite
 		,ASSUMED_EXOTIC((short)1, "ASSUMED to be EXOTIC in", Native_Exotic.EXOTIC)
@@ -170,6 +170,10 @@ public final class Constants {
     		return this.nativeExotic == Native_Exotic.NATIVE;
     	}
     	
+    	public Native_Exotic getNativeOrExotic() {
+    		return this.nativeExotic;
+    	}
+    	
     	public String toVerboseString() {
     		return this.verbose;
     	}
@@ -193,18 +197,28 @@ public final class Constants {
 	
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
 	public enum PlantIntroducedStatus {
-		NOT_SPECIFIED
-		,APOPHYTE
-		,ARCHAEOPHYTE
-		,NEOPHYTE
-		,DIAPHYTE
-		,ARCHAEOAPOPHYTE
-		,NEOAPOPHYTE
-		,ARCHAEOEPECOPHYTE		// introduced before 1500 and living exclusively in ruderal communities
-		,ARCHAEOAGRIOPHYTE		// introduced before 1500 and living in natural or semi-natural communities
-		,NEOEPECOPHYTE			// introduced after 1500 and living exclusively in ruderal communities
-		,NEOAGRIOPHYTE			// introduced after 1500 and living in natural or semi-natural communities
-		,NOT_APPLICABLE
+		NOT_SPECIFIED(null)
+		,APOPHYTE(Native_Exotic.NATIVE)			// native but human-dispersed, having a distribution larger than natural
+		,ARCHAEOPHYTE(Native_Exotic.EXOTIC)
+		,NEOPHYTE(Native_Exotic.EXOTIC)
+		,DIAPHYTE(Native_Exotic.EXOTIC)			// casual, adventitious, nearly not established in nature yet
+		,ARCHAEOAPOPHYTE(Native_Exotic.NATIVE)	// native but dispersed before 1500
+		,NEOAPOPHYTE(Native_Exotic.NATIVE)		// native but dispersed after 1500
+		,ARCHAEOEPECOPHYTE(Native_Exotic.EXOTIC)	// introduced before 1500 and living exclusively in ruderal communities
+		,ARCHAEOAGRIOPHYTE(Native_Exotic.EXOTIC)	// introduced before 1500 and living in natural or semi-natural communities
+		,NEOEPECOPHYTE(Native_Exotic.EXOTIC)		// introduced after 1500 and living exclusively in ruderal communities
+		,NEOAGRIOPHYTE(Native_Exotic.EXOTIC)		// introduced after 1500 and living in natural or semi-natural communities
+		,NOT_APPLICABLE(null);
+		
+		private final Native_Exotic nativeExotic;
+		
+		PlantIntroducedStatus (Native_Exotic ne) {
+			this.nativeExotic = ne;
+		}
+		
+		public Native_Exotic getNativeOrExotic() {
+			return this.nativeExotic;
+		}
 	}
 
 	public enum PlantNaturalizationDegree {
