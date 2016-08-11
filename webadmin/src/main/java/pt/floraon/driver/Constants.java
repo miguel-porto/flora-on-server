@@ -102,14 +102,27 @@ public final class Constants {
 
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
 	public enum OccurrenceStatus {		// this applies to the current status of the taxon in a given territory
-		PRESENT							// Taxon is currently present
-		,DOUBT_OVER_PRESENCE			// There is doubt over the presence of this taxon due to geographic issues (NOTE: doubt because of taxonomic issues is treated in another field)
-		,POSSIBLE_OCCURRENCE			// Taxon might occur in the territory given its distribution and habitat elsewhere, but there is *no* evidence at all of its occurrence
-		,ASSUMED_PRESENT				// Taxon has not been observed recently but there are past unequivocal evidences of its occurrence and there are no reasons to suppose that it might have gone extinct.
-		,POSSIBLY_EXTINCT				// Taxon is possibly extinct: there are no recent observations, so we assume it may be extinct, but it might still exist, according to expert's opinion
-		,EXTINCT						// Taxon is extinct: there are no recent observations, and it is very unlikely that it might still exist, according to expert's opinion
-		,ABSENT_BUT_REPORTED_IN_ERROR	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
-		,ERROR							// Some error occurred
+		PRESENT(0)						// Taxon is currently present
+		,DOUBT_OVER_PRESENCE(2)			// There is doubt over the presence of this taxon due to geographic issues (NOTE: doubt because of taxonomic issues is treated in another field)
+		,POSSIBLE_OCCURRENCE(5)			// Taxon might occur in the territory given its distribution and habitat elsewhere, but there is *no* evidence at all of its occurrence
+		,ASSUMED_PRESENT(1)				// Taxon has not been observed recently but there are past unequivocal evidences of its occurrence and there are no reasons to suppose that it might have gone extinct.
+		,POSSIBLY_EXTINCT(3)			// Taxon is possibly extinct: there are no recent observations, so we assume it may be extinct, but it might still exist, according to expert's opinion
+		,EXTINCT(4)						// Taxon is extinct: there are no recent observations, and it is very unlikely that it might still exist, according to expert's opinion
+		,ABSENT_BUT_REPORTED_IN_ERROR(6)// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
+		,ERROR(0);							// Some error occurred
+		
+		private final Integer priority;
+		
+		OccurrenceStatus(Integer priority) {
+			this.priority = priority;
+		}
+		
+		public OccurrenceStatus merge(OccurrenceStatus o) {
+			if(this.priority < o.priority)
+				return this;
+			else
+				return o;
+		}
 	}
 	
 	public enum Native_Exotic {
@@ -127,7 +140,8 @@ public final class Constants {
 		,EXOTIC((short)2, "EXOTIC in", Native_Exotic.EXOTIC)
 		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC)
 		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
-		,MULTIPLE_STATUS((short)0, "EXISTS in", null)								// it exists with different status depending on the sub-territory or on the sub-taxa
+		,MULTIPLE_STATUS((short)0, "EXISTS in", null)						// it exists with different status depending on the sub-territory or on the sub-taxa
+		,EXISTS((short)0, "EXISTS in", null)								// it exists but it is not possible to infer status
 		,ERROR((short)-1, "ERROR", null);
 		
 		private final Short code;
@@ -181,12 +195,26 @@ public final class Constants {
 	}
 
 	public enum AbundanceLevel {
-		NOT_SPECIFIED
-		,VERY_COMMON
-		,COMMON
-		,OCCASIONAL
-		,RARE
-		,VERY_RARE						// Few populations with few individuals
+		NOT_SPECIFIED(1)
+		,VERY_COMMON(0)
+		,COMMON(1)
+		,OCCASIONAL(2)
+		,RARE(3)
+		,VERY_RARE(4);						// Few populations with few individuals
+		
+		private final Integer priority;
+		
+		AbundanceLevel(Integer priority) {
+			this.priority = priority;
+		}
+		
+		public AbundanceLevel merge(AbundanceLevel o) {
+			if(this.priority < o.priority)
+				return this;
+			else
+				return o;
+		}
+
 	}
 
 	public enum WorldNativeDistributionCompleteness {		// "Whether or not the plant-area records in the DB represent the complete world native distribution for the plant"
@@ -208,6 +236,7 @@ public final class Constants {
 		,ARCHAEOAGRIOPHYTE(Native_Exotic.EXOTIC)	// introduced before 1500 and living in natural or semi-natural communities
 		,NEOEPECOPHYTE(Native_Exotic.EXOTIC)		// introduced after 1500 and living exclusively in ruderal communities
 		,NEOAGRIOPHYTE(Native_Exotic.EXOTIC)		// introduced after 1500 and living in natural or semi-natural communities
+		,MULTIPLE_INTRODUCED_STATUS(null)
 		,NOT_APPLICABLE(null);
 		
 		private final Native_Exotic nativeExotic;
@@ -219,16 +248,34 @@ public final class Constants {
 		public Native_Exotic getNativeOrExotic() {
 			return this.nativeExotic;
 		}
+		
+		public PlantIntroducedStatus merge(PlantIntroducedStatus o) {
+			if(this != o) return PlantIntroducedStatus.MULTIPLE_INTRODUCED_STATUS;
+			return this;
+		}
 	}
 
 	public enum PlantNaturalizationDegree {
-		NOT_SPECIFIED
-		,CASUAL
-		,NATURALIZED_OCCASIONAL
-		,NATURALIZED_DANGEROUS
-		,INVASIVE
-		,TRANSFORMER
-		,NOT_APPLICABLE
+		NOT_SPECIFIED(5)
+		,CASUAL(4)
+		,NATURALIZED_OCCASIONAL(3)
+		,NATURALIZED_DANGEROUS(2)
+		,INVASIVE(1)
+		,TRANSFORMER(0)
+		,NOT_APPLICABLE(-1);
+		
+		private final Integer priority;
+		
+		PlantNaturalizationDegree(Integer priority) {
+			this.priority = priority;
+		}
+		
+		public PlantNaturalizationDegree merge(PlantNaturalizationDegree o) {
+			if(this.priority < o.priority)
+				return this;
+			else
+				return o;
+		}
 	}
 	
 	//public static NativeStatus[] NativeStatuses=NativeStatus.getNatives().toArray(new NativeStatus[0]);	// the NativeStatus which are considered Native.

@@ -28,14 +28,27 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 * Some character that distinguishes these populations from the parent taxon
 	 */
 	protected String annotation;
+	/**
+	 * The reference of which the interpretation of this name follows
+	 */
 	protected String sensu;		// TODO: this should come from a reference list
 	protected String author;
 	protected String in;
+	/**
+	 * Whether this taxon is included in the checklist or not
+	 */
 	protected Boolean current;
 	protected Integer gbifKey;
 	protected Boolean isSpeciesOrInf;
 	protected Integer oldId;
+	/**
+	 * This tells whether the world <b>native</b> distribution is complete, regardless of incompleteness in the exotic distribution.
+	 */
 	protected WorldNativeDistributionCompleteness worldDistributionCompleteness;
+	/**
+	 * These are the IDs of the largest territories for which the distribution of the taxon is complete (native and exotic)
+	 */
+	protected String[] territoriesWithCompleteDistribution; 
 	
 	public TaxEnt(TaxEnt te) {
 		super(te);
@@ -201,6 +214,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 
 	public WorldNativeDistributionCompleteness getWorldDistributionCompleteness() {
 		return this.worldDistributionCompleteness == null ? WorldNativeDistributionCompleteness.NOT_KNOWN : this.worldDistributionCompleteness;
+	}
+	
+	public String[] getTerritoriesWithCompleteDistribution() {
+		return this.territoriesWithCompleteDistribution;
 	}
 	
 	public TaxonRanks getRank() {

@@ -14,7 +14,7 @@ p {margin:3px;}
 ::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
 :-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
 ul.menu {padding:0}
-ul.menu li {display:inline;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:0 4px;background:linear-gradient(170deg,#fff,#f2f2f2);line-height:1.7em;white-space:nowrap;font-weight:bold;font-size:0.8em;color:#444;}
+ul.menu li {display:inline-block;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:4px;background:linear-gradient(170deg,#fff,#f2f2f2);line-height:1.7em;white-space:nowrap;font-weight:bold;font-size:0.8em;color:#444;}
 .editable ul.menu li {cursor:pointer;}
 .editable ul.menu li:hover {box-shadow:0 0 2px #080;}
 ul.menu li.selected {color:#fff;background:linear-gradient(170deg,rgba(255,255,255,0.5),rgba(0,0,0,0.1));box-shadow:0 0 4px #555;}
@@ -138,6 +138,7 @@ div.toggler.off .content {display:none;}
 */
 table.taxonlist tr.notcurrent {color:#aaa !important;background-color:#f7f7f7;}
 #legendpanel {padding:6px;border-bottom:2px solid #09f;}
+#legendpanel>div {display:inline-block;}
 
 div.territory {
 	border-radius:50%;
@@ -162,12 +163,15 @@ div.territory:hover {box-shadow:0 0 2px 1px #0f0;}
 div.territory.NATIVE {background-color:#afa;border:2px solid #afa;}
 div.territory.ASSUMED_NATIVE {background-color:#afa;border:2px solid #8ae234;}
 div.territory.DOUBTFULLY_NATIVE {background-color:#d2e102;border:2px solid #df0;}
+div.territory.NATIVE_REINTRODUCED {border:2px solid #faa;background-image: linear-gradient(0deg, #faa 25%, #afa 25%, #afa 75%, #faa 75%);background-size:100% 100%;}
+div.territory.EXOTIC_REINTRODUCED {border:2px solid #faa;background-image: linear-gradient(0deg, #faa 40%, #afa 40%, #afa 60%, #faa 60%);background-size:100% 100%;}
 div.territory.ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:10%;}
 div.territory.NEAR_ENDEMIC {background-color:#7f7;border:2px solid #090;border-radius:35%;}
 div.territory.EXOTIC {background-color:#faa;border:2px solid #faa;}
 div.territory.DOUBTFULLY_EXOTIC {background-color:#d90;border:2px solid #fd0;}
 div.territory.CRYPTOGENIC {background-color:#2f69ff;border:2px solid #77f;}
 div.territory.MULTIPLE_STATUS {background-color:#ccf;border:2px solid #ccf;}
+div.territory.EXISTS {background-color:#ccf;border:2px solid #ccf;}
 div.territory.ERROR {background-color:#f00;border:2px solid #f00;}
 /* missing these:
 NATIVE_REINTRODUCED
@@ -293,12 +297,14 @@ table.taxonlist div.territory {float:left;}
 
 .taxdetails {flex-grow:1;margin:0 8px;padding:3px;}/*background-color:#f4f4f4;*/
 #taxoninfo {display:flex;flex-wrap:wrap;justify-content:center}
-#taxoninfo>div {border-radius:5px;margin:8px;padding:0px;border:2px solid #cdf;flex:1 1 auto;box-shadow:0 0 10px #555;overflow:hidden;}
-#taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue}
-#taxoninfo>div#editbox {flex:0 1 100%;border:2px solid #fdc;}
+#taxoninfo>div {border-radius:5px;margin:12px;padding:0px;border:2px solid #99f;flex:1 1 auto;box-shadow:0 0 8px #888;overflow:hidden;}
+#taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue;padding:3px}
+#taxoninfo>div#editbox {flex:0 1 100%;border:2px solid #faa;}
 #taxoninfo>div#editbox h3 {font-size:0.9em;background-color:#fdc;text-align:center;color:blue}
 #taxoninfo>div#generalinfo {flex:0 0 auto;}
-#taxonnativestatus table {width:100%;}
+#taxoninfo>div#distributioncompleteness {flex:1 1 300px;}
+#taxoninfo table td:first-of-type {font-size:0.9em;font-weight:bold;background-color:#ddd}
+#taxoninfo table td:not(:first-of-type) {font-size:0.85em}
 /*.editable #taxonnativestatus table tr:hover td {color:#f55;cursor:pointer;text-decoration:line-through;}*/
 #taxonsynonyms .synonyms {padding:0;margin:0}
 #taxonsynonyms .synonyms li {

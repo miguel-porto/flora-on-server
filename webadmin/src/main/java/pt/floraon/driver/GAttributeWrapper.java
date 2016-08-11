@@ -5,7 +5,7 @@ import pt.floraon.entities.GeneralDBEdge;
 
 public class GAttributeWrapper extends BaseFloraOnDriver implements IAttributeWrapper {
 	private INodeWrapper NWD;
-	public GAttributeWrapper(FloraOn driver, INodeKey node) {
+	public GAttributeWrapper(FloraOn driver, INodeKey node) throws FloraOnException {
 		super(driver);
 		NWD=(INodeWrapper) driver.wrapNode(node);
 	}

@@ -41,8 +41,7 @@ public class Territories extends FloraOnServlet {
 				to = getParameterAsString("territory"));
 
 			Territory terr=NWD.getTerritoryFromShortName(to);
-			NativeStatus nstatus=null;
-			driver.wrapTaxEnt(from).setNativeStatus(
+			int res = driver.wrapTaxEnt(from).setNativeStatus(
 				driver.asNodeKey(terr.getID())
 				, getParameterAsEnum("nativeStatus", NativeStatus.class)
 				, getParameterAsEnum("occurrenceStatus", OccurrenceStatus.class)
@@ -51,7 +50,7 @@ public class Territories extends FloraOnServlet {
 				, getParameterAsEnum("naturalizationDegree", PlantNaturalizationDegree.class)
 				, getParameterAsBooleanNoNull("uncertain")
 			);
-			success( nstatus==null ? "NULL" : nstatus.toString().toUpperCase());
+			success( res==0 ? "Nothing changed" : "Set ok!");
 			break;
 			
 		default:

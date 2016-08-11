@@ -16,6 +16,7 @@ import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.entities.Territory;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public interface ITaxEntWrapper {
@@ -105,7 +106,29 @@ public interface ITaxEntWrapper {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus,
+	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus,
 			AbundanceLevel abundanceLevel, PlantIntroducedStatus introducedStatus,
 			PlantNaturalizationDegree naturalizationDegree, Boolean uncertainOccurrenceStatus) throws FloraOnException;
+	
+	/**
+	 * Gets an array of territory names where the distribution of the TaxEnt is complete.
+	 * @return
+	 * @throws DatabaseException 
+	 */
+	public List<Territory> getTerritoryNamesWithCompleteDistribution() throws DatabaseException;
+	
+	/**
+	 * Adds one territory to the list of those with complete distribution
+	 * @param id
+	 * @return
+	 * @throws DatabaseException 
+	 */
+	public int setTerritoryWithCompleteDistribution(INodeKey id) throws DatabaseException;
+	/**
+	 * Removes one territory from the list of those with complete distribution
+	 * @param id
+	 * @return
+	 * @throws DatabaseException 
+	 */
+	public int unsetTerritoryWithCompleteDistribution(INodeKey id) throws DatabaseException;
 }

@@ -25,6 +25,7 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.OBSERVED_IN;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.entities.Territory;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 
@@ -35,7 +36,7 @@ import pt.floraon.results.TaxEntAndNativeStatusResult;
  */
 public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrapper {
 	protected ArangoDriver dbDriver;
-	public TaxEntWrapperDriver(FloraOn driver, INodeKey tev) {
+	public TaxEntWrapperDriver(FloraOn driver, INodeKey tev) throws FloraOnException {
 		super(driver, tev);
 		this.dbDriver=(ArangoDriver) driver.getArangoDriver();
 	}
@@ -169,12 +170,42 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
-		String query=String.format(
-			AQLQueries.getString("TaxEntWrapperDriver.8")
-			,RelTypes.PART_OF.toString(),thisNode
-		);
+		String query = AQLQueries.getString("TaxEntWrapperDriver.8", RelTypes.PART_OF.toString(), thisNode);
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).iterator();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+	}
+
+	@Override
+	public List<Territory> getTerritoryNamesWithCompleteDistribution() throws DatabaseException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.10", thisNode);
+				
+		try {
+			return dbDriver.executeAqlQuery(query,null,null,Territory.class).asList();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+	}
+
+	@Override
+	public int setTerritoryWithCompleteDistribution(INodeKey id) throws DatabaseException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.11", thisNode, id);
+		
+		try {
+			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+	}
+
+	@Override
+	public int unsetTerritoryWithCompleteDistribution(INodeKey id) throws DatabaseException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.12", thisNode, id);
+		
+		try {
+			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}

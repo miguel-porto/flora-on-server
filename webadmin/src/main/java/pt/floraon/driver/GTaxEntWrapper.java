@@ -9,7 +9,7 @@ import pt.floraon.entities.TaxEnt;
 public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEntWrapper {
 	protected INodeKey thisNode;
 	private INodeWrapper NWrD;
-	public GTaxEntWrapper(FloraOn driver, INodeKey node) {
+	public GTaxEntWrapper(FloraOn driver, INodeKey node) throws FloraOnException {
 		super(driver);
 		this.thisNode=node;
 		NWrD=(INodeWrapper) driver.wrapNode(node);

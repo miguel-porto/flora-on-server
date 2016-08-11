@@ -26,7 +26,7 @@ public class TaxDetails extends FloraOnServlet {
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();
 		rpnsr.getHTMLTableRows(new PrintWriter(baos), null);
 		baos.close();
-
+		
 		request.setAttribute("taxent", taxent);
 		request.setAttribute("taxentWrapper", driver.wrapTaxEnt(driver.asNodeKey(taxent.getID())));
 		request.setAttribute("nativeStatusTable", baos.toString());

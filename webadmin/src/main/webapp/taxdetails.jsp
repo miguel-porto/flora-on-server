@@ -60,11 +60,36 @@
 				${nativeStatusTable}
 			</table>
 			</form>
-			<ul class="menu multiplesel" id="worlddistribution">
-				<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
-				<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
-				<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
-			</ul>
+		</div>
+		<div id="distributioncompleteness">
+			<h3>Distribution completeness</h3>
+			<table>
+				<tr><td>World native distribution completeness</td><td>
+					<ul class="menu multiplesel" id="worlddistribution">
+						<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
+						<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
+						<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
+					</ul>
+				</td></tr>
+				<tr><td>Territories with complete distributions</td><td>
+					<c:if test="${sessionScope.user == null}">
+						<ul class="menu">
+							<c:forEach var="territory" items="${taxentWrapper.getTerritoryNamesWithCompleteDistribution()}">
+								<li><c:out value="${territory.getName()}"></c:out></li>
+							</c:forEach>
+						</ul>
+					</c:if>
+					<c:if test="${sessionScope.user != null}">
+						<form class="poster" data-path="/floraon/api/update/unsetcompleteterritory">
+							<input type="hidden" name="id" value="${taxent.getID()}"/>
+							<c:forEach var="territory" items="${taxentWrapper.getTerritoryNamesWithCompleteDistribution()}">
+								<label><input type="radio" name="territory" value="${territory.getID() }"><c:out value="${territory.getName()}"></c:out></label>
+							</c:forEach>
+							<input type="submit" value="Remove territory"/>
+						</form>
+					</c:if>
+				</td></tr>
+			</table>
 		</div>
 		<div>
 			<c:if test="${inferredNativeStatus != null}">
@@ -120,7 +145,7 @@
 								<td>Territory</td>
 								<td>
 									<select name="territory">
-										<c:forEach var="territory" items="${territories}">
+										<c:forEach var="territory" items="${territories.iterator()}">
 											<option value="${territory.getShortName()}"><c:out value="${territory.getName()}"></c:out></option>
 										</c:forEach>
 									</select>
@@ -175,6 +200,20 @@
 							</tr>
 						</table>
 						<input type="submit" value="Add / update"/>
+						</form>
+					</div>
+				</div>
+				<div class="toggler off">
+					<h1>Set distribution completeness <span class="info">set the territories in which the distribution is complete</span></h1>
+					<div class="content">
+						<form class="poster" data-path="/floraon/api/update/add/completeterritory">
+							<input type="hidden" name="id" value="${taxent.getID()}"/>
+							Set the distribution as complete (both <b>native and exotic</b>) in <select name="territory">
+								<c:forEach var="territory" items="${territories.iterator()}">
+									<option value="${territory.getID()}"><c:out value="${territory.getName()}"></c:out></option>
+								</c:forEach>
+							</select>
+							<input type="submit" value="Add"/>
 						</form>
 					</div>
 				</div>

@@ -57,7 +57,8 @@ public class FloraOnArangoDriver implements FloraOn {
 		} catch (IOException e1) {
 			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in a file named arangodb_login.txt locate in the root folder of the webapps.");
 		}
-        ArangoConfigure configure = new ArangoConfigure();
+
+		ArangoConfigure configure = new ArangoConfigure();
         configure.init();
         configure.setDefaultDatabase(dbname);
         configure.setUser(username);
@@ -77,15 +78,12 @@ public class FloraOnArangoDriver implements FloraOn {
 			e.printStackTrace();
 			throw new FloraOnException(e.getMessage());
 		}
+
         NWD=new NodeWorkerDriver(this);
         QD=new QueryDriver(this);
         LD=new ListDriver(this);
         CSV=new CSVFileProcessor(this);
         updateVariables();
-        //TEWrF=new TaxEntWrapperFactory();
-        //NWrF=new NodeWrapperFactory();
-		//sc.setAttribute("NodeWrapperFactory", NWrF);
-		//sc.setAttribute("TaxEntWrapperFactory", TEWrF);
 	}
 
 	@Override
@@ -119,22 +117,22 @@ public class FloraOnArangoDriver implements FloraOn {
 	}
 	
 	@Override
-	public INodeWrapper wrapNode(INodeKey node) {
+	public INodeWrapper wrapNode(INodeKey node) throws FloraOnException {
 		return new NodeWrapperDriver(this, node);
 	}
 
 	@Override
-	public ITaxEntWrapper wrapTaxEnt(INodeKey node) {
+	public ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException {
 		return new TaxEntWrapperDriver(this, node);
 	}
 	
 	@Override
-	public ISpeciesListWrapper wrapSpeciesList(INodeKey node) {
+	public ISpeciesListWrapper wrapSpeciesList(INodeKey node) throws FloraOnException {
 		return new SpeciesListWrapperDriver(this, node);
 	}
 	
 	@Override
-	public IAttributeWrapper wrapAttribute(INodeKey node) {
+	public IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException {
 		return new GAttributeWrapper(this, node);
 	}
 	
@@ -142,41 +140,6 @@ public class FloraOnArangoDriver implements FloraOn {
 	public INodeKey asNodeKey(String id) throws FloraOnException {
 		return id==null ? null : new ArangoKey(id);
 	}
-	
-	/*
-	public FloraOnDriver(String dbname) throws ArangoException {
-        ArangoConfigure configure = new ArangoConfigure();
-        configure.init();
-        configure.setDefaultDatabase("flora");
-        this.dbGeneralQueries=new FloraOnDriver.GeneralQueries();
-        this.dbNodeWorker=new FloraOnDriver.NodeWorker();
-        this.dbDataUploader=new FloraOnDriver.DataUploader();
-        this.dbSpecificQueries=new FloraOnDriver.SpecificQueries();
-        
-        driver = new ArangoDriver(configure);
-/*
-        driver.createAqlFunction("flora::hybridVisitor", "function (config, result, vertex, path, connections) {"
-    		+ "result.push({vertex});"
-    		+ "}");*/
-        /*
-        driver.createAqlFunction("flora::testCode", "function (config, vertex, path) {"
-    		+ "if(!vertex.name) return ['exclude','prune'];"
-    		+ "}");//
-                
-        try {
-			StringsResultEntity dbs=driver.getDatabases();
-			if(!dbs.getResult().contains(dbname))
-				initializeNewGraph(dbname);
-			else
-				driver.setDefaultDatabase(dbname);        
-		} catch (ArangoException e) {
-			System.err.println("ERROR initializing the graph: "+e.getMessage());
-			e.printStackTrace();
-			throw new ArangoException(e.getMessage());
-		}
-        
-        updateVariables();
-	}*/
 	
 	public synchronized void updateVariables() throws FloraOnException {
 		Iterator<Territory> it=this.LD.getChecklistTerritories();

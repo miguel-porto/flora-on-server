@@ -123,22 +123,19 @@ public class ListOfTerritoryStatus {
 		}
 	}
 
-	/**
-	 * Computes the status of this taxon in each territory marked for checklist, by summarizing all the branches that connect the taxon with the territory
-	 * @return
-	 */
+	/*
 	public Map<String,InferredStatus> computeTerritoryStatus(boolean worldDistributionComplete) {
 		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
 		TerritoryStatus thisStatus, tmp;
 		Iterator<TerritoryStatus> it;
-		Set<Territory> endemismDegree = this.computeEndemismDegree();
+		Set<Territory> endemismDegree = this.computeNativeExtent();
 		boolean isEndemic;
 
 		// compile the territories marked for checklist
-		Set<Territory> terr = new HashSet<Territory>();
+		Set<Territory> checklistTerritories = new HashSet<Territory>();
 		for(TerritoryStatus ts : this.territoryStatusList) {
 			if(ts.territory.getShowInChecklist())
-				terr.add(ts.territory);
+				checklistTerritories.add(ts.territory);
 		}
 		
 		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
@@ -147,7 +144,7 @@ public class ListOfTerritoryStatus {
 		// 1: not inferred and uncertain
 		// 0: inferred and uncertain
 		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
-		for(Territory territory : terr) {
+		for(Territory territory : checklistTerritories) {
 			thisStatus = null;
 			// first check if it is endemic to this territory or not
 			if(worldDistributionComplete)
@@ -164,8 +161,93 @@ public class ListOfTerritoryStatus {
 				else
 					thisStatus = thisStatus.merge(tmp);
 			}
+			
 			out.put(territory.getShortName(), new InferredStatus(thisStatus, isEndemic));
 		}
+		return out;
+	}*/
+	/**
+	 * Computes the status of this taxon in each territory marked for checklist, by summarizing all the branches that connect the taxon with the territory
+	 * @return
+	 */
+	public Map<String,InferredStatus> computeTerritoryStatus(Boolean worldDistributionComplete) {
+		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
+		TerritoryStatus thisStatus, tmp;
+		Iterator<TerritoryStatus> it;
+		Set<Territory> endemismDegree = this.computeNativeExtent();
+		boolean isEndemic;
+
+		// compile the territories marked for checklist
+		Set<Territory> checklistTerritories = new HashSet<Territory>();
+		for(TerritoryStatus ts : this.territoryStatusList) {
+			if(ts.territory.getShowInChecklist())
+				checklistTerritories.add(ts.territory);
+		}
+		
+		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
+		// 3: not inferred and certain
+		// 2: inferred from subterritory and certain
+		// 1: not inferred and uncertain
+		// 0: inferred and uncertain
+		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
+		for(Territory territory : checklistTerritories) {
+			thisStatus = null;
+			// first check if it is endemic to this territory or not
+			if(worldDistributionComplete)
+				isEndemic = isEndemicToTerritory(endemismDegree, territory.getShortName());
+			else
+				isEndemic = false;
+
+			it = this.territoryStatusList.iterator();
+			while(it.hasNext()) {
+				tmp=it.next();
+				if(!tmp.territory.getShortName().equals(territory.getShortName())) continue;
+				//System.out.println(tmp.territory.getName()+" "+tmp.completeDistributionUpstream);
+				if(thisStatus == null)
+					thisStatus = tmp.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
+				else
+					thisStatus = thisStatus.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
+			}
+			// if the status is from a subterritory and distribution is not complete, it is not possible to infer NativeStatus
+			if(thisStatus.completeDistributionUpstream == null && thisStatus.edges.contains(Constants.RelTypes.BELONGS_TO.toString()))
+				thisStatus.existsIn.setNativeStatus(Constants.NativeStatus.EXISTS);
+			out.put(territory.getShortName(), new InferredStatus(thisStatus, isEndemic));
+		}
+		return out;
+	}
+
+	/**
+	 * Computes the status of this taxon for the given territory, by summarizing all the branches that connect the taxon with the territory
+	 * @param territory The shortName of the {@link Territory}
+	 * @param worldDistributionComplete
+	 * @return
+	 */
+	public Map<String,InferredStatus> computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
+		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
+		TerritoryStatus thisStatus = null, tmp;
+		Iterator<TerritoryStatus> it;
+
+		// first check if it is endemic to this territory or not
+		boolean isEndemic = false;
+		if(worldDistributionComplete) {
+			isEndemic = isEndemicToTerritory(this.computeNativeExtent(), territory);
+		}
+		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
+		// 3: not inferred and certain
+		// 2: inferred and certain
+		// 1: not inferred and uncertain
+		// 0: inferred and uncertain
+		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
+		it = this.territoryStatusList.iterator();
+		while(it.hasNext()) {
+			tmp=it.next();
+			if(!tmp.territory.getShortName().equals(territory)) continue;
+			if(thisStatus == null)
+				thisStatus = tmp.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
+			else
+				thisStatus = thisStatus.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
+		}
+		out.put(territory, new InferredStatus(thisStatus, isEndemic));
 		return out;
 	}
 	
@@ -207,47 +289,12 @@ public class ListOfTerritoryStatus {
 	}
 
 	/**
-	 * Computes the status of this taxon for the given territory, by summarizing all the branches that connect the taxon with the territory
-	 * @param territory The shortName of the {@link Territory}
-	 * @param worldDistributionComplete
-	 * @return
-	 */
-	public Map<String,InferredStatus> computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
-		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
-		TerritoryStatus thisStatus = null, tmp;
-		Iterator<TerritoryStatus> it;
-
-		// first check if it is endemic to this territory or not
-		boolean isEndemic = false;
-		if(worldDistributionComplete) {
-			isEndemic = isEndemicToTerritory(this.computeEndemismDegree(), territory);
-		}
-		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
-		// 3: not inferred and certain
-		// 2: inferred and certain
-		// 1: not inferred and uncertain
-		// 0: inferred and uncertain
-		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
-		it = this.territoryStatusList.iterator();
-		while(it.hasNext()) {
-			tmp=it.next();
-			if(!tmp.territory.getShortName().equals(territory)) continue;
-			if(thisStatus == null)
-				thisStatus = tmp;
-			else
-				thisStatus = thisStatus.merge(tmp);
-		}
-		out.put(territory, new InferredStatus(thisStatus, isEndemic));
-		return out;
-	}
-	
-	/**
 	 * Gets the smallest geographical area that comprises all native occurrences of this TaxEnt.
 	 * This is usually an array of territories, as it does not perform aggregation.
 	 * See Constants.NativeStatus
 	 * @return
 	 */
-	public Set<Territory> computeEndemismDegree() {
+	public Set<Territory> computeNativeExtent() {
 		// FIXME: the occurrence status should not propagate unless it is complete_dsitribution
 		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
 		Set<Territory> out = new HashSet<Territory>();
@@ -310,7 +357,7 @@ public class ListOfTerritoryStatus {
 	}
 	
 	public Set<String> computeEndemismDegreeName() {
-		Iterator<Territory> it = this.computeEndemismDegree().iterator();
+		Iterator<Territory> it = this.computeNativeExtent().iterator();
 		Set<String> out = new HashSet<String>();
 		while(it.hasNext()) {
 			out.add(it.next().getName());

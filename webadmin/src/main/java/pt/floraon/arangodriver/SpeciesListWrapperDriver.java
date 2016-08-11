@@ -10,7 +10,7 @@ import pt.floraon.driver.ISpeciesListWrapper;
 import pt.floraon.entities.Author;
 
 public class SpeciesListWrapperDriver extends NodeWrapperDriver implements ISpeciesListWrapper {
-	public SpeciesListWrapperDriver(FloraOn driver, INodeKey node) {
+	public SpeciesListWrapperDriver(FloraOn driver, INodeKey node) throws FloraOnException {
 		super(driver, node);
 	}
 

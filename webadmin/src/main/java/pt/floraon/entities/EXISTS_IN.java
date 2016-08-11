@@ -62,7 +62,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 	}
 	
 	public OccurrenceStatus getOccurrenceStatus() {
-		return this.occurrenceStatus==null ? OccurrenceStatus.PRESENT : this.occurrenceStatus;	// assume it is present, if no information is given, or if an error has occurred (value not found in enum)
+		return this.occurrenceStatus == null ? OccurrenceStatus.PRESENT : this.occurrenceStatus;	// assume it is present, if no information is given, or if an error has occurred (value not found in enum)
 	}
 	
 	public PlantIntroducedStatus getIntroducedStatus() {
@@ -80,7 +80,19 @@ public class EXISTS_IN extends GeneralDBEdge {
 	public void setOccurrenceStatus(OccurrenceStatus os) {
 		this.occurrenceStatus = os;
 	}
-	
+
+	public void setAbundanceLevel(AbundanceLevel al) {
+		this.abundanceLevel = al;
+	}
+
+	public void setIntroducedStatus(PlantIntroducedStatus is) {
+		this.introducedStatus = is;
+	}
+
+	public void setNaturalizationDegree(PlantNaturalizationDegree nd) {
+		this.naturalizationDegree = nd;
+	}
+
 	/**
 	 * Is the OccurrenceStatus uncetain in terms of taxonomy (i.e. is the taxon possibly misidentified)? 
 	 * @return
@@ -94,4 +106,23 @@ public class EXISTS_IN extends GeneralDBEdge {
 		return RelTypes.EXISTS_IN;
 	}
 
+	/**
+	 * Merges this territory with the given one, i.e., adjusts the Status fields of this territory
+	 * having in account the values of the two territories.
+	 * @param o
+	 */
+	public void mergeWith(EXISTS_IN o, boolean propagateStatus) {
+		if(propagateStatus) {
+			this.setOccurrenceStatus(this.getOccurrenceStatus().merge(o.getOccurrenceStatus()));
+			this.setAbundanceLevel(this.getAbundanceLevel().merge(o.getAbundanceLevel()));
+			this.setIntroducedStatus(this.getIntroducedStatus().merge(o.getIntroducedStatus()));
+			this.setNaturalizationDegree(this.getNaturalizationDegree().merge(o.getNaturalizationDegree()));
+		} else {	// don't propagate status, set them to general defaults
+			this.setOccurrenceStatus(OccurrenceStatus.PRESENT);
+			this.setIntroducedStatus(PlantIntroducedStatus.NOT_SPECIFIED);
+			this.setNaturalizationDegree(PlantNaturalizationDegree.NOT_SPECIFIED);
+			this.setAbundanceLevel(AbundanceLevel.NOT_SPECIFIED);
+		}
+		if(this.getNativeStatus() != o.getNativeStatus()) this.setNativeStatus(NativeStatus.MULTIPLE_STATUS);
+	}
 }

@@ -6,6 +6,7 @@ import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 
 import com.arangodb.entity.EntityFactory;
 
@@ -25,6 +26,7 @@ import pt.floraon.results.GraphUpdateResult;
  *
  */
 @MultipartConfig
+@WebServlet("/exp/update/*")
 public class NodeWorker extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	@Override
@@ -37,11 +39,12 @@ public class NodeWorker extends FloraOnServlet {
 			throws ServletException, IOException, FloraOnException {
 		String rank, name, annot, shortName;
 		INodeKey from, to, id;
+		int res;
 		
-		if(!isAuthenticated()) {
+/*		if(!isAuthenticated()) {
 			error("You must login to do this operation!");
 			return;
-		}
+		}*/
 		
 		ListIterator<String> partIt=this.getPathIteratorAfter("update");
 
@@ -70,6 +73,11 @@ public class NodeWorker extends FloraOnServlet {
 			to=getParameterAsKey("to");
 			NWD.detachSynonym(from, to);
 			success("Ok");
+			return;
+
+		case "unsetcompleteterritory":
+			res = driver.wrapTaxEnt(getParameterAsKey("id")).unsetTerritoryWithCompleteDistribution(getParameterAsKey("territory"));
+			success(res == 0 ? "Nothing removed" : "Removed");
 			return;
 			
 		case "add":
@@ -122,6 +130,11 @@ public class NodeWorker extends FloraOnServlet {
 							,TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null)),null,null,true).getID()).toJsonObject()
 				);
 				//success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
+				return;
+			
+			case "completeterritory":
+				res = driver.wrapTaxEnt(getParameterAsKey("id")).setTerritoryWithCompleteDistribution(getParameterAsKey("territory"));
+				success(res == 0 ? "Nothing added" : "Added");
 				return;
 				
 /*			case "attribute":

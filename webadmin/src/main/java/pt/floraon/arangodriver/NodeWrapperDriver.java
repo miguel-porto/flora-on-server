@@ -22,9 +22,9 @@ import pt.floraon.results.GraphUpdateResult;
 public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper {
 	protected INodeKey node;
 
-	public NodeWrapperDriver(FloraOn driver, INodeKey node) {
+	public NodeWrapperDriver(FloraOn driver, INodeKey node) throws FloraOnException {
 		super(driver);
-		if(node==null) throw new RuntimeException("Must provide a node");
+		if(node==null) throw new FloraOnException("Must provide a node");
 		this.node=node;
 	}
 

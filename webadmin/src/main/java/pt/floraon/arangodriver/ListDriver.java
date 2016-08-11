@@ -121,14 +121,14 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
     }
 
 	@Override
-    public Iterator<Territory> getAllTerritories(TerritoryTypes territoryType) throws FloraOnException {
+    public List<Territory> getAllTerritories(TerritoryTypes territoryType) throws FloraOnException {
     	String query;
     	if(territoryType!=null)
     		query=String.format(AQLQueries.getString("ListDriver.5"),NodeTypes.territory.toString(), territoryType.toString()); //$NON-NLS-1$
     	else
     		query=String.format(AQLQueries.getString("ListDriver.6"),NodeTypes.territory.toString()); //$NON-NLS-1$
     	try {
-			return dbDriver.executeAqlQuery(query, null, null, Territory.class).iterator();
+			return dbDriver.executeAqlQuery(query, null, null, Territory.class).asList();
 		} catch (ArangoException e) {
 			throw new FloraOnException(e.getErrorMessage());
 		}
@@ -145,13 +145,13 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 			withLimit=true;
 		}
 		if(territory==null) {
-			query=AQLQueries.getString("ListDriver.7" //$NON-NLS-1$
-				, onlyLeafNodes ? "&& npar==0" : "" //$NON-NLS-1$ //$NON-NLS-2$
+			query=AQLQueries.getString("ListDriver.7"
+				, onlyLeafNodes ? "&& npar==0" : ""
 				, NodeTypes.taxent.toString()
-				, withLimit ? "LIMIT "+offset+","+count : "" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				, onlyCurrent ? "&& thistaxon.current" : "" //$NON-NLS-1$ //$NON-NLS-2$
-				, filter == null ? "" : "FILTER LIKE(thistaxon.name, '%%" + filter + "%%', true) " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				, onlyCurrent ? "FILTER v.current==true" : "" //$NON-NLS-1$ //$NON-NLS-2$
+				, withLimit ? "LIMIT "+offset+","+count : ""
+				, onlyCurrent ? "&& thistaxon.current" : ""
+				, filter == null ? "" : "FILTER LIKE(thistaxon.name, '%%" + filter + "%%', true) "
+				, onlyCurrent ? "FILTER v.current==true" : ""
 			);
 		} else {
 			if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist."); //$NON-NLS-1$

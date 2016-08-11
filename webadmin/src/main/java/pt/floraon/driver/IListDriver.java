@@ -48,7 +48,7 @@ public interface IListDriver {
      * @return
      * @throws ArangoException
      */
-	public Iterator<Territory> getAllTerritories(TerritoryTypes territoryType) throws FloraOnException;
+	public List<Territory> getAllTerritories(TerritoryTypes territoryType) throws FloraOnException;
     /**
      * Gets all territories and all the PART_OF relations between them
      * @param territoryType
