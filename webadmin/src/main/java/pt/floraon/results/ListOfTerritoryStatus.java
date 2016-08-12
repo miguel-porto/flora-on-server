@@ -123,97 +123,21 @@ public class ListOfTerritoryStatus {
 		}
 	}
 
-	/*
-	public Map<String,InferredStatus> computeTerritoryStatus(boolean worldDistributionComplete) {
-		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
-		TerritoryStatus thisStatus, tmp;
-		Iterator<TerritoryStatus> it;
-		Set<Territory> endemismDegree = this.computeNativeExtent();
-		boolean isEndemic;
-
-		// compile the territories marked for checklist
-		Set<Territory> checklistTerritories = new HashSet<Territory>();
-		for(TerritoryStatus ts : this.territoryStatusList) {
-			if(ts.territory.getShowInChecklist())
-				checklistTerritories.add(ts.territory);
-		}
-		
-		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
-		// 3: not inferred and certain
-		// 2: inferred and certain
-		// 1: not inferred and uncertain
-		// 0: inferred and uncertain
-		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
-		for(Territory territory : checklistTerritories) {
-			thisStatus = null;
-			// first check if it is endemic to this territory or not
-			if(worldDistributionComplete)
-				isEndemic = isEndemicToTerritory(endemismDegree, territory.getShortName());
-			else
-				isEndemic = false;
-
-			it = this.territoryStatusList.iterator();
-			while(it.hasNext()) {
-				tmp=it.next();
-				if(!tmp.territory.getShortName().equals(territory.getShortName())) continue;
-				if(thisStatus == null)
-					thisStatus = tmp;
-				else
-					thisStatus = thisStatus.merge(tmp);
-			}
-			
-			out.put(territory.getShortName(), new InferredStatus(thisStatus, isEndemic));
-		}
-		return out;
-	}*/
 	/**
 	 * Computes the status of this taxon in each territory marked for checklist, by summarizing all the branches that connect the taxon with the territory
 	 * @return
 	 */
 	public Map<String,InferredStatus> computeTerritoryStatus(Boolean worldDistributionComplete) {
-		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
-		TerritoryStatus thisStatus, tmp;
-		Iterator<TerritoryStatus> it;
 		Set<Territory> endemismDegree = this.computeNativeExtent();
-		boolean isEndemic;
 
 		// compile the territories marked for checklist
-		Set<Territory> checklistTerritories = new HashSet<Territory>();
+		Set<String> checklistTerritories = new HashSet<String>();
 		for(TerritoryStatus ts : this.territoryStatusList) {
 			if(ts.territory.getShowInChecklist())
-				checklistTerritories.add(ts.territory);
+				checklistTerritories.add(ts.territory.getShortName());
 		}
 		
-		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
-		// 3: not inferred and certain
-		// 2: inferred from subterritory and certain
-		// 1: not inferred and uncertain
-		// 0: inferred and uncertain
-		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
-		for(Territory territory : checklistTerritories) {
-			thisStatus = null;
-			// first check if it is endemic to this territory or not
-			if(worldDistributionComplete)
-				isEndemic = isEndemicToTerritory(endemismDegree, territory.getShortName());
-			else
-				isEndemic = false;
-
-			it = this.territoryStatusList.iterator();
-			while(it.hasNext()) {
-				tmp=it.next();
-				if(!tmp.territory.getShortName().equals(territory.getShortName())) continue;
-				//System.out.println(tmp.territory.getName()+" "+tmp.completeDistributionUpstream);
-				if(thisStatus == null)
-					thisStatus = tmp.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
-				else
-					thisStatus = thisStatus.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
-			}
-			// if the status is from a subterritory and distribution is not complete, it is not possible to infer NativeStatus
-			if(thisStatus.completeDistributionUpstream == null && thisStatus.edges.contains(Constants.RelTypes.BELONGS_TO.toString()))
-				thisStatus.existsIn.setNativeStatus(Constants.NativeStatus.EXISTS);
-			out.put(territory.getShortName(), new InferredStatus(thisStatus, isEndemic));
-		}
-		return out;
+		return computeTerritoryStatus(checklistTerritories, worldDistributionComplete, endemismDegree);
 	}
 
 	/**
@@ -223,31 +147,49 @@ public class ListOfTerritoryStatus {
 	 * @return
 	 */
 	public Map<String,InferredStatus> computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
-		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
-		TerritoryStatus thisStatus = null, tmp;
-		Iterator<TerritoryStatus> it;
+		Set<Territory> endemismDegree = this.computeNativeExtent();
+		Set<String> thisTerritory = new HashSet<String>();
+		thisTerritory.add(territory);
+		return computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
+	}
 
-		// first check if it is endemic to this territory or not
-		boolean isEndemic = false;
-		if(worldDistributionComplete) {
-			isEndemic = isEndemicToTerritory(this.computeNativeExtent(), territory);
-		}
+	private Map<String,InferredStatus> computeTerritoryStatus(Set<String> territories, boolean worldDistributionComplete, Set<Territory> endemismDegree) {
 		// Now iterate over all statuses of this territory, to find the most rigorous and direct information, respecting a priority order:
 		// 3: not inferred and certain
-		// 2: inferred and certain
+		// 2: inferred from subterritory and certain
 		// 1: not inferred and uncertain
 		// 0: inferred and uncertain
 		// When the priority is the same, check whether the statuses are different or equal. If different, assign a general/multiple status
-		it = this.territoryStatusList.iterator();
-		while(it.hasNext()) {
-			tmp=it.next();
-			if(!tmp.territory.getShortName().equals(territory)) continue;
-			if(thisStatus == null)
-				thisStatus = tmp.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
+		
+		Map<String,InferredStatus> out=new HashMap<String,InferredStatus>();
+		TerritoryStatus thisStatus, tmp;
+		boolean isEndemic;
+		Iterator<TerritoryStatus> it;
+		
+		for(String territory : territories) {
+			thisStatus = null;
+			// first check if it is endemic to this territory or not
+			if(worldDistributionComplete)
+				isEndemic = isEndemicToTerritory(endemismDegree, territory);
 			else
-				thisStatus = thisStatus.merge(tmp, tmp.completeDistributionUpstream != null);	// is distribution within this territory? So we propagate OccurrenceStatus etc.
+				isEndemic = false;
+
+			it = this.territoryStatusList.iterator();
+			while(it.hasNext()) {	// look for a path that leads to this territory
+				tmp=it.next();
+				if(!tmp.territory.getShortName().equals(territory)) continue;
+				//System.out.println(tmp.territory.getName()+" "+tmp.completeDistributionUpstream);
+				if(thisStatus == null)
+					thisStatus = tmp.merge(tmp, tmp.completeDistributionUpstream != null
+						|| !tmp.isInferredFromChildTerritory());	// is distribution complete within this territory? Or is it a direct assignment? If so, we propagate OccurrenceStatus etc.
+				else
+					thisStatus = thisStatus.merge(tmp, tmp.completeDistributionUpstream != null
+						|| !tmp.isInferredFromChildTerritory());	// is distribution complete within this territory? Or is it a direct assignment? If so, we propagate OccurrenceStatus etc.
+			}
+
+			if(thisStatus.existsIn.getNativeStatus() != NativeStatus.NULL)
+				out.put(territory, new InferredStatus(thisStatus, isEndemic));
 		}
-		out.put(territory, new InferredStatus(thisStatus, isEndemic));
 		return out;
 	}
 	
@@ -310,7 +252,7 @@ public class ListOfTerritoryStatus {
 			// the taxonomic depth is the number of PART_OF relations
 			nativeExistsIn.put(ts.existsIn.getID(), Collections.frequency(ts.edges, Constants.RelTypes.PART_OF.toString()));
 			// compile the base territories, i.e. those which have a native status directly assigned
-			if(!ts.edges.contains(Constants.RelTypes.BELONGS_TO.toString())) terr.add(ts.territory.getName());		// only add direct territory assignements
+			if(!ts.isInferredFromChildTerritory()) terr.add(ts.territory.getName());		// only add direct territory assignments
 		}
 		if(nativeExistsIn.size() == 0) return Collections.emptySet();	// it has not NATIVE status, so it's not endemic
 		int minExistsInDepth = Collections.min(nativeExistsIn.values());

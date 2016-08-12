@@ -115,14 +115,27 @@ public class EXISTS_IN extends GeneralDBEdge {
 		if(propagateStatus) {
 			this.setOccurrenceStatus(this.getOccurrenceStatus().merge(o.getOccurrenceStatus()));
 			this.setAbundanceLevel(this.getAbundanceLevel().merge(o.getAbundanceLevel()));
+			System.out.println(this.getIntroducedStatus() +" "+o.getIntroducedStatus());
 			this.setIntroducedStatus(this.getIntroducedStatus().merge(o.getIntroducedStatus()));
+			System.out.println(this.getIntroducedStatus() +" "+o.getIntroducedStatus());
 			this.setNaturalizationDegree(this.getNaturalizationDegree().merge(o.getNaturalizationDegree()));
 		} else {	// don't propagate status, set them to general defaults
-			this.setOccurrenceStatus(OccurrenceStatus.PRESENT);
+			if(this.getOccurrenceStatus().isPresent())
+				this.setOccurrenceStatus(OccurrenceStatus.PRESENT);
 			this.setIntroducedStatus(PlantIntroducedStatus.NOT_SPECIFIED);
 			this.setNaturalizationDegree(PlantNaturalizationDegree.NOT_SPECIFIED);
 			this.setAbundanceLevel(AbundanceLevel.NOT_SPECIFIED);
 		}
-		if(this.getNativeStatus() != o.getNativeStatus()) this.setNativeStatus(NativeStatus.MULTIPLE_STATUS);
+		
+		if(this.getNativeStatus() != o.getNativeStatus()) {
+			if(this.getNativeStatus().isNative() != o.getNativeStatus().isNative())
+				this.setNativeStatus(NativeStatus.MULTIPLE_STATUS);
+			else {
+				if(this.getNativeStatus().isNative())
+					this.setNativeStatus(NativeStatus.MULTIPLE_NATIVE_STATUS);
+				else
+					this.setNativeStatus(NativeStatus.MULTIPLE_EXOTIC_STATUS);
+			}
+		}
 	}
 }

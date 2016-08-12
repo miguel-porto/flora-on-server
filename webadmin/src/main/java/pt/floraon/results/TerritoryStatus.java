@@ -42,15 +42,23 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 	 */
 	protected String completeDistributionUpstream;
 
+	/**
+	 * Is this status in this territory inferred from the status in a subterritory?
+	 * @return
+	 */
+	public boolean isInferredFromChildTerritory() {
+		return this.edges.contains(Constants.RelTypes.BELONGS_TO.toString());
+	}
+	
 	@Override
 	public int compareTo(TerritoryStatus o) {
 		Integer priorityObj =
 			(Collections.frequency(o.edges, Constants.RelTypes.PART_OF.toString()) > 0 ? 0 : 2)
-			+ (o.edges.contains(Constants.RelTypes.BELONGS_TO.toString()) ? 0 : 1);		// we don't prioritize on the number of BELONGS_TO. We just prioritize direct links over indirect links.
+			+ (o.isInferredFromChildTerritory() ? 0 : 1);		// we don't prioritize on the number of BELONGS_TO. We just prioritize direct links over indirect links.
 
 		Integer priorityThis =
 			(Collections.frequency(this.edges, Constants.RelTypes.PART_OF.toString()) > 0 ? 0 : 2)
-			+ (this.edges.contains(Constants.RelTypes.BELONGS_TO.toString()) ? 0 : 1);
+			+ (this.isInferredFromChildTerritory() ? 0 : 1);
 		
 		return priorityThis.compareTo(priorityObj);
 	}
@@ -62,7 +70,12 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 			return o;
 		else if(better==0)	// tmp2 is equally good (for example, status assigned to multiple subterritories), so merge statuses
 			this.existsIn.mergeWith(o.existsIn, propagateStatus);
-
+		
+		if(this.isInferredFromChildTerritory()) {		// if the status is from a subterritory, we have some exceptions:
+			if(this.completeDistributionUpstream == null)		// if the distribution is not complete, it is not possible to infer NativeStatus
+				this.existsIn.setNativeStatus(Constants.NativeStatus.EXISTS);
+			if(!this.existsIn.getOccurrenceStatus().isPresent() && !propagateStatus) this.existsIn.setNativeStatus(Constants.NativeStatus.NULL);
+		}
 		return this;
 	}
 }

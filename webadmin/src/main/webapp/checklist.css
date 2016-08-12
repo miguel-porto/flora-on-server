@@ -138,7 +138,7 @@ div.toggler.off .content {display:none;}
 */
 table.taxonlist tr.notcurrent {color:#aaa !important;background-color:#f7f7f7;}
 #legendpanel {padding:6px;border-bottom:2px solid #09f;}
-#legendpanel>div {display:inline-block;}
+#legendpanel>div {border:1px solid #eee;border-radius:4px;padding:2px 4px;float:left}
 
 div.territory {
 	border-radius:50%;
@@ -194,7 +194,12 @@ div.territory .occurrencestatus.POSSIBLY_EXTINCT {
 }
 
 div.territory .occurrencestatus.POSSIBLE_OCCURRENCE {
-	background-image: linear-gradient(90deg, white 30%, rgba(255,255,255,0.4) 80%, transparent);
+	/*background-image: linear-gradient(90deg, white 30%, rgba(255,255,255,0.4) 80%, transparent);*/
+	background-image: linear-gradient(45deg, white 25%, transparent 25%),
+		linear-gradient(-45deg, white 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, white 75%),
+		linear-gradient(-45deg, transparent 75%, white 75%);
+	background-size:50% 50%;
 }
 
 div.territory .occurrencestatus.ASSUMED_PRESENT {

@@ -337,11 +337,19 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 					//curTaxEnt.commit();
 				}
 				
+				NativeStatus tmpNS;
+				
 				for(Entry<Integer,Territory> terr : territories.entrySet()) {	// bind this taxon with the territories with the given native status
 					String ns=record.get(terr.getKey());
-					if(ns!=null && !ns.equals(""))
+					if(ns!=null && !ns.equals("")) {
+						try {
+							tmpNS = NativeStatus.valueOf(ns.toUpperCase());
+						} catch (IllegalArgumentException e) {
+							tmpNS = NativeStatus.ERROR;
+						}
 						driver.wrapTaxEnt(driver.asNodeKey(curTaxEnt.getID())).setNativeStatus(
-							driver.asNodeKey(terr.getValue().getID()), NativeStatus.fromString(ns.toUpperCase()), OccurrenceStatus.PRESENT, null, null, null, false);
+							driver.asNodeKey(terr.getValue().getID()), tmpNS, OccurrenceStatus.PRESENT, null, null, null, false);
+					}
 				}
 			}
 		} catch (FloraOnException e) {

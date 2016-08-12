@@ -67,27 +67,29 @@
 		<div id="main" class="noselect"><h1>List of all names<c:out value="${territory}"></c:out></h1>
 			<c:if test="${sessionScope.user!=null}"><p>Click on a taxon to edit it</p></c:if>
 			<div id="legendpanel">
-				<b>Native Status: </b>
-				<div><div class="territory NATIVE"></div> native&nbsp;</div>
-				<div><div class="territory ASSUMED_NATIVE"></div> assumed native&nbsp;</div>
-				<div><div class="territory DOUBTFULLY_NATIVE"></div> doubtfully native&nbsp;</div>
-				<div><div class="territory ENDEMIC"></div> endemic&nbsp;</div>
-				<div><div class="territory NEAR_ENDEMIC"></div> <i>quasi</i>-endemic&nbsp;</div>
-				<div><div class="territory EXOTIC"></div> exotic&nbsp;</div>
-				<div><div class="territory DOUBTFULLY_EXOTIC"></div> doubtfully exotic&nbsp;</div>
-				<div><div class="territory NATIVE_REINTRODUCED"></div> reintroduced similar origin&nbsp;</div>
-				<div><div class="territory EXOTIC_REINTRODUCED"></div> reintroduced exotic origin&nbsp;</div>
-				<div><div class="territory CRYPTOGENIC"></div> cryptogenic&nbsp;</div>
-				<div><div class="territory MULTIPLE_STATUS"></div> not possible to infer status, or multiple status (different status depending on sub-territory)</div>
-				<br/><b>Occurrence Status: </b>
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus ASSUMED_PRESENT"></div></div> assumed present&nbsp;
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus POSSIBLY_EXTINCT"></div></div> possibly extinct&nbsp;
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus EXTINCT"></div></div> extinct &nbsp;
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus POSSIBLE_OCCURRENCE"></div></div> of possible occurrence&nbsp;
-				<br/><b>Other flags: </b>
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus UNCERTAIN_OCCURRENCE"></div></div><span title="There are taxonomic doubts of whether this taxon is indeed present"> of uncertain occurrence</span>&nbsp;
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus RARE"></div></div> rare&nbsp;
-				<div class="territory MULTIPLE_STATUS"><div class="occurrencestatus uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> if it occurs, then it is with this status</span>
+				<p>For a detailed explanation of the categories, <a href="https://github.com/miguel-porto/flora-on-server/wiki/Describing-a-relationship-between-a-taxon-and-a-territory" target="_blank">click here</a>.</p>
+				<b>Native Status<br/></b>
+				<div><div class="territory NATIVE"></div> native</div>
+				<div><div class="territory ASSUMED_NATIVE"></div> assumed native</div>
+				<div><div class="territory DOUBTFULLY_NATIVE"></div> doubtfully native</div>
+				<div><div class="territory ENDEMIC"></div> endemic</div>
+				<div><div class="territory NEAR_ENDEMIC"></div> <i>quasi</i>-endemic</div>
+				<div><div class="territory EXOTIC"></div> exotic</div>
+				<div><div class="territory DOUBTFULLY_EXOTIC"></div> doubtfully exotic</div>
+				<div><div class="territory NATIVE_REINTRODUCED"></div> reintroduced similar origin</div>
+				<div><div class="territory EXOTIC_REINTRODUCED"></div> reintroduced exotic origin</div>
+				<div><div class="territory CRYPTOGENIC"></div> cryptogenic</div>
+				<div><div class="territory MULTIPLE_STATUS"></div> present but undefined status</div>
+				<p style="clear:both"></p><b>Occurrence Status<br/></b>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus ASSUMED_PRESENT"></div></div> assumed present</div>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus POSSIBLY_EXTINCT"></div></div> possibly extinct</div>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus EXTINCT"></div></div> extinct</div>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus POSSIBLE_OCCURRENCE"></div></div> of possible occurrence</div>
+				<p style="clear:both"></p><b>Other flags<br/></b>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus UNCERTAIN_OCCURRENCE"></div></div><span title="There are taxonomic doubts of whether this taxon is indeed present"> of uncertain occurrence</span></div>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus RARE"></div></div> rare</div>
+				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> if it occurs, then it is with this status</span></div>
+				<p style="clear:both"></p>
 			</div>
 			<div class="paging"><div id="filterbox">Filter: <input type="text" id="filtertext" placeholder="type filter text" value="${filter}"/></div><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&filter=${filter}&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&filter=${filter}&offset=${offset+PAGESIZE}">next &gt;</a><p style="clear:both"/></div>
 			<jsp:include page="/api/lists?w=speciesterritories&fmt=htmltable&offset=${offset}&filter=${filter}"></jsp:include>

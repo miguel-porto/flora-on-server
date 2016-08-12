@@ -99,36 +99,19 @@ public final class Constants {
     		return null;
     	}
 	}
-
+	
+	
+	/**************************************************************************
+	 * STATUS OF TAXA IN TERRITORIES
+	 * These status apply to the EXISTS_IN relationship and intend to describe
+	 * the relationship of a taxon with a territory.
+	 ***************************************************************************/
+	
+	// these two enums are only for the cases where we need a simple yes-or-no answer to the question!
+	public enum Native_Exotic {NATIVE, EXOTIC}
+	public enum Present_Absent {PRESENT, ABSENT}
+	
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
-	public enum OccurrenceStatus {		// this applies to the current status of the taxon in a given territory
-		PRESENT(0)						// Taxon is currently present
-		,DOUBT_OVER_PRESENCE(2)			// There is doubt over the presence of this taxon due to geographic issues (NOTE: doubt because of taxonomic issues is treated in another field)
-		,POSSIBLE_OCCURRENCE(5)			// Taxon might occur in the territory given its distribution and habitat elsewhere, but there is *no* evidence at all of its occurrence
-		,ASSUMED_PRESENT(1)				// Taxon has not been observed recently but there are past unequivocal evidences of its occurrence and there are no reasons to suppose that it might have gone extinct.
-		,POSSIBLY_EXTINCT(3)			// Taxon is possibly extinct: there are no recent observations, so we assume it may be extinct, but it might still exist, according to expert's opinion
-		,EXTINCT(4)						// Taxon is extinct: there are no recent observations, and it is very unlikely that it might still exist, according to expert's opinion
-		,ABSENT_BUT_REPORTED_IN_ERROR(6)// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
-		,ERROR(0);							// Some error occurred
-		
-		private final Integer priority;
-		
-		OccurrenceStatus(Integer priority) {
-			this.priority = priority;
-		}
-		
-		public OccurrenceStatus merge(OccurrenceStatus o) {
-			if(this.priority < o.priority)
-				return this;
-			else
-				return o;
-		}
-	}
-	
-	public enum Native_Exotic {
-		NATIVE, EXOTIC
-	}
-	
 	public enum NativeStatus {
 		NATIVE((short)0, "NATIVE to", Native_Exotic.NATIVE)
 		,ASSUMED_NATIVE((short)0, "ASSUMED to be NATIVE to", Native_Exotic.NATIVE)
@@ -141,8 +124,11 @@ public final class Constants {
 		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC)
 		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
 		,MULTIPLE_STATUS((short)0, "EXISTS in", null)						// it exists with different status depending on the sub-territory or on the sub-taxa
+		,MULTIPLE_EXOTIC_STATUS((short)0, "EXISTS in", Native_Exotic.EXOTIC)	// it exists with different status depending on the sub-territory or on the sub-taxa
+		,MULTIPLE_NATIVE_STATUS((short)0, "EXISTS in", Native_Exotic.NATIVE)	// it exists with different status depending on the sub-territory or on the sub-taxa
 		,EXISTS((short)0, "EXISTS in", null)								// it exists but it is not possible to infer status
-		,ERROR((short)-1, "ERROR", null);
+		,ERROR((short)-1, "ERROR", null)
+		,NULL((short)-1, "ERROR", null);									// to signal when nothing is known
 		
 		private final Short code;
 		private final String verbose;
@@ -158,14 +144,6 @@ public final class Constants {
 			return code;
 		}
 		
-		public static List<NativeStatus> getNatives() {
-			List<NativeStatus> out=new ArrayList<NativeStatus>(); 
-			for(NativeStatus tr:values()) {
-				if(tr.nativeExotic == Native_Exotic.NATIVE) out.add(tr); 
-			}
-			return out;
-		}
-		
     	public static NativeStatus fromCode(Short code) {
     		for(NativeStatus tr:values()) {
     			if(Objects.equals(tr.code, code)) return tr;
@@ -173,13 +151,6 @@ public final class Constants {
     		return NativeStatus.ERROR;
     	}
 
-    	public static NativeStatus fromString(String name) {
-    		for(NativeStatus tr:values()) {
-    			if(Objects.equals(tr.toString(), name)) return tr;
-    		}
-    		return NativeStatus.ERROR;
-    	}
-    	
     	public boolean isNative() {
     		return this.nativeExotic == Native_Exotic.NATIVE;
     	}
@@ -192,6 +163,36 @@ public final class Constants {
     		return this.verbose;
     	}
 
+	}
+
+	public enum OccurrenceStatus {		// this applies to the current status of the taxon in a given territory
+		PRESENT(0, Present_Absent.PRESENT)						// Taxon is currently present
+		,DOUBT_OVER_PRESENCE(2, Present_Absent.PRESENT)			// There is doubt over the presence of this taxon due to geographic issues (NOTE: doubt because of taxonomic issues is treated in another field)
+		,POSSIBLE_OCCURRENCE(5, Present_Absent.ABSENT)			// Taxon might occur in the territory given its distribution and habitat elsewhere, but there is *no* evidence at all of its occurrence
+		,ASSUMED_PRESENT(1, Present_Absent.PRESENT)				// Taxon has not been observed recently but there are past unequivocal evidences of its occurrence and there are no reasons to suppose that it might have gone extinct.
+		,POSSIBLY_EXTINCT(3, Present_Absent.PRESENT)			// Taxon is possibly extinct: there are no recent observations, so we assume it may be extinct, but it might still exist, according to expert's opinion
+		,EXTINCT(4, Present_Absent.ABSENT)						// Taxon is extinct: there are no recent observations, and it is very unlikely that it might still exist, according to expert's opinion
+		,ABSENT_BUT_REPORTED_IN_ERROR(6, Present_Absent.ABSENT)	// Taxon is absent, but it has been erroneously reported earlier (e.g. because of mis-identifications)
+		,ERROR(0, Present_Absent.ABSENT);						// Some error occurred
+		
+		private final Integer priority;
+		private final Present_Absent presentAbsent;
+		
+		OccurrenceStatus(Integer priority, Present_Absent PA) {
+			this.priority = priority;
+			this.presentAbsent = PA;
+		}
+		
+		public OccurrenceStatus merge(OccurrenceStatus o) {
+			if(this.priority < o.priority)
+				return this;
+			else
+				return o;
+		}
+		
+		public boolean isPresent() {
+			return this.presentAbsent == Present_Absent.PRESENT;
+		}
 	}
 
 	public enum AbundanceLevel {
@@ -256,10 +257,10 @@ public final class Constants {
 	}
 
 	public enum PlantNaturalizationDegree {
-		NOT_SPECIFIED(5)
-		,CASUAL(4)
-		,NATURALIZED_OCCASIONAL(3)
-		,NATURALIZED_DANGEROUS(2)
+		NOT_SPECIFIED(2)
+		,CASUAL(5)
+		,NATURALIZED_OCCASIONAL(4)
+		,NATURALIZED_DANGEROUS(3)
 		,INVASIVE(1)
 		,TRANSFORMER(0)
 		,NOT_APPLICABLE(-1);
