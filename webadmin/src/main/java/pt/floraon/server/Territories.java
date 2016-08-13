@@ -41,6 +41,7 @@ public class Territories extends FloraOnServlet {
 				to = getParameterAsString("territory"));
 
 			Territory terr=NWD.getTerritoryFromShortName(to);
+			if(terr == null) throw new FloraOnException("Territory not found");
 			int res = driver.wrapTaxEnt(from).setNativeStatus(
 				driver.asNodeKey(terr.getID())
 				, getParameterAsEnum("nativeStatus", NativeStatus.class)

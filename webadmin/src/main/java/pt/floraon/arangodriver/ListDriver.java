@@ -151,8 +151,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 				, withLimit ? "LIMIT "+offset+","+count : ""
 				, onlyCurrent ? "&& thistaxon.current" : ""
 				, filter == null ? "" : "FILTER LIKE(thistaxon.name, '%%" + filter + "%%', true) "
-				, onlyCurrent ? "FILTER v.current==true" : ""
-			);
+			);//onlyCurrent ? "FILTER v.current==true" : ""
 		} else {
 			if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist."); //$NON-NLS-1$
 //FIXME do this!

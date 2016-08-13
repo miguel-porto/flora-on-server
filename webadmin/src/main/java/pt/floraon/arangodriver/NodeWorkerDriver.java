@@ -459,12 +459,10 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public Iterator<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException {
-/*		String query=String.format("LET terr=TRAVERSAL(taxent, EXISTS_IN, '%1$s', 'outbound', {maxDepth:1,paths:true}) "
-			+ "FOR v IN SLICE(terr,1) RETURN {territory: v.vertex, nativeStatus:v.path.edges[0]}", id.toString());*/
-		String query=String.format("FOR v,e IN 1..100 OUTBOUND '%1$s' EXISTS_IN RETURN {territory: v, nativeStatus:e}", id.toString());
+	public List<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException {
+		String query=AQLQueries.getString("NodeWorkerDriver.3", id.toString());
 		try {
-			return dbDriver.executeAqlQuery(query, null, null, NativeStatusResult.class).iterator();
+			return dbDriver.executeAqlQuery(query, null, null, NativeStatusResult.class).asList();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getMessage());
 		}
@@ -473,7 +471,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	@Override
     public Attribute getAttributeByName(String name) throws FloraOnException {
 		// TODO same function but to search only within one character
-    	String query=String.format("FOR v IN attribute FILTER v.name=='%1$s' RETURN v",name);
+    	String query=AQLQueries.getString("NodeWorkerDriver.4", name);
 		try {
 			return dbDriver.executeAqlQuery(query, null, null, Attribute.class).getUniqueResult();
 		} catch (ArangoException e) {

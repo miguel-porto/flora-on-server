@@ -57,7 +57,27 @@
 			<form class="poster" data-path="/floraon/api/territories/set">
 			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 			<table>
-				${nativeStatusTable}
+				<tr><th>Territory</th><th>Native Status</th><th>Occurrence Status</th><th>Abundance Level</th><th>Introduced Status</th><th>Naturalization Degree</th>
+				<c:if test="${sessionScope.user != null}"><th></th></c:if>
+				</tr>
+				<c:forEach var="nativeStatus" items="${assignedNativeStatus}">
+					<tr>
+						<td><c:out value="${nativeStatus.getTerritory().getName()}"></c:out></td>
+						<td><c:out value="${nativeStatus.getExistsIn().getNativeStatus()}"></c:out></td>
+						<td><c:out value="${nativeStatus.getExistsIn().getOccurrenceStatus()}"></c:out></td>
+						<td><c:out value="${nativeStatus.getExistsIn().getAbundanceLevel()}"></c:out></td>
+						<td><c:out value="${nativeStatus.getExistsIn().getIntroducedStatus()}"></c:out></td>
+						<td><c:out value="${nativeStatus.getExistsIn().getNaturalizationDegree()}"></c:out></td>
+						<c:if test="${sessionScope.user != null}">
+							<td><form class="poster" data-path="/floraon/api/territories/set">
+								<input type="hidden" name="taxon" value="${taxent.getID()}"/>
+								<input type="hidden" name="territory" value="${nativeStatus.getTerritory().getShortName()}"/>
+								<input type="hidden" name="nativeStatus" value="NULL"/>
+								<input type="submit" value="Remove status"/>
+							</form></td>
+						</c:if>
+					</tr>
+				</c:forEach>
 			</table>
 			</form>
 		</div>
@@ -155,9 +175,10 @@
 								<td>
 									<select name="nativeStatus">
 										<c:forEach var="nstatus" items="${nativeStatus}">
-											<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
+											<c:if test="${!nstatus.isReadOnly()}">
+												<option value="${nstatus.toString()}"><c:out value="${nstatus.toVerboseString()}"></c:out></option>
+											</c:if>
 										</c:forEach>
-										<option value="NULL">has no status in</option>
 									</select>
 								</td>
 							</tr><tr>

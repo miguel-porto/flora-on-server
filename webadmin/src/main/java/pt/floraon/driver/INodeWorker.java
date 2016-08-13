@@ -1,6 +1,6 @@
 package pt.floraon.driver;
 
-import java.util.Iterator;
+import java.util.List;
 
 import com.arangodb.ArangoException;
 import com.google.gson.JsonObject;
@@ -155,5 +155,5 @@ public interface INodeWorker {
 	 * @return
 	 * @throws ArangoException
 	 */
-	public Iterator<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException;
+	public List<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException;
 }

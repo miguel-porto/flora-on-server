@@ -113,31 +113,33 @@ public final class Constants {
 	
 	// Thanks to Estevão Portela-Pereira to all discussions and contributions to the *status!
 	public enum NativeStatus {
-		NATIVE((short)0, "NATIVE to", Native_Exotic.NATIVE)
-		,ASSUMED_NATIVE((short)0, "ASSUMED to be NATIVE to", Native_Exotic.NATIVE)
-		,DOUBTFULLY_NATIVE((short)1, "DOUBTFULLY NATIVE to", Native_Exotic.NATIVE)			// it might be native, but there are also reasons to suspect the opposite
-		,NATIVE_REINTRODUCED((short)1, "NATIVE but REINTRODUCED to", Native_Exotic.EXOTIC)
-		,CRYPTOGENIC((short)0, "CRYPTOGENIC in", Native_Exotic.EXOTIC)
-		,DOUBTFULLY_EXOTIC((short)1, "DOUBTFULLY EXOTIC in", Native_Exotic.EXOTIC)		// it might be introduced, but there are also reasons to suspect the opposite
-		,ASSUMED_EXOTIC((short)1, "ASSUMED to be EXOTIC in", Native_Exotic.EXOTIC)
-		,EXOTIC((short)2, "EXOTIC in", Native_Exotic.EXOTIC)
-		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC)
-		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
-		,MULTIPLE_STATUS((short)0, "EXISTS in", null)						// it exists with different status depending on the sub-territory or on the sub-taxa
-		,MULTIPLE_EXOTIC_STATUS((short)0, "EXISTS in", Native_Exotic.EXOTIC)	// it exists with different status depending on the sub-territory or on the sub-taxa
-		,MULTIPLE_NATIVE_STATUS((short)0, "EXISTS in", Native_Exotic.NATIVE)	// it exists with different status depending on the sub-territory or on the sub-taxa
-		,EXISTS((short)0, "EXISTS in", null)								// it exists but it is not possible to infer status
-		,ERROR((short)-1, "ERROR", null)
-		,NULL((short)-1, "ERROR", null);									// to signal when nothing is known
+		NATIVE((short)0, "NATIVE to", Native_Exotic.NATIVE, false)
+		,ASSUMED_NATIVE((short)0, "ASSUMED to be NATIVE to", Native_Exotic.NATIVE, false)
+		,DOUBTFULLY_NATIVE((short)1, "DOUBTFULLY NATIVE to", Native_Exotic.NATIVE, false)			// it might be native, but there are also reasons to suspect the opposite
+		,NATIVE_REINTRODUCED((short)1, "NATIVE but REINTRODUCED to", Native_Exotic.EXOTIC, false)
+		,CRYPTOGENIC((short)0, "CRYPTOGENIC in", Native_Exotic.EXOTIC, false)
+		,DOUBTFULLY_EXOTIC((short)1, "DOUBTFULLY EXOTIC in", Native_Exotic.EXOTIC, false)		// it might be introduced, but there are also reasons to suspect the opposite
+		,ASSUMED_EXOTIC((short)1, "ASSUMED to be EXOTIC in", Native_Exotic.EXOTIC, false)
+		,EXOTIC((short)2, "EXOTIC in", Native_Exotic.EXOTIC, false)
+		,EXOTIC_REINTRODUCED((short)2, "EXOTIC but REINTRODUCED in", Native_Exotic.EXOTIC, false)
+		,NEAR_ENDEMIC((short)4, "NEAR ENDEMIC to", Native_Exotic.NATIVE, false)					// native and quasi-endemic (say, more than 80% of its native populations in the territory)
+		,MULTIPLE_STATUS((short)0, "has multiple status in", null, true)						// it exists with different status depending on the sub-territory or on the sub-taxa
+		,MULTIPLE_EXOTIC_STATUS((short)0, "has multiple exotic status in", Native_Exotic.EXOTIC, true)	// it exists with different status depending on the sub-territory or on the sub-taxa
+		,MULTIPLE_NATIVE_STATUS((short)0, "has multiple native status in", Native_Exotic.NATIVE, true)	// it exists with different status depending on the sub-territory or on the sub-taxa
+		,EXISTS((short)0, "EXISTS in", null, true)								// it exists but it is not possible to infer status
+		,ERROR((short)-1, "ERROR", null, true)
+		,NULL((short)-1, "ERROR", null, true);									// to signal when nothing is known
 		
 		private final Short code;
 		private final String verbose;
 		private final Native_Exotic nativeExotic;
+		private final boolean readOnly;
 		
-		NativeStatus (Short code,String verbose, Native_Exotic nativeExotic) {
+		NativeStatus (Short code,String verbose, Native_Exotic nativeExotic, boolean readOnly) {
 			this.code=code;
 			this.verbose=verbose;
 			this.nativeExotic=nativeExotic;
+			this.readOnly = readOnly;
 		}
 		
 		public Short getCode() {
@@ -153,6 +155,10 @@ public final class Constants {
 
     	public boolean isNative() {
     		return this.nativeExotic == Native_Exotic.NATIVE;
+    	}
+    	
+    	public boolean isReadOnly() {
+    		return this.readOnly;
     	}
     	
     	public Native_Exotic getNativeOrExotic() {

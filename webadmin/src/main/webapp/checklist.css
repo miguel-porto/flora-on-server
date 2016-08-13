@@ -1,7 +1,7 @@
 html,body {margin:0;padding:0;font-family: 'Lato',sans-serif;}
 table {border-spacing:0px;margin:0px;}
 table td {padding:3px;}
-table th {border-bottom:2px solid #cdf;font-weight:normal;color:blue}
+table th {border-bottom:2px solid #cdf;font-weight:normal;color:blue;padding:1px 5px;}
 a {text-decoration:none;}
 h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
 h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}

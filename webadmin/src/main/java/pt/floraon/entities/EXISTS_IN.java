@@ -33,7 +33,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this.nativeStatus = nativeStatus;
 		this.occurrenceStatus = occurrenceStatus;
 		this.abundanceLevel = abundanceLevel;
-		if(this.nativeStatus.getNativeOrExotic() != introducedStatus.getNativeOrExotic()) {
+		if(introducedStatus != null && this.nativeStatus.getNativeOrExotic() != introducedStatus.getNativeOrExotic()) {
 			this.introducedStatus = null;
 			this.naturalizationDegree = null;
 		} else {
@@ -48,15 +48,12 @@ public class EXISTS_IN extends GeneralDBEdge {
 		this._from=from;
 		this._to=to;
 	}
-	
+
+	/*	GETTERS	*/
 	public NativeStatus getNativeStatus() {
 		return this.nativeStatus==null ? NativeStatus.ERROR : this.nativeStatus;
 	}
 	
-	public void setNativeStatus(NativeStatus ns) {
-		this.nativeStatus = ns;
-	}
-
 	public AbundanceLevel getAbundanceLevel() {
 		return this.abundanceLevel==null ? AbundanceLevel.NOT_SPECIFIED : this.abundanceLevel;
 	}
@@ -77,6 +74,11 @@ public class EXISTS_IN extends GeneralDBEdge {
 		return this.naturalizationDegree;
 	}
 
+	/*	SETTERS	*/
+	public void setNativeStatus(NativeStatus ns) {
+		this.nativeStatus = ns;
+	}
+	
 	public void setOccurrenceStatus(OccurrenceStatus os) {
 		this.occurrenceStatus = os;
 	}
@@ -115,9 +117,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 		if(propagateStatus) {
 			this.setOccurrenceStatus(this.getOccurrenceStatus().merge(o.getOccurrenceStatus()));
 			this.setAbundanceLevel(this.getAbundanceLevel().merge(o.getAbundanceLevel()));
-			System.out.println(this.getIntroducedStatus() +" "+o.getIntroducedStatus());
 			this.setIntroducedStatus(this.getIntroducedStatus().merge(o.getIntroducedStatus()));
-			System.out.println(this.getIntroducedStatus() +" "+o.getIntroducedStatus());
 			this.setNaturalizationDegree(this.getNaturalizationDegree().merge(o.getNaturalizationDegree()));
 		} else {	// don't propagate status, set them to general defaults
 			if(this.getOccurrenceStatus().isPresent())

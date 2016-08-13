@@ -192,7 +192,7 @@ public class ListOfTerritoryStatus {
 		}
 		return out;
 	}
-	
+
 	/**
 	 * Checks if this TaxEnt is endemic to the given territory
 	 * @param endemicTerritories

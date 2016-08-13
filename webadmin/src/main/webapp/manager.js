@@ -1,6 +1,6 @@
 //var treeNodeToolbar=createHTML('<div class="tools"><div class="button" data-cmd="delete"/>x</div><div class="button" data-cmd="add"/>add</div></div>');
 var TOPBARSIZE=85;
-var nativeStatus=['NULL','NATIVE','ENDEMIC','EXOTIC','UNCERTAIN'];
+var nativeStatus=['NULL','NATIVE','EXOTIC','DOUBTFULLY_NATIVE','DOUBTFULLY_EXOTIC'];
 if (typeof MouseEvent !== 'function') {
 	var clickEvent = document.createEvent("MouseEvent");
 	clickEvent.initMouseEvent("click",true,true,window,0,0,0,0,0,false,false,false,false,0,null);
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	addEvent('click',tr,function(ev) {
 		var el=getParentbyClass(ev.target,'territory');
 		if(el) {
-			var terr=el.querySelector('div').innerHTML;
+			var terr=el.querySelector('div.legend').innerHTML;
 			var nst=-1;
 			for(var i=0;i<nativeStatus.length;i++) {
 				if(el.classList.contains(nativeStatus[i])) {
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 			if(nst==-1) nst=1;
 			var tr=getParentbyTag(ev.target,'tr');
-//			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
+			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
 			postJSON('/floraon/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, nativeStatus:nativeStatus[nst]},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
