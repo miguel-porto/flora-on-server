@@ -1,10 +1,12 @@
 package pt.floraon.entities;
 
-public class Attribute extends GeneralDBNode {
-	protected String name,shortName,description;
+import pt.floraon.driver.DatabaseException;
+
+public class Attribute extends NamedDBNode {
+	protected String shortName,description;
 	
-	public Attribute(String name,String shortName,String description) {
-		this.name=name.trim();
+	public Attribute(String name,String shortName,String description) throws DatabaseException {
+		super(name);
 		this.shortName=shortName;
 		this.description=description;
 	}
@@ -16,9 +18,8 @@ public class Attribute extends GeneralDBNode {
 		this.description=at.baseNode.description;
 	}	*/
 	
-	public Attribute(Attribute at) {
+	public Attribute(Attribute at) throws DatabaseException {
 		super(at);
-		this.name=at.name;
 		this.shortName=at.shortName;
 		this.description=at.description;
 	}	

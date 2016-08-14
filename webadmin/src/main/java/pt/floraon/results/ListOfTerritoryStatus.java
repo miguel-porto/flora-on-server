@@ -187,7 +187,7 @@ public class ListOfTerritoryStatus {
 						|| !tmp.isInferredFromChildTerritory());	// is distribution complete within this territory? Or is it a direct assignment? If so, we propagate OccurrenceStatus etc.
 			}
 
-			if(thisStatus.existsIn.getNativeStatus() != NativeStatus.NULL)
+			if(thisStatus != null && thisStatus.existsIn.getNativeStatus() != NativeStatus.NULL)
 				out.put(territory, new InferredStatus(thisStatus, isEndemic));
 		}
 		return out;
@@ -216,7 +216,7 @@ public class ListOfTerritoryStatus {
 				if(!tmp.territory.getShortName().equals(territoryShortName)) continue;
 				// for each territory path that leads to the inquired territory
 //				System.out.println(tmp.territory.getName()+": "+Constants.implode(", ", tmp.vertices.toArray(new String[0])));
-				if(tmp.vertices.contains(terr.getName())) {
+				if(tmp.vertices.contains(terr.getID())) {
 					// yes this endemic terr is on the path of the inquired territory
 					chk = true;
 					break;
@@ -233,11 +233,10 @@ public class ListOfTerritoryStatus {
 	/**
 	 * Gets the smallest geographical area that comprises all native occurrences of this TaxEnt.
 	 * This is usually an array of territories, as it does not perform aggregation.
-	 * See Constants.NativeStatus
+	 * Note that this is only meaningful if the worldNativeDistribution is complete.
 	 * @return
 	 */
 	public Set<Territory> computeNativeExtent() {
-		// FIXME: the occurrence status should not propagate unless it is complete_dsitribution
 		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
 		Set<Territory> out = new HashSet<Territory>();
 		Set<String> terr = new HashSet<String>();
@@ -252,7 +251,7 @@ public class ListOfTerritoryStatus {
 			// the taxonomic depth is the number of PART_OF relations
 			nativeExistsIn.put(ts.existsIn.getID(), Collections.frequency(ts.edges, Constants.RelTypes.PART_OF.toString()));
 			// compile the base territories, i.e. those which have a native status directly assigned
-			if(!ts.isInferredFromChildTerritory()) terr.add(ts.territory.getName());		// only add direct territory assignments
+			if(!ts.isInferredFromChildTerritory()) terr.add(ts.territory.getID());		// only add direct territory assignments
 		}
 		if(nativeExistsIn.size() == 0) return Collections.emptySet();	// it has not NATIVE status, so it's not endemic
 		int minExistsInDepth = Collections.min(nativeExistsIn.values());
@@ -267,7 +266,7 @@ public class ListOfTerritoryStatus {
 			// for each EXISTS_IN route
 			for(TerritoryStatus ts : this.territoryStatusList) {
 				//if(!ts.existsIn.getID().equals(ei.getKey()) || ts.vertices.size() <= 2) continue;
-				if(!ts.existsIn.getID().equals(ei.getKey()) || Collections.frequency(ts.edges, "BELONGS_TO") == 0) continue;
+				if(!ts.existsIn.getID().equals(ei.getKey()) || !ts.isInferredFromChildTerritory()) continue;
 				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory, so there's a BELONGS_TO link)
 				//System.out.println(Constants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
 				//System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
@@ -298,12 +297,96 @@ public class ListOfTerritoryStatus {
 		return out;
 	}
 	
-	public Set<String> computeEndemismDegreeName() {
-		Iterator<Territory> it = this.computeNativeExtent().iterator();
-		Set<String> out = new HashSet<String>();
-		while(it.hasNext()) {
-			out.add(it.next().getName());
+	/**
+	 * Within each given territory, compute to which subterritories the taxon is restricted to
+	 * @param territories The IDs of the territories
+	 * @return
+	 */
+	public Map<String, Set<Territory>> computeRestrictedTo(Set<String> territories) {
+		Map<String, Set<Territory>> out = new HashMap<String, Set<Territory>>();
+		Map<String, Set<Territory>> tmp;
+		Iterator<String> tmpIt;
+		String terrName;
+		for(String terr : territories) {
+			tmp = computeRestrictedTo(terr);
+			tmpIt = tmp.keySet().iterator();
+			if(tmpIt.hasNext()) {
+				terrName = tmpIt.next();
+				if(tmp.get(terrName).size() > 0) out.put(terrName, tmp.get(terrName));
+			}
 		}
+		return out;
+	}
+
+	/**
+	 * Within the given territory, compute to which subterritories the taxon is restricted to
+	 * @param territories The IDs of the territories
+	 * @return
+	 */
+	public Map<String, Set<Territory>> computeRestrictedTo(String thisTerr) {
+		Map<String, Set<Territory>> out = new HashMap<String, Set<Territory>>();
+		Set<String> terr = new HashSet<String>();
+		Map<String,Integer> allExistsIn = new HashMap<String,Integer>();
+		String terrName = null;
+		// compile all NativeStatus
+		for(TerritoryStatus ts : this.territoryStatusList) {
+			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective taxonomic depth
+			// each EXISTS_IN is a different territory route in the graph
+			// the taxonomic depth is the number of PART_OF relations
+			if(ts.territory.getID().equals(thisTerr)) terrName = ts.territory.getShortName();
+			if(ts.completeDistributionUpstream == null) continue;
+			if(!ts.territory.getID().equals(thisTerr) && !ts.vertices.contains(thisTerr)) continue;
+			allExistsIn.put(ts.existsIn.getID(), Collections.frequency(ts.edges, Constants.RelTypes.PART_OF.toString()));
+			// compile the base territories, i.e. those which have a native status directly assigned
+			if(!ts.isInferredFromChildTerritory()) terr.add(ts.territory.getID());		// only add direct territory assignments
+		}
+		if(allExistsIn.size() == 0) return Collections.emptyMap();	// it has no status
+		int minExistsInDepth = Collections.min(allExistsIn.values());
+		
+		Set<String> exclude = new HashSet<String>();
+		// check, for each territory where the taxon is native, if it is contained in any of the others 
+		for(Entry<String, Integer> ei : allExistsIn.entrySet()) {	// for each EXISTS_IN route
+			if(!ei.getValue().equals(minExistsInDepth)) continue;	// the best inference is the minimum depth of EXISTS_IN
+			
+			//System.out.println("EI: "+ei.getKey());
+			// for each EXISTS_IN route
+			for(TerritoryStatus ts : this.territoryStatusList) {
+				if(!ts.existsIn.getID().equals(ei.getKey()) || !ts.isInferredFromChildTerritory()) continue;
+				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory, so there's a BELONGS_TO link)
+				// extract vertices after EXISTS_IN (so, territories)
+				if(!Collections.disjoint(ts.vertices.subList(ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()) + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
+			}
+		}
+		/*String[] ex=exclude.toArray(new String[exclude.size()]);
+		System.out.println("Exclu: "+ Constants.implode(", ", ex));*/
+		int min;
+		TerritoryStatus mini;
+		Set<Territory> tmp;
+		for(Entry<String, Integer> ei : allExistsIn.entrySet()) {	// for each EXISTS_IN route
+			if(exclude.contains(ei.getKey())) continue;
+			
+			// for each EXISTS_IN route fetch the nearest territory
+			min = 1000;
+			mini = null;
+			for(TerritoryStatus ts : this.territoryStatusList) {
+				if(!ts.existsIn.getID().equals(ei.getKey())
+					|| ts.vertices.contains(thisTerr.toString())) continue;
+				if(ts.edges.size() < min) {
+					min = ts.edges.size();
+					mini = ts;
+				}
+			}
+			if(mini != null) {
+				if(out.containsKey(terrName))
+					out.get(terrName).add(mini.territory);
+				else {
+					tmp = new HashSet<Territory>();
+					tmp.add(mini.territory);
+					out.put(terrName, tmp);
+				}
+			}
+		}
+		
 		return out;
 	}
 }

@@ -243,14 +243,14 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		return deleted.toArray(new String[0]);
 	}
 */
-	@Override
+/*	@Override
 	public GeneralDBNode getNode(INodeKey id) throws FloraOnException {
 		try {
 			return dbDriver.getDocument(id.toString(), GeneralDBNode.class).getEntity();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-	}
+	}*/
 
 	@Override
 	public <T extends GeneralDBNode> T getNode(INodeKey id, Class<T> cls) throws FloraOnException {
@@ -513,6 +513,16 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			return dbDriver.executeAqlQuery(query, null, null, Character.class).getUniqueResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Territory getTerritoryFromShortName(INodeKey id) throws FloraOnException {
+		String query=AQLQueries.getString("NodeWorkerDriver.5", id);
+		try {
+			return dbDriver.executeAqlQuery(query, null, null, Territory.class).getUniqueResult();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
 		}
 	}
 }

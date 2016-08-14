@@ -302,6 +302,7 @@ table.taxonlist div.territory {float:left;}
 
 .taxdetails {flex-grow:1;margin:0 8px;padding:3px;}/*background-color:#f4f4f4;*/
 #taxoninfo {display:flex;flex-wrap:wrap;justify-content:center}
+#taxoninfo table {width:100%}
 #taxoninfo>div {border-radius:5px;margin:12px;padding:0px;border:2px solid #99f;flex:1 1 auto;box-shadow:0 0 8px #888;overflow:hidden;}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue;padding:3px}
 #taxoninfo>div#editbox {flex:0 1 100%;border:2px solid #faa;}

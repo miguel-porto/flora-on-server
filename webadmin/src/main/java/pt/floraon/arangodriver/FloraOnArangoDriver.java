@@ -142,7 +142,7 @@ public class FloraOnArangoDriver implements FloraOn {
 	}
 	
 	public synchronized void updateVariables() throws FloraOnException {
-		Iterator<Territory> it=this.LD.getChecklistTerritories();
+		Iterator<Territory> it=this.LD.getChecklistTerritories().iterator();
 		checklistTerritories=new ArrayList<Territory>();
 		while(it.hasNext()) {
 			checklistTerritories.add(it.next());

@@ -14,6 +14,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
+import pt.floraon.driver.DatabaseException;
 import pt.floraon.results.ResultItem;
 
 /**
@@ -21,8 +22,7 @@ import pt.floraon.results.ResultItem;
  * @author miguel
  *
  */
-public class TaxEnt extends GeneralDBNode implements ResultItem {
-	protected String name;
+public class TaxEnt extends NamedDBNode implements ResultItem {
 	protected Integer rank;
 	/**
 	 * Some character that distinguishes these populations from the parent taxon
@@ -50,9 +50,8 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 */
 	protected String[] territoriesWithCompleteDistribution; 
 	
-	public TaxEnt(TaxEnt te) {
+	public TaxEnt(TaxEnt te) throws DatabaseException {
 		super(te);
-		this.name=te.name;
 		this.rank=te.rank;
 		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
 		this.annotation=te.annotation;
@@ -62,23 +61,10 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 		this.oldId=te.oldId;
 	}
 
-	/*public TaxEnt(String name,Integer rank,String author,String annotation,Boolean current,Integer gbifKey) throws TaxonomyException {
-		if(annotation!=null && annotation.trim().length()==0) annotation=null; 
-		if(author!=null && author.trim().length()==0) author=null;
-		if(name==null || name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
-		this.name=name;
-		this.rank=rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
-		this.annotation=annotation;
-		this.author=author;
-		this.current=current;
-		this.gbifKey=gbifKey;
-	}*/
-
 	public TaxEnt(String name, Integer rank, String author, String sensu, String annotation, Boolean current, Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness, Integer oldId) throws TaxonomyException {
-		if(name!=null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
+		super();
+		if(name != null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
 		
-		if(name!=null) this.name=name.trim();
 		this.rank=rank;
 		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
 		
@@ -102,7 +88,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	}
 
 	/**
-	 * Updates this TaxEntVertex. Pass null to leave as it is.
+	 * Updates this TaxEnt. Pass null to leave as it is.
 	 * TODO: empty string to remove
 	 * @param name
 	 * @param rank
@@ -111,8 +97,8 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 * @param current
 	 * @throws TaxonomyException
 	 */
-	public void update(String name,Integer rank,String author,String annotation,Boolean current) throws TaxonomyException {
-		if(name!=null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
+	public void update(String name,Integer rank,String author,String annotation,Boolean current) throws DatabaseException {
+		if(name!=null && name.trim().length()==0) throw new DatabaseException("Taxon must have a name");
 		
 		if(name!=null) this.name=name;
 		if(rank!=null) this.rank=rank;
@@ -128,7 +114,7 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	}
 
 	/**
-	 * Creates a TaxEntVertex from a compound string of the form name {authorship}
+	 * Creates a TaxEnt from a compound string of the form name {authorship}
 	 * @param name
 	 * @return
 	 * @throws TaxonomyException
@@ -158,8 +144,8 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	 * @param doc JSON document, as returned by Arango driver
 	 * @throws TaxonomyException 
 	 */
-	public TaxEnt(LinkedTreeMap<String,Object> doc) throws TaxonomyException {
-		if(doc.get("name")==null || doc.get("name").toString().trim().length()==0) throw new TaxonomyException("Taxon must have a name");
+	public TaxEnt(LinkedTreeMap<String,Object> doc) throws DatabaseException {
+		super(doc.get("name"));
 
 		this.name=doc.get("name").toString();
 		this.rank=((Float)Float.parseFloat(doc.get("rank").toString())).intValue();
@@ -217,19 +203,11 @@ public class TaxEnt extends GeneralDBNode implements ResultItem {
 	}
 	
 	public String[] getTerritoriesWithCompleteDistribution() {
-		return this.territoriesWithCompleteDistribution;
+		return this.territoriesWithCompleteDistribution == null ? new String[0] : this.territoriesWithCompleteDistribution;
 	}
 	
 	public TaxonRanks getRank() {
 		return TaxonRanks.getRankFromValue(rank);
-	}
-
-	/**
-	 * Gets the taxon canonical name.
-	 * @return
-	 */
-	public String getName() {
-		return this.name;
 	}
 
 	public String getNameWithAnnotationOnly() {

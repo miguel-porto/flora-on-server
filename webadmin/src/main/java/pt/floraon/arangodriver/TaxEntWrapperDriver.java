@@ -1,6 +1,7 @@
 package pt.floraon.arangodriver;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,24 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		return listOfStatus.inferNativeStatus(territory);		
 	}
 
+	@Override
+	public Map<String,Set<Territory>> getRestrictedTo(List<String> territory) throws FloraOnException {
+		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString(), "");
+		TaxEntAndNativeStatusResult listOfStatus;
+		try {
+			listOfStatus =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
+		} catch (ArangoException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+		Set<String> terr = null;
+
+		if(territory != null) {
+			terr = new HashSet<String>();
+			terr.addAll(territory);
+		}
+		return listOfStatus.inferRestrictedTo(terr);		
+	}
+
 	public List<TaxEnt> getHybridAncestry() {
 		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
@@ -179,7 +198,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 
 	@Override
-	public List<Territory> getTerritoryNamesWithCompleteDistribution() throws DatabaseException {
+	public List<Territory> getTerritoriesWithCompleteDistribution() throws DatabaseException {
 		String query = AQLQueries.getString("TaxEntWrapperDriver.10", thisNode);
 				
 		try {

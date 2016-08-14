@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +17,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.entities.TaxEnt;
+import pt.floraon.entities.Territory;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
@@ -26,6 +29,18 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	protected Boolean worldDistributionCompleteness;
 	protected List<TerritoryStatus> territories;
 
+	public TaxEnt getTaxent() {
+		return this.taxent;
+	}
+	
+	public List<TerritoryStatus> getTerritoryStatus() {
+		return this.territories;
+	}
+	
+	public Boolean getWorldDistributionCompleteness() {
+		return this.worldDistributionCompleteness;
+	}
+	
 	public Map<String,InferredStatus> inferNativeStatus(String territory) {
 		if(territory == null)
 			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.worldDistributionCompleteness);
@@ -35,7 +50,16 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	
 	public Set<String> inferEndemismDegree() {
 		if(!this.worldDistributionCompleteness) return Collections.emptySet();
-		return new ListOfTerritoryStatus(territories).computeEndemismDegreeName();
+		return Constants.getNamesSet(new ListOfTerritoryStatus(territories).computeNativeExtent());
+	}
+	
+	public Map<String, Set<Territory>> inferRestrictedTo(Set<String> territorySet) {
+		if(territorySet == null) {
+			territorySet = new HashSet<String>();
+			for(String t : this.taxent.getTerritoriesWithCompleteDistribution())
+				territorySet.add(t);
+		}
+		return new ListOfTerritoryStatus(territories).computeRestrictedTo(territorySet);
 	}
 	
 	/**
@@ -130,12 +154,14 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 
 	@Override
 	public JsonObject toJson() {
-		JsonObject out = new JsonObject();
+		return null;
+		/*JsonObject out = new JsonObject();
 		if(this.taxent == null) return out;
 		Gson gson = new Gson();
 		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
 		out.add("taxon", gson.toJsonTree(this.taxent));
 		out.add("endemismDegree", gson.toJsonTree(this.inferEndemismDegree()));
+		out.add("restrictedTo", gson.toJsonTree(this.inferRestrictedTo(null)));
 		JsonObject tst = new JsonObject();
 		if(this.territories!=null) {
 			for(Entry<String, InferredStatus> st : tStatus.entrySet()) {
@@ -143,7 +169,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 			}
 		}
 		out.add("territories", tst);
-		return out;
+		return out;*/
 	}
 
 }

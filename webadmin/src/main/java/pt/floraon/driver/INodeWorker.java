@@ -65,9 +65,10 @@ public interface INodeWorker {
 	 * FETCHING NODES
 	 ***********************/
 
-	public GeneralDBNode getNode(INodeKey id) throws FloraOnException;
+	//public GeneralDBNode getNode(INodeKey id) throws FloraOnException;
 	public Author getAuthorById(int idaut);
     public Territory getTerritoryFromShortName(String shortName) throws FloraOnException;
+    public Territory getTerritoryFromShortName(INodeKey id) throws FloraOnException;
     public TaxEnt getTaxEntById(INodeKey id) throws FloraOnException;
     public TaxEnt getTaxEntByOldId(int oldId);
     /**

@@ -6,14 +6,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import java.util.Objects;
+import java.util.Set;
 
 import pt.floraon.entities.GeneralDBEdge;
+import pt.floraon.entities.GeneralDBNode;
 import pt.floraon.entities.PART_OF;
+import pt.floraon.entities.NamedDBNode;
 
 public final class Constants {
 	public static String TAXONOMICGRAPHNAME="taxgraph";
@@ -410,5 +415,28 @@ public final class Constants {
             }
         }
     	return any ? sb.toString() : null;
+    }
+    
+    /**
+     * Gets a Set with the names of the given nodes
+     * @param nodeList
+     * @return
+     */
+    public static <T extends NamedDBNode> Set<String> getNamesSet(Set<T> nodeList) {
+		Iterator<T> it = nodeList.iterator();
+		Set<String> out = new HashSet<String>();
+		while(it.hasNext()) {
+			out.add(it.next().getName());
+		}
+		return out;
+    }
+    
+    public static <T extends GeneralDBNode> List<String> getIDsList(List<T> nodeList) {
+		Iterator<T> it = nodeList.iterator();
+		List<String> out = new ArrayList<String>();
+		while(it.hasNext()) {
+			out.add(it.next().getID());
+		}
+		return out;
     }
 }

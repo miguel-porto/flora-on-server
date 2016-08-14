@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.arangodb.ArangoException;
 
@@ -115,7 +116,7 @@ public interface ITaxEntWrapper {
 	 * @return
 	 * @throws DatabaseException 
 	 */
-	public List<Territory> getTerritoryNamesWithCompleteDistribution() throws DatabaseException;
+	public List<Territory> getTerritoriesWithCompleteDistribution() throws DatabaseException;
 	
 	/**
 	 * Adds one territory to the list of those with complete distribution
@@ -131,4 +132,12 @@ public interface ITaxEntWrapper {
 	 * @throws DatabaseException 
 	 */
 	public int unsetTerritoryWithCompleteDistribution(INodeKey id) throws DatabaseException;
+	/**
+	 * Within the given territories, returns the subterriotories to which the taxon is restricted.
+	 * Of course, territories for which there is no complete distribution will return null results.  
+	 * @param territory
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Map<String, Set<Territory>> getRestrictedTo(List<String> territory) throws FloraOnException;
 }

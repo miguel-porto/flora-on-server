@@ -10,12 +10,12 @@ import pt.floraon.driver.Constants.TerritoryTypes;
  * @author miguel
  *
  */
-public class Territory extends GeneralDBNode {
-	protected String name,shortName,polygon,territoryType,theme;
+public class Territory extends NamedDBNode {
+	protected String shortName,polygon,territoryType,theme;
 	protected Boolean showInChecklist; 
 	
 	public Territory(String name, String shortName, TerritoryTypes type, String theme, boolean showInChecklist) throws FloraOnException {
-		if(name==null || name.trim().equals("")) throw new FloraOnException("Territory must have a name");
+		super(name);
 		if(shortName==null || !shortName.matches("^[a-zA-Z0-9_-]+$")) throw new FloraOnException("Territory must have a short name with only alphanumeric digits");
 		this.name=name;
 		this.shortName=shortName;
@@ -32,10 +32,6 @@ public class Territory extends GeneralDBNode {
 		this(te.name, te.shortName, TerritoryTypes.valueOf(te.territoryType), te.theme, te.showInChecklist);
 	}
 	
-	public String getName() {
-		return this.name;
-	}
-
 	public String getShortName() {
 		return this.shortName;
 	}

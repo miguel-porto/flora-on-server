@@ -9,7 +9,6 @@ import com.arangodb.ArangoException;
 import com.arangodb.CursorResult;
 import com.arangodb.util.GraphVerticesOptions;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -110,11 +109,11 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
     }
 
 	@Override
-    public Iterator<Territory> getChecklistTerritories() throws FloraOnException {
+    public List<Territory> getChecklistTerritories() throws FloraOnException {
     	String query;
 		query=String.format(AQLQueries.getString("ListDriver.4"),NodeTypes.territory.toString()); //$NON-NLS-1$
     	try {
-			return dbDriver.executeAqlQuery(query, null, null, Territory.class).iterator();
+			return dbDriver.executeAqlQuery(query, null, null, Territory.class).asList();
 		} catch (ArangoException e) {
 			throw new FloraOnException(e.getErrorMessage());
 		}
@@ -197,46 +196,41 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	public JsonObject getTaxonInfo(INodeKey key) throws FloraOnException {
 		String query=AQLQueries.getString("TaxEntWrapperDriver.9", key.toString(), "");
 
-		TaxEntAndNativeStatusResult result;
+		List<TaxEntAndNativeStatusResult> cursorResult;
 		try {
-			result = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).getUniqueResult();
-			if(result == null)
+			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).asList();
+			if(cursorResult.size() == 0)
 				throw new FloraOnException("Taxon "+key+" not found.");
 		} catch (ArangoException e) {
 			throw new FloraOnException(e.getErrorMessage());
 		}
-    	return result.toJson().getAsJsonObject();
+		return this.getTaxonInfoAsJson(cursorResult).get(0).getAsJsonObject();
 	}
 
 	@Override
-	public JsonElement getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException {
-		JsonArray out = new JsonArray();
+	public JsonArray getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException {
 		String query=AQLQueries.getString("ListDriver.24b", taxonName, onlyCurrent ? "&& thistaxon.current" : "");
-		Iterator<TaxEntAndNativeStatusResult> cursorResult;
+		List<TaxEntAndNativeStatusResult> cursorResult;
 		try {
-			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).iterator();
+			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).asList();
 		} catch (ArangoException e) {
 			throw new FloraOnException(e.getErrorMessage());
 		}
-		
-		while(cursorResult.hasNext()) {
-			out.add(cursorResult.next().toJson());
-		}
-    	return out;
+		return this.getTaxonInfoAsJson(cursorResult);
 	}
 
 	@Override
 	public JsonObject getTaxonInfo(int oldId) throws FloraOnException {
 		String query=AQLQueries.getString("ListDriver.24c", oldId);
 
-		TaxEntAndNativeStatusResult result;
+		List<TaxEntAndNativeStatusResult> cursorResult;
 		try {
-			result = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).getUniqueResult();
-			if(result == null)
+			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).asList();
+			if(cursorResult.size() == 0)
 				throw new FloraOnException("Taxon with oldId "+oldId+" not found.");
 		} catch (ArangoException e) {
 			throw new FloraOnException(e.getErrorMessage());
 		}
-    	return result.toJson().getAsJsonObject();
+		return this.getTaxonInfoAsJson(cursorResult).get(0).getAsJsonObject();
 	}
 }

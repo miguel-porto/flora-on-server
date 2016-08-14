@@ -35,6 +35,24 @@
 					<c:out value="${fn:join(taxentWrapper.getEndemismDegree(),', ')}"></c:out>
 				</td></tr>
 			</table>
+			<c:if test="${restrictedTo.size() > 0}">
+				<h3>Restricted distribution</h3>
+				<table>
+					<tr><th>Within</th><th>Restricted to</th></tr>
+					<c:forEach var="terr" items="${restrictedTo.keySet().iterator()}">
+						<tr>
+							<td>
+								<c:out value="${terr}"></c:out>
+							</td>
+							<td>
+								<c:forEach var="rto" items="${restrictedTo.get(terr).iterator()}">
+									<c:out value="${rto.getName()}"></c:out>
+								</c:forEach>
+							</td>
+						</tr>
+					</c:forEach>
+				</table>
+			</c:if>
 		</div>
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">
@@ -64,7 +82,7 @@
 					<tr>
 						<td><c:out value="${nativeStatus.getTerritory().getName()}"></c:out></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getNativeStatus()}"></c:out></td>
-						<td><c:out value="${nativeStatus.getExistsIn().getOccurrenceStatus()}"></c:out></td>
+						<td><c:out value="${nativeStatus.getExistsIn().getOccurrenceStatus()}"></c:out><c:if test="${nativeStatus.getExistsIn().isUncertainOccurrenceStatus()}"> (uncertain)</c:if></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getAbundanceLevel()}"></c:out></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getIntroducedStatus()}"></c:out></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getNaturalizationDegree()}"></c:out></td>
@@ -94,7 +112,7 @@
 				<tr><td>Territories with complete distributions</td><td>
 					<c:if test="${sessionScope.user == null}">
 						<ul class="menu">
-							<c:forEach var="territory" items="${taxentWrapper.getTerritoryNamesWithCompleteDistribution()}">
+							<c:forEach var="territory" items="${taxentWrapper.getTerritoriesWithCompleteDistribution()}">
 								<li><c:out value="${territory.getName()}"></c:out></li>
 							</c:forEach>
 						</ul>
@@ -102,7 +120,7 @@
 					<c:if test="${sessionScope.user != null}">
 						<form class="poster" data-path="/floraon/api/update/unsetcompleteterritory">
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
-							<c:forEach var="territory" items="${taxentWrapper.getTerritoryNamesWithCompleteDistribution()}">
+							<c:forEach var="territory" items="${taxentWrapper.getTerritoriesWithCompleteDistribution()}">
 								<label><input type="radio" name="territory" value="${territory.getID() }"><c:out value="${territory.getName()}"></c:out></label>
 							</c:forEach>
 							<input type="submit" value="Remove territory"/>
@@ -112,17 +130,15 @@
 			</table>
 		</div>
 		<div>
-			<c:if test="${inferredNativeStatus != null}">
-				<h3>Inferred Native Status</h3>
-				<table>
-					<c:forEach var="ins" items="${inferredNativeStatus}">
-						<tr>
-						<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
-						<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
-						</tr>
-					</c:forEach>
-				</table>
-			</c:if>
+			<h3>Inferred Native Status</h3>
+			<table>
+				<c:forEach var="ins" items="${inferredNativeStatus}">
+					<tr>
+					<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
+					<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
+					</tr>
+				</c:forEach>
+			</table>
 		</div>
 		<c:if test="${sessionScope.user!=null}">
 			<div id="editbox">
