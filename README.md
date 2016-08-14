@@ -2,6 +2,10 @@
 Database server to manage and query biodiversity databases, including modules for managing taxonomy, checklists, species traits, habitats and species occurrences.
 The main highlight is the graph-based approach to taxonomy, traits, habitats and territories, which is backed by the power of [ArangoDB](http://www.arangodb.com/) and which confers it great advantages over classic relational databases.
 
+* [The new taxonomic concept in Flora-On](#the-new-taxonomic-concept-in-flora-on)
+* [Managing Checklists](#managing-checklists)
+* [Installation](#installation)
+
 ## The new taxonomic concept in Flora-On
 The main highlight of Flora-On server is its new approach to taxonomy. All the taxonomic data is stored in a graph, i.e., a collection of "taxonomic" nodes and their relationships. However, here the graph nodes do not represent the formal taxonomic entities, but represent populations (or groups of populations) that may, or may not, be labelled with a formal taxonomic name, i.e., that may, or may not, correspond to formal taxonomic entities. And by *populations* I mean a group of individuals that share something that justifies that they can be grouped - usually traits (but not necessarily).
 Under this setting, there can be nodes without a name - for example, to represent certain populations of a species which differ consistently in a given trait, but no one has assigned a name to them yet. Conversely, there can also be nodes with exactly the same name but representing different things, when the interpretation of the name differs between authors.
@@ -23,7 +27,7 @@ See the details of the data model [here](https://github.com/miguel-porto/flora-o
 
 **This project is currently under "intense" development and is not usable as it stands now**
 
-## Managing checklists
+## Managing Checklists
 Still have to describe here the features and algorithms of the checklist module, all taking advantage of the graph data model. Meanwhile, check a live example of the [checklist capabilities here](http://flora-on.pt:8080/floraon/).
 
 ## Installation
