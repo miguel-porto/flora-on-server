@@ -6,8 +6,6 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.jsoup.Jsoup;
 
-import com.google.gson.JsonElement;
-
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
@@ -163,11 +161,6 @@ public class Occurrence implements ResultItem {
 	}
 	@Override
 	public String getHTMLTableHeader(Object obj) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public JsonElement toJson() {
 		// TODO Auto-generated method stub
 		return null;
 	}

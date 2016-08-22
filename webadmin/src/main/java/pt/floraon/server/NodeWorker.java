@@ -41,20 +41,22 @@ public class NodeWorker extends FloraOnServlet {
 		INodeKey from, to, id;
 		int res;
 		
-/*		if(!isAuthenticated()) {
+		if(!isAuthenticated()) {
 			error("You must login to do this operation!");
 			return;
-		}*/
+		}
 		
 		ListIterator<String> partIt=this.getPathIteratorAfter("update");
 
 		switch(partIt.next()) {
 		case "delete":
+			if(!isAuthenticatedAsAdvanced()) error("You must login to do this operation!");
 			id=getParameterAsKey("id");
 			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
 			return;
 
 		case "deleteleaf":
+			if(!isAuthenticatedAsAdvanced()) error("You must login to do this operation!");
 			id=getParameterAsKey("id");
 			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
 			success(EntityFactory.toJsonElement(NWD.deleteLeafNode(id),false));

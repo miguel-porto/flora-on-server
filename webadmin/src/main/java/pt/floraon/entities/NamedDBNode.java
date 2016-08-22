@@ -7,20 +7,20 @@ public abstract class NamedDBNode extends GeneralDBNode {
 
 	public NamedDBNode(String name) throws DatabaseException {
 		super();
-		if(name == null || (name != null && name.trim().length() == 0)) throw new DatabaseException("Node must have a name");
-		this.name = name.trim();
+		if(name != null && name.trim().length() == 0) throw new DatabaseException("Node must have a name");
+		this.name = name != null ? name.trim() : null;
 	}
 
 	public NamedDBNode(Object name) throws DatabaseException {
 		super();
-		if(name == null || (name != null && name.toString().trim().length() == 0)) throw new DatabaseException("Node must have a name");
-		this.name = name.toString().trim();
+		if(name != null && name.toString().trim().length() == 0) throw new DatabaseException("Node must have a name");
+		this.name = name != null ? name.toString().trim() : null;
 	}
 
 	public NamedDBNode(NamedDBNode n) throws DatabaseException {
 		super(n);
-		if(n.name == null || (n.name != null && n.name.trim().length() == 0)) throw new DatabaseException("Node must have a name");
-		this.name = n.name.trim();
+		if(n.name != null && n.name.trim().length() == 0) throw new DatabaseException("Node must have a name");
+		this.name = n.name != null ? n.name.trim() : null;
 	}
 	
 	public NamedDBNode() {

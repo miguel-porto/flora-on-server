@@ -3,7 +3,7 @@ package pt.floraon.driver;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants.TaxonRanks;
@@ -75,7 +75,7 @@ public interface IListDriver {
 	 * @return
 	 * @throws FloraOnException 
 	 */
-	public JsonElement getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException;
+	public JsonArray getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException;
 	/**
 	 * Gets information about one given taxon.
 	 * @param oldId

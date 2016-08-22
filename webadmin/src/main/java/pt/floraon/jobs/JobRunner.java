@@ -12,8 +12,6 @@ import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 
-import com.arangodb.ArangoException;
-
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.FloraOn;
 
@@ -75,7 +73,7 @@ public class JobRunner implements Runnable {
 		try {
 			this.job.run(this.driver, this.outputStream);
 			isClosed=true;
-		} catch (ArangoException | FloraOnException e) {
+		} catch (FloraOnException e) {
 			this.hasError=true;
 			this.errorMessage=e.getMessage();
 			try {

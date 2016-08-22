@@ -14,7 +14,7 @@ p {margin:3px;}
 ::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
 :-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
 ul.menu {padding:0}
-ul.menu li {display:inline-block;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:4px;background:linear-gradient(170deg,#fff,#f2f2f2);line-height:1.7em;white-space:nowrap;font-weight:bold;font-size:0.8em;color:#444;}
+ul.menu li {display:inline-block;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:4px;background:linear-gradient(170deg,#fff,#f2f2f2);line-height:1.7em;white-space:nowrap;font-weight:bold;font-size:0.9em;color:#444;}
 .editable ul.menu li {cursor:pointer;}
 .editable ul.menu li:hover {box-shadow:0 0 2px #080;}
 ul.menu li.selected {color:#fff;background:linear-gradient(170deg,rgba(255,255,255,0.5),rgba(0,0,0,0.1));box-shadow:0 0 4px #555;}
@@ -302,16 +302,17 @@ table.taxonlist div.territory {float:left;}
 
 .taxdetails {flex-grow:1;margin:0 8px;padding:3px;}/*background-color:#f4f4f4;*/
 #taxoninfo {display:flex;flex-wrap:wrap;justify-content:center}
-#taxoninfo table {width:100%}
-#taxoninfo>div {border-radius:5px;margin:12px;padding:0px;border:2px solid #99f;flex:1 1 auto;box-shadow:0 0 8px #888;overflow:hidden;}
+#taxoninfo table {width:100%;}
+#taxoninfo table td {border-bottom:2px solid white;}
+#taxoninfo table tr:last-of-type td {border-bottom:0px;}
+#taxoninfo>div {border-radius:5px;margin:12px;padding:0px;border:2px solid #99f;flex:1 1 auto;box-shadow:0 0 12px #aaa;overflow:hidden;background: linear-gradient(#fff,#ddf);}
 #taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue;padding:3px}
 #taxoninfo>div#editbox {flex:0 1 100%;border:2px solid #faa;}
 #taxoninfo>div#editbox h3 {font-size:0.9em;background-color:#fdc;text-align:center;color:blue}
 #taxoninfo>div#generalinfo {flex:0 0 auto;}
 #taxoninfo>div#distributioncompleteness {flex:1 1 300px;}
-#taxoninfo table td:first-of-type {font-size:0.9em;font-weight:bold;background-color:#ddd}
+#taxoninfo table td:first-of-type {font-size:0.9em;font-weight:bold;border-right:3px solid white}
 #taxoninfo table td:not(:first-of-type) {font-size:0.85em}
-/*.editable #taxonnativestatus table tr:hover td {color:#f55;cursor:pointer;text-decoration:line-through;}*/
 #taxonsynonyms .synonyms {padding:0;margin:0}
 #taxonsynonyms .synonyms li {
 	font-style:italic;

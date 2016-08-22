@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.arangodb.ArangoException;
-
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.FloraOn;
 import pt.floraon.entities.Territory;
@@ -16,7 +14,7 @@ import pt.floraon.results.ResultProcessor;
 
 public class ChecklistDownload implements Job {
 	@Override
-	public void run(FloraOn driver, OutputStream outputStream) throws ArangoException, FloraOnException {
+	public void run(FloraOn driver, OutputStream outputStream) throws FloraOnException {
 		PrintWriter out=new PrintWriter(outputStream);
 		List<String> terr=new ArrayList<String>();
 		for(Territory tv : driver.getChecklistTerritories())

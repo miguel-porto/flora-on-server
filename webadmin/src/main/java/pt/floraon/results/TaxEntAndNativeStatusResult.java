@@ -9,12 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.csv.CSVPrinter;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.entities.TaxEnt;
@@ -152,10 +148,10 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.println();
 	}
 
-	@Override
+	/*@Override
 	public JsonObject toJson() {
 		return null;
-		/*JsonObject out = new JsonObject();
+		JsonObject out = new JsonObject();
 		if(this.taxent == null) return out;
 		Gson gson = new Gson();
 		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
@@ -169,7 +165,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 			}
 		}
 		out.add("territories", tst);
-		return out;*/
-	}
+		return out;
+	}*/
 
 }

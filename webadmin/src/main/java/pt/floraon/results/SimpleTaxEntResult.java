@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.apache.commons.csv.CSVPrinter;
 
-import com.google.gson.JsonElement;
-
 import pt.floraon.entities.TaxEnt;
 /**
  * Represents a TaxEnt result without further info.
@@ -66,11 +64,5 @@ public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntRes
 	@Override
 	public String getHTMLTableHeader(Object obj) {
 		return "<tr><th>ID</th><th>Canonical name</th><th>Author</th></tr>";
-	}
-
-	@Override
-	public JsonElement toJson() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

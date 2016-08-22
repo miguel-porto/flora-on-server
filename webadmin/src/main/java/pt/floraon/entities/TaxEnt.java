@@ -7,8 +7,6 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.csv.CSVPrinter;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.driver.TaxonomyException;
@@ -61,12 +59,10 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 		this.oldId=te.oldId;
 	}
 
-	public TaxEnt(String name, Integer rank, String author, String sensu, String annotation, Boolean current, Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness, Integer oldId) throws TaxonomyException {
-		super();
-		if(name != null && name.trim().length()==0) throw new TaxonomyException("Taxon must have a name");
-		
-		this.rank=rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+	public TaxEnt(String name, Integer rank, String author, String sensu, String annotation, Boolean current, Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness, Integer oldId) throws DatabaseException {
+		super(name);
+		this.rank = rank;
+		this.isSpeciesOrInf = this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
 		
 		if(author!=null && author.trim().length()==0) this.author=null;
 		else if(author!=null) this.author=author.trim();
@@ -83,7 +79,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 		this.worldDistributionCompleteness=worldDistributionCompleteness;
 	}
 
-	public TaxEnt(String name,Integer rank,String author,String annotation) throws TaxonomyException {
+	public TaxEnt(String name,Integer rank,String author,String annotation) throws DatabaseException {
 		this(name, rank, author, null, annotation, null, null, null, null);
 	}
 
@@ -119,10 +115,10 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 * @return
 	 * @throws TaxonomyException
 	 */
-	public static TaxEnt parse(String name) throws TaxonomyException {
+	public static TaxEnt parse(String name) throws DatabaseException {
 		name=name.replaceAll(" +", " ").trim();
 		if(name.equals("")) {
-			throw new TaxonomyException("Taxon must have a name");
+			throw new DatabaseException("Taxon must have a name");
 		}
 		// extract the authority between braces (I don't use regex cause it's too simple)
 		int a=name.indexOf('{');
@@ -300,10 +296,5 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 			.append("oldId: ").append(oldId).append("; ")
 			.append("worldDistributionCompleteness: ").append(worldDistributionCompleteness).append("; ");
 		return sb.toString();
-	}
-
-	@Override
-	public JsonElement toJson() {
-		return new Gson().toJsonTree(this);
 	}
 }

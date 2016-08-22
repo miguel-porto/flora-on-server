@@ -287,7 +287,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 				for(int i=0;i<rankNames.length;i++) {
 					try {
 						parsedName=TaxEnt.parse(record.get(i));
-					} catch (TaxonomyException e) {
+					} catch (DatabaseException e) {
 						// is it an empty cell? skip. 
 						continue;
 					}

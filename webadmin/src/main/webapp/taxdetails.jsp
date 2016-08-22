@@ -10,7 +10,7 @@
 <ul class="menu">
 	<!-- <li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li> -->
 	<li><a href="?w=graph&depth=2&id=${taxent.getIDURLEncoded()}">View in graph</a></li>
-	<c:if test="${taxentWrapper.isLeafNode() && sessionScope.user!=null}">
+	<c:if test="${taxentWrapper.isLeafNode() && sessionScope.user!=null && sessionScope.user.getRole().equals('advanced')}">
 		<li id="deletetaxon" class="actionbutton">Delete taxon</li>
 	</c:if>
 </ul>
@@ -103,11 +103,18 @@
 			<h3>Distribution completeness</h3>
 			<table>
 				<tr><td>World native distribution completeness</td><td>
-					<ul class="menu multiplesel" id="worlddistribution">
-						<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
-						<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
-						<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
-					</ul>
+					<c:if test="${sessionScope.user == null}">
+						<ul class="menu">
+							<li><c:out value="${taxent.getWorldDistributionCompleteness().toString()}"></c:out></li>
+						</ul>
+					</c:if>
+					<c:if test="${sessionScope.user != null}">
+						<ul class="menu multiplesel" id="worlddistribution">
+							<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
+							<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
+							<li data-value="NOT_KNOWN" class="${taxent.getWorldDistributionCompleteness()=='NOT_KNOWN' ? ' selected' : ''}">not known</li>
+						</ul>
+					</c:if>
 				</td></tr>
 				<tr><td>Territories with complete distributions</td><td>
 					<c:if test="${sessionScope.user == null}">

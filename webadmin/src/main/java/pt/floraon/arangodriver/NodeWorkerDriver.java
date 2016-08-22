@@ -435,7 +435,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     		VertexCursor<TaxEnt> vc=null;
 			try {
 				vc = dbDriver.graphGetVertexCursor(Constants.TAXONOMICGRAPHNAME, TaxEnt.class, new TaxEnt(q.getName(),null,null,null), null, null);
-			} catch (TaxonomyException e1) {
+			} catch (DatabaseException e1) {
 				// just go on, empty query
 			} catch (ArangoException e1) {
 				throw new DatabaseException(e1.getMessage());
