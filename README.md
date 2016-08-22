@@ -1,6 +1,10 @@
 # Flora-On server
-Database server to manage and query biodiversity databases, including modules for managing taxonomy, species traits, habitats and species occurrences.
-The main highlight is the graph-based approach to taxonomy, traits and habitats, which is backed by the power of [ArangoDB](http://www.arangodb.com/) and which confers it great advantages over classic relational databases.
+Database server to manage and query biodiversity databases, including modules for managing taxonomy, checklists, species traits, habitats and species occurrences.
+The main highlight is the graph-based approach to taxonomy, traits, habitats and territories, which is backed by the power of [ArangoDB](http://www.arangodb.com/) and which confers it great advantages over classic relational databases.
+
+* [The new taxonomic concept in Flora-On](#the-new-taxonomic-concept-in-flora-on)
+* [Managing Checklists](#managing-checklists)
+* [Installation](#installation)
 
 ## The new taxonomic concept in Flora-On
 The main highlight of Flora-On server is its new approach to taxonomy. All the taxonomic data is stored in a graph, i.e., a collection of "taxonomic" nodes and their relationships. However, here the graph nodes do not represent the formal taxonomic entities, but represent populations (or groups of populations) that may, or may not, be labelled with a formal taxonomic name, i.e., that may, or may not, correspond to formal taxonomic entities. And by *populations* I mean a group of individuals that share something that justifies that they can be grouped - usually traits (but not necessarily).
@@ -13,13 +17,18 @@ The purpose of this approach is to greatly simplify the problems faced by biodiv
 
 Basically there are two types of realtionships between nodes: `PART_OF` and `SYNONYM`. If node `A` is `PART_OF` node `B`, it means that the populations represented by node `A` are included in those represented by node `B`. If node `A` is `SYNONYM` of node `B`, it means that they represent exactly the same populations, so they are totally interchangeable - this is used when you need to provide different taxonomic names for the same thing, as long as you are sure that they do represent *exactly* the same thing, otherwise you should use a `PART_OF` relationship appropriately.
 
-As you might expect, all the types of data are also stored in the same graph, i.e., occurrence data, traits, habitats, images, etc., and nodes of these other types of data are connected to the "taxonomic" nodes. Further, both the habitat sub-graph and the traits sub-graph are subjected to their own taxonomy, so you can have habitat `A` which is `PART_OF` habitat `B`, and "taxon" `C` which `EXISTS_IN` habitat `A` and `HAS_ATTRIBUTE` `D`.
+As you might expect, all the types of data are also stored in the same graph, i.e., occurrence data, traits, habitats, territories, images, etc., and nodes of these other types of data are connected to the "taxonomic" nodes. Further, both the habitat sub-graph, territory sub-graph and the traits sub-graph are subjected to their own taxonomy, so you can have habitat `A` which is `PART_OF` habitat `B`, and "taxon" `C` which `EXISTS_IN` habitat `A`, `HAS_ATTRIBUTE` `D` and `EXISTS_IN` territory `Portugal`, which `BELONGS_TO` territory `Iberian Peninsula`. [See an example of the territory sub-graph here](http://flora-on.pt:8080/floraon/?w=graph&show=territories).
 
 This is where all the magic lives - the full integration of all kinds of data in the same graph and all its relationships, so that Flora-On quickly finds and shows the data you are looking for, circunventing all the usual problems associated with the constant taxonomic changes.
 
 Finally, all features are exposed in an API that can easily be used to implement your own biodiversity web site backed by Flora-On server.
 
+See the details of the data model [here](https://github.com/miguel-porto/flora-on-server/wiki/The-data-model).
+
 **This project is currently under "intense" development and is not usable as it stands now**
+
+## Managing Checklists
+Still have to describe here the features and algorithms of the checklist module, all taking advantage of the graph data model. Meanwhile, check a live example of the [checklist capabilities here](http://flora-on.pt:8080/floraon/).
 
 ## Installation
 1. Download and install ArangoDB
