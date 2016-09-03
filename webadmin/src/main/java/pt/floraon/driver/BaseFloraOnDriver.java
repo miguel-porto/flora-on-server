@@ -49,6 +49,7 @@ public class BaseFloraOnDriver {
 				tStatus = tmp.inferNativeStatus(null);
 				tax.add("taxon", gson.toJsonTree(tmp.getTaxent()));
 				tax.add("endemismDegree", gson.toJsonTree(tmp.inferEndemismDegree()));
+				tmp.inferSingleTerritoryEndemismDegree();
 				tax.add("restrictedTo", gson.toJsonTree(tmp.inferRestrictedTo(terr)));
 				
 				JsonObject tst = new JsonObject();

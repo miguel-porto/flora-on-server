@@ -48,11 +48,12 @@
    <servlet-class>pt.floraon.server.Suggestions</servlet-class>
 </servlet>
 
+<!-- 
 <servlet>
    <servlet-name>NodeWorker</servlet-name>
    <servlet-class>pt.floraon.server.NodeWorker</servlet-class>
 </servlet>
-
+ -->
 <servlet>
    <servlet-name>NodeReader</servlet-name>
    <servlet-class>pt.floraon.server.NodeReader</servlet-class>
@@ -103,12 +104,12 @@
    <servlet-name>NodeReader</servlet-name>
    <url-pattern>/api/read/*</url-pattern>
 </servlet-mapping>
-
+<!-- 
 <servlet-mapping>
    <servlet-name>NodeWorker</servlet-name>
    <url-pattern>/api/update/*</url-pattern>
 </servlet-mapping>
-
+ -->
 <servlet-mapping>
    <servlet-name>GraphReader</servlet-name>
    <url-pattern>/graph/*</url-pattern>

@@ -128,7 +128,7 @@ public class ListOfTerritoryStatus {
 	 * @return
 	 */
 	public Map<String,InferredStatus> computeTerritoryStatus(Boolean worldDistributionComplete) {
-		Set<Territory> endemismDegree = this.computeNativeExtent();
+		Set<Territory> endemismDegree = this.computeNativeExtent(null);
 
 		// compile the territories marked for checklist
 		Set<String> checklistTerritories = new HashSet<String>();
@@ -147,7 +147,7 @@ public class ListOfTerritoryStatus {
 	 * @return
 	 */
 	public Map<String,InferredStatus> computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
-		Set<Territory> endemismDegree = this.computeNativeExtent();
+		Set<Territory> endemismDegree = this.computeNativeExtent(null);
 		Set<String> thisTerritory = new HashSet<String>();
 		thisTerritory.add(territory);
 		return computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
@@ -230,21 +230,88 @@ public class ListOfTerritoryStatus {
 		return isEndemic == null ? false : isEndemic;
 	}
 
+	public String getSingleSmallestTerritory() {
+		List<List<String>> paths = new ArrayList<List<String>>();
+		for(TerritoryStatus ts : this.territoryStatusList)
+			if(ts.existsIn.getNativeStatus().isNative()) paths.add(ts.vertices);
+
+		/*System.out.println("before:");
+		for(List<String> s : paths) {
+			for(String s1 : s)
+				System.out.println(s1+"; ");
+			System.out.println();
+		}*/
+		
+		// compile all distinct paths that terminate in a root node
+		for(TerritoryStatus ts1 : this.territoryStatusList) {
+			if(!ts1.existsIn.getNativeStatus().isNative()) continue;
+			for(TerritoryStatus ts2 : this.territoryStatusList) {
+				if(ts1 == ts2 || !ts1.existsIn.getNativeStatus().isNative()) continue;
+				if(ts1.vertices.size() > ts2.vertices.size()) {
+					if(ts1.vertices.subList(0, ts2.vertices.size()).containsAll(ts2.vertices)) paths.remove(ts2.vertices);
+				} else {
+					if(ts2.vertices.subList(0, ts1.vertices.size()).containsAll(ts1.vertices)) paths.remove(ts1.vertices);
+				}
+			}
+		}
+		System.out.println("After:");
+		for(List<String> s : paths) {
+			for(String s1 : s)
+				System.out.println(s1+"; ");
+			System.out.println();
+		}
+		
+		// now find all unique vertices of the rooted paths above
+		Set<String> common = new HashSet<String>();
+		Set<String> tmp;
+		Set<String> candidates = new HashSet<String>();
+		for(List<String> p : paths) common.addAll(p);
+		// for each vertex, check whether the paths where it appears cover all outbound possibilities (i.e. all territories with direct native status assigned)
+		for(String s : common) {
+			tmp = new HashSet<String>();
+			for(List<String> p : paths) {
+				if(p.contains(s)) tmp.add(p.get(1));	// FIXME FIXME we cannot assume the 1st territory is in index 1!!!
+			}
+			if(tmp.size() == 3) candidates.add(s);	//nº assignments directos 
+		}
+		
+	System.out.println("Candidates:");
+	for(String s : candidates) {
+		System.out.println(s);
+	}
+		// now check, from the common vertices, which one is the lowest (i.e. the samllest territory)
+		int i, mini=10000;
+		String out = null;
+		
+		for(String s : candidates) {
+			// we can take any path here, since they are common to all paths
+			i = paths.get(0).indexOf(s);
+			if(i > 0 && i < mini) {
+				mini = i;
+				out = s;
+			}
+		}
+		System.out.println("RESUTL: "+out);
+		return out;
+	}
 	/**
 	 * Gets the smallest geographical area that comprises all native occurrences of this TaxEnt.
 	 * This is usually an array of territories, as it does not perform aggregation.
 	 * Note that this is only meaningful if the worldNativeDistribution is complete.
+	 * @param directFrom NULL will return the area through all possible taxonomic paths (navigating through SYNONYM and PART_OFs.
+	 * Otherwise, the ID of the TaxEnt from which only the direct EXISTS_IN assignments will be considered.
 	 * @return
 	 */
-	public Set<Territory> computeNativeExtent() {
-		// NOTE: we assume here that the TaxEnt has the WorldDistributionCompleteness == COMPLETE !
+	public Set<Territory> computeNativeExtent(String directFrom) {
 		Set<Territory> out = new HashSet<Territory>();
 		Set<String> terr = new HashSet<String>();
 		Map<String,Integer> nativeExistsIn = new HashMap<String,Integer>();
 		// compile all native NativeStatus
 		for(TerritoryStatus ts : this.territoryStatusList) {
-			// exclude non-native statuses, we just want endemism here
+			// exclude non-native statuses
 			if(!ts.existsIn.getNativeStatus().isNative()) continue;
+			// exclude indirect assignments
+			if(directFrom != null && !ts.existsIn.getFrom().equals(directFrom)) continue;
 			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective taxonomic depth
 			// each EXISTS_IN is a different territory route in the graph
 			//nativeExistsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
@@ -253,7 +320,7 @@ public class ListOfTerritoryStatus {
 			// compile the base territories, i.e. those which have a native status directly assigned
 			if(!ts.isInferredFromChildTerritory()) terr.add(ts.territory.getID());		// only add direct territory assignments
 		}
-		if(nativeExistsIn.size() == 0) return Collections.emptySet();	// it has not NATIVE status, so it's not endemic
+		if(nativeExistsIn.size() == 0) return Collections.emptySet();	// it has no NATIVE status
 		int minExistsInDepth = Collections.min(nativeExistsIn.values());
 		//System.out.println("Size "+nativeExistsIn.size()+" min "+minExistsInDepth);
 		
@@ -272,7 +339,7 @@ public class ListOfTerritoryStatus {
 				//System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
 				//if(!Collections.disjoint(ts.vertices.subList(minExistsInDepth + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
 				// extract vertices after EXISTS_IN (so, territories)
-				if(!Collections.disjoint(ts.vertices.subList(ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()) + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
+				if(!Collections.disjoint(ts.getTerritoryPath(), terr)) exclude.add(ts.existsIn.getID());
 			}
 		}
 		/*String[] ex=exclude.toArray(new String[exclude.size()]);
@@ -334,8 +401,9 @@ public class ListOfTerritoryStatus {
 			// each EXISTS_IN is a different territory route in the graph
 			// the taxonomic depth is the number of PART_OF relations
 			if(ts.territory.getID().equals(thisTerr)) terrName = ts.territory.getShortName();
-			if(ts.completeDistributionUpstream == null) continue;
+			if(ts.completeDistributionUpstream == null || ts.isInferredFromChildTaxEnt()) continue;
 			if(!ts.territory.getID().equals(thisTerr) && !ts.vertices.contains(thisTerr)) continue;
+			
 			allExistsIn.put(ts.existsIn.getID(), Collections.frequency(ts.edges, Constants.RelTypes.PART_OF.toString()));
 			// compile the base territories, i.e. those which have a native status directly assigned
 			if(!ts.isInferredFromChildTerritory()) terr.add(ts.territory.getID());		// only add direct territory assignments
@@ -344,7 +412,8 @@ public class ListOfTerritoryStatus {
 		int minExistsInDepth = Collections.min(allExistsIn.values());
 		
 		Set<String> exclude = new HashSet<String>();
-		// check, for each territory where the taxon is native, if it is contained in any of the others 
+		// check, for each territory where the taxon is native, if it is contained in any of the others
+		// TODO this does not work in SYNONYM chains, e.g. Centaure langei rothmaleriana!
 		for(Entry<String, Integer> ei : allExistsIn.entrySet()) {	// for each EXISTS_IN route
 			if(!ei.getValue().equals(minExistsInDepth)) continue;	// the best inference is the minimum depth of EXISTS_IN
 			
@@ -354,7 +423,7 @@ public class ListOfTerritoryStatus {
 				if(!ts.existsIn.getID().equals(ei.getKey()) || !ts.isInferredFromChildTerritory()) continue;
 				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory, so there's a BELONGS_TO link)
 				// extract vertices after EXISTS_IN (so, territories)
-				if(!Collections.disjoint(ts.vertices.subList(ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()) + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
+				if(!Collections.disjoint(ts.getTerritoryPath(), terr)) exclude.add(ts.existsIn.getID());
 			}
 		}
 		/*String[] ex=exclude.toArray(new String[exclude.size()]);

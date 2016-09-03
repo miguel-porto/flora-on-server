@@ -19,6 +19,7 @@ import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
+import pt.floraon.results.TaxEntAndNativeStatusResult;
 
 public interface ITaxEntWrapper {
 	public int createRelationshipTo(INodeKey parent, GeneralDBEdge edge) throws FloraOnException;
@@ -140,4 +141,11 @@ public interface ITaxEntWrapper {
 	 * @throws FloraOnException
 	 */
 	Map<String, Set<Territory>> getRestrictedTo(List<String> territory) throws FloraOnException;
+	/**
+	 * Returns the list of all native status departing from this TaxEnt 
+	 * @return
+	 * @throws DatabaseException
+	 */
+	public TaxEntAndNativeStatusResult getNativeStatusList(String territory) throws DatabaseException;
+	void getSingleTerritoryEndemism() throws FloraOnException;
 }

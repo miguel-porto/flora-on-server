@@ -26,8 +26,8 @@ import pt.floraon.results.GraphUpdateResult;
  *
  */
 @MultipartConfig
-@WebServlet("/exp/update/*")
-public class NodeWorker extends FloraOnServlet {
+@WebServlet("/api/update/*")
+public class ApiUpdate extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {

@@ -23,12 +23,15 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	 * This implies that all synonyms must have been traversed to check if any of them has this field set to true.
 	 */
 	protected Boolean worldDistributionCompleteness;
+	/**
+	 * The nearest TaxEnt which has worldDistributionCompleteness == COMPLETE 
+	 */
+	protected TaxEnt worldDistributionCompletenessTaxEnt;
+	/**
+	 * The list of status in all territories that are reachable from this taxon 
+	 */
 	protected List<TerritoryStatus> territories;
 
-	public TaxEnt getTaxent() {
-		return this.taxent;
-	}
-	
 	public List<TerritoryStatus> getTerritoryStatus() {
 		return this.territories;
 	}
@@ -46,7 +49,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	
 	public Set<String> inferEndemismDegree() {
 		if(!this.worldDistributionCompleteness) return Collections.emptySet();
-		return Constants.getNamesSet(new ListOfTerritoryStatus(territories).computeNativeExtent());
+		return Constants.getNamesSet(new ListOfTerritoryStatus(territories).computeNativeExtent(this.worldDistributionCompletenessTaxEnt.getID()));
 	}
 	
 	public Map<String, Set<Territory>> inferRestrictedTo(Set<String> territorySet) {
@@ -58,8 +61,12 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		return new ListOfTerritoryStatus(territories).computeRestrictedTo(territorySet);
 	}
 	
+	public void inferSingleTerritoryEndemismDegree() {
+		new ListOfTerritoryStatus(territories).getSingleSmallestTerritory();
+	}
 	/**
 	 * Export as an icon table
+	 * TODO: this should be in the JSP page!
 	 */
 	@Override
 	public String toHTMLTableRow(Object obj) {

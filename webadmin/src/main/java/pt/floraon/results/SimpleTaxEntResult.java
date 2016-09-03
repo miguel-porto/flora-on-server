@@ -18,6 +18,10 @@ public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntRes
 		return this.taxent.getID();
 	}
 	
+	public TaxEnt getTaxent() {
+		return this.taxent;
+	}
+	
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.taxent.getID());

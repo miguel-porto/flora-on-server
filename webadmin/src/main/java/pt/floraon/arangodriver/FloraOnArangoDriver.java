@@ -164,7 +164,7 @@ public class FloraOnArangoDriver implements FloraOn {
 		
 		checkCollections(dbname);
 
-		createTaxonomicGraph();	// TODO we don't need managed graphs any more, I think...
+		createTaxonomicGraph();
 		
 		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
 		driver.createHashIndex("author", true, "idAut");
@@ -210,12 +210,10 @@ public class FloraOnArangoDriver implements FloraOn {
 		List<String> from = new ArrayList<String>();
 		// and add one or more collections
 		from.add(NodeTypes.taxent.toString());
-		from.add(NodeTypes.territory.toString());
 		edgeDefinition.setFrom(from);
 		 // repeat this for the collections where an edge is going into  
 		List<String> to = new ArrayList<String>();
 		to.add(NodeTypes.taxent.toString());
-		from.add(NodeTypes.territory.toString());
 		edgeDefinition.setTo(to);
 		edgeDefinitions.add(edgeDefinition);
 
@@ -236,6 +234,16 @@ public class FloraOnArangoDriver implements FloraOn {
 		edgeDefinition.setFrom(from);
 		to = new ArrayList<String>();
 		to.add(NodeTypes.taxent.toString());
+		edgeDefinition.setTo(to);
+		edgeDefinitions.add(edgeDefinition);
+
+		edgeDefinition = new EdgeDefinitionEntity();
+		edgeDefinition.setCollection(RelTypes.BELONGS_TO.toString());
+		from = new ArrayList<String>();
+		from.add(NodeTypes.territory.toString());
+		edgeDefinition.setFrom(from);
+		to = new ArrayList<String>();
+		to.add(NodeTypes.territory.toString());
 		edgeDefinition.setTo(to);
 		edgeDefinitions.add(edgeDefinition);
 

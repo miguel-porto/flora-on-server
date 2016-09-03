@@ -695,6 +695,7 @@ function collapseNode(n) {
 }
 
 function deleteEntity(d) {
+console.log(d);
 	fetchAJAX('/floraon/api/update/delete?id='+d._id,function(rt) {
 		rt=JSON.parse(rt);
 		var toremove=[];

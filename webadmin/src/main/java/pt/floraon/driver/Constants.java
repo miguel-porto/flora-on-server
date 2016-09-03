@@ -21,6 +21,12 @@ import pt.floraon.entities.PART_OF;
 import pt.floraon.entities.NamedDBNode;
 
 public final class Constants {
+	/*
+	 * TODO:
+		- centaurea langei rothmaleriana restricted to
+		- territories with complete distributions must propagate through synonym
+		- update node no grafo remove legacy ID!
+	 */
 	public static String TAXONOMICGRAPHNAME="taxgraph";
 
 	public static final String ANSI_RESET = "\u001B[0m";

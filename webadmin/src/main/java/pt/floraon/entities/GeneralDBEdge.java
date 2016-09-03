@@ -17,5 +17,21 @@ public abstract class GeneralDBEdge {
 		return this._id;
 	}
 	
+	/**
+	 * Returns the DB ID of the vertex from which this edge departs.
+	 * @return
+	 */
+	public String getFrom() {
+		return this._from;
+	}
+
+	/**
+	 * Returns the DB ID of the vertex to which this edge goes.
+	 * @return
+	 */
+	public String getTo() {
+		return this._to;
+	}
+
 	public abstract RelTypes getType();
 }

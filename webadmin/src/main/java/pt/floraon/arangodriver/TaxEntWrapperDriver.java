@@ -1,11 +1,8 @@
 package pt.floraon.arangodriver;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.arangodb.ArangoDriver;
 import com.arangodb.ArangoException;
@@ -27,7 +24,6 @@ import pt.floraon.entities.EXISTS_IN;
 import pt.floraon.entities.OBSERVED_IN;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
-import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 
 /**
@@ -87,50 +83,18 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 
 	@Override
-	public String[] getEndemismDegree() throws FloraOnException {
-		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString(), "");
-		TaxEntAndNativeStatusResult list;
+	public TaxEntAndNativeStatusResult getNativeStatusList(String territory) throws DatabaseException {
+		String query=AQLQueries.getString("TaxEntWrapperDriver.9"
+				, thisNode.toString()
+				, territory == null ? "" : AQLQueries.getString("TaxEntWrapperDriver.9a", territory));
+		TaxEntAndNativeStatusResult listOfStatus;
 		
 		try {
-			list =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
-		}
-		Set<String> tmp = list.inferEndemismDegree();
-		String[] out = tmp.toArray(new String[tmp.size()]);
-		return out;
-	}
-
-	@Override
-	public Map<String,InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException {
-		String query=AQLQueries.getString("TaxEntWrapperDriver.9"
-			, thisNode.toString()
-			, territory == null ? "" : AQLQueries.getString("TaxEntWrapperDriver.9a", territory));
-		TaxEntAndNativeStatusResult listOfStatus;
-		try {
 			listOfStatus =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-		return listOfStatus.inferNativeStatus(territory);		
-	}
-
-	@Override
-	public Map<String,Set<Territory>> getRestrictedTo(List<String> territory) throws FloraOnException {
-		String query=AQLQueries.getString("TaxEntWrapperDriver.9", thisNode.toString(), "");
-		TaxEntAndNativeStatusResult listOfStatus;
-		try {
-			listOfStatus =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
-		}
-		Set<String> terr = null;
-
-		if(territory != null) {
-			terr = new HashSet<String>();
-			terr.addAll(territory);
-		}
-		return listOfStatus.inferRestrictedTo(terr);		
+		return listOfStatus;
 	}
 
 	public List<TaxEnt> getHybridAncestry() {

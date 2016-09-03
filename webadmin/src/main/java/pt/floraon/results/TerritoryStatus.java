@@ -22,7 +22,7 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 	 */
 	protected Territory territory;
 	/**
-	 * The list of vertex names traversed, starting in the TaxEnt name
+	 * The list of vertex IDs traversed, starting in the TaxEnt name
 	 */
 	protected List<String> vertices;
 	/**
@@ -48,6 +48,22 @@ public class TerritoryStatus implements Comparable<TerritoryStatus> {
 	 */
 	public boolean isInferredFromChildTerritory() {
 		return this.edges.contains(Constants.RelTypes.BELONGS_TO.toString());
+	}
+	
+	/**
+	 * Is this status in this territory inferred from the status of a subtaxon?
+	 * @return
+	 */
+	public boolean isInferredFromChildTaxEnt() {
+		return this.edges.contains(Constants.RelTypes.PART_OF.toString());
+	}
+	
+	/**
+	 * Extracts the vertices of the territory portion of the path, namely the territory IDs after the EXISTS_IN.
+	 * @return
+	 */
+	public List<String> getTerritoryPath() {
+		return this.vertices.subList(this.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()) + 2, this.vertices.size());
 	}
 	
 	@Override

@@ -1,10 +1,18 @@
 package pt.floraon.driver;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.HAS_QUALITY;
 import pt.floraon.entities.SYNONYM;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.entities.Territory;
+import pt.floraon.results.TaxEntAndNativeStatusResult;
+import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEntWrapper {
 	protected INodeKey thisNode;
@@ -41,6 +49,38 @@ public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEn
 	@Override
 	public int setHAS_QUALITY(INodeKey parent) throws FloraOnException {
 		return createRelationshipTo(parent, new HAS_QUALITY());
+	}
+
+	@Override
+	public String[] getEndemismDegree() throws FloraOnException {
+		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(null);
+		Set<String> tmp = listOfStatus.inferEndemismDegree();
+		String[] out = tmp.toArray(new String[tmp.size()]);
+		return out;
+	}
+
+	@Override
+	public Map<String,InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException {
+		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(territory);
+		return listOfStatus.inferNativeStatus(territory);		
+	}
+
+	@Override
+	public Map<String,Set<Territory>> getRestrictedTo(List<String> territory) throws FloraOnException {
+		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(null);
+		Set<String> terr = null;
+
+		if(territory != null) {
+			terr = new HashSet<String>();
+			terr.addAll(territory);
+		}
+		return listOfStatus.inferRestrictedTo(terr);		
+	}
+	
+	@Override
+	public void getSingleTerritoryEndemism() throws FloraOnException {
+		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(null);
+		listOfStatus.inferSingleTerritoryEndemismDegree();
 	}
 
 }
