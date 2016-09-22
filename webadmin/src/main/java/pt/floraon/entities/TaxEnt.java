@@ -64,19 +64,22 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 		this.rank = rank;
 		this.isSpeciesOrInf = this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
 		
-		if(author!=null && author.trim().length()==0) this.author=null;
-		else if(author!=null) this.author=author.trim();
+		/*if(author!=null && author.trim().length()==0) this.author=null;
+		else if(author!=null) this.author = author.trim();*/
+		this.author = author != null ? author.trim() : null;
 
-		if(annotation!=null && annotation.trim().length()==0) this.annotation=null;
-		else if(annotation!=null) this.annotation=annotation.trim();
+		/*if(annotation!=null && annotation.trim().length()==0) this.annotation=null;
+		else if(annotation!=null) this.annotation=annotation.trim();*/
+		this.annotation = annotation != null ? annotation.trim() : null;
 
-		if(sensu!=null && sensu.trim().length()==0) this.sensu=null;
-		else if(sensu!=null) this.sensu=sensu.trim();
+		/*if(sensu!=null && sensu.trim().length()==0) this.sensu=null;
+		else if(sensu!=null) this.sensu=sensu.trim();*/
+		this.sensu = sensu != null ? sensu.trim() : null;
 
-		this.current=current;
-		this.gbifKey=gbifKey;
+		this.current = current;
+		this.gbifKey = gbifKey;
 		this.oldId = oldId;
-		this.worldDistributionCompleteness=worldDistributionCompleteness;
+		this.worldDistributionCompleteness = worldDistributionCompleteness;
 	}
 
 	public TaxEnt(String name,Integer rank,String author,String annotation) throws DatabaseException {
@@ -84,7 +87,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	/**
-	 * Updates this TaxEnt. Pass null to leave as it is.
+	 * Changes properties of this TaxEnt object. Pass null to leave as it is.
 	 * TODO: empty string to remove
 	 * @param name
 	 * @param rank
@@ -181,13 +184,13 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 */
 	public String getFullName(boolean htmlFormatted) {
 		if(htmlFormatted && rank>=TaxonRanks.GENUS.getValue())
-			return "<i>"+name+"</i>"+(author!=null ? " "+this.author : "")
-				+ (sensu!=null ? " <i>sensu</i> "+sensu : "")
-				+ (annotation!=null ? " ["+this.annotation+"]" : "");
+			return "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
+				+ (this.getSensu() != null ? " <i>sensu</i> "+this.getSensu() : "")
+				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 		else
-			return name+(author!=null ? " "+this.author : "")
-				+ (sensu!=null ? " sensu "+sensu : "")
-				+ (annotation!=null ? " ["+this.annotation+"]" : "");
+			return this.getName() + (this.getAuthor() != null ? " "+this.getAuthor() : "")
+				+ (this.getSensu() != null ? " sensu "+this.getSensu() : "")
+				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 	}
 	
 	public String getFullName() {
@@ -207,9 +210,9 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	public String getNameWithAnnotationOnly() {
-		return this.name
-			+ (sensu!=null ? " <i>sensu</i> "+this.sensu : "")
-			+ (annotation!=null ? " ["+this.annotation+"]" : "");
+		return this.getName()
+			+ (this.getSensu() != null ? " <i>sensu</i> " + this.getSensu() : "")
+			+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 	}
 
 	public String getURLEncodedName() throws UnsupportedEncodingException {
@@ -217,7 +220,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 	
 	public String getAuthor() {
-		return author;
+		return "".equals(this.author) ? null : this.author;
 	}
 	
 	public Integer getOldId() {
@@ -225,11 +228,11 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	public String getAnnotation() {
-		return annotation;
+		return "".equals(this.annotation) ? null : this.annotation;
 	}
 
 	public String getSensu() {
-		return sensu;
+		return "".equals(this.sensu) ? null : this.sensu;
 	}
 
 	public Integer getRankValue() {

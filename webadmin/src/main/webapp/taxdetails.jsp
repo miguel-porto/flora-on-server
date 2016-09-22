@@ -161,11 +161,12 @@
 								<tr><td>New annotation</td><td><input type="text" name="annotation" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
 								<tr><td>New legacy ID</td><td><input type="text" name="oldId" value="${taxent.getOldId() == null ? '' : taxent.getOldId()}"/></td></tr>
 							</table>
-							<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
-							<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
+							<!--<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
+							<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
 							<input type="hidden" name="worldDistributionCompleteness" value="${taxent.getWorldDistributionCompleteness()}"/>
-							<input type="hidden" name="replace" value="1"/>
+							 -->
+							<input type="hidden" name="replace" value="0"/>
 							<input type="submit" value="Update"/>
 						</form>
 					</div>

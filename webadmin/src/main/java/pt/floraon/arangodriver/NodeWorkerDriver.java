@@ -285,7 +285,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
-    	return new GraphUpdateResult(driver,id);
+    	return new GraphUpdateResult(driver, id);
     }
 
 	@Override

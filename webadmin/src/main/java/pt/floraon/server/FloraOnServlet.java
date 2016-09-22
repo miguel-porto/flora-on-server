@@ -164,7 +164,7 @@ public class FloraOnServlet extends HttpServlet {
 	}
 
 	/**
-	 * Gets the parameter as a String or null.
+	 * Gets the parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.
 	 * @param name
 	 * @return
 	 * @throws IOException

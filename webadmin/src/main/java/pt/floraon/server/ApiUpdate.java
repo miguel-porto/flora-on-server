@@ -184,8 +184,8 @@ public class ApiUpdate extends FloraOnServlet {
 						,null
 						,getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
 						,getParameterAsInteger("oldId", null)
-						
 					), getParameterAsBooleanNoNull("replace")).toJsonObject());
+				// aqui o update tem de ser reformulado!
 				/*
 				success(NWD.updateTaxEntNode(
 					NWD.getTaxEnt(getParameterAsArangoKey("id"))

@@ -188,16 +188,17 @@ function afterUpdateNode(rt) {
 	chg.parentNode.removeChild(chg);
 }
 
-function updateTaxNode(d,name,rank,author,sensu,comment,current) {
-//	fetchAJAX('worker.php?w=changetaxnode&i='+d._id+'&name='+encodeURIComponent(name)+'&rank='+encodeURIComponent(rank)+'&current='+current+'&author='+encodeURIComponent(author)+'&comment='+encodeURIComponent(comment),function(rt) {
+function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId,worldDistributionCompleteness) {
 	fetchAJAX('/floraon/api/update/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
 		+'&current='+current
 		+'&author='+encodeURIComponent(author)
 		+'&sensu='+encodeURIComponent(sensu)
-		+'&comment='+encodeURIComponent(comment)
-		+'&replace=true'
+		+'&annotation='+encodeURIComponent(comment)
+		+'&oldId='+encodeURIComponent(oldId)
+		+'&worldDistributionCompleteness='+encodeURIComponent(worldDistributionCompleteness)
+		+'&replace=false'
 		,afterUpdateNode);
 }
 
@@ -208,7 +209,7 @@ function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
 		+'&type='+encodeURIComponent(type)
 		+'&theme='+encodeURIComponent(theme)
 		+'&checklist='+checklist
-		+'&replace=true'
+		+'&replace=false'
 		,afterUpdateNode);
 }
 
@@ -427,6 +428,8 @@ function clickToolbar(ev) {
 					+'<tr><td>Author</td><td><input type="text" name="author" value="'+(d.author ? d.author : '')+'"/></td></tr>'
 					+'<tr><td><i>Sensu</i></td><td><input type="text" name="sensu" value="'+(d.sensu ? d.sensu : '')+'"/></td></tr>'
 					+'<tr><td>Annotation<br/>(e.g. <i>yellow flowers</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
+					+'<tr><td>Legacy ID</td><td><input type="text" name="oldId" value="'+(d.oldId ? d.oldId : '')+'"/></td></tr>'
+					+'<tr><td>Native distribution<br/>completeness</td><td><input type="hidden" name="worldDistributionCompleteness" value="'+d.worldDistributionCompleteness+'"/>'+d.worldDistributionCompleteness+'</td></tr>'
 					+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
 					+'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
 					//<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
@@ -440,10 +443,12 @@ function clickToolbar(ev) {
 					var author=wnd.querySelector('input[name=author]').value;
 					var sensu=wnd.querySelector('input[name=sensu]').value;
 					var comment=wnd.querySelector('input[name=comment]').value;
+					var oldId=wnd.querySelector('input[name=oldId]').value;
+					var worldDistributionCompleteness=wnd.querySelector('input[name=worldDistributionCompleteness]').value;
 					//var lbls=[].map.call(wnd.querySelectorAll('span.label'),function(x) {return x.textContent;});
 					var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
 					d.fixed=false;
-					updateTaxNode(d,name,rank,author,sensu,comment,current);
+					updateTaxNode(d,name,rank,author,sensu,comment,current,oldId,worldDistributionCompleteness);
 				};
 
 				break;
@@ -695,7 +700,6 @@ function collapseNode(n) {
 }
 
 function deleteEntity(d) {
-console.log(d);
 	fetchAJAX('/floraon/api/update/delete?id='+d._id,function(rt) {
 		rt=JSON.parse(rt);
 		var toremove=[];
