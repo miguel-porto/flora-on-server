@@ -66,7 +66,7 @@ public class FloraOnArangoDriver implements FloraOn {
         driver = new ArangoDriver(configure, dbname);
 
         try {
-			StringsResultEntity dbs=driver.getDatabases(username, pass);
+			StringsResultEntity dbs=driver.getDatabases(username, pass);	// TODO: this needs permissions in the _system database...
 			if(!dbs.getResult().contains(dbname))
 				initializeNewGraph(dbname);
 			else {
@@ -138,7 +138,7 @@ public class FloraOnArangoDriver implements FloraOn {
 	
 	@Override
 	public INodeKey asNodeKey(String id) throws FloraOnException {
-		return id==null ? null : new ArangoKey(id);
+		return id == null ? null : new ArangoKey(id);
 	}
 	
 	public synchronized void updateVariables() throws FloraOnException {

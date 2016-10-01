@@ -24,6 +24,7 @@ import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.INodeWorker;
 import pt.floraon.driver.QueryException;
 import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.Constants.DocumentType;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
@@ -32,7 +33,7 @@ import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.Character;
-import pt.floraon.entities.GeneralDBNode;
+import pt.floraon.entities.DBEntity;
 import pt.floraon.entities.SYNONYM;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
@@ -151,7 +152,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public String[] deleteVertexOrEdge(INodeKey id) throws FloraOnException {
 		List<String> deleted=new ArrayList<String>();
 		try {
-			switch(id.getDocType()) {
+			switch(id.getDocumentType()) {
 			case EDGE:
 				dbDriver.graphDeleteEdge(Constants.TAXONOMICGRAPHNAME, id.getColletion(), id.getDBKey());
 				break;
@@ -253,14 +254,36 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}*/
 
 	@Override
-	public <T extends GeneralDBNode> T getNode(INodeKey id, Class<T> cls) throws FloraOnException {
+	public <T extends DBEntity> T getNode(INodeKey id, Class<T> cls) throws FloraOnException {
 		try {
 			return dbDriver.getDocument(id.toString(), cls).getEntity();
 		} catch (ArangoException e) {
 			throw new DatabaseException(e.getErrorMessage());
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T extends DBEntity> T getNode(INodeKey id) throws FloraOnException {
+		NodeTypes nt = null;
+		RelTypes rt = null;
+		if(id.getDocumentType() == DocumentType.VERTEX) {
+			nt = NodeTypes.valueOf(id.getColletion());
+			try {
+				return (T) dbDriver.getDocument(id.toString(), nt.getNodeClass()).getEntity();
+			} catch (ArangoException | SecurityException | IllegalArgumentException e) {
+				throw new DatabaseException(e.getMessage());
+			}
+		} else {
+			rt = RelTypes.valueOf(id.getColletion());
+			try {
+				return (T) dbDriver.getDocument(id.toString(), rt.getEdgeClass()).getEntity();
+			} catch (ArangoException | SecurityException | IllegalArgumentException e) {
+				throw new DatabaseException(e.getMessage());
+			}
+		}
+	}
+
 	@Override
 	public GraphUpdateResult detachSynonym(INodeKey from,INodeKey to) throws FloraOnException {
 		String query = AQLQueries.getString("NodeWorkerDriver.1", from.toString(), to.toString());
@@ -364,30 +387,15 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			+ "LET d=DOCUMENT(n) RETURN MERGE(d,{type:PARSE_IDENTIFIER(d).collection}))}"	//source:d._from,target:d._to,
 			,Constants.TAXONOMICGRAPHNAME,id.toString(),EntityFactory.toJsonString(art)
 		);*/
-		String query=String.format("RETURN {nodes: " + 
-		"    APPEND( " + 
-		"        [MERGE(DOCUMENT('%1$s'),{type:PARSE_IDENTIFIER('%1$s').collection})] " + 
-		"        ,(FOR v IN 1..%3$d ANY '%1$s' %2$s RETURN DISTINCT MERGE(v,{type:PARSE_IDENTIFIER(v._id).collection})) " + 
-		"    ) " + 
-		"    ,links:(FOR v,e IN 1..%3$d ANY '%1$s' %2$s RETURN DISTINCT MERGE(e,{type:PARSE_IDENTIFIER(e._id).collection})) " + 
-		"} ",id.toString(), artconc, depth);
-		//System.out.println(query);
-		
-/*		String query=String.format("FOR p IN GRAPH_TRAVERSAL('%1$s','%2$s','any',{paths:true,maxDepth:1}) "
-			+ "RETURN {nodes:(FOR v IN p[*].vertex RETURN {id:v._id,r:v.rank,t:PARSE_IDENTIFIER(v._id).collection,n:v.name,c:v.current})"
-			+ ",links:(FOR e IN FLATTEN(FOR ed IN p[*].path.edges RETURN ed) COLLECT a=e._id LET d=DOCUMENT(a) LET ty=PARSE_IDENTIFIER(d).collection "
-			+ "FILTER ty=='PART_OF'"
-			+ "RETURN {id:d._id,source:d._from,target:d._to,current:d.current,type:ty})}",Constants.TAXONOMICGRAPHNAME,id);*/
-		//System.out.println(query);//System.out.println(res);
-		String res;
+		String query = AQLQueries.getString("NodeWorkerDriver.6", id.toString(), artconc, depth);
+		List<String> res;
 		try {
-			res = dbDriver.executeAqlQueryJSON(query, null, null);
+			res = dbDriver.executeAqlQuery(query, null, null, String.class).asList();
 		} catch (ArangoException e) {
 			System.err.println(e.getErrorMessage());
 			return GraphUpdateResult.emptyResult();
 		}
-		// NOTE: server responses are always an array, but here we always have one element, so we remove the []
-		return (res==null || res.equals("[]")) ? GraphUpdateResult.emptyResult() : new GraphUpdateResult(res.substring(1, res.length()-1));
+		return (res.size() == 0) ? GraphUpdateResult.emptyResult() : new GraphUpdateResult(this.driver, res);
 	}
 
 	@Override
@@ -525,4 +533,5 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			throw new DatabaseException(e.getErrorMessage());
 		}
 	}
+
 }

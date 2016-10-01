@@ -1,6 +1,9 @@
 package pt.floraon.entities;
 
+import com.google.gson.JsonObject;
+
 import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.Constants.NodeTypes;
 
 public class Character extends NamedDBNode {
 	protected String shortName,description;
@@ -16,5 +19,26 @@ public class Character extends NamedDBNode {
 		this.name=at.name;
 		this.shortName=at.shortName;
 		this.description=at.description;
-	}	
+	}
+	
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
+	
+	@Override
+	public NodeTypes getType() {
+		return NodeTypes.character;
+	}
+	
+	@Override
+	public JsonObject toJson() {
+		return super._toJson();
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
+	}
+
 }

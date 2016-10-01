@@ -1,19 +1,14 @@
 package pt.floraon.results;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-import com.arangodb.ArangoDriver;
-import com.arangodb.ArangoException;
-import com.arangodb.entity.DocumentEntity;
-import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Constants.DocumentType;
 import pt.floraon.driver.FloraOn;
 import pt.floraon.driver.GraphUpdateResultInt;
 import pt.floraon.driver.INodeKey;
@@ -26,12 +21,8 @@ import pt.floraon.driver.INodeKey;
  *
  */
 public class GraphUpdateResult extends GraphUpdateResultInt {
-	@SuppressWarnings("rawtypes")
-	private List<Map> nodes=null;
-	@SuppressWarnings("rawtypes")
-	private List<Map> links=null;
-
-	private ArangoDriver dbDriver;
+	private JsonArray nodes;
+	private JsonArray links;
 	
 	public GraphUpdateResult() {
 		super();
@@ -43,50 +34,43 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 
 	public GraphUpdateResult(FloraOn graph,String id) throws FloraOnException {
 		super(graph, graph.asNodeKey(id));
-		this.dbDriver=(ArangoDriver) graph.getArangoDriver();
 	}
 	
 	public GraphUpdateResult(FloraOn graph,INodeKey id) {
 		super(graph, id);
-		this.dbDriver=(ArangoDriver) graph.getArangoDriver();
 	}
 	
 	public GraphUpdateResult(FloraOn graph,String[] ids) {
 		super(graph, ids);
-		this.dbDriver=(ArangoDriver) graph.getArangoDriver();
+	}
+
+	public GraphUpdateResult(FloraOn graph, List<String> ids) {
+		super(graph, ids);
 	}
 
 	@Override
-	@SuppressWarnings("rawtypes")
 	public JsonElement toJsonObject() {
-		Gson gson = new Gson();
-		if(this.jsonRepresentation!=null) return (new JsonParser()).parse(this.jsonRepresentation);
-		if(this.nodes==null && this.links==null && this.documentHandles==null) return GraphUpdateResult.emptyResultJson();
+		if(this.jsonRepresentation != null) return (new JsonParser()).parse(this.jsonRepresentation);
+		if(this.nodes == null && this.links == null && this.documentHandles == null) return GraphUpdateResult.emptyResultJson();
 		
-		if(this.documentHandles!=null) {
-			Map<?,?> tmp;
-			Object tmp1;
-			this.links=new ArrayList<Map>();
-			this.nodes=new ArrayList<Map>();
-			// FIXME: there must not be use of Arango here!!
-			try {
-				Iterator<DocumentEntity<Map>> dc=dbDriver.executeDocumentQuery("FOR d IN DOCUMENT("+gson.toJson(this.documentHandles)+") RETURN MERGE(d,{type:PARSE_IDENTIFIER(d._id).collection})", null, null, Map.class).iterator();
-				while(dc.hasNext()) {
-					tmp=dc.next().getEntity();
-					tmp1=tmp.get("_from");
-					if(tmp1!=null) {	// it's an edge
-						this.links.add(tmp);
-					} else {	// it's a vertex
-						this.nodes.add(tmp);
+		this.nodes = new JsonArray();
+		this.links = new JsonArray();
+		if(this.documentHandles != null) {
+			for(String id : this.documentHandles) {
+				try {
+					if(this.driver.asNodeKey(id).getDocumentType() == DocumentType.VERTEX) {
+						this.nodes.add(this.driver.getNodeWorkerDriver().getNode(this.driver.asNodeKey(id)).toJson());
+					} else {
+						this.links.add(this.driver.getNodeWorkerDriver().getNode(this.driver.asNodeKey(id)).toJson());
 					}
+				} catch(FloraOnException e) {
+					System.out.println("Skipped " + id + e.getMessage());
+					// skip ID
 				}
-			} catch (ArangoException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 			JsonObject out=new JsonObject();
-			out.add("nodes", gson.toJsonTree(this.nodes));
-			out.add("links", gson.toJsonTree(this.links));
+			out.add("nodes", this.nodes);
+			out.add("links", this.links);
 			return out;
 		}
 		return GraphUpdateResult.emptyResultJson();

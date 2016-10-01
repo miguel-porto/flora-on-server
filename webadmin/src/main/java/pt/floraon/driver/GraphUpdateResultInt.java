@@ -32,6 +32,11 @@ public abstract class GraphUpdateResultInt {
 		this.documentHandles.addAll(Arrays.asList(ids));
 	}
 
+	public GraphUpdateResultInt(FloraOn graph,List<String> ids) {
+		this.driver=graph;
+		this.documentHandles = ids;
+	}
+
 	protected static JsonObject emptyResultJson() {
 		JsonObject out=new JsonObject();
 		out.add("nodes", new JsonArray());

@@ -1,5 +1,9 @@
 package pt.floraon.entities;
 
+import com.google.gson.JsonObject;
+
+import pt.floraon.driver.Constants.NodeTypes;
+
 public class Author extends GeneralDBNode {
 	protected Integer idAut;
 	protected String name;
@@ -31,4 +35,25 @@ public class Author extends GeneralDBNode {
 	public Integer getIdAut() {
 		return this.idAut;
 	}
+	
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
+	
+	@Override
+	public NodeTypes getType() {
+		return NodeTypes.author;
+	}
+	
+	@Override
+	public JsonObject toJson() {
+		return super._toJson();
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
+	}
+
 }

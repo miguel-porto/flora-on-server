@@ -65,12 +65,12 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 		// checks whether there is already a relation of this type between these two nodes
 		String query=String.format(
 			"FOR e IN %3$s FILTER e._from=='%1$s' && e._to=='%2$s' COLLECT WITH COUNT INTO l RETURN l"
-			,baseId,parentId,edge.getType().toString());
+			,baseId,parentId,edge.getTypeAsString().toString());
 		
 		try {
 			Integer nrel=dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();	
 			if(nrel==0) {
-				dbDriver.createEdge(edge.getType().toString(), edge, baseId, parentId, false);
+				dbDriver.createEdge(edge.getTypeAsString().toString(), edge, baseId, parentId, false);
 				return 1;
 			} else return 0;
 		} catch (ArangoException e) {

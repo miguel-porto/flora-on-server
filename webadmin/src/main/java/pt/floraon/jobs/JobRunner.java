@@ -30,13 +30,13 @@ public class JobRunner implements Runnable {
 	private Job job;
 	
 	public JobRunner(Job job, String desiredFileName, FloraOn driver) throws IOException {
-		tmpFile=File.createTempFile("floraon_", null);
-		outputStream= new FileOutputStream(tmpFile);
-		isClosed=false;
-		uuid=UUID.randomUUID().toString();
-		this.desiredFileName=desiredFileName;
-		this.job=job;
-		this.driver=driver;
+		this.tmpFile = File.createTempFile("floraon_", null);
+		this.outputStream = new FileOutputStream(tmpFile);
+		this.isClosed = false;
+		this.uuid = UUID.randomUUID().toString();
+		this.desiredFileName = desiredFileName;
+		this.job = job;
+		this.driver = driver;
 	}
 	
 	public String getID() {
@@ -73,7 +73,7 @@ public class JobRunner implements Runnable {
 		try {
 			this.job.run(this.driver, this.outputStream);
 			isClosed=true;
-		} catch (FloraOnException e) {
+		} catch (FloraOnException | IOException e) {
 			this.hasError=true;
 			this.errorMessage=e.getMessage();
 			try {

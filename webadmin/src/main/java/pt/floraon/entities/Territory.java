@@ -1,7 +1,10 @@
 package pt.floraon.entities;
 
+import com.google.gson.JsonObject;
+
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TerritoryTypes;
 
 /**
@@ -40,7 +43,7 @@ public class Territory extends NamedDBNode {
 		return this.showInChecklist==null ? false : this.showInChecklist;
 	}
 	
-	public TerritoryTypes getType() {
+	public TerritoryTypes getTerritoryType() {
 		return TerritoryTypes.valueOf(this.territoryType);
 	}
 	
@@ -94,5 +97,25 @@ public class Territory extends NamedDBNode {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
 	
+	@Override
+	public NodeTypes getType() {
+		return NodeTypes.territory;
+	}
+
+	@Override
+	public JsonObject toJson() {
+		return super._toJson();
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
+	}
+
 }

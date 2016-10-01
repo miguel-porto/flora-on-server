@@ -107,7 +107,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,privnotes,nstate,dateInserted,thisNode.toString(),slist.getID().toString());
 		String query=String.format(
 			AQLQueries.getString("TaxEntWrapperDriver.4")
-			,thisNode, slist.getID(), a.toJSONString());
+			,thisNode, slist.getID(), a.toJsonString());
 		try {
 			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
 		} catch (ArangoException e) {
@@ -141,7 +141,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				AQLQueries.getString("TaxEntWrapperDriver.7")
 				,thisNode.toString()
 				,territory.toString()
-				,eIn.toJSONString());
+				,eIn.toJsonString());
 		}
 
 		try {

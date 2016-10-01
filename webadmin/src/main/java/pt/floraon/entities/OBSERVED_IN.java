@@ -1,5 +1,7 @@
 package pt.floraon.entities;
 
+import com.google.gson.JsonObject;
+
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.RelTypes;
@@ -66,9 +68,25 @@ public class OBSERVED_IN extends GeneralDBEdge {
 	public Integer getWeight() {
 		return this.weight;
 	}
+
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
+
 	@Override
 	public RelTypes getType() {
 		return RelTypes.OBSERVED_IN;
+	}
+
+	@Override
+	public JsonObject toJson() {
+		return super._toJson();
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
 	}
 
 }

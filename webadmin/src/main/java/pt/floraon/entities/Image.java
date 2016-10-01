@@ -2,7 +2,10 @@ package pt.floraon.entities;
 
 import org.apache.commons.csv.CSVRecord;
 
+import com.google.gson.JsonObject;
+
 import pt.floraon.arangodriver.FloraOnArangoDriver;
+import pt.floraon.driver.Constants.NodeTypes;
 
 public class Image extends GeneralDBNode {
 	protected String fileName,guid,comment;
@@ -27,4 +30,25 @@ public class Image extends GeneralDBNode {
 		idOrg=Integer.parseInt(record.get(3));
 		idAut=Integer.parseInt(record.get(5));
 	}
+	
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
+	
+	@Override
+	public NodeTypes getType() {
+		return NodeTypes.image;
+	}
+
+	@Override
+	public JsonObject toJson() {
+		return super._toJson();
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
+	}
+
 }

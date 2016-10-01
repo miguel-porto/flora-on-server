@@ -44,7 +44,7 @@ public class ArangoKey implements INodeKey {
 	}
 
 	@Override
-	public DocumentType getDocType() {
+	public DocumentType getDocumentType() {
 		try {
 			Constants.RelTypes.valueOf(this.collection);
 		} catch (IllegalArgumentException e) {

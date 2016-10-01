@@ -11,7 +11,7 @@ import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.Attribute;
 import pt.floraon.entities.Author;
 import pt.floraon.entities.Character;
-import pt.floraon.entities.GeneralDBNode;
+import pt.floraon.entities.DBEntity;
 import pt.floraon.entities.SpeciesList;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
@@ -107,7 +107,15 @@ public interface INodeWorker {
 	 * @throws FloraOnException if there is data associated with the node (e.g. EXISTS_IN, HAS_QUALITY, OBSERVED_IN)
 	 */
 	public String[] deleteLeafNode(INodeKey id) throws FloraOnException;
-	public <T extends GeneralDBNode> T getNode(INodeKey id, Class<T> cls) throws FloraOnException;
+	/**
+	 * Gets an arbitrary document and returns it as the given class.
+	 * <b>It is the user's responsibility to ensure that the expected object conforms to this class!</b>
+	 * @param id
+	 * @param cls
+	 * @return
+	 * @throws FloraOnException
+	 */
+	public <T extends DBEntity> T getNode(INodeKey id, Class<T> cls) throws FloraOnException;
 	/**
 	 * Deletes the SYNONYM relationship that is linking 'from' with 'to'. The deleted relationship is the one immediately connected to 'to'. Note that this might have side effects (break other synonym links) in complex chains of synonyms.
 	 * @param from
@@ -157,4 +165,5 @@ public interface INodeWorker {
 	 * @throws ArangoException
 	 */
 	public List<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException;
+	public <T extends DBEntity> T getNode(INodeKey id) throws FloraOnException;
 }

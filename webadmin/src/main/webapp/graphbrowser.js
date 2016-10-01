@@ -868,6 +868,8 @@ function matchLinksToNodes(links) {
 	for(var i=0;i<links.length;i++) {
 		links[i].source=nodeids.indexOf(links[i]._from);
 		links[i].target=nodeids.indexOf(links[i]._to);
+		
+		if(links[i].source == -1 || links[i].target == -1) console.warn('Dangling link with ID ' + links[i]._id);
 	}
 }
 
@@ -974,24 +976,40 @@ function showRelationships(d) {
 	var el=document.getElementById('toolbar');
 	if(infot) el.removeChild(infot);
 	
+	var baseTable;
 	switch(d.type) {
 	case 'specieslist':
-		var infot=createHTML('<table id="taxontable"><tr><td class="name" colspan="2">Species list</td></tr>'
+		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">Species list</td></tr>'
 			+'<tr><td>Date</td><td>'+d.year+'/'+d.month+'/'+d.day+'</td></tr>'
-			+'<tr><td>Lat</td><td>'+d.location[0]+'</td></tr><tr><td>Long</td><td>'+d.location[1]+'</td></tr>'
-			+'<tr><td>Links</td><td>'+nrelsout+' (out) '+nrelsin+' (in)</td></tr></table>');
+			+'<tr><td>Lat</td><td>'+d.location[0]+'</td></tr><tr><td>Long</td><td>'+d.location[1]+'</td></tr>';
 		break;
+
 	case 'attribute':
-		var infot=createHTML('<table id="taxontable"><tr><td class="name" colspan="2">Attribute</td></tr>'
-			+'<tr><td>Name</td><td>'+d.name+'</td></tr>'
-			+'<tr><td>Links</td><td>'+nrelsout+' (out) '+nrelsin+' (in)</td></tr></table>');
+		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">Attribute</td></tr>'
+			+'<tr><td>Name</td><td>'+d.name+'</td></tr>';
 		break;
 		
-	default:
-		var infot=createHTML('<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+(d.annotation ? ' ['+d.annotation+']' : '')+'</td></tr>'+(d.author ? '<tr><td class="auth" colspan="2">'+d.author+'</td></tr>' : '')+(d.com ? '<tr><td colspan="2">'+d.com+'</td></tr>' : '')+'<tr><td>ID</td><td class="id">'+d._id+(d.oldid ? ' ('+d.oldid+')': '')+'</td></tr>'
-			+(d.rank ? '<tr><td>Rank</td><td class="rank">'+reference.rankmap[''+d.rank]+'</td></tr>' : '')+'<tr><td>Labels</td><td class="labels">'+(d.l ? d.l.join(', ') : '')+'</td></tr><tr><td>Links</td><td>'+nrelsout+' (out) '+nrelsin+' (in)</td></tr></table>');
+	case 'taxent':
+		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+(d.annotation ? ' ['+d.annotation+']' : '')+'</td></tr>'
+			+(d.author ? '<tr><td class="auth" colspan="2">'+d.author+'</td></tr>' : '')
+			+(d.sensu ? '<tr><td><i>sensu</i></td><td>'+d.sensu+'</td></tr>' : '')
+			+'<tr><td>ID</td><td class="id"><a href="/floraon?w=taxdetails&id='+encodeURIComponent(d._id)+'">'+d._id+'</a>'+(d.oldid ? ' ('+d.oldid+')': '')+'</td></tr>'
+			+(d.rank ? '<tr><td>Rank</td><td class="rank">'+reference.rankmap[''+d.rank]+'</td></tr>' : '');
+		break;
+
+	case 'territory':
+		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+'</td></tr>'
+			+'<tr><td>short</td><td class="id">' + d.shortName + '</td></tr>';
+			+'<tr><td>ID</td><td class="id">' + d._id + '</td></tr>';
 		break;
 	}
+	
+	/*for(var key in d) {
+		if(d.hasOwnProperty(key))
+			baseTable += '<tr><td>' + key + '</td><td>' + d[key] + '</td></tr>'; 
+	}*/
+	baseTable += '<tr><td>Links</td><td>'+nrelsout+' (out) '+nrelsin+' (in)</td></tr></table>';
+	var infot = createHTML(baseTable);
 	el.insertBefore(infot, el.firstChild);
 	var buttons=el.querySelectorAll('.button');
 	for(var i=0;i<buttons.length;i++) addEvent('click',buttons[i],clickToolbar);
@@ -1098,4 +1116,3 @@ function dblclick(d) {
 function dragend(d) {
 //	d3.select(this).classed("fixed", d.fixed = true);
 }
-

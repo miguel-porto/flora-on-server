@@ -1,5 +1,9 @@
 package pt.floraon.entities;
 
+import com.google.gson.JsonObject;
+
+import pt.floraon.driver.Constants.NodeTypes;
+
 public class SpeciesList extends GeneralDBNode {
 	protected Float[] location={null,null};
 	protected Integer year,month,day,precision,area;
@@ -67,4 +71,25 @@ public class SpeciesList extends GeneralDBNode {
 		this.pubNotes=sl.pubNotes;
 		this.complete=sl.complete;
 	}
+	
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
+	
+	@Override
+	public NodeTypes getType() {
+		return NodeTypes.specieslist;
+	}
+
+	@Override
+	public JsonObject toJson() {
+		return super._toJson();
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
+	}
+
 }

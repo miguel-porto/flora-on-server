@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
+import pt.floraon.entities.DBEntity;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.GeneralDBNode;
 import pt.floraon.entities.PART_OF;
@@ -332,6 +333,10 @@ public final class Constants {
 			this.edgeClass=cls;
 		}
 		
+		public Class<? extends GeneralDBEdge> getEdgeClass() {
+			return this.edgeClass;
+		}
+		
 		public Facets getFacet() {
 			return this.facet;
 		}
@@ -362,15 +367,25 @@ public final class Constants {
 	}
 
 	public enum NodeTypes {
-    	specieslist,		// node representing a species inventory
-    	taxent,				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
+    	specieslist(pt.floraon.entities.SpeciesList.class),		// node representing a species inventory
+    	taxent(pt.floraon.entities.TaxEnt.class),				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
-    	author,
-    	attribute,			// a morphological attribute (e.g. red flower)
-    	character,			// a morphological character (e.g. flower color, leaf shape...)
-    	image,
-    	territory			// a geographic territory (e.g. country)
-    }
+    	author(pt.floraon.entities.Author.class),
+    	attribute(pt.floraon.entities.Attribute.class),			// a morphological attribute (e.g. red flower)
+    	character(pt.floraon.entities.Character.class),			// a morphological character (e.g. flower color, leaf shape...)
+    	image(pt.floraon.entities.Image.class),
+    	territory(pt.floraon.entities.Territory.class);			// a geographic territory (e.g. country)
+    	
+    	Class<? extends GeneralDBNode> nodeClass;
+
+    	NodeTypes(Class<? extends GeneralDBNode> cls) {
+			this.nodeClass = cls;
+		}
+    	
+    	public Class<? extends DBEntity> getNodeClass() {
+    		return this.nodeClass;
+    	}
+	}
 
 	static {
     	for(Entry<Facets,RelTypes[]> f:FacetRelTypes.entrySet()) {

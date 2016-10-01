@@ -11,5 +11,5 @@ public interface INodeKey {
 	 */
 	public String getDBKey();
 	public String getColletion();
-	public DocumentType getDocType();
+	public DocumentType getDocumentType();
 }

@@ -7,9 +7,11 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.csv.CSVPrinter;
 
+import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
 import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.driver.DatabaseException;
@@ -299,5 +301,26 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 			.append("oldId: ").append(oldId).append("; ")
 			.append("worldDistributionCompleteness: ").append(worldDistributionCompleteness).append("; ");
 		return sb.toString();
+	}
+
+	@Override
+	public String getTypeAsString() {
+		return this.getType().toString();
+	}
+	
+	@Override
+	public NodeTypes getType() {
+		return NodeTypes.taxent;
+	}
+	
+	@Override
+	public JsonObject toJson() {
+		JsonObject out = super._toJson();
+		return out;
+	}
+
+	@Override
+	public String toJsonString() {
+		return this.toJson().toString();
 	}
 }
