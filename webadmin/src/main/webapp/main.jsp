@@ -88,7 +88,7 @@
 				<p style="clear:both"></p><b>Other flags<br/></b>
 				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus UNCERTAIN_OCCURRENCE"></div></div><span title="There are taxonomic doubts of whether this taxon is indeed present"> of uncertain occurrence</span></div>
 				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus RARE"></div></div> rare</div>
-				<div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> if it occurs, then it is with this status</span></div>
+				<!-- <div><div class="territory MULTIPLE_STATUS"><div class="occurrencestatus uncertain"></div></div><span title="Status is assigned to a taxon of a higher rank"> if it occurs, then it is with this status</span></div>  -->
 				<p style="clear:both"></p>
 			</div>
 			<div class="paging"><div id="filterbox">Filter: <input type="text" id="filtertext" placeholder="type filter text" value="${filter}"/></div><div class="legend">Showing taxa <c:out value="${offset+1}"></c:out> to <c:out value="${offset+PAGESIZE}"></c:out></div><a href="?w=main&filter=${filter}&offset=${(offset-PAGESIZE < 0 ? 0 : (offset-PAGESIZE))}">&lt; previous</a> | <a href="?w=main&filter=${filter}&offset=${offset+PAGESIZE}">next &gt;</a><p style="clear:both"/></div>

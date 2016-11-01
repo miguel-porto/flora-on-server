@@ -188,7 +188,7 @@ function afterUpdateNode(rt) {
 	chg.parentNode.removeChild(chg);
 }
 
-function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId,worldDistributionCompleteness) {
+function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId) {
 	fetchAJAX('/floraon/api/update/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
@@ -197,7 +197,6 @@ function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId,worldDistr
 		+'&sensu='+encodeURIComponent(sensu)
 		+'&annotation='+encodeURIComponent(comment)
 		+'&oldId='+encodeURIComponent(oldId)
-		+'&worldDistributionCompleteness='+encodeURIComponent(worldDistributionCompleteness)
 		+'&replace=false'
 		,afterUpdateNode);
 }
@@ -429,7 +428,6 @@ function clickToolbar(ev) {
 					+'<tr><td><i>Sensu</i></td><td><input type="text" name="sensu" value="'+(d.sensu ? d.sensu : '')+'"/></td></tr>'
 					+'<tr><td>Annotation<br/>(e.g. <i>yellow flowers</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
 					+'<tr><td>Legacy ID</td><td><input type="text" name="oldId" value="'+(d.oldId ? d.oldId : '')+'"/></td></tr>'
-					+'<tr><td>Native distribution<br/>completeness</td><td><input type="hidden" name="worldDistributionCompleteness" value="'+d.worldDistributionCompleteness+'"/>'+d.worldDistributionCompleteness+'</td></tr>'
 					+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
 					+'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
 					//<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
@@ -444,11 +442,11 @@ function clickToolbar(ev) {
 					var sensu=wnd.querySelector('input[name=sensu]').value;
 					var comment=wnd.querySelector('input[name=comment]').value;
 					var oldId=wnd.querySelector('input[name=oldId]').value;
-					var worldDistributionCompleteness=wnd.querySelector('input[name=worldDistributionCompleteness]').value;
+					//var worldDistributionCompleteness=wnd.querySelector('input[name=worldDistributionCompleteness]').value;
 					//var lbls=[].map.call(wnd.querySelectorAll('span.label'),function(x) {return x.textContent;});
 					var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
 					d.fixed=false;
-					updateTaxNode(d,name,rank,author,sensu,comment,current,oldId,worldDistributionCompleteness);
+					updateTaxNode(d,name,rank,author,sensu,comment,current,oldId);
 				};
 
 				break;

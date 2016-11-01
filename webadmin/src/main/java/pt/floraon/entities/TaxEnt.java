@@ -44,7 +44,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	/**
 	 * This tells whether the world <b>native</b> distribution is complete, regardless of incompleteness in the exotic distribution.
 	 */
-	protected WorldNativeDistributionCompleteness worldDistributionCompleteness;
+	protected WorldNativeDistributionCompleteness worldDistributionCompleteness = WorldNativeDistributionCompleteness.NOT_KNOWN;
 	/**
 	 * These are the IDs of the largest territories for which the distribution of the taxon is complete (native and exotic)
 	 */

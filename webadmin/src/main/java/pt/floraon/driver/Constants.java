@@ -311,7 +311,11 @@ public final class Constants {
 	}
 	
 	public enum DocumentType {VERTEX, EDGE, NONE}
-	// All types of relationships in the graph
+	/**
+	 * All types of relationships in the graph. These must correspond exactly to the collection names in the DB!
+	 * @author miguel
+	 *
+	 */
 	public enum RelTypes {
 		PART_OF(Facets.TAXONOMY, PART_OF.class),								// TaxEnt PART_OF TaxEnt
 		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class),			// TaxEnt SYNONYM TaxEnt
