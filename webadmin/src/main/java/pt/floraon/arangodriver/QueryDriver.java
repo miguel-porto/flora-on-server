@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.arangodb.ArangoDriver;
-import com.arangodb.ArangoException;
-import com.arangodb.CursorResult;
-import com.arangodb.NonUniqueResultException;
+import com.arangodb.ArangoCursor;
+import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDBException;
+import com.arangodb.ArangoDatabase;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.GQuery;
-import pt.floraon.driver.FloraOn;
+import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.IQuery;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
@@ -25,22 +25,23 @@ import pt.floraon.results.SimpleTaxEntResult;
 import pt.floraon.results.SimpleTaxonResult;
 
 public class QueryDriver extends GQuery implements IQuery {
-	protected ArangoDriver dbDriver;
-	public QueryDriver(FloraOn driver) {
+	protected ArangoDB dbDriver;
+	protected ArangoDatabase database;
+
+	public QueryDriver(IFloraOn driver) {
 		super(driver);
-		dbDriver=(ArangoDriver) driver.getArangoDriver();
+		dbDriver = (ArangoDB) driver.getDatabaseDriver();
+		database = (ArangoDatabase) driver.getDatabase();
 	}
 
 	@Override
 	public Iterator<SpeciesList> findSpeciesListsWithin(Float latitude,Float longitude,Float distance) throws FloraOnException {
     	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.specieslist.toString());
-    	CursorResult<SpeciesList> vertexCursor;
 		try {
-			vertexCursor = dbDriver.executeAqlQuery(query, null, null, SpeciesList.class);
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query, null, null, SpeciesList.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
-    	return vertexCursor.iterator();
 	}
 
 	@Override
@@ -52,25 +53,23 @@ public class QueryDriver extends GQuery implements IQuery {
 			.append(day)
 			.append(" LET nei=GRAPH_NEIGHBORS('%6$s',sl,{direction:'outbound',neighborExamples:{idAut:%5$d},edgeExamples:{main:true},edgeCollectionRestriction:'OBSERVED_BY',includeData:true}) FILTER LENGTH(nei)>0 RETURN sl");
 
-		String query=String.format(sb.toString(), NodeTypes.specieslist.toString(),latitude,longitude,radius,idAuthor,Constants.TAXONOMICGRAPHNAME.toString());
+		String query=String.format(sb.toString(), NodeTypes.specieslist.toString(),latitude,longitude,radius,idAuthor,Constants.TAXONOMICGRAPHNAME);
 
-		SpeciesList vertexCursor = null;
+		ArangoCursor<SpeciesList> vertexCursor;
 		try {
-			vertexCursor = dbDriver.executeAqlQuery(query, null, null, SpeciesList.class).getUniqueResult();
-		} catch (NonUniqueResultException e) {
-			System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
-			try {
-				vertexCursor=dbDriver.executeAqlQuery(query, null, null, SpeciesList.class).iterator().next();
-			} catch (ArangoException e1) {
-				throw new DatabaseException(e1.getErrorMessage());
-			}
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			vertexCursor = database.query(query, null, null, SpeciesList.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
-		if(vertexCursor==null)
+
+		if(vertexCursor.getStats().getFullCount() == null || vertexCursor.getStats().getFullCount() == 0)
 			return null;
-		else
-			return vertexCursor;
+
+		if(vertexCursor.getStats().getFullCount() == 1)
+			return vertexCursor.next();
+
+		System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
+		return vertexCursor.next();
 	}
 	
 	@Override
@@ -104,9 +103,9 @@ public class QueryDriver extends GQuery implements IQuery {
     			+ "RETURN {rank:r,nodeType:c,matchType:tm,matches:gr[*].v.name,query:'%2$s'}"
     			,Constants.TAXONOMICGRAPHNAME,q,collection);
 	    	try {
-				res.addAll(dbDriver.executeAqlQuery(query, null, null, Match.class).asList());
-			} catch (ArangoException e) {
-				throw new DatabaseException(e.getErrorMessage());
+				res.addAll(database.query(query, null, null, Match.class).asListRemaining());
+			} catch (ArangoDBException e) {
+				throw new DatabaseException(e.getMessage());
 			}
     	}
     	return res;
@@ -137,7 +136,7 @@ public class QueryDriver extends GQuery implements IQuery {
     	}
 
     	if(rank!=null) {
-    		if(filter=="")
+    		if(filter.equals(""))
     			filter="v.rank=="+rank.getValue().toString();
     		else
     			filter+=" && v.rank=="+rank.getValue().toString();
@@ -160,7 +159,7 @@ FOR final IN FLATTEN(FOR v IN base
         //LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current==false LIMIT 1 RETURN ve)
         LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve)
         RETURN DISTINCT {
-            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)]
+            taxent: MERGE(last, {isLeaf: nedg==0}), match: [DOCUMENT(v)]
             ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
             ,partim: false
             ,notcurrentpath: notcur>0
@@ -168,7 +167,7 @@ FOR final IN FLATTEN(FOR v IN base
     // add the self match if it is species or inferior
     LET vd=DOCUMENT(v)
     LET allr1=vd.isSpeciesOrInf ? APPEND(allr,[{
-        taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0})
+        taxent: MERGE(vd, {isLeaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0})
         , match: [vd], reltypes: []
         ,partim: false
         ,notcurrentpath: false //vd.current!=null && !vd.current
@@ -180,7 +179,7 @@ FOR final IN FLATTEN(FOR v IN base
             FILTER uv.current && uv.isSpeciesOrInf && uv._id!=v && LENGTH(FOR tmp1 IN up.vertices FILTER tmp1.current RETURN 1)==1
             LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND uv PART_OF FILTER v2.current==true RETURN v2)
             RETURN DISTINCT {
-                taxent: MERGE(uv,{leaf: nedg==0})
+                taxent: MERGE(uv,{isLeaf: nedg==0})
                 ,match: [DOCUMENT(v)]
                 ,reltypes: r.reltypes
                 ,partim: true
@@ -200,7 +199,7 @@ FOR final IN FLATTEN(FOR v IN base
         //LET notcur=LENGTH(FOR ve IN SLICE(p.vertices,0,LENGTH(p.vertices)-1) FILTER ve.current!=null && !ve.current LIMIT 1 RETURN ve)
         LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve)
         RETURN DISTINCT {
-            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)]
+            taxent: MERGE(last, {isLeaf: nedg==0}), match: [DOCUMENT(v)]
             ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection)
             ,partim: false
             ,notcurrentpath: notcur>0
@@ -208,7 +207,7 @@ FOR final IN FLATTEN(FOR v IN base
     // add the self match if it is species or inferior
     LET vd=DOCUMENT(v)
     LET allr1=vd.isSpeciesOrInf ? APPEND(res,[{
-        taxent: MERGE(vd, {leaf: LENGTH(FOR v2 IN 1..1 INBOUND vd PART_OF RETURN v2)==0})
+        taxent: MERGE(vd, {isLeaf: LENGTH(FOR v2 IN 1..1 INBOUND vd PART_OF RETURN v2)==0})
         , match: [vd], reltypes: []
         , partim: false
         , notcurrentpath: false // vd.current!=null && !vd.current
@@ -228,14 +227,14 @@ FOR final IN FLATTEN(FOR v IN base
 				"        LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND last PART_OF FILTER v2.current==true RETURN v2) " + leaf +
 				"        LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve) " + 
 				"        RETURN DISTINCT { " + 
-				"            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)] " + 
+				"            taxent: MERGE(last, {isLeaf: nedg==0}), match: [DOCUMENT(v)] " +
 				"            ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection) " + 
 				"            ,partim: false " + 
 				"            ,notcurrentpath: notcur>0 " + 
 				"        }) " + 
 				"    LET vd=DOCUMENT(v) " + 
 				"    LET allr1=vd.isSpeciesOrInf ? APPEND(allr,[{ " + 
-				"        taxent: MERGE(vd, {leaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0}) " + 
+				"        taxent: MERGE(vd, {isLeaf: LENGTH(FOR v2,e1,p1 IN 1..1 INBOUND vd PART_OF LET last1=p1.vertices[LENGTH(p1.vertices)-1] FILTER last1.current==true RETURN last1)==0}) " +
 				"        , match: [vd], reltypes: [] " + 
 				"        ,partim: false " + 
 				"        ,notcurrentpath: false " + 
@@ -246,7 +245,7 @@ FOR final IN FLATTEN(FOR v IN base
 				"            FILTER uv.current && uv.isSpeciesOrInf && uv._id!=v && LENGTH(FOR tmp1 IN up.vertices FILTER tmp1.current RETURN 1)==1 " + 
 				"            LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND uv PART_OF FILTER v2.current==true RETURN v2) " + leaf +
 				"            RETURN DISTINCT { " + 
-				"                taxent: MERGE(uv,{leaf: nedg==0}) " + 
+				"                taxent: MERGE(uv,{isLeaf: nedg==0}) " +
 				"                ,match: [DOCUMENT(v)] " + 
 				"                ,reltypes: r.reltypes " + 
 				"                ,partim: true " + 
@@ -264,14 +263,14 @@ FOR final IN FLATTEN(FOR v IN base
 				"        LET nedg=LENGTH(FOR v2 IN 1..1 INBOUND last PART_OF RETURN v2) " + leaf + 
 				"        LET notcur=LENGTH(FOR ve IN p.edges FILTER ve.current==false LIMIT 1 RETURN ve) " + 
 				"        RETURN DISTINCT { " + 
-				"            taxent: MERGE(last, {leaf: nedg==0}), match: [DOCUMENT(v)] " + 
+				"            taxent: MERGE(last, {isLeaf: nedg==0}), match: [DOCUMENT(v)] " +
 				"            ,reltypes: (FOR e1 IN p.edges RETURN DISTINCT PARSE_IDENTIFIER(e1._id).collection) " + 
 				"            ,partim: false " + 
 				"            ,notcurrentpath: notcur>0 " + 
 				"        }) " + 
 				"    LET vd=DOCUMENT(v) " + 
 				"    LET allr1=vd.isSpeciesOrInf ? APPEND(res,[{ " + 
-				"        taxent: MERGE(vd, {leaf: LENGTH(FOR v2 IN 1..1 INBOUND vd PART_OF RETURN v2)==0}) " + 
+				"        taxent: MERGE(vd, {isLeaf: LENGTH(FOR v2 IN 1..1 INBOUND vd PART_OF RETURN v2)==0}) " +
 				"        , match: [vd], reltypes: [] " + 
 				"        , partim: false " + 
 				"        , notcurrentpath: false " + 
@@ -280,13 +279,11 @@ FOR final IN FLATTEN(FOR v IN base
 				") RETURN final ";
 		}
 
-		CursorResult<SimpleTaxonResult> vertexCursor;
 		try {
-			vertexCursor = dbDriver.executeAqlQuery(query, null, null, SimpleTaxonResult.class);
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query, null, null, SimpleTaxonResult.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
-    	return vertexCursor.asList();
     }
 
 	@Override
@@ -295,9 +292,9 @@ FOR final IN FLATTEN(FOR v IN base
     	if(limit!=null) limitQ=" LIMIT "+limit; else limitQ="";
     	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank DESC"+limitQ+" RETURN {taxent:v}",query);
     	try {
-			return dbDriver.executeAqlQuery(_query, null, null, SimpleTaxEntResult.class).iterator();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(_query, null, null, SimpleTaxEntResult.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
     	// TODO levenshtein, etc.
     }
@@ -311,9 +308,9 @@ FOR final IN FLATTEN(FOR v IN base
 				,NodeTypes.specieslist.toString(),latitude,longitude,distance,RelTypes.OBSERVED_IN.toString());
 		//System.out.println(query);
     	try {
-			return dbDriver.executeAqlQuery(query, null, null, SimpleTaxonResult.class).asList();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query, null, null, SimpleTaxonResult.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -321,9 +318,9 @@ FOR final IN FLATTEN(FOR v IN base
     public int getNumberOfNodesInCollection(NodeTypes nodetype) throws FloraOnException {
     	String query="FOR v IN "+nodetype.toString()+" COLLECT WITH COUNT INTO cou RETURN cou";
     	try {
-			return dbDriver.executeAqlQuery(query, null, null, Integer.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query, null, null, Integer.class).next();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
     }
 

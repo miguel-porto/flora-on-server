@@ -1,66 +1,57 @@
 package pt.floraon.arangodriver;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import com.arangodb.ArangoDriver;
-import com.arangodb.ArangoException;
-import com.arangodb.CursorResult;
-import com.arangodb.util.GraphVerticesOptions;
+import com.arangodb.ArangoDBException;
+import com.arangodb.ArangoDatabase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.LinkedTreeMap;
 
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.BaseFloraOnDriver;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.FloraOn;
-import pt.floraon.driver.IListDriver;
-import pt.floraon.driver.INodeKey;
+import jline.internal.Log;
+import pt.floraon.driver.*;
+import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
-import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
-import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.SimpleTaxEntResult;
 
 public class ListDriver extends BaseFloraOnDriver implements IListDriver {
-	protected ArangoDriver dbDriver;
-	public ListDriver(FloraOn driver) {
+	private ArangoDatabase database;
+
+	public ListDriver(IFloraOn driver) {
 		super(driver);
-		this.dbDriver=(ArangoDriver) driver.getArangoDriver();
+		this.database = (ArangoDatabase) driver.getDatabase();
 	}
 
+/*
 	public List<ChecklistEntry> getCheckList() {
 		// TODO the query is very slow!
 		List<ChecklistEntry> chklst=new ArrayList<ChecklistEntry>();
         @SuppressWarnings("rawtypes")
-		CursorResult<List> vertexCursor;
-        @SuppressWarnings("rawtypes")
-        Iterator<List> vertexIterator;
+		ArangoCursor<List> vertexCursor;
     	GraphVerticesOptions gvo=new GraphVerticesOptions();
     	List<String> vcr=new ArrayList<String>();
     	vcr.add("taxent"); //$NON-NLS-1$
     	gvo.setVertexCollectionRestriction(vcr);
     	String query=String.format(
-			AQLQueries.getString("ListDriver.1") //$NON-NLS-1$
-   			, Constants.TAXONOMICGRAPHNAME,RelTypes.PART_OF.toString(),Constants.CHECKLISTFIELDS);
+			AQLQueries.getString("ListDriver.1")
+   			, Constants.TAXONOMICGRAPHNAME, Constants.RelTypes.PART_OF.toString(),Constants.CHECKLISTFIELDS);
 
     	try {
-    		// traverse all leaf nodes outwards
-    		vertexCursor=dbDriver.executeAqlQuery(query, null, null, List.class);
-			vertexIterator = vertexCursor.iterator();
-			
+    		// traverse all isLeaf nodes outwards
+    		vertexCursor = database.query(query, null, null, List.class);
+
 			ChecklistEntry chk;
-			while (vertexIterator.hasNext()) {
+			while (vertexCursor.hasNext()) {
 				@SuppressWarnings("unchecked")
-				List<LinkedTreeMap<String,Object>> entry1 = vertexIterator.next();
+				List<LinkedTreeMap<String,Object>> entry1 = vertexCursor.next();
 				chk=new ChecklistEntry();
 				for(LinkedTreeMap<String,Object> tev:entry1) {
 					TaxEnt te=new TaxEnt(tev);
@@ -86,24 +77,25 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 				}
 				chklst.add(chk);
 			}
-		} catch (ArangoException | FloraOnException e) {
+		} catch (ArangoDBException | FloraOnException e) {
 			e.printStackTrace();
 		}
     	return chklst;
 	}
-	
+*/
+
 	@Override
     public GraphUpdateResult getAllTerritoriesGraph(TerritoryTypes territoryType) throws FloraOnException {
     	String query;
     	if(territoryType!=null)
-    		query=String.format(AQLQueries.getString("ListDriver.2"),NodeTypes.territory.toString(), territoryType.toString()); //$NON-NLS-1$
+    		query=String.format(AQLQueries.getString("ListDriver.2"),NodeTypes.territory.toString(), territoryType.toString());
     	else
-    		query=String.format(AQLQueries.getString("ListDriver.3"),NodeTypes.territory.toString()); //$NON-NLS-1$
+    		query=String.format(AQLQueries.getString("ListDriver.3"),NodeTypes.territory.toString());
     	String[] ids=new String[0];
     	try {
-			ids=dbDriver.executeAqlQuery(query, null, null, String.class).asList().toArray(ids);
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+			ids=database.query(query, null, null, String.class).asListRemaining().toArray(ids);
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
     	return driver.getNodeWorkerDriver().getRelationshipsBetween(ids, new Facets[] {Facets.TAXONOMY});
     }
@@ -111,11 +103,11 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	@Override
     public List<Territory> getChecklistTerritories() throws FloraOnException {
     	String query;
-		query=String.format(AQLQueries.getString("ListDriver.4"),NodeTypes.territory.toString()); //$NON-NLS-1$
+		query=String.format(AQLQueries.getString("ListDriver.4"),NodeTypes.territory.toString());
     	try {
-			return dbDriver.executeAqlQuery(query, null, null, Territory.class).asList();
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+			return database.query(query, null, null, Territory.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
     }
 
@@ -127,15 +119,43 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
     	else
     		query=String.format(AQLQueries.getString("ListDriver.6"),NodeTypes.territory.toString()); //$NON-NLS-1$
     	try {
-			return dbDriver.executeAqlQuery(query, null, null, Territory.class).asList();
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+			return database.query(query, null, null, Territory.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
     }
 
+	@Override
+	public List<TaxEnt> getAllSpeciesOrInferiorTaxEnt(Boolean onlyCurrent, boolean higherTaxa, String territory, Integer offset, Integer count) throws FloraOnException {
+		String query = null;
+		boolean withLimit = false;
+		if(!(offset==null && count==null)) {
+			if(offset==null) offset=0;
+			if(count==null) count=50;
+			withLimit=true;
+		}
+		if(territory == null) {
+			return Collections.emptyList();
+			// FIXME return all taxa - should know the root node?
+		} else {
+			Log.warn("Possibly omitting taxa from the checklist.");
+//			System.out.println("Warning: .");
+			query=AQLQueries.getString("ListDriver.8"
+					, territory
+					, onlyCurrent ? "&& thistaxon.current" : ""
+					, withLimit ? "LIMIT "+offset+","+count : ""
+					, higherTaxa ? ", OUTBOUND PART_OF" : ""
+			);
+		}
+		try {
+			return database.query(query, null, null, TaxEnt.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
+		}
+	}
 
 	@Override
-	public <T extends SimpleTaxEntResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException {
+	public <T extends SimpleTaxEntResult> List<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException {
 		String query = null;
 		boolean withLimit=false;
 		if(!(offset==null && count==null)) {
@@ -156,40 +176,33 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 //FIXME do this!
 		}
 		//System.out.println(query);
-    	CursorResult<T> vertexCursor;
 		try {
-			vertexCursor = dbDriver.executeAqlQuery(query, null, null, T);
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+			return database.query(query, null, null, T).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
-    	return vertexCursor.iterator();
 	}
 
 	@Override
 	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException {
 		String query=String.format(AQLQueries.getString("ListDriver.21") //$NON-NLS-1$
 			,NodeTypes.taxent.toString(),rank.getValue());
-    	CursorResult<TaxEnt> vertexCursor;
 		try {
-			vertexCursor = dbDriver.executeAqlQuery(query, null, null, TaxEnt.class);
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+			return database.query(query, null, null, TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
-    	return vertexCursor.iterator();			
 	}
 	
 	@Override
 	public GraphUpdateResult getAllCharacters() {
-			String query=AQLQueries.getString("ListDriver.22", NodeTypes.character.toString());
-			String res;
+			String query = AQLQueries.getString("ListDriver.22", NodeTypes.character.toString());
 			try {
-				res = dbDriver.executeAqlQueryJSON(query, null, null);
-			} catch (ArangoException e) {
-				System.err.println(e.getErrorMessage());
+				return new GraphUpdateResult(database.query(query, null, null, String.class).next());
+			} catch (ArangoDBException e) {
+				System.err.println(e.getMessage());
 				return GraphUpdateResult.emptyResult();
 			}
-			// NOTE: server responses are always an array, but here we always have one element, so we remove the []
-			return (res==null || res.equals("[]")) ? GraphUpdateResult.emptyResult() : new GraphUpdateResult(res.substring(1, res.length()-1)); //$NON-NLS-1$
 		}
 
 	@Override
@@ -198,11 +211,11 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 		List<TaxEntAndNativeStatusResult> cursorResult;
 		try {
-			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).asList();
+			cursorResult = database.query(query, null, null, TaxEntAndNativeStatusResult.class).asListRemaining();
 			if(cursorResult.size() == 0)
 				throw new FloraOnException("Taxon "+key+" not found.");
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
 		return this.getTaxonInfoAsJson(cursorResult).get(0).getAsJsonObject();
 	}
@@ -212,9 +225,9 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 		String query=AQLQueries.getString("ListDriver.24b", taxonName, onlyCurrent ? "&& thistaxon.current" : "");
 		List<TaxEntAndNativeStatusResult> cursorResult;
 		try {
-			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).asList();
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+			cursorResult = database.query(query, null, null, TaxEntAndNativeStatusResult.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
 		return this.getTaxonInfoAsJson(cursorResult);
 	}
@@ -225,11 +238,11 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 		List<TaxEntAndNativeStatusResult> cursorResult;
 		try {
-			cursorResult = dbDriver.executeAqlQuery(query, null, null, TaxEntAndNativeStatusResult.class).asList();
+			cursorResult = database.query(query, null, null, TaxEntAndNativeStatusResult.class).asListRemaining();
 			if(cursorResult.size() == 0)
 				throw new FloraOnException("Taxon with oldId "+oldId+" not found.");
-		} catch (ArangoException e) {
-			throw new FloraOnException(e.getErrorMessage());
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
 		}
 		return this.getTaxonInfoAsJson(cursorResult).get(0).getAsJsonObject();
 	}

@@ -31,6 +31,10 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	 * The list of status in all territories that are reachable from this taxon 
 	 */
 	protected List<TerritoryStatus> territories;
+	/**
+	 * The list of inferred native status for all checklist territories
+	 */
+	protected transient Map<String,InferredStatus> inferredStatus;
 
 	public List<TerritoryStatus> getTerritoryStatus() {
 		return this.territories;
@@ -40,13 +44,14 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		return this.worldDistributionCompleteness;
 	}
 	
-	public Map<String,InferredStatus> inferNativeStatus(String territory) {
-		if(territory == null)
-			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.worldDistributionCompleteness);
-		else
-			return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.worldDistributionCompleteness);
+	public Map<String,InferredStatus> inferNativeStatus() {
+		return new ListOfTerritoryStatus(territories).computeTerritoryStatus(this.worldDistributionCompleteness);
 	}
-	
+
+	public InferredStatus inferNativeStatus(String territory) {
+		return new ListOfTerritoryStatus(territories).computeTerritoryStatus(territory, this.worldDistributionCompleteness);
+	}
+
 	public Set<String> inferEndemismDegree() {
 		if(!this.worldDistributionCompleteness) return Collections.emptySet();
 		return Constants.getNamesSet(new ListOfTerritoryStatus(territories).computeNativeExtent(this.worldDistributionCompletenessTaxEnt.getID()));
@@ -72,7 +77,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	public String toHTMLTableRow(Object obj) {
 		if(this.taxent == null) return null;
 		
-		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
+		Map<String,InferredStatus> tStatus = this.inferNativeStatus();
 		InferredStatus status;
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
@@ -80,8 +85,8 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		try {
 			sb.append("<tr data-key=\"").append(this.taxent.getID()).append("\"")
 				.append(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))
-				.append("><td><a href=\"/floraon/admin?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
-				.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
+				.append("><td><a href=\"/floraon/checklist?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
+				.append(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))
 				.append(this.taxent.getNameWithAnnotationOnly())
 				.append("</i></a></td><td>")
 				.append(this.taxent.getAuthor())
@@ -126,11 +131,11 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 			rec.print("");
 			return;
 		}
-		Map<String,InferredStatus> tStatus = this.inferNativeStatus(null);
+		Map<String,InferredStatus> tStatus = this.inferNativeStatus();
 		@SuppressWarnings("unchecked")
 		List<String> allTerritories=(List<String>) obj;
 		rec.print(this.taxent.getID());
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getNameWithAnnotationOnly());
+		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+this.taxent.getNameWithAnnotationOnly());
 		rec.print(this.taxent.getAuthor());
 		if(this.territories==null) return;
 

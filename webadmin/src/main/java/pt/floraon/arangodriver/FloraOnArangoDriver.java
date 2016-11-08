@@ -6,91 +6,83 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.net.ConnectException;
+import java.util.*;
 
-import com.arangodb.ArangoConfigure;
-import com.arangodb.ArangoDriver;
-import com.arangodb.ArangoException;
-import com.arangodb.entity.CollectionEntity;
-import com.arangodb.entity.CollectionOptions;
+import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDatabase;
+import com.arangodb.ArangoDBException;
 import com.arangodb.entity.CollectionType;
-import com.arangodb.entity.EdgeDefinitionEntity;
-import com.arangodb.entity.StringsResultEntity;
+import com.arangodb.entity.EdgeDefinition;
+import com.arangodb.entity.GraphEntity;
 import com.arangodb.entity.UserEntity;
 
-import pt.floraon.driver.IAttributeWrapper;
-import pt.floraon.driver.CSVFileProcessor;
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.GAttributeWrapper;
-import pt.floraon.driver.FloraOn;
-import pt.floraon.driver.IListDriver;
-import pt.floraon.driver.INodeKey;
-import pt.floraon.driver.INodeWorker;
-import pt.floraon.driver.INodeWrapper;
-import pt.floraon.driver.IQuery;
-import pt.floraon.driver.ISpeciesListWrapper;
-import pt.floraon.driver.ITaxEntWrapper;
+import com.arangodb.model.*;
+import pt.floraon.driver.*;
 import pt.floraon.entities.Territory;
+import pt.floraon.redlisttaxoninfo.ArangoDBRedListData;
 
-public class FloraOnArangoDriver implements FloraOn {
-	private ArangoDriver driver;
+public class FloraOnArangoDriver implements IFloraOn {
+	private ArangoDB driver;
+	private ArangoDatabase database;
 	private INodeWorker NWD;
 	private IQuery QD;
 	private IListDriver LD;
 	private CSVFileProcessor CSV;
+	private IRedListData RLD;
 	private List<Territory> checklistTerritories;
 	
-	public FloraOnArangoDriver(String dbname, String basedir) throws FloraOnException {
-		File account=new File(basedir+"/arangodb_login.txt");
-		if(!account.canRead()) throw new FloraOnException("Cannot connect to ArangoDB server without a user account in a file named arangodb_login.txt located in the folder "+basedir);
-		BufferedReader fr;
-		String username, pass;
-		try {
-			fr = new BufferedReader(new FileReader(account));
-			username=fr.readLine();
-			pass=fr.readLine();
-			fr.close();
-		} catch (IOException e1) {
-			throw new FloraOnException("Cannot connect to ArangoDB server without a user account in a file named arangodb_login.txt locate in the root folder of the webapps.");
-		}
+	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
+		String username = properties.getProperty("arango.user");
+		String pass = properties.getProperty("arango.password");
 
+		if(username == null || pass == null)
+			throw new FloraOnException("Youi must provide login details for ArangoDB in the floraon.properties file (arango.user and arango.password)");
+
+		driver = new ArangoDB.Builder().user(username).password(pass).build();
+		database = driver.db(dbname);
+/*
 		ArangoConfigure configure = new ArangoConfigure();
         configure.init();
         configure.setDefaultDatabase(dbname);
         configure.setUser(username);
         configure.setPassword(pass);
         driver = new ArangoDriver(configure, dbname);
-
+*/
         try {
-			StringsResultEntity dbs=driver.getDatabases(username, pass);	// TODO: this needs permissions in the _system database...
-			if(!dbs.getResult().contains(dbname))
-				initializeNewGraph(dbname);
+			Collection<String> dbs=driver.getDatabases();	// TODO: this needs permissions in the _system database...
+			if(!dbs.contains(dbname))
+				initializeNewDatabase(dbname);
 			else {
-				checkCollections(dbname);
-				if(!driver.getGraphList().contains(Constants.TAXONOMICGRAPHNAME))
+				checkCollections();
+				try {
+					database.graph(Constants.TAXONOMICGRAPHNAME).getInfo();
+				} catch (ArangoDBException e) {
 					createTaxonomicGraph();
+				}
 			}
-		} catch (ArangoException e) {
+		} catch (ArangoDBException e) {
 			e.printStackTrace();
 			throw new FloraOnException(e.getMessage());
 		}
-
-        NWD=new NodeWorkerDriver(this);
-        QD=new QueryDriver(this);
-        LD=new ListDriver(this);
-        CSV=new CSVFileProcessor(this);
+        NWD = new NodeWorkerDriver(this);
+        QD = new QueryDriver(this);
+        LD = new ListDriver(this);
+        CSV = new CSVFileProcessor(this);
+		RLD = new ArangoDBRedListData(this);
         updateVariables();
 	}
 
 	@Override
-	public Object getArangoDriver() {
+	public Object getDatabaseDriver() {
 		return driver;
 	}
-	
+
+	@Override
+	public Object getDatabase() {
+		return database;
+	}
+
 	@Override
 	public INodeWorker getNodeWorkerDriver() {
 		return NWD;
@@ -110,7 +102,12 @@ public class FloraOnArangoDriver implements FloraOn {
 	public CSVFileProcessor getCSVFileProcessor() {
 		return CSV;
 	}
-	
+
+	@Override
+	public IRedListData getRedListData() {
+		return RLD;
+	}
+
 	@Override
 	public List<Territory> getChecklistTerritories() {
 		return this.checklistTerritories;
@@ -141,9 +138,9 @@ public class FloraOnArangoDriver implements FloraOn {
 		return id == null ? null : new ArangoKey(id);
 	}
 	
-	public synchronized void updateVariables() throws FloraOnException {
+	private synchronized void updateVariables() throws FloraOnException {
 		Iterator<Territory> it=this.LD.getChecklistTerritories().iterator();
-		checklistTerritories=new ArrayList<Territory>();
+		checklistTerritories= new ArrayList<>();
 		while(it.hasNext()) {
 			checklistTerritories.add(it.next());
 		}
@@ -152,20 +149,30 @@ public class FloraOnArangoDriver implements FloraOn {
 	/**
 	 * Initializes a new database from scratch. Creates collections, graphs, etc.
 	 * @param dbname
-	 * @throws ArangoException
+	 * @throws ArangoDBException
 	 */
-	private void initializeNewGraph(String dbname) throws ArangoException {
+	private void initializeNewDatabase(String dbname) throws ArangoDBException {
 		System.out.println("Initializing a fresh new database");
 		/*				UserEntity ue;
 		ue=new UserEntity();*/
 		UserEntity[] ue=new UserEntity[0];
-		driver.createDatabase(dbname, ue);
-		driver.setDefaultDatabase(dbname);
-		
-		checkCollections(dbname);
+		driver.createDatabase(dbname);
+		database = driver.db(dbname);
+
+		checkCollections();
 
 		createTaxonomicGraph();
-		
+
+		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
+		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("oldId"), new HashIndexOptions().unique(true).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("rank"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("isSpeciesOrInf"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("name"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).createFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
+		database.collection(NodeTypes.territory.toString()).createHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
+
+/*
 		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
 		driver.createHashIndex("author", true, "idAut");
 		driver.createHashIndex("taxent", true, true, "oldId");
@@ -174,134 +181,98 @@ public class FloraOnArangoDriver implements FloraOn {
 		driver.createHashIndex("territory", true, "shortName");
 		driver.createHashIndex("taxent", false, true, "name");
 		driver.createFulltextIndex("taxent", "name");
+*/
 	}
 	
-	private void checkCollections(String dbname) throws ArangoException {
-		Map<String,CollectionEntity> collections=driver.getCollections().getNames();
+	private void checkCollections() throws ArangoDBException {
+//		Map<String,CollectionEntity> collections=driver.getCollections().getNames();
 		
 		// create a collection for each nodetype
 		for(NodeTypes nt:NodeTypes.values()) {
-			//if(driver.getCollection(nt.toString()).getCount() == 0) {
-			if(!collections.containsKey(nt.toString())) {
+			try {
+				database.collection(nt.toString()).getInfo();
+			} catch (ArangoDBException e) {
 				System.out.println("Creating collection: "+nt.toString());
-				driver.createCollection(nt.toString());
+				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.DOCUMENT));
 			}
 		}
 		
-		CollectionOptions co=new CollectionOptions();
-		co.setType(CollectionType.EDGE);
 		for(RelTypes nt:RelTypes.values()) {
-			//if(driver.getCollection(nt.toString()).getCount() == 0) {
-			if(!collections.containsKey(nt.toString())) {
+			try {
+				database.collection(nt.toString()).getInfo();
+			} catch (ArangoDBException e) {
 				System.out.println("Creating collection: "+nt.toString());
-				driver.createCollection(nt.toString(),co);
+				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.EDGES));
 			}
 		}
 	}
 	
-	private void createTaxonomicGraph() throws ArangoException {
-		List<EdgeDefinitionEntity> edgeDefinitions = new ArrayList<EdgeDefinitionEntity>();
+	private void createTaxonomicGraph() throws ArangoDBException {
+		Collection<EdgeDefinition> edgeDefinitions = new ArrayList<>();
 
 		// taxonomic relations
-		EdgeDefinitionEntity edgeDefinition = new EdgeDefinitionEntity();
+		EdgeDefinition edgeDefinition = new EdgeDefinition();
 		// define the edgeCollection to store the edges
-		edgeDefinition.setCollection(RelTypes.PART_OF.toString());
+		edgeDefinition.collection(RelTypes.PART_OF.toString());
 		// define a set of collections where an edge is going out...
-		List<String> from = new ArrayList<String>();
-		// and add one or more collections
-		from.add(NodeTypes.taxent.toString());
-		edgeDefinition.setFrom(from);
-		 // repeat this for the collections where an edge is going into  
-		List<String> to = new ArrayList<String>();
-		to.add(NodeTypes.taxent.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition.from(NodeTypes.taxent.toString());
+		 // repeat this for the collections where an edge is going into
+		edgeDefinition.to(NodeTypes.taxent.toString());
 		edgeDefinitions.add(edgeDefinition);
 
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.HYBRID_OF.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.taxent.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.taxent.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.HYBRID_OF.toString());
+		edgeDefinition.from(NodeTypes.taxent.toString());
+		edgeDefinition.to(NodeTypes.taxent.toString());
 		edgeDefinitions.add(edgeDefinition);
 
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.SYNONYM.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.taxent.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.taxent.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.SYNONYM.toString());
+		edgeDefinition.from(NodeTypes.taxent.toString());
+		edgeDefinition.to(NodeTypes.taxent.toString());
 		edgeDefinitions.add(edgeDefinition);
 
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.BELONGS_TO.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.territory.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.territory.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.BELONGS_TO.toString());
+		edgeDefinition.from(NodeTypes.territory.toString());
+		edgeDefinition.to(NodeTypes.territory.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		// species list subgraph
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.OBSERVED_IN.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.taxent.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.specieslist.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.OBSERVED_IN.toString());
+		edgeDefinition.from(NodeTypes.taxent.toString());
+		edgeDefinition.to(NodeTypes.specieslist.toString());
 		edgeDefinitions.add(edgeDefinition);
 
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.OBSERVED_BY.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.specieslist.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.author.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.OBSERVED_BY.toString());
+		edgeDefinition.from(NodeTypes.specieslist.toString());
+		edgeDefinition.to(NodeTypes.author.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		// attributes <- taxent
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.HAS_QUALITY.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.taxent.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.attribute.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.HAS_QUALITY.toString());
+		edgeDefinition.from(NodeTypes.taxent.toString());
+		edgeDefinition.to(NodeTypes.attribute.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		// characters <- attributes
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.ATTRIBUTE_OF.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.attribute.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.character.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.ATTRIBUTE_OF.toString());
+		edgeDefinition.from(NodeTypes.attribute.toString());
+		edgeDefinition.to(NodeTypes.character.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		// territory <- taxent
-		edgeDefinition = new EdgeDefinitionEntity();
-		edgeDefinition.setCollection(RelTypes.EXISTS_IN.toString());
-		from = new ArrayList<String>();
-		from.add(NodeTypes.taxent.toString());
-		edgeDefinition.setFrom(from);
-		to = new ArrayList<String>();
-		to.add(NodeTypes.territory.toString());
-		edgeDefinition.setTo(to);
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.EXISTS_IN.toString());
+		edgeDefinition.from(NodeTypes.taxent.toString());
+		edgeDefinition.to(NodeTypes.territory.toString());
 		edgeDefinitions.add(edgeDefinition);
 
-		driver.createGraph(Constants.TAXONOMICGRAPHNAME, edgeDefinitions, null, true);
+		database.createGraph(Constants.TAXONOMICGRAPHNAME, edgeDefinitions, null);
 	}
 
 }

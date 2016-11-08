@@ -17,7 +17,7 @@ import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEntWrapper {
 	protected INodeKey thisNode;
 	private INodeWrapper NWrD;
-	public GTaxEntWrapper(FloraOn driver, INodeKey node) throws FloraOnException {
+	public GTaxEntWrapper(IFloraOn driver, INodeKey node) throws FloraOnException {
 		super(driver);
 		this.thisNode=node;
 		NWrD=(INodeWrapper) driver.wrapNode(node);
@@ -60,7 +60,13 @@ public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEn
 	}
 
 	@Override
-	public Map<String,InferredStatus> getInferredNativeStatus(String territory) throws FloraOnException {
+	public Map<String, InferredStatus> getInferredNativeStatus() throws FloraOnException {
+		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(null);
+		return listOfStatus.inferNativeStatus();
+	}
+
+	@Override
+	public InferredStatus getInferredNativeStatus(String territory) throws FloraOnException {
 		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(territory);
 		return listOfStatus.inferNativeStatus(territory);		
 	}

@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -8,8 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 
-import com.arangodb.entity.EntityFactory;
-
+import com.google.gson.Gson;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.Constants.RelTypes;
@@ -19,6 +18,7 @@ import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.GraphUpdateResult;
+import pt.floraon.server.FloraOnServlet;
 
 /**
  * Provides services to work with nodes and links (add, update, delete)
@@ -52,14 +52,16 @@ public class ApiUpdate extends FloraOnServlet {
 		case "delete":
 			if(!isAuthenticatedAsAdvanced()) error("You must login to do this operation!");
 			id=getParameterAsKey("id");
-			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
+//			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
+			success(new Gson().toJsonTree(NWD.deleteVertexOrEdge(id)));
 			return;
 
 		case "deleteleaf":
 			if(!isAuthenticatedAsAdvanced()) error("You must login to do this operation!");
 			id=getParameterAsKey("id");
 			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
-			success(EntityFactory.toJsonElement(NWD.deleteLeafNode(id),false));
+//			success(EntityFactory.toJsonElement(NWD.deleteLeafNode(id),false));
+			success(new Gson().toJsonTree(NWD.deleteLeafNode(id)));
 			return;
 
 		case "setsynonym":

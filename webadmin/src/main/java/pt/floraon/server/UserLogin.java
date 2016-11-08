@@ -25,7 +25,7 @@ public class UserLogin extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if(request.getParameter("logout")!=null) {
 			request.getSession().removeAttribute("user");
-			response.sendRedirect("admin?w=login");
+			response.sendRedirect("main");
 		} else {
 			String username=request.getParameter("username");
 			String password=request.getParameter("password");
@@ -39,7 +39,7 @@ public class UserLogin extends HttpServlet {
 				userDB.getDocumentElement().normalize();
 			} catch (ParserConfigurationException | SAXException e) {
 				e.printStackTrace();
-				response.sendRedirect("admin");
+				response.sendRedirect("main");
 				return;
 			} catch (FileNotFoundException e) {
 				throw new IOException("Cannot find file " + dir.getAbsolutePath() + "/users.xml");
@@ -57,7 +57,7 @@ public class UserLogin extends HttpServlet {
 					break;
 				}
 			}
-			response.sendRedirect("admin?w=login&reason=notfound");
+			response.sendRedirect("main?w=login&reason=notfound");
 		}
 		//request.getRequestDispatcher("/main.jsp").forward(request, response);
 	}

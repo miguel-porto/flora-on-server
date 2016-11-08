@@ -5,11 +5,13 @@ import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants.RelTypes;
 
 public class HAS_QUALITY extends GeneralDBEdge {
-/*	public HAS_QUALITY() {}
-	public HAS_QUALITY(String from,String to) {
-		this._from=from;
-		this._to=to;
-	}*/
+	public HAS_QUALITY() {
+		super();
+	}
+
+	public HAS_QUALITY(String from, String to) {
+		super(from, to);
+	}
 
 	@Override
 	public String getTypeAsString() {

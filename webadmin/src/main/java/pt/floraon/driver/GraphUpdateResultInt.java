@@ -9,9 +9,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public abstract class GraphUpdateResultInt {
-	protected String jsonRepresentation=null;
-	protected List<String> documentHandles=null;
-	protected FloraOn driver;
+	protected transient String jsonRepresentation=null;
+	protected transient List<String> documentHandles=null;
+	protected transient IFloraOn driver;
 
 	public GraphUpdateResultInt() {
 	}
@@ -20,19 +20,19 @@ public abstract class GraphUpdateResultInt {
 		this.jsonRepresentation=json;
 	}
 	
-	public GraphUpdateResultInt(FloraOn graph,INodeKey id) {
+	public GraphUpdateResultInt(IFloraOn graph, INodeKey id) {
 		this.driver=graph;
 		this.documentHandles=new ArrayList<String>();
 		this.documentHandles.add(id.toString());
 	}
 
-	public GraphUpdateResultInt(FloraOn graph,String[] ids) {
+	public GraphUpdateResultInt(IFloraOn graph, String[] ids) {
 		this.driver=graph;
 		this.documentHandles=new ArrayList<String>();
 		this.documentHandles.addAll(Arrays.asList(ids));
 	}
 
-	public GraphUpdateResultInt(FloraOn graph,List<String> ids) {
+	public GraphUpdateResultInt(IFloraOn graph, List<String> ids) {
 		this.driver=graph;
 		this.documentHandles = ids;
 	}

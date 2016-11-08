@@ -20,7 +20,8 @@
 	</c:catch>
 	
 	<c:if test = "${catchException != null}">
-		<p class="error">There are taxonomic errors in this taxon. Please revise it or its parent relationships:<br/>ERROR: ${catchException.getMessage()}</p>
+		<p class="error">There are taxonomic errors in this taxon. Please revise it or its parent relationships:<br/>ERROR: ${catchException.getMessage()}
+		${catchException.printStackTrace()}</p>
 	</c:if>
 	<div id="taxoninfo">
 		<div id="generalinfo">
@@ -57,7 +58,7 @@
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">
 			<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
-	  			<li data-key="${synonym.getID()}"><a href="admin?w=taxdetails&id=${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></a> <div class="button remove">detach</div></li>
+	  			<li data-key="${synonym.getID()}"><a href="checklist?w=taxdetails&id=${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></a> <div class="button remove">detach</div></li>
 			</c:forEach>
 			</ul>
 		</div>
@@ -65,14 +66,14 @@
 			<div id="taxonincluded"><h3>Included taxa</h3>
 				<ul class="synonyms">
 				<c:forEach var="included" items="${taxentWrapper.getIncludedTaxa()}">
-		  			<li data-key="${included.getID()}"><a href="admin?w=taxdetails&id=${included.getID()}"><c:out value="${included.getFullName()}"></c:out></a></li>
+		  			<li data-key="${included.getID()}"><a href="checklist?w=taxdetails&id=${included.getID()}"><c:out value="${included.getFullName()}"></c:out></a></li>
 				</c:forEach>
 				</ul>
 			</div>
 		</c:if>
 		<div id="taxonnativestatus">
 			<h3>Status assigned to this taxon</h3>
-			<form class="poster" data-path="/floraon/api/territories/set">
+			<form class="poster" data-path="/floraon/checklist/api/territories/set">
 			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 			<table>
 				<tr><th>Territory</th><th>Native Status</th><th>Occurrence Status</th><th>Abundance Level</th><th>Introduced Status</th><th>Naturalization Degree</th>
@@ -87,7 +88,7 @@
 						<td><c:out value="${nativeStatus.getExistsIn().getIntroducedStatus()}"></c:out></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getNaturalizationDegree()}"></c:out></td>
 						<c:if test="${sessionScope.user != null}">
-							<td><form class="poster" data-path="/floraon/api/territories/set">
+							<td><form class="poster" data-path="/floraon/checklist/api/territories/set">
 								<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 								<input type="hidden" name="territory" value="${nativeStatus.getTerritory().getShortName()}"/>
 								<input type="hidden" name="nativeStatus" value="NULL"/>
@@ -125,7 +126,7 @@
 						</ul>
 					</c:if>
 					<c:if test="${sessionScope.user != null}">
-						<form class="poster" data-path="/floraon/api/update/unsetcompleteterritory">
+						<form class="poster" data-path="/floraon/checklist/api/update/unsetcompleteterritory">
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
 							<c:forEach var="territory" items="${taxentWrapper.getTerritoriesWithCompleteDistribution()}">
 								<label><input type="radio" name="territory" value="${territory.getID() }"><c:out value="${territory.getName()}"></c:out></label>
@@ -153,7 +154,7 @@
 				<div class="toggler off" id="updatetaxonbox">
 					<h1>Change name <span class="info">changes this taxon</span></h1>
 					<div class="content">
-						<form class="poster" data-path="/floraon/api/update/update/taxent">
+						<form class="poster" data-path="/floraon/checklist/api/update/update/taxent">
 							<table>
 								<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
 								<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
@@ -162,10 +163,6 @@
 								<tr><td>New legacy ID</td><td><input type="text" name="oldId" value="${taxent.getOldId() == null ? '' : taxent.getOldId()}"/></td></tr>
 							</table>
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
-							<!--<input type="hidden" name="rank" value="${taxent.getRankValue()}"/>
-							<input type="hidden" name="current" value="${taxent.getCurrent() ? 1 : 0}"/>
-							<input type="hidden" name="worldDistributionCompleteness" value="${taxent.getWorldDistributionCompleteness()}"/>
-							 -->
 							<input type="hidden" name="replace" value="0"/>
 							<input type="submit" value="Update"/>
 						</form>
@@ -182,7 +179,7 @@
 				<div class="toggler off">
 					<h1>Add status in territory <span class="info">adds or changes the status of this taxon in territories</span></h1>
 					<div class="content">
-						<form class="poster" data-path="/floraon/api/territories/set">
+						<form class="poster" data-path="/floraon/checklist/api/territories/set">
 						<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 						<table>
 							<tr>
@@ -251,7 +248,7 @@
 				<div class="toggler off">
 					<h1>Set distribution completeness <span class="info">set the territories in which the distribution is complete</span></h1>
 					<div class="content">
-						<form class="poster" data-path="/floraon/api/update/add/completeterritory">
+						<form class="poster" data-path="/floraon/checklist/api/update/add/completeterritory">
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
 							Set the distribution as complete (both <b>native and exotic</b>) in <select name="territory">
 								<c:forEach var="territory" items="${territories.iterator()}">
@@ -265,7 +262,7 @@
 				<div class="toggler off" id="addchildbox">
 					<h1>Add new sub-taxon <span class="info">creates a new taxon and adds it as a child of this taxon</span></h1>
 					<div class="content">
-						<form class="poster" data-path="/floraon/api/update/add/inferiortaxent">
+						<form class="poster" data-path="/floraon/checklist/api/update/add/inferiortaxent">
 							<table>
 							<tr><td>Name</td><td><input type="text" name="name" placeholder="complete scientific name without author"/></td></tr>
 							<tr><td>Author</td><td><input type="text" name="author"/></td></tr>

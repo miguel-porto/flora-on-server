@@ -19,48 +19,61 @@ public interface IListDriver {
 	 * Gets the complete list of taxa in the DB
 	 * @return
 	 */
-	public List<ChecklistEntry> getCheckList();
+//	List<ChecklistEntry> getCheckList();
     /**
      * Gets the territories that should be listed in the checklist
      * @return
      * @throws FloraOnException
      */
-    public List<Territory> getChecklistTerritories() throws FloraOnException;
+    List<Territory> getChecklistTerritories() throws FloraOnException;
+
+	/**
+	 * Fetches all species or inferior taxa that exist in the given {@link Territory} (given by shortName) or all if null.
+	 * Note that this only returns taxa directly assigned to the territory with a {@link pt.floraon.entities.EXISTS_IN} link.
+	 * @param onlyCurrent Return only current TaxEnt?
+	 * @param higherTaxa Return also higher taxa (up to species) or only the directly assigned to a territory?
+	 * @param territory Short name of the territory. Can be <code>null</code>.
+	 * @param offset Params for the LIMIT clause
+	 * @param count Params for the LIMIT clause
+	 * @return A List<TaxEnt>.
+	 * @throws FloraOnException
+	 */
+	List<TaxEnt> getAllSpeciesOrInferiorTaxEnt(Boolean onlyCurrent, boolean higherTaxa, String territory, Integer offset, Integer count) throws FloraOnException;
 	/**
 	 * Gets all species or inferior ranks, optionally filtered by those that exist in the given territory.
 	 * Note that when onlyLeafNodes is true and territory is not null, some taxa may be omitted from the list,
 	 * namely those which have inferior taxa but are bond to a territory (and not the inferior taxa). 
 	 * @param onlyLeafNodes true to return only the terminal nodes.
+	 * @param territory The territory to filter taxa, or null if no filter is wanted.
 	 * @return An Iterator of any class that extends SimpleNameResult
-	 * @territory The territory to filter taxa, or null if no filter is wanted.
 	 * @throws FloraOnException
 	 */
-    public <T extends SimpleTaxEntResult> Iterator<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException;
+	<T extends SimpleTaxEntResult> List<T> getAllSpeciesOrInferior(boolean onlyLeafNodes, Class<T> T, Boolean onlyCurrent, String territory, String filter, Integer offset, Integer count) throws FloraOnException;
 	/**
 	 * Gets all the taxent nodes of the given rank
 	 * @param rank
 	 * @return
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 */
-	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException;
+	Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException;
 	/**
      * Gets all territories.
      * @return
-     * @throws ArangoException
+     * @throws FloraOnException
      */
-	public List<Territory> getAllTerritories(TerritoryTypes territoryType) throws FloraOnException;
+	List<Territory> getAllTerritories(TerritoryTypes territoryType) throws FloraOnException;
     /**
      * Gets all territories and all the PART_OF relations between them
      * @param territoryType
      * @return
      * @throws FloraOnException
      */
-    public GraphUpdateResult getAllTerritoriesGraph(TerritoryTypes territoryType) throws FloraOnException;
+	GraphUpdateResult getAllTerritoriesGraph(TerritoryTypes territoryType) throws FloraOnException;
 	/**
 	 * Gets all morphological characters
 	 * @return
 	 */
-	public GraphUpdateResult getAllCharacters();
+	GraphUpdateResult getAllCharacters();
 
 	/**
 	 * Gets information about one given taxon.
@@ -68,19 +81,19 @@ public interface IListDriver {
 	 * @return
 	 * @throws FloraOnException 
 	 */
-	public JsonObject getTaxonInfo(INodeKey key) throws FloraOnException;
+	JsonObject getTaxonInfo(INodeKey key) throws FloraOnException;
 	/**
 	 * Gets information about one given taxon.
 	 * @param taxonName
 	 * @return
 	 * @throws FloraOnException 
 	 */
-	public JsonArray getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException;
+	JsonArray getTaxonInfo(String taxonName, boolean onlyCurrent) throws FloraOnException;
 	/**
 	 * Gets information about one given taxon.
 	 * @param oldId
 	 * @return
 	 * @throws FloraOnException
 	 */
-	public JsonObject getTaxonInfo(int oldId) throws FloraOnException;
+	JsonObject getTaxonInfo(int oldId) throws FloraOnException;
 }

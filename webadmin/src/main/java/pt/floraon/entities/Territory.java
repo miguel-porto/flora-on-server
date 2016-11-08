@@ -16,7 +16,9 @@ import pt.floraon.driver.Constants.TerritoryTypes;
 public class Territory extends NamedDBNode {
 	protected String shortName,polygon,territoryType,theme;
 	protected Boolean showInChecklist; 
-	
+
+	public Territory() {super();}
+
 	public Territory(String name, String shortName, TerritoryTypes type, String theme, boolean showInChecklist) throws FloraOnException {
 		super(name);
 		if(shortName==null || !shortName.matches("^[a-zA-Z0-9_-]+$")) throw new FloraOnException("Territory must have a short name with only alphanumeric digits");

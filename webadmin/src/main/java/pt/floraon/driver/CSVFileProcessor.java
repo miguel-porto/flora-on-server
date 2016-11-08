@@ -32,7 +32,7 @@ import pt.floraon.entities.Territory;
 import pt.floraon.results.Occurrence;
 
 public class CSVFileProcessor extends BaseFloraOnDriver {
-	public CSVFileProcessor(FloraOn driver) {
+	public CSVFileProcessor(IFloraOn driver) {
 		super(driver);
 	}
 

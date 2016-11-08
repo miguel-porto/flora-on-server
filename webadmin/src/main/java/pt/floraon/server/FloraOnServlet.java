@@ -1,6 +1,7 @@
 package pt.floraon.server;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -17,11 +18,8 @@ import org.apache.commons.io.IOUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.FloraOn;
-import pt.floraon.driver.IListDriver;
-import pt.floraon.driver.INodeKey;
-import pt.floraon.driver.INodeWorker;
+import pt.floraon.driver.*;
+import pt.floraon.driver.IFloraOn;
 
 public class FloraOnServlet extends HttpServlet {
 	protected static final int PAGESIZE=200;
@@ -29,7 +27,7 @@ public class FloraOnServlet extends HttpServlet {
 	//protected FloraOnDriver graph;
 	protected INodeWorker NWD;
 	protected IListDriver LD;
-	protected FloraOn driver;
+	protected IFloraOn driver;
 	//protected NodeWrapperFactoryInt NWrF;
 	//protected TaxEntWrapperFactoryInt TEWrF;
 	private static final long serialVersionUID = 2390926316338894377L;
@@ -37,12 +35,11 @@ public class FloraOnServlet extends HttpServlet {
 	protected HttpServletRequest request;
 
 	public final void init() throws ServletException {
-		this.driver = (FloraOn) this.getServletContext().getAttribute("driver");
-		this.NWD=this.driver.getNodeWorkerDriver();
-		this.LD=this.driver.getListDriver();
-		//this.NWD=(NodeWorkerDriverInt) this.getServletContext().getAttribute("NodeWorkerDriver");
-		//this.NWrF=(NodeWrapperFactoryInt) this.getServletContext().getAttribute("NodeWrapperFactory");
-		//this.TEWrF=(TaxEntWrapperFactoryInt) this.getServletContext().getAttribute("TaxEntWrapperFactory");
+		this.driver = (IFloraOn) this.getServletContext().getAttribute("driver");
+		if(this.driver != null) {
+			this.NWD = this.driver.getNodeWorkerDriver();
+			this.LD = this.driver.getListDriver();
+		}
 	}
 	
 	protected void error(String obj) throws IOException {
@@ -101,7 +98,6 @@ public class FloraOnServlet extends HttpServlet {
 	}
 	/**
 	 * Gets the called path, either if it was jsp:included or requested by browser
-	 * @param request
 	 * @return
 	 */
 	protected ListIterator<String> getPathIterator() {
@@ -141,11 +137,18 @@ public class FloraOnServlet extends HttpServlet {
 	public final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		if(this.driver == null) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("text/html");
+			response.getWriter().println("<p>Some error occurred, probably ArangoDB server is down; check the TomCat logs.</p>");
+			return;
+		}
 		this.response=response;
 		this.request=request;
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {
+			e.printStackTrace();
 			error(e.getMessage());
 		}
 	}
@@ -154,11 +157,18 @@ public class FloraOnServlet extends HttpServlet {
 	public final void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		if(this.driver == null) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("text/html");
+			response.getWriter().println("<p>Some error occurred, probably ArangoDB server is down; check the TomCat logs.</p>");
+			return;
+		}
 		this.response=response;
 		this.request=request;
 		try {
 			doFloraOnPost();
 		} catch (FloraOnException e) {
+			e.printStackTrace();
 			error(e.getMessage());
 		}
 	}
@@ -179,7 +189,12 @@ public class FloraOnServlet extends HttpServlet {
 		} else tmp = request.getParameter(name);
 		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
 	}
-	
+
+	public String getParameterAsString(String name, String defaultValue) throws IOException, ServletException {
+		String tmp = getParameterAsString(name);
+		return tmp == null ? defaultValue : tmp;
+	}
+
 	public INodeKey getParameterAsKey(String name) throws IOException, ServletException, FloraOnException {
 		return driver.asNodeKey(getParameterAsString(name));
 	}

@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.gson.Gson;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import com.arangodb.entity.EntityFactory;
 import com.google.gson.JsonElement;
 
 import dnl.utils.text.table.TextTable;
@@ -74,6 +74,7 @@ public class ResultProcessor<T extends ResultItem> {
 	 * @param output
 	 * @param obj Optional data object needed by some implementations of {@link ResultItem} 
 	 */
+	@Deprecated
 	public void toHTMLTable(PrintWriter output,String cls, Object obj) {
 		output.print("<table class=\""+cls+"\">");
 		getHTMLTableRows(output, obj);
@@ -137,7 +138,7 @@ public class ResultProcessor<T extends ResultItem> {
 		while(this.results.hasNext()) {
 			out.add(this.results.next());
 		}
-    	return EntityFactory.toJsonString(out);
+    	return new Gson().toJson(out); // EntityFactory.toJsonString(out);
     }
 
     public JsonElement toJSONElement() {
@@ -145,7 +146,7 @@ public class ResultProcessor<T extends ResultItem> {
 		while(this.results.hasNext()) {
 			out.add(this.results.next());
 		}
-    	return EntityFactory.toJsonElement(out, false);
+    	return new Gson().toJsonTree(out); // EntityFactory.toJsonElement(out, false);
     }
 
 	public String toDWC() {

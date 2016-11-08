@@ -11,11 +11,20 @@ import pt.floraon.driver.Constants.RelTypes;
  *
  */
 public class OBSERVED_IN extends GeneralDBEdge {
-	protected Short confidence,validated,nativeStatus,phenoState;
-	protected String uuid,publicComment,privateComment,dateInserted;
-	protected Integer weight=100000;
-	
+	private Short confidence,validated,nativeStatus,phenoState;
+	private String uuid,publicComment,privateComment,dateInserted;
+	private Integer weight=100000;
+
+	public OBSERVED_IN() {
+		super();
+	}
+
+	public OBSERVED_IN(String from, String to) {
+		super(from, to);
+	}
+
 	public OBSERVED_IN(Short confidence,Short validated,PhenologicalStates phe,String uuid,Integer weight,String pubnotes,String privnotes,NativeStatus nstate,String dateInserted) {
+		this();
 		this.confidence=confidence;
 		this.validated=validated;
 		this.phenoState=phe.getCode();
@@ -28,6 +37,7 @@ public class OBSERVED_IN extends GeneralDBEdge {
 	}
 	
 	public OBSERVED_IN(Short confidence,Short validated,PhenologicalStates phe,String uuid,Integer weight,String pubnotes,String privnotes,NativeStatus nstate,String dateInserted,String from,String to) {
+		this();
 		this.confidence=confidence;
 		this.validated=validated;
 		this.phenoState=phe.getCode();

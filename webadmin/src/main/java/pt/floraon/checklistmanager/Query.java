@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +13,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.server.FloraOnServlet;
 
 /**
  * The Ylem query (all-in-one search)

@@ -1,0 +1,47 @@
+#main {text-align:center;}
+#title {font-size:3em; text-align:right; padding:15px;}
+#left-bar, #title {background-color:#00bcd4; color:white; font-weight:bold; border:0}
+#left-bar a {color:white}
+/*ul li {
+	list-style-type:none;
+	padding:0.7em;
+	font-size:1.2em;
+}*/
+
+h2 {font-size:1.2em}
+#speciesindex td {font-size:1.1em;}
+#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}
+#speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:2em}
+#filters {padding:16px; text-align:left; background-color: rgba(255,  64, 129, 0.3);}
+#filters .filter {background-color:#ddd; padding:4px 8px; border-radius:8px; margin:6px; display:inline-block; cursor:pointer}
+#filters .filter.selected {background-color:#64dd17;}
+
+input, textarea, select {font-size: 16px; vertical-align: middle;}
+table {text-align: left;}
+table th {background-color:#ff4081; font-weight:bold; cursor:pointer; padding:6px; color:white;}
+table td {padding:5px;}
+table tr:hover td {background-color:#eee;}
+table.sheet {width:100%; font-size:1.2em; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
+table.sheet tr>td:nth-of-type(2) {font-weight:bold;}
+table.sheet textarea {width:100%}
+/*table.sheet tr:not(.textual) {display:none;}*/
+td.number {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
+.section1 td.number {background-color: #81c784;}
+.section2 td.number {background-color: #7986cb;}
+.section3 td.number {background-color: #ff4081;}
+.section4 td.number {background-color: #9575cd;}
+.section5 td.number {background-color: #afb42b;}
+.section6 td.number {background-color: #c62828;}
+.section7 td.number {background-color: #64dd17;}
+.section8 td.number {background-color: #757575;}
+
+table.sheet .section1>td:nth-of-type(2) {background-color: rgba(129, 199, 132, 0.3);}
+table.sheet .section2>td:nth-of-type(2) {background-color: rgba(121, 134, 203, 0.3);}
+table.sheet .section3>td:nth-of-type(2) {background-color: rgba(255,  64, 129, 0.3);}
+table.sheet .section4>td:nth-of-type(2) {background-color: rgba(149, 117, 205, 0.3);}
+table.sheet .section5>td:nth-of-type(2) {background-color: rgba(175, 180,  43, 0.3);}
+table.sheet .section6>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
+table.sheet .section7>td:nth-of-type(2) {background-color: rgba(100, 221,  23, 0.3);}
+table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
+
+div.warning {display:inline-block; background-color:#c62828; border-radius:6px; margin:10px 0; font-size:1.3em; text-align:center; color:white; padding:10px;}

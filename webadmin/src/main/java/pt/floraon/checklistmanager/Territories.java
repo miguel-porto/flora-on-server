@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import java.io.IOException;
 import java.util.ListIterator;
@@ -14,6 +14,7 @@ import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PlantIntroducedStatus;
 import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.entities.Territory;
+import pt.floraon.server.FloraOnServlet;
 
 @MultipartConfig
 public class Territories extends FloraOnServlet {

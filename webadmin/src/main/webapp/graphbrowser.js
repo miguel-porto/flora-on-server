@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if(ev.which==13) {
 			var v=document.getElementById('querytool').value;
 			//fetchAJAX('worker.php?w=query&q='+encodeURIComponent(v),function(rt) {
-			fetchAJAX('/floraon/api/query?fmt=html&q='+encodeURIComponent(v),function(rt) {
+			fetchAJAX('/floraon/checklist/api/query?fmt=html&q='+encodeURIComponent(v),function(rt) {
 				var el=document.getElementById('queryresults');
 				if(el) el.parentNode.removeChild(el);
 				var html='<div class="window float center" id="queryresults"><div class="closebutton">close</div><h1>Query results</h1>'+rt
@@ -189,7 +189,7 @@ function afterUpdateNode(rt) {
 }
 
 function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId) {
-	fetchAJAX('/floraon/api/update/update/taxent?id='+d._id
+	fetchAJAX('/floraon/checklist/api/update/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
 		+'&current='+current
@@ -202,7 +202,7 @@ function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId) {
 }
 
 function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
-	fetchAJAX('/floraon/api/update/update/territory?id='+d._id
+	fetchAJAX('/floraon/checklist/api/update/update/territory?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&shortName='+encodeURIComponent(shortname)
 		+'&type='+encodeURIComponent(type)
@@ -553,7 +553,7 @@ function clickToolbar(ev) {
 			var tsname=wnd.querySelector('input[name=shortname]').value;
 			var type=wnd.querySelector('select[name=territorytype]').value;
 			var theme=wnd.querySelector('input[name=theme]').value;
-			fetchAJAX('/floraon/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
+			fetchAJAX('/floraon/checklist/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
 				rt=JSON.parse(rt);
 				if(!rt.success)
 					alert(rt.msg);
@@ -573,7 +573,7 @@ function clickToolbar(ev) {
 				var tname=wnd.querySelector('input[name=taxonname]').value;
 				var tauth=wnd.querySelector('input[name=taxonauth]').value;
 				var trank=wnd.querySelector('select[name=taxonrank]').value;
-				fetchAJAX('/floraon/api/update/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {				
+				fetchAJAX('/floraon/checklist/api/update/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {
 					rt=JSON.parse(rt);
 					console.log(rt.msg);
 					updateData(rt.msg.nodes,null);
@@ -660,7 +660,7 @@ function clickToolbar(ev) {
 }
 
 function addNodeBatch(batch) {
-	fetchAJAX('/floraon/api/read/'+batch,function(rt) {
+	fetchAJAX('/floraon/checklist/api/read/'+batch,function(rt) {
 		var graph=JSON.parse(rt);
 		if(!graph.success) {
 			alert(graph.msg);
@@ -698,7 +698,7 @@ function collapseNode(n) {
 }
 
 function deleteEntity(d) {
-	fetchAJAX('/floraon/api/update/delete?id='+d._id,function(rt) {
+	fetchAJAX('/floraon/checklist/api/update/delete?id='+d._id,function(rt) {
 		rt=JSON.parse(rt);
 		var toremove=[];
 		if(rt.success) {
@@ -1070,7 +1070,7 @@ function clickNode(d) {
 			var srcid=document.querySelector('.window input[name=srcid]').value;
 			var tarid=d._id;
 			var linktype=document.querySelector('.window input[name=linktype]').value;
-			fetchAJAX('/floraon/api/update/add/link?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {			
+			fetchAJAX('/floraon/checklist/api/update/add/link?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					console.log(rt.msg);

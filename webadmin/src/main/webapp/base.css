@@ -1,0 +1,161 @@
+html,body {margin:0;padding:0;font-family: 'Lato',sans-serif;}
+table {border-spacing:0px;margin:0px;}
+table td {padding:3px;}
+table th {border-bottom:2px solid #cdf;font-weight:normal;color:blue;padding:1px 5px;}
+a {text-decoration:none;}
+h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
+h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}
+h3 {margin:0}
+p {margin:3px;}
+#loader {position:fixed;width:100%;height:100%;top:0;left:0;text-align:center;font-size:3em;display:none;}
+#loader #loadermsg {margin:20% 35%;padding:10px;background-color:rgba(255,255,255,0.35);box-shadow:0 0 5px black;border-radius:12px;text-align:center;}
+::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
+:-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
+::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
+:-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
+ul.menu {padding:0}
+ul.menu li {display:inline-block;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:4px;background:linear-gradient(170deg,#fff,#f2f2f2);line-height:1.7em;white-space:nowrap;font-weight:bold;font-size:0.9em;color:#444;}
+.editable ul.menu li {cursor:pointer;}
+.editable ul.menu li:hover {box-shadow:0 0 2px #080;}
+ul.menu li.selected {color:#fff;background:linear-gradient(170deg,rgba(255,255,255,0.5),rgba(0,0,0,0.1));box-shadow:0 0 4px #555;}
+.info {font-size:0.8em;color:gray;font-style:italic;font-weight:normal;}
+p.error {color:red;font-weight:bold;}
+
+label input {vertical-align:middle;}
+
+.outer {background-color: #ddc; border-radius:16px; padding:50px; margin-top:50px; display:inline-block;}
+.bigbuttonwrapper {margin:30px;}
+.bigbutton {
+    text-align:center;
+    display:inline-block;
+    border-radius:6px;
+    box-shadow:0 0 12px #777;
+    color:white;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.bigbutton:hover {
+    transform: translate(-1px, -1px);
+    box-shadow:1px 1px 12px #777;
+}
+
+.bigbutton.section1 {background-color: #81c784; padding:10px; text-align:right}
+.bigbutton.section1 input[type=submit] {background-color:#afb42b; border:0; box-shadow:0 0 3px #777; margin:8px; cursor:pointer; font-size:1.3em; padding:2px 8px;}
+.bigbutton.section2 {background-color: #7986cb;}
+.bigbutton.section3 {background-color: #ff4081;}
+.bigbutton a {padding:10px 60px 60px 10px; display:inline-block; font-size:2em; color:white;}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.button {
+	cursor:pointer;
+	border-radius:5px;
+	box-shadow:0 0 3px gray;
+	background-color:#ccc;
+	float:left;
+	min-width:1em;
+	min-height:1em;
+	margin:2px 3px;
+	padding:0px 3px;
+	text-align:center;
+	font-size:0.75em;
+	text-transform:none !important;
+}
+
+.button:hover {
+	background-color:#7c7;
+}
+
+.button.remove:hover {
+	background-color:#f77;
+	box-shadow:0 0 3px #f77;
+}
+
+div.toggler h1 {margin:8px 0 5px;font-size:1em;border-bottom:1px solid #99f;padding:0 4px 6px;cursor:pointer;text-align:left;margin-bottom:0}
+div.toggler h1:hover {background-color:#ff9;}
+div.toggler .content {border-radius:0px;background-color:white;padding:8px;margin:0 6px;border-bottom:1px solid #99f}
+div.toggler.off .content {display:none;}
+
+.window {
+	position:fixed;
+	background:linear-gradient(#fff,#ddd);
+	box-shadow:0 0 36px 5px #aaa;
+	font-size:1.0em;
+}
+
+.window p {
+	font-size:1.2em;
+}
+
+.window.float {
+	border-radius:6px;
+	border:1px solid #aaa;
+	padding:12px;
+	overflow:auto;
+}
+
+.window.float.center {
+	width:30%;
+	left:35%;
+	max-height:80%;
+	top:20%;
+}
+
+.window .wrap {margin:8px;}
+
+.window h1 {
+	margin:0;
+	font-size:1.2em;
+	font-weight:normal;
+	color:#06f;
+}
+
+.window .closebutton {
+	border-radius:50%;
+	position:absolute;
+	right:0;
+	bottom:0;
+	cursor:pointer;
+	margin:5px;
+	background-color:#f99;
+	width:1.25em;
+	height:1.25em;
+	text-align:center;
+	box-shadow:0 0 3px black,0 0 5px #fcc inset;
+
+}
+.window.float .closebutton {
+	top:0;bottom:auto;
+}
+
+.window .closebutton:hover {
+	background-color:orange;
+}
+
+.window .button {display:inline-block}
+
+.window .content {margin: 24px 4px;}
+
+#main-holder {
+	display:flex;
+	width:100%;
+}
+
+#left-bar {
+	border-right:2px solid #09f;
+	padding-right:5px;
+}
+
+#left-bar ul {
+	color:blue;
+	padding:0px 12px;
+}
+
+#left-bar ul li {list-style-type:none;font-size:1.5em;margin-top:12px;}
+
+#main {flex-grow:2}

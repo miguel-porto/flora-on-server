@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVPrinter;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
+import org.apache.commons.lang.BooleanUtils;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
@@ -48,8 +49,16 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	/**
 	 * These are the IDs of the largest territories for which the distribution of the taxon is complete (native and exotic)
 	 */
-	protected String[] territoriesWithCompleteDistribution; 
-	
+	protected String[] territoriesWithCompleteDistribution;
+	/**
+	 * Is it a isLeaf node? This field is computed from the graph when a TaxEnt is returned.
+	 */
+	protected transient Boolean isLeaf;
+
+	public TaxEnt() {
+		super();
+	}
+
 	public TaxEnt(TaxEnt te) throws DatabaseException {
 		super(te);
 		this.rank=te.rank;
@@ -158,7 +167,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	public Boolean isSpecies() {
-		return this.getRankValue()==TaxonRanks.SPECIES.getValue();
+		return this.getRankValue().equals(TaxonRanks.SPECIES.getValue());
 	}
 	
 	public Boolean isSpeciesOrInferior() {

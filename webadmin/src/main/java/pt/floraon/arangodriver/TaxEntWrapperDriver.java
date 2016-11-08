@@ -3,14 +3,16 @@ package pt.floraon.arangodriver;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import com.arangodb.ArangoDriver;
-import com.arangodb.ArangoException;
-import com.arangodb.NonUniqueResultException;
+import com.arangodb.ArangoCursor;
+import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDBException;
+import com.arangodb.ArangoDatabase;
 
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.FloraOn;
+import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.GTaxEntWrapper;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.ITaxEntWrapper;
@@ -32,12 +34,16 @@ import pt.floraon.results.TaxEntAndNativeStatusResult;
  *
  */
 public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrapper {
-	protected ArangoDriver dbDriver;
-	public TaxEntWrapperDriver(FloraOn driver, INodeKey tev) throws FloraOnException {
+	protected ArangoDB dbDriver;
+	protected ArangoDatabase database;
+
+	public TaxEntWrapperDriver(IFloraOn driver, INodeKey tev) throws FloraOnException {
 		super(driver, tev);
-		this.dbDriver=(ArangoDriver) driver.getArangoDriver();
+		this.dbDriver = (ArangoDB) driver.getDatabaseDriver();
+		this.database = (ArangoDatabase) driver.getDatabase();
 	}
 
+	@Override
 	public Boolean isHybrid() {
 		// TODO hybrids!
 		return null;
@@ -47,22 +53,20 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public boolean isLeafNode() throws FloraOnException {
 		String query=String.format(AQLQueries.getString("TaxEntWrapperDriver.0"), thisNode);
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult()==0;
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,Integer.class).next() == 0;
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
 	@Override
-	public Iterator<TaxEnt> getSynonyms() throws FloraOnException {
-		String query=String.format(//"FOR u IN UNIQUE(FOR v IN TRAVERSAL(%1$s, %2$s, '%3$s', 'inbound',{paths:false}) FILTER v.vertex._id!='%3$s' RETURN v.vertex) RETURN u"
-			AQLQueries.getString("TaxEntWrapperDriver.1")
-			,RelTypes.SYNONYM.toString(),thisNode
-		);
+	public List<TaxEnt> getSynonyms() throws FloraOnException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.1", thisNode.getID());
+
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).iterator();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,TaxEnt.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -70,16 +74,18 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public TaxEnt getParentTaxon() throws TaxonomyException, DatabaseException {
 		String query = AQLQueries.getString("TaxEntWrapperDriver.2", thisNode.toString());
 			
-		TaxEnt out;
+		ArangoCursor<TaxEnt> out;
+
 		try {
-			out=dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).getUniqueResult();
-		} catch (NonUniqueResultException e) {
-			throw new TaxonomyException("The taxon "+thisNode.toString()+" has more than one current parent taxon. This must be fixed.");	// TODO: what about hybrids?
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			out = database.query(query,null,null,TaxEnt.class);
+			if(out.getStats().getFullCount() == null) return null;
+			if(out.getStats().getFullCount() > 1)
+				throw new TaxonomyException("The taxon "+thisNode.toString()+" has more than one current parent taxon.");	// TODO: what about hybrids?
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 		//if(out==null) throw new TaxonomyException("The taxon "+node.toString()+" has no parent taxon. This must be fixed.");
-		return out;
+		return out.next();
 	}
 
 	@Override
@@ -88,11 +94,11 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				, thisNode.toString()
 				, territory == null ? "" : AQLQueries.getString("TaxEntWrapperDriver.9a", territory));
 		TaxEntAndNativeStatusResult listOfStatus;
-		
+
 		try {
-			listOfStatus =  dbDriver.executeAqlQuery(query,null,null,TaxEntAndNativeStatusResult.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			listOfStatus = database.query(query,null,null,TaxEntAndNativeStatusResult.class).next();
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 		return listOfStatus;
 	}
@@ -104,14 +110,14 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 	@Override
 	public int setObservedIn(INodeKey slist,Short doubt,Short validated,PhenologicalStates state,String uuid,Integer weight,String pubnotes,String privnotes,NativeStatus nstate,String dateInserted) throws FloraOnException {
-		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,privnotes,nstate,dateInserted,thisNode.toString(),slist.getID().toString());
+		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,privnotes,nstate,dateInserted,thisNode.toString(),slist.getID());
 		String query=String.format(
 			AQLQueries.getString("TaxEntWrapperDriver.4")
 			,thisNode, slist.getID(), a.toJsonString());
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,Integer.class).next();
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -121,9 +127,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 			AQLQueries.getString("TaxEntWrapperDriver.5")
 			,RelTypes.PART_OF.toString(),thisNode,RelTypes.HYBRID_OF.toString());
 	    try {
-			return dbDriver.executeAqlQuery(query, null, null, TaxEnt.class).iterator();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query, null, null, TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 	
@@ -145,9 +151,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		}
 
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,Integer.class).next();
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -155,9 +161,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
 		String query = AQLQueries.getString("TaxEntWrapperDriver.8", RelTypes.PART_OF.toString(), thisNode);
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,TaxEnt.class).iterator();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -166,9 +172,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		String query = AQLQueries.getString("TaxEntWrapperDriver.10", thisNode);
 				
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,Territory.class).asList();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,Territory.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -177,9 +183,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		String query = AQLQueries.getString("TaxEntWrapperDriver.11", thisNode, id);
 		
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,Integer.class).next();
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 
@@ -188,9 +194,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		String query = AQLQueries.getString("TaxEntWrapperDriver.12", thisNode, id);
 		
 		try {
-			return dbDriver.executeAqlQuery(query,null,null,Integer.class).getUniqueResult();
-		} catch (ArangoException e) {
-			throw new DatabaseException(e.getErrorMessage());
+			return database.query(query,null,null,Integer.class).next();
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 }

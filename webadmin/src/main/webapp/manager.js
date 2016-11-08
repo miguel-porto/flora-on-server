@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			if(nst==-1) nst=1;
 			var tr=getParentbyTag(ev.target,'tr');
 			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
-			postJSON('/floraon/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, nativeStatus:nativeStatus[nst]},function(rt) {
+			postJSON('/floraon/checklist/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, nativeStatus:nativeStatus[nst]},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					if(nst==0)
@@ -130,13 +130,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	if(qs) {
 		addEvent('click',qs,function(ev) {
 			if(document.getElementById('checklink') || timer) return;
-			fetchAJAX('/floraon/api/lists?w=checklist&fmt=csv',function(rt) {
+			fetchAJAX('/floraon/checklist/api/lists?w=checklist&fmt=csv',function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center">don\'t navigate away from this page...</p></div>');
 					var link=rt.msg;
 					timer=setInterval(function() {
-						fetchAJAX('/floraon/api/job/'+rt.msg+'?query=1',function(rt) {
+						fetchAJAX('/floraon/checklist/api/job/'+rt.msg+'?query=1',function(rt) {
 							rt=JSON.parse(rt);
 							if(rt.success) {
 								if(rt.msg=='true') {
@@ -145,9 +145,9 @@ document.addEventListener('DOMContentLoaded', function() {
 									var wnd1=document.getElementById('checklink');
 									if(wnd1) {
 										wnd1.querySelector('h1').innerHTML='Checklist ready!';
-										wnd1.querySelector('p.content').innerHTML='<a href="/floraon/api/job/'+link+'" target="_blank">click here to download</a>';
+										wnd1.querySelector('p.content').innerHTML='<a href="/floraon/checklist/api/job/'+link+'" target="_blank">click here to download</a>';
 									} else {
-										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/floraon/api/job/'+link+'" target="_blank">click here to download</a></p></div>');
+										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/floraon/checklist/api/job/'+link+'" target="_blank">click here to download</a></p></div>');
 									}
 								}
 							} else {
@@ -188,7 +188,7 @@ function actionButtonClick(ev) {
 		if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {alert('You must select a taxon from the drop-down list. Type some initial letters to find taxa.');return;}
 		var key=document.getElementById('boxsynonym').getAttribute('data-key');
 		var to=getCurrentTaxon();
-		postJSON('/floraon/api/update/setsynonym',{from:key,to:to},function(rt) {
+		postJSON('/floraon/checklist/api/update/setsynonym',{from:key,to:to},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success)
 				loadTaxDetails(to,el);
@@ -210,7 +210,7 @@ function actionButtonClick(ev) {
 			,current:cb.querySelector('input[name=current]').checked ? 1 : 0
 		}
 
-		postJSON('/floraon/api/update/add/inferiortaxent',obj,function(rt) {
+		postJSON('/floraon/checklist/api/update/add/inferiortaxent',obj,function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(rt.msg,el);
@@ -225,7 +225,7 @@ function actionButtonClick(ev) {
 	case 'deletetaxon':
 		if(!confirm('Are you sure you want to delete this taxon? This cannot be undone!')) break;
 		var parent=getCurrentTaxon();
-		postJSON('/floraon/api/update/deleteleaf',{id:parent},function(rt) {
+		postJSON('/floraon/checklist/api/update/deleteleaf',{id:parent},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(null,el);
@@ -241,7 +241,7 @@ function actionButtonClick(ev) {
 function updateTaxon(obj, replace) {
 	obj.replace=replace ? 1 : 0;
 	//console.log(obj);
-	postJSON('/floraon/api/update/update/taxent',obj,function(rt) {
+	postJSON('/floraon/checklist/api/update/update/taxent',obj,function(rt) {
 		var el=document.querySelector('.taxdetails');
 		rt=JSON.parse(rt);
 		if(rt.success) {
@@ -265,7 +265,7 @@ function updateTaxon(obj, replace) {
 
 function loadTaxDetails(key,el) {
 	if(!key) {el.innerHTML='';return;}
-	fetchAJAX('/floraon/api/taxdetails?id='+encodeURIComponent(key),function(rt) {
+	fetchAJAX('/floraon/checklist/api/taxdetails?id='+encodeURIComponent(key),function(rt) {
 		el.innerHTML=rt;
 		attachTaxDetailsHandlers(el);
 	});
@@ -345,7 +345,7 @@ function attachTaxDetailsHandlers(el) {
 		addEvent('click',els[i],function(ev) {
 			var from=getCurrentTaxon();
 			var to=ev.target.parentNode.getAttribute('data-key');
-			postJSON('/floraon/api/update/detachsynonym',{from:from,to:to},function(rt) {
+			postJSON('/floraon/checklist/api/update/detachsynonym',{from:from,to:to},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success)
 					loadTaxDetails(from,el);
@@ -358,7 +358,7 @@ function attachTaxDetailsHandlers(el) {
 
 function loadTreeNode(el,callback) {
 	var key=el.getAttribute('data-key');
-	fetchAJAX('/floraon/api/lists?w=tree&fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
+	fetchAJAX('/floraon/checklist/api/lists?w=tree&fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
 		el.classList.remove('loading');
 		var html=createHTML(rt);
 		el.appendChild(html);

@@ -17,10 +17,14 @@ public abstract class DBEntity {
 	
 	/**
 	 * 
-	 * @return The document handle
+	 * @return The document ID
 	 */
 	public String getID() {
 		return this._id;
+	}
+
+	public String getKey() {
+		return this._key;
 	}
 
 	public String getIDURLEncoded() {

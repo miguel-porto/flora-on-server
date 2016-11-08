@@ -13,7 +13,8 @@ import pt.floraon.entities.OBSERVED_IN;
 import pt.floraon.entities.SpeciesList;
 
 /**
- * Represents the occurrence of one taxon. Note that this is a class which has no representation in the DB. It is constructed by extracting info from a {@link SpeciesList},
+ * Represents the occurrence of one taxon. Note that this is a class which has no representation in the DB.
+ * It is constructed by extracting info from a {@link SpeciesList},
  * the {@link Author}s and a {@link TaxEnt}.  
  * @author miguel
  *

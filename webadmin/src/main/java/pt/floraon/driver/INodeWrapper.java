@@ -10,8 +10,7 @@ public interface INodeWrapper {
 	/**
 	 * Sets in the DB this node as PART_OF another node. Only adds a new relation if it doesn't exist. 
 	 * @param parent
-	 * @throws IOException
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 */
 	public int setPART_OF(INodeKey parent) throws FloraOnException;
 	/**
@@ -19,8 +18,7 @@ public interface INodeWrapper {
 	 * @param parent
 	 * @param type
 	 * @return
-	 * @throws IOException
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 * @throws NoSuchMethodException
 	 * @throws SecurityException
 	 * @throws InstantiationException

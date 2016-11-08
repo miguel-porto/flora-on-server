@@ -106,6 +106,7 @@ function fetchAJAX(addr,callback) {
 		xmlo=xmlo.target;
 		if(xmlo.readyState == 4) {
 			if(xmlo.status == 200) callback(xmlo.responseText); else {
+			    console.log(xmlo.responseText);
 				var rt=JSON.parse(xmlo.responseText);
 				alert('ERROR: '+rt.msg);
 			}

@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import java.io.IOException;
 
@@ -8,6 +8,7 @@ import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.server.FloraOnServlet;
 
 public class TaxDetails extends FloraOnServlet {
 
@@ -24,7 +25,7 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("assignedNativeStatus", driver.getNodeWorkerDriver().getAssignedNativeStatus(id));
 		/*if(taxent.getRank().getValue() > Constants.TaxonRanks.FAMILY.getValue())
 			request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus(null).entrySet());*/
-		request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus(null).entrySet());
+		request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus().entrySet());
 		request.setAttribute("restrictedTo", driver.wrapTaxEnt(id).getRestrictedTo(Constants.getIDsList(driver.getListDriver().getChecklistTerritories())));
 		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));

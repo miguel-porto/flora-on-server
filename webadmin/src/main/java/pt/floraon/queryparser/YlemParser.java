@@ -9,7 +9,7 @@ import java.util.List;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
-import pt.floraon.driver.FloraOn;
+import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
@@ -23,8 +23,8 @@ import pt.floraon.results.SimpleTaxonResult;
 public class YlemParser {
 	private String[] preParsers={"GeoPointParser"};		// regex-based parsers, which don't need to find matches in the DB
 	private String[] query=new String[1];
-	private FloraOn graph;
-	public YlemParser(FloraOn graph,String query) {
+	private IFloraOn graph;
+	public YlemParser(IFloraOn graph, String query) {
 		this.query[0]=query;//.trim().replaceAll(" +", " ");
 		this.graph=graph;
 	}
@@ -75,7 +75,7 @@ public class YlemParser {
 		try {
 			for(String parser : preParsers) {
 				myClass = Class.forName("pt.floraon.queryparser."+parser);
-				Class<?>[] types = {FloraOn.class, QueryObject.class};
+				Class<?>[] types = {IFloraOn.class, QueryObject.class};
 				Constructor<?> constructor = myClass.getConstructor(types);
 				
 				Object[] parameters = {this.graph, qs};

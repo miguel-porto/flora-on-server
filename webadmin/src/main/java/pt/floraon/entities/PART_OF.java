@@ -5,16 +5,14 @@ import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants.RelTypes;
 
 public class PART_OF extends GeneralDBEdge {
-/*	public boolean current;
-	
 	public PART_OF() {
-		this.current=true;
+		super();
 	}
-	
-	public PART_OF(boolean current) {
-		this.current=current;
-	}*/
-	
+
+	public PART_OF(String from, String to) {
+		super(from, to);
+	}
+
 	@Override
 	public String getTypeAsString() {
 		return this.getType().toString();

@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import java.io.IOException;
 import java.util.ListIterator;
@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
+import pt.floraon.server.FloraOnServlet;
+
 /**
  * API endpoint to query node data
  * @author miguel

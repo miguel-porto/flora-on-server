@@ -10,7 +10,7 @@ import pt.floraon.results.SimpleTaxonResult;
 
 public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 
-	public GQuery(FloraOn driver) {
+	public GQuery(IFloraOn driver) {
 		super(driver);
 	}
 

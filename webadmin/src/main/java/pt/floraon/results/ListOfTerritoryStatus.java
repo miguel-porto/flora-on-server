@@ -94,8 +94,15 @@ public class ListOfTerritoryStatus {
 			return this.uncertainOccurrence;
 		}
 
-		public boolean getIsEndemic() {
+		public boolean isEndemic() {
 			return this.endemic;
+		}
+
+		public boolean isRare() {
+			return (this.abundanceLevel != null
+					&& this.abundanceLevel != Constants.AbundanceLevel.NOT_SPECIFIED
+					&& this.abundanceLevel != Constants.AbundanceLevel.VERY_COMMON
+					&& this.abundanceLevel != Constants.AbundanceLevel.COMMON);
 		}
 
 		public String getTerritoryName() {
@@ -111,7 +118,7 @@ public class ListOfTerritoryStatus {
 			if(this.getOccurrenceStatus() != OccurrenceStatus.PRESENT) qualifiers.add(this.getOccurrenceStatus().toString());
 			if(this.getUncertainOccurrence()) qualifiers.add("uncertain");
 			if(this.getPossibly()) qualifiers.add("if it exists");
-			if(this.getIsEndemic()) qualifiers.add("ENDEMIC");
+			if(this.isEndemic()) qualifiers.add("ENDEMIC");
 			if(this.getAbundanceLevel() != AbundanceLevel.NOT_SPECIFIED) qualifiers.add(this.getAbundanceLevel().toString());
 			if(this.getIntroducedStatus() != PlantIntroducedStatus.NOT_SPECIFIED
 				&& this.getIntroducedStatus() != PlantIntroducedStatus.NOT_APPLICABLE) qualifiers.add(this.getIntroducedStatus().toString());
@@ -146,11 +153,15 @@ public class ListOfTerritoryStatus {
 	 * @param worldDistributionComplete
 	 * @return
 	 */
-	public Map<String,InferredStatus> computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
+	public InferredStatus computeTerritoryStatus(String territory, boolean worldDistributionComplete) {
 		Set<Territory> endemismDegree = this.computeNativeExtent(null);
 		Set<String> thisTerritory = new HashSet<String>();
 		thisTerritory.add(territory);
-		return computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
+		Map<String, ListOfTerritoryStatus.InferredStatus> tmp = computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
+		if(tmp.isEmpty())
+			return null;
+		else
+			return tmp.values().iterator().next();
 	}
 
 	private Map<String,InferredStatus> computeTerritoryStatus(Set<String> territories, boolean worldDistributionComplete, Set<Territory> endemismDegree) {
@@ -196,7 +207,7 @@ public class ListOfTerritoryStatus {
 	/**
 	 * Checks if this TaxEnt is endemic to the given territory
 	 * @param endemicTerritories
-	 * @param territory
+	 * @param territoryShortName
 	 * @return
 	 */
 	private boolean isEndemicToTerritory(Set<Territory> endemicTerritories, String territoryShortName) {
@@ -387,7 +398,7 @@ public class ListOfTerritoryStatus {
 
 	/**
 	 * Within the given territory, compute to which subterritories the taxon is restricted to
-	 * @param territories The IDs of the territories
+	 * @param thisTerr The IDs of the territories
 	 * @return
 	 */
 	public Map<String, Set<Territory>> computeRestrictedTo(String thisTerr) {

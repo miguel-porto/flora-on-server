@@ -1,6 +1,6 @@
 package pt.floraon.console;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 
@@ -22,7 +23,7 @@ import jline.console.completer.StringsCompleter;
 import pt.floraon.arangodriver.FloraOnArangoDriver;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.FloraOn;
+import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.results.ResultProcessor;
@@ -30,11 +31,22 @@ import pt.floraon.results.SimpleTaxonResult;
 
 public class FloraOnShell {
     public static void main( String[] args ) throws ParseException, IOException {
-    	FloraOn graph;
-    	Path currentRelativePath = Paths.get("");
-    	String path = currentRelativePath.toAbsolutePath().toString();
+    	IFloraOn graph;
+		Path currentRelativePath = Paths.get("");
+		String path = currentRelativePath.toAbsolutePath().toString();
+		Properties properties = new Properties();
+		InputStream propStream;
+		try {
+			propStream = new FileInputStream(new File(path + "/floraon.properties"));
+			properties.load(propStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("ERROR: "+e.getMessage());
+			return;
+		}
+
     	try {
-			graph=new FloraOnArangoDriver("flora", path);
+			graph=new FloraOnArangoDriver("flora", properties);
 		} catch (FloraOnException e2) {
 			e2.printStackTrace();
 			return;

@@ -1,6 +1,5 @@
 package pt.floraon.driver;
 
-import com.arangodb.ArangoException;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -14,7 +13,7 @@ import pt.floraon.results.Occurrence;
  *
  */
 public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWorker {
-    public GNodeWorker(FloraOn driver) {
+    public GNodeWorker(IFloraOn driver) {
 		super(driver);
 	}
 
@@ -28,7 +27,6 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 	 * @param graph
 	 * @param sl A {@link JsonObject} as documented <a href="https://github.com/miguel-porto/flora-on-server/wiki/Document-formats-for-uploading-data">here</a>.
 	 * @throws FloraOnException
-	 * @throws ArangoException
 	 */
     @Override
 	public SpeciesList createSpeciesList(JsonObject sl) throws FloraOnException {
@@ -56,8 +54,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 	 * Does not add anything if an very similar occurrence already exists.
 	 * @param graph
 	 * @return
-	 * @throws ArangoException 
-	 * @throws FloraOnException 
+	 * @throws FloraOnException
 	 */
     @Override
 	public void createOccurrence(Occurrence occ) throws FloraOnException {

@@ -6,6 +6,14 @@ import pt.floraon.driver.Constants.RelTypes;
 
 public class BELONGS_TO extends GeneralDBEdge {
 
+	public BELONGS_TO() {
+		super();
+	}
+
+	public BELONGS_TO(String from, String to) {
+		super(from, to);
+	}
+
 	@Override
 	public RelTypes getType() {
 		return RelTypes.BELONGS_TO;

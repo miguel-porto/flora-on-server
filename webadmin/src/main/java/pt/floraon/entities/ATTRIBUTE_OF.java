@@ -5,6 +5,15 @@ import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants.RelTypes;
 
 public class ATTRIBUTE_OF extends GeneralDBEdge {
+
+	public ATTRIBUTE_OF() {
+		super();
+	}
+
+	public ATTRIBUTE_OF(String from, String to) {
+		super(from, to);
+	}
+
 	@Override
 	public String getTypeAsString() {
 		return this.getType().toString();

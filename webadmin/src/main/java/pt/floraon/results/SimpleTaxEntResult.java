@@ -12,7 +12,11 @@ import pt.floraon.entities.TaxEnt;
  */
 public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntResult> {
 	protected TaxEnt taxent;
-	protected Boolean leaf=null;
+	protected Boolean isLeaf = null;
+
+	public Boolean isLeaf() {
+		return isLeaf;
+	}
 
 	public String getTaxonId() {
 		return this.taxent.getID();
@@ -25,13 +29,13 @@ public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntRes
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.taxent.getID());
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getName());
+		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+this.taxent.getName());
 		rec.print(this.taxent.getAuthor());
 	}
 
 	@Override
 	public String toHTMLTableRow(Object obj) {
-		return "<tr"+(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))+"><td data-key=\""+this.taxent.getID()+"\"><i>"+(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getName()+"</i></td><td>"+this.taxent.getAuthor()+"</td></tr>";
+		return "<tr"+(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))+"><td data-key=\""+this.taxent.getID()+"\"><i>"+(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+this.taxent.getName()+"</i></td><td>"+this.taxent.getAuthor()+"</td></tr>";
 	}
 
 	@Override
@@ -43,7 +47,7 @@ public class SimpleTaxEntResult implements ResultItem,Comparable<SimpleTaxEntRes
 	public String[] toStringArray() {
 		return new String[] {
 				this.taxent.getID()
-				,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+this.taxent.getName()
+				,(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+this.taxent.getName()
 				,this.taxent.getAuthor()
 			};
 	}

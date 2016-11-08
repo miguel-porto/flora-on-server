@@ -20,9 +20,9 @@ import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
  *
  */
 public class BaseFloraOnDriver {
-	protected FloraOn driver;
+	protected IFloraOn driver;
 
-	public BaseFloraOnDriver(FloraOn driver) {
+	public BaseFloraOnDriver(IFloraOn driver) {
 		this.driver=driver;
 	}
 	
@@ -46,7 +46,7 @@ public class BaseFloraOnDriver {
 			tmp = it.next();
 			tax = new JsonObject();
 			if(tmp.getTaxent() != null) {
-				tStatus = tmp.inferNativeStatus(null);
+				tStatus = tmp.inferNativeStatus();
 				tax.add("taxon", gson.toJsonTree(tmp.getTaxent()));
 				tax.add("endemismDegree", gson.toJsonTree(tmp.inferEndemismDegree()));
 				tmp.inferSingleTerritoryEndemismDegree();

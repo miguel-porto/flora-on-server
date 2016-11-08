@@ -1,4 +1,4 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import static pt.floraon.driver.Constants.*;
 
@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.FloraOnException;
@@ -24,6 +25,8 @@ import pt.floraon.results.ChecklistEntry;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.ResultProcessor;
 import pt.floraon.results.SimpleTaxEntResult;
+import pt.floraon.server.FloraOnServlet;
+
 public class Lists extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	
@@ -42,30 +45,29 @@ public class Lists extends FloraOnServlet {
 		if(format==null || format.trim().equals("")) format="htmltable";
 		ResultProcessor<?> rpchk=null;
 		switch(what) {
+		case "species":
+			success(new Gson().toJsonTree(LD.getAllSpeciesOrInferiorTaxEnt(true, false, getParameterAsString("territory"), null, null)));
+			return;
+
 		case "checklist":
 			if(format.equals("csv")) {
 				JobRunner job=JobSubmitter.newJob(new ChecklistDownload(), "checklist.csv", driver);
 				success(job.getID());
-				return;
 			} else {
-				List<ChecklistEntry> chklst=LD.getCheckList();
-				Collections.sort(chklst);
-				rpchk=(ResultProcessor<ChecklistEntry>) new ResultProcessor<ChecklistEntry>(chklst.iterator());
+				error("Not implemented");
+//				List<ChecklistEntry> chklst=LD.getCheckList();
+//				Collections.sort(chklst);
+//				rpchk = new ResultProcessor<ChecklistEntry>(chklst.iterator());
 			}
-			break;
-		
-		case "species":
-			Iterator<SimpleTaxEntResult> species;
-			species = LD.getAllSpeciesOrInferior(territory==null ? true : false, SimpleTaxEntResult.class, false, territory, null, null, null);
-			rpchk=(ResultProcessor<SimpleTaxEntResult>) new ResultProcessor<SimpleTaxEntResult>(species);
-			break;
+			return;
+
 // get the full or partial list of names and statuses in each territory
 		case "speciesterritories":
 			Integer offset=getParameterAsInteger("offset",null);
 			String filter=getParameterAsString("filter");
 			Iterator<TaxEntAndNativeStatusResult> speciesterr;
-			speciesterr = LD.getAllSpeciesOrInferior(territory==null ? true : false, TaxEntAndNativeStatusResult.class, false, territory, filter, offset, PAGESIZE);
-			rpchk=(ResultProcessor<TaxEntAndNativeStatusResult>) new ResultProcessor<TaxEntAndNativeStatusResult>(speciesterr);
+			speciesterr = LD.getAllSpeciesOrInferior(territory == null, TaxEntAndNativeStatusResult.class, false, territory, filter, offset, PAGESIZE).iterator();
+			rpchk = new ResultProcessor<TaxEntAndNativeStatusResult>(speciesterr);
 			List<String> opt1=new ArrayList<String>();
 			for(Territory tv : driver.getChecklistTerritories())
 				opt1.add(tv.getShortName());
@@ -76,7 +78,7 @@ public class Lists extends FloraOnServlet {
 			// either specify ID or RANK, not both
 			INodeKey id=getParameterAsKey("id");		// the id of the taxent node of which to get the children
 			String rank=getParameterAsString("rank");	// the rank of which to get all nodes
-			if(id!=null & rank!=null) {
+			if(id!=null && rank!=null) {
 				error("You must specify id OR rank, not both.");
 				return;
 			}
@@ -108,10 +110,14 @@ public class Lists extends FloraOnServlet {
 				break;
 			case "html":
 			case "htmltable":
+				error("This is deprecated");
+				return;
+/*
 				response.setContentType("text/html");
 				out=response.getWriter();
 				rpchk.toHTMLTable(out, "taxonlist", opt);
 				break;
+*/
 			case "csv":
 				response.setContentType("text/csv");
 				response.setCharacterEncoding("Windows-1252");

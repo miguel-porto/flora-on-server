@@ -77,6 +77,7 @@ public final class Constants {
     	}
     	
     	public static TaxonRanks getRankFromValue(Integer value) {
+			if(value == null) return null;
     		for(TaxonRanks tr:values()) {
     			if(Objects.equals(tr.value, value)) return tr;
     		}
@@ -368,6 +369,14 @@ public final class Constants {
 			Object[] parameters = {};
 			return (GeneralDBEdge)constructor.newInstance(parameters);
 		}
+
+		public GeneralDBEdge getEdge(String from, String to) throws NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			Class<?>[] types = {String.class, String.class};
+			Constructor<?> constructor;
+			constructor = this.edgeClass.getConstructor(types);
+			Object[] parameters = {from, to};
+			return (GeneralDBEdge)constructor.newInstance(parameters);
+		}
 	}
 
 	public enum NodeTypes {
@@ -376,7 +385,7 @@ public final class Constants {
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
     	author(pt.floraon.entities.Author.class),
     	attribute(pt.floraon.entities.Attribute.class),			// a morphological attribute (e.g. red flower)
-    	character(pt.floraon.entities.Character.class),			// a morphological character (e.g. flower color, leaf shape...)
+    	character(pt.floraon.entities.Character.class),			// a morphological character (e.g. flower color, isLeaf shape...)
     	image(pt.floraon.entities.Image.class),
     	territory(pt.floraon.entities.Territory.class);			// a geographic territory (e.g. country)
     	

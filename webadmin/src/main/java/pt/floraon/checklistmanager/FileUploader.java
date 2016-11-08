@@ -1,14 +1,14 @@
-package pt.floraon.server;
+package pt.floraon.checklistmanager;
 
 import java.io.IOException;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 
-import com.arangodb.entity.EntityFactory;
-
+import com.google.gson.Gson;
 import pt.floraon.driver.CSVFileProcessor;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.server.FloraOnServlet;
 
 public class FileUploader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
@@ -29,13 +29,15 @@ public class FileUploader extends FloraOnServlet {
 		switch(partIt.next()) {
 		case "authors":
 			success(
-				EntityFactory.toJsonElement(cfp.uploadAuthorsFromFile(getParameterAsString("file")), false)	// TODO: don't use EntityFactory 
+//				EntityFactory.toJsonElement(cfp.uploadAuthorsFromFile(getParameterAsString("file")), false)	// TODO: don't use EntityFactory
+					new Gson().toJsonTree(cfp.uploadAuthorsFromFile(getParameterAsString("file")))
 			);
 			break;
 		
 		case "occurrences":
 			success(
-				EntityFactory.toJsonElement(cfp.uploadRecordsFromFile(getParameterAsString("file")), false) // TODO: don't use EntityFactory
+//				EntityFactory.toJsonElement(cfp.uploadRecordsFromFile(getParameterAsString("file")), false) // TODO: don't use EntityFactory
+					new Gson().toJsonTree(cfp.uploadRecordsFromFile(getParameterAsString("file")))
 			);
 			break;
 		}

@@ -39,7 +39,7 @@ public class ArangoKey implements INodeKey {
 	}
 
 	@Override
-	public String getColletion() {
+	public String getCollection() {
 		return this.collection;
 	}
 

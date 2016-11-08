@@ -18,7 +18,7 @@ import pt.floraon.entities.TaxEnt;
  * <li>name: the name of the matched species (or inferior rank)</li>
  * <li>match[]: the array of matching starting nodes that lead to this match</li>
  * <li>reltypes[]: the distinct types of relationships that were traversed from "match" to "name"</li>
- * <li>leaf: whether this entry is a leaf node or not</li>
+ * <li>isLeaf: whether this entry is a isLeaf node or not</li>
  * <li>count: the number of occurrences of this species (if applicable)</li>
  * <li>notcurrentpath: if true, this result is not reachable under current taxonomy</li>
  * </ul>
@@ -71,7 +71,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 		rec.print(this.count);
 		rec.print(this.taxent.getID());
 		rec.print(Arrays.toString(this.reltypes));
-		rec.print((this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly()+(this.partim ? " (partim)" : ""));
+		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly()+(this.partim ? " (partim)" : ""));
 		rec.print(Arrays.toString(this.match));		// FIXME handle the array!
 	}
 
@@ -90,7 +90,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 			.append("</td><td>")
 			.append(this.taxent.getID())
 			.append("</td><td>")
-			.append(this.leaf==null ? "" : (this.leaf ? "" : "+"))
+			.append(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))
 			.append(this.taxent.getNameWithAnnotationOnly())
 			//.append(this.partim ? " <i>partim</i>" : "")
 			.append("</td><td>")
@@ -113,7 +113,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 			(this.notcurrentpath ? "not reachable ":"")+(this.partim ? "included in ":"")
 			,this.taxent.getID()
 			,Arrays.toString(this.reltypes)
-			,(this.leaf==null ? "" : (this.leaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly()+(this.partim ? " (partim)" : "")
+			,(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly()+(this.partim ? " (partim)" : "")
 			,sb.toString()
 		};
 	}

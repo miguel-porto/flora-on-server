@@ -25,7 +25,15 @@ public class EXISTS_IN extends GeneralDBEdge {
 	 * If true, it is uncertain the identity of the taxon in this territory, but, shall the identification be correct, then it occurs with the reported NativeStatus and OccurrenceStatus.
 	 */
 	protected Boolean uncertainOccurrenceStatus;
-	
+
+	public EXISTS_IN() {
+		super();
+	}
+
+	public EXISTS_IN(String from, String to) {
+		super(from, to);
+	}
+
 	public EXISTS_IN(NativeStatus nativeStatus) {
 		this.nativeStatus=nativeStatus;
 		this.occurrenceStatus=OccurrenceStatus.PRESENT;

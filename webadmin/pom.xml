@@ -43,7 +43,7 @@
 		<dependency>
 			<groupId>com.arangodb</groupId>
 			<artifactId>arangodb-java-driver</artifactId>
-			<version>3.0.3</version>
+			<version>4.1.0</version>
 <!--			<scope>compile</scope>-->
 		</dependency>
 		<dependency>
@@ -75,7 +75,6 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>4.0.0-b01</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>jstl</groupId>
@@ -93,7 +92,7 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.8.3</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 	
 	<build>
 		<finalName>floraon</finalName>

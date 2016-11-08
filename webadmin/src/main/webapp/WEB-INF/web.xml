@@ -4,135 +4,153 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" 
 	id="WebApp_ID" version="3.0">
-<listener>
-    <listener-class>pt.floraon.server.Startup</listener-class>
-</listener>
+   <listener>
+       <listener-class>pt.floraon.server.Startup</listener-class>
+   </listener>
 
 
-<welcome-file-list>
-    <welcome-file>admin</welcome-file>
-</welcome-file-list>
+   <welcome-file-list>
+       <welcome-file>main</welcome-file>
+   </welcome-file-list>
 
-<servlet>
-   <servlet-name>WebAdmin</servlet-name>
-   <servlet-class>pt.floraon.server.WebAdmin</servlet-class>
-</servlet>
+   <servlet>
+      <servlet-name>ChecklistAdmin</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.ChecklistAdmin</servlet-class>
+   </servlet>
 
-<servlet>
-   <servlet-name>UserLogin</servlet-name>
-   <servlet-class>pt.floraon.server.UserLogin</servlet-class>
-</servlet>
+   <servlet>
+      <servlet-name>MainPage</servlet-name>
+      <servlet-class>pt.floraon.server.MainPage</servlet-class>
+   </servlet>
 
-<servlet>
-   <servlet-name>Query</servlet-name>
-   <servlet-class>pt.floraon.server.Query</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>Lists</servlet-name>
-   <servlet-class>pt.floraon.server.Lists</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>TaxDetails</servlet-name>
-   <servlet-class>pt.floraon.server.TaxDetails</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>JobDownload</servlet-name>
-   <servlet-class>pt.floraon.jobs.JobDownload</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>Suggestions</servlet-name>
-   <servlet-class>pt.floraon.server.Suggestions</servlet-class>
-</servlet>
-
-<!-- 
-<servlet>
-   <servlet-name>NodeWorker</servlet-name>
-   <servlet-class>pt.floraon.server.NodeWorker</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>GraphReader</servlet-name>
-   <servlet-class>pt.floraon.server.GraphReader</servlet-class>
-</servlet>
- -->
-<servlet>
-   <servlet-name>NodeReader</servlet-name>
-   <servlet-class>pt.floraon.server.NodeReader</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>Territories</servlet-name>
-   <servlet-class>pt.floraon.server.Territories</servlet-class>
-</servlet>
-
-<servlet>
-   <servlet-name>FileUploader</servlet-name>
-   <servlet-class>pt.floraon.server.FileUploader</servlet-class>
-</servlet>
-
-
-<servlet-mapping>
-   <servlet-name>WebAdmin</servlet-name>
-   <url-pattern>/admin</url-pattern>
-</servlet-mapping>
-
-<servlet-mapping>
-   <servlet-name>UserLogin</servlet-name>
-   <url-pattern>/login</url-pattern>
-</servlet-mapping>
-
-<servlet-mapping>
-   <servlet-name>TaxDetails</servlet-name>
-   <url-pattern>/api/taxdetails/*</url-pattern>
-</servlet-mapping>
-
-<servlet-mapping>
-   <servlet-name>JobDownload</servlet-name>
-   <url-pattern>/api/job/*</url-pattern>
-</servlet-mapping>
-
-<servlet-mapping>
-   <servlet-name>Suggestions</servlet-name>
-   <url-pattern>/api/suggestions</url-pattern>
-</servlet-mapping>
-
-<servlet-mapping>
-   <servlet-name>NodeReader</servlet-name>
-   <url-pattern>/api/read/*</url-pattern>
-</servlet-mapping>
-<!-- 
-<servlet-mapping>
-   <servlet-name>NodeWorker</servlet-name>
-   <url-pattern>/api/update/*</url-pattern>
-</servlet-mapping>
- 
-<servlet-mapping>
-   <servlet-name>GraphReader</servlet-name>
-   <url-pattern>/graph/*</url-pattern>
-</servlet-mapping>
+<!--
+   <servlet>
+      <servlet-name>RedListAdmin</servlet-name>
+      <servlet-class>pt.floraon.redlisttaxoninfo.RedListAdmin</servlet-class>
+   </servlet>
 -->
-<servlet-mapping>
-   <servlet-name>Territories</servlet-name>
-   <url-pattern>/api/territories/*</url-pattern>
-</servlet-mapping>
 
-<servlet-mapping>
-   <servlet-name>Lists</servlet-name>
-   <url-pattern>/api/lists/*</url-pattern>
-</servlet-mapping>
+   <servlet>
+      <servlet-name>UserLogin</servlet-name>
+      <servlet-class>pt.floraon.server.UserLogin</servlet-class>
+   </servlet>
 
-<servlet-mapping>
-   <servlet-name>Query</servlet-name>
-   <url-pattern>/api/query</url-pattern>
-</servlet-mapping>
+   <servlet>
+      <servlet-name>Query</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.Query</servlet-class>
+   </servlet>
 
-<servlet-mapping>
-   <servlet-name>FileUploader</servlet-name>
-   <url-pattern>/upload/*</url-pattern>
-</servlet-mapping>
+   <servlet>
+      <servlet-name>Lists</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.Lists</servlet-class>
+   </servlet>
+
+   <servlet>
+      <servlet-name>TaxDetails</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.TaxDetails</servlet-class>
+   </servlet>
+
+   <servlet>
+      <servlet-name>JobDownload</servlet-name>
+      <servlet-class>pt.floraon.jobs.JobDownload</servlet-class>
+   </servlet>
+
+   <servlet>
+      <servlet-name>Suggestions</servlet-name>
+      <servlet-class>pt.floraon.server.Suggestions</servlet-class>
+   </servlet>
+
+   <servlet>
+      <servlet-name>ApiUpdate</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.ApiUpdate</servlet-class>
+   </servlet>
+
+<!--
+   <servlet>
+      <servlet-name>GraphReader</servlet-name>
+      <servlet-class>pt.floraon.server.GraphReader</servlet-class>
+   </servlet>
+-->
+
+   <servlet>
+      <servlet-name>NodeReader</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.NodeReader</servlet-class>
+   </servlet>
+
+   <servlet>
+      <servlet-name>Territories</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.Territories</servlet-class>
+   </servlet>
+
+   <servlet>
+      <servlet-name>FileUploader</servlet-name>
+      <servlet-class>pt.floraon.checklistmanager.FileUploader</servlet-class>
+   </servlet>
+
+
+   <servlet-mapping>
+      <servlet-name>MainPage</servlet-name>
+      <url-pattern>/main</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>ChecklistAdmin</servlet-name>
+      <url-pattern>/checklist</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>UserLogin</servlet-name>
+      <url-pattern>/login</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>TaxDetails</servlet-name>
+      <url-pattern>/checklist/api/taxdetails/*</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>JobDownload</servlet-name>
+      <url-pattern>/checklist/api/job/*</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>Suggestions</servlet-name>
+      <url-pattern>/checklist/api/suggestions</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>NodeReader</servlet-name>
+      <url-pattern>/checklist/api/read/*</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>ApiUpdate</servlet-name>
+      <url-pattern>/checklist/api/update/*</url-pattern>
+   </servlet-mapping>
+   <!--
+      <servlet-mapping>
+         <servlet-name>GraphReader</servlet-name>
+         <url-pattern>/graph/*</url-pattern>
+      </servlet-mapping>
+      -->
+   <servlet-mapping>
+      <servlet-name>Territories</servlet-name>
+      <url-pattern>/checklist/api/territories/*</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>Lists</servlet-name>
+      <url-pattern>/checklist/api/lists/*</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>Query</servlet-name>
+      <url-pattern>/checklist/api/query</url-pattern>
+   </servlet-mapping>
+
+   <servlet-mapping>
+      <servlet-name>FileUploader</servlet-name>
+      <url-pattern>/upload/*</url-pattern>
+   </servlet-mapping>
 
 </web-app>

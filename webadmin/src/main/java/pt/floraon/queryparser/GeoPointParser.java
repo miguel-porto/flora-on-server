@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.FloraOn;
+import pt.floraon.driver.IFloraOn;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
 import pt.floraon.results.SimpleTaxonResult;
@@ -22,7 +22,7 @@ public final class GeoPointParser extends TokenParser {
 	private final int RADIUS=15000;
 	private Pattern pattern=Pattern.compile("perto: *(-?[0-9.,]+) *(-?[0-9.,]+)",Pattern.CASE_INSENSITIVE);
 	
-	public GeoPointParser(FloraOn graph, QueryObject query) {
+	public GeoPointParser(IFloraOn graph, QueryObject query) {
 		super(graph, query);
 	}
 

@@ -1,9 +1,5 @@
 package pt.floraon.driver;
 
-import java.io.IOException;
-
-import com.arangodb.ArangoException;
-
 import pt.floraon.entities.Author;
 
 public interface ISpeciesListWrapper {
@@ -12,8 +8,7 @@ public interface ISpeciesListWrapper {
 	 * @param idaut The ID of the author
 	 * @param isMainAuthor
 	 * @return
-	 * @throws IOException
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 */
 	public int setObservedBy(int idaut,Boolean isMainAuthor) throws FloraOnException;
 	/**
@@ -21,8 +16,7 @@ public interface ISpeciesListWrapper {
 	 * @param aut The {@link Author}
 	 * @param isMainAuthor Whether this is the main author (whose name comes first) or a secondary author (order arbitrary)
 	 * @return 1 if relation was created, 0 if not
-	 * @throws IOException
-	 * @throws ArangoException
+	 * @throws FloraOnException
 	 */
 	public int setObservedBy(Author aut,Boolean isMainAuthor) throws FloraOnException;
 

@@ -13,7 +13,7 @@ import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.FloraOn;
+import pt.floraon.driver.IFloraOn;
 
 /**
  * Runs the commands meant to be run asynchronously to a file to be downloaded.
@@ -26,10 +26,10 @@ public class JobRunner implements Runnable {
 	private File tmpFile;
 	private boolean isClosed,hasError=false;
 	private String uuid, desiredFileName, errorMessage;
-	private FloraOn driver;
+	private IFloraOn driver;
 	private Job job;
 	
-	public JobRunner(Job job, String desiredFileName, FloraOn driver) throws IOException {
+	public JobRunner(Job job, String desiredFileName, IFloraOn driver) throws IOException {
 		this.tmpFile = File.createTempFile("floraon_", null);
 		this.outputStream = new FileOutputStream(tmpFile);
 		this.isClosed = false;
