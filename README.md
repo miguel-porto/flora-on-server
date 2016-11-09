@@ -11,13 +11,13 @@ The main highlight of Flora-On server is its new approach to taxonomy. All the t
 Under this setting, there can be nodes without a name - for example, to represent certain populations of a species which differ consistently in a given trait, but no one has assigned a name to them yet. Conversely, there can also be nodes with exactly the same name but representing different things, when the interpretation of the name differs between authors.
 In this sense, the hierarchy of the "taxonomic" nodes does not need to follow the taxonomic rules, and you can have, for example, species which are "part of" other species, or even genera that are part of species, and so on - it just depends on the interpretation given to those names, i.e., what do those names *actually* represent in terms of biological entities. You can basically do whatever graph structure you need to represent reality, as long as you stick into the idea that nodes represent *groups of populations*, not formal taxonomic entities. Needless to say, all the information that is attached to the nodes (e.g. occurrences, traits), consequently, is not lost upon taxonomic changes, because nodes are never deleted, but connected to the presently accepted names.
 
-See a [working graphical example here](http://flora-on.pt:8080/floraon/?w=graph&depth=3&id=taxent%2F341568402334), illustrating how the taxonomic changes in the genus *Erodium* were handled, for the portuguese species. And an example of what the [query *Erodium cicutarium*](http://flora-on.pt:8080/floraon/?w=query&q=erodium%20cicutarium) would return, given these taxonomic changes.
+See a [working graphical example here](http://flora-on.pt:8080/floraon/checklist?w=graph&depth=3&id=taxent%2F341568402334), illustrating how the taxonomic changes in the genus *Erodium* were handled, for the portuguese species. And an example of what the [query *Erodium cicutarium*](http://flora-on.pt:8080/floraon/checklist?w=query&q=erodium%20cicutarium) would return, given these taxonomic changes.
 
 The purpose of this approach is to greatly simplify the problems faced by biodiversity data managers when **matching occurrence data to names, in a constantly changing taxonomic world**. You don't need to change anything here when there are taxonomic revisions - better said, you *should not* change anything. Whenever a new combination appears, all you have to do is add it to the graph as a new node, and create the appropriate relationships with existing nodes, so that the Flora-On query algorithms can find their way through the graph - from the occurrence data, traits and habitat data, to the formally accepted taxonomic entities. As long as all the relationships between nodes are correctly defined, Flora-On will know what to show you when you ask for some formal taxonomic name - it just follows all the paths that lead to the queried node.
 
 Basically there are two types of realtionships between nodes: `PART_OF` and `SYNONYM`. If node `A` is `PART_OF` node `B`, it means that the populations represented by node `A` are included in those represented by node `B`. If node `A` is `SYNONYM` of node `B`, it means that they represent exactly the same populations, so they are totally interchangeable - this is used when you need to provide different taxonomic names for the same thing, as long as you are sure that they do represent *exactly* the same thing, otherwise you should use a `PART_OF` relationship appropriately.
 
-As you might expect, all the types of data are also stored in the same graph, i.e., occurrence data, traits, habitats, territories, images, etc., and nodes of these other types of data are connected to the "taxonomic" nodes. Further, both the habitat sub-graph, territory sub-graph and the traits sub-graph are subjected to their own taxonomy, so you can have habitat `A` which is `PART_OF` habitat `B`, and "taxon" `C` which `EXISTS_IN` habitat `A`, `HAS_ATTRIBUTE` `D` and `EXISTS_IN` territory `Portugal`, which `BELONGS_TO` territory `Iberian Peninsula`. [See an example of the territory sub-graph here](http://flora-on.pt:8080/floraon/?w=graph&show=territories).
+As you might expect, all the types of data are also stored in the same graph, i.e., occurrence data, traits, habitats, territories, images, etc., and nodes of these other types of data are connected to the "taxonomic" nodes. Further, both the habitat sub-graph, territory sub-graph and the traits sub-graph are subjected to their own taxonomy, so you can have habitat `A` which is `PART_OF` habitat `B`, and "taxon" `C` which `EXISTS_IN` habitat `A`, `HAS_ATTRIBUTE` `D` and `EXISTS_IN` territory `Portugal`, which `BELONGS_TO` territory `Iberian Peninsula`. [See an example of the territory sub-graph here](http://flora-on.pt:8080/floraon/checklist?w=graph&show=territories).
 
 This is where all the magic lives - the full integration of all kinds of data in the same graph and all its relationships, so that Flora-On quickly finds and shows the data you are looking for, circunventing all the usual problems associated with the constant taxonomic changes.
 
@@ -28,7 +28,7 @@ See the details of the data model [here](https://github.com/miguel-porto/flora-o
 **This project is currently under "intense" development and is not usable as it stands now**
 
 ## Managing Checklists
-Still have to describe here the features and algorithms of the checklist module, all taking advantage of the graph data model. Meanwhile, check a live example of the [checklist capabilities here](http://flora-on.pt:8080/floraon/).
+Still have to describe here the features and algorithms of the checklist module, all taking advantage of the graph data model. Meanwhile, check a live example of the [checklist capabilities here](http://flora-on.pt:8080/floraon/checklist/).
 
 ## Installation
 1. Download and install ArangoDB
@@ -44,7 +44,7 @@ In Flora-On shell, you can start by typing `\sampledata` to load some sample dat
 Then, directly type any query in the Flora-On shell to fetch matching species.
 
 ### Flora-On server
-Navigate to `http://localhost:8080/floraon/admin` for the management interface.
+Navigate to `http://localhost:8080/floraon/` for the management interface.
 
 Stay tuned for updates!
 
