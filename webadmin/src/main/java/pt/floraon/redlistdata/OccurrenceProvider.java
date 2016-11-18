@@ -1,11 +1,10 @@
-package pt.floraon.redlisttaxoninfo;
+package pt.floraon.redlistdata;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.utmlatlong.CoordinateConversion;
 import pt.floraon.utmlatlong.UTMCoordinate;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
 /**
@@ -18,6 +17,13 @@ public interface OccurrenceProvider extends Iterable<OccurrenceProvider.SimpleOc
      */
     int size();
 
+    /**
+     * Executes a query and updates the Iterable list of occurrences with the results.
+     * @param query
+     * @throws FloraOnException
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     void executeOccurrenceQuery(Object query) throws FloraOnException, URISyntaxException, IOException;
 
     class SimpleOccurrence {

@@ -2,11 +2,6 @@ package pt.floraon.arangodriver;
 
 import static pt.floraon.driver.Constants.*;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.ConnectException;
 import java.util.*;
 
 import com.arangodb.ArangoDB;
@@ -14,13 +9,12 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.ArangoDBException;
 import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.EdgeDefinition;
-import com.arangodb.entity.GraphEntity;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
 import pt.floraon.driver.*;
 import pt.floraon.entities.Territory;
-import pt.floraon.redlisttaxoninfo.ArangoDBRedListData;
+import pt.floraon.redlistdata.ArangoDBRedListData;
 
 public class FloraOnArangoDriver implements IFloraOn {
 	private ArangoDB driver;

@@ -41,7 +41,15 @@
 
         <div class="bigbuttonwrapper">
             <div class="bigbutton section3">
-                <a href="/floraon/redlist">Red list data portal</a>
+                <a href="/floraon/redlist">Red list data portal</a><br/>
+                <c:if test="${redlistterritories.size() == 0}">
+                    <p>nenhum dataset</p>
+                </c:if>
+                <c:if test="${redlistterritories.size() > 0}">
+                    <c:forEach var="terr" items="${redlistterritories}">
+                    <p>${terr}</p>
+                    </c:forEach>
+                </c:if>
             </div>
         </div>
     </div>

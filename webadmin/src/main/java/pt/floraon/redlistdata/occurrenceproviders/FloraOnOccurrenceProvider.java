@@ -1,13 +1,13 @@
-package pt.floraon.redlisttaxoninfo;
+package pt.floraon.redlistdata.occurrenceproviders;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.redlistdata.OccurrenceProvider;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;

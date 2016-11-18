@@ -9,13 +9,20 @@ import pt.floraon.driver.IFloraOn;
 public final class JobSubmitter {
 	private static Map<String, JobRunner> jobs=new HashMap<String, JobRunner>();
 	
-	public static JobRunner newJob(Job job, String desiredFileName, IFloraOn driver) throws IOException {
-		JobRunner j=new JobRunner(job, desiredFileName, driver);
+	public static JobRunnerFileDownload newJobFileDownload(JobFileDownload job, String desiredFileName, IFloraOn driver) throws IOException {
+		JobRunnerFileDownload j=new JobRunnerFileDownload(job, desiredFileName, driver);
 		JobSubmitter.jobs.put(j.getID(), j);
 		new Thread(j).start();
 		return j;
 	}
-	
+
+	public static JobRunnerTask newJobTask(JobTask job, Object options, IFloraOn driver) throws IOException {
+		JobRunnerTask j = new JobRunnerTask(job, options, driver);
+		JobSubmitter.jobs.put(j.getID(), j);
+		new Thread(j).start();
+		return j;
+	}
+
 	public static JobRunner getJob(String uuid) {
 		return JobSubmitter.jobs.get(uuid);
 	}

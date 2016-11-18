@@ -43,6 +43,7 @@ label input {vertical-align:middle;}
 .bigbutton.section2 {background-color: #7986cb;}
 .bigbutton.section3 {background-color: #ff4081;}
 .bigbutton a {padding:10px 60px 60px 10px; display:inline-block; font-size:2em; color:white;}
+.bigbutton p {text-align:right;}
 
 .noselect {
     -webkit-touch-callout: none;

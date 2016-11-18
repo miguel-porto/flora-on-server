@@ -40,6 +40,7 @@ function postAJAXForm(addr,formElement,callback) {
 		xmlo=xmlo.target;
 		if(xmlo.readyState == 4) {
 			if(xmlo.status == 200) callback(xmlo.responseText); else {
+			alert(xmlo.responseText);
 				var rt=JSON.parse(xmlo.responseText);
 				alert('ERROR: '+rt.msg);
 			}

@@ -16,7 +16,7 @@ import pt.floraon.entities.Attribute;
 import pt.floraon.entities.GeneralDBEdge;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
-import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
+import pt.floraon.results.InferredStatus;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 
 public interface ITaxEntWrapper {

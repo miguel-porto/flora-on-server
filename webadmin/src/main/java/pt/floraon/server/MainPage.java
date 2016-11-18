@@ -11,6 +11,7 @@ import java.io.IOException;
 public class MainPage extends FloraOnServlet {
     @Override
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+        request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
         request.getRequestDispatcher("/main.jsp").forward(request, response);
     }
 }

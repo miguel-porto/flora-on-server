@@ -11,11 +11,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
-import pt.floraon.driver.Constants.OccurrenceStatus;
-import pt.floraon.driver.Constants.PlantIntroducedStatus;
-import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.entities.Territory;
 /**
  * A wrapper class for a List<TerritoryStatus> which adds methods for inferring the NativeStatus in all territories.
@@ -27,107 +23,6 @@ public class ListOfTerritoryStatus {
 	
 	public ListOfTerritoryStatus(List<TerritoryStatus> list) {
 		this.territoryStatusList = list;
-	}
-
-	public class InferredStatus {
-		protected NativeStatus nativeStatus;
-		protected OccurrenceStatus occurrenceStatus;
-		protected AbundanceLevel abundanceLevel; 
-		protected PlantIntroducedStatus introducedStatus;
-		protected PlantNaturalizationDegree naturalizationDegree;
-		/**
-		 * Status is assigned to a parent taxon. Should be read: it is not certain that it is this [sub-]taxon that exists in this territory,
-		 * but if it exists, then it is with this nativeStatus.
-		 */
-		protected Boolean possibly;
-		/**
-		 * Whether this taxon has been identified with certainty or not
-		 */
-		protected Boolean uncertainOccurrence;
-		/**
-		 * Wheter it is endemic in this territory (this can be inferred from the endemism in sub-territories)
-		 */
-		protected Boolean endemic;
-		/**
-		 * The long name of the territory this Status pertains to
-		 */
-		protected String territoryName;
-		
-		public InferredStatus(TerritoryStatus ts, Boolean endemic) {
-			this.nativeStatus = ts.existsIn.getNativeStatus();
-			this.abundanceLevel = ts.existsIn.getAbundanceLevel();
-			this.occurrenceStatus = ts.existsIn.getOccurrenceStatus();
-			this.introducedStatus = ts.existsIn.getIntroducedStatus();
-			this.naturalizationDegree = ts.existsIn.getNaturalizationDegree();
-			this.territoryName = ts.territory.getName();
-			this.uncertainOccurrence = ts.existsIn.isUncertainOccurrenceStatus();
-			this.possibly = ts.edges.contains(Constants.RelTypes.PART_OF.toString())
-				&& ts.direction.get(ts.edges.indexOf(Constants.RelTypes.PART_OF.toString())).equals("OUTBOUND");
-			this.endemic = endemic;
-		}
-		
-		public NativeStatus getNativeStatus() {
-			return this.nativeStatus;
-		}
-
-		public OccurrenceStatus getOccurrenceStatus() {
-			return this.occurrenceStatus;
-		}
-
-		public AbundanceLevel getAbundanceLevel() {
-			return this.abundanceLevel;
-		}
-		
-		public PlantIntroducedStatus getIntroducedStatus() {
-			return this.introducedStatus;
-		}
-
-		public PlantNaturalizationDegree getNaturalizationDegree() {
-			return this.naturalizationDegree;
-		}
-
-		public boolean getPossibly() {
-			return this.possibly;
-		}
-
-		public boolean getUncertainOccurrence() {
-			return this.uncertainOccurrence;
-		}
-
-		public boolean isEndemic() {
-			return this.endemic;
-		}
-
-		public boolean isRare() {
-			return (this.abundanceLevel != null
-					&& this.abundanceLevel != Constants.AbundanceLevel.NOT_SPECIFIED
-					&& this.abundanceLevel != Constants.AbundanceLevel.VERY_COMMON
-					&& this.abundanceLevel != Constants.AbundanceLevel.COMMON);
-		}
-
-		public String getTerritoryName() {
-			return this.territoryName;
-		}
-		
-		/**
-		 * Gets a textual description of the native status of this taxon.
-		 * @return
-		 */
-		public String getVerbatimNativeStatus() {
-			List<String> qualifiers = new ArrayList<String>();
-			if(this.getOccurrenceStatus() != OccurrenceStatus.PRESENT) qualifiers.add(this.getOccurrenceStatus().toString());
-			if(this.getUncertainOccurrence()) qualifiers.add("uncertain");
-			if(this.getPossibly()) qualifiers.add("if it exists");
-			if(this.isEndemic()) qualifiers.add("ENDEMIC");
-			if(this.getAbundanceLevel() != AbundanceLevel.NOT_SPECIFIED) qualifiers.add(this.getAbundanceLevel().toString());
-			if(this.getIntroducedStatus() != PlantIntroducedStatus.NOT_SPECIFIED
-				&& this.getIntroducedStatus() != PlantIntroducedStatus.NOT_APPLICABLE) qualifiers.add(this.getIntroducedStatus().toString());
-			if(this.getNaturalizationDegree() != PlantNaturalizationDegree.NOT_SPECIFIED
-				&& this.getNaturalizationDegree() != PlantNaturalizationDegree.NOT_APPLICABLE) qualifiers.add(this.getNaturalizationDegree().toString());
-			
-			return this.getNativeStatus().toString()
-				+ (qualifiers.size() > 0 ? " ("+Constants.implode(", ", qualifiers.toArray(new String[0]))+")" : "");
-		}
 	}
 
 	/**
@@ -157,7 +52,7 @@ public class ListOfTerritoryStatus {
 		Set<Territory> endemismDegree = this.computeNativeExtent(null);
 		Set<String> thisTerritory = new HashSet<String>();
 		thisTerritory.add(territory);
-		Map<String, ListOfTerritoryStatus.InferredStatus> tmp = computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
+		Map<String, InferredStatus> tmp = computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
 		if(tmp.isEmpty())
 			return null;
 		else

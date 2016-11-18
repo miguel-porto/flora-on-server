@@ -9,6 +9,7 @@
 	<link rel="stylesheet" type="text/css" href="checklist.css"/>
 	<script type="text/javascript" src="basefunctions.js"></script>
 	<script type="text/javascript" src="suggestions.js"></script>
+	<script type="text/javascript" src="ajaxforms.js"></script>
 	<script type="text/javascript" src="manager.js"></script>
 </head>
 <body>

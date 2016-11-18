@@ -26,7 +26,7 @@
 <!--
    <servlet>
       <servlet-name>RedListAdmin</servlet-name>
-      <servlet-class>pt.floraon.redlisttaxoninfo.RedListAdmin</servlet-class>
+      <servlet-class>pt.floraon.redlistdataistAdmin</servlet-class>
    </servlet>
 -->
 
@@ -52,7 +52,7 @@
 
    <servlet>
       <servlet-name>JobDownload</servlet-name>
-      <servlet-class>pt.floraon.jobs.JobDownload</servlet-class>
+      <servlet-class>pt.floraon.jobs.JobServlet</servlet-class>
    </servlet>
 
    <servlet>

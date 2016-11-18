@@ -1,9 +1,9 @@
-package pt.floraon.redlisttaxoninfo;
+package pt.floraon.redlistdata;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.entities.Character;
 import pt.floraon.entities.TaxEnt;
-import pt.floraon.results.ListOfTerritoryStatus;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.utmlatlong.GrahamScan;
 import pt.floraon.utmlatlong.Point2D;
@@ -13,11 +13,11 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.*;
 
 /**
- * Created by miguel on 01-11-2016.
+ * Main page of red list data
+ * Created by Miguel Porto on 01-11-2016.
  */
 @WebServlet("/redlist/*")
 public class RedListAdmin extends FloraOnServlet {
@@ -26,32 +26,39 @@ public class RedListAdmin extends FloraOnServlet {
         String what;
         TaxEnt te;
         long sizeOfSquare = 2000;
-//        driver.getRedListData().
 /*
         if(request.getSession().getAttribute("user") == null) {
             request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
             return;
         }
 */
+        ListIterator<String> path;
+        try {
+            path = getPathIteratorAfter("redlist");
+        } catch (FloraOnException e) {
+            // no territory specified
+            request.setAttribute("what", "addterritory");
+            request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
+            request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
+            return;
+        }
+
+        String territory = path.next();
 
         final OccurrenceProvider foop = driver.getRedListData().getOccurrenceProviders().get(0);
 
         request.setAttribute("what", what = getParameterAsString("w", "main"));
         switch (what) {
             case "main":
-                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, "lu", null, null);
-/*
-                for(TaxEnt te1 : taxEntList) {
-                    ListOfTerritoryStatus.InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(te1.getID())).getInferredNativeStatus("lu");
-                    System.out.println(te1.getName() +": "+ is.getNativeStatus());
-                }
-*/
-
+//                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
+                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory);
+//                taxEntList.get(0).getInferredStatus().getNativeStatus().toString()
                 request.setAttribute("specieslist", taxEntList);
                 break;
 
             case "taxon":
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+                RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
                 if(te.getOldId() != null) {
@@ -108,7 +115,14 @@ ${occ.getUTMCoordinates().getXZone()}${occ.getUTMCoordinates().getYZone()} ${occ
                     request.setAttribute("AOO", (quads.size() * sizeOfSquare * sizeOfSquare) / 1000000);
                     request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
                     request.setAttribute("nquads", quads.size());
+                    if(rlde != null) request.setAttribute("redlistdataentity", rlde);
 
+                    request.setAttribute("GeographicalDistribution_DeclineDistribution", RedListEnums.getEnumValuesAsString(RedListEnums.DeclineDistribution.class));
+                    request.setAttribute("population_NrMatureIndividualsCategory", RedListEnums.NrMatureIndividuals.values());
+                    request.setAttribute("population_TypeOfEstimate", RedListEnums.TypeOfPopulationEstimate.values());
+                    request.setAttribute("population_PopulationDecline", RedListEnums.DeclinePopulation.values());
+                    request.setAttribute("population_SeverelyFragmented", RedListEnums.SeverelyFragmented.values());
+                    request.setAttribute("population_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());
                     request.setAttribute("occurrences", foop);
                 }
                 break;

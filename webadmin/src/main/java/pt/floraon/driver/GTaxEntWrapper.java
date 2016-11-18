@@ -12,7 +12,7 @@ import pt.floraon.entities.SYNONYM;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
-import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
+import pt.floraon.results.InferredStatus;
 
 public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEntWrapper {
 	protected INodeKey thisNode;

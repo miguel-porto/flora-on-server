@@ -5,7 +5,6 @@ import static pt.floraon.driver.Constants.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -20,11 +19,9 @@ import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.jobs.ChecklistDownload;
 import pt.floraon.jobs.JobSubmitter;
-import pt.floraon.jobs.JobRunner;
-import pt.floraon.results.ChecklistEntry;
+import pt.floraon.jobs.JobRunnerFileDownload;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.ResultProcessor;
-import pt.floraon.results.SimpleTaxEntResult;
 import pt.floraon.server.FloraOnServlet;
 
 public class Lists extends FloraOnServlet {
@@ -51,7 +48,7 @@ public class Lists extends FloraOnServlet {
 
 		case "checklist":
 			if(format.equals("csv")) {
-				JobRunner job=JobSubmitter.newJob(new ChecklistDownload(), "checklist.csv", driver);
+				JobRunnerFileDownload job=JobSubmitter.newJobFileDownload(new ChecklistDownload(), "checklist.csv", driver);
 				success(job.getID());
 			} else {
 				error("Not implemented");

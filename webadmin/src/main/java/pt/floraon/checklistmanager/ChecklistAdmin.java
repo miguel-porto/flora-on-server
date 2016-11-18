@@ -30,8 +30,8 @@ public class ChecklistAdmin extends FloraOnServlet {
 		boolean hasTaxonInfoModule = true;
 
 		try {
-			URL oracle = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), request.getContextPath() + "/api/redlisttaxoninfo");
-			BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()));
+			URL rdd = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), request.getContextPath() + "/api/redlistdata");
+			BufferedReader in = new BufferedReader(new InputStreamReader(rdd.openStream()));
 			in.close();
 		} catch (FileNotFoundException e) {
 			hasTaxonInfoModule = false;

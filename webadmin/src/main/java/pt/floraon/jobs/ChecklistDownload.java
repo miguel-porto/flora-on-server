@@ -14,7 +14,7 @@ import pt.floraon.entities.Territory;
 import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.ResultProcessor;
 
-public class ChecklistDownload implements Job {
+public class ChecklistDownload implements JobFileDownload {
 	@Override
 	public void run(IFloraOn driver, OutputStream outputStream) throws FloraOnException, IOException {
 		OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
@@ -30,5 +30,10 @@ public class ChecklistDownload implements Job {
 		
 		//out.print(rpchk1.toCSVTable(terr));
 		out.close();
+	}
+
+	@Override
+	public String getState() {
+		return null;
 	}
 }

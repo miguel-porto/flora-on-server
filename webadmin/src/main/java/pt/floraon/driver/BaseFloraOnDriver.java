@@ -1,18 +1,15 @@
 package pt.floraon.driver;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import pt.floraon.results.TaxEntAndNativeStatusResult;
-import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
+import pt.floraon.results.InferredStatus;
 
 /**
  * Base class for all drivers. Provides database-independent functionality to process things.
@@ -63,5 +60,16 @@ public class BaseFloraOnDriver {
 			out.add(tax);
 		}
 		return out;
+	}
+
+	public static List<String> getPropertyList(Properties properties, String name) {
+		List<String> result = new ArrayList<String>();
+		for (Map.Entry<Object, Object> entry : properties.entrySet())
+		{
+			if (((String)entry.getKey()).matches("^" + Pattern.quote(name) + "\\.\\d+$")) {
+				result.add((String) entry.getValue());
+			}
+		}
+		return result;
 	}
 }

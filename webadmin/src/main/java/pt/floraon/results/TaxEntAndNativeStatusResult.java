@@ -15,7 +15,6 @@ import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.driver.Constants;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
-import pt.floraon.results.ListOfTerritoryStatus.InferredStatus;
 
 public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements ResultItem {
 	/**

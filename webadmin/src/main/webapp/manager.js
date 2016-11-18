@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
 						fetchAJAX('/floraon/checklist/api/job/'+rt.msg+'?query=1',function(rt) {
 							rt=JSON.parse(rt);
 							if(rt.success) {
-								if(rt.msg=='true') {
+								if(rt.msg.ready) {
 									clearInterval(timer);
 									timer=null;
 									var wnd1=document.getElementById('checklink');
@@ -305,13 +305,6 @@ function multipleSelectionButtonClick(ev) {
 	
 }
 
-function attachFormPosters() {
-	var forms=document.querySelectorAll('form.poster');
-	for(var i=0;i<forms.length;i++) {
-		addEvent('submit',forms[i],formPoster);
-	}
-}
-
 function attachTaxDetailsHandlers(el) {
 	attachSuggestionHandler('boxsynonym');
 	attachFormPosters();
@@ -367,20 +360,6 @@ function loadTreeNode(el,callback) {
 	
 }
 
-/**
-	Forms must have a data-path attribute
-*/
-function formPoster(ev) {
-	ev.preventDefault();
-	postAJAXForm(ev.target.getAttribute('data-path'),ev.target,function(rt) {
-		var rt1=JSON.parse(rt);
-		if(rt1.success) {
-			window.location.reload();
-		} else
-			alert(rt1.msg);
-
-	});
-}
 
 /*
 function hoverTreeNode(ev) {
