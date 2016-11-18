@@ -28,7 +28,7 @@ See the details of the data model [here](https://github.com/miguel-porto/flora-o
 **This project is currently under "intense" development and is not usable as it stands now**
 
 ## Managing Checklists
-Still have to describe here the features and algorithms of the checklist module, all taking advantage of the graph data model. Meanwhile, check a live example of the [checklist capabilities here](http://flora-on.pt:8080/floraon/checklist/).
+Still have to describe here the features and algorithms of the checklist module, all taking advantage of the graph data model. Meanwhile, check a live example of the [checklist capabilities here](http://flora-on.pt:8080/floraon/checklist).
 
 ## Installation
 1. Download and install ArangoDB
