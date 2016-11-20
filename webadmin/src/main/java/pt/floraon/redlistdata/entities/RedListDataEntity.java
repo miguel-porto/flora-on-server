@@ -11,13 +11,13 @@ import pt.floraon.results.InferredStatus;
  */
 public class RedListDataEntity extends GeneralDBNode {
     /**
-     * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#TaxEntID}
+     * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#taxEntID}
      */
     private transient TaxEnt taxEnt;
     /**
      * The ID of the TaxEnt
      */
-    private String TaxEntID;
+    private String taxEntID;
     /**
      * The inferred statuses of this TaxEnt in this territory. This is computed upon initialization and stored.
      * Changes in the checklist must be synced.
@@ -36,19 +36,31 @@ public class RedListDataEntity extends GeneralDBNode {
      */
     private String taxonomicProblemDescription;
     /**
-     * The fileds pertaining to the geographical distribution
+     * The fields pertaining to the geographical distribution
      */
     private GeographicalDistribution geographicalDistribution = new GeographicalDistribution();
     /**
-     * The fileds pertaining to the population
+     * The fields pertaining to the population
      */
     private Population population = new Population();
+    /**
+     * The fields pertaining to the ecology
+     */
+    private Ecology ecology = new Ecology();
+    /**
+     * The fields pertaining to the uses and trade
+     */
+    private UsesAndTrade usesAndTrade = new UsesAndTrade();
+    /**
+     * The fields pertaining to the threats
+     */
+    private Threats threats = new Threats();
 
     public RedListDataEntity() {
     }
 
     public RedListDataEntity(String taxEntID, InferredStatus inferredStatus) {
-        this.TaxEntID = taxEntID;
+        this.taxEntID = taxEntID;
         this.inferredStatus = inferredStatus;
     }
 
@@ -61,14 +73,14 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public String getTaxEntID() {
-        return TaxEntID;
+        return taxEntID;
     }
 
     public String[] getTags() {
         return tags;
     }
 
-    public boolean isHasTaxonomicProblems() {
+    public boolean getHasTaxonomicProblems() {
         return hasTaxonomicProblems;
     }
 
@@ -84,8 +96,14 @@ public class RedListDataEntity extends GeneralDBNode {
         return population;
     }
 
+    public Ecology getEcology() { return ecology; }
+
+    public UsesAndTrade getUsesAndTrade() { return usesAndTrade; }
+
+    public Threats getThreats() { return threats;}
+
     public void setTaxEntID(String taxEntID) {
-        TaxEntID = taxEntID;
+        this.taxEntID = taxEntID;
     }
 
     public void setTags(String[] tags) {
@@ -162,6 +180,54 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setPopulation_ExtremeFluctuations(String extremeFluctuations) {
         this.population.setExtremeFluctuations(RedListEnums.ExtremeFluctuations.valueOf(extremeFluctuations));
+    }
+
+    /*******
+     * Ecology fields
+     *******/
+
+    public void setEcology_Description(String description) {
+        this.ecology.setDescription(description);
+    }
+
+    public void setEcology_HabitatTypes(String[] habitatTypes) {
+        this.ecology.setHabitatTypes(habitatTypes);
+    }
+
+    public void setEcology_GenerationLength(String generationLength) {
+        this.ecology.setGenerationLength(RedListEnums.GenerationLength.valueOf(generationLength));
+    }
+
+    /*******
+     * Uses and trade fields
+     *******/
+
+    public void setUsesAndTrade_Description(String description) {
+        this.getUsesAndTrade().setDescription(description);
+    }
+
+    public void setUsesAndTrade_Uses(String[] uses) {
+        this.getUsesAndTrade().setUses(uses);
+    }
+
+    public void setUsesAndTrade_Traded(boolean traded) {
+        this.getUsesAndTrade().setTraded(traded);
+    }
+
+    public void setUsesAndTrade_Overexploitation(String overexploitation) {
+        this.getUsesAndTrade().setOverexploitation(RedListEnums.Overexploitation.valueOf(overexploitation));
+    }
+
+    /*******
+     * Threat fields
+     *******/
+
+    public void setThreats_Description(String description) {
+        this.getThreats().setDescription(description);
+    }
+
+    public void setThreats_NumberOfLocations(Integer numberOfLocations) {
+        this.getThreats().setNumberOfLocations(numberOfLocations);
     }
 
     @Override

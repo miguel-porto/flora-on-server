@@ -41,7 +41,7 @@ public interface IRedListData {
     /**
      * Updates a red list data entity with the fields of the passed object.
      * @param territory
-     * @param id The ID of the entity to update.
+     * @param id The ID of the red list data entity to update.
      * @param rlde The object containing the new values.
      * @param replace false to ignore null values. true to remove fields that are null.
      * @throws DatabaseException

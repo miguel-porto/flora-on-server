@@ -53,6 +53,14 @@ public abstract class DBEntity {
 	}
 
 	/**
+	 * This setter and getter are just for using as a javabean in HTML forms
+	 * @return
+	 */
+	public String getDatabaseId() { return this._id; }
+
+	public void setDatabaseId(String id) { this._id = id; }
+
+	/**
 	 * Gets the collection, i.e. the canonical class name.
 	 * @return
 	 */

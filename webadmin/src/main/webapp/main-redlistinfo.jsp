@@ -65,12 +65,13 @@
                 <div class="warning"><b>Warning</b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
             </c:if>
             <form class="poster" data-path="/floraon/redlist/api/updatedata">
-                <input type="hidden" name="rldeid" value="${redlistdataentity.getID()}"/>
+                <input type="hidden" name="databaseId" value="${rlde.getID()}"/>
+                <input type="hidden" name="territory" value="${territory}"/>
+                <input type="hidden" name="taxEntID" value="${rlde.getTaxEntID()}"/>
 
                 <table class="sheet">
                     <tr class="section1"><td class="number" colspan="3">Section 1 - General info</td></tr>
-                    <tr class="section1 textual"><td class="number">1.1</td><td><input type="submit" value="Save"/></td><td colspan="1"><h1><i>${taxon.getName()}</i></h1><p style="text-align:center"><a href="?w=taxonrecords&id=${taxon.getIDURLEncoded()}">view occurrences</a></p></td></tr>
-                    <tr><td></td><td>${redlistdataentity.getInferredStatus().getVerbatimNativeStatus()}</td></tr>
+                    <tr class="section1 textual"><td class="number">1.1</td><td colspan="2"><div id="summary_toggle" style="float:left">summary</div><h1><i>${taxon.getName()}</i></h1><p style="text-align:center"><a href="?w=taxonrecords&id=${taxon.getIDURLEncoded()}">view occurrences</a></p><input type="submit" value=""/></td></tr>
                     <tr class="section1"><td class="number">1.2</td><td>Authority</td><td>${taxon.getAuthor()}</td></tr>
                     <tr class="section1"><td class="number">1.3</td><td>Synonyms</td><td>
                         <ul>
@@ -82,14 +83,19 @@
                     <tr class="section1"><td class="number">1.4</td><td>Taxonomic problems</td><td>
                         <table>
                             <tr><td>Has taxonomic problems</td><td>
-                            <input type="checkbox" name="hasTaxonomicProblems">
+                                <c:if test="${rlde.getHasTaxonomicProblems()}">
+                                    <input type="checkbox" name="hasTaxonomicProblems" checked="checked">
+                                </c:if>
+                                <c:if test="${!rlde.getHasTaxonomicProblems()}">
+                                    <input type="checkbox" name="hasTaxonomicProblems">
+                                </c:if>
                             </td></tr>
-                            <tr><td>Problem description</td><td><input type="text" name="taxonomicProblemDescription"/></td></tr>
+                            <tr><td>Problem description</td><td><input type="text" name="taxonomicProblemDescription" value="${rlde.getTaxonomicProblemDescription()}"/></td></tr>
                         </table>
                     </td></tr>
                     <tr class="section2"><td class="number" colspan="3">Section 2 - Geographical Distribution</td></tr>
                     <tr class="section2 textual"><td class="number">2.1</td><td>Distribution (textual)</td><td>
-                        <textarea name="geographicalDistribution_Description"></textarea>
+                        <textarea name="geographicalDistribution_Description"><c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out></textarea>
                     </td></tr>
                     <tr class="section2"><td class="number">2.2</td><td>Extent Of Occurrence<br/>(EOO)</td><td>
                         <c:if test="${occurrences == null}">
@@ -114,111 +120,165 @@
                     </td></tr>
                     <tr class="section2"><td class="number">2.4</td><td>Decline in distribution</td><td>
                         <select name="geographicalDistribution_DeclineDistribution">
-                            <c:forEach var="tmp" items="${GeographicalDistribution_DeclineDistribution}">
-                                <option value="${tmp}">${tmp}</option>
+                            <c:forEach var="tmp" items="${geographicalDistribution_DeclineDistribution}">
+                                <c:if test="${rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </td></tr>
                     <tr class="section2"><td class="number">2.5</td><td>Elevation</td><td>
-                        <input name="geographicalDistribution_ElevationRange" type="text"/>
-                        <input name="geographicalDistribution_ElevationRange" type="text"/>
+                        <input name="geographicalDistribution_ElevationRange" type="text" value="${rlde.getGeographicalDistribution().getElevationRange()[0]}"/>
+                        <input name="geographicalDistribution_ElevationRange" type="text" value="${rlde.getGeographicalDistribution().getElevationRange()[1]}"/>
                     </td></tr>
                     <tr class="section3"><td class="number" colspan="3">Section 3 - Population</td></tr>
                     <tr class="section3 textual"><td class="number">3.1</td><td>Population information (textual)</td><td>
-                        <textarea name="population_Description"></textarea>
+                        <textarea name="population_Description"><c:out value="${rlde.getPopulation().getDescription()}"></c:out></textarea>
                     </td></tr>
                     <tr class="section3"><td class="number">3.2</td><td>Nº of mature individuals</td><td>
                         <table>
                             <tr><td>Category</td><td>
                                 <select name="population_NrMatureIndividualsCategory">
                                     <c:forEach var="tmp" items="${population_NrMatureIndividualsCategory}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        <c:if test="${rlde.getPopulation().getNrMatureIndividualsCategory().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getPopulation().getNrMatureIndividualsCategory().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
                                     </c:forEach>
                                 </select>
                             </td></tr>
-                            <tr><td>Exact number</td><td><input type="text" name="population_NrMatureIndividualsExact"/></td></tr>
-                            <tr><td>Textual description</td><td><input type="text" name="population_NrMatureIndividualsDescription"/></td></tr>
+                            <tr><td>Exact number</td><td><input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
+                            <tr><td>Textual description</td><td><input type="text" name="population_NrMatureIndividualsDescription" value="${rlde.getPopulation().getNrMatureIndividualsDescription()}"/></td></tr>
                         </table>
                     </td></tr>
                     <tr class="section3"><td class="number">3.3</td><td>Type of estimate</td><td>
                         <select name="population_TypeOfEstimate">
                             <c:forEach var="tmp" items="${population_TypeOfEstimate}">
-                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </td></tr>
                     <tr class="section3"><td class="number">3.4</td><td>Population decline</td><td>
                         <select name="population_PopulationDecline">
                             <c:forEach var="tmp" items="${population_PopulationDecline}">
-                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                <c:if test="${rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </td></tr>
                     <tr class="section3"><td class="number">3.5</td><td>Population trend</td><td>
-                        <input type="text" name="population_PopulationTrend"/>
+                        <input type="text" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}"/>
                     </td></tr>
                     <tr class="section3"><td class="number">3.6</td><td>Severely fragmented</td><td>
                         <select name="population_SeverelyFragmented">
                             <c:forEach var="tmp" items="${population_SeverelyFragmented}">
-                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                <c:if test="${rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </td></tr>
                     <tr class="section3"><td class="number">3.7</td><td>Extreme fluctuations</td><td>
                         <select name="population_ExtremeFluctuations">
                             <c:forEach var="tmp" items="${population_ExtremeFluctuations}">
-                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                <c:if test="${rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
                             </c:forEach>
                         </select>
                     </td></tr>
                     <tr class="section4"><td class="number" colspan="3">Section 4 - Ecology</td></tr>
                     <tr class="section4 textual"><td class="number">4.1</td><td>Habitats and ecology information (textual)</td><td>
-                        <textarea name="verbatimEcology"></textarea>
+                        <textarea name="ecology_Description"><c:out value="${rlde.getEcology().getDescription()}"></c:out></textarea>
                     </td></tr>
                     <tr class="section4"><td class="number">4.2</td><td>Habitat types</td><td>
-                        <label>A <input type="checkbox" name="A"/></label>
-                        <label>B <input type="checkbox" name="b"/></label>
-                        <label>C <input type="checkbox" name="c"/></label>
+                        <c:forEach var="tmp" items="${ecology_HabitatTypes}">
+                            <c:if test="${habitatTypes.contains(tmp.toString())}">
+                                <label>${tmp.getLabel()} <input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}" checked="checked"/></label>
+                            </c:if>
+                            <c:if test="${!habitatTypes.contains(tmp.toString())}">
+                                <label>${tmp.getLabel()} <input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}"/></label>
+                            </c:if>
+                        </c:forEach>
                     </td></tr>
                     <tr class="section4"><td class="number">4.3</td><td>Life form</td><td>(automatico)</td></tr>
                     <tr class="section4"><td class="number">4.4</td><td>Generation length</td><td>
-                        <select name="generationLength">
-                            <option>No data</option>
-                            <option>1 year</option>
-                            <option>&gt; x years</option>
+                        <select name="ecology_GenerationLength">
+                            <c:forEach var="tmp" items="${ecology_GenerationLength}">
+                                <c:if test="${rlde.getEcology().getGenerationLength().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getEcology().getGenerationLength().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
+                            </c:forEach>
                         </select>
                     </td></tr>
 
                     <tr class="section5"><td class="number" colspan="3">Section 5 - Uses and trade</td></tr>
                     <tr class="section5 textual"><td class="number">5.1</td><td>Uses and trade (textual)</td><td>
-                        <textarea name="verbatimUses"></textarea>
+                        <textarea name="usesAndTrade_Description"><c:out value="${rlde.getUsesAndTrade().getDescription()}"></c:out></textarea>
                     </td></tr>
                     <tr class="section5"><td class="number">5.2</td><td>Uses</td><td>
-                        <label>A <input type="checkbox" name="A"/></label>
-                        <label>B <input type="checkbox" name="b"/></label>
-                        <label>C <input type="checkbox" name="c"/></label>
+                        <c:forEach var="tmp" items="${usesAndTrade_Uses}">
+                            <c:if test="${uses.contains(tmp.toString())}">
+                                <label>${tmp.getLabel()} <input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}" checked="checked"/></label>
+                            </c:if>
+                            <c:if test="${!uses.contains(tmp.toString())}">
+                                <label>${tmp.getLabel()} <input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}"/></label>
+                            </c:if>
+                        </c:forEach>
                     </td></tr>
                     <tr class="section5"><td class="number">5.3</td><td>Trade</td><td>
-                        <input type="checkbox" name="isTraded"/>
+                        <c:if test="${rlde.getUsesAndTrade().isTraded()}">
+                            <label>Is traded <input type="checkbox" name="usesAndTrade_Traded" checked="checked"/></label>
+                        </c:if>
+                        <c:if test="${!rlde.getUsesAndTrade().isTraded()}">
+                            <label>Is traded <input type="checkbox" name="usesAndTrade_Traded"/></label>
+                        </c:if>
                     </td></tr>
                     <tr class="section5"><td class="number">5.4</td><td>Overexploitation</td><td>
-                        <select name="overexploitation">
-                            <option>No data</option>
-                            <option>Not ...</option>
-                            <option>Explored but not...</option>
-                            <option>Overexploi...</option>
+                        <select name="usesAndTrade_Overexploitation">
+                            <c:forEach var="tmp" items="${usesAndTrade_Overexploitation}">
+                                <c:if test="${rlde.getUsesAndTrade().getOverexploitation().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getUsesAndTrade().getOverexploitation().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
+                            </c:forEach>
                         </select>
                     </td></tr>
 
                     <tr class="section6"><td class="number" colspan="3">Section 6 - Threats</td></tr>
                     <tr class="section6 textual"><td class="number">6.1</td><td>Threat description (textual)</td><td>
-                        <textarea name="verbatimThreats"></textarea>
+                        <textarea name="threats_Description"><c:out value="${rlde.getThreats().getDescription()}"></c:out></textarea>
                     </td></tr>
-                    <tr class="section6 textual"><td class="number">6.2</td><td>Threats</td><td>
+                    <tr class="section6"><td class="number">6.2</td><td>Threats</td><td>
                         (a fazer...)
                     </td></tr>
-                    <tr class="section6 textual"><td class="number">6.3</td><td>Number of locations</td><td>
-                        <input type="text" name="numberLocations"/><br/>
+                    <tr class="section6"><td class="number">6.3</td><td>Number of locations</td><td>
+                        <input type="text" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/><br/>
                         (nº de subpops sugerido)
                     </td></tr>
 

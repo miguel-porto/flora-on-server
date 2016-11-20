@@ -17,14 +17,29 @@ h2 {font-size:1.2em}
 #filters .filter.selected {background-color:#64dd17;}
 
 input, textarea, select {font-size: 16px; vertical-align: middle;}
+input[type=submit] {
+    background: #ff4081 url(images/ic_menu_save.png) no-repeat center;
+    background-size: 48px 48px;
+    width:64px;
+    height:64px;
+    border:2px solid transparent;
+    border-radius:50%;
+    cursor:pointer;
+    box-shadow: 0 0 16px #222;
+    position:fixed;
+    right:0;bottom:0;
+    margin: 0 16px 16px 0;
+}
+input[type=submit]:hover {border:2px solid #ff4081}
+
 table {text-align: left;}
 table th {background-color:#ff4081; font-weight:bold; cursor:pointer; padding:6px; color:white;}
 table td {padding:5px;}
 table tr:hover td {background-color:#eee;}
 table.sheet {width:100%; font-size:1.2em; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
-table.sheet tr>td:nth-of-type(2) {font-weight:bold;}
+table.sheet tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea {width:100%}
-/*table.sheet tr:not(.textual) {display:none;}*/
+table.sheet.summary tr:not(.textual) {display:none;}
 td.number {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
 .section1 td.number {background-color: #81c784;}
 .section2 td.number {background-color: #7986cb;}

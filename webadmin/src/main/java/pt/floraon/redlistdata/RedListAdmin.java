@@ -1,5 +1,7 @@
 package pt.floraon.redlistdata;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -115,14 +117,30 @@ ${occ.getUTMCoordinates().getXZone()}${occ.getUTMCoordinates().getYZone()} ${occ
                     request.setAttribute("AOO", (quads.size() * sizeOfSquare * sizeOfSquare) / 1000000);
                     request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
                     request.setAttribute("nquads", quads.size());
-                    if(rlde != null) request.setAttribute("redlistdataentity", rlde);
+/*
+                    Gson gs = new GsonBuilder().setPrettyPrinting().create();
+                    System.out.println(gs.toJson(rlde));
+*/
 
-                    request.setAttribute("GeographicalDistribution_DeclineDistribution", RedListEnums.getEnumValuesAsString(RedListEnums.DeclineDistribution.class));
+                    if(rlde != null) request.setAttribute("rlde", rlde);
+                    request.setAttribute("territory", territory);
+
+//rlde.getThreats().getNumberOfLocations()
+                    // enums
+                    request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
                     request.setAttribute("population_NrMatureIndividualsCategory", RedListEnums.NrMatureIndividuals.values());
                     request.setAttribute("population_TypeOfEstimate", RedListEnums.TypeOfPopulationEstimate.values());
                     request.setAttribute("population_PopulationDecline", RedListEnums.DeclinePopulation.values());
                     request.setAttribute("population_SeverelyFragmented", RedListEnums.SeverelyFragmented.values());
                     request.setAttribute("population_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());
+                    request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
+                    request.setAttribute("ecology_GenerationLength", RedListEnums.GenerationLength.values());
+                    request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
+                    request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
+
+                    request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+                    request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
+
                     request.setAttribute("occurrences", foop);
                 }
                 break;

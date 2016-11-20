@@ -31,14 +31,25 @@ public class RedListEnums {
         return out.toArray(new String[out.size()]);
     }
 
-    public enum DeclineDistribution {
-        NO_INFORMATION
-        , STABLE
-        , POSSIBLE_INCREASE
-        , DECREASE_REVERSIBLE
-        , DECREASE_IRREVERSIBLE
-        , POSSIBLE_DECREASE_FUTURE
-        , DECREASE_PAST_FUTURE
+    public enum DeclineDistribution implements LabelledEnum {
+        NO_INFORMATION("No information")
+        , STABLE("Stable")
+        , POSSIBLE_INCREASE("Poss inc")
+        , DECREASE_REVERSIBLE("Dec rev")
+        , DECREASE_IRREVERSIBLE("Dec irrev")
+        , POSSIBLE_DECREASE_FUTURE("Dec fut")
+        , DECREASE_PAST_FUTURE("Dec past fut");
+
+        private String label;
+
+        DeclineDistribution(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
     }
 
     public enum TypeOfPopulationEstimate implements LabelledEnum {
@@ -132,4 +143,74 @@ public class RedListEnums {
             return label;
         }
     }
+
+    public enum GenerationLength implements LabelledEnum {
+        NO_DATA("No data")
+        , ONE_YEAR("1 year")
+        , GT_ONE_YEAR("> 1 years");
+
+        private String label;
+
+        GenerationLength(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum HabitatTypes implements LabelledEnum {
+        HAB_A("Habitat A")
+        ,HAB_B("Habitat B")
+        ,HAB_C("Habitat C");
+
+        private String label;
+
+        HabitatTypes(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum Uses implements LabelledEnum {
+        USE_A("Medicinal")
+        , USE_B("Edible")
+        , USE_C("Ornamental");
+
+        private String label;
+
+        Uses(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum Overexploitation implements LabelledEnum {
+        NO_DATA("No information")
+        , OVEREXPLOITED("Potentially threatened by overexploitation")
+        , EXPLOITED("Exploited but not overexploited")
+        , NOT_EXPLOITED("Not exploited");
+
+        private String label;
+
+        Overexploitation(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
 }
