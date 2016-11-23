@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class FloraOnOccurrenceProvider implements OccurrenceProvider {
     final private URL floraOnURL;
-    final private List<SimpleOccurrence> occurrenceList = new ArrayList<>();
+    private List<SimpleOccurrence> occurrenceList;
 
     @Override
     public int size() {
@@ -70,6 +70,7 @@ public class FloraOnOccurrenceProvider implements OccurrenceProvider {
         JsonElement resp = new JsonParser().parse(isr);
         occArray = new Gson().fromJson(resp.getAsJsonObject().getAsJsonArray("msg"), listType);
 
+        occurrenceList = new ArrayList<>();
         for(FloraOnOccurrence o : occArray) {
             if(!o.duvida) occurrenceList.add(new SimpleOccurrence(o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
                     , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));

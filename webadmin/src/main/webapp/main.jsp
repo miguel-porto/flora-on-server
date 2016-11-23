@@ -19,7 +19,7 @@
                         <tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
                         <tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
                         </table>
-                        <input type="submit" value="Login"/>
+                        <input type="submit" class="subbutton" value="Login"/>
                     </form>
                 </c:when>
                 <c:otherwise>
@@ -35,19 +35,19 @@
 
         <div class="bigbuttonwrapper">
             <div class="bigbutton section2">
-                <a href="/floraon/checklist">Checklist manager</a>
+                <h1><a href="/floraon/checklist">Checklist manager</a></h1>
             </div>
         </div>
 
         <div class="bigbuttonwrapper">
             <div class="bigbutton section3">
-                <a href="/floraon/redlist">Red list data portal</a><br/>
-                <c:if test="${redlistterritories.size() == 0}">
-                    <p>nenhum dataset</p>
+                <h1>Red list data portal</h1>
+                <c:if test="${sessionScope.user != null && sessionScope.user.getRole() >= 40}">
+                    <div class="subbutton"><a href="/floraon/redlist">create new red list dataset</a></div>
                 </c:if>
                 <c:if test="${redlistterritories.size() > 0}">
                     <c:forEach var="terr" items="${redlistterritories}">
-                    <p>${terr}</p>
+                        <div class="subbutton"><a href="/floraon/redlist/${terr}">dataset for ${terr}</a></div>
                     </c:forEach>
                 </c:if>
             </div>

@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata;
 
+import com.google.gson.Gson;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.entities.TaxEnt;
@@ -23,7 +24,9 @@ public class ComputeNativeStatusJob implements JobTask {
         RedListDataEntity rlde;
 
         for(TaxEnt te1 : taxEntList) {
+//            System.out.println("Creating "+te1.getID());
             rlde = new RedListDataEntity(te1.getID(), driver.wrapTaxEnt(driver.asNodeKey(te1.getID())).getInferredNativeStatus(territory));
+//            System.out.println(new Gson().toJson(rlde));
             driver.getRedListData().createRedListDataEntity(territory, rlde);
             System.out.println(te1.getFullName()+": "+ rlde.getInferredStatus().getNativeStatus().toString());
             n++;

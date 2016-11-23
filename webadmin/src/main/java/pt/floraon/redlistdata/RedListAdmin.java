@@ -1,7 +1,5 @@
 package pt.floraon.redlistdata;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -34,6 +32,7 @@ public class RedListAdmin extends FloraOnServlet {
             return;
         }
 */
+
         ListIterator<String> path;
         try {
             path = getPathIteratorAfter("redlist");
@@ -54,7 +53,7 @@ public class RedListAdmin extends FloraOnServlet {
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
                 List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory);
-//                taxEntList.get(0).getInferredStatus().getNativeStatus().toString()
+//                taxEntList.get(0).getInferredStatus().getStatusSummary()
                 request.setAttribute("specieslist", taxEntList);
                 break;
 
@@ -125,27 +124,32 @@ ${occ.getUTMCoordinates().getXZone()}${occ.getUTMCoordinates().getYZone()} ${occ
                     if(rlde != null) request.setAttribute("rlde", rlde);
                     request.setAttribute("territory", territory);
 
-//rlde.getThreats().getNumberOfLocations()
                     // enums
                     request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
                     request.setAttribute("population_NrMatureIndividualsCategory", RedListEnums.NrMatureIndividuals.values());
                     request.setAttribute("population_TypeOfEstimate", RedListEnums.TypeOfPopulationEstimate.values());
                     request.setAttribute("population_PopulationDecline", RedListEnums.DeclinePopulation.values());
                     request.setAttribute("population_SeverelyFragmented", RedListEnums.SeverelyFragmented.values());
-                    request.setAttribute("population_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());
+                    request.setAttribute("population_ExtremeFluctuations", RedListEnums.YesNoNA.values());
                     request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
                     request.setAttribute("ecology_GenerationLength", RedListEnums.GenerationLength.values());
                     request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
                     request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
+                    request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
+                    request.setAttribute("conservation_ExSituConservation", RedListEnums.YesNoNA.values());
+                    request.setAttribute("conservation_ProposedConservationActions", RedListEnums.ProposedConservationActions.values());
 
                     request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
                     request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
+                    request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
 
                     request.setAttribute("occurrences", foop);
                 }
                 break;
 
             case "taxonrecords":
+                if(request.getSession().getAttribute("user") == null) break;
+
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 if(te.getOldId() != null) {

@@ -139,13 +139,13 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 			// FIXME return all taxa - should know the root node?
 		} else {
 			Log.warn("Possibly omitting taxa from the checklist.");
-//			System.out.println("Warning: .");
 			query=AQLQueries.getString("ListDriver.8"
 					, territory
 					, onlyCurrent ? "&& thistaxon.current" : ""
 					, withLimit ? "LIMIT "+offset+","+count : ""
 					, higherTaxa ? ", OUTBOUND PART_OF" : ""
 			);
+			System.out.println(query);
 		}
 		try {
 			return database.query(query, null, null, TaxEnt.class).asListRemaining();

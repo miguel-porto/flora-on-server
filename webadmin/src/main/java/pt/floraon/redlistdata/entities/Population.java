@@ -12,7 +12,7 @@ public class Population {
     private RedListEnums.DeclinePopulation populationDecline;
     private Integer populationTrend;
     private RedListEnums.SeverelyFragmented severelyFragmented;
-    private RedListEnums.ExtremeFluctuations extremeFluctuations;
+    private RedListEnums.YesNoNA extremeFluctuations;
 
     public String getDescription() {
         return description;
@@ -46,7 +46,7 @@ public class Population {
         return severelyFragmented;
     }
 
-    public RedListEnums.ExtremeFluctuations getExtremeFluctuations() {
+    public RedListEnums.YesNoNA getExtremeFluctuations() {
         return extremeFluctuations;
     }
 
@@ -82,7 +82,7 @@ public class Population {
         this.severelyFragmented = severelyFragmented;
     }
 
-    public void setExtremeFluctuations(RedListEnums.ExtremeFluctuations extremeFluctuations) {
+    public void setExtremeFluctuations(RedListEnums.YesNoNA extremeFluctuations) {
         this.extremeFluctuations = extremeFluctuations;
     }
 }

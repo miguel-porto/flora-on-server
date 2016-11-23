@@ -143,7 +143,7 @@
 				<c:forEach var="ins" items="${inferredNativeStatus}">
 					<tr>
 					<td><c:out value="${ins.getValue().getTerritoryName()}"></c:out></td>
-					<td><c:out value="${ins.getValue().getVerbatimNativeStatus()}"></c:out></td>
+					<td><c:out value="${ins.getValue().getStatusSummary()}"></c:out></td>
 					</tr>
 				</c:forEach>
 			</table>

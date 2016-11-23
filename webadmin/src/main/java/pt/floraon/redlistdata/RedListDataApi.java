@@ -49,7 +49,7 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "updatedata":
                 RedListDataEntity rlde = new RedListDataEntity();
-                HashMap map = new HashMap();
+                HashMap<String, String[]> map = new HashMap<>();
                 Enumeration names = request.getParameterNames();
                 while (names.hasMoreElements()) {
                     String name = (String) names.nextElement();
@@ -57,14 +57,18 @@ public class RedListDataApi extends FloraOnServlet {
                 }
                 try {
                     BeanUtils.populate(rlde, map);
-                } catch (IllegalAccessException e) {
+                } catch (InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    error("Could not populate the java bean");
+                    return;
                 }
                 Gson gs = new GsonBuilder().setPrettyPrinting().create();
-                driver.getRedListData().updateRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getID()), rlde, false);
+                System.out.println("BEAN:");
                 System.out.println(gs.toJson(rlde));
+                rlde = driver.getRedListData().updateRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getID()), rlde, false);
+                System.out.println("NEW DOC:");
+                System.out.println(gs.toJson(rlde));
+                success("Ok");
                 break;
         }
     }

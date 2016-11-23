@@ -53,7 +53,8 @@ public class RedListEnums {
     }
 
     public enum TypeOfPopulationEstimate implements LabelledEnum {
-        EXACT_COUNT("Exact count")
+        NO_DATA("Not estimated")
+        , EXACT_COUNT("Exact count")
         , APPROXIMATE_COUNT("Approximate count")
         , ROUGH_ESTIMATE("Rough estimate");
 
@@ -127,14 +128,14 @@ public class RedListEnums {
         }
     }
 
-    public enum ExtremeFluctuations implements LabelledEnum {
-        NOT_APPLICABLE("Not applicable")
+    public enum YesNoNA implements LabelledEnum {
+        NO_DATA("No data")
         , NO("No")
         , YES("Yes");
 
         private String label;
 
-        ExtremeFluctuations(String desc) {
+        YesNoNA(String desc) {
             this.label = desc;
         }
 
@@ -204,6 +205,25 @@ public class RedListEnums {
         private String label;
 
         Overexploitation(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum ProposedConservationActions implements LabelledEnum {
+        NOT_REQUIRED("Additional studies or measures are not required")
+        , POPULATION_STUDIES("Requires studies about population dynamics or ecological requirements")
+        , THREAT_STUDIES("Threats should be studied")
+        , LEGISLATION("Requires conservation legislation")
+        , TAXONOMIC_STUDIES("Requires taxonomic studies");
+
+        private String label;
+
+        ProposedConservationActions(String desc) {
             this.label = desc;
         }
 

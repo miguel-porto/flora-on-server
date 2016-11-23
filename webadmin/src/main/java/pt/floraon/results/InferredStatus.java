@@ -96,7 +96,7 @@ public class InferredStatus {
      *
      * @return
      */
-    public String getVerbatimNativeStatus() {
+    public String getStatusSummary() {
         List<String> qualifiers = new ArrayList<String>();
         if (this.getOccurrenceStatus() != Constants.OccurrenceStatus.PRESENT)
             qualifiers.add(this.getOccurrenceStatus().toString());

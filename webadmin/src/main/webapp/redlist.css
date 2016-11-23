@@ -16,6 +16,10 @@ h2 {font-size:1.2em}
 #filters .filter {background-color:#ddd; padding:4px 8px; border-radius:8px; margin:6px; display:inline-block; cursor:pointer}
 #filters .filter.selected {background-color:#64dd17;}
 
+#sheet-header {
+    background-color: rgba(255,  64, 129, 0.3);
+}
+
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 input[type=submit] {
     background: #ff4081 url(images/ic_menu_save.png) no-repeat center;
@@ -32,14 +36,17 @@ input[type=submit] {
 }
 input[type=submit]:hover {border:2px solid #ff4081}
 
+label {display:block}
+
 table {text-align: left;}
 table th {background-color:#ff4081; font-weight:bold; cursor:pointer; padding:6px; color:white;}
 table td {padding:5px;}
 table tr:hover td {background-color:#eee;}
 table.sheet {width:100%; font-size:1.2em; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
-table.sheet tr>td:nth-of-type(2) {font-weight:bold;width:20%}
+table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea {width:100%}
 table.sheet.summary tr:not(.textual) {display:none;}
+table.sheet.summary #summary_toggle {background-color:yellow;}
 td.number {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
 .section1 td.number {background-color: #81c784;}
 .section2 td.number {background-color: #7986cb;}
@@ -59,4 +66,14 @@ table.sheet .section6>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0
 table.sheet .section7>td:nth-of-type(2) {background-color: rgba(100, 221,  23, 0.3);}
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 
-div.warning {display:inline-block; background-color:#c62828; border-radius:6px; margin:10px 0; font-size:1.3em; text-align:center; color:white; padding:10px;}
+div.warning {display:inline-block; background-color:#c62828; border-radius:6px; margin:10px auto; font-size:1.3em; text-align:center; color:white; padding:10px;}
+
+.togglebutton {
+    border-radius: 20px;
+    padding: 2px 14px;
+    background-color: #ff4081;
+    display:inline-block;
+    cursor:pointer;
+    font-size:0.8em;
+    text-transform: uppercase;
+}

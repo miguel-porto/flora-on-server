@@ -52,7 +52,7 @@ public class UserLogin extends HttpServlet {
 			for(int i=0;i<users.getLength();i++) {
 				if(((Element)users.item(i)).getAttribute("name").equals(username)
 						&& ((Element)users.item(i)).getAttribute("password").equals(password)) {
-					request.getSession().setAttribute("user", new User(username, ((Element)users.item(i)).getAttribute("role")));
+					request.getSession().setAttribute("user", new User(username, User.Role.valueOf(((Element)users.item(i)).getAttribute("role"))));
 					//request.getSession().setAttribute("message", ((Element)users.item(i)).getAttribute("name"));
 					break;
 				}

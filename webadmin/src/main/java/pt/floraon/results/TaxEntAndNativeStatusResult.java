@@ -140,7 +140,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 
 		for(String t : allTerritories) {
 			if(tStatus.containsKey(t))
-				rec.print(tStatus.get(t).getVerbatimNativeStatus());
+				rec.print(tStatus.get(t).getStatusSummary());
 			else
 				rec.print("");
 		}

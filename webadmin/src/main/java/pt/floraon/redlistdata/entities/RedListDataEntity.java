@@ -7,6 +7,8 @@ import pt.floraon.entities.TaxEnt;
 import pt.floraon.results.InferredStatus;
 
 /**
+ * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
+ * territory.
  * Created by miguel on 11-11-2016.
  */
 public class RedListDataEntity extends GeneralDBNode {
@@ -55,6 +57,10 @@ public class RedListDataEntity extends GeneralDBNode {
      * The fields pertaining to the threats
      */
     private Threats threats = new Threats();
+    /**
+     * The fields pertaining to conservation measures
+     */
+    private Conservation conservation = new Conservation();
 
     public RedListDataEntity() {
     }
@@ -102,6 +108,8 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public Threats getThreats() { return threats;}
 
+    public Conservation getConservation() { return conservation; }
+
     public void setTaxEntID(String taxEntID) {
         this.taxEntID = taxEntID;
     }
@@ -135,7 +143,11 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setGeographicalDistribution_DeclineDistribution(String declineDistribution) {
-        this.geographicalDistribution.setDeclineDistribution(RedListEnums.DeclineDistribution.valueOf(declineDistribution));
+        try {
+            this.geographicalDistribution.setDeclineDistribution(RedListEnums.DeclineDistribution.valueOf(declineDistribution));
+        } catch (IllegalArgumentException e) {
+            this.geographicalDistribution.setDeclineDistribution(RedListEnums.DeclineDistribution.NO_INFORMATION);
+        }
     }
 
     public void setGeographicalDistribution_ElevationRange(Integer[] elevationRange) {
@@ -151,7 +163,11 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setPopulation_NrMatureIndividualsCategory(String nrMatureIndividualsCategory) {
-        this.population.setNrMatureIndividualsCategory(RedListEnums.NrMatureIndividuals.valueOf(nrMatureIndividualsCategory));
+        try {
+            this.population.setNrMatureIndividualsCategory(RedListEnums.NrMatureIndividuals.valueOf(nrMatureIndividualsCategory));
+        } catch (IllegalArgumentException e) {
+            this.population.setNrMatureIndividualsCategory(RedListEnums.NrMatureIndividuals.NO_DATA);
+        }
     }
 
     public void setPopulation_NrMatureIndividualsExact(Long nrMatureIndividualsExact) {
@@ -163,11 +179,19 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setPopulation_TypeOfEstimate(String typeOfEstimate) {
-        this.population.setTypeOfEstimate(RedListEnums.TypeOfPopulationEstimate.valueOf(typeOfEstimate));
+        try {
+            this.population.setTypeOfEstimate(RedListEnums.TypeOfPopulationEstimate.valueOf(typeOfEstimate));
+        } catch (IllegalArgumentException e) {
+            this.population.setTypeOfEstimate(RedListEnums.TypeOfPopulationEstimate.NO_DATA);
+        }
     }
 
     public void setPopulation_PopulationDecline(String populationDecline) {
-        this.population.setPopulationDecline(RedListEnums.DeclinePopulation.valueOf(populationDecline));
+        try {
+            this.population.setPopulationDecline(RedListEnums.DeclinePopulation.valueOf(populationDecline));
+        } catch (IllegalArgumentException e) {
+            this.population.setPopulationDecline(RedListEnums.DeclinePopulation.NO_INFORMATION);
+        }
     }
 
     public void setPopulation_PopulationTrend(Integer populationTrend) {
@@ -175,11 +199,19 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setPopulation_SeverelyFragmented(String severelyFragmented) {
-        this.population.setSeverelyFragmented(RedListEnums.SeverelyFragmented.valueOf(severelyFragmented));
+        try {
+            this.population.setSeverelyFragmented(RedListEnums.SeverelyFragmented.valueOf(severelyFragmented));
+        } catch (IllegalArgumentException e) {
+            this.population.setSeverelyFragmented(RedListEnums.SeverelyFragmented.NO_INFORMATION);
+        }
     }
 
     public void setPopulation_ExtremeFluctuations(String extremeFluctuations) {
-        this.population.setExtremeFluctuations(RedListEnums.ExtremeFluctuations.valueOf(extremeFluctuations));
+        try {
+            this.population.setExtremeFluctuations(RedListEnums.YesNoNA.valueOf(extremeFluctuations));
+        } catch (IllegalArgumentException e) {
+            this.population.setExtremeFluctuations(RedListEnums.YesNoNA.NO_DATA);
+        }
     }
 
     /*******
@@ -195,7 +227,11 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setEcology_GenerationLength(String generationLength) {
-        this.ecology.setGenerationLength(RedListEnums.GenerationLength.valueOf(generationLength));
+        try {
+            this.ecology.setGenerationLength(RedListEnums.GenerationLength.valueOf(generationLength));
+        } catch (IllegalArgumentException e) {
+            this.ecology.setGenerationLength(RedListEnums.GenerationLength.NO_DATA);
+        }
     }
 
     /*******
@@ -215,7 +251,11 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setUsesAndTrade_Overexploitation(String overexploitation) {
-        this.getUsesAndTrade().setOverexploitation(RedListEnums.Overexploitation.valueOf(overexploitation));
+        try {
+            this.getUsesAndTrade().setOverexploitation(RedListEnums.Overexploitation.valueOf(overexploitation));
+        } catch (IllegalArgumentException e) {
+            this.getUsesAndTrade().setOverexploitation(RedListEnums.Overexploitation.NO_DATA);
+        }
     }
 
     /*******
@@ -228,6 +268,34 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setThreats_NumberOfLocations(Integer numberOfLocations) {
         this.getThreats().setNumberOfLocations(numberOfLocations);
+    }
+
+    /*******
+     * Conservation fields
+     *******/
+
+    public void setConservation_Description(String description) {
+        this.conservation.setDescription(description);
+    }
+
+    public void setConservation_ConservationPlans(String conservationPlans) {
+        try {
+            this.conservation.setConservationPlans(RedListEnums.YesNoNA.valueOf(conservationPlans));
+        } catch (IllegalArgumentException e) {
+            this.conservation.setConservationPlans(RedListEnums.YesNoNA.NO_DATA);
+        }
+    }
+
+    public void setConservation_ExSituConservation(String exSituConservation) {
+        try {
+            this.conservation.setExSituConservation(RedListEnums.YesNoNA.valueOf(exSituConservation));
+        } catch (IllegalArgumentException e) {
+            this.conservation.setExSituConservation(RedListEnums.YesNoNA.NO_DATA);
+        }
+    }
+
+    public void setConservation_ProposedConservationActions(String[] proposedConservationActions) {
+        this.conservation.setProposedConservationActions(proposedConservationActions);
     }
 
     @Override

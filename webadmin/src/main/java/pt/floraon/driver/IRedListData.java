@@ -45,8 +45,9 @@ public interface IRedListData {
      * @param rlde The object containing the new values.
      * @param replace false to ignore null values. true to remove fields that are null.
      * @throws DatabaseException
+     * @return The new {@link RedListDataEntity}
      */
-    void updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
+    RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
 
     /**
      * Fetches all red list data for the given territory

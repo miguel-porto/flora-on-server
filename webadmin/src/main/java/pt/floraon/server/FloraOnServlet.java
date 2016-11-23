@@ -94,8 +94,16 @@ public class FloraOnServlet extends HttpServlet {
 	}
 
 	protected boolean isAuthenticatedAsAdvanced() {
-		return request.getSession().getAttribute("user") != null && ((User)request.getSession().getAttribute("user")).getRole().equals("advanced");
+		return request.getSession().getAttribute("user") != null && ((User)request.getSession().getAttribute("user")).getRole() == User.Role.ADVANCED.getValue();
 	}
+
+	protected Integer getUserRole() {
+		if(request.getSession().getAttribute("user") != null)
+			return ((User)request.getSession().getAttribute("user")).getRole();
+		else
+			return null;
+	}
+
 	/**
 	 * Gets the called path, either if it was jsp:included or requested by browser
 	 * @return

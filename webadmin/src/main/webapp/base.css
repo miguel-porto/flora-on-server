@@ -31,19 +31,16 @@ label input {vertical-align:middle;}
     border-radius:6px;
     box-shadow:0 0 12px #777;
     color:white;
-    transition: transform 0.1s, box-shadow 0.1s;
+    opacity:0.9;
 }
-.bigbutton:hover {
-    transform: translate(-1px, -1px);
-    box-shadow:1px 1px 12px #777;
-}
+.bigbutton:hover {opacity:1}
 
 .bigbutton.section1 {background-color: #81c784; padding:10px; text-align:right}
-.bigbutton.section1 input[type=submit] {background-color:#afb42b; border:0; box-shadow:0 0 3px #777; margin:8px; cursor:pointer; font-size:1.3em; padding:2px 8px;}
 .bigbutton.section2 {background-color: #7986cb;}
 .bigbutton.section3 {background-color: #ff4081;}
-.bigbutton a {padding:10px 60px 60px 10px; display:inline-block; font-size:2em; color:white;}
-.bigbutton p {text-align:right;}
+.bigbutton h1 {padding:10px 60px 60px 10px; display:inline-block; font-size:2em; color:white; font-weight:normal}
+.bigbutton h1>a { color:white; font-weight:normal;}
+.bigbutton .subbutton {background-color:#afb42b; border:0; box-shadow:0 0 3px #777; margin:8px; cursor:pointer; font-size:1.3em; padding:2px 8px;}
 
 .noselect {
     -webkit-touch-callout: none;

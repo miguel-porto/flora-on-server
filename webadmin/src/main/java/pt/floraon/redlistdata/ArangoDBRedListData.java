@@ -5,10 +5,12 @@ import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.CollectionEntity;
 import com.arangodb.entity.CollectionType;
+import com.arangodb.entity.DocumentUpdateEntity;
 import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.HashIndexOptions;
+import com.arangodb.velocypack.exception.VPackParserException;
 import pt.floraon.driver.*;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrenceproviders.FloraOnOccurrenceProvider;
@@ -76,6 +78,7 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
 
     @Override
     public RedListDataEntity getRedListDataEntity(String territory, INodeKey taxEntId) throws DatabaseException {
+
         try {
             return database.query(AQLRedListQueries.getString("redlistdata.2", territory, taxEntId), null, null, RedListDataEntity.class).next();
         } catch (ArangoDBException e) {
@@ -100,7 +103,7 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
         } catch (ArangoDBException e) {
             try {
                 database.createCollection(collectionName, new CollectionCreateOptions().type(CollectionType.DOCUMENT));
-                database.collection(collectionName).createHashIndex(Arrays.asList("TaxEntID"), new HashIndexOptions().unique(true).sparse(false));
+                database.collection(collectionName).createHashIndex(Arrays.asList("taxEntID"), new HashIndexOptions().unique(true).sparse(false));
             } catch (ArangoDBException e1) {
                 throw new FloraOnException(e1.getMessage());
             }
@@ -109,13 +112,15 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     }
 
     @Override
-    public void updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace)
+    public RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace)
             throws DatabaseException {
+        DocumentUpdateEntity<RedListDataEntity> out;
         try {
-            database.collection("redlist_" + territory).updateDocument(id.getDBKey(), rlde
-                    , new DocumentUpdateOptions().serializeNull(replace).keepNull(false));
+            out = database.collection("redlist_" + territory).updateDocument(id.getDBKey(), rlde
+                    , new DocumentUpdateOptions().serializeNull(replace).keepNull(false).returnNew(true));
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
+        return out.getNew();
     }
 }
