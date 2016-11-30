@@ -17,48 +17,30 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.entities.User;
 
-public class UserLogin extends HttpServlet {
+public class UserLogin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if(request.getParameter("logout")!=null) {
+	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
+		if(getParameterAsString("logout") != null) {
 			request.getSession().removeAttribute("user");
 			response.sendRedirect("main");
 		} else {
-			String username=request.getParameter("username");
-			String password=request.getParameter("password");
-			Document userDB=null;
-			File dir = new File(this.getServletContext().getRealPath("/")).getParentFile();
+			String username=getParameterAsString("username");
+			char[] password=getParameterAsString("password").toCharArray();
+			User user = driver.getAdministration().authenticateUser(username, password);
 
-			try {
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				userDB = dBuilder.parse(new FileInputStream(dir.getAbsolutePath() + "/users.xml"));
-				userDB.getDocumentElement().normalize();
-			} catch (ParserConfigurationException | SAXException e) {
-				e.printStackTrace();
+			if(user == null) {
+				response.sendRedirect("main?w=login&reason=notfound");
+			} else {
+				user.clearPassword();
+				request.getSession().setAttribute("user", user);
 				response.sendRedirect("main");
-				return;
-			} catch (FileNotFoundException e) {
-				throw new IOException("Cannot find file " + dir.getAbsolutePath() + "/users.xml");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
-			
-			NodeList users=userDB.getElementsByTagName("user");
-			for(int i=0;i<users.getLength();i++) {
-				if(((Element)users.item(i)).getAttribute("name").equals(username)
-						&& ((Element)users.item(i)).getAttribute("password").equals(password)) {
-					request.getSession().setAttribute("user", new User(username, User.Role.valueOf(((Element)users.item(i)).getAttribute("role"))));
-					//request.getSession().setAttribute("message", ((Element)users.item(i)).getAttribute("name"));
-					break;
-				}
-			}
-			response.sendRedirect("main?w=login&reason=notfound");
 		}
-		//request.getRequestDispatcher("/main.jsp").forward(request, response);
 	}
 }

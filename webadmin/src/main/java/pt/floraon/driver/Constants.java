@@ -383,10 +383,11 @@ public final class Constants {
     	specieslist(pt.floraon.entities.SpeciesList.class),		// node representing a species inventory
     	taxent(pt.floraon.entities.TaxEnt.class),				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
-    	author(pt.floraon.entities.Author.class),
+    	author(pt.floraon.entities.Author.class),				// a data contributor
     	attribute(pt.floraon.entities.Attribute.class),			// a morphological attribute (e.g. red flower)
     	character(pt.floraon.entities.Character.class),			// a morphological character (e.g. flower color, isLeaf shape...)
     	image(pt.floraon.entities.Image.class),
+		user(pt.floraon.entities.User.class),					// a database user
     	territory(pt.floraon.entities.Territory.class);			// a geographic territory (e.g. country)
     	
     	Class<? extends GeneralDBNode> nodeClass;

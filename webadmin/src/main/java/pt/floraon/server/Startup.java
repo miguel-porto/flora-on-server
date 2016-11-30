@@ -23,6 +23,7 @@ public class Startup implements ServletContextListener {
 		File dir = new File(sce.getServletContext().getRealPath("/")).getParentFile();
 		Properties properties = new Properties();
 		InputStream propStream;
+
 		try {
 			propStream = new FileInputStream(new File(dir.getAbsolutePath() + "/floraon.properties"));
 			properties.load(propStream);

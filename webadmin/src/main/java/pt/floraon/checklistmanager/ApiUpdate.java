@@ -19,6 +19,7 @@ import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.Territory;
 import pt.floraon.results.GraphUpdateResult;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.entities.User;
 
 /**
  * Provides services to work with nodes and links (add, update, delete)
@@ -41,7 +42,7 @@ public class ApiUpdate extends FloraOnServlet {
 		INodeKey from, to, id;
 		int res;
 		
-		if(!isAuthenticated()) {
+		if(!getUser().canMODIFY_TAXA_TERRITORIES()) {
 			error("You must login to do this operation!");
 			return;
 		}
@@ -50,14 +51,14 @@ public class ApiUpdate extends FloraOnServlet {
 
 		switch(partIt.next()) {
 		case "delete":
-			if(!isAuthenticatedAsAdvanced()) error("You must login to do this operation!");
+			if(!getUser().canEDIT_FULL_CHECKLIST()) error("You must login to do this operation!");
 			id=getParameterAsKey("id");
 //			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
 			success(new Gson().toJsonTree(NWD.deleteVertexOrEdge(id)));
 			return;
 
 		case "deleteleaf":
-			if(!isAuthenticatedAsAdvanced()) error("You must login to do this operation!");
+			if(!getUser().canEDIT_FULL_CHECKLIST()) error("You must login to do this operation!");
 			id=getParameterAsKey("id");
 			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
 //			success(EntityFactory.toJsonElement(NWD.deleteLeafNode(id),false));

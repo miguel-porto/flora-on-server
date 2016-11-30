@@ -36,7 +36,12 @@ public abstract class NamedDBNode extends GeneralDBNode {
 	public String getName() {
 		return this.name;
 	}
-	
+
+	public void setName(String name) throws DatabaseException {
+		if(name != null && name.trim().length() == 0) throw new DatabaseException("Node must have a name");
+		this.name = name != null ? name.trim() : null;
+	}
+
 	/**
 	 * Gets the processed name of the node, subclasses must override if they want to provide some functionality, otherwise the name is returned.
 	 * @return

@@ -1,7 +1,6 @@
 package pt.floraon.server;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -20,16 +19,14 @@ import com.google.gson.JsonObject;
 
 import pt.floraon.driver.*;
 import pt.floraon.driver.IFloraOn;
+import pt.floraon.entities.User;
 
 public class FloraOnServlet extends HttpServlet {
 	protected static final int PAGESIZE=200;
 	protected String territory=null;
-	//protected FloraOnDriver graph;
 	protected INodeWorker NWD;
 	protected IListDriver LD;
 	protected IFloraOn driver;
-	//protected NodeWrapperFactoryInt NWrF;
-	//protected TaxEntWrapperFactoryInt TEWrF;
 	private static final long serialVersionUID = 2390926316338894377L;
 	protected HttpServletResponse response;
 	protected HttpServletRequest request;
@@ -88,20 +85,18 @@ public class FloraOnServlet extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().println("{\"success\":true,\"msg\":\""+obj+"\"}");
 	}
-	
-	protected boolean isAuthenticated() {
-		return request.getSession().getAttribute("user") != null;
-	}
 
-	protected boolean isAuthenticatedAsAdvanced() {
-		return request.getSession().getAttribute("user") != null && ((User)request.getSession().getAttribute("user")).getRole() == User.Role.ADVANCED.getValue();
-	}
-
-	protected Integer getUserRole() {
-		if(request.getSession().getAttribute("user") != null)
-			return ((User)request.getSession().getAttribute("user")).getRole();
-		else
-			return null;
+	protected User getUser() {
+		Object tmp = request.getSession().getAttribute("user");
+		if(tmp == null) {
+			try {
+				return new User("Guest", "Guest", new User.Privileges[0]);
+			} catch (DatabaseException e) {
+				e.printStackTrace();
+				return null;
+			}
+		} else
+			return (User) tmp;
 	}
 
 	/**
@@ -147,10 +142,24 @@ public class FloraOnServlet extends HttpServlet {
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			request.getRequestDispatcher("/error.html").forward(request, response);
+/*
 			response.setContentType("text/html");
 			response.getWriter().println("<p>Some error occurred, probably ArangoDB server is down; check the TomCat logs.</p>");
+*/
 			return;
 		}
+
+		if(request.getSession().getAttribute("user") == null) {
+			try {
+				request.getSession().setAttribute("user", new User("guest", "Guest"
+                        , new User.Privileges[] {}));
+			} catch (DatabaseException e) {
+				e.printStackTrace();
+			}
+		}
+//		User.Privileges.VIEW_FULL_SHEET, User.Privileges.MANAGE_REDLIST_USERS
+//				, User.Privileges.EDIT_SECTION3, User.Privileges.VIEW_OCCURRENCES, User.Privileges.EDIT_9_1_2_3_5
 		this.response=response;
 		this.request=request;
 		try {
@@ -167,8 +176,12 @@ public class FloraOnServlet extends HttpServlet {
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			request.getRequestDispatcher("/error.html").forward(request, response);
+/*
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.setContentType("text/html");
 			response.getWriter().println("<p>Some error occurred, probably ArangoDB server is down; check the TomCat logs.</p>");
+*/
 			return;
 		}
 		this.response=response;

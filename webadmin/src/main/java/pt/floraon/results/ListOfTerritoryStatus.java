@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import jline.internal.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.entities.Territory;
@@ -56,7 +57,7 @@ public class ListOfTerritoryStatus {
 		if(tmp.isEmpty())
 			return null;
 		else
-			return tmp.values().iterator().next();
+			return tmp.get(territory);
 	}
 
 	private Map<String,InferredStatus> computeTerritoryStatus(Set<String> territories, boolean worldDistributionComplete, Set<Territory> endemismDegree) {

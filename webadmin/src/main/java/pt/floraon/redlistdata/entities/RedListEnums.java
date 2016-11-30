@@ -233,4 +233,49 @@ public class RedListEnums {
         }
     }
 
+    public enum RedListCategories implements LabelledEnum {
+        EX("Extinct")
+        , EW("Extinct in the Wild")
+        , RE("Regionally Extinct")
+        , CR("Critically Endangered")
+        , EN("Endangered")
+        , VU("Vulnerable")
+        , NT("Near Threatened")
+        , LC("Least Concern")
+        , DD("Data Deficient")
+        , NA("Not Applicable")
+        , NE("Not Evaluated");
+
+        private String label;
+
+        RedListCategories(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum AssessmentStatus implements LabelledEnum {
+        NOT_EVALUATED("Not assessed yet")
+        , READY("Ready to be assessed")
+        , PRELIMINARY("Preliminary assessment")
+        , REVISED_WORKING("Revised, working")
+        , REVISED_PUBLISHING("Revised, ready to publish")
+        , APPROVED("Approved")
+        , PUBLISHED("Published");
+
+        private String label;
+
+        AssessmentStatus(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
 }

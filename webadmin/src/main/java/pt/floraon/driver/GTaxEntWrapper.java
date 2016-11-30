@@ -67,8 +67,9 @@ public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEn
 
 	@Override
 	public InferredStatus getInferredNativeStatus(String territory) throws FloraOnException {
-		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(territory);
-		return listOfStatus.inferNativeStatus(territory);		
+		// this must be null because we need the native status in all territories, to compute the native extent
+		TaxEntAndNativeStatusResult listOfStatus = this.getNativeStatusList(null);
+		return listOfStatus.inferNativeStatus(territory);
 	}
 
 	@Override

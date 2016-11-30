@@ -27,12 +27,16 @@ public class JobServlet extends FloraOnServlet {
 			JsonObject resp = new JsonObject();
 			resp.addProperty("ready", job.isReady());
 			resp.addProperty("msg", job.getState());
-			success(job.isReady().toString());
+			success(resp);
 			return;
 		}
 
 		if(job.isFileDownload()) {
 			JobRunnerFileDownload jobFD = (JobRunnerFileDownload) job;
+			if(!job.isReady()) {
+				error("Job is not ready");
+				return;
+			}
 			InputStreamReader jobInput = jobFD.getInputStreamReader(StandardCharsets.UTF_8);
 			switch (jobFD.getFileType().toLowerCase()) {
 				case "html":

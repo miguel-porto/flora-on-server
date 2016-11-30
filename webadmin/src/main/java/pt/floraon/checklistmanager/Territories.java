@@ -15,6 +15,7 @@ import pt.floraon.driver.Constants.PlantIntroducedStatus;
 import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.entities.Territory;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.entities.User;
 
 @MultipartConfig
 public class Territories extends FloraOnServlet {
@@ -22,7 +23,7 @@ public class Territories extends FloraOnServlet {
 
 	@Override
 	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-		if(!isAuthenticated()) {
+		if(!getUser().canMODIFY_TAXA_TERRITORIES()) {
 			error("You must login to do this operation!");
 			return;
 		}

@@ -1,7 +1,10 @@
 package pt.floraon.redlistdata;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.entities.TaxEnt;
+import pt.floraon.entities.User;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.server.FloraOnServlet;
@@ -27,10 +30,8 @@ public class RedListAdmin extends FloraOnServlet {
         TaxEnt te;
         long sizeOfSquare = 2000;
 /*
-        if(request.getSession().getAttribute("user") == null) {
-            request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
-            return;
-        }
+Gson gs = new GsonBuilder().setPrettyPrinting().create();
+System.out.println(gs.toJson(getUser()));
 */
 
         ListIterator<String> path;
@@ -62,7 +63,7 @@ public class RedListAdmin extends FloraOnServlet {
                 RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
-                if(te.getOldId() != null) {
+                if (te.getOldId() != null) {
                     try {
                         foop.executeOccurrenceQuery(te.getOldId());
                     } catch (URISyntaxException e) {
@@ -77,7 +78,7 @@ public class RedListAdmin extends FloraOnServlet {
                         points.add(new Point2D(tmp));
                         utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
                     }
-                    if(foop.size() >= 3) {
+                    if (foop.size() >= 3) {
                         // compute convex hull
                         // first convert to UTM
                         // TODO use a projection without zones
@@ -121,7 +122,7 @@ ${occ.getUTMCoordinates().getXZone()}${occ.getUTMCoordinates().getYZone()} ${occ
                     System.out.println(gs.toJson(rlde));
 */
 
-                    if(rlde != null) request.setAttribute("rlde", rlde);
+                    if (rlde != null) request.setAttribute("rlde", rlde);
                     request.setAttribute("territory", territory);
 
                     // enums
@@ -138,21 +139,35 @@ ${occ.getUTMCoordinates().getXZone()}${occ.getUTMCoordinates().getYZone()} ${occ
                     request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
                     request.setAttribute("conservation_ExSituConservation", RedListEnums.YesNoNA.values());
                     request.setAttribute("conservation_ProposedConservationActions", RedListEnums.ProposedConservationActions.values());
+                    request.setAttribute("assessment_Category", RedListEnums.RedListCategories.values());
+                    request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
 
                     request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
                     request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
                     request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
+                    request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
+                    request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
+                    request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
+
+                    // make a map of user IDs and names
+                    List<User> allUsers = driver.getAdministration().getAllUsers();
+                    Map<String, String> userMap = new HashMap<>();
+                    for(User u : allUsers)
+                        userMap.put(u.getID(), u.getName());
+
+                    request.setAttribute("allUsers", allUsers);
+                    request.setAttribute("userMap", userMap);
 
                     request.setAttribute("occurrences", foop);
                 }
                 break;
 
             case "taxonrecords":
-                if(request.getSession().getAttribute("user") == null) break;
+                if (!getUser().canVIEW_OCCURRENCES()) break;
 
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
-                if(te.getOldId() != null) {
+                if (te.getOldId() != null) {
                     try {
                         foop.executeOccurrenceQuery(te.getOldId());
                     } catch (URISyntaxException e) {
@@ -160,6 +175,18 @@ ${occ.getUTMCoordinates().getXZone()}${occ.getUTMCoordinates().getYZone()} ${occ
                     }
                     request.setAttribute("occurrences", foop);
                 }
+                break;
+
+            case "users":
+                request.setAttribute("users", driver.getAdministration().getAllUsers());
+                request.setAttribute("redlistprivileges", User.getAllPrivilegesOfType(
+                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
+                break;
+
+            case "edituser":
+                request.setAttribute("requesteduser", driver.getAdministration().getUser(getParameterAsKey("user")));
+                request.setAttribute("redlistprivileges", User.getAllPrivilegesOfType(
+                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
                 break;
         }
 

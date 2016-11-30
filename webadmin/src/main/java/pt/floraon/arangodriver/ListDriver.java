@@ -102,8 +102,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 	@Override
     public List<Territory> getChecklistTerritories() throws FloraOnException {
-    	String query;
-		query=String.format(AQLQueries.getString("ListDriver.4"),NodeTypes.territory.toString());
+		String query = AQLQueries.getString("ListDriver.4", NodeTypes.territory.toString());
     	try {
 			return database.query(query, null, null, Territory.class).asListRemaining();
 		} catch (ArangoDBException e) {

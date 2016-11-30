@@ -61,6 +61,10 @@ public class RedListDataEntity extends GeneralDBNode {
      * The fields pertaining to conservation measures
      */
     private Conservation conservation = new Conservation();
+    /**
+     * The fields pertaining to red list assessment
+     */
+    private Assessment assessment = new Assessment();
 
     public RedListDataEntity() {
     }
@@ -109,6 +113,8 @@ public class RedListDataEntity extends GeneralDBNode {
     public Threats getThreats() { return threats;}
 
     public Conservation getConservation() { return conservation; }
+
+    public Assessment getAssessment() { return assessment; }
 
     public void setTaxEntID(String taxEntID) {
         this.taxEntID = taxEntID;
@@ -296,6 +302,42 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setConservation_ProposedConservationActions(String[] proposedConservationActions) {
         this.conservation.setProposedConservationActions(proposedConservationActions);
+    }
+
+    /*******
+     * Assessment fields
+     *******/
+
+    public void setAssessment_Category(String category) {
+        this.assessment.setCategory(RedListEnums.RedListCategories.valueOf(category));
+    }
+
+    public void setAssessment_Criteria(String criteria) {
+        this.assessment.setCriteria(criteria);
+    }
+
+    public void setAssessment_Justification(String justification) {
+        this.assessment.setJustification(justification);
+    }
+
+    public void setAssessment_Authors(String[] authors) {
+        this.assessment.setAuthors(authors);
+    }
+
+    public void setAssessment_Collaborators(String collaborators) {
+        this.assessment.setCollaborators(collaborators);
+    }
+
+    public void setAssessment_Evaluator(String[] evaluator) {
+        this.assessment.setEvaluator(evaluator);
+    }
+
+    public void setAssessment_Reviewer(String[] reviewer) {
+        this.assessment.setReviewer(reviewer);
+    }
+
+    public void setAssessment_AssessmentStatus(String assessmentStatus) {
+        this.assessment.setAssessmentStatus(RedListEnums.AssessmentStatus.valueOf(assessmentStatus));
     }
 
     @Override

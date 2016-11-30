@@ -12,9 +12,14 @@ import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
+import jline.internal.Log;
 import pt.floraon.driver.*;
 import pt.floraon.entities.Territory;
+import pt.floraon.entities.User;
 import pt.floraon.redlistdata.ArangoDBRedListData;
+import pt.floraon.server.RandomString;
+
+import javax.xml.soap.Node;
 
 public class FloraOnArangoDriver implements IFloraOn {
 	private ArangoDB driver;
@@ -24,6 +29,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	private IListDriver LD;
 	private CSVFileProcessor CSV;
 	private IRedListData RLD;
+	private IAdministration ADMIN;
 	private List<Territory> checklistTerritories;
 	
 	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
@@ -35,14 +41,13 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 		driver = new ArangoDB.Builder().user(username).password(pass).build();
 		database = driver.db(dbname);
-/*
-		ArangoConfigure configure = new ArangoConfigure();
-        configure.init();
-        configure.setDefaultDatabase(dbname);
-        configure.setUser(username);
-        configure.setPassword(pass);
-        driver = new ArangoDriver(configure, dbname);
-*/
+		NWD = new NodeWorkerDriver(this);
+		QD = new QueryDriver(this);
+		LD = new ListDriver(this);
+		CSV = new CSVFileProcessor(this);
+		RLD = new ArangoDBRedListData(this);
+		ADMIN = new Administration(this);
+
         try {
 			Collection<String> dbs=driver.getDatabases();	// TODO: this needs permissions in the _system database...
 			if(!dbs.contains(dbname))
@@ -59,11 +64,6 @@ public class FloraOnArangoDriver implements IFloraOn {
 			e.printStackTrace();
 			throw new FloraOnException(e.getMessage());
 		}
-        NWD = new NodeWorkerDriver(this);
-        QD = new QueryDriver(this);
-        LD = new ListDriver(this);
-        CSV = new CSVFileProcessor(this);
-		RLD = new ArangoDBRedListData(this);
         updateVariables();
 	}
 
@@ -100,6 +100,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 	@Override
 	public IRedListData getRedListData() {
 		return RLD;
+	}
+
+	@Override
+	public IAdministration getAdministration() {
+		return ADMIN;
 	}
 
 	@Override
@@ -165,6 +170,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("name"), new HashIndexOptions().unique(false).sparse(true));
 		database.collection(NodeTypes.taxent.toString()).createFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
 		database.collection(NodeTypes.territory.toString()).createHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.user.toString()).createHashIndex(Arrays.asList("userName"), new HashIndexOptions().unique(true).sparse(false));
 
 /*
 		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
@@ -188,6 +194,20 @@ public class FloraOnArangoDriver implements IFloraOn {
 			} catch (ArangoDBException e) {
 				System.out.println("Creating collection: "+nt.toString());
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.DOCUMENT));
+				if(nt == NodeTypes.user) {	// create administrator account
+					try {
+						User user = new User("admin", "Administrator", new User.Privileges[] {
+								User.Privileges.MANAGE_REDLIST_USERS});
+						user.setUserType(User.UserType.ADMINISTRATOR.toString());
+						char[] pass = new RandomString(12).nextString().toCharArray();
+						user.setPassword(pass);
+						System.out.println("Flora-On admin password: " + new String(pass));
+						Log.info("Flora-On admin password: " + new String(pass));
+						ADMIN.createUser(user);
+					} catch (FloraOnException e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		}
 		

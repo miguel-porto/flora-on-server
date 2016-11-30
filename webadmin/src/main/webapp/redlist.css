@@ -1,14 +1,44 @@
 #main {text-align:center;}
 #title {font-size:3em; text-align:right; padding:15px;}
-#left-bar, #title {background-color:#00bcd4; color:white; font-weight:bold; border:0}
+#left-bar, #title, #title a, #title a:visited {background-color:#2196f3; color:white; font-weight:bold; border:0}
 #left-bar a {color:white}
+#left-bar li {background-color:rgba(255,255,255,0.1); padding: 0.3em 0.7em; margin:0}
 /*ul li {
 	list-style-type:none;
 	padding:0.7em;
 	font-size:1.2em;
 }*/
 
-h2 {font-size:1.2em}
+h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
+h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
+p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
+
+.multiplechooser {display:flex; flex-wrap:wrap; justify-content: center;}
+.multiplechooser input[type=checkbox] {display:none;}
+.multiplechooser label {
+    cursor:pointer;
+    border-radius: 3px;
+    flex: 0 1 auto;
+    min-width:180px;
+    margin:8px;
+    padding: 3px 6px;
+    text-align:center;
+    border:2px solid transparent;
+    transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
+}
+/*.multiplechooser label {
+    transition: background-color 0.2s, transform 0.2s;
+    flex: 1 1 20%;
+    margin:8px;
+    color: black;
+    text-align:center;
+    padding: 3px 6px;
+}*/
+.multiplechooser input:checked + label {background-color: #00e676; opacity:1}
+.multiplechooser input:not(:checked) + label {background-color: #ffcdd2; transform: scale(0.8, 0.8); opacity:0.75;}
+
+
+/********** SPECIES INDEX ***********/
 #speciesindex td {font-size:1.1em;}
 #speciesindex tr.species td:nth-of-type(2) {font-weight:bold}
 #speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:2em}
@@ -16,46 +46,99 @@ h2 {font-size:1.2em}
 #filters .filter {background-color:#ddd; padding:4px 8px; border-radius:8px; margin:6px; display:inline-block; cursor:pointer}
 #filters .filter.selected {background-color:#64dd17;}
 
+/********** RED LIST DATA SHEET *******/
 #sheet-header {
-    background-color: rgba(255,  64, 129, 0.3);
+    position:relative;
 }
 
+#sheet-header .redlistcategory {
+    position:absolute;
+    top:-45px;
+    left:-25px;
+    /*transform: scale(0.8, 0.8);*/
+    box-shadow: 0 0 16px #555;
+}
+#sheet-header h1 {padding-left: 130px; color: black;}
+
+#header-buttons {text-align:right;}
+
+.wordtag {
+    border-radius: 20px;
+    padding: 2px 14px;
+    display:inline-block;
+    font-size:0.8em;
+    text-transform: uppercase;
+    font-weight:bold;
+    margin: 6px;
+    background-color: #64b5f6
+}
+
+.togglebutton {
+    background-color: #ff4081;
+    cursor:pointer;
+}
+
+.togglebutton, .togglebutton a, .togglebutton a:visited {color:white}
+
 input, textarea, select {font-size: 16px; vertical-align: middle;}
+
 input[type=submit] {
-    background: #ff4081 url(images/ic_menu_save.png) no-repeat center;
-    background-size: 48px 48px;
     width:64px;
     height:64px;
     border:2px solid transparent;
     border-radius:50%;
     cursor:pointer;
     box-shadow: 0 0 16px #222;
+    background-color: #ff4081;
+    color: white;
+}
+
+input[type=submit].textbutton {
+    font-size: 1.2em;
+    display: inline-block;
+    border-radius:3px;
+    width:auto;
+    height:auto;
+    padding:8px 14px;
+    margin:6px;
+}
+
+input[type=submit]:hover {
+}
+
+label {display:block}
+
+table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
+table:not(.smalltext) {font-size:1.2rem;}
+table th, table td.title {background-color:#bbdefb; font-weight:bold; padding:6px; color:black; border:0;}
+table td {padding:5px; background-color:#f0f0f0;}
+table tr:hover td:not(.title) {background-color:#f0fff0;}
+/*table td.title {background-color: #e3f2fd;}*/
+
+table.sheet input[type=submit] {
+    background: #ff4081 url(images/ic_menu_save.png) no-repeat center;
+    background-size: 48px 48px;
     position:fixed;
     right:0;bottom:0;
     margin: 0 16px 16px 0;
 }
-input[type=submit]:hover {border:2px solid #ff4081}
-
-label {display:block}
-
-table {text-align: left;}
-table th {background-color:#ff4081; font-weight:bold; cursor:pointer; padding:6px; color:white;}
-table td {padding:5px;}
-table tr:hover td {background-color:#eee;}
-table.sheet {width:100%; font-size:1.2em; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
-table.sheet textarea {width:100%}
+table.sheet textarea
+ , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
+table.sheet table {width:100%}
+table.sheet table td:nth-of-type(1) {width:0;}
 table.sheet.summary tr:not(.textual) {display:none;}
-table.sheet.summary #summary_toggle {background-color:yellow;}
-td.number {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
-.section1 td.number {background-color: #81c784;}
-.section2 td.number {background-color: #7986cb;}
-.section3 td.number {background-color: #ff4081;}
-.section4 td.number {background-color: #9575cd;}
-.section5 td.number {background-color: #afb42b;}
-.section6 td.number {background-color: #c62828;}
-.section7 td.number {background-color: #64dd17;}
-.section8 td.number {background-color: #757575;}
+table.sheet.summary #summary_toggle {background-color:yellow; color:green;}
+table.sheet td.title {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
+table.sheet .section1 td.title {background-color: #81c784;}
+table.sheet .section2 td.title {background-color: #7986cb;}
+table.sheet .section3 td.title {background-color: #ff4081;}
+table.sheet .section4 td.title {background-color: #9575cd;}
+table.sheet .section5 td.title {background-color: #afb42b;}
+table.sheet .section6 td.title {background-color: #c62828;}
+table.sheet .section7 td.title {background-color: #64dd17;}
+table.sheet .section8 td.title {background-color: #757575;}
+table.sheet .section9 td.title {background-color: #c62828;}
 
 table.sheet .section1>td:nth-of-type(2) {background-color: rgba(129, 199, 132, 0.3);}
 table.sheet .section2>td:nth-of-type(2) {background-color: rgba(121, 134, 203, 0.3);}
@@ -65,15 +148,53 @@ table.sheet .section5>td:nth-of-type(2) {background-color: rgba(175, 180,  43, 0
 table.sheet .section6>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 table.sheet .section7>td:nth-of-type(2) {background-color: rgba(100, 221,  23, 0.3);}
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
+table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 
 div.warning {display:inline-block; background-color:#c62828; border-radius:6px; margin:10px auto; font-size:1.3em; text-align:center; color:white; padding:10px;}
 
-.togglebutton {
-    border-radius: 20px;
-    padding: 2px 14px;
-    background-color: #ff4081;
+#redlistcategories {text-align:center}
+#redlistcategories input[type=radio] {display:none;}
+#redlistcategories label, .redlistcategory {
+    text-align:center;
     display:inline-block;
+    font-weight:bold;
+    border-radius:50% 0 50% 50%;
+    width:130px;
+    height:130px;
+    padding:10px;
     cursor:pointer;
-    font-size:0.8em;
-    text-transform: uppercase;
+    border:2px solid gray;
 }
+
+#redlistcategories label {
+    transition: transform 0.4s, opacity 0.4s;
+    vertical-align:bottom;
+    opacity:0.25;
+}
+
+#redlistcategories label[for=assess_EX], .redlistcategory.assess_EX {background-color:#000000;}
+#redlistcategories label[for=assess_EW], .redlistcategory.assess_EW {background-color:#542344;}
+#redlistcategories label[for=assess_RE], .redlistcategory.assess_RE {background-color:#235444;}
+#redlistcategories label[for=assess_EX] *, .redlistcategory.assess_EX *
+    , #redlistcategories label[for=assess_EW] *, .redlistcategory.assess_EW *
+    , #redlistcategories label[for=assess_RE] *, .redlistcategory.assess_RE * {color:white}
+#redlistcategories label[for=assess_CR], .redlistcategory.assess_CR {background-color:#d81e05;}
+#redlistcategories label[for=assess_EN], .redlistcategory.assess_EN {background-color:#fc7f3f;}
+#redlistcategories label[for=assess_VU], .redlistcategory.assess_VU {background-color:#f9e814;}
+#redlistcategories label[for=assess_NT], .redlistcategory.assess_NT {background-color:#cce226;}
+#redlistcategories label[for=assess_LC], .redlistcategory.assess_LC {background-color:#60c659;}
+#redlistcategories label[for=assess_DD], .redlistcategory.assess_DD {background-color:#d1d1c6;}
+#redlistcategories label[for=assess_NE], .redlistcategory.assess_NE {background-color:#ffffff;}
+#redlistcategories label[for=assess_NA], .redlistcategory.assess_NA {background-color:#d1d1c6;}
+#redlistcategories label[for=assess_NA] *, .redlistcategory.assess_NA * {color:#333333}
+
+#redlistcategories label h1, .redlistcategory h1 {font-size:3.6rem !important; text-align: center; color:black; padding:0 !important;}
+#redlistcategories label p, .redlistcategory p {font-size:1rem !important; text-align: center; color:black; padding:0 !important; line-height:1.2em;}
+#redlistcategories label:hover {opacity:1}
+#redlistcategories input:checked + label {opacity:1}
+#redlistcategories input:not(:checked) + label {transform:scale(0.4, 0.4)}
+
+/********** RECORD TABLE *******/
+#recordtable th {cursor:pointer;}
+
+/********** USER MANAGEMENT *******/

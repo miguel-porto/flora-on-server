@@ -19,16 +19,18 @@ public class ComputeNativeStatusJob implements JobTask {
     @Override
     public void run(IFloraOn driver, Object options) throws FloraOnException, IOException {
         String territory = (String) options;
+        System.out.println("Creating red list dataset for " + territory);
         List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
         total = taxEntList.size();
         RedListDataEntity rlde;
 
         for(TaxEnt te1 : taxEntList) {
 //            System.out.println("Creating "+te1.getID());
+
             rlde = new RedListDataEntity(te1.getID(), driver.wrapTaxEnt(driver.asNodeKey(te1.getID())).getInferredNativeStatus(territory));
 //            System.out.println(new Gson().toJson(rlde));
             driver.getRedListData().createRedListDataEntity(territory, rlde);
-            System.out.println(te1.getFullName()+": "+ rlde.getInferredStatus().getNativeStatus().toString());
+            System.out.println(te1.getFullName()+": "+ rlde.getInferredStatus().getStatusSummary());
             n++;
         }
 

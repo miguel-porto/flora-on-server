@@ -15,6 +15,8 @@ import pt.floraon.results.TaxEntAndNativeStatusResult;
 import pt.floraon.results.ResultProcessor;
 
 public class ChecklistDownload implements JobFileDownload {
+	private boolean finished = false;
+
 	@Override
 	public void run(IFloraOn driver, OutputStream outputStream) throws FloraOnException, IOException {
 		OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
@@ -30,10 +32,11 @@ public class ChecklistDownload implements JobFileDownload {
 		
 		//out.print(rpchk1.toCSVTable(terr));
 		out.close();
+		finished = true;
 	}
 
 	@Override
 	public String getState() {
-		return null;
+		return finished ? "Ok" : "Processing";
 	}
 }
