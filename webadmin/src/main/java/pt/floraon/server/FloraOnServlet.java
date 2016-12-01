@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 
@@ -87,16 +88,18 @@ public class FloraOnServlet extends HttpServlet {
 	}
 
 	protected User getUser() {
-		Object tmp = request.getSession().getAttribute("user");
-		if(tmp == null) {
+		HttpSession session = request.getSession(false);
+
+		if(session == null || session.getAttribute("user") == null) {
 			try {
-				return new User("Guest", "Guest", new User.Privileges[0]);
+				return new User("guest", "Guest"
+						, new User.Privileges[0]);
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 				return null;
 			}
 		} else
-			return (User) tmp;
+			return (User) session.getAttribute("user");
 	}
 
 	/**
@@ -150,18 +153,21 @@ public class FloraOnServlet extends HttpServlet {
 			return;
 		}
 
+/*
 		if(request.getSession().getAttribute("user") == null) {
 			try {
 				request.getSession().setAttribute("user", new User("guest", "Guest"
-                        , new User.Privileges[] {}));
+                        , new User.Privileges[] {User.Privileges.VIEW_FULL_SHEET, User.Privileges.EDIT_SECTION2, User.Privileges.VIEW_OCCURRENCES}));
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 			}
 		}
+*/
 //		User.Privileges.VIEW_FULL_SHEET, User.Privileges.MANAGE_REDLIST_USERS
 //				, User.Privileges.EDIT_SECTION3, User.Privileges.VIEW_OCCURRENCES, User.Privileges.EDIT_9_1_2_3_5
 		this.response=response;
 		this.request=request;
+		request.setAttribute("user", getUser());
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {
@@ -186,6 +192,7 @@ public class FloraOnServlet extends HttpServlet {
 		}
 		this.response=response;
 		this.request=request;
+		request.setAttribute("user", getUser());
 		try {
 			doFloraOnPost();
 		} catch (FloraOnException e) {

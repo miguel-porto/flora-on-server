@@ -10,7 +10,7 @@
         <div class="bigbuttonwrapper">
             <div class="bigbutton section1">
             <c:choose>
-                <c:when test="${sessionScope.user.getPrivileges().size() == 0}">
+                <c:when test="${user.getPrivileges().size() == 0}">
                     <form action="login" method="post" id="loginform">
                         <table>
                         <c:if test="${param.reason!=null}">
@@ -23,7 +23,7 @@
                     </form>
                 </c:when>
                 <c:otherwise>
-                    <p>Welcome <c:out value="${sessionScope.user.getUserName()}"></c:out></p>
+                    <p>Welcome <c:out value="${user.getName()}"></c:out></p>
                     <form action="login" method="post">
                         <input type="hidden" name="logout" value="1"/>
                         <input type="submit" value="Logout"/>
@@ -42,7 +42,7 @@
         <div class="bigbuttonwrapper">
             <div class="bigbutton section3">
                 <h1>Red list data portal</h1>
-                <c:if test="${sessionScope.user.canCREATE_REDLIST_DATASETS()}">
+                <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
                     <div class="subbutton"><a href="/floraon/redlist">create new red list dataset</a></div>
                 </c:if>
                 <c:if test="${redlistterritories.size() > 0}">

@@ -1,7 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
-<div class="${sessionScope.user.canMODIFY_TAXA_TERRITORIES() ? 'editable' : '' }">
+<div class="${user.canMODIFY_TAXA_TERRITORIES() ? 'editable' : '' }">
 <h1>${taxent.getFullName(true)}</h1>
 <ul class="menu multiplesel" id="currentstatus">
 	<li class="current${taxent.getCurrent() ? ' selected' : ''}">current</li>
@@ -10,7 +10,7 @@
 <ul class="menu">
 	<!-- <li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li> -->
 	<li><a href="?w=graph&depth=2&id=${taxent.getIDURLEncoded()}">View in graph</a></li>
-	<c:if test="${taxentWrapper.isLeafNode() && sessionScope.user.canEDIT_FULL_CHECKLIST()}">
+	<c:if test="${taxentWrapper.isLeafNode() && user.canEDIT_FULL_CHECKLIST()}">
 		<li id="deletetaxon" class="actionbutton">Delete taxon</li>
 	</c:if>
 </ul>
@@ -77,7 +77,7 @@
 			<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 			<table>
 				<tr><th>Territory</th><th>Native Status</th><th>Occurrence Status</th><th>Abundance Level</th><th>Introduced Status</th><th>Naturalization Degree</th>
-				<c:if test="${sessionScope.user.canMODIFY_TAXA_TERRITORIES()}"><th></th></c:if>
+				<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}"><th></th></c:if>
 				</tr>
 				<c:forEach var="nativeStatus" items="${assignedNativeStatus}">
 					<tr>
@@ -87,7 +87,7 @@
 						<td><c:out value="${nativeStatus.getExistsIn().getAbundanceLevel()}"></c:out></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getIntroducedStatus()}"></c:out></td>
 						<td><c:out value="${nativeStatus.getExistsIn().getNaturalizationDegree()}"></c:out></td>
-						<c:if test="${sessionScope.user.canMODIFY_TAXA_TERRITORIES()}">
+						<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
 							<td><form class="poster" data-path="/floraon/checklist/api/territories/set">
 								<input type="hidden" name="taxon" value="${taxent.getID()}"/>
 								<input type="hidden" name="territory" value="${nativeStatus.getTerritory().getShortName()}"/>
@@ -104,12 +104,12 @@
 			<h3>Distribution completeness</h3>
 			<table>
 				<tr><td>World native distribution completeness</td><td>
-					<c:if test="${!sessionScope.user.canMODIFY_TAXA_TERRITORIES()}">
+					<c:if test="${!user.canMODIFY_TAXA_TERRITORIES()}">
 						<ul class="menu">
 							<li><c:out value="${taxent.getWorldDistributionCompleteness().toString()}"></c:out></li>
 						</ul>
 					</c:if>
-					<c:if test="${sessionScope.user.canMODIFY_TAXA_TERRITORIES()}">
+					<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
 						<ul class="menu multiplesel" id="worlddistribution">
 							<li data-value="DISTRIBUTION_COMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_COMPLETE' ? ' selected' : ''}">complete distribution</li>
 							<li data-value="DISTRIBUTION_INCOMPLETE" class="${taxent.getWorldDistributionCompleteness()=='DISTRIBUTION_INCOMPLETE' ? ' selected' : ''}">incomplete distribution</li>
@@ -118,14 +118,14 @@
 					</c:if>
 				</td></tr>
 				<tr><td>Territories with complete distributions</td><td>
-					<c:if test="${!sessionScope.user.canMODIFY_TAXA_TERRITORIES()}">
+					<c:if test="${!user.canMODIFY_TAXA_TERRITORIES()}">
 						<ul class="menu">
 							<c:forEach var="territory" items="${taxentWrapper.getTerritoriesWithCompleteDistribution()}">
 								<li><c:out value="${territory.getName()}"></c:out></li>
 							</c:forEach>
 						</ul>
 					</c:if>
-					<c:if test="${sessionScope.user.canMODIFY_TAXA_TERRITORIES()}">
+					<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
 						<form class="poster" data-path="/floraon/checklist/api/update/unsetcompleteterritory">
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
 							<c:forEach var="territory" items="${taxentWrapper.getTerritoriesWithCompleteDistribution()}">
@@ -148,7 +148,7 @@
 				</c:forEach>
 			</table>
 		</div>
-		<c:if test="${sessionScope.user.canMODIFY_TAXA_TERRITORIES()}">
+		<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
 			<div id="editbox">
 				<h3>Add or modify data</h3>
 				<div class="toggler off" id="updatetaxonbox">

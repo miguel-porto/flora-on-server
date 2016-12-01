@@ -1,12 +1,14 @@
 package pt.floraon.utmlatlong;
 
+import org.apache.commons.math3.ml.clustering.Clusterable;
+
 import java.util.Comparator;
 
 /**
  * Taken from
  * http://algs4.cs.princeton.edu/99hull/Point2D.java.html
  */
-public final class Point2D implements Comparable<Point2D> {
+public final class Point2D implements Comparable<Point2D>, Clusterable {
 
     /**
      * Compares two points by x-coordinate.
@@ -193,6 +195,11 @@ public final class Point2D implements Comparable<Point2D> {
      */
     public Comparator<Point2D> distanceToOrder() {
         return new DistanceToOrder();
+    }
+
+    @Override
+    public double[] getPoint() {
+        return new double[] {this.x, this.y};
     }
 
     // compare points according to their x-coordinate

@@ -1,10 +1,14 @@
 package pt.floraon.redlistdata.entities;
 
 import com.google.gson.JsonObject;
+import jline.internal.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.entities.GeneralDBNode;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.results.InferredStatus;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
@@ -229,7 +233,15 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setEcology_HabitatTypes(String[] habitatTypes) {
-        this.ecology.setHabitatTypes(habitatTypes);
+        List<RedListEnums.HabitatTypes> tmp = new ArrayList<>();
+        for(String s : habitatTypes) {
+            try {
+                tmp.add(RedListEnums.HabitatTypes.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                Log.warn("Habitat "+s+" not found");
+            }
+        }
+        this.getEcology().setHabitatTypes(tmp.toArray(new RedListEnums.HabitatTypes[0]));
     }
 
     public void setEcology_GenerationLength(String generationLength) {
@@ -249,7 +261,15 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setUsesAndTrade_Uses(String[] uses) {
-        this.getUsesAndTrade().setUses(uses);
+        List<RedListEnums.Uses> tmp = new ArrayList<>();
+        for(String s : uses) {
+            try {
+                tmp.add(RedListEnums.Uses.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                Log.warn("Use "+s+" not found");
+            }
+        }
+        this.getUsesAndTrade().setUses(tmp.toArray(new RedListEnums.Uses[0]));
     }
 
     public void setUsesAndTrade_Traded(boolean traded) {

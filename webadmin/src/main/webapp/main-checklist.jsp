@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="manager.js"></script>
 </head>
 <body>
-<c:if test="${sessionScope.user!=null}">
+<c:if test="${user!=null}">
 	<form action="login" method="post" id="logoutform">
    		<input type="hidden" name="logout" value="1"/>
    		<input type="submit" value="Logout"/>
@@ -43,7 +43,7 @@
 	<c:when test="${what=='login'}">
 		<div id="main"><h2>This is the Flora-On taxonomy manager</h2>
 		<c:choose>
-			<c:when test="${sessionScope.user==null}">
+			<c:when test="${user==null}">
 				<p>To edit the checklist, you must login and choose <a href="?w=families">Family tree</a> on the left.</p>
 				<form action="login" method="post" id="loginform">
 					<table>
@@ -57,7 +57,7 @@
 				</form>
 			</c:when>
 			<c:otherwise>
-				<p>Welcome <c:out value="${sessionScope.user.getUsername()} (${sessionScope.user.getRole()})"></c:out>, go ahead and edit!</p>
+				<p>Welcome <c:out value="${user.getUsername()} (${user.getRole()})"></c:out>, go ahead and edit!</p>
 				<form action="login" method="post">
 		    		<input type="hidden" name="logout" value="1"/>
 		    		<input type="submit" value="Logout"/>
@@ -68,7 +68,7 @@
 	</c:when>
 	<c:when test="${(what=='main') || (what==null)}">
 		<div id="main" class="noselect"><h1>List of all names<c:out value="${territory}"></c:out></h1>
-			<c:if test="${sessionScope.user!=null}"><p>Click on a taxon to edit it</p></c:if>
+			<c:if test="${user!=null}"><p>Click on a taxon to edit it</p></c:if>
 			<div id="legendpanel">
 				<p>For a detailed explanation of the categories, <a href="https://github.com/miguel-porto/flora-on-server/wiki/Describing-a-relationship-between-a-taxon-and-a-territory" target="_blank">click here</a>.</p>
 				<b>Native Status<br/></b>

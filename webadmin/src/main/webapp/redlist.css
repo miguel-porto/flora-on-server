@@ -37,6 +37,24 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 .multiplechooser input:checked + label {background-color: #00e676; opacity:1}
 .multiplechooser input:not(:checked) + label {background-color: #ffcdd2; transform: scale(0.8, 0.8); opacity:0.75;}
 
+.wordtag {
+    border-radius: 20px;
+    padding: 2px 14px;
+    display:inline-block;
+    font-size:0.8em;
+    text-transform: uppercase;
+    font-weight:bold;
+    margin: 6px;
+    background-color: #64b5f6
+}
+
+.togglebutton {
+    background-color: #ff4081;
+    cursor:pointer;
+}
+
+.togglebutton, .togglebutton a, .togglebutton a:visited {color:white}
+
 
 /********** SPECIES INDEX ***********/
 #speciesindex td {font-size:1.1em;}
@@ -62,24 +80,6 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 
 #header-buttons {text-align:right;}
 
-.wordtag {
-    border-radius: 20px;
-    padding: 2px 14px;
-    display:inline-block;
-    font-size:0.8em;
-    text-transform: uppercase;
-    font-weight:bold;
-    margin: 6px;
-    background-color: #64b5f6
-}
-
-.togglebutton {
-    background-color: #ff4081;
-    cursor:pointer;
-}
-
-.togglebutton, .togglebutton a, .togglebutton a:visited {color:white}
-
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 
 input[type=submit] {
@@ -103,8 +103,21 @@ input[type=submit].textbutton {
     margin:6px;
 }
 
-input[type=submit]:hover {
-}
+#map {width:200px; height:400px;}
+#map path.portugal {fill:#7986cb;opacity:0.5}
+#map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff;}
+#map rect {fill:red; stroke-width: 1000px; stroke:red;}
+/*
+svg.maparios path {stroke-width:1000px;fill:none;stroke-linecap:round;}
+svg.maparios:not(.interactivo) path {stroke:#36cdff;}
+svg.maparios path.ord3 {stroke-width:1500px;}
+svg.maparios path.highlight {stroke:yellow !important;}
+svg.maparios path.present {stroke:#eb452c;stroke-width:4000px;}
+svg.maparios g.present path {stroke:#eb452c;stroke-width:4000px;}
+svg.maparios.interactivo path:not(.portugal) {cursor:pointer;}
+svg.maparios.interactivo g.rio:hover path {stroke:yellow !important;stroke-width:3000px;}
+svg.maparios.interactivo.pesqbacia g.bacia:hover path {stroke:yellow !important;stroke-width:3000px;}
+*/
 
 label {display:block}
 

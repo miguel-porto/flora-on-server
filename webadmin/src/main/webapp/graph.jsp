@@ -14,8 +14,8 @@
 	<div id="taxbrowser"></div>
 	<div id="toolbar" data-page="tax">
 		<ul id="linklist"></ul>
-		<c:if test="${sessionScope.user.canEDIT_FULL_CHECKLIST()}">
-			<input type="hidden" id="loggedin" name="loggedin" value="${sessionScope.user}"/>
+		<c:if test="${user.canEDIT_FULL_CHECKLIST()}">
+			<input type="hidden" id="loggedin" name="loggedin" value="${user}"/>
 		</c:if>
 		<div class="box">
 			<div class="title"><p>Expand depth</p></div>
@@ -31,7 +31,7 @@
 			<div id="but-characters" class="button">Load characters</div>
 			<div id="but-territories" class="button">Load territories</div>
 		</div>
-		<c:if test="${sessionScope.user.canEDIT_FULL_CHECKLIST()}">
+		<c:if test="${user.canEDIT_FULL_CHECKLIST()}">
 			<div class="box">
 				<div class="title"><p>Node tools</p></div>
 				<div id="but-delnode" class="button">Delete node/link</div>

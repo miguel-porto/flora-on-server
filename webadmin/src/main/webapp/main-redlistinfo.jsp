@@ -20,7 +20,7 @@
     <div id="left-bar">
         <ul>
             <li><a href="?w=main">Taxon index</a></li>
-            <c:if test="${sessionScope.user.canMANAGE_REDLIST_USERS()}">
+            <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users">Manage users</a></li>
             </c:if>
         </ul>
@@ -67,22 +67,22 @@
                     <h1><i>${taxon.getName()}</i></h1>
                     <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                     <div id="header-buttons">
-                        <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                        <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
-                        <c:if test="${sessionScope.user.canVIEW_OCCURRENCES()}">
+                        <c:if test="${user.canVIEW_OCCURRENCES()}">
                             <div class="wordtag togglebutton">
                                 <a href="?w=taxonrecords&id=${taxon.getIDURLEncoded()}">view occurrences</a>
                             </div>
                         </c:if>
                     </div>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section1"><td class="title" colspan="3">Section 1 - General info</td></tr>
                     <tr class="section1">
                         <td class="title">1.1</td>
                         <td>Name</td><td><i>${taxon.getName()}</i>
-                            <c:if test="${sessionScope.user.canEDIT_ANY_FIELD()}">
+                            <c:if test="${user.canEDIT_ANY_FIELD()}">
                                 <input type="submit" value=""/>
                             </c:if>
                         </td>
@@ -96,7 +96,7 @@
                         </ul>
                     </td></tr>
                     <tr class="section1"><td class="title">1.4</td><td>Taxonomic problems</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_1_4()}">
+                        <c:if test="${user.canEDIT_1_4()}">
                             <table>
                                 <tr><td colspan="2"><label>
                                     <c:if test="${rlde.getHasTaxonomicProblems()}">
@@ -111,7 +111,7 @@
                                 <td><textarea rows="3" name="taxonomicProblemDescription"><c:out value="${rlde.getTaxonomicProblemDescription()}"></c:out></textarea></td></tr>
                             </table>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_1_4()}">
+                        <c:if test="${!user.canEDIT_1_4()}">
                             <table>
                                 <tr><td colspan="2">Has taxonomic problems: ${rlde.getHasTaxonomicProblems() ? "Yes" : "No"}</td></tr>
                                 <tr><td>Problem description</td>
@@ -122,24 +122,31 @@
                     <tr class="section2"><td class="title" colspan="3">Section 2 - Geographical Distribution</td></tr>
                 </c:if>
                 <tr class="section2 textual"><td class="title">2.1</td><td>Distribution (textual)</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_SECTION2() || sessionScope.user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="geographicalDistribution_Description"><c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out></textarea>
-                    </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_SECTION2() && !sessionScope.user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out>
-                    </c:if>
+                    <table>
+                        <tr><td style="width:auto">
+                        <c:if test="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}">
+                            <textarea rows="6" name="geographicalDistribution_Description"><c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out></textarea>
+                        </c:if>
+                        <c:if test="${!user.canEDIT_SECTION2() && !user.canEDIT_ALL_TEXTUAL()}">
+                            <c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out>
+                        </c:if>
+                        </td>
+                        <td style="width:0">${svgmap}</td>
+                        </tr>
+                    </table>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section2"><td class="title">2.2</td><td>Extent Of Occurrence<br/>(EOO)</td><td>
                         <c:if test="${occurrences == null}">
                             No correspondence in Flora-On
                         </c:if>
                         <c:if test="${occurrences != null}">
                             <c:if test="${EOO == null}">
-                                Not applicable (${occurrences.size()} occurrences)
+                                Not applicable (${occurrences.size()} occurrences, ${nclusters} locations)
                             </c:if>
                             <c:if test="${EOO != null}">
-                                <b><fmt:formatNumber value="${EOO}" maxFractionDigits="3"/></b> km<sup>2</sup> (${occurrences.size()} occurrences)
+                                <c:if test="${warning != null}"><div class="warning">${warning}</div></c:if>
+                                <b><fmt:formatNumber value="${EOO}" maxFractionDigits="3"/></b> km<sup>2</sup> (${occurrences.size()} occurrences, ${nclusters} locations)
                             </c:if>
                         </c:if>
                     </td></tr>
@@ -152,7 +159,7 @@
                         </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title">2.4</td><td>Decline in distribution</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION2()}">
+                        <c:if test="${user.canEDIT_SECTION2()}">
                             <select name="geographicalDistribution_DeclineDistribution">
                                 <c:forEach var="tmp" items="${geographicalDistribution_DeclineDistribution}">
                                     <c:if test="${rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
@@ -164,32 +171,32 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION2()}">
+                        <c:if test="${!user.canEDIT_SECTION2()}">
                             ${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title">2.5</td><td>Elevation</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION2()}">
+                        <c:if test="${user.canEDIT_SECTION2()}">
                             <input name="geographicalDistribution_ElevationRange" type="number" value="${rlde.getGeographicalDistribution().getElevationRange()[0]}"/>
                             <input name="geographicalDistribution_ElevationRange" type="number" value="${rlde.getGeographicalDistribution().getElevationRange()[1]}"/>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION2()}">
+                        <c:if test="${!user.canEDIT_SECTION2()}">
                             ${rlde.getGeographicalDistribution().getElevationRange()[0]} - ${rlde.getGeographicalDistribution().getElevationRange()[1]}
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title" colspan="3">Section 3 - Population</td></tr>
                 </c:if>
                 <tr class="section3 textual"><td class="title">3.1</td><td>Population information (textual)</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_SECTION3() || sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="population_Description"><c:out value="${rlde.getPopulation().getDescription()}"></c:out></textarea>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_SECTION3() && !sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${!user.canEDIT_SECTION3() && !user.canEDIT_ALL_TEXTUAL()}">
                         <c:out value="${rlde.getPopulation().getDescription()}"></c:out>
                     </c:if>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section3"><td class="title">3.2</td><td>Nº of mature individuals</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${user.canEDIT_SECTION3()}">
                             <table>
                                 <tr><td>Category</td><td>
                                     <select name="population_NrMatureIndividualsCategory">
@@ -207,7 +214,7 @@
                                 <tr><td>Textual description</td><td><input type="text" class="longbox" name="population_NrMatureIndividualsDescription" value="${rlde.getPopulation().getNrMatureIndividualsDescription()}"/></td></tr>
                             </table>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${!user.canEDIT_SECTION3()}">
                             <table>
                                 <tr><td>Category</td><td>${rlde.getPopulation().getNrMatureIndividualsCategory().getLabel()}</td></tr>
                                 <tr><td>Exact number</td><td>${rlde.getPopulation().getNrMatureIndividualsExact()}</td></tr>
@@ -216,7 +223,7 @@
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.3</td><td>Type of estimate</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${user.canEDIT_SECTION3()}">
                             <select name="population_TypeOfEstimate">
                                 <c:forEach var="tmp" items="${population_TypeOfEstimate}">
                                     <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
@@ -228,12 +235,12 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${!user.canEDIT_SECTION3()}">
                             ${rlde.getPopulation().getTypeOfEstimate().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.4</td><td>Population decline</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${user.canEDIT_SECTION3()}">
                             <select name="population_PopulationDecline">
                                 <c:forEach var="tmp" items="${population_PopulationDecline}">
                                     <c:if test="${rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
@@ -245,20 +252,20 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${!user.canEDIT_SECTION3()}">
                             ${rlde.getPopulation().getPopulationDecline().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.5</td><td>Population trend</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${user.canEDIT_SECTION3()}">
                             <input type="number" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}"/>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${!user.canEDIT_SECTION3()}">
                             ${rlde.getPopulation().getPopulationTrend()}
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.6</td><td>Severely fragmented</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${user.canEDIT_SECTION3()}">
                             <select name="population_SeverelyFragmented">
                                 <c:forEach var="tmp" items="${population_SeverelyFragmented}">
                                     <c:if test="${rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
@@ -270,12 +277,12 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${!user.canEDIT_SECTION3()}">
                             ${rlde.getPopulation().getSeverelyFragmented().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.7</td><td>Extreme fluctuations</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${user.canEDIT_SECTION3()}">
                             <select name="population_ExtremeFluctuations">
                                 <c:forEach var="tmp" items="${population_ExtremeFluctuations}">
                                     <c:if test="${rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
@@ -287,33 +294,33 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION3()}">
+                        <c:if test="${!user.canEDIT_SECTION3()}">
                             ${rlde.getPopulation().getExtremeFluctuations().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section4"><td class="title" colspan="3">Section 4 - Ecology</td></tr>
                 </c:if>
                 <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information (textual)</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_SECTION4() || sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="ecology_Description"><c:out value="${rlde.getEcology().getDescription()}"></c:out></textarea>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_SECTION4() && !sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${!user.canEDIT_SECTION4() && !user.canEDIT_ALL_TEXTUAL()}">
                         <c:out value="${rlde.getEcology().getDescription()}"></c:out>
                     </c:if>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section4"><td class="title">4.2</td><td>Habitat types</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION4()}">
+                        <c:if test="${user.canEDIT_SECTION4()}">
                             <c:forEach var="tmp" items="${ecology_HabitatTypes}">
                                 <c:if test="${habitatTypes.contains(tmp.toString())}">
-                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
+                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.getLabel()}" checked="checked"/> ${tmp.getLabel()}</label>
                                 </c:if>
                                 <c:if test="${!habitatTypes.contains(tmp.toString())}">
-                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}"/> ${tmp.getLabel()}</label>
+                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.getLabel()}"/> ${tmp.getLabel()}</label>
                                 </c:if>
                             </c:forEach>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION4()}">
+                        <c:if test="${!user.canEDIT_SECTION4()}">
                             <c:forEach var="tmp" items="${habitatTypes}">
                                 <div class="wordtag">${tmp}</div>
                             </c:forEach>
@@ -321,7 +328,7 @@
                     </td></tr>
                     <tr class="section4"><td class="title">4.3</td><td>Life form</td><td>(automatico)</td></tr>
                     <tr class="section4"><td class="title">4.4</td><td>Generation length</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION4()}">
+                        <c:if test="${user.canEDIT_SECTION4()}">
                             <select name="ecology_GenerationLength">
                                 <c:forEach var="tmp" items="${ecology_GenerationLength}">
                                     <c:if test="${rlde.getEcology().getGenerationLength().toString().equals(tmp.toString())}">
@@ -333,23 +340,23 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION4()}">
+                        <c:if test="${!user.canEDIT_SECTION4()}">
                             ${rlde.getEcology().getGenerationLength().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section5"><td class="title" colspan="3">Section 5 - Uses and trade</td></tr>
                 </c:if>
                 <tr class="section5 textual"><td class="title">5.1</td><td>Uses and trade (textual)</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_SECTION5() || sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="usesAndTrade_Description"><c:out value="${rlde.getUsesAndTrade().getDescription()}"></c:out></textarea>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_SECTION5() && !sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${!user.canEDIT_SECTION5() && !user.canEDIT_ALL_TEXTUAL()}">
                         <c:out value="${rlde.getUsesAndTrade().getDescription()}"></c:out>
                     </c:if>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section5"><td class="title">5.2</td><td>Uses</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION5()}">
+                        <c:if test="${user.canEDIT_SECTION5()}">
                             <c:forEach var="tmp" items="${usesAndTrade_Uses}">
                                 <c:if test="${uses.contains(tmp.toString())}">
                                     <label><input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
@@ -359,14 +366,14 @@
                                 </c:if>
                             </c:forEach>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION5()}">
+                        <c:if test="${!user.canEDIT_SECTION5()}">
                             <c:forEach var="tmp" items="${uses}">
-                                <div class="wordtag">${tmp}</div>
+                                <div class="wordtag">${tmp.getLabel()}</div>
                             </c:forEach>
                         </c:if>
                     </td></tr>
                     <tr class="section5"><td class="title">5.3</td><td>Trade</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION5()}">
+                        <c:if test="${user.canEDIT_SECTION5()}">
                             <c:if test="${rlde.getUsesAndTrade().isTraded()}">
                                 <label><input type="checkbox" name="usesAndTrade_Traded" checked="checked"/> is traded</label>
                             </c:if>
@@ -374,12 +381,12 @@
                                 <label><input type="checkbox" name="usesAndTrade_Traded"/> is traded</label>
                             </c:if>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION5()}">
+                        <c:if test="${!user.canEDIT_SECTION5()}">
                             Is traded: ${rlde.getUsesAndTrade().isTraded() ? "Yes" : "No"}
                         </c:if>
                     </td></tr>
                     <tr class="section5"><td class="title">5.4</td><td>Overexploitation</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION5()}">
+                        <c:if test="${user.canEDIT_SECTION5()}">
                             <select name="usesAndTrade_Overexploitation">
                                 <c:forEach var="tmp" items="${usesAndTrade_Overexploitation}">
                                     <c:if test="${rlde.getUsesAndTrade().getOverexploitation().toString().equals(tmp.toString())}">
@@ -391,47 +398,48 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION5()}">
+                        <c:if test="${!user.canEDIT_SECTION5()}">
                             ${rlde.getUsesAndTrade().getOverexploitation().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section6"><td class="title" colspan="3">Section 6 - Threats</td></tr>
                 </c:if>
                 <tr class="section6 textual"><td class="title">6.1</td><td>Threat description (textual)</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_SECTION6() || sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="threats_Description"><c:out value="${rlde.getThreats().getDescription()}"></c:out></textarea>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_SECTION6() && !sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${!user.canEDIT_SECTION6() && !user.canEDIT_ALL_TEXTUAL()}">
                         <c:out value="${rlde.getThreats().getDescription()}"></c:out>
                     </c:if>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section6"><td class="title">6.2</td><td>Threats</td><td>
                         (a fazer...)
                     </td></tr>
                     <tr class="section6"><td class="title">6.3</td><td>Number of locations</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION6()}">
+                        <c:if test="${user.canEDIT_SECTION6()}">
                             <input type="number" min="0" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/><br/>
-                            (nº de subpops sugerido)
+                            ${nclusters} locations (automatic estimate)
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION6()}">
-                            ${rlde.getThreats().getNumberOfLocations()}
+                        <c:if test="${!user.canEDIT_SECTION6()}">
+                            ${rlde.getThreats().getNumberOfLocations()}<br/>
+                            ${nclusters} locations (automatic estimate)
                         </c:if>
                     </td></tr>
 
                     <tr class="section7"><td class="title" colspan="3">Section 7 - Conservation</td></tr>
                 </c:if>
                 <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures (textual)</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_SECTION7() || sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="conservation_Description"><c:out value="${rlde.getConservation().getDescription()}"></c:out></textarea>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_SECTION7() && !sessionScope.user.canEDIT_ALL_TEXTUAL()}">
+                    <c:if test="${!user.canEDIT_SECTION7() && !user.canEDIT_ALL_TEXTUAL()}">
                         <c:out value="${rlde.getConservation().getDescription()}"></c:out>
                     </c:if>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section7"><td class="title">7.2</td><td>Conservation plans</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION7()}">
+                        <c:if test="${user.canEDIT_SECTION7()}">
                             <select name="conservation_ConservationPlans">
                                 <c:forEach var="tmp" items="${conservation_ConservationPlans}">
                                     <c:if test="${rlde.getConservation().getConservationPlans().toString().equals(tmp.toString())}">
@@ -443,12 +451,12 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION7()}">
+                        <c:if test="${!user.canEDIT_SECTION7()}">
                             ${rlde.getConservation().getConservationPlans().getLabel()}
                         </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.3</td><td><i>Ex-situ</i> conservation</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION7()}">
+                        <c:if test="${user.canEDIT_SECTION7()}">
                             <select name="conservation_ExSituConservation">
                                 <c:forEach var="tmp" items="${conservation_ExSituConservation}">
                                     <c:if test="${rlde.getConservation().getExSituConservation().toString().equals(tmp.toString())}">
@@ -460,7 +468,7 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION7()}">
+                        <c:if test="${!user.canEDIT_SECTION7()}">
                             ${rlde.getConservation().getExSituConservation().getLabel()}
                         </c:if>
                     </td></tr>
@@ -468,7 +476,7 @@
                     (automatico)
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td>Proposed conservation actions</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_SECTION7()}">
+                        <c:if test="${user.canEDIT_SECTION7()}">
                             <c:forEach var="tmp" items="${conservation_ProposedConservationActions}">
                                 <c:if test="${proposedConservationActions.contains(tmp.toString())}">
                                     <label><input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
@@ -478,7 +486,7 @@
                                 </c:if>
                             </c:forEach>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_SECTION7()}">
+                        <c:if test="${!user.canEDIT_SECTION7()}">
                             <c:forEach var="tmp" items="${proposedConservationActions}">
                                 <div class="wordtag">${tmp}</div>
                             </c:forEach>
@@ -493,7 +501,7 @@
                     <tr class="section9"><td class="title" colspan="3">Section 9 - Red List Assessment</td></tr>
                     <tr class="section9"><td class="title">9.1</td><td>Category</td><td>
                         <div id="redlistcategories">
-                            <c:if test="${sessionScope.user.canEDIT_9_1_2_3_5()}">
+                            <c:if test="${user.canEDIT_9_1_2_3_5()}">
                                 <c:forEach var="tmp" items="${assessment_Category}">
                                     <c:if test="${rlde.getAssessment().getCategory().toString().equals(tmp.toString())}">
                                         <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}" checked="checked">
@@ -505,31 +513,31 @@
                                     <c:if test="${tmp == 'RE' || tmp == 'LC'}"><br/></c:if>
                                 </c:forEach>
                             </c:if>
-                            <c:if test="${!sessionScope.user.canEDIT_9_1_2_3_5()}">
+                            <c:if test="${!user.canEDIT_9_1_2_3_5()}">
                                 <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                             </c:if>
                         </div>
                     </td></tr>
                     <tr class="section9"><td class="title">9.2</td><td>Criteria</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_9_1_2_3_5()}">
+                        <c:if test="${user.canEDIT_9_1_2_3_5()}">
                             <input name="assessment_Criteria" type="text" class="longbox" value="${rlde.getAssessment().getCriteria()}"/>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_9_1_2_3_5()}">
+                        <c:if test="${!user.canEDIT_9_1_2_3_5()}">
                             ${rlde.getAssessment().getCriteria()}
                         </c:if>
                     </td></tr>
                 </c:if>
                 <tr class="section9 textual"><td class="title">9.3</td><td>Assessment justification</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_9_1_2_3_5()}">
+                    <c:if test="${user.canEDIT_9_1_2_3_5()}">
                         <textarea rows="6" name="assessment_Justification"><c:out value="${rlde.getAssessment().getJustification()}"></c:out></textarea>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_9_1_2_3_5()}">
+                    <c:if test="${!user.canEDIT_9_1_2_3_5()}">
                         ${rlde.getAssessment().getJustificationHTML()}
                     </c:if>
                 </td></tr>
-                <c:if test="${sessionScope.user.canVIEW_FULL_SHEET()}">
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section9"><td class="title">9.4</td><td>Authors</td>
-                    <c:if test="${sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${authors.contains(tmp.getID())}">
@@ -541,7 +549,7 @@
                             </c:forEach>
                         </td>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_4_9_7()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getAuthors()}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
@@ -550,15 +558,15 @@
                     </c:if>
                     </tr>
                     <tr class="section9"><td class="title">9.4.1</td><td>Collaborators</td><td>
-                    <c:if test="${sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_4_9_7()}">
                         <input name="assessment_Collaborators" type="text" class="longbox" value="${rlde.getAssessment().getCollaborators()}"/>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_4_9_7()}">
                         ${rlde.getAssessment().getCollaborators()}
                     </c:if>
                     </td></tr>
                     <tr class="section9"><td class="title">9.5</td><td>Evaluator</td>
-                    <c:if test="${sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${evaluator.contains(tmp.getID())}">
@@ -570,7 +578,7 @@
                             </c:forEach>
                         </td>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_4_9_7()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getEvaluator()}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
@@ -579,7 +587,7 @@
                     </c:if>
                     </tr>
                     <tr class="section9"><td class="title">9.6</td><td>Reviewer</td>
-                    <c:if test="${sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${reviewer.contains(tmp.getID())}">
@@ -591,7 +599,7 @@
                             </c:forEach>
                         </td>
                     </c:if>
-                    <c:if test="${!sessionScope.user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_4_9_7()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getReviewer()}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
@@ -600,7 +608,7 @@
                     </c:if>
                     </tr>
                     <tr class="section9"><td class="title">9.7</td><td>Assessment status</td><td>
-                        <c:if test="${sessionScope.user.canEDIT_9_4_9_7()}">
+                        <c:if test="${user.canEDIT_9_4_9_7()}">
                             <select name="assessment_AssessmentStatus">
                                 <c:forEach var="tmp" items="${assessment_AssessmentStatus}">
                                     <c:if test="${rlde.getAssessment().getAssessmentStatus().toString().equals(tmp.toString())}">
@@ -612,7 +620,7 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!sessionScope.user.canEDIT_9_4_9_7()}">
+                        <c:if test="${!user.canEDIT_9_4_9_7()}">
                             ${rlde.getAssessment().getAssessmentStatus().getLabel()}
                         </c:if>
                     </td></tr>
@@ -622,10 +630,10 @@
     </c:when>
 
     <c:when test="${what=='taxonrecords'}">
-        <c:if test="${!sessionScope.user.canVIEW_OCCURRENCES()}">
+        <c:if test="${!user.canVIEW_OCCURRENCES()}">
             <div class="warning"><b>You&#8217;re not authorized to enter this page</b></div>
         </c:if>
-        <c:if test="${sessionScope.user.canVIEW_OCCURRENCES()}">
+        <c:if test="${user.canVIEW_OCCURRENCES()}">
             <h1>${taxon.getFullName(true)}</h1>
             <c:if test="${occurrences == null}">
                 <div class="warning"><b>Warning</b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
@@ -657,10 +665,10 @@
     </c:when>
 
     <c:when test="${what=='users'}">
-        <c:if test="${!sessionScope.user.canMANAGE_REDLIST_USERS()}">
+        <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
             <div class="warning"><b>You&#8217;re not authorized to enter this page</b></div>
         </c:if>
-        <c:if test="${sessionScope.user.canMANAGE_REDLIST_USERS()}">
+        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
             <h1>User management</h1>
             <h2>Create new user</h2>
             <form class="poster" data-path="/floraon/admin/createuser">
@@ -682,7 +690,7 @@
             <table>
                 <tr><th>Name</th><th>Privileges</th><th></th></tr>
                 <c:forEach var="tmp" items="${users}">
-                    <c:if test="${sessionScope.user.getUserType() == 'ADMINISTRATOR' || (sessionScope.user.getUserType() != 'ADMINISTRATOR' && tmp.getUserType() != 'ADMINISTRATOR')}">
+                    <c:if test="${user.getUserType() == 'ADMINISTRATOR' || (user.getUserType() != 'ADMINISTRATOR' && tmp.getUserType() != 'ADMINISTRATOR')}">
                     <tr><td>${tmp.getName()}</td>
                         <td>
                         <c:forEach var="tmp1" items="${tmp.getPrivileges()}">
@@ -697,10 +705,10 @@
         </c:if>
     </c:when>
     <c:when test="${what=='edituser'}">
-        <c:if test="${!sessionScope.user.canMANAGE_REDLIST_USERS()}">
+        <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
             <div class="warning"><b>You&#8217;re not authorized to enter this page</b></div>
         </c:if>
-        <c:if test="${sessionScope.user.canMANAGE_REDLIST_USERS()}">
+        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
             <c:if test="${requesteduser == null}">
                 <h1>User not found</h1>
                 <h2><a href="?w=users">go back</a></h2>

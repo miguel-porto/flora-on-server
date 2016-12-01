@@ -5,14 +5,14 @@ package pt.floraon.redlistdata.entities;
  */
 public class Ecology {
     private String description;
-    private String[] habitatTypes = new String[0];
+    private RedListEnums.HabitatTypes[] habitatTypes = new RedListEnums.HabitatTypes[0];
     private RedListEnums.GenerationLength generationLength;
 
     public String getDescription() {
         return description;
     }
 
-    public String[] getHabitatTypes() {
+    public RedListEnums.HabitatTypes[] getHabitatTypes() {
         return habitatTypes;
     }
 
@@ -24,7 +24,7 @@ public class Ecology {
         this.description = description;
     }
 
-    public void setHabitatTypes(String[] habitatTypes) {
+    public void setHabitatTypes(RedListEnums.HabitatTypes[] habitatTypes) {
         this.habitatTypes = habitatTypes;
     }
 
