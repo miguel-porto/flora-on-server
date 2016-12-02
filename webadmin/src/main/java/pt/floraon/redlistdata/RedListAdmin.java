@@ -94,6 +94,9 @@ System.out.println(gs.toJson(getUser()));
                     map.exportSVG(new PrintWriter(sw));
                     request.setAttribute("svgmap", sw.toString());
 
+                    request.setAttribute("occurrenceInProtectedAreas", map.getOccurrenceInProtectedAreas());
+                    request.setAttribute("locationsInPA", map.getNumberOfLocationsInsideProtectedAreas());
+
 /*
                     Gson gs = new GsonBuilder().setPrettyPrinting().create();
                     System.out.println(gs.toJson(rlde));

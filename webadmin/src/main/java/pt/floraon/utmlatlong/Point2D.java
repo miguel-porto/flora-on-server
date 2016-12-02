@@ -9,6 +9,7 @@ import java.util.Comparator;
  * http://algs4.cs.princeton.edu/99hull/Point2D.java.html
  */
 public final class Point2D implements Comparable<Point2D>, Clusterable {
+    private String protectedArea;
 
     /**
      * Compares two points by x-coordinate.
@@ -25,8 +26,8 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
      */
     public static final Comparator<Point2D> R_ORDER = new ROrder();
 
-    private final double x;    // x coordinate
-    private final double y;    // y coordinate
+    protected final double x;    // x coordinate
+    protected final double y;    // y coordinate
 
     /**
      * Initializes a new point (x, y).
@@ -288,6 +289,12 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
         Point2D that = (Point2D) other;
         return this.x == that.x && this.y == that.y;
     }
+
+    public void setProtectedArea(String protectedArea) {
+        this.protectedArea = protectedArea;
+    }
+
+    public String getProtectedArea() {return protectedArea;}
 
     /**
      * Return a string representation of this point.

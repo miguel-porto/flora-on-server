@@ -104,20 +104,10 @@ input[type=submit].textbutton {
 }
 
 #map {width:200px; height:400px;}
-#map path.portugal {fill:#7986cb;opacity:0.5}
+#map path.portugal {fill:white;}
 #map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff;}
+#map path.protectedarea {fill: rgba(139, 195, 74, 0.3); stroke-width: 2000px; stroke: #64dd17;}
 #map rect {fill:red; stroke-width: 1000px; stroke:red;}
-/*
-svg.maparios path {stroke-width:1000px;fill:none;stroke-linecap:round;}
-svg.maparios:not(.interactivo) path {stroke:#36cdff;}
-svg.maparios path.ord3 {stroke-width:1500px;}
-svg.maparios path.highlight {stroke:yellow !important;}
-svg.maparios path.present {stroke:#eb452c;stroke-width:4000px;}
-svg.maparios g.present path {stroke:#eb452c;stroke-width:4000px;}
-svg.maparios.interactivo path:not(.portugal) {cursor:pointer;}
-svg.maparios.interactivo g.rio:hover path {stroke:yellow !important;stroke-width:3000px;}
-svg.maparios.interactivo.pesqbacia g.bacia:hover path {stroke:yellow !important;stroke-width:3000px;}
-*/
 
 label {display:block}
 

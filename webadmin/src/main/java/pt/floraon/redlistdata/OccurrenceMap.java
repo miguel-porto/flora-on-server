@@ -1,16 +1,20 @@
 package pt.floraon.redlistdata;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jline.internal.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
+import org.geojson.Feature;
+import org.geojson.FeatureCollection;
+import org.geojson.LngLatAlt;
+import org.geojson.Polygon;
+import pt.floraon.utmlatlong.CoordinateConversion;
 import pt.floraon.utmlatlong.GrahamScan;
 import pt.floraon.utmlatlong.Point2D;
 import pt.floraon.utmlatlong.UTMCoordinate;
 
-import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.RectangularShape;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -27,6 +31,9 @@ public class OccurrenceMap {
     private final List<Cluster<Point2D>> clusters;
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
+    private Map<String, List<UTMCoordinate>> protectedAreas;
+    private Map<String, pt.floraon.utmlatlong.Polygon> protectedAreasPolygon;
+    private Set<String> occursInProtectedAreas = new HashSet<>();
     private Double EOO;
     private int nQuads;
     private long sizeOfSquare;
@@ -68,15 +75,59 @@ public class OccurrenceMap {
     }
 
     public OccurrenceMap(OccurrenceProvider occurrences, long sizeOfSquare) {
+        FeatureCollection protectedAreas = null;
+        try {
+            protectedAreas =
+                    new ObjectMapper().readValue(this.getClass().getResourceAsStream("ProtectedAreas.geojson"), FeatureCollection.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if(protectedAreas != null) {
+            this.protectedAreas = new HashMap<>();
+            this.protectedAreasPolygon = new HashMap<>();
+            for(Feature f : protectedAreas) {
+                List<UTMCoordinate> ut = new ArrayList<>();
+                pt.floraon.utmlatlong.Polygon pol = new pt.floraon.utmlatlong.Polygon();
+                UTMCoordinate coord;
+                for(LngLatAlt ll : ((Polygon) f.getGeometry()).getExteriorRing()) {
+                    coord = CoordinateConversion.LatLonToUtmWGS84(ll.getLatitude(), ll.getLongitude(), 0);
+                    ut.add(coord);
+                    pol.add(new Point2D(coord.getX(), coord.getY()));
+                }
+                String name = f.getProperties().get("Nome").toString();    // TODO: this assumes they are polygons having a field Nome, must generalize!
+                int cou = 1;
+                while(this.protectedAreas.keySet().contains(name)) {
+                    name = f.getProperties().get("Nome").toString() + " (" + cou + ")";
+                    cou++;
+                }
+
+                this.protectedAreas.put(name, ut);
+                this.protectedAreasPolygon.put(name, pol);
+
+            }
+        }
+
         List<UTMCoordinate> utmCoords = new ArrayList<>(occurrences.size());
         this.points = new ArrayList<>();
         this.sizeOfSquare = sizeOfSquare;
         UTMCoordinate tmp;
+        Point2D tmp1;
         Set<String> utmZones = new HashSet<>();
         for (OccurrenceProvider.SimpleOccurrence so : occurrences) {
             utmCoords.add(tmp = so.getUTMCoordinates());
-            points.add(new Point2D(tmp));
+            tmp1 = new Point2D(tmp);
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
+            for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> e : this.protectedAreasPolygon.entrySet()) {
+//                if(!occursInProtectedAreas.contains(e.getKey())) {
+                if (e.getValue().contains(tmp1)) {
+                    occursInProtectedAreas.add(e.getKey());
+                    tmp1.setProtectedArea(e.getKey());
+                    break;
+                }
+//                }
+            }
+            points.add(tmp1);
         }
 
         if (occurrences.size() >= 3) {
@@ -88,6 +139,7 @@ public class OccurrenceMap {
                 request.setAttribute("warning", "EOO computation is inaccurate for data " +
                         "points spreading more than one UTM zone.");
 */
+
             convexHull = (Stack<Point2D>) new GrahamScan(points.toArray(new Point2D[0])).hull();
             convexHull.add(convexHull.get(0));
             double sum = 0.0;
@@ -108,13 +160,13 @@ public class OccurrenceMap {
         this.nQuads = squares.size();
 
         // now make a clustering to compute approximate number of locations
-        DBSCANClusterer cls = new DBSCANClusterer(5000, 0);
+        DBSCANClusterer<Point2D> cls = new DBSCANClusterer<>(2500, 0);
         clusters = cls.cluster(points);
         Log.info(clusters.size());
     }
 
     public void exportSVG(PrintWriter out) {
-        InputStream str = this.getClass().getResourceAsStream("mapa.svg");
+        InputStream str = this.getClass().getResourceAsStream("basemap.svg");
         try {
             IOUtils.copy(str, out);
         } catch (IOException e) {
@@ -129,23 +181,55 @@ public class OccurrenceMap {
         }
 */
 
-        out.print("<path class=\"convexhull\" d=\"M" + (int) convexHull.get(0).x() + " " + (int) convexHull.get(0).y());
-        for (int i = 1; i < convexHull.size(); i++) {
-            out.print("L" + (int) convexHull.get(i).x() + " " + (int) convexHull.get(i).y());
+        // draw convex hull
+        if(convexHull != null) {
+            out.print("<path class=\"convexhull\" d=\"M" + (int) convexHull.get(0).x() + " " + (int) convexHull.get(0).y());
+            for (int i = 1; i < convexHull.size(); i++) {
+                out.print("L" + (int) convexHull.get(i).x() + " " + (int) convexHull.get(i).y());
+            }
+            out.print("\"></path>");
         }
-        out.print("\"></path>");
 
+        // draw protected areas
+        for(List<UTMCoordinate> ut : protectedAreas.values()) {
+            out.print("<path class=\"protectedarea\" d=\"M" + ut.get(0).getX() + " " + ut.get(0).getY());
+            for (int i = 1; i < ut.size(); i++) {
+                out.print("L" + ut.get(i).getX() + " " + ut.get(i).getY());
+            }
+            out.print("\"></path>");
+        }
+
+/*
+        if(this.protectedAreasPolygon != null) {
+            for (Point2D p : points) {
+                if (protectedAreasPolygon.get(2).contains(p))
+                    out.print("<circle cx=\"" + p.x() + "\" cy=\"" + p.y() + "\" r=\"3000\" style=\"fill:red\" />");
+                else
+                    out.print("<circle cx=\"" + p.x() + "\" cy=\"" + p.y() + "\" r=\"3000\" style=\"fill:blue\" />");
+            }
+        }
+*/
+        // draw occurrence squares
         for(Square s : this.squares) {
             Rectangle2D s1 = s.getSquare();
             out.print("<rect x=\"" + s1.getMinX() + "\" y=\""+s1.getMinY()+"\" width=\""+s1.getWidth()+"\" height=\""+s1.getHeight()+"\"/>");
         }
+
         out.print("</g></svg>");
     }
 
+    /**
+     * Gets the Extent of Occurrence, in km2
+     * @return
+     */
     public Double getEOO() {
         return EOO;
     }
 
+    /**
+     * Gets the number of squares where the species is present. The size of squares is given when instantiating the class.
+     * @return
+     */
     public int getNQuads() {
         return nQuads;
     }
@@ -154,7 +238,29 @@ public class OccurrenceMap {
         return this.clusters;
     }
 
+    /**
+     * Gets the number of locations where the species is present. A location is a cluster of occurrences, computed with
+     * the given parameters.
+     * @return
+     */
     public int getNLocations() {
         return this.clusters.size();
+    }
+
+    public Set<String> getOccurrenceInProtectedAreas() {
+        return occursInProtectedAreas;
+    }
+
+    public int getNumberOfLocationsInsideProtectedAreas() {
+        int count = 0;
+        for(Cluster<Point2D> cl : clusters) {
+            for(Point2D p : cl.getPoints()) {
+                if(p.getProtectedArea() != null) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
     }
 }

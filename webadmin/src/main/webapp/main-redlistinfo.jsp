@@ -473,7 +473,12 @@
                         </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
-                    (automatico)
+                        <ul>
+                        <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% locations inside protected areas (${locationsInPA}/${nclusters})</p>
+                        <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
+                            <li>${tmp}</li>
+                        </c:forEach>
+                        </ul>
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td>Proposed conservation actions</td><td>
                         <c:if test="${user.canEDIT_SECTION7()}">
