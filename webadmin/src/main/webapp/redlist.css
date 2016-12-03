@@ -81,6 +81,7 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 #header-buttons {text-align:right;}
 
 input, textarea, select {font-size: 16px; vertical-align: middle;}
+select {max-width: 400px; text-overflow: ellipsis;}
 
 input[type=submit] {
     width:64px;
@@ -106,7 +107,7 @@ input[type=submit].textbutton {
 #map {width:200px; height:400px;}
 #map path.portugal {fill:white;}
 #map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff;}
-#map path.protectedarea {fill: rgba(139, 195, 74, 0.3); stroke-width: 2000px; stroke: #64dd17;}
+#map path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:500px; stroke: gray} /* stroke-width: 2000px; stroke: #64dd17; */
 #map rect {fill:red; stroke-width: 1000px; stroke:red;}
 
 label {display:block}

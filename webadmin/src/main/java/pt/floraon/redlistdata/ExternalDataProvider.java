@@ -6,16 +6,23 @@ import pt.floraon.utmlatlong.UTMCoordinate;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 /**
  * Created by miguel on 02-11-2016.
  */
-public interface OccurrenceProvider extends Iterable<OccurrenceProvider.SimpleOccurrence> {
+public interface ExternalDataProvider extends Iterable<ExternalDataProvider.SimpleOccurrence> {
     /**
      * Returns how many occurrences
      * @return
      */
     int size();
+
+    /**
+     * Sets a polygon theme to clip occurrences. May have any number of polygons.
+     * @param theme
+     */
+    void setClippingPolygon(PolygonTheme theme);
 
     /**
      * Executes a query and updates the Iterable list of occurrences with the results.
@@ -24,7 +31,16 @@ public interface OccurrenceProvider extends Iterable<OccurrenceProvider.SimpleOc
      * @throws URISyntaxException
      * @throws IOException
      */
-    void executeOccurrenceQuery(Object query) throws FloraOnException, URISyntaxException, IOException;
+    void executeOccurrenceQuery(Object query) throws FloraOnException, IOException;
+
+    /**
+     * Executes a query and returns arbitrary data about a taxon.
+     * @param query
+     * @throws FloraOnException
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+    Map<String, Object> executeInfoQuery(Object query) throws FloraOnException, IOException;
 
     class SimpleOccurrence {
         final float latitude, longitude;

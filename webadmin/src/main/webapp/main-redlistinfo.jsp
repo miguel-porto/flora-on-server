@@ -15,6 +15,7 @@
 	<script type="text/javascript" src="/floraon/redlistadmin.js"></script>
 </head>
 <body>
+<fmt:setLocale value="pt_PT"/>
 <div id="title"><a href="/floraon/">Red List data portal</a></div>
 <div id="main-holder">
     <div id="left-bar">
@@ -95,7 +96,7 @@
                         </c:forEach>
                         </ul>
                     </td></tr>
-                    <tr class="section1"><td class="title">1.4</td><td>Taxonomic problems</td><td>
+                    <tr class="section1"><td class="title">1.4</td><td>Taxonomic comments</td><td>
                         <c:if test="${user.canEDIT_1_4()}">
                             <table>
                                 <tr><td colspan="2"><label>
@@ -121,11 +122,11 @@
                     </td></tr>
                     <tr class="section2"><td class="title" colspan="3">Section 2 - Geographical Distribution</td></tr>
                 </c:if>
-                <tr class="section2 textual"><td class="title">2.1</td><td>Distribution (textual)</td><td>
+                <tr class="section2 textual"><td class="title">2.1</td><td>Distribution</td><td>
                     <table>
                         <tr><td style="width:auto">
                         <c:if test="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}">
-                            <textarea rows="6" name="geographicalDistribution_Description"><c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out></textarea>
+                            <textarea style="height:400px;" rows="6" name="geographicalDistribution_Description"><c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out></textarea>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION2() && !user.canEDIT_ALL_TEXTUAL()}">
                             <c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out>
@@ -142,11 +143,11 @@
                         </c:if>
                         <c:if test="${occurrences != null}">
                             <c:if test="${EOO == null}">
-                                Not applicable (${occurrences.size()} occurrences, ${nclusters} locations)
+                                Not applicable (${occurrences.size()} occurrences, ${nclusters} sites)
                             </c:if>
                             <c:if test="${EOO != null}">
                                 <c:if test="${warning != null}"><div class="warning">${warning}</div></c:if>
-                                <b><fmt:formatNumber value="${EOO}" maxFractionDigits="3"/></b> km<sup>2</sup> (${occurrences.size()} occurrences, ${nclusters} locations)
+                                <b><fmt:formatNumber value="${EOO}" maxFractionDigits="0" groupingUsed="false"/></b> km<sup>2</sup> (${occurrences.size()} occurrences, ${nclusters} sites)
                             </c:if>
                         </c:if>
                     </td></tr>
@@ -155,7 +156,7 @@
                             No correspondence in Flora-On
                         </c:if>
                         <c:if test="${occurrences != null}">
-                            <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4"/></b> km<sup>2</sup> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)
+                            <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4" groupingUsed="false"/></b> km<sup>2</sup> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)
                         </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title">2.4</td><td>Decline in distribution</td><td>
@@ -186,7 +187,7 @@
                     </td></tr>
                     <tr class="section3"><td class="title" colspan="3">Section 3 - Population</td></tr>
                 </c:if>
-                <tr class="section3 textual"><td class="title">3.1</td><td>Population information (textual)</td><td>
+                <tr class="section3 textual"><td class="title">3.1</td><td>Population information</td><td>
                     <c:if test="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="population_Description"><c:out value="${rlde.getPopulation().getDescription()}"></c:out></textarea>
                     </c:if>
@@ -300,12 +301,12 @@
                     </td></tr>
                     <tr class="section4"><td class="title" colspan="3">Section 4 - Ecology</td></tr>
                 </c:if>
-                <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information (textual)</td><td>
+                <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information</td><td>
                     <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="ecology_Description"><c:out value="${rlde.getEcology().getDescription()}"></c:out></textarea>
+                        <textarea rows="6" name="ecology_Description"><c:out value="${ecology}"></c:out></textarea>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION4() && !user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${rlde.getEcology().getDescription()}"></c:out>
+                        <c:out value="${ecology}"></c:out>
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
@@ -346,7 +347,7 @@
                     </td></tr>
                     <tr class="section5"><td class="title" colspan="3">Section 5 - Uses and trade</td></tr>
                 </c:if>
-                <tr class="section5 textual"><td class="title">5.1</td><td>Uses and trade (textual)</td><td>
+                <tr class="section5 textual"><td class="title">5.1</td><td>Uses and trade</td><td>
                     <c:if test="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="usesAndTrade_Description"><c:out value="${rlde.getUsesAndTrade().getDescription()}"></c:out></textarea>
                     </c:if>
@@ -404,7 +405,7 @@
                     </td></tr>
                     <tr class="section6"><td class="title" colspan="3">Section 6 - Threats</td></tr>
                 </c:if>
-                <tr class="section6 textual"><td class="title">6.1</td><td>Threat description (textual)</td><td>
+                <tr class="section6 textual"><td class="title">6.1</td><td>Threat description</td><td>
                     <c:if test="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="threats_Description"><c:out value="${rlde.getThreats().getDescription()}"></c:out></textarea>
                     </c:if>
@@ -416,20 +417,20 @@
                     <tr class="section6"><td class="title">6.2</td><td>Threats</td><td>
                         (a fazer...)
                     </td></tr>
-                    <tr class="section6"><td class="title">6.3</td><td>Number of locations</td><td>
+                    <tr class="section6"><td class="title">6.3</td><td>Number of sites</td><td>
                         <c:if test="${user.canEDIT_SECTION6()}">
                             <input type="number" min="0" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/><br/>
-                            ${nclusters} locations (automatic estimate)
+                            ${nclusters} sites (automatic estimate)
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION6()}">
                             ${rlde.getThreats().getNumberOfLocations()}<br/>
-                            ${nclusters} locations (automatic estimate)
+                            ${nclusters} sites (automatic estimate)
                         </c:if>
                     </td></tr>
 
                     <tr class="section7"><td class="title" colspan="3">Section 7 - Conservation</td></tr>
                 </c:if>
-                <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures (textual)</td><td>
+                <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures</td><td>
                     <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}">
                         <textarea rows="6" name="conservation_Description"><c:out value="${rlde.getConservation().getDescription()}"></c:out></textarea>
                     </c:if>
@@ -474,9 +475,9 @@
                     </td></tr>
                     <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
                         <ul>
-                        <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% locations inside protected areas (${locationsInPA}/${nclusters})</p>
+                        <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% sites inside protected areas (${locationsInPA}/${nclusters})</p>
                         <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
-                            <li>${tmp}</li>
+                            <li>${tmp.getKey()}: ${tmp.getValue()} sites</li>
                         </c:forEach>
                         </ul>
                     </td></tr>

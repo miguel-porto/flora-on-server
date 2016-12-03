@@ -46,7 +46,14 @@ public class FloraOnServlet extends HttpServlet {
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().println("{\"success\":false,\"msg\":\""+obj+"\"}");
 	}
-	
+
+	protected void errorHTML(String obj) throws IOException {
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		response.setContentType("text/html");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().println("<html><body>" + obj + "</body></html>");
+	}
+
 	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
 		for(Object o : pars) {
 			if(o == null) throw new FloraOnException("Missing parameter.");
@@ -146,25 +153,9 @@ public class FloraOnServlet extends HttpServlet {
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			request.getRequestDispatcher("/error.html").forward(request, response);
-/*
-			response.setContentType("text/html");
-			response.getWriter().println("<p>Some error occurred, probably ArangoDB server is down; check the TomCat logs.</p>");
-*/
 			return;
 		}
 
-/*
-		if(request.getSession().getAttribute("user") == null) {
-			try {
-				request.getSession().setAttribute("user", new User("guest", "Guest"
-                        , new User.Privileges[] {User.Privileges.VIEW_FULL_SHEET, User.Privileges.EDIT_SECTION2, User.Privileges.VIEW_OCCURRENCES}));
-			} catch (DatabaseException e) {
-				e.printStackTrace();
-			}
-		}
-*/
-//		User.Privileges.VIEW_FULL_SHEET, User.Privileges.MANAGE_REDLIST_USERS
-//				, User.Privileges.EDIT_SECTION3, User.Privileges.VIEW_OCCURRENCES, User.Privileges.EDIT_9_1_2_3_5
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
@@ -183,11 +174,6 @@ public class FloraOnServlet extends HttpServlet {
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			request.getRequestDispatcher("/error.html").forward(request, response);
-/*
-			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			response.setContentType("text/html");
-			response.getWriter().println("<p>Some error occurred, probably ArangoDB server is down; check the TomCat logs.</p>");
-*/
 			return;
 		}
 		this.response=response;

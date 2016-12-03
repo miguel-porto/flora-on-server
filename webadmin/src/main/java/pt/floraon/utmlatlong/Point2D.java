@@ -3,13 +3,16 @@ package pt.floraon.utmlatlong;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Taken from
  * http://algs4.cs.princeton.edu/99hull/Point2D.java.html
  */
 public final class Point2D implements Comparable<Point2D>, Clusterable {
-    private String protectedArea;
+    private Set<String> tags = new HashSet<>();
 
     /**
      * Compares two points by x-coordinate.
@@ -290,11 +293,11 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
         return this.x == that.x && this.y == that.y;
     }
 
-    public void setProtectedArea(String protectedArea) {
-        this.protectedArea = protectedArea;
+    public void addTag(String name) {
+        this.tags.add(name);
     }
 
-    public String getProtectedArea() {return protectedArea;}
+    public Set<String> getTags() {return this.tags;}
 
     /**
      * Return a string representation of this point.

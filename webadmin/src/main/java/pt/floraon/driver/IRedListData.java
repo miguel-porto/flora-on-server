@@ -1,6 +1,6 @@
 package pt.floraon.driver;
 
-import pt.floraon.redlistdata.OccurrenceProvider;
+import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public interface IRedListData {
      */
     void initializeRedListDataForTerritory(String territory) throws FloraOnException;
 
-    List<OccurrenceProvider> getOccurrenceProviders();
+    List<ExternalDataProvider> getExternalDataProviders();
 
     /**
      * Stores in the DB a new red list data entity.

@@ -34,11 +34,16 @@ public class RedListEnums {
     public enum DeclineDistribution implements LabelledEnum {
         NO_INFORMATION("No information")
         , STABLE("Stable")
-        , POSSIBLE_INCREASE("Poss inc")
-        , DECREASE_REVERSIBLE("Dec rev")
-        , DECREASE_IRREVERSIBLE("Dec irrev")
-        , POSSIBLE_DECREASE_FUTURE("Dec fut")
-        , DECREASE_PAST_FUTURE("Dec past fut");
+        , POSSIBLE_INCREASE("Possible increase")
+        , DECREASE_REVERSIBLE("Population reduction observed, estimated, inferred, or suspected in the past where the " +
+                "causes of the reduction are clearly reversible AND understood AND have ceased")
+        , DECREASE_IRREVERSIBLE("Population reduction observed, estimated, inferred, or suspected in the past where the " +
+                "causes of reduction may not have ceased OR may not be understood OR may not be reversible")
+        , POSSIBLE_DECREASE_FUTURE("Population reduction projected, inferred or suspected to be met in the future " +
+                "(up to a maximum of 100 years)")
+        , DECREASE_PAST_FUTURE("An observed, estimated, inferred, projected or suspected population reduction where the " +
+                "time period must include both the past and the future (up to a max of 100 years in future), and where " +
+                "the causes of reduction may not have ceased OR may not be understood OR may not be reversible");
 
         private String label;
 

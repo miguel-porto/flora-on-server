@@ -1,11 +1,15 @@
 package pt.floraon.utmlatlong;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by miguel on 01-12-2016.
  */
 public class Polygon {
     private int N;        // number of points in the polygon
     private Point2D[] a;    // the points, setting points[0] = points[N]
+    private List<UTMCoordinate> UTMCoordinates = new ArrayList<>();
 
     // default buffer = 4
     public Polygon() {
@@ -29,6 +33,14 @@ public class Polygon {
         if (N >= a.length - 1) resize();   // resize array if needed
         a[N++] = p;                        // add point
         a[N] = a[0];                       // close polygon
+
+//        UTMCoordinate ut = CoordinateConversion.LatLonToUtmWGS84(p.y, p.x, 0);
+//        System.out.println(ut.getX()+", "+ut.getY());
+        UTMCoordinates.add(CoordinateConversion.LatLonToUtmWGS84(p.y, p.x, 0));
+    }
+
+    public void add(UTMCoordinate utmCoord) {
+        this.add(new Point2D(utmCoord.getX(), utmCoord.getY()));
     }
 
     // return the perimeter
@@ -91,6 +103,13 @@ public class Polygon {
             s = s + a[i] + " ";
         s = s + "]";
         return s;
+    }
+
+    public List<UTMCoordinate> getUTMCoordinates() {
+//        return UTMCoordinates;
+        List<UTMCoordinate> out = new ArrayList<>(UTMCoordinates);
+        out.add(UTMCoordinates.get(0));
+        return out;
     }
 }
 

@@ -10,10 +10,9 @@ import com.arangodb.model.CollectionCreateOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.HashIndexOptions;
-import com.arangodb.velocypack.exception.VPackParserException;
 import pt.floraon.driver.*;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
-import pt.floraon.redlistdata.occurrenceproviders.FloraOnOccurrenceProvider;
+import pt.floraon.redlistdata.occurrenceproviders.FloraOnExternalDataProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,7 +27,7 @@ import java.util.Properties;
 public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListData {
     final private ArangoDB dbDriver;
     final protected ArangoDatabase database;
-    final private List<OccurrenceProvider> occurrenceProviders = new ArrayList<>();
+    final private List<ExternalDataProvider> externalDataProviders = new ArrayList<>();
 
     public ArangoDBRedListData(IFloraOn driver) {
         super(driver);
@@ -55,16 +54,15 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     public void initializeRedListData(Properties properties) throws FloraOnException {
         try {
             for(String op : getPropertyList(properties, "occurrenceProvider")) {
-                occurrenceProviders.add(new FloraOnOccurrenceProvider(new URL(op)));    // TODO use reflection
+                externalDataProviders.add(new FloraOnExternalDataProvider(new URL(op)));    // TODO use reflection
             }
         } catch (MalformedURLException e) {
             throw new FloraOnException(e.getMessage());
         }
     }
 
-    @Override
-    public List<OccurrenceProvider> getOccurrenceProviders() {
-        return occurrenceProviders;
+    public List<ExternalDataProvider> getExternalDataProviders() {
+        return externalDataProviders;
     }
 
     @Override

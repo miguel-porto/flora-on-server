@@ -1,15 +1,9 @@
 package pt.floraon.redlistdata;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jline.internal.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-import org.geojson.Feature;
-import org.geojson.FeatureCollection;
-import org.geojson.LngLatAlt;
-import org.geojson.Polygon;
-import pt.floraon.utmlatlong.CoordinateConversion;
 import pt.floraon.utmlatlong.GrahamScan;
 import pt.floraon.utmlatlong.Point2D;
 import pt.floraon.utmlatlong.UTMCoordinate;
@@ -23,7 +17,7 @@ import java.util.List;
  * Processes a list of occurrences to an SVG image
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceMap {
+public class OccurrenceProcessor {
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
@@ -31,12 +25,11 @@ public class OccurrenceMap {
     private final List<Cluster<Point2D>> clusters;
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
-    private Map<String, List<UTMCoordinate>> protectedAreas;
-    private Map<String, pt.floraon.utmlatlong.Polygon> protectedAreasPolygon;
-    private Set<String> occursInProtectedAreas = new HashSet<>();
+    private PolygonTheme protectedAreas;
     private Double EOO;
     private int nQuads;
     private long sizeOfSquare;
+    private boolean showOccurrences = false;
 
     private class Square {
         private long qx, qy;
@@ -74,58 +67,25 @@ public class OccurrenceMap {
         }
     }
 
-    public OccurrenceMap(OccurrenceProvider occurrences, long sizeOfSquare) {
-        FeatureCollection protectedAreas = null;
-        try {
-            protectedAreas =
-                    new ObjectMapper().readValue(this.getClass().getResourceAsStream("ProtectedAreas.geojson"), FeatureCollection.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if(protectedAreas != null) {
-            this.protectedAreas = new HashMap<>();
-            this.protectedAreasPolygon = new HashMap<>();
-            for(Feature f : protectedAreas) {
-                List<UTMCoordinate> ut = new ArrayList<>();
-                pt.floraon.utmlatlong.Polygon pol = new pt.floraon.utmlatlong.Polygon();
-                UTMCoordinate coord;
-                for(LngLatAlt ll : ((Polygon) f.getGeometry()).getExteriorRing()) {
-                    coord = CoordinateConversion.LatLonToUtmWGS84(ll.getLatitude(), ll.getLongitude(), 0);
-                    ut.add(coord);
-                    pol.add(new Point2D(coord.getX(), coord.getY()));
-                }
-                String name = f.getProperties().get("Nome").toString();    // TODO: this assumes they are polygons having a field Nome, must generalize!
-                int cou = 1;
-                while(this.protectedAreas.keySet().contains(name)) {
-                    name = f.getProperties().get("Nome").toString() + " (" + cou + ")";
-                    cou++;
-                }
-
-                this.protectedAreas.put(name, ut);
-                this.protectedAreasPolygon.put(name, pol);
-
-            }
-        }
+    public OccurrenceProcessor(ExternalDataProvider occurrences, long sizeOfSquare, boolean showOccurrences) {
+        protectedAreas = new NamedPolygons(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
 
         List<UTMCoordinate> utmCoords = new ArrayList<>(occurrences.size());
         this.points = new ArrayList<>();
         this.sizeOfSquare = sizeOfSquare;
+        this.showOccurrences = showOccurrences;
         UTMCoordinate tmp;
         Point2D tmp1;
         Set<String> utmZones = new HashSet<>();
-        for (OccurrenceProvider.SimpleOccurrence so : occurrences) {
+
+        for (ExternalDataProvider.SimpleOccurrence so : occurrences) {
             utmCoords.add(tmp = so.getUTMCoordinates());
             tmp1 = new Point2D(tmp);
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
-            for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> e : this.protectedAreasPolygon.entrySet()) {
-//                if(!occursInProtectedAreas.contains(e.getKey())) {
-                if (e.getValue().contains(tmp1)) {
-                    occursInProtectedAreas.add(e.getKey());
-                    tmp1.setProtectedArea(e.getKey());
-                    break;
+            for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> e : protectedAreas) {
+                if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                    tmp1.addTag(e.getKey());
                 }
-//                }
             }
             points.add(tmp1);
         }
@@ -181,6 +141,17 @@ public class OccurrenceMap {
         }
 */
 
+        // draw protected areas
+        List<UTMCoordinate> tmp;
+        for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> p : protectedAreas) {
+            tmp = p.getValue().getUTMCoordinates();
+            out.print("<path class=\"protectedarea\" d=\"M" + tmp.get(0).getX() + " " + tmp.get(0).getY());
+            for (int i = 1; i < tmp.size(); i++) {
+                out.print("L" + tmp.get(i).getX() + " " + tmp.get(i).getY());
+            }
+            out.print("\"></path>");
+        }
+
         // draw convex hull
         if(convexHull != null) {
             out.print("<path class=\"convexhull\" d=\"M" + (int) convexHull.get(0).x() + " " + (int) convexHull.get(0).y());
@@ -190,29 +161,12 @@ public class OccurrenceMap {
             out.print("\"></path>");
         }
 
-        // draw protected areas
-        for(List<UTMCoordinate> ut : protectedAreas.values()) {
-            out.print("<path class=\"protectedarea\" d=\"M" + ut.get(0).getX() + " " + ut.get(0).getY());
-            for (int i = 1; i < ut.size(); i++) {
-                out.print("L" + ut.get(i).getX() + " " + ut.get(i).getY());
+        if(showOccurrences) {
+            // draw occurrence squares
+            for (Square s : this.squares) {
+                Rectangle2D s1 = s.getSquare();
+                out.print("<rect x=\"" + s1.getMinX() + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"/>");
             }
-            out.print("\"></path>");
-        }
-
-/*
-        if(this.protectedAreasPolygon != null) {
-            for (Point2D p : points) {
-                if (protectedAreasPolygon.get(2).contains(p))
-                    out.print("<circle cx=\"" + p.x() + "\" cy=\"" + p.y() + "\" r=\"3000\" style=\"fill:red\" />");
-                else
-                    out.print("<circle cx=\"" + p.x() + "\" cy=\"" + p.y() + "\" r=\"3000\" style=\"fill:blue\" />");
-            }
-        }
-*/
-        // draw occurrence squares
-        for(Square s : this.squares) {
-            Rectangle2D s1 = s.getSquare();
-            out.print("<rect x=\"" + s1.getMinX() + "\" y=\""+s1.getMinY()+"\" width=\""+s1.getWidth()+"\" height=\""+s1.getHeight()+"\"/>");
         }
 
         out.print("</g></svg>");
@@ -247,15 +201,45 @@ public class OccurrenceMap {
         return this.clusters.size();
     }
 
-    public Set<String> getOccurrenceInProtectedAreas() {
-        return occursInProtectedAreas;
+    /**
+     * Gets the number of locations per protected area.
+     * @return
+     */
+    public Map<String, Integer> getOccurrenceInProtectedAreas() {
+        Map<String, Integer> out = new HashMap<>();
+        Set<String> perCluster = null;
+        List<Set<String>> total = new ArrayList<>();
+
+        for(Cluster<Point2D> cl : clusters) {
+            perCluster = new HashSet<>();
+            for(Point2D p : cl.getPoints()) {
+                for(String s : p.getTags()) {
+                    perCluster.add(s);
+                }
+            }
+            total.add(perCluster);
+        }
+        if(perCluster == null) return out;
+        for(Set<String> pc : total) {
+            for(String s : pc) {
+                if(out.containsKey(s))
+                    out.put(s, out.get(s) + 1);
+                else
+                    out.put(s, 1);
+            }
+        }
+        return out;
     }
 
+    /**
+     * Gets the total number of locations which fall inside at least one protected area.
+     * @return
+     */
     public int getNumberOfLocationsInsideProtectedAreas() {
         int count = 0;
         for(Cluster<Point2D> cl : clusters) {
             for(Point2D p : cl.getPoints()) {
-                if(p.getProtectedArea() != null) {
+                if(p.getTags().size() > 0) {    // exists at least in one protected area
                     count++;
                     break;
                 }

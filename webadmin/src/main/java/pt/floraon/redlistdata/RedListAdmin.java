@@ -1,27 +1,17 @@
 package pt.floraon.redlistdata;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import jline.internal.Log;
-import org.apache.commons.math3.ml.clustering.*;
-import org.apache.commons.math3.ml.clustering.Cluster;
-import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.User;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.server.FloraOnServlet;
-import pt.floraon.utmlatlong.GrahamScan;
-import pt.floraon.utmlatlong.Point2D;
-import pt.floraon.utmlatlong.UTMCoordinate;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
 import java.util.*;
 
 /**
@@ -53,7 +43,7 @@ System.out.println(gs.toJson(getUser()));
 
         String territory = path.next();
 
-        final OccurrenceProvider foop = driver.getRedListData().getOccurrenceProviders().get(0);
+        final ExternalDataProvider foop = driver.getRedListData().getExternalDataProviders().get(0);
 
         request.setAttribute("what", what = getParameterAsString("w", "main"));
         switch (what) {
@@ -75,13 +65,11 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("taxon", te);
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
                 if (te.getOldId() != null) {
-                    try {
-                        foop.executeOccurrenceQuery(te.getOldId());
-                    } catch (URISyntaxException e) {
-                        throw new FloraOnException(e.getMessage());
-                    }
+                    foop.executeOccurrenceQuery(te.getOldId());
+                    foop.setClippingPolygon(new NamedPolygons(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
+                    // TODO clipping polygon must be a user configuration
 
-                    OccurrenceMap map = new OccurrenceMap(foop, sizeOfSquare);
+                    OccurrenceProcessor map = new OccurrenceProcessor(foop, sizeOfSquare, getUser().canVIEW_OCCURRENCES());
 
                     request.setAttribute("EOO", map.getEOO());
 
@@ -94,7 +82,7 @@ System.out.println(gs.toJson(getUser()));
                     map.exportSVG(new PrintWriter(sw));
                     request.setAttribute("svgmap", sw.toString());
 
-                    request.setAttribute("occurrenceInProtectedAreas", map.getOccurrenceInProtectedAreas());
+                    request.setAttribute("occurrenceInProtectedAreas", map.getOccurrenceInProtectedAreas().entrySet());
                     request.setAttribute("locationsInPA", map.getNumberOfLocationsInsideProtectedAreas());
 
 /*
@@ -129,6 +117,13 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
                     request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
 
+                    Map<String, Object> taxonInfo = foop.executeInfoQuery(te.getOldId());
+
+                    if(rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
+                        if(taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null)
+                            request.setAttribute("ecology", taxonInfo.get("ecology").toString());
+                    } else
+                        request.setAttribute("ecology", rlde.getEcology().getDescription());
                     // make a map of user IDs and names
                     List<User> allUsers = driver.getAdministration().getAllUsers();
                     Map<String, String> userMap = new HashMap<>();
@@ -148,11 +143,7 @@ System.out.println(gs.toJson(getUser()));
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 if (te.getOldId() != null) {
-                    try {
-                        foop.executeOccurrenceQuery(te.getOldId());
-                    } catch (URISyntaxException e) {
-                        throw new FloraOnException(e.getMessage());
-                    }
+                    foop.executeOccurrenceQuery(te.getOldId());
                     request.setAttribute("occurrences", foop);
                 }
                 break;
