@@ -59,6 +59,15 @@ public class User extends NamedDBNode {
 		return out;
 	}
 
+	public static Map<String, Privileges[]> userProfiles;
+	static {
+		userProfiles = new HashMap<>();
+		userProfiles.put("AUTHOR", new Privileges[] { EDIT_1_4, EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
+				, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_9_4_9_7});
+		userProfiles.put("EVALUATOR", new Privileges[] { EDIT_9_1_2_3_5});
+		userProfiles.put("REVIEWER", new Privileges[] { EDIT_9_6_8_41, EDIT_9_1_2_3_5});
+	}
+
 	public static Privileges[] EDIT_SECTIONS2_8 = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
 		, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8};
 
@@ -136,8 +145,10 @@ public class User extends NamedDBNode {
 	}
 
 	public void setPassword(char[] password) {
-		PasswordAuthentication pa = new PasswordAuthentication();
-		this.password = pa.hash(password);
+		if(password.length > 0) {
+			PasswordAuthentication pa = new PasswordAuthentication();
+			this.password = pa.hash(password);
+		}
 	}
 
 	public void setPrivilege(Privileges privilege, boolean value) {
@@ -145,6 +156,10 @@ public class User extends NamedDBNode {
 			this.privileges.add(privilege);
 		else
 			this.privileges.remove(privilege);
+	}
+
+	public void setPrivileges(Privileges[] privileges) {
+		this.privileges.addAll(Arrays.asList(privileges));
 	}
 
 	public void setVIEW_FULL_SHEET(boolean value) {

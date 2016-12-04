@@ -58,7 +58,18 @@
         <c:if test="${occurrences == null}">
             <div class="warning"><b>Warning</b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
         </c:if>
-        <form class="poster" data-path="/floraon/redlist/api/updatedata">
+        <c:if test="${user.canVIEW_FULL_SHEET()}">
+        <div class="navigator">
+            <div class="button anchorbutton section2"><a href="#distribution">2. Distribution</a></div>
+            <div class="button anchorbutton section3"><a href="#population">3. Population</a></div>
+            <div class="button anchorbutton section4"><a href="#ecology">4. Ecology</a></div>
+            <div class="button anchorbutton section5"><a href="#uses">5. Uses and trade</a></div>
+            <div class="button anchorbutton section6"><a href="#threats">6. Threats</a></div>
+            <div class="button anchorbutton section7"><a href="#conservation">7. Conservation</a></div>
+            <div class="button anchorbutton section9"><a href="#assessment">9. Assessment</a></div>
+        </div>
+        </c:if>
+        <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-refresh="false">
             <input type="hidden" name="databaseId" value="${rlde.getID()}"/>
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="hidden" name="taxEntID" value="${rlde.getTaxEntID()}"/>
@@ -84,7 +95,7 @@
                         <td class="title">1.1</td>
                         <td>Name</td><td><i>${taxon.getName()}</i>
                             <c:if test="${user.canEDIT_ANY_FIELD()}">
-                                <input type="submit" value=""/>
+                                <input type="submit" value="" id="mainformsubmitter" class="hidden"/>
                             </c:if>
                         </td>
                     </tr>
@@ -120,7 +131,7 @@
                             </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section2"><td class="title" colspan="3">Section 2 - Geographical Distribution</td></tr>
+                    <tr class="section2"><td class="title" colspan="3"><a name="distribution"></a>Section 2 - Geographical Distribution</td></tr>
                 </c:if>
                 <tr class="section2 textual"><td class="title">2.1</td><td>Distribution</td><td>
                     <table>
@@ -185,7 +196,7 @@
                             ${rlde.getGeographicalDistribution().getElevationRange()[0]} - ${rlde.getGeographicalDistribution().getElevationRange()[1]}
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title" colspan="3">Section 3 - Population</td></tr>
+                    <tr class="section3"><td class="title" colspan="3"><a name="population"></a>Section 3 - Population</td></tr>
                 </c:if>
                 <tr class="section3 textual"><td class="title">3.1</td><td>Population information</td><td>
                     <c:if test="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}">
@@ -281,6 +292,8 @@
                         <c:if test="${!user.canEDIT_SECTION3()}">
                             ${rlde.getPopulation().getSeverelyFragmented().getLabel()}
                         </c:if>
+                        <br/>Mean area of sites: <fmt:formatNumber value="${meanLocationArea}" maxFractionDigits="1"/> hectares
+
                     </td></tr>
                     <tr class="section3"><td class="title">3.7</td><td>Extreme fluctuations</td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
@@ -299,7 +312,7 @@
                             ${rlde.getPopulation().getExtremeFluctuations().getLabel()}
                         </c:if>
                     </td></tr>
-                    <tr class="section4"><td class="title" colspan="3">Section 4 - Ecology</td></tr>
+                    <tr class="section4"><td class="title" colspan="3"><a name="ecology"></a>Section 4 - Ecology</td></tr>
                 </c:if>
                 <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information</td><td>
                     <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}">
@@ -345,7 +358,7 @@
                             ${rlde.getEcology().getGenerationLength().getLabel()}
                         </c:if>
                     </td></tr>
-                    <tr class="section5"><td class="title" colspan="3">Section 5 - Uses and trade</td></tr>
+                    <tr class="section5"><td class="title" colspan="3"><a name="uses"></a>Section 5 - Uses and trade</td></tr>
                 </c:if>
                 <tr class="section5 textual"><td class="title">5.1</td><td>Uses and trade</td><td>
                     <c:if test="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}">
@@ -403,7 +416,7 @@
                             ${rlde.getUsesAndTrade().getOverexploitation().getLabel()}
                         </c:if>
                     </td></tr>
-                    <tr class="section6"><td class="title" colspan="3">Section 6 - Threats</td></tr>
+                    <tr class="section6"><td class="title" colspan="3"><a name="threats"></a>Section 6 - Threats</td></tr>
                 </c:if>
                 <tr class="section6 textual"><td class="title">6.1</td><td>Threat description</td><td>
                     <c:if test="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}">
@@ -428,7 +441,7 @@
                         </c:if>
                     </td></tr>
 
-                    <tr class="section7"><td class="title" colspan="3">Section 7 - Conservation</td></tr>
+                    <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a>Section 7 - Conservation</td></tr>
                 </c:if>
                 <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures</td><td>
                     <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}">
@@ -474,12 +487,13 @@
                         </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
-                        <ul>
                         <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% sites inside protected areas (${locationsInPA}/${nclusters})</p>
-                        <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
-                            <li>${tmp.getKey()}: ${tmp.getValue()} sites</li>
-                        </c:forEach>
-                        </ul>
+                        <table class="sortable smalltext">
+                            <tr><th>Protected Area</th><th>Number of sites</th></tr>
+                            <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
+                                <tr><td>${tmp.getKey()}</td><td>${tmp.getValue()}</td></tr>
+                            </c:forEach>
+                        </table>
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td>Proposed conservation actions</td><td>
                         <c:if test="${user.canEDIT_SECTION7()}">
@@ -504,7 +518,7 @@
                     (a fazer)
                     </td></tr>
 
-                    <tr class="section9"><td class="title" colspan="3">Section 9 - Red List Assessment</td></tr>
+                    <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a>Section 9 - Red List Assessment</td></tr>
                     <tr class="section9"><td class="title">9.1</td><td>Category</td><td>
                         <div id="redlistcategories">
                             <c:if test="${user.canEDIT_9_1_2_3_5()}">
@@ -544,7 +558,8 @@
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section9"><td class="title">9.4</td><td>Authors</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
-                        <td class="multiplechooser">
+                        <td>
+                            <div class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${authors.contains(tmp.getID())}">
                                     <input type="checkbox" name="assessment_Authors" id="au_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="au_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
@@ -553,6 +568,8 @@
                                     <input type="checkbox" name="assessment_Authors" id="au_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="au_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
                                 </c:if>
                             </c:forEach>
+                            </div>
+                            <div class="wordtag togglebutton" id="newauthor">Create new...</div>
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_4_9_7()}">
@@ -573,15 +590,18 @@
                     </td></tr>
                     <tr class="section9"><td class="title">9.5</td><td>Evaluator</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
-                        <td class="multiplechooser">
+                        <td>
+                            <div class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${evaluator.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Evaluator" id="ev_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="ev_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
+                                    <input type="checkbox" name="assessment_Evaluator" id="ev_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="ev_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
                                 </c:if>
                                 <c:if test="${!evaluator.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Evaluator" id="ev_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="ev_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
+                                    <input type="checkbox" name="assessment_Evaluator" id="ev_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="ev_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
                                 </c:if>
                             </c:forEach>
+                            </div>
+                            <div class="wordtag togglebutton" id="newevaluator">Create new...</div>
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_4_9_7()}">
@@ -594,7 +614,8 @@
                     </tr>
                     <tr class="section9"><td class="title">9.6</td><td>Reviewer</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
-                        <td class="multiplechooser">
+                        <td>
+                            <div class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${reviewer.contains(tmp.getID())}">
                                     <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="re_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
@@ -603,6 +624,8 @@
                                     <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="re_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
                                 </c:if>
                             </c:forEach>
+                            </div>
+                            <div class="wordtag togglebutton" id="newreviewer">Create new...</div>
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_4_9_7()}">
@@ -676,6 +699,22 @@
         </c:if>
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
             <h1>User management</h1>
+            <h2>Existing users</h2>
+            <table>
+                <tr><th>Name</th><th>Privileges</th><th></th></tr>
+                <c:forEach var="tmp" items="${users}">
+                    <c:if test="${user.getUserType() == 'ADMINISTRATOR' || (user.getUserType() != 'ADMINISTRATOR' && tmp.getUserType() != 'ADMINISTRATOR')}">
+                    <tr><td>${tmp.getName()}</td>
+                        <td>
+                        <c:forEach var="tmp1" items="${tmp.getPrivileges()}">
+                            <div class="wordtag">${tmp1}</div>
+                        </c:forEach>
+                        </td>
+                        <td><div class="button anchorbutton"><a href="?w=edituser&amp;user=${tmp.getIDURLEncoded()}">edit user</a></div></td>
+                    </tr>
+                    </c:if>
+                </c:forEach>
+            </table>
             <h2>Create new user</h2>
             <form class="poster" data-path="/floraon/admin/createuser">
                 <table>
@@ -692,22 +731,6 @@
                 </table>
                 <input type="submit" value="Create" class="textbutton"/>
             </form>
-            <h2>Existing users</h2>
-            <table>
-                <tr><th>Name</th><th>Privileges</th><th></th></tr>
-                <c:forEach var="tmp" items="${users}">
-                    <c:if test="${user.getUserType() == 'ADMINISTRATOR' || (user.getUserType() != 'ADMINISTRATOR' && tmp.getUserType() != 'ADMINISTRATOR')}">
-                    <tr><td>${tmp.getName()}</td>
-                        <td>
-                        <c:forEach var="tmp1" items="${tmp.getPrivileges()}">
-                            <div class="wordtag">${tmp1}</div>
-                        </c:forEach>
-                        </td>
-                        <td><a href="?w=edituser&user=${tmp.getID()}">edit user</a></td>
-                    </tr>
-                    </c:if>
-                </c:forEach>
-            </table>
         </c:if>
     </c:when>
     <c:when test="${what=='edituser'}">

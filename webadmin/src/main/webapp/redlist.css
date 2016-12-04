@@ -1,8 +1,8 @@
 #main {text-align:center;}
 #title {font-size:3em; text-align:right; padding:15px;}
-#left-bar, #title, #title a, #title a:visited {background-color:#2196f3; color:white; font-weight:bold; border:0}
+#left-bar, #title, #title a, #title a:visited {background-color:#f44336; color:white; font-weight:bold; border:0}
 #left-bar a {color:white}
-#left-bar li {background-color:rgba(255,255,255,0.1); padding: 0.3em 0.7em; margin:0}
+#left-bar ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #800;}
 /*ul li {
 	list-style-type:none;
 	padding:0.7em;
@@ -13,9 +13,20 @@ h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
 
+.navigator {position:fixed; bottom:0; z-index:1; left: 0;}
+.navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left;}
+
 .multiplechooser {display:flex; flex-wrap:wrap; justify-content: center;}
 .multiplechooser input[type=checkbox] {display:none;}
 .multiplechooser label {
+    flex: 0 1 auto;
+    margin:8px;
+    text-align:center;
+    color:black;
+    padding: 4px 18px;
+    transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
+}
+/*.multiplechooser label {
     cursor:pointer;
     border-radius: 3px;
     flex: 0 1 auto;
@@ -25,15 +36,8 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
     text-align:center;
     border:2px solid transparent;
     transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
-}
-/*.multiplechooser label {
-    transition: background-color 0.2s, transform 0.2s;
-    flex: 1 1 20%;
-    margin:8px;
-    color: black;
-    text-align:center;
-    padding: 3px 6px;
 }*/
+
 .multiplechooser input:checked + label {background-color: #00e676; opacity:1}
 .multiplechooser input:not(:checked) + label {background-color: #ffcdd2; transform: scale(0.8, 0.8); opacity:0.75;}
 
@@ -49,7 +53,7 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 }
 
 .togglebutton {
-    background-color: #ff4081;
+    background-color: #2979ff;
     cursor:pointer;
 }
 
@@ -74,7 +78,7 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
     top:-45px;
     left:-25px;
     /*transform: scale(0.8, 0.8);*/
-    box-shadow: 0 0 16px #555;
+    box-shadow: 0 0 16px #600;
 }
 #sheet-header h1 {padding-left: 130px; color: black;}
 
@@ -83,15 +87,23 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 select {max-width: 400px; text-overflow: ellipsis;}
 
-input[type=submit] {
-    width:64px;
-    height:64px;
-    border:2px solid transparent;
+input[type=submit], .button {
+    width:72px;
+    height:72px;
     border-radius:50%;
     cursor:pointer;
     box-shadow: 0 0 16px #222;
     background-color: #ff4081;
     color: white;
+    border:0;
+    transform: scale(1, 1);
+    transition: transform 0.4s;
+    opacity: 1;
+}
+
+input[type=submit].hidden, .button.hidden {
+    transform: scale(0.01, 0.01);
+    opacity: 0;
 }
 
 input[type=submit].textbutton {
@@ -104,6 +116,25 @@ input[type=submit].textbutton {
     margin:6px;
 }
 
+.button {
+    font-size: 1.2em;
+    display: inline-block;
+    border-radius:3px;
+    width:auto;
+    height:auto;
+    margin:6px;
+    background-color: #2979ff;
+    padding:8px 14px;
+}
+
+.button.anchorbutton {
+    padding:0;
+}
+
+.button.anchorbutton a, .button.anchorbutton a:visited {padding:4px 12px; display: inline-block; color:white; line-height:1em;}
+
+
+
 #map {width:200px; height:400px;}
 #map path.portugal {fill:white;}
 #map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff;}
@@ -113,44 +144,58 @@ input[type=submit].textbutton {
 label {display:block}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
+table.smalltext {font-size:1rem;}
 table:not(.smalltext) {font-size:1.2rem;}
-table th, table td.title {background-color:#bbdefb; font-weight:bold; padding:6px; color:black; border:0;}
+table th, table td.title {background-color:#ffcdd2; font-weight:bold; padding:6px; color:black; border:0;}
 table td {padding:5px; background-color:#f0f0f0;}
+table.smalltext td {padding:0px;}
 table tr:hover td:not(.title) {background-color:#f0fff0;}
 /*table td.title {background-color: #e3f2fd;}*/
 
 table.sheet input[type=submit] {
     background: #ff4081 url(images/ic_menu_save.png) no-repeat center;
     background-size: 48px 48px;
+    margin: 0 16px 16px 0;
+    display: inline-block;
     position:fixed;
     right:0;bottom:0;
-    margin: 0 16px 16px 0;
 }
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
-table.sheet table {width:100%}
+table.sheet {margin-bottom:50px;}
+table.sheet table {width:100%;}
 table.sheet table td:nth-of-type(1) {width:0;}
 table.sheet.summary tr:not(.textual) {display:none;}
 table.sheet.summary #summary_toggle {background-color:yellow; color:green;}
 table.sheet td.title {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
-table.sheet .section1 td.title {background-color: #81c784;}
-table.sheet .section2 td.title {background-color: #7986cb;}
-table.sheet .section3 td.title {background-color: #ff4081;}
-table.sheet .section4 td.title {background-color: #9575cd;}
-table.sheet .section5 td.title {background-color: #afb42b;}
-table.sheet .section6 td.title {background-color: #c62828;}
-table.sheet .section7 td.title {background-color: #64dd17;}
-table.sheet .section8 td.title {background-color: #757575;}
-table.sheet .section9 td.title {background-color: #c62828;}
+/*table.sheet .section1 td.title, .button.section1 {background-color: #81c784;}
+table.sheet .section2 td.title, .button.section2 {background-color: #7986cb;}
+table.sheet .section3 td.title, .button.section3 {background-color: #ff4081;}
+table.sheet .section4 td.title, .button.section4 {background-color: #9575cd;}
+table.sheet .section5 td.title, .button.section5 {background-color: #afb42b;}
+table.sheet .section6 td.title, .button.section6 {background-color: #c62828;}
+table.sheet .section7 td.title, .button.section7 {background-color: #64dd17;}
+table.sheet .section8 td.title, .button.section8 {background-color: #757575;}
+table.sheet .section9 td.title, .button.section9 {background-color: #c62828;}
+*/
+table.sheet .section1 td.title, .button.section1 {background-color: #2196f3;}
+table.sheet .section2 td.title, .button.section2 {background-color: #9c27b0;}
+table.sheet .section3 td.title, .button.section3 {background-color: #00bcd4;}
+table.sheet .section4 td.title, .button.section4 {background-color: #ff9800;}
+table.sheet .section5 td.title, .button.section5 {background-color: #3f51b5;}
+table.sheet .section6 td.title, .button.section6 {background-color: #f44336;}
+table.sheet .section7 td.title, .button.section7 {background-color: #8bc34a;}
+table.sheet .section8 td.title, .button.section8 {background-color: #757575;}
+table.sheet .section9 td.title, .button.section9 {background-color: #c62828;}
 
-table.sheet .section1>td:nth-of-type(2) {background-color: rgba(129, 199, 132, 0.3);}
-table.sheet .section2>td:nth-of-type(2) {background-color: rgba(121, 134, 203, 0.3);}
-table.sheet .section3>td:nth-of-type(2) {background-color: rgba(255,  64, 129, 0.3);}
-table.sheet .section4>td:nth-of-type(2) {background-color: rgba(149, 117, 205, 0.3);}
-table.sheet .section5>td:nth-of-type(2) {background-color: rgba(175, 180,  43, 0.3);}
-table.sheet .section6>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
-table.sheet .section7>td:nth-of-type(2) {background-color: rgba(100, 221,  23, 0.3);}
+table.sheet .section1>td:nth-of-type(2) {background-color: rgba(033, 150, 243, 0.3);}
+table.sheet .section2>td:nth-of-type(2) {background-color: rgba(156,  39, 176, 0.3);}
+table.sheet .section3>td:nth-of-type(2) {background-color: rgba(  0, 188, 212, 0.3);}
+table.sheet .section4>td:nth-of-type(2) {background-color: rgba(255, 152,   0, 0.3);}
+table.sheet .section5>td:nth-of-type(2) {background-color: rgba( 63,  81, 181, 0.3);}
+table.sheet .section6>td:nth-of-type(2) {background-color: rgba(244,  67,  54, 0.3);}
+table.sheet .section7>td:nth-of-type(2) {background-color: rgba(139, 195,  74, 0.3);}
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 
@@ -167,7 +212,7 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
     height:130px;
     padding:10px;
     cursor:pointer;
-    border:2px solid gray;
+/*    border:2px solid gray;*/
 }
 
 #redlistcategories label {
@@ -188,7 +233,7 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
 #redlistcategories label[for=assess_NT], .redlistcategory.assess_NT {background-color:#cce226;}
 #redlistcategories label[for=assess_LC], .redlistcategory.assess_LC {background-color:#60c659;}
 #redlistcategories label[for=assess_DD], .redlistcategory.assess_DD {background-color:#d1d1c6;}
-#redlistcategories label[for=assess_NE], .redlistcategory.assess_NE {background-color:#ffffff;}
+#redlistcategories label[for=assess_NE], .redlistcategory.assess_NE {background-color:#ffffff; border:2px solid black;}
 #redlistcategories label[for=assess_NA], .redlistcategory.assess_NA {background-color:#d1d1c6;}
 #redlistcategories label[for=assess_NA] *, .redlistcategory.assess_NA * {color:#333333}
 
@@ -199,6 +244,6 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
 #redlistcategories input:not(:checked) + label {transform:scale(0.4, 0.4)}
 
 /********** RECORD TABLE *******/
-#recordtable th {cursor:pointer;}
+.sortable th {cursor:pointer;}
 
 /********** USER MANAGEMENT *******/

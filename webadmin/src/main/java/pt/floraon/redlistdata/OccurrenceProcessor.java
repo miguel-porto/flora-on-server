@@ -1,11 +1,11 @@
 package pt.floraon.redlistdata;
 
-import jline.internal.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.utmlatlong.GrahamScan;
 import pt.floraon.utmlatlong.Point2D;
+import pt.floraon.utmlatlong.Polygon;
 import pt.floraon.utmlatlong.UTMCoordinate;
 
 import java.awt.geom.Rectangle2D;
@@ -14,14 +14,14 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Processes a list of occurrences to an SVG image
+ * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
  * Created by miguel on 01-12-2016.
  */
 public class OccurrenceProcessor {
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
-    private final List<Point2D> points;
+    private final List<Point2D> pointsUTM;
     private final List<Cluster<Point2D>> clusters;
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
@@ -34,9 +34,9 @@ public class OccurrenceProcessor {
     private class Square {
         private long qx, qy;
 
-        public Square(UTMCoordinate coordinate) {
-            qx = (long) Math.floor(coordinate.getX() / sizeOfSquare);
-            qy = (long) Math.floor(coordinate.getY() / sizeOfSquare);
+        public Square(Point2D coordinate) {
+            qx = (long) Math.floor(coordinate.x() / sizeOfSquare);
+            qy = (long) Math.floor(coordinate.y() / sizeOfSquare);
         }
 
         public Rectangle2D getSquare() {
@@ -70,8 +70,7 @@ public class OccurrenceProcessor {
     public OccurrenceProcessor(ExternalDataProvider occurrences, long sizeOfSquare, boolean showOccurrences) {
         protectedAreas = new NamedPolygons(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
 
-        List<UTMCoordinate> utmCoords = new ArrayList<>(occurrences.size());
-        this.points = new ArrayList<>();
+        this.pointsUTM = new ArrayList<>();
         this.sizeOfSquare = sizeOfSquare;
         this.showOccurrences = showOccurrences;
         UTMCoordinate tmp;
@@ -79,15 +78,14 @@ public class OccurrenceProcessor {
         Set<String> utmZones = new HashSet<>();
 
         for (ExternalDataProvider.SimpleOccurrence so : occurrences) {
-            utmCoords.add(tmp = so.getUTMCoordinates());
-            tmp1 = new Point2D(tmp);
+            tmp1 = new Point2D(tmp = so.getUTMCoordinates());
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> e : protectedAreas) {
                 if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
                     tmp1.addTag(e.getKey());
                 }
             }
-            points.add(tmp1);
+            pointsUTM.add(tmp1);
         }
 
         if (occurrences.size() >= 3) {
@@ -97,10 +95,10 @@ public class OccurrenceProcessor {
 /*
             if (utmZones.size() > 1)
                 request.setAttribute("warning", "EOO computation is inaccurate for data " +
-                        "points spreading more than one UTM zone.");
+                        "pointsUTM spreading more than one UTM zone.");
 */
 
-            convexHull = (Stack<Point2D>) new GrahamScan(points.toArray(new Point2D[0])).hull();
+            convexHull = (Stack<Point2D>) new GrahamScan(pointsUTM.toArray(new Point2D[0])).hull();
             convexHull.add(convexHull.get(0));
             double sum = 0.0;
             for (int i = 0; i < convexHull.size() - 1; i++) {
@@ -113,7 +111,7 @@ public class OccurrenceProcessor {
 
         // now calculate the number of UTM squares occupied
         squares = new HashSet<>();
-        for (UTMCoordinate u : utmCoords) {
+        for (Point2D u : pointsUTM) {
             squares.add(new Square(u));
         }
 
@@ -121,8 +119,7 @@ public class OccurrenceProcessor {
 
         // now make a clustering to compute approximate number of locations
         DBSCANClusterer<Point2D> cls = new DBSCANClusterer<>(2500, 0);
-        clusters = cls.cluster(points);
-        Log.info(clusters.size());
+        clusters = cls.cluster(pointsUTM);
     }
 
     public void exportSVG(PrintWriter out) {
@@ -246,5 +243,31 @@ public class OccurrenceProcessor {
             }
         }
         return count;
+    }
+
+    /**
+     * Gets an array of the areas of all locations. Area is computed as the area of the convex hull of each location.
+     * @return
+     */
+    public Double[] getLocationAreas() {
+        List<Double> areas = new ArrayList<>();
+        Stack<Point2D> hull;
+        for(Cluster<Point2D> cl : clusters) {
+            switch(cl.getPoints().size()) {
+                case 1:
+                    areas.add(10000d);
+                    break;
+
+                case 2:
+                    areas.add(20000d);
+                    break;
+
+                default:
+                    hull = new GrahamScan(cl.getPoints().toArray(new Point2D[cl.getPoints().size()])).getHull();
+                    areas.add(new Polygon(hull).area());
+                    break;
+            }
+        }
+        return areas.toArray(new Double[areas.size()]);
     }
 }

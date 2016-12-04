@@ -15,6 +15,9 @@
     <orderEntry type="module" module-name="Flora-On-server-web" />
     <orderEntry type="library" name="Maven: dnl.utils:j-text-utils:0.3.3" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.jfree:jfreesvg:3.2" level="project" />
+    <orderEntry type="library" name="Maven: org.jfree:jfreechart:1.0.19" level="project" />
+    <orderEntry type="library" name="Maven: org.jfree:jcommon:1.0.23" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava-collections:r03" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava-annotations:r03" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava-primitives:r03" level="project" />

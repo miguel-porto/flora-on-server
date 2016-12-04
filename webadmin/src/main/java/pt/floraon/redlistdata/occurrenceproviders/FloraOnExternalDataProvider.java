@@ -14,10 +14,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A class to fetch records from flora-on.pt
@@ -114,14 +111,15 @@ public class FloraOnExternalDataProvider implements ExternalDataProvider {
             newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment());
         } catch (URISyntaxException e) {
             e.printStackTrace();
-            throw new FloraOnException(e.getMessage());
+            return Collections.emptyMap();
         }
         u = newUri.toURL();
 
         InputStreamReader isr = new InputStreamReader(u.openStream());
         JsonObject resp = new JsonParser().parse(isr).getAsJsonObject();
         if(!resp.getAsJsonPrimitive("success").getAsBoolean()) {
-            throw new FloraOnException(resp.getAsJsonPrimitive("msg").getAsString());
+            return Collections.emptyMap();
+//            throw new FloraOnException(resp.getAsJsonPrimitive("msg").getAsString());
         }
 
         Type listType = new TypeToken<Map<String, Object>>() {}.getType();

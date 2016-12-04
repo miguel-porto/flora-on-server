@@ -1,5 +1,19 @@
 package pt.floraon.redlistdata;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.xy.StandardXYBarPainter;
+import org.jfree.chart.renderer.xy.XYBarRenderer;
+import org.jfree.data.statistics.HistogramDataset;
+import org.jfree.data.statistics.SimpleHistogramBin;
+import org.jfree.data.statistics.SimpleHistogramDataset;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.entities.TaxEnt;
 import pt.floraon.entities.User;
@@ -9,10 +23,12 @@ import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.List;
 
 /**
  * Main page of red list data
@@ -69,21 +85,51 @@ System.out.println(gs.toJson(getUser()));
                     foop.setClippingPolygon(new NamedPolygons(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
                     // TODO clipping polygon must be a user configuration
 
-                    OccurrenceProcessor map = new OccurrenceProcessor(foop, sizeOfSquare, getUser().canVIEW_OCCURRENCES());
+                    OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(foop, sizeOfSquare, getUser().canVIEW_OCCURRENCES());
 
-                    request.setAttribute("EOO", map.getEOO());
+                    request.setAttribute("EOO", occurrenceProcessor.getEOO());
 
-                    request.setAttribute("AOO", (map.getNQuads() * sizeOfSquare * sizeOfSquare) / 1000000);
+                    request.setAttribute("AOO", (occurrenceProcessor.getNQuads() * sizeOfSquare * sizeOfSquare) / 1000000);
                     request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
-                    request.setAttribute("nquads", map.getNQuads());
+                    request.setAttribute("nquads", occurrenceProcessor.getNQuads());
+                    request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
 
-                    request.setAttribute("nclusters", map.getNLocations());
+                    Double[] lAreas = occurrenceProcessor.getLocationAreas();
+                    double sum = 0;
+                    double[] vals = ArrayUtils.toPrimitive(lAreas, -1);
+
+                    for (int i = 0; i < lAreas.length; i++) {
+                        sum += lAreas[i] / 10000;
+                        vals[i] = vals[i] / 10000;
+                    }
+                    sum /= lAreas.length;
+                    request.setAttribute("meanLocationArea", sum );
+
+/*
+HISTOGRAM!
+                    HistogramDataset d = new HistogramDataset();
+                    d.addSeries("Area", vals, 14, 0, sum * 0.5);
+                    JFreeChart ch = ChartFactory.createHistogram("Area", "Sqrt Area", "N", d, PlotOrientation.VERTICAL, false, false, false);
+
+                    XYPlot pl = (XYPlot) ch.getPlot();
+                    pl.getRenderer().setSeriesPaint(0, Color.BLUE);
+                    ((XYBarRenderer) pl.getRenderer()).setBarPainter(new StandardXYBarPainter());
+                    ((XYBarRenderer) pl.getRenderer()).setDrawBarOutline(false);
+                    ((XYBarRenderer) pl.getRenderer()).setMargin(0.25);
+                    ch.setBackgroundPaint(null);
+
+                    SVGGraphics2D g2 = new SVGGraphics2D(600, 400);
+                    ch.draw(g2, new Rectangle(600,400));
+                    String svgElement = g2.getSVGElement();
+                    request.setAttribute("histogram", svgElement);
+*/
+
                     StringWriter sw = new StringWriter();
-                    map.exportSVG(new PrintWriter(sw));
+                    occurrenceProcessor.exportSVG(new PrintWriter(sw));
                     request.setAttribute("svgmap", sw.toString());
 
-                    request.setAttribute("occurrenceInProtectedAreas", map.getOccurrenceInProtectedAreas().entrySet());
-                    request.setAttribute("locationsInPA", map.getNumberOfLocationsInsideProtectedAreas());
+                    request.setAttribute("occurrenceInProtectedAreas", occurrenceProcessor.getOccurrenceInProtectedAreas().entrySet());
+                    request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
 
 /*
                     Gson gs = new GsonBuilder().setPrettyPrinting().create();
@@ -124,6 +170,7 @@ System.out.println(gs.toJson(getUser()));
                             request.setAttribute("ecology", taxonInfo.get("ecology").toString());
                     } else
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
+
                     // make a map of user IDs and names
                     List<User> allUsers = driver.getAdministration().getAllUsers();
                     Map<String, String> userMap = new HashMap<>();

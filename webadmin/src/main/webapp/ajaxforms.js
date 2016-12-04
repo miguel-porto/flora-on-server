@@ -8,9 +8,13 @@ function formPoster(ev) {
 		if(rt1.success) {
 		    if(rt1.msg && rt1.msg.alert)
 		        alert(rt1.msg.text);
-		    if(ev.target.getAttribute('data-callback') == null)
-			    window.location.reload();
-			else
+
+		    if(ev.target.getAttribute('data-callback') == null) {
+		        if(ev.target.getAttribute('data-refresh') == 'false') {
+                    alert('Ok');
+		        } else
+                    window.location.reload();
+			} else
 			    window.location = ev.target.getAttribute('data-callback');
 		} else
 			alert(rt1.msg);

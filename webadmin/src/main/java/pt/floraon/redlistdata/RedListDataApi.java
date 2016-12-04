@@ -63,11 +63,11 @@ public class RedListDataApi extends FloraOnServlet {
                     return;
                 }
                 Gson gs = new GsonBuilder().setPrettyPrinting().create();
-                System.out.println("BEAN:");
-                System.out.println(gs.toJson(rlde));
+//                System.out.println("BEAN:");
+//                System.out.println(gs.toJson(rlde));
                 rlde = driver.getRedListData().updateRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getID()), rlde, false);
-                System.out.println("NEW DOC:");
-                System.out.println(gs.toJson(rlde));
+//                System.out.println("NEW DOC:");
+//                System.out.println(gs.toJson(rlde));
                 success("Ok");
                 break;
         }

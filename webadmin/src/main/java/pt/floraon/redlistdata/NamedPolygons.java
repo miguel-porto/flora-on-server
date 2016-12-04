@@ -21,9 +21,13 @@ import java.util.Map;
  * Created by miguel on 02-12-2016.
  */
 public class NamedPolygons implements PolygonTheme {
-//    private Map<String, pt.floraon.utmlatlong.Polygon> protectedAreasPolygon;
-    private Multimap<String, pt.floraon.utmlatlong.Polygon> protectedAreasP;
+    private Multimap<String, pt.floraon.utmlatlong.Polygon> protectedAreas;
 
+    /**
+     * Create from geoJson and construct a map.
+     * @param geoJsonStream
+     * @param fieldName
+     */
     public NamedPolygons(InputStream geoJsonStream, String fieldName) {
         FeatureCollection protectedAreas = null;
         try {
@@ -36,7 +40,7 @@ public class NamedPolygons implements PolygonTheme {
 
         int npoly = 0;
 //        this.protectedAreasPolygon = new HashMap<>();
-        this.protectedAreasP = ArrayListMultimap.create();
+        this.protectedAreas = ArrayListMultimap.create();
 
         String name;
         for(Feature f : protectedAreas) {
@@ -50,16 +54,8 @@ public class NamedPolygons implements PolygonTheme {
                 }
                 if(fieldName != null) {
                     name = f.getProperties().get(fieldName).toString();
-/*
-                    int cou = 1;
-                    while (this.protectedAreasPolygon.keySet().contains(name)) {
-                        name = f.getProperties().get(fieldName).toString() + " (" + cou + ")";
-                        cou++;
-                    }
-*/
                 } else name = "" + npoly;
-                this.protectedAreasP.put(name, pol);
-//                this.protectedAreasPolygon.put(name, pol);
+                this.protectedAreas.put(name, pol);
                 npoly++;
             } else Log.warn("Feature of type "+f.getGeometry().getClass()+" ignored.");
         }
@@ -68,6 +64,6 @@ public class NamedPolygons implements PolygonTheme {
 
     @Override
     public Iterator<Map.Entry<String, pt.floraon.utmlatlong.Polygon>> iterator() {
-        return protectedAreasP.entries().iterator();
+        return protectedAreas.entries().iterator();
     }
 }

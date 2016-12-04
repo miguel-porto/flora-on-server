@@ -2,6 +2,7 @@ package pt.floraon.utmlatlong;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by miguel on 01-12-2016.
@@ -9,12 +10,22 @@ import java.util.List;
 public class Polygon {
     private int N;        // number of points in the polygon
     private Point2D[] a;    // the points, setting points[0] = points[N]
-    private List<UTMCoordinate> UTMCoordinates = new ArrayList<>();
 
     // default buffer = 4
     public Polygon() {
         N = 0;
         a = new Point2D[4];
+    }
+
+    /**
+     * Polygon must be open!
+     * @param points
+     */
+    public Polygon(Stack<Point2D> points) {
+        N = 0;
+        a = new Point2D[points.size()];
+        for(Point2D p : points)
+            this.add(p);
     }
 
     // double size of array
@@ -36,11 +47,6 @@ public class Polygon {
 
 //        UTMCoordinate ut = CoordinateConversion.LatLonToUtmWGS84(p.y, p.x, 0);
 //        System.out.println(ut.getX()+", "+ut.getY());
-        UTMCoordinates.add(CoordinateConversion.LatLonToUtmWGS84(p.y, p.x, 0));
-    }
-
-    public void add(UTMCoordinate utmCoord) {
-        this.add(new Point2D(utmCoord.getX(), utmCoord.getY()));
     }
 
     // return the perimeter
@@ -106,9 +112,10 @@ public class Polygon {
     }
 
     public List<UTMCoordinate> getUTMCoordinates() {
-//        return UTMCoordinates;
-        List<UTMCoordinate> out = new ArrayList<>(UTMCoordinates);
-        out.add(UTMCoordinates.get(0));
+        List<UTMCoordinate> out = new ArrayList<>();
+        for (int i = 0; i <= N; i++) {
+            out.add(CoordinateConversion.LatLonToUtmWGS84(a[i].y, a[i].x, 0));
+        }
         return out;
     }
 }

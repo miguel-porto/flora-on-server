@@ -61,6 +61,7 @@ public class GrahamScan {
         assert isConvex();
     }
 
+
     /**
      * Returns the extreme points on the convex hull in counterclockwise order.
      *
@@ -70,6 +71,10 @@ public class GrahamScan {
         Stack<Point2D> s = new Stack<Point2D>();
         for (Point2D p : hull) s.push(p);
         return s;
+    }
+
+    public Stack<Point2D> getHull() {
+        return this.hull;
     }
 
     // check that boundary of hull is strictly convex

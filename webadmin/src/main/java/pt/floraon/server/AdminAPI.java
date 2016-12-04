@@ -38,18 +38,27 @@ public class AdminAPI extends FloraOnServlet {
 
         switch (path.next()) {
             case "createuser":
+                char[] pass = new char[0];
                 user = readUserBean();
                 if(user == null) break;
-                char[] pass = new RandomString(12).nextString().toCharArray();
-                user.setPassword(pass);
+                if(user.getUserName() == null) {
+                    user.setUserName("user_" + new RandomString(8).nextString());
+                } else {    // we only set password if a username has been provided
+                    pass = new RandomString(12).nextString().toCharArray();
+                    user.setPassword(pass);
+                }
                 driver.getAdministration().createUser(user);
                 JsonObject jo = new JsonObject();
-                jo.addProperty("text", new String(pass));
-                jo.addProperty("alert", true);
+                if(pass.length > 0) {
+                    jo.addProperty("text", new String(pass));
+                    jo.addProperty("alert", true);
+                } else jo.addProperty("text", "Ok");
                 success(jo);
                 gs = new GsonBuilder().setPrettyPrinting().create();
+/*
                 System.out.println("CREATE BEAN:");
                 System.out.println(gs.toJson(user));
+*/
                 break;
 
             case "updateuser":
