@@ -7,10 +7,10 @@ import pt.floraon.arangodriver.ArangoKey;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.entities.SpeciesList;
+import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
-import pt.floraon.results.SimpleTaxEntResult;
-import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.driver.results.SimpleTaxEntResult;
+import pt.floraon.driver.results.SimpleTaxonResult;
 
 /**
  * Interface defining methods for high-level querying of the database.

@@ -3,10 +3,10 @@ package pt.floraon.driver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import pt.floraon.entities.Author;
-import pt.floraon.entities.SpeciesList;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.results.Occurrence;
+import pt.floraon.occurrences.entities.Author;
+import pt.floraon.occurrences.entities.SpeciesList;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.driver.results.Occurrence;
 /**
  * General DB-free routines for working with nodes. Any implementation should extend this class.
  * @author miguel

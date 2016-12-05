@@ -1,14 +1,11 @@
 package pt.floraon.redlistdata;
 
-import com.arangodb.ArangoDatabase;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.beanutils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.jobs.JobSubmitter;
+import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
-import pt.floraon.results.ListOfTerritoryStatus;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -18,7 +15,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.ListIterator;
 
 /**

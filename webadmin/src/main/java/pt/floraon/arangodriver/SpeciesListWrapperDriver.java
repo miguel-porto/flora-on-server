@@ -7,7 +7,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.ISpeciesListWrapper;
-import pt.floraon.entities.Author;
+import pt.floraon.occurrences.entities.Author;
 
 import java.util.NoSuchElementException;
 

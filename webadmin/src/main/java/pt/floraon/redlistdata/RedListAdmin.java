@@ -1,29 +1,15 @@
 package pt.floraon.redlistdata;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.JFreeChart;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.chart.renderer.category.StandardBarPainter;
-import org.jfree.chart.renderer.xy.StandardXYBarPainter;
-import org.jfree.chart.renderer.xy.XYBarRenderer;
-import org.jfree.data.statistics.HistogramDataset;
-import org.jfree.data.statistics.SimpleHistogramBin;
-import org.jfree.data.statistics.SimpleHistogramDataset;
-import org.jfree.graphics2d.svg.SVGGraphics2D;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.User;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;

@@ -6,8 +6,8 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import pt.floraon.driver.*;
-import pt.floraon.entities.PasswordAuthentication;
-import pt.floraon.entities.User;
+import pt.floraon.authentication.PasswordAuthentication;
+import pt.floraon.authentication.entities.User;
 
 import java.util.List;
 

@@ -1,5 +1,6 @@
 package pt.floraon.driver;
 
+import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
@@ -23,7 +24,7 @@ public interface IRedListData {
     /**
      * Initializes a new dataset to hold the data for the given territory. This must include all taxa existing in it,
      * along with the native status of each one in the territory
-     * @param territory The short name of the {@link pt.floraon.entities.Territory}
+     * @param territory The short name of the {@link Territory}
      */
     void initializeRedListDataForTerritory(String territory) throws FloraOnException;
 

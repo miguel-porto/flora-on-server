@@ -26,8 +26,8 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.queryparser.YlemParser;
-import pt.floraon.results.ResultProcessor;
-import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.driver.results.ResultProcessor;
+import pt.floraon.driver.results.SimpleTaxonResult;
 
 public class FloraOnShell {
     public static void main( String[] args ) throws ParseException, IOException {

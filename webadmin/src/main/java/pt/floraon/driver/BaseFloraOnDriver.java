@@ -8,8 +8,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import pt.floraon.results.TaxEntAndNativeStatusResult;
-import pt.floraon.results.InferredStatus;
+import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
+import pt.floraon.driver.results.InferredStatus;
 
 /**
  * Base class for all drivers. Provides database-independent functionality to process things.

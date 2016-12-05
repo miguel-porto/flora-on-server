@@ -8,9 +8,9 @@ import com.arangodb.ArangoDBException;
 import pt.floraon.driver.*;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.entities.GeneralDBEdge;
-import pt.floraon.entities.PART_OF;
-import pt.floraon.results.GraphUpdateResult;
+import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.taxonomy.entities.PART_OF;
+import pt.floraon.driver.results.GraphUpdateResult;
 
 /**
  * Wraps a node to perform writing operations on it

@@ -1,10 +1,9 @@
 package pt.floraon.redlistdata;
 
-import com.google.gson.Gson;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.jobs.JobTask;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.io.IOException;

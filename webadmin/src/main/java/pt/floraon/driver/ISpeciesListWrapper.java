@@ -1,6 +1,6 @@
 package pt.floraon.driver;
 
-import pt.floraon.entities.Author;
+import pt.floraon.occurrences.entities.Author;
 
 public interface ISpeciesListWrapper {
 	/**

@@ -22,11 +22,11 @@ import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.entities.EXISTS_IN;
-import pt.floraon.entities.OBSERVED_IN;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.TaxEntAndNativeStatusResult;
+import pt.floraon.taxonomy.entities.EXISTS_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 
 /**
  * A node wrapper for TaxEnt-specific operations. A TaxEnt must be provided to work on.

@@ -24,12 +24,12 @@ import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.Attribute;
-import pt.floraon.entities.Author;
-import pt.floraon.entities.Character;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.Occurrence;
+import pt.floraon.morphology.entities.Attribute;
+import pt.floraon.occurrences.entities.Author;
+import pt.floraon.morphology.entities.Character;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.Occurrence;
 
 public class CSVFileProcessor extends BaseFloraOnDriver {
 	public CSVFileProcessor(IFloraOn driver) {

@@ -5,8 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.redlistdata.PolygonTheme;
-import pt.floraon.utmlatlong.Point2D;
-import pt.floraon.utmlatlong.Polygon;
+import pt.floraon.geometry.Point2D;
+import pt.floraon.geometry.Polygon;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

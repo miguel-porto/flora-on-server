@@ -3,9 +3,9 @@ package pt.floraon.redlistdata.entities;
 import com.google.gson.JsonObject;
 import jline.internal.Log;
 import pt.floraon.driver.Constants;
-import pt.floraon.entities.GeneralDBNode;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.results.InferredStatus;
+import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.driver.results.InferredStatus;
 
 import java.util.ArrayList;
 import java.util.List;

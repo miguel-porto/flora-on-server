@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 
 import pt.floraon.driver.*;
 import pt.floraon.driver.IFloraOn;
-import pt.floraon.entities.User;
+import pt.floraon.authentication.entities.User;
 
 public class FloraOnServlet extends HttpServlet {
 	protected static final int PAGESIZE=200;

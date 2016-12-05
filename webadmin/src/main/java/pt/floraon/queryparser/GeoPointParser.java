@@ -10,7 +10,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
-import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.driver.results.SimpleTaxonResult;
 
 /**
  * Implements a parser for geographic queries based on a single point (latitude longitude) given in the form:

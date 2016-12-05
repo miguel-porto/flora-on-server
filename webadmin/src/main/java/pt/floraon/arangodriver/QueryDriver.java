@@ -19,10 +19,10 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.entities.SpeciesList;
+import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
-import pt.floraon.results.SimpleTaxEntResult;
-import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.driver.results.SimpleTaxEntResult;
+import pt.floraon.driver.results.SimpleTaxonResult;
 
 public class QueryDriver extends GQuery implements IQuery {
 	protected ArangoDB dbDriver;

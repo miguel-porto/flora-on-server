@@ -6,13 +6,13 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import pt.floraon.taxonomy.entities.EXISTS_IN;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.ChecklistEntry;
-import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.results.SimpleTaxEntResult;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.GraphUpdateResult;
+import pt.floraon.driver.results.SimpleTaxEntResult;
 
 public interface IListDriver {
 	/**
@@ -29,7 +29,7 @@ public interface IListDriver {
 
 	/**
 	 * Fetches all species or inferior taxa that exist in the given {@link Territory} (given by shortName) or all if null.
-	 * Note that this only returns taxa directly assigned to the territory with a {@link pt.floraon.entities.EXISTS_IN} link.
+	 * Note that this only returns taxa directly assigned to the territory with a {@link EXISTS_IN} link.
 	 * @param onlyCurrent Return only current TaxEnt?
 	 * @param higherTaxa Return also higher taxa (up to species) or only the directly assigned to a territory?
 	 * @param territory Short name of the territory. Can be <code>null</code>.

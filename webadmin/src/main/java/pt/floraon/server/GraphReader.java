@@ -14,7 +14,7 @@ import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxEnt;
 /**
  * Services for the graph manager
  * @author miguel

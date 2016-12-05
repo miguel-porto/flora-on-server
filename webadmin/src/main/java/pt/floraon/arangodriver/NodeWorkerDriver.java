@@ -9,7 +9,6 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
 
 import com.arangodb.entity.VertexEntity;
-import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
@@ -30,16 +29,16 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.Attribute;
-import pt.floraon.entities.Author;
-import pt.floraon.entities.Character;
-import pt.floraon.entities.DBEntity;
-import pt.floraon.entities.SYNONYM;
-import pt.floraon.entities.SpeciesList;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.results.NativeStatusResult;
+import pt.floraon.morphology.entities.Attribute;
+import pt.floraon.occurrences.entities.Author;
+import pt.floraon.morphology.entities.Character;
+import pt.floraon.driver.entities.DBEntity;
+import pt.floraon.taxonomy.entities.SYNONYM;
+import pt.floraon.occurrences.entities.SpeciesList;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.GraphUpdateResult;
+import pt.floraon.driver.results.NativeStatusResult;
 
 public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	protected ArangoDB dbDriver;

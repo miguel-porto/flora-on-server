@@ -1,7 +1,7 @@
 package pt.floraon.driver;
 
-import pt.floraon.entities.ATTRIBUTE_OF;
-import pt.floraon.entities.GeneralDBEdge;
+import pt.floraon.morphology.entities.ATTRIBUTE_OF;
+import pt.floraon.driver.entities.GeneralDBEdge;
 
 public class GAttributeWrapper extends BaseFloraOnDriver implements IAttributeWrapper {
 	private INodeWrapper NWD;

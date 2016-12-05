@@ -8,7 +8,7 @@ import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
-import pt.floraon.utmlatlong.Point2D;
+import pt.floraon.geometry.Point2D;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Created by miguel on 02-12-2016.
  */
 public class NamedPolygons implements PolygonTheme {
-    private Multimap<String, pt.floraon.utmlatlong.Polygon> protectedAreas;
+    private Multimap<String, pt.floraon.geometry.Polygon> protectedAreas;
 
     /**
      * Create from geoJson and construct a map.
@@ -45,7 +45,7 @@ public class NamedPolygons implements PolygonTheme {
         String name;
         for(Feature f : protectedAreas) {
             if(Polygon.class.isInstance(f.getGeometry())) {
-                pt.floraon.utmlatlong.Polygon pol = new pt.floraon.utmlatlong.Polygon();
+                pt.floraon.geometry.Polygon pol = new pt.floraon.geometry.Polygon();
                 List<LngLatAlt> tmp2 = ((Polygon) f.getGeometry()).getExteriorRing();
                 LngLatAlt ll;
                 for (int i = 0; i < tmp2.size() - 1; i++) {
@@ -63,7 +63,7 @@ public class NamedPolygons implements PolygonTheme {
     }
 
     @Override
-    public Iterator<Map.Entry<String, pt.floraon.utmlatlong.Polygon>> iterator() {
+    public Iterator<Map.Entry<String, pt.floraon.geometry.Polygon>> iterator() {
         return protectedAreas.entries().iterator();
     }
 }

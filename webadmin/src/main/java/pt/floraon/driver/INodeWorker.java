@@ -2,17 +2,22 @@ package pt.floraon.driver;
 
 import java.util.List;
 
-import com.arangodb.ArangoDBException;
 import com.google.gson.JsonObject;
 
+import pt.floraon.taxonomy.entities.EXISTS_IN;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.*;
-import pt.floraon.entities.Character;
-import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.results.NativeStatusResult;
-import pt.floraon.results.Occurrence;
+import pt.floraon.driver.entities.*;
+import pt.floraon.morphology.entities.Attribute;
+import pt.floraon.morphology.entities.Character;
+import pt.floraon.occurrences.entities.Author;
+import pt.floraon.occurrences.entities.SpeciesList;
+import pt.floraon.driver.results.GraphUpdateResult;
+import pt.floraon.driver.results.NativeStatusResult;
+import pt.floraon.driver.results.Occurrence;
 
 public interface INodeWorker {
 	/***********************

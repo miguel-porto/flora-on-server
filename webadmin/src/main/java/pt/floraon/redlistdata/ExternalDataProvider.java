@@ -1,8 +1,8 @@
 package pt.floraon.redlistdata;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.utmlatlong.CoordinateConversion;
-import pt.floraon.utmlatlong.UTMCoordinate;
+import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.UTMCoordinate;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

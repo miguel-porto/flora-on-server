@@ -5,8 +5,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.results.ResultProcessor;
-import pt.floraon.results.SimpleTaxEntResult;
+import pt.floraon.driver.results.ResultProcessor;
+import pt.floraon.driver.results.SimpleTaxEntResult;
 
 public class Suggestions extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;

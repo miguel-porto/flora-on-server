@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import pt.floraon.queryparser.Match;
-import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.driver.results.SimpleTaxonResult;
 
 public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 

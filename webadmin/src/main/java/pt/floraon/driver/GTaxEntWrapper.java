@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Set;
 
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.entities.GeneralDBEdge;
-import pt.floraon.entities.HAS_QUALITY;
-import pt.floraon.entities.SYNONYM;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.TaxEntAndNativeStatusResult;
-import pt.floraon.results.InferredStatus;
+import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.morphology.entities.HAS_QUALITY;
+import pt.floraon.taxonomy.entities.SYNONYM;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
+import pt.floraon.driver.results.InferredStatus;
 
 public abstract class GTaxEntWrapper extends BaseFloraOnDriver implements ITaxEntWrapper {
 	protected INodeKey thisNode;

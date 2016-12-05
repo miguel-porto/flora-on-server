@@ -15,11 +15,16 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import pt.floraon.entities.DBEntity;
-import pt.floraon.entities.GeneralDBEdge;
-import pt.floraon.entities.GeneralDBNode;
-import pt.floraon.entities.PART_OF;
-import pt.floraon.entities.NamedDBNode;
+import pt.floraon.taxonomy.entities.*;
+import pt.floraon.driver.entities.DBEntity;
+import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.driver.entities.NamedDBNode;
+import pt.floraon.morphology.entities.Attribute;
+import pt.floraon.morphology.entities.Character;
+import pt.floraon.occurrences.entities.Author;
+import pt.floraon.occurrences.entities.SpeciesList;
+import pt.floraon.authentication.entities.User;
 
 public final class Constants {
 	/*
@@ -319,16 +324,16 @@ public final class Constants {
 	 */
 	public enum RelTypes {
 		PART_OF(Facets.TAXONOMY, PART_OF.class),								// TaxEnt PART_OF TaxEnt
-		SYNONYM(Facets.TAXONOMY, pt.floraon.entities.SYNONYM.class),			// TaxEnt SYNONYM TaxEnt
-		HYBRID_OF(Facets.TAXONOMY, pt.floraon.entities.HYBRID_OF.class),		// TaxEnt HYBRID_OF TaxEnt
-		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_IN.class),	// TaxEnt OBSERVED_IN SpeciesList
-		//IDENTIFIED_AS(Facets.OCCURRENCE, pt.floraon.entities.IDENTIFIED_AS.class),
-		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.entities.OBSERVED_BY.class),	// SpeciesList OBSERVED_BY Author
-    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.entities.HAS_QUALITY.class),	// TaxEnt HAS_QUALITY Attribute
-    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.entities.ATTRIBUTE_OF.class),	// Attribute ATTRIBUTE_OF Character
-		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.entities.EXISTS_IN.class),		// TaxEnt EXISTS_IN Territory
-		BELONGS_TO(Facets.TAXONOMY, pt.floraon.entities.BELONGS_TO.class);		// Territory BELONGS_TO Territory
-    	//IMAGE_OF(Facets.IMAGE,pt.floraon.entities.ATTRIBUTE_OF.class);
+		SYNONYM(Facets.TAXONOMY, pt.floraon.taxonomy.entities.SYNONYM.class),			// TaxEnt SYNONYM TaxEnt
+		HYBRID_OF(Facets.TAXONOMY, pt.floraon.taxonomy.entities.HYBRID_OF.class),		// TaxEnt HYBRID_OF TaxEnt
+		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.occurrences.entities.OBSERVED_IN.class),	// TaxEnt OBSERVED_IN SpeciesList
+		//IDENTIFIED_AS(Facets.OCCURRENCE, pt.floraon.driver.entities.IDENTIFIED_AS.class),
+		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.occurrences.entities.OBSERVED_BY.class),	// SpeciesList OBSERVED_BY Author
+    	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.morphology.entities.HAS_QUALITY.class),	// TaxEnt HAS_QUALITY Attribute
+    	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.morphology.entities.ATTRIBUTE_OF.class),	// Attribute ATTRIBUTE_OF Character
+		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.taxonomy.entities.EXISTS_IN.class),		// TaxEnt EXISTS_IN Territory
+		BELONGS_TO(Facets.TAXONOMY, pt.floraon.taxonomy.entities.BELONGS_TO.class);		// Territory BELONGS_TO Territory
+    	//IMAGE_OF(Facets.IMAGE,pt.floraon.morphology.entities.ATTRIBUTE_OF.class);
 		
 		Facets facet;
 		Class<? extends GeneralDBEdge> edgeClass;
@@ -380,15 +385,15 @@ public final class Constants {
 	}
 
 	public enum NodeTypes {
-    	specieslist(pt.floraon.entities.SpeciesList.class),		// node representing a species inventory
-    	taxent(pt.floraon.entities.TaxEnt.class),				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
+    	specieslist(SpeciesList.class),		// node representing a species inventory
+    	taxent(TaxEnt.class),				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
-    	author(pt.floraon.entities.Author.class),				// a data contributor
-    	attribute(pt.floraon.entities.Attribute.class),			// a morphological attribute (e.g. red flower)
-    	character(pt.floraon.entities.Character.class),			// a morphological character (e.g. flower color, isLeaf shape...)
-    	image(pt.floraon.entities.Image.class),
-		user(pt.floraon.entities.User.class),					// a database user
-    	territory(pt.floraon.entities.Territory.class);			// a geographic territory (e.g. country)
+    	author(Author.class),				// a data contributor
+    	attribute(Attribute.class),			// a morphological attribute (e.g. red flower)
+    	character(Character.class),			// a morphological character (e.g. flower color, isLeaf shape...)
+    	image(pt.floraon.driver.entities.Image.class),
+		user(User.class),					// a database user
+    	territory(Territory.class);			// a geographic territory (e.g. country)
     	
     	Class<? extends GeneralDBNode> nodeClass;
 

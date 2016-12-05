@@ -3,10 +3,10 @@ package pt.floraon.redlistdata;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-import pt.floraon.utmlatlong.GrahamScan;
-import pt.floraon.utmlatlong.Point2D;
-import pt.floraon.utmlatlong.Polygon;
-import pt.floraon.utmlatlong.UTMCoordinate;
+import pt.floraon.geometry.GrahamScan;
+import pt.floraon.geometry.Point2D;
+import pt.floraon.geometry.Polygon;
+import pt.floraon.geometry.UTMCoordinate;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -80,7 +80,7 @@ public class OccurrenceProcessor {
         for (ExternalDataProvider.SimpleOccurrence so : occurrences) {
             tmp1 = new Point2D(tmp = so.getUTMCoordinates());
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
-            for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> e : protectedAreas) {
+            for(Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
                 if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
                     tmp1.addTag(e.getKey());
                 }
@@ -140,7 +140,7 @@ public class OccurrenceProcessor {
 
         // draw protected areas
         List<UTMCoordinate> tmp;
-        for(Map.Entry<String, pt.floraon.utmlatlong.Polygon> p : protectedAreas) {
+        for(Map.Entry<String, pt.floraon.geometry.Polygon> p : protectedAreas) {
             tmp = p.getValue().getUTMCoordinates();
             out.print("<path class=\"protectedarea\" d=\"M" + tmp.get(0).getX() + " " + tmp.get(0).getY());
             for (int i = 1; i < tmp.size(); i++) {

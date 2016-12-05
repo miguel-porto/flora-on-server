@@ -12,12 +12,12 @@ import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.PlantIntroducedStatus;
 import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.entities.Attribute;
-import pt.floraon.entities.GeneralDBEdge;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.InferredStatus;
-import pt.floraon.results.TaxEntAndNativeStatusResult;
+import pt.floraon.morphology.entities.Attribute;
+import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.InferredStatus;
+import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 
 public interface ITaxEntWrapper {
 	int createRelationshipTo(INodeKey parent, GeneralDBEdge edge) throws FloraOnException;

@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import pt.floraon.results.SimpleTaxonResult;
+import pt.floraon.driver.results.SimpleTaxonResult;
 
 public class QueryObject implements Iterable<QueryObject.QueryPiece> {
 	protected List<SimpleTaxonResult> results=null;

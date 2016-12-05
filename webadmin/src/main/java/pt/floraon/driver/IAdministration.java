@@ -1,6 +1,6 @@
 package pt.floraon.driver;
 
-import pt.floraon.entities.User;
+import pt.floraon.authentication.entities.User;
 
 import java.util.List;
 

@@ -16,11 +16,11 @@ import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
-import pt.floraon.entities.TaxEnt;
-import pt.floraon.entities.Territory;
-import pt.floraon.results.GraphUpdateResult;
-import pt.floraon.results.TaxEntAndNativeStatusResult;
-import pt.floraon.results.SimpleTaxEntResult;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.driver.results.GraphUpdateResult;
+import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
+import pt.floraon.driver.results.SimpleTaxEntResult;
 
 public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	private ArangoDatabase database;

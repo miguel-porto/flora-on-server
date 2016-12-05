@@ -14,12 +14,10 @@ import com.arangodb.entity.UserEntity;
 import com.arangodb.model.*;
 import jline.internal.Log;
 import pt.floraon.driver.*;
-import pt.floraon.entities.Territory;
-import pt.floraon.entities.User;
+import pt.floraon.taxonomy.entities.Territory;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.ArangoDBRedListData;
-import pt.floraon.server.RandomString;
-
-import javax.xml.soap.Node;
+import pt.floraon.authentication.RandomString;
 
 public class FloraOnArangoDriver implements IFloraOn {
 	private ArangoDB driver;

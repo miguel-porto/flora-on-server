@@ -2,7 +2,7 @@
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {background-color:#f44336; color:white; font-weight:bold; border:0}
 #left-bar a {color:white}
-#left-bar ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #800;}
+#left-bar ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}
 /*ul li {
 	list-style-type:none;
 	padding:0.7em;
@@ -87,7 +87,7 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 select {max-width: 400px; text-overflow: ellipsis;}
 
-input[type=submit], .button {
+input[type=submit] {
     width:72px;
     height:72px;
     border-radius:50%;
@@ -125,6 +125,10 @@ input[type=submit].textbutton {
     margin:6px;
     background-color: #2979ff;
     padding:8px 14px;
+    cursor:pointer;
+    box-shadow: 0 0 16px #222;
+    color: white;
+    border:0;
 }
 
 .button.anchorbutton {

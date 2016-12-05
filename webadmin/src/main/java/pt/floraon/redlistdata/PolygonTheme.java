@@ -1,6 +1,6 @@
 package pt.floraon.redlistdata;
 
-import pt.floraon.utmlatlong.Polygon;
+import pt.floraon.geometry.Polygon;
 import java.util.Map;
 
 /**

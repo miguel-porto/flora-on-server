@@ -3,8 +3,8 @@ package pt.floraon.driver;
 import java.lang.reflect.InvocationTargetException;
 
 import pt.floraon.driver.Constants.RelTypes;
-import pt.floraon.entities.GeneralDBEdge;
-import pt.floraon.results.GraphUpdateResult;
+import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.driver.results.GraphUpdateResult;
 
 public interface INodeWrapper {
 	/**

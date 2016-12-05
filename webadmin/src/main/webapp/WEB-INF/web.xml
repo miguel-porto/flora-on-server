@@ -15,7 +15,7 @@
 
    <servlet>
       <servlet-name>ChecklistAdmin</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.ChecklistAdmin</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.ChecklistAdmin</servlet-class>
    </servlet>
 
    <servlet>
@@ -32,27 +32,27 @@
 
    <servlet>
       <servlet-name>UserLogin</servlet-name>
-      <servlet-class>pt.floraon.server.UserLogin</servlet-class>
+      <servlet-class>pt.floraon.authentication.UserLogin</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>Query</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.Query</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.Query</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>Lists</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.Lists</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.Lists</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>TaxDetails</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.TaxDetails</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.TaxDetails</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>JobDownload</servlet-name>
-      <servlet-class>pt.floraon.jobs.JobServlet</servlet-class>
+      <servlet-class>pt.floraon.driver.jobs.JobServlet</servlet-class>
    </servlet>
 
    <servlet>
@@ -62,7 +62,7 @@
 
    <servlet>
       <servlet-name>ApiUpdate</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.ApiUpdate</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.ApiUpdate</servlet-class>
    </servlet>
 
 <!--
@@ -74,17 +74,17 @@
 
    <servlet>
       <servlet-name>NodeReader</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.NodeReader</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.NodeReader</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>Territories</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.Territories</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.Territories</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>FileUploader</servlet-name>
-      <servlet-class>pt.floraon.checklistmanager.FileUploader</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.FileUploader</servlet-class>
    </servlet>
 
 
