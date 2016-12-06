@@ -18,6 +18,11 @@ document.addEventListener('DOMContentLoaded', function() {
     addEvent('click', document.getElementById('newauthor'), createNewAuthor);
     addEvent('click', document.getElementById('newevaluator'), createNewAuthor);
     addEvent('click', document.getElementById('newreviewer'), createNewAuthor);
+
+    addEvent('click', document.getElementById('map'), function(ev) {
+        document.getElementById('map').classList.toggle('floating');
+        document.querySelector('body').classList.toggle('relative');
+    });
 });
 
 function changeHandler(ev) {

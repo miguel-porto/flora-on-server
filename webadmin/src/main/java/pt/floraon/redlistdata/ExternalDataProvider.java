@@ -2,6 +2,7 @@ package pt.floraon.redlistdata;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.UTMCoordinate;
 
 import java.io.IOException;
@@ -22,7 +23,7 @@ public interface ExternalDataProvider extends Iterable<ExternalDataProvider.Simp
      * Sets a polygon theme to clip occurrences. May have any number of polygons.
      * @param theme
      */
-    void setClippingPolygon(PolygonTheme theme);
+    void setClippingPolygon(IPolygonTheme theme);
 
     /**
      * Executes a query and updates the Iterable list of occurrences with the results.

@@ -1,3 +1,4 @@
+body.relative {position:relative}
 #main {text-align:center;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {background-color:#f44336; color:white; font-weight:bold; border:0}
@@ -139,11 +140,23 @@ input[type=submit].textbutton {
 
 
 
-#map {width:200px; height:400px;}
+#map {width:200px; height:auto; cursor:pointer; float:right;}
+#map.floating {
+    width:100%;
+
+    min-height:100%;
+    position:absolute;
+    top:0; left:0;
+    background-color:rgba(255, 255, 255, 0.95);
+    float:none;
+    z-index:2;
+}
 #map path.portugal {fill:white;}
-#map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff;}
+#map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff; stroke-linejoin: round;}
+#map.floating path.convexhull {stroke-width:500px;}
 #map path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:500px; stroke: gray} /* stroke-width: 2000px; stroke: #64dd17; */
 #map rect {fill:red; stroke-width: 1000px; stroke:red;}
+#map.floating rect {stroke-width: 0px;}
 
 label {display:block}
 

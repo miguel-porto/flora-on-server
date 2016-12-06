@@ -4,6 +4,7 @@ import org.apache.commons.math3.ml.clustering.Clusterable;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -11,8 +12,6 @@ import java.util.Set;
  * http://algs4.cs.princeton.edu/99hull/Point2D.java.html
  */
 public final class Point2D implements Comparable<Point2D>, Clusterable {
-    private Set<String> tags = new HashSet<>();
-
     /**
      * Compares two points by x-coordinate.
      */
@@ -291,12 +290,6 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
         Point2D that = (Point2D) other;
         return this.x == that.x && this.y == that.y;
     }
-
-    public void addTag(String name) {
-        this.tags.add(name);
-    }
-
-    public Set<String> getTags() {return this.tags;}
 
     /**
      * Return a string representation of this point.

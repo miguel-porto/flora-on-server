@@ -2,6 +2,8 @@ package pt.floraon.redlistdata;
 
 import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.geometry.Polygon;
+import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -11,6 +13,7 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
@@ -21,7 +24,7 @@ import java.util.List;
  * Created by Miguel Porto on 01-11-2016.
  */
 @WebServlet("/redlist/*")
-public class RedListAdmin extends FloraOnServlet {
+public class RedListAdminPages extends FloraOnServlet {
     @Override
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
         String what;
@@ -56,22 +59,20 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("specieslist", taxEntList);
                 break;
 
-            case "svgmap":
-                response.getWriter().println("AAINCLUE<svg></svg>");
-                return;
-//                break;
-
             case "taxon":
+                // TODO this should be a user configuration loaded at startup
+                PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
                 if (te.getOldId() != null) {
                     foop.executeOccurrenceQuery(te.getOldId());
-                    foop.setClippingPolygon(new NamedPolygons(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
                     // TODO clipping polygon must be a user configuration
+                    foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
 
-                    OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(foop, sizeOfSquare, getUser().canVIEW_OCCURRENCES());
+                    OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
+                            foop, protectedAreas, sizeOfSquare);
 
                     request.setAttribute("EOO", occurrenceProcessor.getEOO());
 
@@ -111,10 +112,14 @@ HISTOGRAM!
 */
 
                     StringWriter sw = new StringWriter();
-                    occurrenceProcessor.exportSVG(new PrintWriter(sw));
+                    occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_OCCURRENCES());
                     request.setAttribute("svgmap", sw.toString());
 
-                    request.setAttribute("occurrenceInProtectedAreas", occurrenceProcessor.getOccurrenceInProtectedAreas().entrySet());
+                    Set<String> groupAreasBy = new HashSet<>();
+                    groupAreasBy.add("SITE_NAME");
+                    groupAreasBy.add("TIPO");   // TODO this should be user configuration
+                    request.setAttribute("occurrenceInProtectedAreas"
+                            , occurrenceProcessor.getOccurrenceInProtectedAreas(groupAreasBy).entrySet());
                     request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
 
 /*

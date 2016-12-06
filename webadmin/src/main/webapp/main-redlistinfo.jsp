@@ -489,9 +489,13 @@
                     <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
                         <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% sites inside protected areas (${locationsInPA}/${nclusters})</p>
                         <table class="sortable smalltext">
-                            <tr><th>Protected Area</th><th>Number of sites</th></tr>
+                            <tr><th>Protected Area</th><th>Type</th><th>Number of sites</th></tr>
                             <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
-                                <tr><td>${tmp.getKey()}</td><td>${tmp.getValue()}</td></tr>
+                                <tr>
+                                    <td>${tmp.getKey().getProperties().get("SITE_NAME")}</td>
+                                    <td>${tmp.getKey().getProperties().get("TIPO")}</td>
+                                    <td>${tmp.getValue()}</td>
+                                </tr>
                             </c:forEach>
                         </table>
                     </td></tr>

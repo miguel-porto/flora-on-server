@@ -1,10 +1,10 @@
-package pt.floraon.redlistdata.occurrenceproviders;
+package pt.floraon.redlistdata.dataproviders;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.redlistdata.ExternalDataProvider;
-import pt.floraon.redlistdata.PolygonTheme;
+import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
 
@@ -23,7 +23,7 @@ import java.util.*;
 public class FloraOnExternalDataProvider implements ExternalDataProvider {
     final private URL floraOnURL;
     private List<SimpleOccurrence> occurrenceList;
-    private PolygonTheme clippingPolygon;
+    private IPolygonTheme clippingPolygon;
 
     @Override
     public int size() {
@@ -150,7 +150,7 @@ public class FloraOnExternalDataProvider implements ExternalDataProvider {
     }
 
     @Override
-    public void setClippingPolygon(PolygonTheme theme) {
+    public void setClippingPolygon(IPolygonTheme theme) {
         clippingPolygon = theme;
     }
 }

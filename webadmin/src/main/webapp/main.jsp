@@ -47,9 +47,9 @@
             </c:if>
         </div>
 
-        <div class="bigbutton section4">
+<!--        <div class="bigbutton section4">
             <h1><a href="/floraon/occurrences">Occurrence manager</a></h1>
-        </div>
+        </div>-->
     </div>
 </body>
 </html>

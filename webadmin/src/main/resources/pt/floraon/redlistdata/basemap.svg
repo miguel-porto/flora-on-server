@@ -1,4 +1,4 @@
-<svg id="map" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet" viewBox="459000 4090000 275000 597000">
+<svg id="map" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMin meet" viewBox="440000 4090000 300000 597000">
     <defs>
     <filter id="dropshadow" height="130%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="10000"/> <!-- stdDeviation is how much to blur -->

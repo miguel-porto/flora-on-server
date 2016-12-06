@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata;
+package pt.floraon.geometry;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ArrayListMultimap;
@@ -8,42 +8,42 @@ import org.geojson.Feature;
 import org.geojson.FeatureCollection;
 import org.geojson.LngLatAlt;
 import org.geojson.Polygon;
-import pt.floraon.geometry.Point2D;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
- *
+ * Reads FeatureCollection of polygons from a GeoJson stream, but currently only supports single part polygons without holes!
  * Created by miguel on 02-12-2016.
  */
-public class NamedPolygons implements PolygonTheme {
-    private Multimap<String, pt.floraon.geometry.Polygon> protectedAreas;
+public class PolygonTheme implements IPolygonTheme {
+    private Multimap<String, pt.floraon.geometry.Polygon> polygons;
 
     /**
      * Create from geoJson and construct a map.
      * @param geoJsonStream
-     * @param fieldName
+     * @param keyFieldName The name of the field for use as the key. Key needs not be unique.
      */
-    public NamedPolygons(InputStream geoJsonStream, String fieldName) {
-        FeatureCollection protectedAreas = null;
+    public PolygonTheme(InputStream geoJsonStream, String keyFieldName) {
+        FeatureCollection features;
         try {
-            protectedAreas =
-                    new ObjectMapper().readValue(geoJsonStream, FeatureCollection.class);
+            features = new ObjectMapper().readValue(geoJsonStream, FeatureCollection.class);
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
 
         int npoly = 0;
-//        this.protectedAreasPolygon = new HashMap<>();
-        this.protectedAreas = ArrayListMultimap.create();
 
-        String name;
-        for(Feature f : protectedAreas) {
+        // Multimap to allow multiple polygons with the same key
+        this.polygons = ArrayListMultimap.create();
+
+        String key;
+        for(Feature f : features) {
             if(Polygon.class.isInstance(f.getGeometry())) {
                 pt.floraon.geometry.Polygon pol = new pt.floraon.geometry.Polygon();
                 List<LngLatAlt> tmp2 = ((Polygon) f.getGeometry()).getExteriorRing();
@@ -52,10 +52,14 @@ public class NamedPolygons implements PolygonTheme {
                     ll = tmp2.get(i);
                     pol.add(new Point2D(ll.getLongitude(), ll.getLatitude()));
                 }
-                if(fieldName != null) {
-                    name = f.getProperties().get(fieldName).toString();
-                } else name = "" + npoly;
-                this.protectedAreas.put(name, pol);
+
+                pol.setProperties(f.getProperties());
+
+                if(keyFieldName != null)
+                    key = f.getProperties().get(keyFieldName).toString();
+                else
+                    key = "" + npoly;
+                this.polygons.put(key, pol);
                 npoly++;
             } else Log.warn("Feature of type "+f.getGeometry().getClass()+" ignored.");
         }
@@ -64,6 +68,11 @@ public class NamedPolygons implements PolygonTheme {
 
     @Override
     public Iterator<Map.Entry<String, pt.floraon.geometry.Polygon>> iterator() {
-        return protectedAreas.entries().iterator();
+        return polygons.entries().iterator();
+    }
+
+    @Override
+    public Collection<pt.floraon.geometry.Polygon> get(String k) {
+        return this.polygons.get(k);
     }
 }

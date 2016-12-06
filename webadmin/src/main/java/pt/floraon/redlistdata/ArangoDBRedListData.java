@@ -12,7 +12,7 @@ import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.HashIndexOptions;
 import pt.floraon.driver.*;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
-import pt.floraon.redlistdata.occurrenceproviders.FloraOnExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.FloraOnExternalDataProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;

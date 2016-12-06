@@ -1,12 +1,11 @@
 package pt.floraon.redlistdata;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-import pt.floraon.geometry.GrahamScan;
-import pt.floraon.geometry.Point2D;
-import pt.floraon.geometry.Polygon;
-import pt.floraon.geometry.UTMCoordinate;
+import pt.floraon.geometry.*;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -21,15 +20,14 @@ public class OccurrenceProcessor {
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
-    private final List<Point2D> pointsUTM;
     private final List<Cluster<Point2D>> clusters;
+    private final Multimap<Point2D, Polygon> pointsInPolygons;   // for each occurrence lists the protected area polygons in which it falls
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
-    private PolygonTheme protectedAreas;
+    private IPolygonTheme protectedAreas;
     private Double EOO;
     private int nQuads;
     private long sizeOfSquare;
-    private boolean showOccurrences = false;
 
     private class Square {
         private long qx, qy;
@@ -67,12 +65,13 @@ public class OccurrenceProcessor {
         }
     }
 
-    public OccurrenceProcessor(ExternalDataProvider occurrences, long sizeOfSquare, boolean showOccurrences) {
-        protectedAreas = new NamedPolygons(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
-
-        this.pointsUTM = new ArrayList<>();
+    public OccurrenceProcessor(ExternalDataProvider occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
+        Polygon nullPolygon = new Polygon();
+        this.protectedAreas = protectedAreas;
+//        this.pointsUTM = new ArrayList<>();
         this.sizeOfSquare = sizeOfSquare;
-        this.showOccurrences = showOccurrences;
+        pointsInPolygons = ArrayListMultimap.create();
+
         UTMCoordinate tmp;
         Point2D tmp1;
         Set<String> utmZones = new HashSet<>();
@@ -82,15 +81,15 @@ public class OccurrenceProcessor {
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             for(Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
                 if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                    tmp1.addTag(e.getKey());
+                    pointsInPolygons.put(tmp1, e.getValue());
                 }
             }
-            pointsUTM.add(tmp1);
+            if(!pointsInPolygons.containsKey(tmp1)) // if the point does not fall in any polygon, add the point anyway
+                pointsInPolygons.put(tmp1, nullPolygon);    // Multimap does not accept null values
         }
 
         if (occurrences.size() >= 3) {
             // compute convex convexHull
-            // first convert to UTM
             // TODO use a projection without zones
 /*
             if (utmZones.size() > 1)
@@ -98,7 +97,7 @@ public class OccurrenceProcessor {
                         "pointsUTM spreading more than one UTM zone.");
 */
 
-            convexHull = (Stack<Point2D>) new GrahamScan(pointsUTM.toArray(new Point2D[0])).hull();
+            convexHull = (Stack<Point2D>) new GrahamScan(pointsInPolygons.keySet().toArray(new Point2D[0])).hull();
             convexHull.add(convexHull.get(0));
             double sum = 0.0;
             for (int i = 0; i < convexHull.size() - 1; i++) {
@@ -111,7 +110,7 @@ public class OccurrenceProcessor {
 
         // now calculate the number of UTM squares occupied
         squares = new HashSet<>();
-        for (Point2D u : pointsUTM) {
+        for (Point2D u : pointsInPolygons.keySet()) {
             squares.add(new Square(u));
         }
 
@@ -119,10 +118,10 @@ public class OccurrenceProcessor {
 
         // now make a clustering to compute approximate number of locations
         DBSCANClusterer<Point2D> cls = new DBSCANClusterer<>(2500, 0);
-        clusters = cls.cluster(pointsUTM);
+        clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
-    public void exportSVG(PrintWriter out) {
+    public void exportSVG(PrintWriter out, boolean showOccurrences) {
         InputStream str = this.getClass().getResourceAsStream("basemap.svg");
         try {
             IOUtils.copy(str, out);
@@ -202,29 +201,39 @@ public class OccurrenceProcessor {
      * Gets the number of locations per protected area.
      * @return
      */
-    public Map<String, Integer> getOccurrenceInProtectedAreas() {
-        Map<String, Integer> out = new HashMap<>();
-        Set<String> perCluster = null;
-        List<Set<String>> total = new ArrayList<>();
+    public Map<Polygon, Integer> getOccurrenceInProtectedAreas(Set<String> groupBy) {
+        // FIXME: polygon hash should only include name and type!
+
+        Map<Polygon, Integer> out = new HashMap<>();
+        Set<Polygon> perCluster = null;
+        List<Set<Polygon>> total = new ArrayList<>();
 
         for(Cluster<Point2D> cl : clusters) {
             perCluster = new HashSet<>();
             for(Point2D p : cl.getPoints()) {
-                for(String s : p.getTags()) {
-                    perCluster.add(s);
+                for(Polygon s : pointsInPolygons.get(p)) {
+                    if(s.size() > 0) {   // falls within a PA polygon
+                        s.setKeyFields(groupBy);    // TODO is this a good idea to change grouping, change de hash?!
+                        perCluster.add(s);
+                    }
                 }
             }
             total.add(perCluster);
         }
-        if(perCluster == null) return out;
-        for(Set<String> pc : total) {
-            for(String s : pc) {
+        if(perCluster == null) return Collections.emptyMap();
+        for(Set<Polygon> pc : total) {
+            for(Polygon s : pc) {
                 if(out.containsKey(s))
                     out.put(s, out.get(s) + 1);
                 else
                     out.put(s, 1);
             }
         }
+
+        // restore the original hash and equals
+        for(Polygon p : pointsInPolygons.values())
+            p.setKeyFields(null);
+
         return out;
     }
 
@@ -236,7 +245,7 @@ public class OccurrenceProcessor {
         int count = 0;
         for(Cluster<Point2D> cl : clusters) {
             for(Point2D p : cl.getPoints()) {
-                if(p.getTags().size() > 0) {    // exists at least in one protected area
+                if(!pointsInPolygons.get(p).iterator().next().isNullPolygon()) {    // exists at least in one protected area
                     count++;
                     break;
                 }

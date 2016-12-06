@@ -1,20 +1,29 @@
 package pt.floraon.geometry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import jline.internal.Log;
+
+import java.util.*;
 
 /**
  * Created by miguel on 01-12-2016.
  */
 public class Polygon {
     private int N;        // number of points in the polygon
-    private Point2D[] a;    // the points, setting points[0] = points[N]
+    private Point2D[] points;    // the points, setting points[0] = points[N]
+    private List<UTMCoordinate> UTMCoordinates; // for caching purposes
+    /**
+     * The data fields
+     */
+    private Map<String, Object> properties = new HashMap<>();
+    /**
+     * The fields used for assessing polygon uniqueness. If this set is empty, all fields and coordinates are used.
+     * If not empty, only these fields are used (and not coordinates).
+     */
+    private Set<String> keyFields;
 
-    // default buffer = 4
     public Polygon() {
         N = 0;
-        a = new Point2D[4];
+        points = new Point2D[4];
     }
 
     /**
@@ -23,7 +32,7 @@ public class Polygon {
      */
     public Polygon(Stack<Point2D> points) {
         N = 0;
-        a = new Point2D[points.size()];
+        this.points = new Point2D[points.size()];
         for(Point2D p : points)
             this.add(p);
     }
@@ -31,19 +40,22 @@ public class Polygon {
     // double size of array
     private void resize() {
         Point2D[] temp = new Point2D[2*N+1];
-        for (int i = 0; i <= N; i++) temp[i] = a[i];
-        a = temp;
+        for (int i = 0; i <= N; i++) temp[i] = points[i];
+        points = temp;
     }
 
     // return size
     public int size() { return N; }
 
+    public boolean isNullPolygon() {
+        return N == 0;
+    }
 
     // add point p to end of polygon
     public void add(Point2D p) {
-        if (N >= a.length - 1) resize();   // resize array if needed
-        a[N++] = p;                        // add point
-        a[N] = a[0];                       // close polygon
+        if (N >= points.length - 1) resize();   // resize array if needed
+        points[N++] = p;                        // add point
+        points[N] = points[0];                       // close polygon
 
 //        UTMCoordinate ut = CoordinateConversion.LatLonToUtmWGS84(p.y, p.x, 0);
 //        System.out.println(ut.getX()+", "+ut.getY());
@@ -53,7 +65,7 @@ public class Polygon {
     public double perimeter() {
         double sum = 0.0;
         for (int i = 0; i < N; i++)
-            sum = sum + a[i].distanceTo(a[i+1]);
+            sum = sum + points[i].distanceTo(points[i+1]);
         return sum;
     }
 
@@ -61,7 +73,7 @@ public class Polygon {
     public double area() {
         double sum = 0.0;
         for (int i = 0; i < N; i++) {
-            sum = sum + (a[i].x * a[i+1].y) - (a[i].y * a[i+1].x);
+            sum = sum + (points[i].x * points[i+1].y) - (points[i].y * points[i+1].x);
         }
         return 0.5 * sum;
     }
@@ -73,11 +85,11 @@ public class Polygon {
         int crossings = 0;
         for (int i = 0; i < N; i++) {
             int j = i + 1;
-            boolean cond1 = (a[i].y <= p.y) && (p.y < a[j].y);
-            boolean cond2 = (a[j].y <= p.y) && (p.y < a[i].y);
+            boolean cond1 = (points[i].y <= p.y) && (p.y < points[j].y);
+            boolean cond2 = (points[j].y <= p.y) && (p.y < points[i].y);
             if (cond1 || cond2) {
                 // need to cast to double
-                if (p.x < (a[j].x - a[i].x) * (p.y - a[i].y) / (a[j].y - a[i].y) + a[i].x)
+                if (p.x < (points[j].x - points[i].x) * (p.y - points[i].y) / (points[j].y - points[i].y) + points[i].x)
                     crossings++;
             }
         }
@@ -90,10 +102,10 @@ public class Polygon {
     public boolean contains(Point2D p) {
         int winding = 0;
         for (int i = 0; i < N; i++) {
-            int ccw = Point2D.ccw(a[i], a[i+1], p);
-            if (a[i+1].y >  p.y && p.y >= a[i].y)  // upward crossing
+            int ccw = Point2D.ccw(points[i], points[i+1], p);
+            if (points[i+1].y >  p.y && p.y >= points[i].y)  // upward crossing
                 if (ccw == +1) winding++;
-            if (a[i+1].y <= p.y && p.y <  a[i].y)  // downward crossing
+            if (points[i+1].y <= p.y && p.y <  points[i].y)  // downward crossing
                 if (ccw == -1) winding--;
         }
         return winding != 0;
@@ -106,17 +118,76 @@ public class Polygon {
         String s = "";
         s = s + "[ ";
         for (int i = 0; i <= N; i++)
-            s = s + a[i] + " ";
+            s = s + points[i] + " ";
         s = s + "]";
         return s;
     }
 
     public List<UTMCoordinate> getUTMCoordinates() {
-        List<UTMCoordinate> out = new ArrayList<>();
-        for (int i = 0; i <= N; i++) {
-            out.add(CoordinateConversion.LatLonToUtmWGS84(a[i].y, a[i].x, 0));
+        if(this.UTMCoordinates == null) {
+            UTMCoordinates = new ArrayList<>();
+            for (int i = 0; i <= N; i++) {
+                UTMCoordinates.add(CoordinateConversion.LatLonToUtmWGS84(points[i].y, points[i].x, 0));
+            }
         }
-        return out;
+        return UTMCoordinates;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Polygon polygon = (Polygon) o;
+
+        if(keyFields != null && keyFields.size() > 0) {
+            Iterator<String> it = keyFields.iterator();
+            boolean eq = true;
+            String a;
+            while(it.hasNext()) {
+                a = it.next();
+                eq &= properties.get(a).equals(polygon.properties.get(a));
+            }
+            return eq;
+        } else {
+            // Probably incorrect - comparing Object[] arrays with Arrays.equals
+            if (!Arrays.equals(points, polygon.points)) return false;
+            return properties != null ? properties.equals(polygon.properties) : polygon.properties == null;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        if(keyFields != null && keyFields.size() > 0) {
+            switch(keyFields.size()) {
+                case 1:
+                    return properties.get(keyFields.iterator().next()).hashCode();
+                case 2:
+                    Iterator<String> it = keyFields.iterator();
+                    String a = it.next();
+                    String b = it.next();
+                    return Objects.hash(properties.get(a), properties.get(b));
+                default:
+                    Log.warn("Not implemented");
+                    return 0;   // FIXME
+            }
+        } else {
+            int result = Arrays.hashCode(points);
+            result = 31 * result + (properties != null ? properties.hashCode() : 0);
+            return result;
+        }
+    }
+
+    public void setKeyFields(Set<String> keyFields) {
+        this.keyFields = keyFields;
     }
 }
 
