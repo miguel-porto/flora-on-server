@@ -1,12 +1,12 @@
 package pt.floraon.authentication.entities;
 
 import com.google.gson.JsonObject;
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.occurrences.entities.Author;
 
+import javax.xml.bind.annotation.XmlElementDecl;
 import java.util.*;
 
 import static pt.floraon.authentication.entities.User.Privileges.*;
@@ -15,41 +15,54 @@ import static pt.floraon.authentication.entities.User.Privileges.*;
  * Represents a user of the Flora-On Server - not to be confounded with an {@link Author} of observations!
  */
 public class User extends NamedDBNode {
+	private String userName, password;
+	private UserType userType;
+	private Set<Privileges> privileges = new HashSet<>();
+	private transient Set<Privileges> effectivePrivileges;
+	/**
+	 * The INodeKeys of the taxa to which the privileges apply. To all other taxa not listed here, only the
+	 * VIEW_FULL_SHEET privilege applies. NOTE: If this set is empty, then the privileges apply to all taxa.
+	 */
+	private String[] applicableTaxa = new String[0];
 	public enum UserType {ADMINISTRATOR, REGULAR}
 	public enum PrivilegeType {CHECKLIST, REDLISTDATA, GLOBAL}
+	public enum PrivilegeScope {PER_SPECIES, GLOBAL}
 
 	public enum Privileges {
-		VIEW_FULL_SHEET(PrivilegeType.REDLISTDATA)
-		, VIEW_OCCURRENCES(PrivilegeType.REDLISTDATA)
-		, EXCLUDE_OCCURRENCES(PrivilegeType.REDLISTDATA)
-		, MODIFY_OCCURRENCES(PrivilegeType.REDLISTDATA)
-		, DOWNLOAD_OCCURRENCES(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION2(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION3(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION4(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION5(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION6(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION7(PrivilegeType.REDLISTDATA)
-		, EDIT_SECTION8(PrivilegeType.REDLISTDATA)
-		, EDIT_ALL_TEXTUAL(PrivilegeType.REDLISTDATA)
-		, EDIT_1_4(PrivilegeType.REDLISTDATA)
-		, EDIT_9_4_9_7(PrivilegeType.REDLISTDATA)
-		, EDIT_9_1_2_3_5(PrivilegeType.REDLISTDATA)
-		, EDIT_9_6_8_41(PrivilegeType.REDLISTDATA)
-		, CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL)
-		, MODIFY_TAXA_TERRITORIES(PrivilegeType.CHECKLIST)
-		, EDIT_FULL_CHECKLIST(PrivilegeType.CHECKLIST)
-		, MANAGE_REDLIST_USERS(PrivilegeType.GLOBAL);
+		VIEW_FULL_SHEET(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, VIEW_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EXCLUDE_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, MODIFY_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, DOWNLOAD_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION3(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION6(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION7(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_SECTION8(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_ALL_TEXTUAL(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_1_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_4_9_7(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_1_2_3_5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_6_8_41(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL)
+		, MODIFY_TAXA_TERRITORIES(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL)
+		, EDIT_FULL_CHECKLIST(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL)
+		, MANAGE_REDLIST_USERS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL);
 
 		private PrivilegeType privilegeType;
+		private PrivilegeScope privilegeScope;
 
-		Privileges(PrivilegeType pt) {
+		Privileges(PrivilegeType pt, PrivilegeScope ps) {
 			this.privilegeType = pt;
+			this.privilegeScope = ps;
 		}
 
 		public PrivilegeType getPrivilegeType() {
 			return this.privilegeType;
 		}
+		public PrivilegeScope getPrivilegeScope() {return this.privilegeScope;}
 	}
 
 	public static List<Privileges> getAllPrivilegesOfType(PrivilegeType type) {
@@ -78,9 +91,7 @@ public class User extends NamedDBNode {
 			, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_ALL_TEXTUAL, EDIT_1_4, EDIT_9_4_9_7
 			, EDIT_9_1_2_3_5, EDIT_9_6_8_41 };
 
-	private String userName, password;
-	private UserType userType;
-	private Set<Privileges> privileges = new HashSet<>();
+	public static Privileges[] DEFAULT_USER_PRIVILEGES = new Privileges[] { VIEW_FULL_SHEET };
 
 	public String getUserName() {
 		return userName;
@@ -96,6 +107,7 @@ public class User extends NamedDBNode {
 
 	public User() {
 		super();
+		resetEffectivePrivileges();
 	}
 
 	public User(String username, String fullName, Set<Privileges> privileges) throws DatabaseException {
@@ -103,10 +115,16 @@ public class User extends NamedDBNode {
 		this.userName = username;
 		this.privileges = privileges;
 		this.userType = UserType.REGULAR;
+		resetEffectivePrivileges();
 	}
 
 	public User(String username, String fullName, Privileges[] privileges) throws DatabaseException {
 		this(username, fullName, new HashSet<>(Arrays.asList(privileges)));
+	}
+
+	public static User guest() throws DatabaseException {
+		User u = new User("guest", "Guest", new Privileges[] {});
+		return u;
 	}
 
 	public UserType getUserType() {
@@ -165,8 +183,8 @@ public class User extends NamedDBNode {
 		return privileges.size() == 0;
 	}
 
-	public void setPrivileges(Privileges[] privileges) {
-		this.privileges.addAll(Arrays.asList(privileges));
+	public void setPrivileges(Privileges[] assignedPrivileges) {
+		this.privileges.addAll(Arrays.asList(assignedPrivileges));
 	}
 
 	public void setVIEW_FULL_SHEET(boolean value) {
@@ -250,13 +268,28 @@ public class User extends NamedDBNode {
 		setPrivilege(MANAGE_REDLIST_USERS, value);
 	}
 
+	/**
+	 * Tests whether the user has given privilege for the current taxon. This should only be used after calling
+	 * {@link User#setEffectivePrivilegesFor(IFloraOn, INodeKey)}
+	 * @param privilege
+	 * @return
+	 */
 	public boolean hasPrivilege(Privileges privilege) {
+		return this.effectivePrivileges.contains(privilege);
+	}
+
+	/**
+	 * Checks whether the user has this privilege assigned. This does not take into account the current taxon.
+	 * @param privilege
+	 * @return
+	 */
+	public boolean hasAssignedPrivilege(Privileges privilege) {
 		return this.privileges.contains(privilege);
 	}
 
 	public boolean hasAnyPrivilege(Privileges[] privileges) {
 		Set<Privileges> tmp = new HashSet<>(Arrays.asList(privileges));
-		tmp.retainAll(this.privileges);
+		tmp.retainAll(this.effectivePrivileges);
 		return tmp.size() > 0;
 	}
 
@@ -264,9 +297,7 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.VIEW_FULL_SHEET);
 	}
 
-	public boolean canVIEW_OCCURRENCES() {
-		return hasPrivilege(Privileges.VIEW_OCCURRENCES);
-	}
+	public boolean canVIEW_OCCURRENCES() { return hasPrivilege(Privileges.VIEW_OCCURRENCES); }
 
 	public boolean canMODIFY_TAXA_TERRITORIES() {
 		return hasPrivilege(Privileges.MODIFY_TAXA_TERRITORIES);
@@ -333,4 +364,53 @@ public class User extends NamedDBNode {
 	public boolean canMANAGE_REDLIST_USERS() {
 		return hasPrivilege(Privileges.MANAGE_REDLIST_USERS);
 	}
+
+	public String[] getApplicableTaxa() {
+		return applicableTaxa;
+	}
+
+	public void setApplicableTaxa(String[] applicableTaxa) {
+		this.applicableTaxa = applicableTaxa;
+	}
+
+	/**
+	 * Sets the effective privileges for the given taxon
+	 * @param driver
+	 * @param taxonID
+	 */
+	public void setEffectivePrivilegesFor(IFloraOn driver, INodeKey taxonID) throws FloraOnException {
+		if(this.applicableTaxa.length == 0) {	// privileges apply for all taxa
+			this.effectivePrivileges = this.privileges;
+			return;
+		}
+
+		if(taxonID != null) {
+			for (String taxon : this.applicableTaxa) {
+				if (driver.wrapTaxEnt(taxonID).isInfrataxonOf(driver.asNodeKey(taxon))) {    // is the taxon covered by the privileges?
+					this.effectivePrivileges = this.privileges;
+					return;
+				}
+			}
+		}
+
+		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
+		for(Privileges p : this.privileges) {
+			if(p.getPrivilegeScope() == PrivilegeScope.GLOBAL)
+				this.effectivePrivileges.add(p);
+		}
+
+	}
+
+	/**
+	 * Sets the effective privileges for only those that are not taxon based.
+	 */
+	public void resetEffectivePrivileges() {
+		try {
+			setEffectivePrivilegesFor(null, null);
+		} catch (FloraOnException e) {
+			// it'll never be thrown if driver == null
+			e.printStackTrace();
+		}
+	}
+
 }

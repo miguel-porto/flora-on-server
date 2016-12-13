@@ -148,4 +148,11 @@ public interface ITaxEntWrapper {
 	 */
 	TaxEntAndNativeStatusResult getNativeStatusList(String territory) throws DatabaseException;
 	void getSingleTerritoryEndemism() throws FloraOnException;
+
+	/**
+	 * Is this taxon contained in the given taxon?
+	 * @param id
+	 * @return
+	 */
+	boolean isInfrataxonOf(INodeKey id) throws DatabaseException;
 }

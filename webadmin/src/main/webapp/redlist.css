@@ -15,7 +15,7 @@ h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
 
 .navigator {position:fixed; bottom:0; z-index:1; left: 0;}
-.navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left;}
+.navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left; box-shadow: 0 0 12px #600}
 
 .multiplechooser {display:flex; flex-wrap:wrap; justify-content: center;}
 .multiplechooser input[type=checkbox] {display:none;}
@@ -118,7 +118,7 @@ input[type=submit].textbutton {
 }
 
 .button {
-    font-size: 1.2em;
+    font-size: 1.2rem;
     display: inline-block;
     border-radius:3px;
     width:auto;
@@ -127,9 +127,10 @@ input[type=submit].textbutton {
     background-color: #2979ff;
     padding:8px 14px;
     cursor:pointer;
-    box-shadow: 0 0 16px #222;
+    /*box-shadow: 0 0 8px #222;*/
     color: white;
     border:0;
+    float:none;
 }
 
 .button.anchorbutton {
@@ -183,7 +184,7 @@ table.sheet textarea
 table.sheet {margin-bottom:50px;}
 table.sheet table {width:100%;}
 table.sheet table td:nth-of-type(1) {width:0;}
-table.sheet.summary tr:not(.textual) {display:none;}
+table.sheet.summary>tbody>tr:not(.textual) {display:none;}
 table.sheet.summary #summary_toggle {background-color:yellow; color:green;}
 table.sheet td.title {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
 /*table.sheet .section1 td.title, .button.section1 {background-color: #81c784;}
@@ -243,7 +244,7 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
 #redlistcategories label[for=assess_RE], .redlistcategory.assess_RE {background-color:#235444;}
 #redlistcategories label[for=assess_EX] *, .redlistcategory.assess_EX *
     , #redlistcategories label[for=assess_EW] *, .redlistcategory.assess_EW *
-    , #redlistcategories label[for=assess_RE] *, .redlistcategory.assess_RE * {color:white}
+    , #redlistcategories label[for=assess_RE] *, .redlistcategory.assess_RE * {color:white !important}
 #redlistcategories label[for=assess_CR], .redlistcategory.assess_CR {background-color:#d81e05;}
 #redlistcategories label[for=assess_EN], .redlistcategory.assess_EN {background-color:#fc7f3f;}
 #redlistcategories label[for=assess_VU], .redlistcategory.assess_VU {background-color:#f9e814;}

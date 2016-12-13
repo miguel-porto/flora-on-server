@@ -83,6 +83,8 @@ public class AdminAPI extends FloraOnServlet {
         Enumeration names = request.getParameterNames();
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
+            System.out.println(name);
+            System.out.println(request.getParameterValues(name).toString());
             map.put(name, request.getParameterValues(name));
         }
 

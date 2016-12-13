@@ -12,7 +12,8 @@
             <id>d-maven</id>
             <url>http://d-maven.googlecode.com/svn/trunk/repo</url>
 	    </repository>
-	</repositories>    
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>dnl.utils</groupId>
@@ -123,7 +124,7 @@
 			<version>1.8.3</version>
 		</dependency>
     </dependencies>
-	
+
 	<build>
 		<finalName>floraon</finalName>
 		<plugins>

@@ -188,23 +188,6 @@ table.taxonlist div.territory {float:left;}
 
 .taxdetails ul#worlddistribution li {background-color:#0a0}
 
-ul.suggestions {
-	display:inline-block;
-	padding:0;
-	margin:0;
-}
-ul.suggestions li {
-/*	border:1px solid transparent;*/
-	border-radius:6px;
-	cursor:pointer;
-	padding:1px 10px;
-	list-style-type:none;
-}
-ul.suggestions li.selected {
-/*	border:1px solid red;*/
-	background:rgba(127,127,0,0.4);
-}
-
 #loginform {
 	width:30%;
 	border-radius:0px;

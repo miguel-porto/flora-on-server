@@ -62,14 +62,14 @@ public class QueryDriver extends GQuery implements IQuery {
 			throw new DatabaseException(e.getMessage());
 		}
 
-		if(vertexCursor.getStats().getFullCount() == null || vertexCursor.getStats().getFullCount() == 0)
+		if(!vertexCursor.hasNext())
 			return null;
 
-		if(vertexCursor.getStats().getFullCount() == 1)
-			return vertexCursor.next();
+		SpeciesList out = vertexCursor.next();
+		if(vertexCursor.hasNext())
+			System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
 
-		System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
-		return vertexCursor.next();
+		return out;
 	}
 	
 	@Override

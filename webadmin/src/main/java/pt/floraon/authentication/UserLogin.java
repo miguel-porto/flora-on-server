@@ -25,6 +25,7 @@ public class UserLogin extends FloraOnServlet {
 				response.sendRedirect("main?w=login&reason=notfound");
 			} else {
 				user.clearPassword();
+				user.resetEffectivePrivileges();
 				request.getSession().setAttribute("user", user);
 				response.sendRedirect("main");
 			}

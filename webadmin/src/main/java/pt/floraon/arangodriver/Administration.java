@@ -60,7 +60,6 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
         } catch (ArangoDBException e) {
             throw new FloraOnException(e.getMessage());
         }
-
     }
 
     @Override
@@ -71,6 +70,7 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
             ArangoCursor<User> cout = database.query(query, null, null, User.class);
             if(cout == null || !cout.hasNext()) return null;
             User out = cout.next();
+
             if(pa.authenticate(password, out.getPassword()))
                 return out;
             else

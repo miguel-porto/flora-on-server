@@ -23,6 +23,35 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('map').classList.toggle('floating');
         document.querySelector('body').classList.toggle('relative');
     });
+
+    // for user privileges
+    attachSuggestionHandler('boxsynonym');
+
+    addEvent('click', document.getElementById('addtaxonprivilege'), function(ev) {
+        if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {
+            alert("Type some letters to find a taxon and select from drop down list.");
+            return;
+        }
+        var key = document.getElementById('boxsynonym').getAttribute('data-key');
+        var el = document.createElement('INPUT');
+        el.setAttribute('type', 'checkbox');
+        el.setAttribute('name', 'applicableTaxa');
+        el.setAttribute('id', 'ta_'+key);
+        el.setAttribute('value', key);
+        el.setAttribute('checked', 'checked');
+
+        var el1 = document.createElement('LABEL');
+        el1.setAttribute('class', 'wordtag togglebutton');
+        el1.setAttribute('for', 'ta_'+key);
+        el1.appendChild(document.createTextNode(document.getElementById('boxsynonym').value));
+
+        document.getElementById('taxonprivileges').appendChild(el);
+        document.getElementById('taxonprivileges').appendChild(el1);
+
+        document.getElementById('boxsynonym').removeAttribute('data-key')
+        document.getElementById('boxsynonym').value = '';
+    });
+
 });
 
 function changeHandler(ev) {

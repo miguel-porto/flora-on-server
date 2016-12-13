@@ -64,6 +64,11 @@ System.out.println(gs.toJson(getUser()));
                 PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
+                System.out.println("VO: "+getUser().canVIEW_OCCURRENCES());
+                // set privileges for this taxon
+                getUser().setEffectivePrivilegesFor(driver, getParameterAsKey("id"));
+                System.out.println("VO1: "+getUser().canVIEW_OCCURRENCES());
+
                 request.setAttribute("taxon", te);
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
                 if (te.getOldId() != null) {
@@ -127,7 +132,6 @@ HISTOGRAM!
                     System.out.println(gs.toJson(rlde));
 */
 
-                    if (rlde != null) request.setAttribute("rlde", rlde);
                     request.setAttribute("territory", territory);
 
                     // enums
@@ -147,20 +151,25 @@ HISTOGRAM!
                     request.setAttribute("assessment_Category", RedListEnums.RedListCategories.values());
                     request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
 
-                    request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
-                    request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
-                    request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
-                    request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
-                    request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
-                    request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
-
                     Map<String, Object> taxonInfo = foop.executeInfoQuery(te.getOldId());
 
-                    if(rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
-                        if(taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null)
-                            request.setAttribute("ecology", taxonInfo.get("ecology").toString());
-                    } else
-                        request.setAttribute("ecology", rlde.getEcology().getDescription());
+                    if (rlde != null) {
+                        request.setAttribute("rlde", rlde);
+                        request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+                        request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
+                        request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
+                        request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
+                        request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
+                        request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
+
+                        if(rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
+                            if(taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
+                                request.setAttribute("ecology", taxonInfo.get("ecology").toString());
+                            }
+                        } else {
+                            request.setAttribute("ecology", rlde.getEcology().getDescription());
+                        }
+                    }
 
                     // make a map of user IDs and names
                     List<User> allUsers = driver.getAdministration().getAllUsers();
@@ -193,7 +202,13 @@ HISTOGRAM!
                 break;
 
             case "edituser":
-                request.setAttribute("requesteduser", driver.getAdministration().getUser(getParameterAsKey("user")));
+                User tmp = driver.getAdministration().getUser(getParameterAsKey("user"));
+                List<TaxEnt> applTax = new ArrayList<>();
+                for(String i : tmp.getApplicableTaxa()) {
+                    applTax.add(driver.getNodeWorkerDriver().getTaxEntById(driver.asNodeKey(i)));
+                }
+                request.setAttribute("requesteduser", tmp);
+                request.setAttribute("applicableTaxa", applTax);
                 request.setAttribute("redlistprivileges", User.getAllPrivilegesOfType(
                         getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
                 break;

@@ -99,8 +99,7 @@ public class FloraOnServlet extends HttpServlet {
 
 		if(session == null || session.getAttribute("user") == null) {
 			try {
-				return new User("guest", "Guest"
-						, new User.Privileges[0]);
+				return User.guest();
 			} catch (DatabaseException e) {
 				e.printStackTrace();
 				return null;

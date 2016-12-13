@@ -1,9 +1,25 @@
 function attachSuggestionHandler(elid) {
 	querybox=document.getElementById(elid);
-	addEvent('keyup', querybox, function(ev) {
+	addEvent('keydown', querybox, function(ev) {
 		var input=ev.target;
-		input.removeAttribute('data-key');
-		if(ev.keyCode<65 && ev.keyCode!=8 && ev.keyCode!=32) return;
+		if(input.hasAttribute('data-key')) {
+		    input.removeAttribute('data-key');
+		    input.value = '';
+		    return false;
+		}
+	});
+
+    addEvent('keypress', querybox, function(ev) {
+        if(ev.keyCode == 13) {
+            ev.preventDefault();
+
+            return true;
+        }
+    });
+
+	addEvent('keyup', querybox, function(ev) {
+        var input=ev.target;
+		if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
 		if(input.value.trim().length==0) {
 			document.getElementById('suggestions').innerHTML='';
 			return;

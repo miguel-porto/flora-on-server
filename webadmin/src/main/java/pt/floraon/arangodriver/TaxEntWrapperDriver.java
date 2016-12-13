@@ -10,6 +10,8 @@ import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 
+import com.arangodb.model.AqlQueryOptions;
+import com.arangodb.model.OptionsBuilder;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
@@ -74,18 +76,19 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public TaxEnt getParentTaxon() throws TaxonomyException, DatabaseException {
 		String query = AQLQueries.getString("TaxEntWrapperDriver.2", thisNode.toString());
 			
-		ArangoCursor<TaxEnt> out;
+		ArangoCursor<TaxEnt> cur;
+		TaxEnt out;
 
 		try {
-			out = database.query(query,null,null,TaxEnt.class);
-			if(out.getStats().getFullCount() == null) return null;
-			if(out.getStats().getFullCount() > 1)
+			cur = database.query(query,null,null,TaxEnt.class);
+			if(!cur.hasNext()) return null;
+			out = cur.next();
+			if(cur.hasNext())
 				throw new TaxonomyException("The taxon "+thisNode.toString()+" has more than one current parent taxon.");	// TODO: what about hybrids?
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
-		//if(out==null) throw new TaxonomyException("The taxon "+node.toString()+" has no parent taxon. This must be fixed.");
-		return out.next();
+		return out;
 	}
 
 	@Override
@@ -101,6 +104,20 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 			throw new DatabaseException(e.getMessage());
 		}
 		return listOfStatus;
+	}
+
+	@Override
+	public boolean isInfrataxonOf(INodeKey id) throws DatabaseException {
+		if(id.getID().equals(thisNode.getID())) return true;
+		String query = AQLQueries.getString("TaxEntWrapperDriver.13",
+				thisNode.getID(), id.getID());
+		System.out.println(query);
+		try {
+			ArangoCursor<TaxEnt> r = database.query(query,null, new AqlQueryOptions().fullCount(true), TaxEnt.class);
+			return r.hasNext();
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
+		}
 	}
 
 	public List<TaxEnt> getHybridAncestry() {

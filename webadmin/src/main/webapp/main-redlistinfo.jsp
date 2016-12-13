@@ -12,6 +12,7 @@
 	<script type="text/javascript" src="/floraon/sorttable.js"></script>
 	<script type="text/javascript" src="/floraon/basefunctions.js"></script>
 	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
+	<script type="text/javascript" src="/floraon/suggestions.js"></script>
 	<script type="text/javascript" src="/floraon/redlistadmin.js"></script>
 </head>
 <body>
@@ -487,17 +488,22 @@
                         </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
-                        <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% sites inside protected areas (${locationsInPA}/${nclusters})</p>
-                        <table class="sortable smalltext">
-                            <tr><th>Protected Area</th><th>Type</th><th>Number of sites</th></tr>
-                            <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
-                                <tr>
-                                    <td>${tmp.getKey().getProperties().get("SITE_NAME")}</td>
-                                    <td>${tmp.getKey().getProperties().get("TIPO")}</td>
-                                    <td>${tmp.getValue()}</td>
-                                </tr>
-                            </c:forEach>
-                        </table>
+                        <c:if test="${occurrences.size() > 0}">
+                            <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% sites inside protected areas (${locationsInPA}/${nclusters})</p>
+                            <table class="sortable smalltext">
+                                <tr><th>Protected Area</th><th>Type</th><th>Number of sites</th></tr>
+                                <c:forEach var="tmp" items="${occurrenceInProtectedAreas}">
+                                    <tr>
+                                        <td>${tmp.getKey().getProperties().get("SITE_NAME")}</td>
+                                        <td>${tmp.getKey().getProperties().get("TIPO")}</td>
+                                        <td>${tmp.getValue()}</td>
+                                    </tr>
+                                </c:forEach>
+                            </table>
+                        </c:if>
+                        <c:if test="${occurrences.size() == 0}">
+                            <p>No occurrences</p>
+                        </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td>Proposed conservation actions</td><td>
                         <c:if test="${user.canEDIT_SECTION7()}">
@@ -566,10 +572,10 @@
                             <div class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${authors.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Authors" id="au_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="au_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
+                                   <input type="checkbox" name="assessment_Authors" id="au_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="au_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
                                 </c:if>
                                 <c:if test="${!authors.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Authors" id="au_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="au_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
+                                    <input type="checkbox" name="assessment_Authors" id="au_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="au_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
                                 </c:if>
                             </c:forEach>
                             </div>
@@ -622,10 +628,10 @@
                             <div class="multiplechooser">
                             <c:forEach var="tmp" items="${allUsers}">
                                 <c:if test="${reviewer.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="re_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
+                                    <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="re_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
                                 </c:if>
                                 <c:if test="${!reviewer.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="re_${tmp.getNameASCii()}" class="">${tmp.getName()}</label>
+                                    <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="re_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
                                 </c:if>
                             </c:forEach>
                             </div>
@@ -728,7 +734,7 @@
                         <td class="title">Privileges</td>
                         <td class="multiplechooser">
                             <c:forEach var="tmp" items="${redlistprivileges}">
-                                <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="">${tmp}</label>
+                                <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp}</label>
                             </c:forEach>
                         </td>
                     </tr>
@@ -764,13 +770,27 @@
                             <td class="title">Privileges</td>
                             <td class="multiplechooser">
                                 <c:forEach var="tmp" items="${redlistprivileges}">
-                                    <c:if test="${requesteduser.hasPrivilege(tmp)}">
-                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}" checked="checked"/><label for="priv_${tmp}" class="">${tmp}</label>
+                                    <c:if test="${requesteduser.hasAssignedPrivilege(tmp)}">
+                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}" checked="checked"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp}</label>
                                     </c:if>
-                                    <c:if test="${!requesteduser.hasPrivilege(tmp)}">
-                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="">${tmp}</label>
+                                    <c:if test="${!requesteduser.hasAssignedPrivilege(tmp)}">
+                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp}</label>
                                     </c:if>
                                 </c:forEach>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="title">Restrict privileges to taxa</td>
+                            <td>
+                                <div class="multiplechooser" id="taxonprivileges">
+                                <c:forEach var="tmp" items="${applicableTaxa}">
+                                    <input type="checkbox" name="applicableTaxa" id="ta_${tmp.getID()}" value="${tmp.getID()}" checked="checked"/>
+                                    <label for="ta_${tmp.getID()}" class="wordtag togglebutton">${tmp.getFullName()}</label>
+                                </c:forEach>
+                                </div>
+                                <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="boxsynonym"/>
+                                <input type="button" value="Add taxon" class="button" id="addtaxonprivilege"/>
+                                <div id="suggestions"></div>
                             </td>
                         </tr>
                     </table>

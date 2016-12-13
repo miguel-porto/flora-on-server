@@ -163,3 +163,25 @@ div.toggler.off .content {display:none;}
 #left-bar ul li {list-style-type:none; font-size:1.4em; margin-top:12px;}
 
 #main {flex: 1 3 auto}
+
+ul.suggestions {
+	display:inline-block;
+	padding:0;
+	margin:0;
+	background-color:rgba(255, 255, 255, 0.75);
+	box-shadow: 0 0 8px #777;
+	border-radius:3px;
+	position:absolute;
+	overflow:hidden;
+	z-index:2;
+}
+ul.suggestions li {
+/*	border:1px solid transparent;*/
+    font-size:1rem;
+	cursor:pointer;
+	padding:3px 10px;
+	list-style-type:none;
+}
+ul.suggestions li.selected {
+	background-color:rgba(255, 64, 129, 0.75);
+}
