@@ -1,4 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
@@ -25,6 +26,9 @@
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users">Manage users</a></li>
             </c:if>
+            <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
+                <li><a href="api/updatenativestatus?territory=${territory}">Update native status for ${territory}</a></li>
+            </c:if>
         </ul>
     </div>
     <div id="main">
@@ -40,7 +44,10 @@
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
-        <table id="speciesindex">
+        <table id="speciesindex" class="sortable">
+        <thead>
+            <tr><th></th><th>Taxon</th><th>Native Status</th><th>Assessment status</th><th>Evaluator</th><th>Reviewer</th><th>Category</th></tr>
+        </thead>
         <c:forEach var="taxon" items="${specieslist.iterator()}">
             <c:if test="${taxon.getTaxEnt().isSpecies()}">
                 <tr class="species">
@@ -51,6 +58,18 @@
                 <td><input type="checkbox"/></td>
                 <td><a href="?w=taxon&id=${taxon.getTaxEnt().getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
                 <td>${taxon.getInferredStatus().getStatusSummary()}</td>
+                <td>${taxon.getAssessment().getAssessmentStatus().getLabel()}</td>
+                <td><c:forEach var="eval" items="${taxon.getAssessment().getEvaluator()}">
+                    ${userMap.get(eval)}&nbsp;
+                </c:forEach></td>
+                <td><c:forEach var="eval" items="${taxon.getAssessment().getReviewer()}">
+                    ${userMap.get(eval)}&nbsp;
+                </c:forEach></td>
+                <td>
+                <c:if test="${taxon.getAssessment().getCategory() != null}">
+                    <div class="redlistcategory assess_${taxon.getAssessment().getCategory().toString()}"><h1>${taxon.getAssessment().getCategory().toString()}</h1></div>
+                </c:if>
+                </td>
             </tr>
         </c:forEach>
         </table>
@@ -68,6 +87,7 @@
             <div class="button anchorbutton section6"><a href="#threats">6. Threats</a></div>
             <div class="button anchorbutton section7"><a href="#conservation">7. Conservation</a></div>
             <div class="button anchorbutton section9"><a href="#assessment">9. Assessment</a></div>
+            <!--<div class="button" id="highlight">highlight</div>-->
         </div>
         </c:if>
         <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-refresh="false">
@@ -80,6 +100,7 @@
                     <h1><i>${taxon.getName()}</i></h1>
                     <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                     <div id="header-buttons">
+                        <div class="wordtag togglebutton" id="highlight_toggle">needs review</div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
@@ -108,7 +129,7 @@
                         </c:forEach>
                         </ul>
                     </td></tr>
-                    <tr class="section1"><td class="title">1.4</td><td>Taxonomic comments</td><td>
+                    <tr class="section1"><td class="title">1.4</td><td>Taxonomic notes</td><td>
                         <c:if test="${user.canEDIT_1_4()}">
                             <table>
                                 <tr><td colspan="2"><label>
@@ -118,19 +139,25 @@
                                     <c:if test="${!rlde.getHasTaxonomicProblems()}">
                                         <input type="checkbox" name="hasTaxonomicProblems">
                                     </c:if>
-                                    has taxonomic problems</label></td>
+                                    has taxonomic issues</label></td>
                                 </tr>
-                                <tr><td>Problem description</td>
-                                <td><textarea rows="3" name="taxonomicProblemDescription"><c:out value="${rlde.getTaxonomicProblemDescription()}"></c:out></textarea></td></tr>
+                                <tr><td>Issue description</td>
+                                <td>
+                                    <div contenteditable="true" class="contenteditable">${rlde.getTaxonomicProblemDescription()}</div>
+                                    <input type="hidden" name="taxonomicProblemDescription" value="${fn:escapeXml(rlde.getTaxonomicProblemDescription())}"/>
+                                </td></tr>
                             </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_1_4()}">
                             <table>
-                                <tr><td colspan="2">Has taxonomic problems: ${rlde.getHasTaxonomicProblems() ? "Yes" : "No"}</td></tr>
-                                <tr><td>Problem description</td>
-                                <td><c:out value="${rlde.getTaxonomicProblemDescription()}"></c:out></td></tr>
+                                <tr><td colspan="2">Has taxonomic issues: ${rlde.getHasTaxonomicProblems() ? "Yes" : "No"}</td></tr>
+                                <tr><td>Issue description</td>
+                                <td>${rlde.getTaxonomicProblemDescription()}</td></tr>
                             </table>
                         </c:if>
+                    </td></tr>
+                    <tr class="section1"><td class="title">1.5</td><td>Common name</td><td>
+                    (a fazer...)
                     </td></tr>
                     <tr class="section2"><td class="title" colspan="3"><a name="distribution"></a>Section 2 - Geographical Distribution</td></tr>
                 </c:if>
@@ -138,10 +165,11 @@
                     <table>
                         <tr><td style="width:auto">
                         <c:if test="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}">
-                            <textarea style="height:400px;" rows="6" name="geographicalDistribution_Description"><c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out></textarea>
+                            <div contenteditable="true" class="contenteditable">${rlde.getGeographicalDistribution().getDescription()}</div>
+                            <input type="hidden" name="geographicalDistribution_Description" value="${fn:escapeXml(rlde.getGeographicalDistribution().getDescription())}"/>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION2() && !user.canEDIT_ALL_TEXTUAL()}">
-                            <c:out value="${rlde.getGeographicalDistribution().getDescription()}"></c:out>
+                            ${rlde.getGeographicalDistribution().getDescription()}
                         </c:if>
                         </td>
                         <td style="width:0">${svgmap}</td>
@@ -173,19 +201,30 @@
                     </td></tr>
                     <tr class="section2"><td class="title">2.4</td><td>Decline in distribution</td><td>
                         <c:if test="${user.canEDIT_SECTION2()}">
-                            <select name="geographicalDistribution_DeclineDistribution">
-                                <c:forEach var="tmp" items="${geographicalDistribution_DeclineDistribution}">
-                                    <c:if test="${rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
+                        <table class="triggergroup">
+                            <tr><td>Category</td><td>
+                                <select name="geographicalDistribution_DeclineDistribution" class="trigger">
+                                    <c:forEach var="tmp" items="${geographicalDistribution_DeclineDistribution}">
+                                        <c:if test="${rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr class="triggered ${rlde.getGeographicalDistribution().getDeclineDistribution().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getGeographicalDistribution().getDeclineDistributionJustification()}</div>
+                                <input type="hidden" name="geographicalDistribution_DeclineDistributionJustification" value="${fn:escapeXml(rlde.getGeographicalDistribution().getDeclineDistributionJustification())}"/>
+                            </td></tr>
+                        </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION2()}">
-                            ${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}
+                        <table>
+                            <tr><td>Category</td><td>${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getGeographicalDistribution().getDeclineDistributionJustification()}</td></tr>
+                        </table>
                         </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title">2.5</td><td>Elevation</td><td>
@@ -197,14 +236,33 @@
                             ${rlde.getGeographicalDistribution().getElevationRange()[0]} - ${rlde.getGeographicalDistribution().getElevationRange()[1]}
                         </c:if>
                     </td></tr>
+                    <tr class="section2"><td class="title">2.6</td><td>Extreme fluctuations</td><td>
+                        <c:if test="${user.canEDIT_SECTION2()}">
+                            <select name="geographicalDistribution_ExtremeFluctuations">
+                                <c:forEach var="tmp" items="${geographicalDistribution_ExtremeFluctuations}">
+                                    <c:if test="${rlde.getGeographicalDistribution().getExtremeFluctuations().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                    </c:if>
+                                    <c:if test="${!rlde.getGeographicalDistribution().getExtremeFluctuations().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                    </c:if>
+                                </c:forEach>
+                            </select>
+                        </c:if>
+                        <c:if test="${!user.canEDIT_SECTION2()}">
+                            ${rlde.getGeographicalDistribution().getExtremeFluctuations().getLabel()}
+                        </c:if>
+                    </td></tr>
+
                     <tr class="section3"><td class="title" colspan="3"><a name="population"></a>Section 3 - Population</td></tr>
                 </c:if>
                 <tr class="section3 textual"><td class="title">3.1</td><td>Population information</td><td>
                     <c:if test="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="population_Description"><c:out value="${rlde.getPopulation().getDescription()}"></c:out></textarea>
+                        <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getDescription()}</div>
+                        <input type="hidden" name="population_Description" value="${fn:escapeXml(rlde.getPopulation().getDescription())}"/>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION3() && !user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${rlde.getPopulation().getDescription()}"></c:out>
+                        ${rlde.getPopulation().getDescription()}
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
@@ -224,114 +282,215 @@
                                     </select>
                                 </td></tr>
                                 <tr><td>Exact number</td><td><input type="number" min="0" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
-                                <tr><td>Textual description</td><td><input type="text" class="longbox" name="population_NrMatureIndividualsDescription" value="${rlde.getPopulation().getNrMatureIndividualsDescription()}"/></td></tr>
                             </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
                             <table>
                                 <tr><td>Category</td><td>${rlde.getPopulation().getNrMatureIndividualsCategory().getLabel()}</td></tr>
                                 <tr><td>Exact number</td><td>${rlde.getPopulation().getNrMatureIndividualsExact()}</td></tr>
-                                <tr><td>Textual description</td><td>${rlde.getPopulation().getNrMatureIndividualsDescription()}</td></tr>
                             </table>
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.3</td><td>Type of estimate</td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
-                            <select name="population_TypeOfEstimate">
-                                <c:forEach var="tmp" items="${population_TypeOfEstimate}">
-                                    <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
+                        <table>
+                            <tr><td>Type</td><td>
+                                <select name="population_TypeOfEstimate">
+                                    <c:forEach var="tmp" items="${population_TypeOfEstimate}">
+                                        <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr><td>Description</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getNrMatureIndividualsDescription()}</div>
+                                <input type="hidden" name="population_NrMatureIndividualsDescription" value="${fn:escapeXml(rlde.getPopulation().getNrMatureIndividualsDescription())}"/>
+                            </td></tr>
+                        </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
-                            ${rlde.getPopulation().getTypeOfEstimate().getLabel()}
+                        <table>
+                            <tr><td>Type</td><td>${rlde.getPopulation().getTypeOfEstimate().getLabel()}</td></tr>
+                            <tr><td>Description</td><td>${rlde.getPopulation().getNrMatureIndividualsDescription()}</td></tr>
+                        </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.4</td><td>Population decline</td><td>
+                    <tr class="section3"><td class="title">3.4</td><td>Decline in population size</td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
-                            <select name="population_PopulationDecline">
-                                <c:forEach var="tmp" items="${population_PopulationDecline}">
-                                    <c:if test="${rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
+                        <table class="triggergroup">
+                            <tr><td>Category</td><td>
+                                <select name="population_PopulationDecline" class="trigger">
+                                    <c:forEach var="tmp" items="${population_PopulationDecline}">
+                                        <c:if test="${rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr class="triggered ${rlde.getPopulation().getPopulationDecline().isTrigger() ? '' : 'hidden'}"><td>Percentage</td><td>
+                                <input type="number" name="population_PopulationDeclinePercent" value="${rlde.getPopulation().getPopulationDeclinePercent()}" placeholder="percentage"/> %
+                            </td></tr>
+                            <tr class="triggered ${rlde.getPopulation().getPopulationDecline().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getPopulationDeclineJustification()}</div>
+                                <input type="hidden" name="population_PopulationDeclineJustification" value="${fn:escapeXml(rlde.getPopulation().getPopulationDeclineJustification())}"/>
+                            </td></tr>
+                        </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
-                            ${rlde.getPopulation().getPopulationDecline().getLabel()}
+                        <table>
+                            <tr><td>Category</td><td>${rlde.getPopulation().getPopulationDecline().getLabel()}</td></tr>
+                            <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationDeclinePercent()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationDeclineJustification()}</td></tr>
+                        </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.5</td><td>Population trend</td><td>
+                    <tr class="section3"><td class="title">3.5</td><td>Population size reduction</td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
-                            <input type="number" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}"/>
+                        <table>
+                            <tr><td>Percentage</td><td><input type="number" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}"/> %</td></tr>
+                            <tr><td>Category</td><td>
+                                <select name="population_PopulationSizeReduction">
+                                    <c:forEach var="tmp" items="${population_PopulationSizeReduction}">
+                                        <c:if test="${rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getPopulationSizeReductionJustification()}</div>
+                                <input type="hidden" name="population_PopulationSizeReductionJustification" value="${fn:escapeXml(rlde.getPopulation().getPopulationSizeReductionJustification())}"/>
+                            </td></tr>
+                        </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
-                            ${rlde.getPopulation().getPopulationTrend()}
+                        <table>
+                            <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationTrend()} %</td></tr>
+                            <tr><td>Category</td><td>${rlde.getPopulation().getPopulationSizeReduction().getLabel()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationSizeReductionJustification()}</td></tr>
+                        </table>
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.6</td><td>Severely fragmented</td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
-                            <select name="population_SeverelyFragmented">
-                                <c:forEach var="tmp" items="${population_SeverelyFragmented}">
-                                    <c:if test="${rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
+                        <table class="triggergroup">
+                            <tr><td>Category</td><td>
+                                <select name="population_SeverelyFragmented" class="trigger">
+                                    <c:forEach var="tmp" items="${population_SeverelyFragmented}">
+                                        <c:if test="${rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getPopulation().getSeverelyFragmented().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr class="triggered ${rlde.getPopulation().getSeverelyFragmented().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getSeverelyFragmentedJustification()}</div>
+                                <input type="hidden" name="population_SeverelyFragmentedJustification" value="${fn:escapeXml(rlde.getPopulation().getSeverelyFragmentedJustification())}"/>
+                            </td></tr>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
-                            ${rlde.getPopulation().getSeverelyFragmented().getLabel()}
+                        <table>
+                            <tr><td>Category</td><td>${rlde.getPopulation().getSeverelyFragmented().getLabel()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getPopulation().getSeverelyFragmentedJustification()}</td></tr>
                         </c:if>
-                        <br/>Mean area of sites: <fmt:formatNumber value="${meanLocationArea}" maxFractionDigits="1"/> hectares
-
+                            <tr><td>Mean area of sites</td><td><fmt:formatNumber value="${meanLocationArea}" maxFractionDigits="1"/> hectares</td></tr>
+                        </table>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.7</td><td>Extreme fluctuations</td><td>
-                        <c:if test="${user.canEDIT_SECTION3()}">
-                            <select name="population_ExtremeFluctuations">
-                                <c:forEach var="tmp" items="${population_ExtremeFluctuations}">
-                                    <c:if test="${rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION3()}">
-                            ${rlde.getPopulation().getExtremeFluctuations().getLabel()}
-                        </c:if>
+                    <tr class="section3"><td class="title">3.7</td><td>Extreme fluctuations in population size</td><td>
+                    <c:if test="${user.canEDIT_SECTION3()}">
+                        <table class="triggergroup">
+                            <tr><td>Category</td><td>
+                                <select name="population_ExtremeFluctuations" class="trigger">
+                                    <c:forEach var="tmp" items="${population_ExtremeFluctuations}">
+                                        <c:if test="${rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getPopulation().getExtremeFluctuations().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr class="triggered ${rlde.getPopulation().getExtremeFluctuations().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getExtremeFluctuationsJustification()}</div>
+                                <input type="hidden" name="population_ExtremeFluctuationsJustification" value="${fn:escapeXml(rlde.getPopulation().getExtremeFluctuationsJustification())}"/>
+                            </td></tr>
+                        </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION3()}">
+                        <table>
+                            <tr><td>Category</td><td>${rlde.getPopulation().getExtremeFluctuations().getLabel()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getPopulation().getExtremeFluctuationsJustification()}</td></tr>
+                        </table>
+                    </c:if>
+                    </td></tr>
+                    <tr class="section3"><td class="title">3.8</td><td>Number of mature individuals in each subpopulation</td><td>
+                    <c:if test="${user.canEDIT_SECTION3()}">
+                        <select name="population_NrMatureEachSubpop">
+                            <c:forEach var="tmp" items="${population_NrMatureEachSubpop}">
+                                <c:if test="${rlde.getPopulation().getNrMatureEachSubpop().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getPopulation().getNrMatureEachSubpop().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
+                            </c:forEach>
+                        </select>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION3()}">
+                        ${rlde.getPopulation().getNrMatureEachSubpop().getLabel()}
+                    </c:if>
+                    </td></tr>
+                    <tr class="section3"><td class="title">3.9</td><td>% of mature individuals in one subpopulation</td><td>
+                    <c:if test="${user.canEDIT_SECTION3()}">
+                        <select name="population_PercentMatureOneSubpop">
+                            <c:forEach var="tmp" items="${population_PercentMatureOneSubpop}">
+                                <c:if test="${rlde.getPopulation().getPercentMatureOneSubpop().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                </c:if>
+                                <c:if test="${!rlde.getPopulation().getPercentMatureOneSubpop().toString().equals(tmp.toString())}">
+                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                </c:if>
+                            </c:forEach>
+                        </select>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION3()}">
+                        ${rlde.getPopulation().getPercentMatureOneSubpop().getLabel()}
+                    </c:if>
                     </td></tr>
                     <tr class="section4"><td class="title" colspan="3"><a name="ecology"></a>Section 4 - Ecology</td></tr>
-                </c:if>
+                </c:if>     <!-- can view full sheet -->
                 <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information</td><td>
                     <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="ecology_Description"><c:out value="${ecology}"></c:out></textarea>
+                        <div contenteditable="true" class="contenteditable">${ecology}</div>
+                        <input type="hidden" name="ecology_Description" value="${fn:escapeXml(ecology)}"/>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION4() && !user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${ecology}"></c:out>
+                        ${ecology}
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section4"><td class="title">4.2</td><td>Habitat types</td><td>
                         <c:if test="${user.canEDIT_SECTION4()}">
                             <c:forEach var="tmp" items="${ecology_HabitatTypes}">
-                                <c:if test="${habitatTypes.contains(tmp.toString())}">
-                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.getLabel()}" checked="checked"/> ${tmp.getLabel()}</label>
+                                <c:if test="${habitatTypes.contains(tmp)}">
+                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
                                 </c:if>
-                                <c:if test="${!habitatTypes.contains(tmp.toString())}">
-                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.getLabel()}"/> ${tmp.getLabel()}</label>
+                                <c:if test="${!habitatTypes.contains(tmp)}">
+                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}"/> ${tmp.getLabel()}</label>
                                 </c:if>
                             </c:forEach>
                         </c:if>
@@ -343,40 +502,71 @@
                     </td></tr>
                     <tr class="section4"><td class="title">4.3</td><td>Life form</td><td>(automatico)</td></tr>
                     <tr class="section4"><td class="title">4.4</td><td>Generation length</td><td>
-                        <c:if test="${user.canEDIT_SECTION4()}">
-                            <select name="ecology_GenerationLength">
-                                <c:forEach var="tmp" items="${ecology_GenerationLength}">
-                                    <c:if test="${rlde.getEcology().getGenerationLength().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                    <c:if test="${user.canEDIT_SECTION4()}">
+                        <table class="triggergroup">
+                            <tr><td>Length (exact or interval)</td><td>
+                                <input name="ecology_GenerationLength" type="text" class="trigger" value="${rlde.getEcology().getGenerationLength()}"/>
+                            </td></tr>
+                            <tr class="triggered ${(rlde.getEcology().getGenerationLength() != null && rlde.getEcology().getGenerationLength().length() > 0) ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getEcology().getGenerationLengthJustification()}</div>
+                                <input type="hidden" name="ecology_GenerationLengthJustification" value="${fn:escapeXml(rlde.getEcology().getGenerationLengthJustification())}"/>
+                            </td></tr>
+                        </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION4()}">
+                        <table>
+                            <tr><td>Length (exact or interval)</td><td>${rlde.getEcology().getGenerationLength()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getEcology().getGenerationLengthJustification()}</td></tr>
+                        </table>
+                    </c:if>
+                    </td></tr>
+                    <tr class="section4"><td class="title">4.5</td><td>Decline in habitat quality</td><td>
+                    <c:if test="${user.canEDIT_SECTION4()}">
+                    <table class="triggergroup">
+                        <tr><td>Category</td><td>
+                            <select name="ecology_DeclineHabitatQuality" class="trigger">
+                                <c:forEach var="tmp" items="${ecology_DeclineHabitatQuality}">
+                                    <c:if test="${rlde.getEcology().getDeclineHabitatQuality().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
                                     </c:if>
-                                    <c:if test="${!rlde.getEcology().getGenerationLength().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                    <c:if test="${!rlde.getEcology().getDeclineHabitatQuality().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
                                     </c:if>
                                 </c:forEach>
                             </select>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION4()}">
-                            ${rlde.getEcology().getGenerationLength().getLabel()}
-                        </c:if>
+                        </td></tr>
+                        <tr class="triggered ${rlde.getEcology().getDeclineHabitatQuality().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                            <div contenteditable="true" class="contenteditable">${rlde.getEcology().getDeclineHabitatQualityJustification()}</div>
+                            <input type="hidden" name="ecology_DeclineHabitatQualityJustification" value="${fn:escapeXml(rlde.getEcology().getDeclineHabitatQualityJustification())}"/>
+                        </td></tr>
+                    </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION4()}">
+                    <table>
+                        <tr><td>Category</td><td>${rlde.getEcology().getDeclineHabitatQuality().getLabel()}</td></tr>
+                        <tr><td>Justification</td><td>${rlde.getEcology().getDeclineHabitatQualityJustification()}</td></tr>
+                    </table>
+                    </c:if>
                     </td></tr>
                     <tr class="section5"><td class="title" colspan="3"><a name="uses"></a>Section 5 - Uses and trade</td></tr>
                 </c:if>
                 <tr class="section5 textual"><td class="title">5.1</td><td>Uses and trade</td><td>
                     <c:if test="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="usesAndTrade_Description"><c:out value="${rlde.getUsesAndTrade().getDescription()}"></c:out></textarea>
+                        <div contenteditable="true" class="contenteditable">${rlde.getUsesAndTrade().getDescription()}</div>
+                        <input type="hidden" name="usesAndTrade_Description" value="${fn:escapeXml(rlde.getUsesAndTrade().getDescription())}"/>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION5() && !user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${rlde.getUsesAndTrade().getDescription()}"></c:out>
+                        ${rlde.getUsesAndTrade().getDescription()}
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section5"><td class="title">5.2</td><td>Uses</td><td>
                         <c:if test="${user.canEDIT_SECTION5()}">
                             <c:forEach var="tmp" items="${usesAndTrade_Uses}">
-                                <c:if test="${uses.contains(tmp.toString())}">
+                                <c:if test="${uses.contains(tmp)}">
                                     <label><input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
                                 </c:if>
-                                <c:if test="${!uses.contains(tmp.toString())}">
+                                <c:if test="${!uses.contains(tmp)}">
                                     <label><input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}"/> ${tmp.getLabel()}</label>
                                 </c:if>
                             </c:forEach>
@@ -421,71 +611,159 @@
                 </c:if>
                 <tr class="section6 textual"><td class="title">6.1</td><td>Threat description</td><td>
                     <c:if test="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="threats_Description"><c:out value="${rlde.getThreats().getDescription()}"></c:out></textarea>
+                        <div contenteditable="true" class="contenteditable">${rlde.getThreats().getDescription()}</div>
+                        <input type="hidden" name="threats_Description" value="${fn:escapeXml(rlde.getThreats().getDescription())}"/>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION6() && !user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${rlde.getThreats().getDescription()}"></c:out>
+                        ${rlde.getThreats().getDescription()}
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section6"><td class="title">6.2</td><td>Threats</td><td>
                         (a fazer...)
                     </td></tr>
-                    <tr class="section6"><td class="title">6.3</td><td>Number of sites</td><td>
-                        <c:if test="${user.canEDIT_SECTION6()}">
-                            <input type="number" min="0" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/><br/>
-                            ${nclusters} sites (automatic estimate)
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION6()}">
-                            ${rlde.getThreats().getNumberOfLocations()}<br/>
-                            ${nclusters} sites (automatic estimate)
-                        </c:if>
+                    <tr class="section6"><td class="title">6.3</td><td>Number of locations</td><td>
+                    <c:if test="${user.canEDIT_SECTION6()}">
+                        <table>
+                            <tr><td>Number</td><td>
+                                <input type="number" min="0" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/><br/>
+                            </td></tr>
+                            <tr><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getThreats().getNumberOfLocationsJustification()}</div>
+                                <input type="hidden" name="threats_NumberOfLocationsJustification" value="${fn:escapeXml(rlde.getThreats().getNumberOfLocationsJustification())}"/>
+                            </td></tr>
+                            <tr><td>Automatic estimate</td><td>${nclusters} sites</td></tr>
+                        </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION6()}">
+                        ${rlde.getThreats().getNumberOfLocations()}<br/>
+                        ${nclusters} sites (automatic estimate)
+                    </c:if>
+                    </td></tr>
+                    <tr class="section6"><td class="title">6.4</td><td>Decline in number of locations or subpopulations</td><td>
+                    <c:if test="${user.canEDIT_SECTION6()}">
+                    <table class="triggergroup">
+                        <tr><td>Category</td><td>
+                            <select name="threats_DeclineNrLocations" class="trigger">
+                                <c:forEach var="tmp" items="${threats_DeclineNrLocations}">
+                                    <c:if test="${rlde.getThreats().getDeclineNrLocations().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                    </c:if>
+                                    <c:if test="${!rlde.getThreats().getDeclineNrLocations().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                    </c:if>
+                                </c:forEach>
+                            </select>
+                        </td></tr>
+                        <tr class="triggered ${rlde.getThreats().getDeclineNrLocations().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                            <div contenteditable="true" class="contenteditable">${rlde.getThreats().getDeclineNrLocationsJustification()}</div>
+                            <input type="hidden" name="threats_DeclineNrLocationsJustification" value="${fn:escapeXml(rlde.getThreats().getDeclineNrLocationsJustification())}"/>
+                        </td></tr>
+                    </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION6()}">
+                    <table>
+                        <tr><td>Category</td><td>${rlde.getThreats().getDeclineNrLocations().getLabel()}</td></tr>
+                        <tr><td>Justification</td><td>${rlde.getThreats().getDeclineNrLocationsJustification()}</td></tr>
+                    </table>
+                    </c:if>
+                    </td></tr>
+                    <tr class="section6"><td class="title">6.5</td><td>Extreme fluctuations in number of locations or subpopulations</td><td>
+                    <c:if test="${user.canEDIT_SECTION6()}">
+                    <table class="triggergroup">
+                        <tr><td>Category</td><td>
+                            <select name="threats_ExtremeFluctuationsNrLocations" class="trigger">
+                                <c:forEach var="tmp" items="${threats_ExtremeFluctuationsNrLocations}">
+                                    <c:if test="${rlde.getThreats().getExtremeFluctuationsNrLocations().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                    </c:if>
+                                    <c:if test="${!rlde.getThreats().getExtremeFluctuationsNrLocations().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                    </c:if>
+                                </c:forEach>
+                            </select>
+                        </td></tr>
+                        <tr class="triggered ${rlde.getThreats().getExtremeFluctuationsNrLocations().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                            <div contenteditable="true" class="contenteditable">${rlde.getThreats().getExtremeFluctuationsNrLocationsJustification()}</div>
+                            <input type="hidden" name="threats_ExtremeFluctuationsNrLocationsJustification" value="${fn:escapeXml(rlde.getThreats().getExtremeFluctuationsNrLocationsJustification())}"/>
+                        </td></tr>
+                    </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION6()}">
+                    <table>
+                        <tr><td>Category</td><td>${rlde.getThreats().getExtremeFluctuationsNrLocations().getLabel()}</td></tr>
+                        <tr><td>Justification</td><td>${rlde.getThreats().getExtremeFluctuationsNrLocationsJustification()}</td></tr>
+                    </table>
+                    </c:if>
                     </td></tr>
 
                     <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a>Section 7 - Conservation</td></tr>
                 </c:if>
                 <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures</td><td>
                     <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}">
-                        <textarea rows="6" name="conservation_Description"><c:out value="${rlde.getConservation().getDescription()}"></c:out></textarea>
+                        <div contenteditable="true" class="contenteditable">${rlde.getConservation().getDescription()}</div>
+                        <input type="hidden" name="conservation_Description" value="${fn:escapeXml(rlde.getConservation().getDescription())}"/>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION7() && !user.canEDIT_ALL_TEXTUAL()}">
-                        <c:out value="${rlde.getConservation().getDescription()}"></c:out>
+                        ${rlde.getConservation().getDescription()}
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section7"><td class="title">7.2</td><td>Conservation plans</td><td>
-                        <c:if test="${user.canEDIT_SECTION7()}">
-                            <select name="conservation_ConservationPlans">
-                                <c:forEach var="tmp" items="${conservation_ConservationPlans}">
-                                    <c:if test="${rlde.getConservation().getConservationPlans().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getConservation().getConservationPlans().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION7()}">
-                            ${rlde.getConservation().getConservationPlans().getLabel()}
-                        </c:if>
+                    <c:if test="${user.canEDIT_SECTION7()}">
+                        <table class="triggergroup">
+                            <tr><td>Category</td><td>
+                                <select name="conservation_ConservationPlans" class="trigger">
+                                    <c:forEach var="tmp" items="${conservation_ConservationPlans}">
+                                        <c:if test="${rlde.getConservation().getConservationPlans().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getConservation().getConservationPlans().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr class="triggered ${rlde.getConservation().getConservationPlans().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getConservation().getConservationPlansJustification()}</div>
+                                <input type="hidden" name="conservation_ConservationPlansJustification" value="${fn:escapeXml(rlde.getConservation().getConservationPlansJustification())}"/>
+                            </td></tr>
+                        </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION7()}">
+                        <table>
+                            <tr><td>Category</td><td>${rlde.getConservation().getConservationPlans().getLabel()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getConservation().getConservationPlansJustification()}</td></tr>
+                        </table>
+                    </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.3</td><td><i>Ex-situ</i> conservation</td><td>
-                        <c:if test="${user.canEDIT_SECTION7()}">
-                            <select name="conservation_ExSituConservation">
-                                <c:forEach var="tmp" items="${conservation_ExSituConservation}">
-                                    <c:if test="${rlde.getConservation().getExSituConservation().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getConservation().getExSituConservation().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION7()}">
-                            ${rlde.getConservation().getExSituConservation().getLabel()}
-                        </c:if>
+                    <c:if test="${user.canEDIT_SECTION7()}">
+                        <table class="triggergroup">
+                            <tr><td>Category</td><td>
+                                <select name="conservation_ExSituConservation" class="trigger">
+                                    <c:forEach var="tmp" items="${conservation_ExSituConservation}">
+                                        <c:if test="${rlde.getConservation().getExSituConservation().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getConservation().getExSituConservation().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </td></tr>
+                            <tr class="triggered ${rlde.getConservation().getExSituConservation().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                                <div contenteditable="true" class="contenteditable">${rlde.getConservation().getExSituConservationJustification()}</div>
+                                <input type="hidden" name="conservation_ExSituConservationJustification" value="${fn:escapeXml(rlde.getConservation().getExSituConservationJustification())}"/>
+                            </td></tr>
+                        </table>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_SECTION7()}">
+                        <table>
+                            <tr><td>Category</td><td>${rlde.getConservation().getExSituConservation().getLabel()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getConservation().getExSituConservationJustification()}</td></tr>
+                        </table>
+                    </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
                         <c:if test="${occurrences.size() > 0}">
@@ -505,13 +783,16 @@
                             <p>No occurrences</p>
                         </c:if>
                     </td></tr>
+                    <tr class="section7"><td class="title">7.4.1</td><td>Legally protected?</td><td>
+                        (a fazer)
+                    </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td>Proposed conservation actions</td><td>
                         <c:if test="${user.canEDIT_SECTION7()}">
                             <c:forEach var="tmp" items="${conservation_ProposedConservationActions}">
-                                <c:if test="${proposedConservationActions.contains(tmp.toString())}">
+                                <c:if test="${proposedConservationActions.contains(tmp)}">
                                     <label><input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
                                 </c:if>
-                                <c:if test="${!proposedConservationActions.contains(tmp.toString())}">
+                                <c:if test="${!proposedConservationActions.contains(tmp)}">
                                     <label><input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}"/> ${tmp.getLabel()}</label>
                                 </c:if>
                             </c:forEach>
@@ -521,6 +802,10 @@
                                 <div class="wordtag">${tmp}</div>
                             </c:forEach>
                         </c:if>
+                    </td></tr>
+
+                    <tr class="section7"><td class="title">7.6</td><td>Proposed measures for improving knowledge</td><td>
+                    (a fazer...)
                     </td></tr>
 
                     <tr class="section8"><td class="title" colspan="3">Section 8 - Bibliographic references</td></tr>

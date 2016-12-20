@@ -29,7 +29,7 @@ public class ComputeNativeStatusJob implements JobTask {
             rlde = new RedListDataEntity(te1.getID(), driver.wrapTaxEnt(driver.asNodeKey(te1.getID())).getInferredNativeStatus(territory));
 //            System.out.println(new Gson().toJson(rlde));
             driver.getRedListData().createRedListDataEntity(territory, rlde);
-            System.out.println(te1.getFullName()+": "+ rlde.getInferredStatus().getStatusSummary());
+//            System.out.println(te1.getFullName()+": "+ rlde.getInferredStatus().getStatusSummary());
             n++;
         }
 

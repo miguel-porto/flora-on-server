@@ -12,6 +12,10 @@
             <id>d-maven</id>
             <url>http://d-maven.googlecode.com/svn/trunk/repo</url>
 	    </repository>
+		<repository>
+			<id>arangodb-snapshots</id>
+			<url>https://oss.sonatype.org/content/groups/staging</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -74,7 +78,7 @@
 		<dependency>
 			<groupId>com.arangodb</groupId>
 			<artifactId>arangodb-java-driver</artifactId>
-			<version>4.1.2</version>
+			<version>4.1.4-SNAPSHOT</version>
 <!--			<scope>compile</scope>-->
 		</dependency>
 		<dependency>

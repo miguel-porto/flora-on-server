@@ -13,7 +13,8 @@ import java.util.List;
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
  * territory.
- * Created by miguel on 11-11-2016.
+ * Thanks to André Carapeto, who carefully designed all the fields needed for this object and its subobjects!
+ * Created by Miguel Porto & André Carapeto on 11-11-2016.
  */
 public class RedListDataEntity extends GeneralDBNode {
     /**
@@ -84,6 +85,10 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public InferredStatus getInferredStatus() {
         return inferredStatus;
+    }
+
+    public void setInferredStatus(InferredStatus inferredStatus) {
+        this.inferredStatus = inferredStatus;
     }
 
     public String getTaxEntID() {
@@ -160,6 +165,18 @@ public class RedListDataEntity extends GeneralDBNode {
         }
     }
 
+    public void setGeographicalDistribution_DeclineDistributionJustification(String declineDistributionJustification) {
+        this.getGeographicalDistribution().setDeclineDistributionJustification(declineDistributionJustification);
+    }
+
+    public void setGeographicalDistribution_ExtremeFluctuations(String extremeFluctuations) {
+        try {
+            this.geographicalDistribution.setExtremeFluctuations(RedListEnums.ExtremeFluctuations.valueOf(extremeFluctuations));
+        } catch (IllegalArgumentException e) {
+            this.geographicalDistribution.setExtremeFluctuations(RedListEnums.ExtremeFluctuations.NO_INFORMATION);
+        }
+    }
+
     public void setGeographicalDistribution_ElevationRange(Integer[] elevationRange) {
         this.geographicalDistribution.setElevationRange(elevationRange);
     }
@@ -170,6 +187,22 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setPopulation_Description(String description) {
         this.population.setDescription(description);
+    }
+
+    public void setPopulation_PopulationTrend(Integer populationTrend) {
+        this.population.setPopulationTrend(populationTrend);
+    }
+
+    public void setPopulation_PopulationSizeReduction(String populationSizeReduction) {
+        try {
+            this.population.setPopulationSizeReduction(RedListEnums.PopulationSizeReduction.valueOf(populationSizeReduction));
+        } catch (IllegalArgumentException e) {
+            this.population.setPopulationSizeReduction(RedListEnums.PopulationSizeReduction.NO_INFORMATION);
+        }
+    }
+
+    public void setPopulation_PopulationSizeReductionJustification(String populationSizeReductionJustification) {
+        this.population.setPopulationSizeReductionJustification(populationSizeReductionJustification);
     }
 
     public void setPopulation_NrMatureIndividualsCategory(String nrMatureIndividualsCategory) {
@@ -204,8 +237,12 @@ public class RedListDataEntity extends GeneralDBNode {
         }
     }
 
-    public void setPopulation_PopulationTrend(Integer populationTrend) {
-        this.population.setPopulationTrend(populationTrend);
+    public void setPopulation_PopulationDeclinePercent(Integer populationDeclinePercent) {
+        this.population.setPopulationDeclinePercent(populationDeclinePercent);
+    }
+
+    public void setPopulation_PopulationDeclineJustification(String populationDeclineJustification) {
+        this.population.setPopulationDeclineJustification(populationDeclineJustification);
     }
 
     public void setPopulation_SeverelyFragmented(String severelyFragmented) {
@@ -216,11 +253,35 @@ public class RedListDataEntity extends GeneralDBNode {
         }
     }
 
+    public void setPopulation_SeverelyFragmentedJustification(String populationSeverelyFragmentedJustification) {
+        this.population.setSeverelyFragmentedJustification(populationSeverelyFragmentedJustification);
+    }
+
     public void setPopulation_ExtremeFluctuations(String extremeFluctuations) {
         try {
             this.population.setExtremeFluctuations(RedListEnums.YesNoNA.valueOf(extremeFluctuations));
         } catch (IllegalArgumentException e) {
             this.population.setExtremeFluctuations(RedListEnums.YesNoNA.NO_DATA);
+        }
+    }
+
+    public void setPopulation_ExtremeFluctuationsJustification(String extremeFluctuationsJustification) {
+        this.population.setExtremeFluctuationsJustification(extremeFluctuationsJustification);
+    }
+
+    public void setPopulation_NrMatureEachSubpop(String nrMatureEachSubpop) {
+        try {
+            this.population.setNrMatureEachSubpop(RedListEnums.NrMatureEachSubpop.valueOf(nrMatureEachSubpop));
+        } catch (IllegalArgumentException e) {
+            this.population.setNrMatureEachSubpop(RedListEnums.NrMatureEachSubpop.NO_DATA);
+        }
+    }
+
+    public void setPopulation_PercentMatureOneSubpop(String percentMatureOneSubpop) {
+        try {
+            this.population.setPercentMatureOneSubpop(RedListEnums.PercentMatureOneSubpop.valueOf(percentMatureOneSubpop));
+        } catch (IllegalArgumentException e) {
+            this.population.setPercentMatureOneSubpop(RedListEnums.PercentMatureOneSubpop.NO_DATA);
         }
     }
 
@@ -245,11 +306,23 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setEcology_GenerationLength(String generationLength) {
+        this.ecology.setGenerationLength(generationLength);
+    }
+
+    public void setEcology_GenerationLengthJustification(String generationLengthJustification) {
+        this.ecology.setGenerationLengthJustification(generationLengthJustification);
+    }
+
+    public void setEcology_DeclineHabitatQuality(String declineHabitatQuality) {
         try {
-            this.ecology.setGenerationLength(RedListEnums.GenerationLength.valueOf(generationLength));
+            this.ecology.setDeclineHabitatQuality(RedListEnums.DeclineHabitatQuality.valueOf(declineHabitatQuality));
         } catch (IllegalArgumentException e) {
-            this.ecology.setGenerationLength(RedListEnums.GenerationLength.NO_DATA);
+            this.ecology.setDeclineHabitatQuality(RedListEnums.DeclineHabitatQuality.NO_INFORMATION);
         }
+    }
+
+    public void setEcology_DeclineHabitatQualityJustification(String declineHabitatQualityJustification) {
+        this.ecology.setDeclineHabitatQualityJustification(declineHabitatQualityJustification);
     }
 
     /*******
@@ -296,6 +369,34 @@ public class RedListDataEntity extends GeneralDBNode {
         this.getThreats().setNumberOfLocations(numberOfLocations);
     }
 
+    public void setThreats_NumberOfLocationsJustification(String numberOfLocationsJustification) {
+        this.getThreats().setNumberOfLocationsJustification(numberOfLocationsJustification);
+    }
+
+    public void setThreats_DeclineNrLocations(String declineNrLocations) {
+        try {
+            this.threats.setDeclineNrLocations(RedListEnums.DeclineNrLocations.valueOf(declineNrLocations));
+        } catch (IllegalArgumentException e) {
+            this.threats.setDeclineNrLocations(RedListEnums.DeclineNrLocations.NO_INFORMATION);
+        }
+    }
+
+    public void setThreats_DeclineNrLocationsJustification(String declineNrLocationsJustification) {
+        this.threats.setDeclineNrLocationsJustification(declineNrLocationsJustification);
+    }
+
+    public void setThreats_ExtremeFluctuationsNrLocations(String extremeFluctuationsNrLocations) {
+        try {
+            this.threats.setExtremeFluctuationsNrLocations(RedListEnums.YesNoNA.valueOf(extremeFluctuationsNrLocations));
+        } catch (IllegalArgumentException e) {
+            this.threats.setExtremeFluctuationsNrLocations(RedListEnums.YesNoNA.NO_DATA);
+        }
+    }
+
+    public void setThreats_ExtremeFluctuationsNrLocationsJustification(String extremeFluctuationsNrLocationsJustification) {
+        this.threats.setExtremeFluctuationsNrLocationsJustification(extremeFluctuationsNrLocationsJustification);
+    }
+
     /*******
      * Conservation fields
      *******/
@@ -322,6 +423,14 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setConservation_ProposedConservationActions(String[] proposedConservationActions) {
         this.conservation.setProposedConservationActions(proposedConservationActions);
+    }
+
+    public void setConservation_ConservationPlansJustification(String conservationPlansJustification) {
+        this.conservation.setConservationPlansJustification(conservationPlansJustification);
+    }
+
+    public void setConservation_ExSituConservationJustification(String exSituConservationJustification) {
+        this.conservation.setExSituConservationJustification(exSituConservationJustification);
     }
 
     /*******

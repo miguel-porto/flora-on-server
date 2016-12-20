@@ -6,6 +6,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.entities.UpdateNativeStatusJob;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -27,20 +28,27 @@ public class RedListDataApi extends FloraOnServlet {
     @Override
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
         ListIterator<String> path = getPathIteratorAfter("api");
+        String territory;
+        Gson gs;
+
         switch(path.next()) {
             case "newdataset":
-                String territory = getParameterAsString("territory");
+                territory = getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
                 success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(), territory, driver).getID());
-/*
-                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, "lu", null, null);
+                break;
 
-                for(TaxEnt te1 : taxEntList) {
-                    ListOfTerritoryStatus.InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(te1.getID())).getInferredNativeStatus("lu");
-                    System.out.println(te1.getName() +": "+ is.getNativeStatus());
-                }
-*/
+            case "updatenativestatus":
+                territory = getParameterAsString("territory");
+                success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(), territory, driver).getID());
+                break;
 
+            case "downloaddata":
+                gs = new GsonBuilder().setPrettyPrinting().create();
+                response.setContentType("application/json; charset=utf-8");
+                response.setCharacterEncoding("UTF-8");
+                response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
+                gs.toJson(driver.getRedListData().getAllRedListTaxa(getParameterAsString("territory")), response.getWriter());
                 break;
 
             case "updatedata":
@@ -58,7 +66,7 @@ public class RedListDataApi extends FloraOnServlet {
                     error("Could not populate the java bean");
                     return;
                 }
-                Gson gs = new GsonBuilder().setPrettyPrinting().create();
+                gs = new GsonBuilder().setPrettyPrinting().create();
 //                System.out.println("BEAN:");
 //                System.out.println(gs.toJson(rlde));
                 rlde = driver.getRedListData().updateRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getID()), rlde, false);

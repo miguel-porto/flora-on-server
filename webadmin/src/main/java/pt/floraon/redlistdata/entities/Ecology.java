@@ -6,7 +6,18 @@ package pt.floraon.redlistdata.entities;
 public class Ecology {
     private String description;
     private RedListEnums.HabitatTypes[] habitatTypes = new RedListEnums.HabitatTypes[0];
-    private RedListEnums.GenerationLength generationLength;
+    private String generationLength;
+    private String generationLengthJustification;
+    private RedListEnums.DeclineHabitatQuality declineHabitatQuality;
+    private String declineHabitatQualityJustification;
+
+    public String getDeclineHabitatQualityJustification() {
+        return declineHabitatQualityJustification;
+    }
+
+    public RedListEnums.DeclineHabitatQuality getDeclineHabitatQuality() {
+        return declineHabitatQuality;
+    }
 
     public String getDescription() {
         return description;
@@ -16,8 +27,12 @@ public class Ecology {
         return habitatTypes;
     }
 
-    public RedListEnums.GenerationLength getGenerationLength() {
+    public String getGenerationLength() {
         return generationLength;
+    }
+
+    public String getGenerationLengthJustification() {
+        return generationLengthJustification;
     }
 
     public void setDescription(String description) {
@@ -28,7 +43,19 @@ public class Ecology {
         this.habitatTypes = habitatTypes;
     }
 
-    public void setGenerationLength(RedListEnums.GenerationLength generationLength) {
+    public void setGenerationLength(String generationLength) {
         this.generationLength = generationLength;
+    }
+
+    public void setGenerationLengthJustification(String generationLengthJustification) {
+        this.generationLengthJustification = generationLengthJustification;
+    }
+
+    public void setDeclineHabitatQuality(RedListEnums.DeclineHabitatQuality declineHabitatQuality) {
+        this.declineHabitatQuality = declineHabitatQuality;
+    }
+
+    public void setDeclineHabitatQualityJustification(String declineHabitatQualityJustification) {
+        this.declineHabitatQualityJustification = declineHabitatQualityJustification;
     }
 }

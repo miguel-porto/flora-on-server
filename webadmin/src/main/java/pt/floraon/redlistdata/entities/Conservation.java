@@ -6,7 +6,9 @@ package pt.floraon.redlistdata.entities;
 public class Conservation {
     private String description;
     private RedListEnums.YesNoNA conservationPlans;
+    private String conservationPlansJustification;
     private RedListEnums.YesNoNA exSituConservation;
+    private String exSituConservationJustification;
     private String[] proposedConservationActions = new String[0];
 
     public String getDescription() {
@@ -15,6 +17,14 @@ public class Conservation {
 
     public RedListEnums.YesNoNA getConservationPlans() {
         return conservationPlans;
+    }
+
+    public String getConservationPlansJustification() {
+        return conservationPlansJustification;
+    }
+
+    public String getExSituConservationJustification() {
+        return exSituConservationJustification;
     }
 
     public RedListEnums.YesNoNA getExSituConservation() {
@@ -39,5 +49,13 @@ public class Conservation {
 
     public void setProposedConservationActions(String[] proposedConservationActions) {
         this.proposedConservationActions = proposedConservationActions;
+    }
+
+    public void setConservationPlansJustification(String conservationPlansJustification) {
+        this.conservationPlansJustification = conservationPlansJustification;
+    }
+
+    public void setExSituConservationJustification(String exSituConservationJustification) {
+        this.exSituConservationJustification = exSituConservationJustification;
     }
 }

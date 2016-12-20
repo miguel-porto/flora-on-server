@@ -12,8 +12,13 @@ import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
+import com.arangodb.velocypack.VPackDeserializationContext;
+import com.arangodb.velocypack.VPackDeserializer;
+import com.arangodb.velocypack.VPackSlice;
+import com.arangodb.velocypack.exception.VPackException;
 import jline.internal.Log;
 import pt.floraon.driver.*;
+import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.ArangoDBRedListData;
@@ -35,9 +40,30 @@ public class FloraOnArangoDriver implements IFloraOn {
 		String pass = properties.getProperty("arango.password");
 
 		if(username == null || pass == null)
-			throw new FloraOnException("Youi must provide login details for ArangoDB in the floraon.properties file (arango.user and arango.password)");
+			throw new FloraOnException("You must provide login details for ArangoDB in the floraon.properties file (arango.user and arango.password)");
 
-		driver = new ArangoDB.Builder().user(username).password(pass).build();
+/*
+		VPackDeserializer<RedListEnums.DeclinePopulation> deserializer = new VPackDeserializer<RedListEnums.DeclinePopulation>() {
+			@Override
+			public RedListEnums.DeclinePopulation deserialize(VPackSlice parent, VPackSlice vpack, VPackDeserializationContext context)
+					throws VPackException {
+				try {
+					return RedListEnums.DeclinePopulation.valueOf(vpack.getAsString());
+				} catch (IllegalArgumentException e) {
+					Log.warn("Value " + vpack.getAsString() + " not found in enum constant.");
+					return null;
+				}
+			}
+		};
+*/
+//		driver = new ArangoDB.Builder().user(username).password(pass).build();
+
+		// register deserializers for enums that do not throw exceptions when value is not found
+		driver = new ArangoDB.Builder().user(username).password(pass)
+				.registerDeserializer(RedListEnums.DeclineDistribution.class, new SafeEnumDeserializer<>(RedListEnums.DeclineDistribution.class))
+				.registerDeserializer(RedListEnums.PercentMatureOneSubpop.class, new SafeEnumDeserializer<>(RedListEnums.PercentMatureOneSubpop.class))
+				.build();
+
 		database = driver.db(dbname);
 		NWD = new NodeWorkerDriver(this);
 		QD = new QueryDriver(this);

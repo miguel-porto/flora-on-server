@@ -115,7 +115,7 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
         DocumentUpdateEntity<RedListDataEntity> out;
         try {
             out = database.collection("redlist_" + territory).updateDocument(id.getDBKey(), rlde
-                    , new DocumentUpdateOptions().serializeNull(replace).keepNull(false).returnNew(true));
+                    , new DocumentUpdateOptions().serializeNull(replace).keepNull(false).returnNew(true).waitForSync(true));
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

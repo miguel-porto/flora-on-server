@@ -1,7 +1,13 @@
 body.relative {position:relative}
 #main {text-align:center;}
 #title {font-size:3em; text-align:right; padding:15px;}
-#left-bar, #title, #title a, #title a:visited {background-color:#f44336; color:white; font-weight:bold; border:0}
+#left-bar, #title, #title a, #title a:visited {
+    background: linear-gradient(135deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px),
+        linear-gradient(225deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px) 0 16px;
+    background-size: 16px 32px;
+
+    background-color:#f44336; color:white; font-weight:bold; border:0
+}
 #left-bar a {color:white}
 #left-bar ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}
 /*ul li {
@@ -13,6 +19,24 @@ body.relative {position:relative}
 h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
+/* CONTENTEDITABLE DIVS */
+div[contenteditable=true] {
+/*background: linear-gradient(135deg, white 5px, #f3f3f3 5px, #f3f3f3 6px, transparent 6px, transparent 16px, #f3f3f3 16px, #f3f3f3 17px, transparent 17px),
+        linear-gradient(225deg, white 5px, #f3f3f3 5px, #f3f3f3 6px, transparent 6px, transparent 16px, #f3f3f3 16px, #f3f3f3 17px, transparent 17px) 0 16px;
+    background-color:white;
+    background-size: 16px 32px;*/
+    background: linear-gradient(0deg, white 0px, white 25px, #eee 25px);
+    background-size: 10px 26px;
+    background-position:0 3px;
+    line-height:26px;
+    box-shadow: 0 0 6px #bbb;
+    padding:4px; border-radius:3px; min-height:26px;
+}
+div[contenteditable=true] .highlight {cursor:pointer;}
+div[contenteditable=true] .highlight:hover {box-shadow: 0 0 7px #f00;}
+div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
+.highlight.yellow {background-color: #ffee00; box-shadow: 0 0 7px #770; border-radius:4px;}
+.highlight.italic {font-style:italic;}
 
 .navigator {position:fixed; bottom:0; z-index:1; left: 0;}
 .navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left; box-shadow: 0 0 12px #600}
@@ -42,6 +66,8 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 .multiplechooser input:checked + label {background-color: #00e676; opacity:1}
 .multiplechooser input:not(:checked) + label {background-color: #ffcdd2; transform: scale(0.8, 0.8); opacity:0.75;}
 
+.triggered.hidden {display:none;}
+
 .wordtag {
     border-radius: 20px;
     padding: 2px 14px;
@@ -65,6 +91,10 @@ p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; paddi
 #speciesindex td {font-size:1.1em;}
 #speciesindex tr.species td:nth-of-type(2) {font-weight:bold}
 #speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:2em}
+#speciesindex .redlistcategory {width:50px; height:50px; padding:6px;}
+#speciesindex .redlistcategory h1 {font-size:1.8rem !important; margin:5px 0 0 0!important;}
+#speciesindex .redlistcategory p {font-size:0.7rem !important;}
+
 #filters {padding:16px; text-align:left; background-color: rgba(255,  64, 129, 0.3);}
 #filters .filter {background-color:#ddd; padding:4px 8px; border-radius:8px; margin:6px; display:inline-block; cursor:pointer}
 #filters .filter.selected {background-color:#64dd17;}
@@ -176,16 +206,21 @@ table.sheet input[type=submit] {
     margin: 0 16px 16px 0;
     display: inline-block;
     position:fixed;
-    right:0;bottom:0;
+    right:0;
+    bottom:0;
+    z-index: 2;
 }
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
 table.sheet {margin-bottom:50px;}
 table.sheet table {width:100%;}
-table.sheet table td:nth-of-type(1) {width:0;}
+table.sheet table td:nth-of-type(1) {width:20%;}
 table.sheet.summary>tbody>tr:not(.textual) {display:none;}
+table.sheet tr.textual td:nth-of-type(3) {padding:0;}
 table.sheet.summary #summary_toggle {background-color:yellow; color:green;}
+table.sheet.showhighlights .highlight.yellow {transform: scale(1.4, 1.4); display:inline-block; box-shadow: 0 0 16px black;}
+table.sheet.showhighlights #highlight_toggle {background-color:yellow; color:green;}
 table.sheet td.title {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
 /*table.sheet .section1 td.title, .button.section1 {background-color: #81c784;}
 table.sheet .section2 td.title, .button.section2 {background-color: #7986cb;}

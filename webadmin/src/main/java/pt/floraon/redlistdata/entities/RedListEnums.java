@@ -13,6 +13,10 @@ public class RedListEnums {
         String getLabel();
     }
 
+    public interface TriggerEnum extends LabelledEnum {
+        boolean isTrigger();
+    }
+
     public static <E extends Enum<E>> String[] getEnumValuesAsString(Class<E> clazz) {
         List<String> out = new ArrayList<String>();
 
@@ -31,7 +35,7 @@ public class RedListEnums {
         return out.toArray(new String[out.size()]);
     }
 
-    public enum DeclineDistribution implements LabelledEnum {
+    public enum PopulationSizeReduction implements LabelledEnum {
         NO_INFORMATION("No information")
         , STABLE("Stable")
         , POSSIBLE_INCREASE("Possible increase")
@@ -47,7 +51,51 @@ public class RedListEnums {
 
         private String label;
 
-        DeclineDistribution(String desc) {
+        PopulationSizeReduction(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum DeclineDistribution implements TriggerEnum {
+        NO_INFORMATION("No information", false)
+        , NO_DECLINE("No continued decline", false)
+        , DECLINE_EOO("Continued decline in EOO", true)
+        , DECLINE_AOO("Continued decline in AOO", true)
+        , DECLINE_EOO_AOO("Continued decline in EOO and AOO", true);
+
+        private String label;
+        private boolean trigger;
+
+        DeclineDistribution(String desc, boolean trigger) {
+            this.label = desc;
+            this.trigger = trigger;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public boolean isTrigger() {
+            return this.trigger;
+        }
+    }
+
+    public enum ExtremeFluctuations implements LabelledEnum {
+        NO_INFORMATION("No information")
+        , NOT_APPLICABLE("Not applicable")
+        , EOO("Yes, in EOO")
+        , AOO("Yes, in AOO")
+        , EOO_AOO("Yes, in EOO and AOO");
+        private String label;
+
+        ExtremeFluctuations(String desc) {
             this.label = desc;
         }
 
@@ -96,51 +144,90 @@ public class RedListEnums {
 
     }
 
-    public enum DeclinePopulation implements LabelledEnum {
-        NO_INFORMATION("No information")
-        , STABLE("Stable")
-        , DECREASE_REVERSIBLE("Dec rever")
-        , DECREASE_IRREVERSIBLE("Dec irrev")
-        , POSSIBLE_DECREASE_FUTURE("Poss dec")
-        , DECREASE_PAST_FUTURE("Dec Past fut");
+    public enum DeclinePopulation implements TriggerEnum {
+        NO_INFORMATION("No information", false)
+        , STABLE("Stable", false)
+        , INCREASING("Increasing", false)
+        , CONTINUED_DECLINE("Continued decline", true);
 
         private String label;
+        private boolean trigger;
 
-        DeclinePopulation(String desc) {
+        DeclinePopulation(String desc, boolean trigger) {
             this.label = desc;
+            this.trigger = trigger;
         }
 
         @Override
         public String getLabel() {
             return label;
         }
+
+        @Override
+        public boolean isTrigger() {
+            return trigger;
+        }
     }
 
-    public enum SeverelyFragmented implements LabelledEnum {
-        NO_INFORMATION("No information")
-        , SEVERELY_FRAGMENTED("Severely fragmented")
-        , NOT_SEVERELY_FRAGMENTED("Not severely fragmented");
+    public enum SeverelyFragmented implements TriggerEnum {
+        NO_INFORMATION("No information", false)
+        , SEVERELY_FRAGMENTED("Severely fragmented", true)
+        , NOT_SEVERELY_FRAGMENTED("Not severely fragmented", false);
 
         private String label;
+        private boolean trigger;
 
-        SeverelyFragmented(String desc) {
+        SeverelyFragmented(String desc, boolean trigger) {
             this.label = desc;
+            this.trigger = trigger;
         }
 
         @Override
         public String getLabel() {
             return label;
         }
+
+        @Override
+        public boolean isTrigger() {
+            return this.trigger;
+        }
     }
 
-    public enum YesNoNA implements LabelledEnum {
+    public enum YesNoNA implements TriggerEnum {
+        NO_DATA("No information", false)
+        , NO("No", false)
+        , YES("Yes", true);
+
+        private String label;
+        private boolean trigger;
+
+        YesNoNA(String desc, boolean trigger) {
+            this.label = desc;
+            this.trigger = trigger;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public boolean isTrigger() {
+            return this.trigger;
+        }
+    }
+
+    public enum NrMatureEachSubpop implements LabelledEnum {
         NO_DATA("No data")
-        , NO("No")
-        , YES("Yes");
+        , LT_50("≤ 50")
+        , LT_250("≤ 250")
+        , LT_1000("≤ 1000")
+        , LT_1500("≤ 1500")
+        , GT_1500("> 1500");
 
         private String label;
 
-        YesNoNA(String desc) {
+        NrMatureEachSubpop(String desc) {
             this.label = desc;
         }
 
@@ -150,14 +237,17 @@ public class RedListEnums {
         }
     }
 
-    public enum GenerationLength implements LabelledEnum {
+    public enum PercentMatureOneSubpop implements LabelledEnum {
         NO_DATA("No data")
-        , ONE_YEAR("1 year")
-        , GT_ONE_YEAR("> 1 years");
+        , LT_80("< 80%")
+        , BT_80_90("80% - 90%")
+        , BT_90_95("90% - 95%")
+        , BT_95_100("95 - 100%")
+        , LT_1000("100%");
 
         private String label;
 
-        GenerationLength(String desc) {
+        PercentMatureOneSubpop(String desc) {
             this.label = desc;
         }
 
@@ -181,6 +271,56 @@ public class RedListEnums {
         @Override
         public String getLabel() {
             return label;
+        }
+    }
+
+    public enum DeclineHabitatQuality implements TriggerEnum {
+        NO_INFORMATION("No information", false)
+        , STABLE("Stable", false)
+        , INCREASING("Increasing", false)
+        , CONTINUED_DECLINE("Continued decline", true);
+
+        private String label;
+        private boolean trigger;
+
+        DeclineHabitatQuality(String desc, boolean trigger) {
+            this.label = desc;
+            this.trigger = trigger;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public boolean isTrigger() {
+            return trigger;
+        }
+    }
+
+    public enum DeclineNrLocations implements TriggerEnum {
+        NO_INFORMATION("No information", false)
+        , STABLE("Stable", false)
+        , INCREASING("Increasing", false)
+        , CONTINUED_DECLINE("Continued decline", true);
+
+        private String label;
+        private boolean trigger;
+
+        DeclineNrLocations(String desc, boolean trigger) {
+            this.label = desc;
+            this.trigger = trigger;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public boolean isTrigger() {
+            return trigger;
         }
     }
 
@@ -283,4 +423,5 @@ public class RedListEnums {
             return label;
         }
     }
+
 }

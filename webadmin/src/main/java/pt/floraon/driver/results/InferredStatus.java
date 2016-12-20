@@ -97,6 +97,8 @@ public class InferredStatus {
      * @return
      */
     public String getStatusSummary() {
+        if(this.nativeStatus == null || this.occurrenceStatus == null)
+            return "";
         List<String> qualifiers = new ArrayList<String>();
         if (this.getOccurrenceStatus() != Constants.OccurrenceStatus.PRESENT)
             qualifiers.add(this.getOccurrenceStatus().toString());
