@@ -88,11 +88,12 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 
 
 /********** SPECIES INDEX ***********/
-#speciesindex td {font-size:1.1em;}
+#speciesindex td {padding:4px;}
 #speciesindex tr.species td:nth-of-type(2) {font-weight:bold}
 #speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:2em}
 #speciesindex .redlistcategory {width:50px; height:50px; padding:6px;}
 #speciesindex .redlistcategory h1 {font-size:1.8rem !important; margin:5px 0 0 0!important;}
+#speciesindex .redlistcategory sup {font-size: 0.8rem !important; right:2px !important;}
 #speciesindex .redlistcategory p {font-size:0.7rem !important;}
 
 #filters {padding:16px; text-align:left; background-color: rgba(255,  64, 129, 0.3);}
@@ -265,7 +266,15 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
     height:130px;
     padding:10px;
     cursor:pointer;
-/*    border:2px solid gray;*/
+    position:relative;
+}
+
+#redlistcategories label sup, .redlistcategory sup {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    font-size: 1.4rem;
+    color:#ff8888;
 }
 
 #redlistcategories label {

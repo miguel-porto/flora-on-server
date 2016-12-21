@@ -5,6 +5,7 @@ package pt.floraon.redlistdata.entities;
  */
 public class Assessment {
     private RedListEnums.RedListCategories category;
+    private RedListEnums.CRTags subCategory;
     private String criteria;
     private String justification;
     private String[] authors = new String[0];
@@ -17,16 +18,17 @@ public class Assessment {
         return category;
     }
 
+    public RedListEnums.CRTags getSubCategory() {
+        if(category == null) return null;
+        return category.isTrigger() ? (subCategory == RedListEnums.CRTags.NO_TAG ? null : subCategory) : null;
+    }
+
     public String getCriteria() {
         return criteria;
     }
 
     public String getJustification() {
         return justification;
-    }
-
-    public String getJustificationHTML() {
-        return justification == null ? null : justification.replace("\n", "<br/>");
     }
 
     public String[] getAuthors() {
@@ -51,6 +53,10 @@ public class Assessment {
 
     public void setCategory(RedListEnums.RedListCategories category) {
         this.category = category;
+    }
+
+    public void setSubCategory(RedListEnums.CRTags subCategory) {
+        this.subCategory = subCategory;
     }
 
     public void setCriteria(String criteria) {

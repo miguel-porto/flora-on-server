@@ -378,22 +378,49 @@ public class RedListEnums {
         }
     }
 
-    public enum RedListCategories implements LabelledEnum {
-        EX("Extinct")
-        , EW("Extinct in the Wild")
-        , RE("Regionally Extinct")
-        , CR("Critically Endangered")
-        , EN("Endangered")
-        , VU("Vulnerable")
-        , NT("Near Threatened")
-        , LC("Least Concern")
-        , DD("Data Deficient")
-        , NA("Not Applicable")
-        , NE("Not Evaluated");
+    public enum RedListCategories implements TriggerEnum {
+        EX("Extinct", false)
+        , EW("Extinct in the Wild", false)
+        , RE("Regionally Extinct", false)
+        , CR("Critically Endangered", true)
+        , EN("Endangered", false)
+        , VU("Vulnerable", false)
+        , NT("Near Threatened", false)
+        , LC("Least Concern", false)
+        , DD("Data Deficient", false)
+        , NA("Not Applicable", false)
+        , NE("Not Evaluated", false);
+
+        private String label;
+        private boolean trigger;
+
+        RedListCategories(String desc, boolean trigger) {
+            this.label = desc;
+            this.trigger = trigger;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+        @Override
+        public boolean isTrigger() {
+            return trigger;
+        }
+
+    }
+
+    public enum CRTags implements LabelledEnum {
+        NO_TAG("No tag")
+        , PE("Possibly extinct")
+        , PEW("Possibly extinct in the wild")
+        , PRE("Possibly regionally extinct")
+        , PREW("Possibly regionally extinct in the wild");
 
         private String label;
 
-        RedListCategories(String desc) {
+        CRTags(String desc) {
             this.label = desc;
         }
 
@@ -402,6 +429,7 @@ public class RedListEnums {
             return label;
         }
     }
+
 
     public enum AssessmentStatus implements LabelledEnum {
         NOT_EVALUATED("Not assessed yet")

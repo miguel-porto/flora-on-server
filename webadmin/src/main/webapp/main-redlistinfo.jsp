@@ -44,7 +44,7 @@
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
-        <table id="speciesindex" class="sortable">
+        <table id="speciesindex" class="sortable smalltext">
         <thead>
             <tr><th></th><th>Taxon</th><th>Native Status</th><th>Assessment status</th><th>Evaluator</th><th>Reviewer</th><th>Category</th></tr>
         </thead>
@@ -67,7 +67,10 @@
                 </c:forEach></td>
                 <td>
                 <c:if test="${taxon.getAssessment().getCategory() != null}">
-                    <div class="redlistcategory assess_${taxon.getAssessment().getCategory().toString()}"><h1>${taxon.getAssessment().getCategory().toString()}</h1></div>
+                    <div class="redlistcategory assess_${taxon.getAssessment().getCategory().toString()}"><h1>
+                        ${taxon.getAssessment().getCategory().toString()}
+                        <c:if test="${taxon.getAssessment().getCategory().toString().equals('CR') && !taxon.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${taxon.getAssessment().getSubCategory().toString()}</sup></c:if>
+                    </h1></div>
                 </c:if>
                 </td>
             </tr>
@@ -98,7 +101,12 @@
             <table class="sheet">
                 <tr class="textual"><td colspan="3" id="sheet-header" class="title">
                     <h1><i>${taxon.getName()}</i></h1>
-                    <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
+                    <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}">
+                        <h1>
+                            ${rlde.getAssessment().getCategory().toString()}
+                            <c:if test="${rlde.getAssessment().getCategory().toString().equals('CR') && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
+                        </h1>
+                        <p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                     <div id="header-buttons">
                         <div class="wordtag togglebutton" id="highlight_toggle">needs review</div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
@@ -814,23 +822,46 @@
                     </td></tr>
 
                     <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a>Section 9 - Red List Assessment</td></tr>
-                    <tr class="section9"><td class="title">9.1</td><td>Category</td><td>
+                    <tr class="section9"><td class="title">9.1</td><td>Category</td><td class="triggergroup">
                         <div id="redlistcategories">
                             <c:if test="${user.canEDIT_9_1_2_3_5()}">
                                 <c:forEach var="tmp" items="${assessment_Category}">
                                     <c:if test="${rlde.getAssessment().getCategory().toString().equals(tmp.toString())}">
-                                        <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}" checked="checked">
+                                        <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}" checked="checked" class="trigger" data-trigger="${tmp.isTrigger() ? 1 : 0}">
                                     </c:if>
                                     <c:if test="${!rlde.getAssessment().getCategory().toString().equals(tmp.toString())}">
-                                        <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}">
+                                        <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}" class="trigger" data-trigger="${tmp.isTrigger() ? 1 : 0}">
                                     </c:if>
-                                    <label for="assess_${tmp.toString()}"><h1>${tmp.toString()}</h1><p>${tmp.getLabel()}</p></label>
+                                    <label for="assess_${tmp.toString()}">
+                                        <h1>
+                                            ${tmp.toString()}
+                                            <c:if test="${tmp == 'CR' && rlde.getAssessment().getCategory().toString().equals(tmp.toString()) && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
+                                        </h1>
+                                        <p>${tmp.getLabel()}</p>
+                                    </label>
                                     <c:if test="${tmp == 'RE' || tmp == 'LC'}"><br/></c:if>
                                 </c:forEach>
                             </c:if>
                             <c:if test="${!user.canEDIT_9_1_2_3_5()}">
                                 <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                             </c:if>
+                        </div>
+                        <div class="triggered ${rlde.getAssessment().getCategory().isTrigger() ? '' : 'hidden'}">
+                        <c:if test="${user.canEDIT_9_1_2_3_5()}">
+                            <select name="assessment_SubCategory">
+                                <c:forEach var="tmp" items="${assessment_SubCategory}">
+                                    <c:if test="${rlde.getAssessment().getSubCategory().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                    </c:if>
+                                    <c:if test="${!rlde.getAssessment().getSubCategory().toString().equals(tmp.toString())}">
+                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                    </c:if>
+                                </c:forEach>
+                            </select>
+                        </c:if>
+                        <c:if test="${!user.canEDIT_9_1_2_3_5()}">
+                            ${rlde.getAssessment().getSubCategory().getLabel()}
+                        </c:if>
                         </div>
                     </td></tr>
                     <tr class="section9"><td class="title">9.2</td><td>Criteria</td><td>
@@ -844,13 +875,35 @@
                 </c:if>
                 <tr class="section9 textual"><td class="title">9.3</td><td>Assessment justification</td><td>
                     <c:if test="${user.canEDIT_9_1_2_3_5()}">
-                        <textarea rows="6" name="assessment_Justification"><c:out value="${rlde.getAssessment().getJustification()}"></c:out></textarea>
+                        <div contenteditable="true" class="contenteditable">${rlde.getAssessment().getJustification()}</div>
+                        <input type="hidden" name="assessment_Justification" value="${fn:escapeXml(rlde.getAssessment().getJustification())}"/>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_1_2_3_5()}">
-                        ${rlde.getAssessment().getJustificationHTML()}
+                        ${rlde.getAssessment().getJustification()}
                     </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
+                    <tr class="section9"><td class="title">9.4</td><td>Regional assessment analysis</td><td>
+                        <table>
+                            <tr>
+                                <td>9.4.1</td>
+                                <td>Does the regional population experience any significant immigration of propagules likely to reproduce in the region?</td>
+                            </tr>
+                            <tr>
+                                <td>9.4.2</td>
+                                <td>Is the immigration expected to decrease?</td>
+                            </tr>
+                            <tr>
+                                <td>9.4.3</td>
+                                <td>Is the regional population a sink?</td>
+                            </tr>
+                            <tr>
+                                <td>9.4.4</td>
+                                <td>Uplist ou downlist category</td>
+                            </tr>
+                        </table>
+                    </td></tr>
+
                     <tr class="section9"><td class="title">9.4</td><td>Authors</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td>

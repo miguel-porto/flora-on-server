@@ -441,6 +441,14 @@ public class RedListDataEntity extends GeneralDBNode {
         this.assessment.setCategory(RedListEnums.RedListCategories.valueOf(category));
     }
 
+    public void setAssessment_SubCategory(String subCategory) {
+        try {
+            this.assessment.setSubCategory(RedListEnums.CRTags.valueOf(subCategory));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setSubCategory(RedListEnums.CRTags.NO_TAG);
+        }
+    }
+
     public void setAssessment_Criteria(String criteria) {
         this.assessment.setCriteria(criteria);
     }

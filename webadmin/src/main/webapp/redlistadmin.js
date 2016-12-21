@@ -103,7 +103,15 @@ function changeHandler(ev) {
 
         case 'INPUT':
             var va = ev.target.value;
-            if(va && va.trim().length > 0) var trigger = true;
+            switch(ev.target.getAttribute('type').toLowerCase()) {
+            case 'text':
+                if(va && va.trim().length > 0) var trigger = true;
+                break;
+
+            case 'radio':
+                var trigger = parseInt(ev.target.getAttribute('data-trigger')) == 1 ? true : false;
+                break;
+            }
             break;
         }
 
