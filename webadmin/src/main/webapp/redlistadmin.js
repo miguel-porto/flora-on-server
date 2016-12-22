@@ -1,5 +1,5 @@
-var regex_highlight = /\*([\w çãõáàâéêíóôú\.,;:!?()]+)\*/gi;
-var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()]+)_/gi;
+var regex_highlight = /\*([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)\*/gi;
+var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)_/gi;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();

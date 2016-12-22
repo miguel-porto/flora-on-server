@@ -67,8 +67,8 @@
                 </c:forEach></td>
                 <td>
                 <c:if test="${taxon.getAssessment().getCategory() != null}">
-                    <div class="redlistcategory assess_${taxon.getAssessment().getCategory().toString()}"><h1>
-                        ${taxon.getAssessment().getCategory().toString()}
+                    <div class="redlistcategory assess_${taxon.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
+                        ${taxon.getAssessment().getAdjustedCategory().getShortTag()}
                         <c:if test="${taxon.getAssessment().getCategory().toString().equals('CR') && !taxon.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${taxon.getAssessment().getSubCategory().toString()}</sup></c:if>
                     </h1></div>
                 </c:if>
@@ -101,12 +101,12 @@
             <table class="sheet">
                 <tr class="textual"><td colspan="3" id="sheet-header" class="title">
                     <h1><i>${taxon.getName()}</i></h1>
-                    <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}">
+                    <div class="redlistcategory assess_${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}">
                         <h1>
-                            ${rlde.getAssessment().getCategory().toString()}
+                            ${rlde.getAssessment().getAdjustedCategory().getShortTag()}
                             <c:if test="${rlde.getAssessment().getCategory().toString().equals('CR') && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
                         </h1>
-                        <p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
+                        <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p></div>
                     <div id="header-buttons">
                         <div class="wordtag togglebutton" id="highlight_toggle">needs review</div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
@@ -826,15 +826,15 @@
                         <div id="redlistcategories">
                             <c:if test="${user.canEDIT_9_1_2_3_5()}">
                                 <c:forEach var="tmp" items="${assessment_Category}">
-                                    <c:if test="${rlde.getAssessment().getCategory().toString().equals(tmp.toString())}">
-                                        <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}" checked="checked" class="trigger" data-trigger="${tmp.isTrigger() ? 1 : 0}">
+                                    <c:if test="${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().equals(tmp)}">
+                                        <input type="radio" name="assessment_Category" value="${rlde.getAssessment().getAdjustedCategory().toString()}" id="assess_${tmp.toString()}" checked="checked" class="trigger" data-trigger="${tmp.isTrigger() ? 1 : 0}">
                                     </c:if>
-                                    <c:if test="${!rlde.getAssessment().getCategory().toString().equals(tmp.toString())}">
+                                    <c:if test="${!rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().equals(tmp)}">
                                         <input type="radio" name="assessment_Category" value="${tmp.toString()}" id="assess_${tmp.toString()}" class="trigger" data-trigger="${tmp.isTrigger() ? 1 : 0}">
                                     </c:if>
                                     <label for="assess_${tmp.toString()}">
                                         <h1>
-                                            ${tmp.toString()}
+                                            ${tmp.toString()}<c:if test="${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().equals(tmp) && rlde.getAssessment().getAdjustedCategory().isUpDownListed()}">º</c:if>
                                             <c:if test="${tmp == 'CR' && rlde.getAssessment().getCategory().toString().equals(tmp.toString()) && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
                                         </h1>
                                         <p>${tmp.getLabel()}</p>
@@ -888,18 +888,55 @@
                             <tr>
                                 <td>9.4.1</td>
                                 <td>Does the regional population experience any significant immigration of propagules likely to reproduce in the region?</td>
+                                <td>
+                                    <select name="assessment_PropaguleImmigration">
+                                        <c:forEach var="tmp" items="${assessment_RegionalAssessment}">
+                                            <c:if test="${rlde.getAssessment().getPropaguleImmigration().toString().equals(tmp.toString())}">
+                                                <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                            </c:if>
+                                            <c:if test="${!rlde.getAssessment().getPropaguleImmigration().toString().equals(tmp.toString())}">
+                                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                            </c:if>
+                                        </c:forEach>
+                                    </select>
+                                </td>
                             </tr>
                             <tr>
                                 <td>9.4.2</td>
                                 <td>Is the immigration expected to decrease?</td>
+                                <td>
+                                    <select name="assessment_DecreaseImmigration">
+                                        <c:forEach var="tmp" items="${assessment_RegionalAssessment}">
+                                            <c:if test="${rlde.getAssessment().getDecreaseImmigration().toString().equals(tmp.toString())}">
+                                                <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                            </c:if>
+                                            <c:if test="${!rlde.getAssessment().getDecreaseImmigration().toString().equals(tmp.toString())}">
+                                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                            </c:if>
+                                        </c:forEach>
+                                    </select>
+                                </td>
                             </tr>
                             <tr>
                                 <td>9.4.3</td>
                                 <td>Is the regional population a sink?</td>
+                                <td>
+                                    <select name="assessment_IsSink">
+                                        <c:forEach var="tmp" items="${assessment_RegionalAssessment}">
+                                            <c:if test="${rlde.getAssessment().getIsSink().toString().equals(tmp.toString())}">
+                                                <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                            </c:if>
+                                            <c:if test="${!rlde.getAssessment().getIsSink().toString().equals(tmp.toString())}">
+                                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                            </c:if>
+                                        </c:forEach>
+                                    </select>
+                                </td>
                             </tr>
                             <tr>
                                 <td>9.4.4</td>
                                 <td>Uplist ou downlist category</td>
+                                <td>${assessment_UpDownList}</td>
                             </tr>
                         </table>
                     </td></tr>

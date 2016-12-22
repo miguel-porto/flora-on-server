@@ -177,10 +177,15 @@ HISTOGRAM!
                 request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ExSituConservation", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ProposedConservationActions", RedListEnums.ProposedConservationActions.values());
-                request.setAttribute("assessment_Category", RedListEnums.RedListCategories.values());
+                request.setAttribute("assessment_Category", RedListEnums.RedListCategories.valuesNotUpDownListed());
                 request.setAttribute("assessment_SubCategory", RedListEnums.CRTags.values());
+                request.setAttribute("assessment_RegionalAssessment", RedListEnums.YesNoLikelyUnlikely.values());
                 request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
-//rlde.getAssessment().getSubCategory()
+
+                if(rlde != null)
+                    request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
+
+                //rlde.getAssessment().getIsSink()
 
                 break;
 

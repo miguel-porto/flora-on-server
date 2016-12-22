@@ -449,6 +449,30 @@ public class RedListDataEntity extends GeneralDBNode {
         }
     }
 
+    public void setAssessment_PropaguleImmigration(String propaguleImmigration) {
+        try {
+            this.assessment.setPropaguleImmigration(RedListEnums.YesNoLikelyUnlikely.valueOf(propaguleImmigration));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setPropaguleImmigration(RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN);
+        }
+    }
+
+    public void setAssessment_DecreaseImmigration(String decreaseImmigration) {
+        try {
+            this.assessment.setDecreaseImmigration(RedListEnums.YesNoLikelyUnlikely.valueOf(decreaseImmigration));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setDecreaseImmigration(RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN);
+        }
+    }
+
+    public void setAssessment_IsSink(String isSink) {
+        try {
+            this.assessment.setIsSink(RedListEnums.YesNoLikelyUnlikely.valueOf(isSink));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setIsSink(RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN);
+        }
+    }
+
     public void setAssessment_Criteria(String criteria) {
         this.assessment.setCriteria(criteria);
     }

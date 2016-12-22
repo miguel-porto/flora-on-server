@@ -379,24 +379,44 @@ public class RedListEnums {
     }
 
     public enum RedListCategories implements TriggerEnum {
-        EX("Extinct", false)
-        , EW("Extinct in the Wild", false)
-        , RE("Regionally Extinct", false)
-        , CR("Critically Endangered", true)
-        , EN("Endangered", false)
-        , VU("Vulnerable", false)
-        , NT("Near Threatened", false)
-        , LC("Least Concern", false)
-        , DD("Data Deficient", false)
-        , NA("Not Applicable", false)
-        , NE("Not Evaluated", false);
+        EX("Extinct", false, false, "EX")
+        , EW("Extinct in the Wild", false, false, "EW")
+        , RE("Regionally Extinct", false, false, "RE")
+        , CR("Critically Endangered", true, false, "CR")
+        , EN("Endangered", false, false, "EN")
+        , VU("Vulnerable", false, false, "VU")
+        , NT("Near Threatened", false, false, "NT")
+        , LC("Least Concern", false, false, "LC")
+        , DD("Data Deficient", false, false, "DD")
+        , NA("Not Applicable", false, false, "NA")
+        , NE("Not Evaluated", false, false, "NE")
+        , CR_UP("Critically Endangered", true, true, "CRº")
+        , EN_UP("Endangered", false, true, "ENº")
+        , VU_UP("Vulnerable", false, true, "VUº")
+        , NT_UP("Near Threatened", false, true, "NTº")
+        , LC_DOWN("Least Concern", false, true, "LCº")
+        , NT_DOWN("Near Threatened", false, true, "NTº")
+        , VU_DOWN("Vulnerable", false, true, "VUº")
+        , EN_DOWN("Endangered", false, true, "ENº");
 
         private String label;
+        private String shortTag;
         private boolean trigger;
+        private boolean isUpDownListed;
 
-        RedListCategories(String desc, boolean trigger) {
+        RedListCategories(String desc, boolean trigger, boolean isUpDownListed, String shortTag) {
             this.label = desc;
             this.trigger = trigger;
+            this.isUpDownListed = isUpDownListed;
+            this.shortTag = shortTag;
+        }
+
+        public static RedListCategories[] valuesNotUpDownListed() {
+            List<RedListCategories> out = new ArrayList<>();
+            for(RedListCategories c : RedListCategories.values()) {
+                if(!c.isUpDownListed) out.add(c);
+            }
+            return out.toArray(new RedListCategories[out.size()]);
         }
 
         @Override
@@ -409,6 +429,65 @@ public class RedListEnums {
             return trigger;
         }
 
+        public RedListCategories getUplistCategory() {
+            switch(this) {
+                case EN: return CR_UP;
+                case VU: return EN_UP;
+                case NT: return VU_UP;
+                case LC: return NT_UP;
+            }
+            return this;
+        }
+
+        public RedListCategories getDownlistCategory() {
+            switch(this) {
+                case CR: return EN_DOWN;
+                case EN: return VU_DOWN;
+                case VU: return NT_DOWN;
+                case NT: return LC_DOWN;
+            }
+            return this;
+        }
+
+        public RedListCategories getOriginalCategory() {
+            switch(this) {
+                case CR_UP: return EN;
+                case EN_DOWN: return CR;
+                case EN_UP: return VU;
+                case VU_DOWN: return EN;
+                case VU_UP: return NT;
+                case NT_DOWN: return VU;
+                case NT_UP: return LC;
+                case LC_DOWN: return NT;
+                default: return this;
+            }
+        }
+
+        /**
+         * Gets the effective category, after correction, without the º, i.e. CR_UP becomes CR, etc.
+         * @return
+         */
+        public RedListCategories getEffectiveCategory() {
+            switch(this) {
+                case CR_UP: return CR;
+                case EN_DOWN: return EN;
+                case EN_UP: return EN;
+                case VU_DOWN: return VU;
+                case VU_UP: return VU;
+                case NT_DOWN: return NT;
+                case NT_UP: return NT;
+                case LC_DOWN: return LC;
+                default: return this;
+            }
+        }
+
+        public boolean isUpDownListed() {
+            return isUpDownListed;
+        }
+
+        public String getShortTag() {
+            return this.shortTag;
+        }
     }
 
     public enum CRTags implements LabelledEnum {
@@ -451,5 +530,42 @@ public class RedListEnums {
             return label;
         }
     }
+
+    public enum YesNoLikelyUnlikely implements LabelledEnum {
+        NOT_KNOWN("Not known")
+        , YES("Yes")
+        , NO("No")
+        , LIKELY("Likely")
+        , UNLIKELY("Unlikely");
+
+        private String label;
+
+        YesNoLikelyUnlikely(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum UpDownList implements LabelledEnum {
+        NONE("Keep same")
+        , UPLIST("Uplist")
+        , DOWNLIST("Downlist");
+
+        private String label;
+
+        UpDownList(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
 
 }
