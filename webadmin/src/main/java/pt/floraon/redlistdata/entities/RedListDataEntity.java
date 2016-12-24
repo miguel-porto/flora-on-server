@@ -473,6 +473,18 @@ public class RedListDataEntity extends GeneralDBNode {
         }
     }
 
+    public void setAssessment_UpDownListing(String upDownListing) {
+        try {
+            this.assessment.setUpDownListing(RedListEnums.UpDownList.valueOf(upDownListing));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setUpDownListing(RedListEnums.UpDownList.NONE);
+        }
+    }
+
+    public void setAssessment_UpDownListingJustification(String upDownListingJustification) {
+        this.assessment.setUpDownListingJustification(upDownListingJustification);
+    }
+
     public void setAssessment_Criteria(String criteria) {
         this.assessment.setCriteria(criteria);
     }

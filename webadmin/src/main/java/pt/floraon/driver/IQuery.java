@@ -4,9 +4,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import pt.floraon.arangodriver.ArangoKey;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.occurrences.entities.Author;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxEntResult;
@@ -26,7 +28,7 @@ public interface IQuery {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	public Iterator<SpeciesList> findSpeciesListsWithin(Float latitude,Float longitude,Float distance) throws FloraOnException;
+	Iterator<SpeciesList> findSpeciesListsWithin(Float latitude, Float longitude, Float distance) throws FloraOnException;
 	/**
 	 * Checks whether given species list already exists (same author, same date, coordinates very close) and returns it.
 	 * @param idAuthor
@@ -39,7 +41,7 @@ public interface IQuery {
 	 * @return Null if not found, a {@link SpeciesList} if one or more results are found. In the latter case, the returned result is "randomly" selected.
 	 * @throws FloraOnException
 	 */
-	public SpeciesList findExistingSpeciesList(int idAuthor,float latitude,float longitude,Integer year,Integer month,Integer day,float radius) throws FloraOnException;
+	SpeciesList findExistingSpeciesList(int idAuthor, float latitude, float longitude, Integer year, Integer month, Integer day, float radius) throws FloraOnException;
     /**
      * Returns a list of all possible matches of the given query string, ordered in terms of relevance.
      * @param q
@@ -48,7 +50,7 @@ public interface IQuery {
      * @return
      * @throws DatabaseException 
      */
-	public List<Match> queryMatcher(String q,StringMatchTypes matchtype,String[] collections) throws DatabaseException;
+	List<Match> queryMatcher(String q, StringMatchTypes matchtype, String[] collections) throws DatabaseException;
 	/**
      * Fetches all species (or inferior rank) downstream the given match.
      * <b>This is the main high-level query function</b>
@@ -57,7 +59,7 @@ public interface IQuery {
      * @return
 	 * @throws DatabaseException 
      */
-	public List<SimpleTaxonResult> fetchMatchSpecies(Match match,boolean onlyLeafNodes,boolean onlyCurrent) throws DatabaseException;
+	List<SimpleTaxonResult> fetchMatchSpecies(Match match, boolean onlyLeafNodes, boolean onlyCurrent) throws DatabaseException;
     /**
      * Execute a text query that filters nodes by their name, and returns all species (or inferior rank) downstream the filtered nodes.
      * <b>This is the main low-level query function.</b>
@@ -69,15 +71,24 @@ public interface IQuery {
      * @return A list of {@link SimpleTaxonResult}
      * @throws DatabaseException 
      */
-	public List<SimpleTaxonResult> speciesTextQuerySimple(String q,StringMatchTypes matchtype,boolean onlyLeafNodes,boolean onlyCurrent,String[] collections,TaxonRanks rank) throws DatabaseException;
-	public List<SimpleTaxonResult> speciesTextQuerySimple(ArangoKey node,boolean onlyLeafNodes,boolean onlyCurrent) throws DatabaseException;
+	List<SimpleTaxonResult> speciesTextQuerySimple(String q, StringMatchTypes matchtype, boolean onlyLeafNodes, boolean onlyCurrent, String[] collections, TaxonRanks rank) throws DatabaseException;
+	List<SimpleTaxonResult> speciesTextQuerySimple(ArangoKey node, boolean onlyLeafNodes, boolean onlyCurrent) throws DatabaseException;
     /**
      * Gets a list of suggested names similar to the query
      * @param query
      * @return
      * @throws FloraOnException
      */
-	public Iterator<SimpleTaxEntResult> findSuggestions(String query, Integer limit) throws FloraOnException;
+	Iterator<SimpleTaxEntResult> findTaxonSuggestions(String query, Integer limit) throws FloraOnException;
+
+	/**
+	 * Gets a list of suggested names similar to the query
+	 * @param query
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Iterator<User> findUserSuggestions(String query, Integer limit) throws FloraOnException;
+
 	/**
 	 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.
 	 * Note that this only returns the TaxEnt nodes which are direct neighbors of the species list, independently of their taxonomic rank.
@@ -87,13 +98,13 @@ public interface IQuery {
 	 * @return A list
 	 * @throws FloraOnException
 	 */
-	public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws FloraOnException;
+	List<SimpleTaxonResult> findListTaxaWithin(Float latitude, Float longitude, int distance) throws FloraOnException;
     /**
      * Gets the number of nodes in given collection.
      * @param nodetype The collection
      * @return
      * @throws FloraOnException
      */
-    public int getNumberOfNodesInCollection(NodeTypes nodetype) throws FloraOnException;
+	int getNumberOfNodesInCollection(NodeTypes nodetype) throws FloraOnException;
 
 }

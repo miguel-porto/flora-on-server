@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
 
     // any change in the fields will show save button
-    var inputs = document.querySelectorAll('#maindataform input, #maindataform select, #maindataform textarea');
+    var inputs = document.querySelectorAll('#maindataform input:not(.nochangeevent), #maindataform select:not(.nochangeevent), #maindataform textarea:not(.nochangeevent)');
     for (var i = 0; i < inputs.length; i++) {
         addEvent('change', inputs[i], changeHandler);
     }
@@ -59,14 +59,36 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // for user privileges
-    attachSuggestionHandler('boxsynonym');
-
+    attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=30&q=', 'suggestions');
     addEvent('click', document.getElementById('addtaxonprivilege'), function(ev) {
-        if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {
+        clickAddTag('taxonbox', 'applicableTaxa', 'ta_', 'taxonprivileges');
+        changeHandler.call(this, ev);
+    });
+
+    attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions');
+    addEvent('click', document.getElementById('addtextauthor'), function(ev) {
+        clickAddTag('authorbox', 'assessment_Authors', 'aa_', 'textauthors');
+        changeHandler.call(this, ev);
+    });
+
+    attachSuggestionHandler('assessorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'assessorsuggestions');
+    addEvent('click', document.getElementById('addassessor'), function(ev) {
+        clickAddTag('assessorbox', 'assessment_Evaluator', 'aas_', 'assessors');
+        changeHandler.call(this, ev);
+    });
+
+    attachSuggestionHandler('reviewerbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'reviewersuggestions');
+    addEvent('click', document.getElementById('addreviewer'), function(ev) {
+        clickAddTag('reviewerbox', 'assessment_Reviewer', 'are_', 'reviewers');
+        changeHandler.call(this, ev);
+    });
+
+/*
+        if(!document.getElementById('taxonbox').hasAttribute('data-key')) {
             alert("Type some letters to find a taxon and select from drop down list.");
             return;
         }
-        var key = document.getElementById('boxsynonym').getAttribute('data-key');
+        var key = document.getElementById('taxonbox').getAttribute('data-key');
         var el = document.createElement('INPUT');
         el.setAttribute('type', 'checkbox');
         el.setAttribute('name', 'applicableTaxa');
@@ -77,16 +99,42 @@ document.addEventListener('DOMContentLoaded', function() {
         var el1 = document.createElement('LABEL');
         el1.setAttribute('class', 'wordtag togglebutton');
         el1.setAttribute('for', 'ta_'+key);
-        el1.appendChild(document.createTextNode(document.getElementById('boxsynonym').value));
+        el1.appendChild(document.createTextNode(document.getElementById('taxonbox').value));
 
         document.getElementById('taxonprivileges').appendChild(el);
         document.getElementById('taxonprivileges').appendChild(el1);
 
-        document.getElementById('boxsynonym').removeAttribute('data-key')
-        document.getElementById('boxsynonym').value = '';
+        document.getElementById('taxonbox').removeAttribute('data-key')
+        document.getElementById('taxonbox').value = '';
     });
-
+*/
 });
+
+function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
+        var inputBox = document.getElementById(inputBoxId);
+        if(!inputBox.hasAttribute('data-key')) {
+            alert("Type some letters to find an entity and select it from the drop down list.");
+            return;
+        }
+        var key = inputBox.getAttribute('data-key');
+        var el = document.createElement('INPUT');
+        el.setAttribute('type', 'checkbox');
+        el.setAttribute('name', inputName);
+        el.setAttribute('id', prefix + key);
+        el.setAttribute('value', key);
+        el.setAttribute('checked', 'checked');
+
+        var el1 = document.createElement('LABEL');
+        el1.setAttribute('class', 'wordtag togglebutton');
+        el1.setAttribute('for', prefix + key);
+        el1.appendChild(document.createTextNode(inputBox.value));
+
+        document.getElementById(multipleChooserId).appendChild(el);
+        document.getElementById(multipleChooserId).appendChild(el1);
+
+        inputBox.removeAttribute('data-key')
+        inputBox.value = '';
+}
 
 function changeHandler(ev) {
     if(ev.target.classList.contains('trigger')) {   // this field triggers display/hide other fields

@@ -33,6 +33,8 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
+        request.setAttribute("uuid", "sk02");
+
         ListIterator<String> path;
         try {
             path = getPathIteratorAfter("redlist");
@@ -53,8 +55,10 @@ System.out.println(gs.toJson(getUser()));
         // make a map of user IDs and names
         List<User> allUsers = driver.getAdministration().getAllUsers();
         Map<String, String> userMap = new HashMap<>();
-        for(User u : allUsers)
+        for(User u : allUsers) {
             userMap.put(u.getID(), u.getName());
+            userMap.put(u.getIDURLEncoded(), u.getName());
+        }
 
         request.setAttribute("allUsers", allUsers);
         request.setAttribute("userMap", userMap);
@@ -180,12 +184,13 @@ HISTOGRAM!
                 request.setAttribute("assessment_Category", RedListEnums.RedListCategories.valuesNotUpDownListed());
                 request.setAttribute("assessment_SubCategory", RedListEnums.CRTags.values());
                 request.setAttribute("assessment_RegionalAssessment", RedListEnums.YesNoLikelyUnlikely.values());
+                request.setAttribute("assessment_UpDownListing", RedListEnums.UpDownList.values());
                 request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
 
                 if(rlde != null)
                     request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
 
-                //rlde.getAssessment().getIsSink()
+//                rlde.getAssessment().getUpDownListingJustification()
 
                 break;
 

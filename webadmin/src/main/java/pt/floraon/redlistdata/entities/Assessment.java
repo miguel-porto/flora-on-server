@@ -16,6 +16,8 @@ public class Assessment {
     private RedListEnums.YesNoLikelyUnlikely propaguleImmigration;
     private RedListEnums.YesNoLikelyUnlikely decreaseImmigration;
     private RedListEnums.YesNoLikelyUnlikely isSink;
+    private RedListEnums.UpDownList upDownListing;
+    private String upDownListingJustification;
 
     public RedListEnums.YesNoLikelyUnlikely getPropaguleImmigration() {
         return propaguleImmigration;
@@ -44,6 +46,14 @@ public class Assessment {
 
     public String getJustification() {
         return justification;
+    }
+
+    public RedListEnums.UpDownList getUpDownListing() {
+        return upDownListing;
+    }
+
+    public String getUpDownListingJustification() {
+        return upDownListingJustification;
     }
 
     public String[] getAuthors() {
@@ -114,6 +124,14 @@ public class Assessment {
         this.assessmentStatus = assessmentStatus;
     }
 
+    public void setUpDownListing(RedListEnums.UpDownList upDownListing) {
+        this.upDownListing = upDownListing;
+    }
+
+    public void setUpDownListingJustification(String upDownListingJustification) {
+        this.upDownListingJustification = upDownListingJustification;
+    }
+
     /* *****************************************/
     /* Convenience functions for functionality */
     /* *****************************************/
@@ -161,7 +179,8 @@ public class Assessment {
      */
     public RedListEnums.RedListCategories getAdjustedCategory() {
         if(category == null) return null;
-        switch(suggestUpDownList()) {
+        if(upDownListing == null) return category;
+        switch(upDownListing) {
             case UPLIST: return category.getUplistCategory();
             case DOWNLIST: return category.getDownlistCategory();
             default: return category;

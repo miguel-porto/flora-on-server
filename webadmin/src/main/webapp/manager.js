@@ -306,7 +306,7 @@ function multipleSelectionButtonClick(ev) {
 }
 
 function attachTaxDetailsHandlers(el) {
-	attachSuggestionHandler('boxsynonym');
+	attachSuggestionHandler('boxsynonym', '/floraon/checklist/api/suggestions?limit=30&q=', 'suggestions');
 	attachFormPosters();
 
 	var act=el.querySelectorAll('.actionbutton');

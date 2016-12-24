@@ -203,6 +203,14 @@ public class FloraOnServlet extends HttpServlet {
 		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
 	}
 
+	/**
+	 * Gets the parameter value, or defaultvalue if parameter is absent
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 * @throws IOException
+	 * @throws ServletException
+	 */
 	public String getParameterAsString(String name, String defaultValue) throws IOException, ServletException {
 		String tmp = getParameterAsString(name);
 		return tmp == null ? defaultValue : tmp;

@@ -31,6 +31,7 @@ div[contenteditable=true] {
     line-height:26px;
     box-shadow: 0 0 6px #bbb;
     padding:4px; border-radius:3px; min-height:26px;
+    min-width:400px;
 }
 div[contenteditable=true] .highlight {cursor:pointer;}
 div[contenteditable=true] .highlight:hover {box-shadow: 0 0 7px #f00;}
@@ -217,6 +218,8 @@ table.sheet textarea
 table.sheet {margin-bottom:50px;}
 table.sheet table {width:100%;}
 table.sheet table td:nth-of-type(1) {width:20%;}
+table.sheet table.subtable td.title {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold; width:0;}
+
 table.sheet.summary>tbody>tr:not(.textual) {display:none;}
 table.sheet tr.textual td:nth-of-type(3) {padding:0;}
 table.sheet.summary #summary_toggle {background-color:yellow; color:green;}

@@ -435,8 +435,8 @@ public class RedListEnums {
                 case VU: return EN_UP;
                 case NT: return VU_UP;
                 case LC: return NT_UP;
+                default: return this;
             }
-            return this;
         }
 
         public RedListCategories getDownlistCategory() {
@@ -445,10 +445,14 @@ public class RedListEnums {
                 case EN: return VU_DOWN;
                 case VU: return NT_DOWN;
                 case NT: return LC_DOWN;
+                default: return this;
             }
-            return this;
         }
 
+        /**
+         * Gets the category before the eventual down or uplisting
+         * @return
+         */
         public RedListCategories getOriginalCategory() {
             switch(this) {
                 case CR_UP: return EN;
@@ -551,7 +555,7 @@ public class RedListEnums {
     }
 
     public enum UpDownList implements LabelledEnum {
-        NONE("Keep same")
+        NONE("Keep same category")
         , UPLIST("Uplist")
         , DOWNLIST("Downlist");
 

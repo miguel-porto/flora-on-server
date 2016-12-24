@@ -1,5 +1,5 @@
-function attachSuggestionHandler(elid) {
-	querybox=document.getElementById(elid);
+function attachSuggestionHandler(elid, url, suggestionBoxId) {
+	querybox = document.getElementById(elid);
 	addEvent('keydown', querybox, function(ev) {
 		var input=ev.target;
 		if(input.hasAttribute('data-key')) {
@@ -21,12 +21,12 @@ function attachSuggestionHandler(elid) {
         var input=ev.target;
 		if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
 		if(input.value.trim().length==0) {
-			document.getElementById('suggestions').innerHTML='';
+			document.getElementById(suggestionBoxId).innerHTML='';
 			return;
 		}
-		fetchAJAX('/floraon/checklist/api/suggestions?limit=30&q='+encodeURIComponent(input.value), function(rt) {
-			document.getElementById('suggestions').innerHTML=rt;
-			makeSuggestionBox(document.getElementById('suggestions').querySelector('ul.suggestions'), input.id);
+		fetchAJAX(url + encodeURIComponent(input.value), function(rt) {
+			document.getElementById(suggestionBoxId).innerHTML=rt;
+			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id);
 		});
 	});
 }

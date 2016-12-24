@@ -9,6 +9,7 @@ import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
@@ -19,6 +20,7 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.occurrences.entities.Author;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxEntResult;
@@ -287,10 +289,11 @@ FOR final IN FLATTEN(FOR v IN base
     }
 
 	@Override
-    public Iterator<SimpleTaxEntResult> findSuggestions(String query, Integer limit) throws FloraOnException {
+    public Iterator<SimpleTaxEntResult> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
     	String limitQ;
-    	if(limit!=null) limitQ=" LIMIT "+limit; else limitQ="";
-    	String _query=String.format("FOR v IN taxent FILTER LIKE(v.name,'%1$s%%',true) SORT v.rank DESC"+limitQ+" RETURN {taxent:v}",query);
+    	if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
+    	String _query = AQLQueries.getString("QueryDriver.1", query, limitQ);
+
     	try {
 			return database.query(_query, null, null, SimpleTaxEntResult.class);
 		} catch (ArangoDBException e) {
@@ -298,6 +301,18 @@ FOR final IN FLATTEN(FOR v IN base
 		}
     	// TODO levenshtein, etc.
     }
+
+	@Override
+	public Iterator<User> findUserSuggestions(String query, Integer limit) throws FloraOnException {
+		String limitQ;
+		if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
+		String _query = AQLQueries.getString("QueryDriver.2", query, limitQ);
+		try {
+			return database.query(_query, null, null, User.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
 
 	@Override
 	public List<SimpleTaxonResult> findListTaxaWithin(Float latitude,Float longitude,int distance) throws DatabaseException {
