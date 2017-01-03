@@ -46,6 +46,10 @@ public class User extends NamedDBNode {
 		, EDIT_9_4_9_7(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
 		, EDIT_9_1_2_3_5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
 		, EDIT_9_6_8_41(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_9_1(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_9_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_9_3(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
+		, EDIT_9_9_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
 		, CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL)
 		, MODIFY_TAXA_TERRITORIES(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL)
 		, EDIT_FULL_CHECKLIST(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL)
@@ -89,7 +93,7 @@ public class User extends NamedDBNode {
 
 	public static Privileges[] EDIT_ALL_FIELDS = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
 			, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_ALL_TEXTUAL, EDIT_1_4, EDIT_9_4_9_7
-			, EDIT_9_1_2_3_5, EDIT_9_6_8_41 };
+			, EDIT_9_1_2_3_5, EDIT_9_6_8_41, EDIT_9_9_1, EDIT_9_9_2, EDIT_9_9_3, EDIT_9_9_4 };
 
 	public static Privileges[] DEFAULT_USER_PRIVILEGES = new Privileges[] { VIEW_FULL_SHEET };
 
@@ -173,10 +177,13 @@ public class User extends NamedDBNode {
 	}
 
 	public void setPrivilege(Privileges privilege, boolean value) {
-		if(value)
+		if(value) {
 			this.privileges.add(privilege);
-		else
+			this.effectivePrivileges.add(privilege);
+		} else {
 			this.privileges.remove(privilege);
+			this.effectivePrivileges.remove(privilege);
+		}
 	}
 
 	public boolean isGuest() {
@@ -250,6 +257,22 @@ public class User extends NamedDBNode {
 
 	public void setEDIT_9_6_8_41(boolean value) {
 		setPrivilege(EDIT_9_6_8_41, value);
+	}
+
+	public void setEDIT_9_9_1(boolean value) {
+		setPrivilege(EDIT_9_9_1, value);
+	}
+
+	public void setEDIT_9_9_2(boolean value) {
+		setPrivilege(EDIT_9_9_2, value);
+	}
+
+	public void setEDIT_9_9_3(boolean value) {
+		setPrivilege(EDIT_9_9_3, value);
+	}
+
+	public void setEDIT_9_9_4(boolean value) {
+		setPrivilege(EDIT_9_9_4, value);
 	}
 
 	public void setCREATE_REDLIST_DATASETS(boolean value) {
@@ -353,6 +376,22 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.EDIT_9_6_8_41);
 	}
 
+	public boolean canEDIT_9_9_1() {
+		return hasPrivilege(Privileges.EDIT_9_9_1);
+	}
+
+	public boolean canEDIT_9_9_2() {
+		return hasPrivilege(Privileges.EDIT_9_9_2);
+	}
+
+	public boolean canEDIT_9_9_3() {
+		return hasPrivilege(Privileges.EDIT_9_9_3);
+	}
+
+	public boolean canEDIT_9_9_4() {
+		return hasPrivilege(Privileges.EDIT_9_9_4);
+	}
+
 	public boolean canCREATE_REDLIST_DATASETS() {
 		return hasPrivilege(Privileges.CREATE_REDLIST_DATASETS);
 	}
@@ -413,4 +452,13 @@ public class User extends NamedDBNode {
 		}
 	}
 
+	/**
+	 * Temporally remove given privileges for this user
+	 * @param privileges
+	 */
+	public void revokePrivileges(Privileges[] privileges) {
+		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
+		this.effectivePrivileges.addAll(this.privileges);
+		this.effectivePrivileges.removeAll(new HashSet<>(Arrays.asList(privileges)));
+	}
 }

@@ -17,6 +17,8 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.List;
 
+import static pt.floraon.authentication.entities.User.EDIT_ALL_FIELDS;
+
 /**
  * Main page of red list data
  * Created by Miguel Porto on 01-11-2016.
@@ -33,7 +35,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk02");
+        request.setAttribute("uuid", "sk03");
 
         ListIterator<String> path;
         try {
@@ -76,10 +78,9 @@ System.out.println(gs.toJson(getUser()));
                 PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
-                System.out.println("VO: "+getUser().canVIEW_OCCURRENCES());
+
                 // set privileges for this taxon
                 getUser().setEffectivePrivilegesFor(driver, getParameterAsKey("id"));
-                System.out.println("VO1: "+getUser().canVIEW_OCCURRENCES());
 
                 request.setAttribute("taxon", te);
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
@@ -91,9 +92,19 @@ System.out.println(gs.toJson(getUser()));
                     OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
                             foop, protectedAreas, sizeOfSquare);
 
-                    request.setAttribute("EOO", occurrenceProcessor.getEOO());
-
-                    request.setAttribute("AOO", (occurrenceProcessor.getNQuads() * sizeOfSquare * sizeOfSquare) / 1000000);
+                    // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
+                    // live occurrences
+                    Double EOO = null, AOO = null;
+                    if(rlde != null) {
+                        if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                            EOO = rlde.getGeographicalDistribution().getEOO();
+                            AOO = rlde.getGeographicalDistribution().getAOO();
+                        }
+                    }
+                    if(EOO == null) EOO = occurrenceProcessor.getEOO();
+                    if(AOO == null) AOO = (occurrenceProcessor.getNQuads() * sizeOfSquare * sizeOfSquare) / 1000000d;
+                    request.setAttribute("EOO", EOO);
+                    request.setAttribute("AOO", AOO);
                     request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
                     request.setAttribute("nquads", occurrenceProcessor.getNQuads());
                     request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
@@ -185,13 +196,24 @@ HISTOGRAM!
                 request.setAttribute("assessment_SubCategory", RedListEnums.CRTags.values());
                 request.setAttribute("assessment_RegionalAssessment", RedListEnums.YesNoLikelyUnlikely.values());
                 request.setAttribute("assessment_UpDownListing", RedListEnums.UpDownList.values());
+                request.setAttribute("assessment_TextStatus", RedListEnums.TextStatus.values());
                 request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
+                request.setAttribute("assessment_ReviewStatus", RedListEnums.ReviewStatus.values());
+                request.setAttribute("assessment_PublicationStatus", RedListEnums.PublicationStatus.values());
 
-                if(rlde != null)
+                if(rlde != null) {
                     request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
+                    request.setAttribute("revisions", rlde.getRevisions());
 
-//                rlde.getAssessment().getUpDownListingJustification()
+                    if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                        // if it's published, block editing all fields
+                        boolean canEdit9 = getUser().canEDIT_9_9_4();
+                        getUser().revokePrivileges(EDIT_ALL_FIELDS);
+                        if(canEdit9) getUser().setEDIT_9_9_4(true);
+                    }
+                }
 
+//                rlde.getDateAssessed().
                 break;
 
             case "taxonrecords":

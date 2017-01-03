@@ -2,6 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ page session="false" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -93,7 +94,7 @@
             <!--<div class="button" id="highlight">highlight</div>-->
         </div>
         </c:if>
-        <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-refresh="false">
+        <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-refresh="true">
             <input type="hidden" name="databaseId" value="${rlde.getID()}"/>
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="hidden" name="taxEntID" value="${rlde.getTaxEntID()}"/>
@@ -195,6 +196,7 @@
                             </c:if>
                             <c:if test="${EOO != null}">
                                 <c:if test="${warning != null}"><div class="warning">${warning}</div></c:if>
+                                <input type="hidden" name="geographicalDistribution_EOO" value="${EOO}"/>
                                 <b><fmt:formatNumber value="${EOO}" maxFractionDigits="0" groupingUsed="false"/></b> km<sup>2</sup> (${occurrences.size()} occurrences, ${nclusters} sites)
                             </c:if>
                         </c:if>
@@ -204,6 +206,7 @@
                             No correspondence in Flora-On
                         </c:if>
                         <c:if test="${occurrences != null}">
+                            <input type="hidden" name="geographicalDistribution_AOO" value="${AOO}"/>
                             <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4" groupingUsed="false"/></b> km<sup>2</sup> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)
                         </c:if>
                     </td></tr>
@@ -1053,25 +1056,93 @@
                     </c:if>
                     </tr>
                     <tr class="section9"><td class="title">9.9</td><td>Assessment status</td><td>
-                        <c:if test="${user.canEDIT_9_4_9_7()}">
-                            <select name="assessment_AssessmentStatus">
-                                <c:forEach var="tmp" items="${assessment_AssessmentStatus}">
-                                    <c:if test="${rlde.getAssessment().getAssessmentStatus().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                                    </c:if>
-                                    <c:if test="${!rlde.getAssessment().getAssessmentStatus().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                                    </c:if>
-                                </c:forEach>
-                            </select>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_9_4_9_7()}">
-                            ${rlde.getAssessment().getAssessmentStatus().getLabel()}
-                        </c:if>
+                        <table class="subtable">
+                            <tr><td class="title">9.9.1</td><td>Texts</td><td>
+                            <c:if test="${user.canEDIT_9_9_1()}">
+                                <select name="assessment_TextStatus">
+                                    <c:forEach var="tmp" items="${assessment_TextStatus}">
+                                        <c:if test="${rlde.getAssessment().getTextStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getAssessment().getTextStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </c:if>
+                            <c:if test="${!user.canEDIT_9_9_1()}">
+                                ${rlde.getAssessment().getTextStatus().getLabel()}
+                            </c:if>
+                            </td></tr>
+                            <tr><td class="title">9.9.2</td><td>Assessment status</td><td>
+                            <c:if test="${user.canEDIT_9_9_2()}">
+                                <select name="assessment_AssessmentStatus">
+                                    <c:forEach var="tmp" items="${assessment_AssessmentStatus}">
+                                        <c:if test="${rlde.getAssessment().getAssessmentStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getAssessment().getAssessmentStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </c:if>
+                            <c:if test="${!user.canEDIT_9_9_2()}">
+                                ${rlde.getAssessment().getAssessmentStatus().getLabel()}
+                            </c:if>
+                            </td></tr>
+                            <tr><td class="title">9.9.3</td><td>Review status</td><td>
+                            <c:if test="${user.canEDIT_9_9_3()}">
+                                <select name="assessment_ReviewStatus">
+                                    <c:forEach var="tmp" items="${assessment_ReviewStatus}">
+                                        <c:if test="${rlde.getAssessment().getReviewStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getAssessment().getReviewStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </c:if>
+                            <c:if test="${!user.canEDIT_9_9_3()}">
+                                ${rlde.getAssessment().getReviewStatus().getLabel()}
+                            </c:if>
+                            </td></tr>
+                            <tr><td class="title">9.9.4</td><td>Publication status</td><td>
+                            <c:if test="${user.canEDIT_9_9_4()}">
+                                <select name="assessment_PublicationStatus">
+                                    <c:forEach var="tmp" items="${assessment_PublicationStatus}">
+                                        <c:if test="${rlde.getAssessment().getPublicationStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getAssessment().getPublicationStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </c:if>
+                            <c:if test="${!user.canEDIT_9_9_4()}">
+                                ${rlde.getAssessment().getPublicationStatus().getLabel()}
+                            </c:if>
+                            </td></tr>
+                        </table>
+                    </td></tr>
+                    <tr class="section9"><td class="title">9.10</td><td>Date assessed</td><td>
+                        ${rlde.getDateAssessed()}
+                    </td></tr>
+                    <tr class="section9"><td class="title">9.11</td><td>Date published</td><td>
+                        ${rlde.getDatePublished()}
                     </td></tr>
                 </c:if>
             </table>
         </form>
+        <h1>Revision history</h1>
+        <table>
+            <tr><th>Date saved</th><th>User</th></tr>
+        <c:forEach var="rev" items="${revisions}">
+            <tr><td>${rev.getFormattedDateSaved()}</td><td>${userMap.get(rev.getUser())}</td></tr>
+        </c:forEach>
+        </table>
     </c:when>
 
     <c:when test="${what=='taxonrecords'}">

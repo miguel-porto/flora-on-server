@@ -5,8 +5,8 @@ package pt.floraon.redlistdata.entities;
  */
 public class GeographicalDistribution {
     private String description;
-    private Long EOO;
-    private Long AOO;
+    private Double EOO;
+    private Double AOO;
     private RedListEnums.DeclineDistribution declineDistribution;
     private RedListEnums.ExtremeFluctuations extremeFluctuations;
     private String declineDistributionJustification;
@@ -16,11 +16,11 @@ public class GeographicalDistribution {
         return description;
     }
 
-    public Long getEOO() {
+    public Double getEOO() {
         return EOO;
     }
 
-    public Long getAOO() {
+    public Double getAOO() {
         return AOO;
     }
 
@@ -40,11 +40,11 @@ public class GeographicalDistribution {
         this.description = description;
     }
 
-    public void setEOO(Long EOO) {
+    public void setEOO(Double EOO) {
         this.EOO = EOO;
     }
 
-    public void setAOO(Long AOO) {
+    public void setAOO(Double AOO) {
         this.AOO = AOO;
     }
 

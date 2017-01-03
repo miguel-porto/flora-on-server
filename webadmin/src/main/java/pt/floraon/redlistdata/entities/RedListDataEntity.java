@@ -8,7 +8,11 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+
+import static pt.floraon.driver.Constants.dateFormat;
 
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
@@ -20,6 +24,7 @@ public class RedListDataEntity extends GeneralDBNode {
     /**
      * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#taxEntID}
      */
+//    @Expose(serialize = false, deserialize = false)
     private transient TaxEnt taxEnt;
     /**
      * The ID of the TaxEnt
@@ -70,6 +75,14 @@ public class RedListDataEntity extends GeneralDBNode {
      * The fields pertaining to red list assessment
      */
     private Assessment assessment = new Assessment();
+
+    private String dateAssessed;
+
+    private String datePublished;
+    /**
+     * The history of all changes made to this data sheet
+     */
+    private List<Revision> revisions;
 
     public RedListDataEntity() {
     }
@@ -125,6 +138,14 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public Assessment getAssessment() { return assessment; }
 
+    public String getDateAssessed() {
+        return dateAssessed;
+    }
+
+    public String getDatePublished() {
+        return datePublished;
+    }
+
     public void setTaxEntID(String taxEntID) {
         this.taxEntID = taxEntID;
     }
@@ -149,11 +170,11 @@ public class RedListDataEntity extends GeneralDBNode {
         this.geographicalDistribution.setDescription(description);
     }
 
-    public void setGeographicalDistribution_EOO(Long EOO) {
+    public void setGeographicalDistribution_EOO(Double EOO) {
         this.geographicalDistribution.setEOO(EOO);
     }
 
-    public void setGeographicalDistribution_AOO(Long AOO) {
+    public void setGeographicalDistribution_AOO(Double AOO) {
         this.geographicalDistribution.setAOO(AOO);
     }
 
@@ -510,7 +531,72 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setAssessment_AssessmentStatus(String assessmentStatus) {
-        this.assessment.setAssessmentStatus(RedListEnums.AssessmentStatus.valueOf(assessmentStatus));
+        try {
+            this.assessment.setAssessmentStatus(RedListEnums.AssessmentStatus.valueOf(assessmentStatus));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setAssessmentStatus(RedListEnums.AssessmentStatus.NOT_EVALUATED);
+        }
+    }
+
+    public void setAssessment_TextStatus(String textStatus) {
+        try {
+            this.assessment.setTextStatus(RedListEnums.TextStatus.valueOf(textStatus));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setTextStatus(RedListEnums.TextStatus.NO_TEXT);
+        }
+    }
+
+    public void setAssessment_ReviewStatus(String reviewStatus) {
+        try {
+            this.assessment.setReviewStatus(RedListEnums.ReviewStatus.valueOf(reviewStatus));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setReviewStatus(RedListEnums.ReviewStatus.NOT_REVISED);
+        }
+    }
+
+    public void setAssessment_PublicationStatus(String publicationStatus) {
+        try {
+            this.assessment.setPublicationStatus(RedListEnums.PublicationStatus.valueOf(publicationStatus));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setPublicationStatus(RedListEnums.PublicationStatus.NOT_PUBLISHED);
+        }
+    }
+
+    public void setDateAssessed(String dateAssessed) {
+        this.dateAssessed = dateAssessed;
+    }
+
+    public void setDatePublished(String datePublished) {
+        this.datePublished = datePublished;
+    }
+
+    /**
+     * Updates the date assessed with the current date and time
+     */
+    public void updateDateAssessed() {
+        this.dateAssessed = dateFormat.format(new Date());
+    }
+
+    /**
+     * Updates the date published with the current date and time
+     */
+    public void updateDatePublished() {
+        this.datePublished = dateFormat.format(new Date());
+    }
+
+    public void addRevision(String user) {
+        if(this.revisions == null) this.revisions = new ArrayList<Revision>();
+        this.revisions.add(new Revision(user));
+//        for(Revision r : this.revisions)
+//            System.out.println(r.getDateSaved().toString()+" "+r.getUser());
+    }
+
+    public List<Revision> getRevisions() {
+        return this.revisions == null ? Collections.EMPTY_LIST : this.revisions;
+    }
+
+    public void setRevisions(List<Revision> revisions) {
+        this.revisions = revisions;
     }
 
     @Override

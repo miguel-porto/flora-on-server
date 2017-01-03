@@ -61,26 +61,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // for user privileges
     attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=30&q=', 'suggestions');
     addEvent('click', document.getElementById('addtaxonprivilege'), function(ev) {
-        clickAddTag('taxonbox', 'applicableTaxa', 'ta_', 'taxonprivileges');
-        changeHandler.call(this, ev);
+        if(clickAddTag('taxonbox', 'applicableTaxa', 'ta_', 'taxonprivileges'))
+            changeHandler.call(this, ev);
     });
 
     attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions');
     addEvent('click', document.getElementById('addtextauthor'), function(ev) {
-        clickAddTag('authorbox', 'assessment_Authors', 'aa_', 'textauthors');
-        changeHandler.call(this, ev);
+        if(clickAddTag('authorbox', 'assessment_Authors', 'aa_', 'textauthors'))
+            changeHandler.call(this, ev);
     });
 
     attachSuggestionHandler('assessorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'assessorsuggestions');
     addEvent('click', document.getElementById('addassessor'), function(ev) {
-        clickAddTag('assessorbox', 'assessment_Evaluator', 'aas_', 'assessors');
-        changeHandler.call(this, ev);
+        if(clickAddTag('assessorbox', 'assessment_Evaluator', 'aas_', 'assessors'))
+            changeHandler.call(this, ev);
     });
 
     attachSuggestionHandler('reviewerbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'reviewersuggestions');
     addEvent('click', document.getElementById('addreviewer'), function(ev) {
-        clickAddTag('reviewerbox', 'assessment_Reviewer', 'are_', 'reviewers');
-        changeHandler.call(this, ev);
+        if(clickAddTag('reviewerbox', 'assessment_Reviewer', 'are_', 'reviewers'))
+            changeHandler.call(this, ev);
     });
 
 /*
@@ -114,7 +114,7 @@ function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
         var inputBox = document.getElementById(inputBoxId);
         if(!inputBox.hasAttribute('data-key')) {
             alert("Type some letters to find an entity and select it from the drop down list.");
-            return;
+            return false;
         }
         var key = inputBox.getAttribute('data-key');
         var el = document.createElement('INPUT');
@@ -134,6 +134,7 @@ function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
 
         inputBox.removeAttribute('data-key')
         inputBox.value = '';
+        return true;
 }
 
 function changeHandler(ev) {

@@ -14,8 +14,12 @@ public class UserLogin extends FloraOnServlet {
 	@Override
 	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
 		if(getParameterAsString("logout") != null) {
-			request.getSession().removeAttribute("user");
-			response.sendRedirect("main");
+			if(request.getSession(false) != null) {
+				request.getSession().removeAttribute("user");
+				request.getSession().invalidate();
+				response.sendRedirect("main");
+				return;
+			}
 		} else {
 			String username=getParameterAsString("username");
 			char[] password=getParameterAsString("password").toCharArray();

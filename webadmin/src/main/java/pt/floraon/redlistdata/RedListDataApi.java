@@ -6,6 +6,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.redlistdata.entities.UpdateNativeStatusJob;
 import pt.floraon.server.FloraOnServlet;
 
@@ -52,6 +53,7 @@ public class RedListDataApi extends FloraOnServlet {
                 break;
 
             case "updatedata":
+                // TODO: must check for privileges on save!
                 RedListDataEntity rlde = new RedListDataEntity();
                 HashMap<String, String[]> map = new HashMap<>();
                 Enumeration names = request.getParameterNames();
@@ -66,9 +68,26 @@ public class RedListDataApi extends FloraOnServlet {
                     error("Could not populate the java bean");
                     return;
                 }
-                gs = new GsonBuilder().setPrettyPrinting().create();
+//                gs = new GsonBuilder().setPrettyPrinting().create();
 //                System.out.println("BEAN:");
 //                System.out.println(gs.toJson(rlde));
+
+                // if the review status is changed from not ready to ready to publish, update date assessed.
+                RedListDataEntity old = driver.getRedListData().getRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getTaxEntID()));
+                if(rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_PUBLISHING) {
+                    rlde.updateDateAssessed();
+                } else {
+                    if(old.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_PUBLISHING
+                            && rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING)
+                        rlde.updateDateAssessed();
+                }
+                // if it was published now, update date published
+                if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED
+                        && old.getAssessment().getPublicationStatus() != RedListEnums.PublicationStatus.PUBLISHED) {
+                    rlde.updateDatePublished();
+                }
+                rlde.setRevisions(old.getRevisions());
+                rlde.addRevision(getUser().getID());
                 rlde = driver.getRedListData().updateRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getID()), rlde, false);
 //                System.out.println("NEW DOC:");
 //                System.out.println(gs.toJson(rlde));

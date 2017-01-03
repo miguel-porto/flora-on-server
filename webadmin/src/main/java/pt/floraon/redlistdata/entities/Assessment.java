@@ -12,12 +12,15 @@ public class Assessment {
     private String collaborators;
     private String[] evaluator = new String[0];
     private String[] reviewer = new String[0];
-    private RedListEnums.AssessmentStatus assessmentStatus;
     private RedListEnums.YesNoLikelyUnlikely propaguleImmigration;
     private RedListEnums.YesNoLikelyUnlikely decreaseImmigration;
     private RedListEnums.YesNoLikelyUnlikely isSink;
     private RedListEnums.UpDownList upDownListing;
     private String upDownListingJustification;
+    private RedListEnums.TextStatus textStatus;
+    private RedListEnums.AssessmentStatus assessmentStatus;
+    private RedListEnums.ReviewStatus reviewStatus;
+    private RedListEnums.PublicationStatus publicationStatus;
 
     public RedListEnums.YesNoLikelyUnlikely getPropaguleImmigration() {
         return propaguleImmigration;
@@ -76,6 +79,18 @@ public class Assessment {
         return assessmentStatus;
     }
 
+    public RedListEnums.TextStatus getTextStatus() {
+        return textStatus;
+    }
+
+    public RedListEnums.ReviewStatus getReviewStatus() {
+        return reviewStatus;
+    }
+
+    public RedListEnums.PublicationStatus getPublicationStatus() {
+        return publicationStatus;
+    }
+
     public void setCategory(RedListEnums.RedListCategories category) {
         this.category = category.getOriginalCategory();
     }
@@ -120,16 +135,28 @@ public class Assessment {
         this.reviewer = reviewer;
     }
 
-    public void setAssessmentStatus(RedListEnums.AssessmentStatus assessmentStatus) {
-        this.assessmentStatus = assessmentStatus;
-    }
-
     public void setUpDownListing(RedListEnums.UpDownList upDownListing) {
         this.upDownListing = upDownListing;
     }
 
     public void setUpDownListingJustification(String upDownListingJustification) {
         this.upDownListingJustification = upDownListingJustification;
+    }
+
+    public void setAssessmentStatus(RedListEnums.AssessmentStatus assessmentStatus) {
+        this.assessmentStatus = assessmentStatus;
+    }
+
+    public void setTextStatus(RedListEnums.TextStatus textStatus) {
+        this.textStatus = textStatus;
+    }
+
+    public void setReviewStatus(RedListEnums.ReviewStatus reviewStatus) {
+        this.reviewStatus = reviewStatus;
+    }
+
+    public void setPublicationStatus(RedListEnums.PublicationStatus publicationStatus) {
+        this.publicationStatus = publicationStatus;
     }
 
     /* *****************************************/

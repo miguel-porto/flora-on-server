@@ -2,6 +2,8 @@ package pt.floraon.driver;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -58,7 +60,9 @@ public final class Constants {
 	public enum StringMatchTypes {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}
-	
+
+	public static DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+
 	public enum TaxonRanks {
 		NORANK("non-taxonomic rank",1000),CLASS("Class",50),FAMILY("Family",100),FORM("Form",240),GENUS("Genus",140),KINGDOM("Kingdom",10)
     	,ORDER("Order",80),PHYLUM("Phylum (Division)",30),SECTION("Section",160),SERIES("Series",180),SPECIES("Species",200),SUBCLASS("Subclass",60)

@@ -18,15 +18,6 @@ public class ChecklistAdmin extends FloraOnServlet {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
 		
-		/*
-		if (user != null) {
-		    request.getSession().setAttribute("user", user); // Put user in session.
-		    response.sendRedirect("/secured/home.jsp"); // Go to some start page.
-		} else {
-		    request.setAttribute("error", "Unknown login, try again"); // Set error msg for ${error}
-		    request.getRequestDispatcher("/login.jsp").forward(request, response); // Go back to login page.
-		}*/
-
 		boolean hasTaxonInfoModule = true;
 
 		try {

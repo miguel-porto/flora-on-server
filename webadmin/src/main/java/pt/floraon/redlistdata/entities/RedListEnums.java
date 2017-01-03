@@ -513,15 +513,25 @@ public class RedListEnums {
         }
     }
 
+    public enum TextStatus implements LabelledEnum {
+        NO_TEXT("No texts")
+        , IN_PROGRESS("In progress")
+        , READY("Ready to be assessed");
+        private String label;
+
+        TextStatus(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
 
     public enum AssessmentStatus implements LabelledEnum {
         NOT_EVALUATED("Not assessed yet")
-        , READY("Ready to be assessed")
-        , PRELIMINARY("Preliminary assessment")
-        , REVISED_WORKING("Revised, working")
-        , REVISED_PUBLISHING("Revised, ready to publish")
-        , APPROVED("Approved")
-        , PUBLISHED("Published");
+        , PRELIMINARY("Preliminary assessment");
 
         private String label;
 
@@ -533,6 +543,44 @@ public class RedListEnums {
         public String getLabel() {
             return label;
         }
+
+    }
+
+    public enum ReviewStatus implements LabelledEnum {
+        NOT_REVISED("Not revised")
+        , REVISED_WORKING("Revised, improvements needed")
+        , REVISED_PUBLISHING("Revised, ready to publish");
+
+        private String label;
+
+        ReviewStatus(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+    }
+
+    public enum PublicationStatus implements LabelledEnum {
+        NOT_PUBLISHED("Not published")
+        , APPROVED("Approved, ready to publish")
+        , SELECTED_DISCUSSION("Selected to discussion")
+        , PUBLISHED("Published");
+
+        private String label;
+
+        PublicationStatus(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
     }
 
     public enum YesNoLikelyUnlikely implements LabelledEnum {
