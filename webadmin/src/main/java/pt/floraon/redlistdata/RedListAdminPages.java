@@ -3,6 +3,7 @@ package pt.floraon.redlistdata;
 import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.redlistdata.entities.PreviousAssessment;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -35,7 +36,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk03");
+        request.setAttribute("uuid", "sk05");
 
         ListIterator<String> path;
         try {
@@ -67,6 +68,7 @@ System.out.println(gs.toJson(getUser()));
 
         switch (what) {
             case "main":
+//                Shows the taxon list
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
                 List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory);
 //                taxEntList.get(0).getAssessment().getCategory().getLabel()
@@ -76,16 +78,16 @@ System.out.println(gs.toJson(getUser()));
             case "taxon":
                 // TODO this should be a user configuration loaded at startup
                 PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
-                te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+//                te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
-
+                if(rlde == null) return;
                 // set privileges for this taxon
                 getUser().setEffectivePrivilegesFor(driver, getParameterAsKey("id"));
 
-                request.setAttribute("taxon", te);
+                request.setAttribute("taxon", rlde.getTaxEnt());
                 request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
-                if (te.getOldId() != null) {
-                    foop.executeOccurrenceQuery(te.getOldId());
+                if (rlde.getTaxEnt().getOldId() != null) {
+                    foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
                     // TODO clipping polygon must be a user configuration
                     foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
 
@@ -95,11 +97,9 @@ System.out.println(gs.toJson(getUser()));
                     // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                     // live occurrences
                     Double EOO = null, AOO = null;
-                    if(rlde != null) {
-                        if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
-                            EOO = rlde.getGeographicalDistribution().getEOO();
-                            AOO = rlde.getGeographicalDistribution().getAOO();
-                        }
+                    if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                        EOO = rlde.getGeographicalDistribution().getEOO();
+                        AOO = rlde.getGeographicalDistribution().getAOO();
                     }
                     if(EOO == null) EOO = occurrenceProcessor.getEOO();
                     if(AOO == null) AOO = (occurrenceProcessor.getNQuads() * sizeOfSquare * sizeOfSquare) / 1000000d;
@@ -140,7 +140,7 @@ HISTOGRAM!
 */
 
                     StringWriter sw = new StringWriter();
-                    occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_OCCURRENCES());
+                    occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
                     request.setAttribute("svgmap", sw.toString());
 
                     Set<String> groupAreasBy = new HashSet<>();
@@ -150,26 +150,15 @@ HISTOGRAM!
                             , occurrenceProcessor.getOccurrenceInProtectedAreas(groupAreasBy).entrySet());
                     request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
 
-                    Map<String, Object> taxonInfo = foop.executeInfoQuery(te.getOldId());
+                    Map<String, Object> taxonInfo = foop.executeInfoQuery(rlde.getTaxEnt().getOldId());
 
-                    if (rlde != null) {
-                        request.setAttribute("rlde", rlde);
-                        request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
-                        request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
-                        request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
-                        request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
-                        request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
-                        request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
-
-                        if(rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
-                            if(taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
-                                request.setAttribute("ecology", taxonInfo.get("ecology").toString());
-                            }
-                        } else {
-                            request.setAttribute("ecology", rlde.getEcology().getDescription());
+                    if(rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
+                        if(taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
+                            request.setAttribute("ecology", taxonInfo.get("ecology").toString());
                         }
+                    } else {
+                        request.setAttribute("ecology", rlde.getEcology().getDescription());
                     }
-
                     request.setAttribute("occurrences", foop);
                 }
                 // enums
@@ -201,24 +190,33 @@ HISTOGRAM!
                 request.setAttribute("assessment_ReviewStatus", RedListEnums.ReviewStatus.values());
                 request.setAttribute("assessment_PublicationStatus", RedListEnums.PublicationStatus.values());
 
-                if(rlde != null) {
-                    request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
-                    request.setAttribute("revisions", rlde.getRevisions());
-
-                    if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
-                        // if it's published, block editing all fields
-                        boolean canEdit9 = getUser().canEDIT_9_9_4();
-                        getUser().revokePrivileges(EDIT_ALL_FIELDS);
-                        if(canEdit9) getUser().setEDIT_9_9_4(true);
-                    }
+                request.setAttribute("rlde", rlde);
+                request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+                request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
+                request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
+                request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
+                request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
+                request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
+                List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();
+                if(prev.size() == 0) prev = new ArrayList<>();
+                for (int i = prev.size(); i < 6; i++) {
+                    prev.add(new PreviousAssessment());
                 }
+                request.setAttribute("previousAssessments", prev);
 
-//                rlde.getDateAssessed().
+                request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
+                request.setAttribute("revisions", rlde.getRevisions());
+
+                if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                    // if it's published, block editing all fields
+                    boolean canEdit9 = getUser().canEDIT_9_9_4();
+                    getUser().revokePrivileges(EDIT_ALL_FIELDS);
+                    if(canEdit9) getUser().setEDIT_9_9_4(true);
+                }
                 break;
 
             case "taxonrecords":
                 if (!getUser().canVIEW_OCCURRENCES()) break;
-
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 if (te.getOldId() != null) {

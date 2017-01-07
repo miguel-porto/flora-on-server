@@ -109,7 +109,7 @@
                         </h1>
                         <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p></div>
                     <div id="header-buttons">
-                        <div class="wordtag togglebutton" id="highlight_toggle">needs review</div>
+                        <!--<div class="wordtag togglebutton" id="highlight_toggle">needs review</div>-->
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
@@ -125,9 +125,12 @@
                     <tr class="section1">
                         <td class="title">1.1</td>
                         <td>Name</td><td><i>${taxon.getName()}</i>
+                            <div class="floatingtoolbar">
+                                <div tabindex="0" id="removeformatting" class="hidden"></div>
                             <c:if test="${user.canEDIT_ANY_FIELD()}">
                                 <input type="submit" value="" id="mainformsubmitter" class="hidden"/>
                             </c:if>
+                            </div>
                         </td>
                     </tr>
                     <tr class="section1"><td class="title">1.2</td><td>Authority</td><td>${taxon.getAuthor()}</td></tr>
@@ -240,8 +243,8 @@
                     </td></tr>
                     <tr class="section2"><td class="title">2.5</td><td>Elevation</td><td>
                         <c:if test="${user.canEDIT_SECTION2()}">
-                            <input name="geographicalDistribution_ElevationRange" type="number" value="${rlde.getGeographicalDistribution().getElevationRange()[0]}"/>
-                            <input name="geographicalDistribution_ElevationRange" type="number" value="${rlde.getGeographicalDistribution().getElevationRange()[1]}"/>
+                            <input name="geographicalDistribution_ElevationRange" type="number" min="0" value="${rlde.getGeographicalDistribution().getElevationRange()[0] == null ? 0 : rlde.getGeographicalDistribution().getElevationRange()[0]}"/>
+                            <input name="geographicalDistribution_ElevationRange" type="number" min="0" value="${rlde.getGeographicalDistribution().getElevationRange()[1] == null ? 0 : rlde.getGeographicalDistribution().getElevationRange()[1]}"/>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION2()}">
                             ${rlde.getGeographicalDistribution().getElevationRange()[0]} - ${rlde.getGeographicalDistribution().getElevationRange()[1]}
@@ -292,7 +295,7 @@
                                         </c:forEach>
                                     </select>
                                 </td></tr>
-                                <tr><td>Exact number</td><td><input type="number" min="0" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
+                                <tr><td>Exact number</td><td><input type="number" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
                             </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
@@ -809,9 +812,11 @@
                             </c:forEach>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION7()}">
+                            <ul>
                             <c:forEach var="tmp" items="${proposedConservationActions}">
-                                <div class="wordtag">${tmp}</div>
+                                <li>${tmp.getLabel()}</li>
                             </c:forEach>
+                            </ul>
                         </c:if>
                     </td></tr>
 
@@ -965,11 +970,36 @@
                     </td></tr>
 
                     <tr class="section9"><td class="title">9.5</td><td>Previous published Red List assessments</td><td>
+                        <table><tr><th>Year published</th><th>Category</th></tr>
+                        <c:if test="${user.canEDIT_9_4_9_7()}">
+                        <c:forEach var="tmp" items="${previousAssessments}">
+                            <tr>
+                                <td><input name="assessment_PreviousAssessmentListYear" type="number" min="1900" max="2020" value="${tmp.getYear()}"/></td>
+                                <td><select name="assessment_PreviousAssessmentListCategory">
+                                    <option value="">(not assigned)</option>
+                                    <c:forEach var="tmp1" items="${assessment_Category}">
+                                        <c:if test="${tmp.getCategory().toString().equals(tmp1.toString())}">
+                                            <option value="${tmp1.toString()}" selected="selected">${tmp1.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!tmp.getCategory().toString().equals(tmp1.toString())}">
+                                            <option value="${tmp1.toString()}">${tmp1.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select></td>
+                            </tr>
+                        </c:forEach>
+                        </c:if>
+                        <c:if test="${!user.canEDIT_9_4_9_7()}">
+                        <c:forEach var="tmp" items="${previousAssessments}">
+                            <tr><td>${tmp.getYear()}</td><td>${tmp.getCategory().getLabel()}</td></tr>
+                        </c:forEach>
+                        </c:if>
+                        </table>
                     </td></tr>
                     <tr class="section9"><td class="title">9.6</td><td>Text author(s)</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td>
-                            <div class="multiplechooser" id="textauthors">
+                            <div class="multiplechooser left" id="textauthors">
                             <c:forEach var="tmp" items="${authors}">
                                 <input type="checkbox" name="assessment_Authors" id="aa_${tmp}" value="${tmp}" checked="checked"/>
                                 <label for="aa_${tmp}" class="wordtag togglebutton">${userMap.get(tmp)}</label>
@@ -1000,7 +1030,7 @@
                     <tr class="section9"><td class="title">9.7</td><td>Assessor(s)</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td>
-                            <div class="multiplechooser" id="assessors">
+                            <div class="multiplechooser left" id="assessors">
                             <c:forEach var="tmp" items="${evaluator}">
                                 <input type="checkbox" name="assessment_Evaluator" id="aas_${tmp}" value="${tmp}" checked="checked"/>
                                 <label for="aas_${tmp}" class="wordtag togglebutton">${userMap.get(tmp)}</label>
@@ -1023,7 +1053,7 @@
                     <tr class="section9"><td class="title">9.8</td><td>Reviewer(s)</td>
                     <c:if test="${user.canEDIT_9_4_9_7()}">
                         <td>
-                            <div class="multiplechooser" id="reviewers">
+                            <div class="multiplechooser left" id="reviewers">
                             <c:forEach var="tmp" items="${reviewer}">
                                 <input type="checkbox" name="assessment_Reviewer" id="are_${tmp}" value="${tmp}" checked="checked"/>
                                 <label for="are_${tmp}" class="wordtag togglebutton">${userMap.get(tmp)}</label>
@@ -1033,18 +1063,6 @@
                             <input type="button" value="Add reviewer" class="button" id="addreviewer"/>
                             <input type="button" value="Create new..." class="button" id="newreviewer"/>
                             <div id="reviewersuggestions"></div>
-<!--
-                            <div class="multiplechooser">
-                            <c:forEach var="tmp" items="${allUsers}">
-                                <c:if test="${reviewer.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}" checked="checked"/><label for="re_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
-                                </c:if>
-                                <c:if test="${!reviewer.contains(tmp.getID())}">
-                                    <input type="checkbox" name="assessment_Reviewer" id="re_${tmp.getNameASCii()}" value="${tmp.getID()}"/><label for="re_${tmp.getNameASCii()}" class="wordtag togglebutton">${tmp.getName()}</label>
-                                </c:if>
-                            </c:forEach>
-                            </div>
-                            <div class="wordtag togglebutton" id="newreviewer">Create new...</div>  -->
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_4_9_7()}">
@@ -1134,6 +1152,14 @@
                         ${rlde.getDatePublished()}
                     </td></tr>
                 </c:if>
+                <tr class="section9"><td class="title">9.12</td><td>Citation</td><td>
+                <c:if test="${authors.size() > 0}">
+                <c:if test="${authors.size() > 1}">
+                    <c:forEach var="i" begin="0" end="${authors.size() - 2}">${userMap.get(authors.get(i))}, </c:forEach>
+                </c:if>
+                ${userMap.get(authors.get(authors.size() - 1))}. ${rlde.getAssessment().getPublicationStatus().isPublished() ? rlde.getYearPublished() : 'Unpublished'}. <i>${taxon.getName()}</i>. Lista Vermelha da Flora Vascular de Portugal Continental.
+                </c:if>
+                </td></tr>
             </table>
         </form>
         <h1>Revision history</h1>
@@ -1157,15 +1183,17 @@
             <h2>${occurrences.size()} occurrences</h2>
             <table class="sortable smalltext" id="recordtable">
                 <thead>
-                    <tr><th>Record ID</th><th>Taxon</th><th>Latitude</th><th>Longitude</th><th>Year</th><th>Month</th>
+                    <tr><th>Record ID</th><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Year</th><th>Month</th>
                     <th>Day</th><th>Author</th><th style="width:180px">Notes</th><th>Precision</th><th>ID in doubt?</th><th>In flower?</th></tr>
                 </thead>
                 <c:forEach var="occ" items="${occurrences.iterator()}">
                     <tr>
                         <td>${occ.getId_reg()}</td>
                         <td><i>${occ.getGenus()} ${occ.getSpecies()} ${occ.getInfrataxon() == null ? '' : occ.getInfrataxon()}</i></td>
+                        <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
                         <td><fmt:formatNumber value="${occ.getLatitude()}" maxFractionDigits="4"/></td>
                         <td><fmt:formatNumber value="${occ.getLongitude()}" maxFractionDigits="4"/></td>
+                        </c:if>
                         <td>${occ.getYear()}</td>
                         <td>${occ.getMonth()}</td>
                         <td>${occ.getDay()}</td>

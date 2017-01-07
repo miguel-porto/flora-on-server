@@ -3,6 +3,9 @@ package pt.floraon.redlistdata;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.converters.IntegerConverter;
+import org.apache.commons.beanutils.converters.LongConverter;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -61,16 +64,26 @@ public class RedListDataApi extends FloraOnServlet {
                     String name = (String) names.nextElement();
                     map.put(name, request.getParameterValues(name));
                 }
+
+                IntegerConverter iconverter = new IntegerConverter(null);
+                LongConverter longConverter = new LongConverter(null);
+                BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
+                beanUtilsBean.getConvertUtils().register(iconverter, Integer.class);
+                beanUtilsBean.getConvertUtils().register(longConverter, Long.class);
+
                 try {
-                    BeanUtils.populate(rlde, map);
+                    beanUtilsBean.populate(rlde, map);
+//                    BeanUtils.populate(rlde, map);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
                     error("Could not populate the java bean");
                     return;
                 }
-//                gs = new GsonBuilder().setPrettyPrinting().create();
-//                System.out.println("BEAN:");
-//                System.out.println(gs.toJson(rlde));
+/*
+                gs = new GsonBuilder().setPrettyPrinting().create();
+                System.out.println("BEAN:");
+                System.out.println(gs.toJson(rlde));
+*/
 
                 // if the review status is changed from not ready to ready to publish, update date assessed.
                 RedListDataEntity old = driver.getRedListData().getRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getTaxEntID()));

@@ -5,7 +5,7 @@ package pt.floraon.redlistdata.entities;
  */
 public class UsesAndTrade {
     private String description;
-    private RedListEnums.Uses[] uses = new RedListEnums.Uses[0];
+    private RedListEnums.Uses[] uses;
     private boolean traded;
     private RedListEnums.Overexploitation overexploitation;
 
@@ -14,7 +14,7 @@ public class UsesAndTrade {
     }
 
     public RedListEnums.Uses[] getUses() {
-        return uses;
+        return uses == null ? new RedListEnums.Uses[0] : uses;
     }
 
     public boolean isTraded() {

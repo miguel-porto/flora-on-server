@@ -75,7 +75,8 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     public RedListDataEntity getRedListDataEntity(String territory, INodeKey taxEntId) throws DatabaseException {
 
         try {
-            return database.query(AQLRedListQueries.getString("redlistdata.2", territory, taxEntId), null, null, RedListDataEntity.class).next();
+            return database.query(AQLRedListQueries.getString("redlistdata.2", territory, taxEntId), null
+                    , null, RedListDataEntity.class).next();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -84,7 +85,8 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     @Override
     public List<RedListDataEntity> getAllRedListTaxa(String territory) throws FloraOnException {
         try {
-            return database.query(AQLRedListQueries.getString("redlistdata.1", territory), null, null, RedListDataEntity.class).asListRemaining();
+            return database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
+                    , null, RedListDataEntity.class).asListRemaining();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

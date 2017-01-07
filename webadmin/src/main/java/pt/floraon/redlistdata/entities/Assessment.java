@@ -1,5 +1,9 @@
 package pt.floraon.redlistdata.entities;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Created by miguel on 23-11-2016.
  */
@@ -8,10 +12,10 @@ public class Assessment {
     private RedListEnums.CRTags subCategory;
     private String criteria;
     private String justification;
-    private String[] authors = new String[0];
+    private String[] authors;
     private String collaborators;
-    private String[] evaluator = new String[0];
-    private String[] reviewer = new String[0];
+    private String[] evaluator;
+    private String[] reviewer;
     private RedListEnums.YesNoLikelyUnlikely propaguleImmigration;
     private RedListEnums.YesNoLikelyUnlikely decreaseImmigration;
     private RedListEnums.YesNoLikelyUnlikely isSink;
@@ -21,6 +25,7 @@ public class Assessment {
     private RedListEnums.AssessmentStatus assessmentStatus;
     private RedListEnums.ReviewStatus reviewStatus;
     private RedListEnums.PublicationStatus publicationStatus;
+    private List<PreviousAssessment> previousAssessmentList;
 
     public RedListEnums.YesNoLikelyUnlikely getPropaguleImmigration() {
         return propaguleImmigration;
@@ -60,7 +65,7 @@ public class Assessment {
     }
 
     public String[] getAuthors() {
-        return authors;
+        return authors == null ? new String[0] : authors;
     }
 
     public String getCollaborators() {
@@ -68,11 +73,11 @@ public class Assessment {
     }
 
     public String[] getEvaluator() {
-        return evaluator;
+        return evaluator == null ? new String[0] : evaluator;
     }
 
     public String[] getReviewer() {
-        return reviewer;
+        return reviewer == null ? new String[0] : reviewer;
     }
 
     public RedListEnums.AssessmentStatus getAssessmentStatus() {
@@ -90,6 +95,11 @@ public class Assessment {
     public RedListEnums.PublicationStatus getPublicationStatus() {
         return publicationStatus;
     }
+
+    public List<PreviousAssessment> getPreviousAssessmentList() {
+        return this.previousAssessmentList == null ? Collections.EMPTY_LIST : this.previousAssessmentList;
+    }
+
 
     public void setCategory(RedListEnums.RedListCategories category) {
         this.category = category.getOriginalCategory();
@@ -159,6 +169,10 @@ public class Assessment {
         this.publicationStatus = publicationStatus;
     }
 
+    public void setPreviousAssessmentList(List<PreviousAssessment> previousAssessmentList) {
+        this.previousAssessmentList = previousAssessmentList;
+    }
+
     /* *****************************************/
     /* Convenience functions for functionality */
     /* *****************************************/
@@ -212,6 +226,12 @@ public class Assessment {
             case DOWNLIST: return category.getDownlistCategory();
             default: return category;
         }
+    }
+
+    public void addPreviousAssessment(int year, RedListEnums.RedListCategories category) {
+        if(this.previousAssessmentList == null || this.previousAssessmentList.size() == 0)
+            this.previousAssessmentList = new ArrayList<PreviousAssessment>();
+        this.previousAssessmentList.add(new PreviousAssessment(year, category));
     }
 
 }

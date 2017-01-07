@@ -9,7 +9,7 @@ public class Conservation {
     private String conservationPlansJustification;
     private RedListEnums.YesNoNA exSituConservation;
     private String exSituConservationJustification;
-    private String[] proposedConservationActions = new String[0];
+    private RedListEnums.ProposedConservationActions[] proposedConservationActions;
 
     public String getDescription() {
         return description;
@@ -31,8 +31,8 @@ public class Conservation {
         return exSituConservation;
     }
 
-    public String[] getProposedConservationActions() {
-        return proposedConservationActions;
+    public RedListEnums.ProposedConservationActions[] getProposedConservationActions() {
+        return proposedConservationActions == null ? new RedListEnums.ProposedConservationActions[0] : proposedConservationActions;
     }
 
     public void setDescription(String description) {
@@ -47,7 +47,7 @@ public class Conservation {
         this.exSituConservation = exSituConservation;
     }
 
-    public void setProposedConservationActions(String[] proposedConservationActions) {
+    public void setProposedConservationActions(RedListEnums.ProposedConservationActions[] proposedConservationActions) {
         this.proposedConservationActions = proposedConservationActions;
     }
 

@@ -12,11 +12,8 @@ import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
-import com.arangodb.velocypack.VPackDeserializationContext;
-import com.arangodb.velocypack.VPackDeserializer;
-import com.arangodb.velocypack.VPackSlice;
-import com.arangodb.velocypack.exception.VPackException;
 import jline.internal.Log;
+import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.taxonomy.entities.Territory;
@@ -221,8 +218,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.DOCUMENT));
 				if(nt == NodeTypes.user) {	// create administrator account
 					try {
-						User user = new User("admin", "Administrator", new User.Privileges[] {
-								User.Privileges.MANAGE_REDLIST_USERS});
+						User user = new User("admin", "Administrator", new Privileges[] {
+								Privileges.MANAGE_REDLIST_USERS});
 						user.setUserType(User.UserType.ADMINISTRATOR.toString());
 						char[] pass = new RandomString(12).nextString().toCharArray();
 						user.setPassword(pass);

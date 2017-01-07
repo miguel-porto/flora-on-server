@@ -16,6 +16,8 @@ import java.util.Map.Entry;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import pt.floraon.taxonomy.entities.*;
 import pt.floraon.driver.entities.DBEntity;
@@ -483,4 +485,5 @@ public final class Constants {
 		}
 		return out;
     }
+
 }

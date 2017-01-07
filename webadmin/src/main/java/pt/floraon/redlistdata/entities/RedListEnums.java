@@ -581,6 +581,10 @@ public class RedListEnums {
             return label;
         }
 
+        public boolean isPublished() {
+            return this == PUBLISHED;
+        }
+
     }
 
     public enum YesNoLikelyUnlikely implements LabelledEnum {

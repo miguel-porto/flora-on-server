@@ -42,7 +42,8 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 .navigator {position:fixed; bottom:0; z-index:1; left: 0;}
 .navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left; box-shadow: 0 0 12px #600}
 
-.multiplechooser {display:flex; flex-wrap:wrap; justify-content: center;}
+.multiplechooser {display:flex; flex-wrap:wrap; justify-content: space-between;}
+.multiplechooser.left {justify-content: left;}
 .multiplechooser input[type=checkbox] {display:none;}
 .multiplechooser label {
     flex: 0 1 auto;
@@ -52,20 +53,9 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     padding: 4px 18px;
     transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
 }
-/*.multiplechooser label {
-    cursor:pointer;
-    border-radius: 3px;
-    flex: 0 1 auto;
-    min-width:180px;
-    margin:8px;
-    padding: 3px 6px;
-    text-align:center;
-    border:2px solid transparent;
-    transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
-}*/
 
-.multiplechooser input:checked + label {background-color: #00e676; opacity:1}
-.multiplechooser input:not(:checked) + label {background-color: #ffcdd2; transform: scale(0.8, 0.8); opacity:0.75;}
+.multiplechooser input:checked + label {background-color: #00e676; opacity:1;}
+.multiplechooser input:not(:checked) + label {background-color: #ffcdd2; opacity:0.6;}
 
 .triggered.hidden {display:none;}
 
@@ -120,7 +110,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 select {max-width: 400px; text-overflow: ellipsis;}
 
-input[type=submit] {
+input[type=submit], .floatingtoolbar>div {
     width:72px;
     height:72px;
     border-radius:50%;
@@ -134,7 +124,7 @@ input[type=submit] {
     opacity: 1;
 }
 
-input[type=submit].hidden, .button.hidden {
+input[type=submit].hidden, .button.hidden, .floatingtoolbar>div.hidden {
     transform: scale(0.01, 0.01);
     opacity: 0;
 }
@@ -202,16 +192,32 @@ table.smalltext td {padding:0px;}
 table tr:hover td:not(.title) {background-color:#f0fff0;}
 /*table td.title {background-color: #e3f2fd;}*/
 
-table.sheet input[type=submit] {
-    background: #ff4081 url(images/ic_menu_save.png) no-repeat center;
-    background-size: 48px 48px;
-    margin: 0 16px 16px 0;
-    display: inline-block;
+.floatingtoolbar {
     position:fixed;
     right:0;
     bottom:0;
     z-index: 2;
 }
+
+.floatingtoolbar>input, .floatingtoolbar>div {
+    background-size: 48px 48px;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 0 16px 16px 0;
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+#removeformatting {
+    background-color: #2979ff;
+    background-image: url(images/remove_formatting.png);
+}
+
+table.sheet input[type=submit] {
+    background-color: #ff4081;
+    background-image: url(images/ic_menu_save.png);
+}
+
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}

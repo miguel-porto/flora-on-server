@@ -1,5 +1,8 @@
 var regex_highlight = /\*([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)\*/gi;
 var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)_/gi;
+var regex_htmltag = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/i;
+var regex_htmltagreplace = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/gi;
+var focusedEditableDiv = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
@@ -11,8 +14,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // save all
-    addEvent('click', document.getElementById('mainformsubmitter'), function(ev) {
+    addEvent('submit', document.getElementById('maindataform'), function(ev) {
         document.getElementById('mainformsubmitter').classList.add('hidden');
+    });
+
+    /*addEvent('click', document.getElementById('mainformsubmitter'), function(ev) {
+        document.getElementById('mainformsubmitter').classList.add('hidden');
+    });*/
+
+    addEvent('click', document.getElementById('removeformatting'), function(ev) {
+        if(focusedEditableDiv.hasAttribute('contenteditable')) {
+            focusedEditableDiv.innerHTML = focusedEditableDiv.innerHTML.replace(regex_htmltagreplace, '');
+            document.getElementById('removeformatting').classList.add('hidden');
+        }
     });
 
     // toggle summary / full view
@@ -20,15 +34,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('table.sheet').classList.toggle('summary');
     });
 
+/*
     addEvent('click', document.getElementById('highlight_toggle'), function(ev) {
         document.querySelector('table.sheet').classList.toggle('showhighlights');
     });
+*/
 
     // attach events to all editable divs (which fake textareas with highlights)
     var editabledivs = document.querySelectorAll('#maindataform div[contenteditable=true]');
-    for (var i = 0; i < editabledivs.length; i++)
+    for (var i = 0; i < editabledivs.length; i++) {
         addEvent('keyup', editabledivs[i], addHighlightOnType);
-
+        addEvent('focus', editabledivs[i], contentEditableFocused);
+        addEvent('blur', editabledivs[i], contentEditableBlurred);
+    }
     // attach remove event to any highlights that the text may have
     var highs = document.querySelectorAll('#maindataform div[contenteditable=true] .highlight');
     for(var i = 0; i < highs.length; i++) {
@@ -109,6 +127,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 */
 });
+
+function contentEditableFocused(ev) {
+    focusedEditableDiv = ev.target;
+    checkHtmlTags(ev.target.innerHTML);
+}
+
+function contentEditableBlurred(ev) {
+    setTimeout(function() {
+        if(document.activeElement.id != 'removeformatting' && !document.activeElement.hasAttribute('contenteditable')) {
+            focusedEditableDiv = null;
+            document.getElementById('removeformatting').classList.add('hidden');
+        }
+    }, 10);
+}
 
 function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
         var inputBox = document.getElementById(inputBoxId);
@@ -198,6 +230,14 @@ function createNewAuthor(ev) {
     }
 }
 
+function checkHtmlTags(text) {
+    if(regex_htmltag.test(text)) {
+        document.getElementById('removeformatting').classList.remove('hidden');
+    } else {
+        document.getElementById('removeformatting').classList.add('hidden');
+    }
+}
+
 function addHighlightOnType(ev) {
     if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
     showSaveButton();
@@ -206,6 +246,9 @@ function addHighlightOnType(ev) {
         alert("Error! Changes will not be saved. Contact the programmer.");
         return;
     }
+
+    checkHtmlTags(el.innerHTML);
+
     if(!regex_highlight.test(el.innerHTML) && !regex_under.test(el.innerHTML) ) {
         el.nextElementSibling.value = el.innerHTML;
         return;

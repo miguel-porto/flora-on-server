@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata.entities;
 
+import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import jline.internal.Log;
 import pt.floraon.driver.Constants;
@@ -7,24 +8,22 @@ import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.text.ParseException;
+import java.util.*;
 
 import static pt.floraon.driver.Constants.dateFormat;
 
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
  * territory.
- * Thanks to André Carapeto, who carefully designed all the fields needed for this object and its subobjects!
+ * Thanks to André Carapeto, who carefully designed all the fields needed for this class and its subclasses!
  * Created by Miguel Porto & André Carapeto on 11-11-2016.
  */
 public class RedListDataEntity extends GeneralDBNode {
     /**
      * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#taxEntID}
      */
-//    @Expose(serialize = false, deserialize = false)
+    @Expose(serialize = false, deserialize = true)
     private transient TaxEnt taxEnt;
     /**
      * The ID of the TaxEnt
@@ -144,6 +143,16 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public String getDatePublished() {
         return datePublished;
+    }
+
+    public Integer getYearPublished() {
+        try {
+            Calendar cal = new GregorianCalendar();
+            cal.setTime(dateFormat.parse(datePublished));
+            return cal.get(Calendar.YEAR);
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public void setTaxEntID(String taxEntID) {
@@ -443,7 +452,16 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setConservation_ProposedConservationActions(String[] proposedConservationActions) {
-        this.conservation.setProposedConservationActions(proposedConservationActions);
+        List<RedListEnums.ProposedConservationActions> tmp = new ArrayList<>();
+        for(String s : proposedConservationActions) {
+            try {
+                tmp.add(RedListEnums.ProposedConservationActions.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                Log.warn("Conservation action "+s+" not found");
+            }
+        }
+//        this.getUsesAndTrade().setUses(tmp.toArray(new RedListEnums.Uses[0]));
+        this.conservation.setProposedConservationActions(tmp.toArray(new RedListEnums.ProposedConservationActions[0]));
     }
 
     public void setConservation_ConservationPlansJustification(String conservationPlansJustification) {
@@ -512,6 +530,54 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setAssessment_Justification(String justification) {
         this.assessment.setJustification(justification);
+    }
+
+    public void setAssessment_PreviousAssessmentListYear(Integer[] previousAssessmentListYear) {
+        List<PreviousAssessment> out;
+        if(this.getAssessment().getPreviousAssessmentList() == null || this.getAssessment().getPreviousAssessmentList().size() == 0) {
+            out = new ArrayList<>();
+            PreviousAssessment tmp;
+            for (int i = 0; i < previousAssessmentListYear.length; i++) {
+                tmp = new PreviousAssessment();
+                tmp.setYear(previousAssessmentListYear[i]);
+                out.add(tmp);
+            }
+        } else {
+            out = this.getAssessment().getPreviousAssessmentList();
+            for (int i = 0; i < previousAssessmentListYear.length; i++) {
+                out.get(i).setYear(previousAssessmentListYear[i]);
+            }
+        }
+        this.getAssessment().setPreviousAssessmentList(out);
+    }
+
+    public void setAssessment_PreviousAssessmentListCategory(String[] previousAssessmentListCategory) {
+        List<PreviousAssessment> out;
+        if (this.getAssessment().getPreviousAssessmentList() == null || this.getAssessment().getPreviousAssessmentList().size() == 0) {
+            out = new ArrayList<>();
+            PreviousAssessment tmp;
+            for (String aPreviousAssessmentListCategory : previousAssessmentListCategory) {
+                tmp = new PreviousAssessment();
+                if (aPreviousAssessmentListCategory != null && !aPreviousAssessmentListCategory.trim().equals("")) {
+                    try {
+                        tmp.setCategory(RedListEnums.RedListCategories.valueOf(aPreviousAssessmentListCategory));
+                    } catch (IllegalArgumentException e) {
+                    }
+                }
+                out.add(tmp);
+            }
+        } else {    // TODO HERE blank category
+            out = this.getAssessment().getPreviousAssessmentList();
+            for (int i = 0; i < previousAssessmentListCategory.length; i++) {
+                if(previousAssessmentListCategory[i] != null && !previousAssessmentListCategory[i].trim().equals("")) {
+                    try {
+                        out.get(i).setCategory(RedListEnums.RedListCategories.valueOf(previousAssessmentListCategory[i]));
+                    } catch (IllegalArgumentException e) {
+                    }
+                }
+            }
+        }
+        this.getAssessment().setPreviousAssessmentList(out);
     }
 
     public void setAssessment_Authors(String[] authors) {
@@ -585,7 +651,7 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void addRevision(String user) {
-        if(this.revisions == null) this.revisions = new ArrayList<Revision>();
+        if(this.revisions == null || this.revisions.size() == 0) this.revisions = new ArrayList<Revision>();
         this.revisions.add(new Revision(user));
 //        for(Revision r : this.revisions)
 //            System.out.println(r.getDateSaved().toString()+" "+r.getUser());

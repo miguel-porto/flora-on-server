@@ -5,7 +5,7 @@ package pt.floraon.redlistdata.entities;
  */
 public class Ecology {
     private String description;
-    private RedListEnums.HabitatTypes[] habitatTypes = new RedListEnums.HabitatTypes[0];
+    private RedListEnums.HabitatTypes[] habitatTypes;
     private String generationLength;
     private String generationLengthJustification;
     private RedListEnums.DeclineHabitatQuality declineHabitatQuality;
@@ -24,7 +24,7 @@ public class Ecology {
     }
 
     public RedListEnums.HabitatTypes[] getHabitatTypes() {
-        return habitatTypes;
+        return habitatTypes == null ? new RedListEnums.HabitatTypes[0] : habitatTypes;
     }
 
     public String getGenerationLength() {

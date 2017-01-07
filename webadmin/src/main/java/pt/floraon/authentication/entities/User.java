@@ -1,15 +1,15 @@
 package pt.floraon.authentication.entities;
 
 import com.google.gson.JsonObject;
+import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.occurrences.entities.Author;
 
-import javax.xml.bind.annotation.XmlElementDecl;
 import java.util.*;
 
-import static pt.floraon.authentication.entities.User.Privileges.*;
+import static pt.floraon.authentication.Privileges.*;
 
 /**
  * Represents a user of the Flora-On Server - not to be confounded with an {@link Author} of observations!
@@ -28,54 +28,24 @@ public class User extends NamedDBNode {
 	public enum PrivilegeType {CHECKLIST, REDLISTDATA, GLOBAL}
 	public enum PrivilegeScope {PER_SPECIES, GLOBAL}
 
-	public enum Privileges {
-		VIEW_FULL_SHEET(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, VIEW_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EXCLUDE_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, MODIFY_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, DOWNLOAD_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION3(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION6(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION7(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_SECTION8(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_ALL_TEXTUAL(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_1_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_4_9_7(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_1_2_3_5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_6_8_41(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_9_1(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_9_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_9_3(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, EDIT_9_9_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES)
-		, CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL)
-		, MODIFY_TAXA_TERRITORIES(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL)
-		, EDIT_FULL_CHECKLIST(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL)
-		, MANAGE_REDLIST_USERS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL);
-
-		private PrivilegeType privilegeType;
-		private PrivilegeScope privilegeScope;
-
-		Privileges(PrivilegeType pt, PrivilegeScope ps) {
-			this.privilegeType = pt;
-			this.privilegeScope = ps;
+	public static class PrivilegeNameComparator implements Comparator<Privileges> {
+		public int compare(Privileges o1, Privileges o2) {
+			return o1.toString().compareTo(o2.toString());
 		}
-
-		public PrivilegeType getPrivilegeType() {
-			return this.privilegeType;
-		}
-		public PrivilegeScope getPrivilegeScope() {return this.privilegeScope;}
 	}
 
 	public static List<Privileges> getAllPrivilegesOfType(PrivilegeType type) {
 		List<Privileges> out = new ArrayList<>();
-		if(type == null) return Arrays.asList(Privileges.values());
+		if(type == null) {
+			out = Arrays.asList(Privileges.values());
+			Collections.sort(out, new PrivilegeNameComparator());
+			return out;
+		}
 
 		for (Privileges priv : Privileges.values()) {
 			if(priv.getPrivilegeType() == type) out.add(priv);
 		}
+		Collections.sort(out, new PrivilegeNameComparator());
 		return out;
 	}
 
@@ -321,6 +291,8 @@ public class User extends NamedDBNode {
 	}
 
 	public boolean canVIEW_OCCURRENCES() { return hasPrivilege(Privileges.VIEW_OCCURRENCES); }
+
+	public boolean canDOWNLOAD_OCCURRENCES() { return hasPrivilege(Privileges.DOWNLOAD_OCCURRENCES); }
 
 	public boolean canMODIFY_TAXA_TERRITORIES() {
 		return hasPrivilege(Privileges.MODIFY_TAXA_TERRITORIES);
