@@ -1215,8 +1215,8 @@
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
             <h1>User management</h1>
             <h2>Existing users</h2>
-            <table>
-                <tr><th>Name</th><th>Privileges</th><th></th></tr>
+            <table class="sortable">
+                <tr><th>Name</th><th>Global privileges</th><th>Taxon-specific privileges</th><th></th></tr>
                 <c:forEach var="tmp" items="${users}">
                     <c:if test="${user.getUserType() == 'ADMINISTRATOR' || (user.getUserType() != 'ADMINISTRATOR' && tmp.getUserType() != 'ADMINISTRATOR')}">
                     <tr><td>${tmp.getName()}</td>
@@ -1225,6 +1225,15 @@
                             <div class="wordtag">${tmp1}</div>
                         </c:forEach>
                         </td>
+                        <td><ul>
+                        <c:forEach var="tmp2" items="${tmp.getTaxonPrivileges()}">
+                            <li>
+                            <c:forEach var="tmp3" items="${tmp2.getApplicableTaxa()}">
+                                ${taxonMap.get(tmp3)}
+                            </c:forEach>
+                            </li>
+                        </c:forEach>
+                        </ul></td>
                         <td><div class="button anchorbutton"><a href="?w=edituser&amp;user=${tmp.getIDURLEncoded()}">edit user</a></div></td>
                     </tr>
                     </c:if>
@@ -1270,9 +1279,8 @@
                     <table>
                         <tr><td class="title">Username</td><td><input type="text" name="userName" value="${requesteduser.getUserName()}"/></td></tr>
                         <tr><td class="title">Person name</td><td><input type="text" name="name" value="${requesteduser.getFullName()}"/></td></tr>
-                        <!--<tr><td class="title">Password</td><td></td></tr>-->
                         <tr>
-                            <td class="title">Privileges</td>
+                            <td class="title">Global privileges (apply to all taxa)</td>
                             <td class="multiplechooser">
                                 <c:forEach var="tmp" items="${redlistprivileges}">
                                     <c:if test="${requesteduser.hasAssignedPrivilege(tmp)}">
@@ -1284,22 +1292,55 @@
                                 </c:forEach>
                             </td>
                         </tr>
+                        <tr><td colspan="2"><input type="submit" value="Update user" class="textbutton"/></td></tr>
+                    </table>
+                </form>
+                <h2>Taxon-specific privileges</h2>
+                <c:if test="${tsprivileges.size() > 0}">
+                <h3>Existing privilege sets</h3>
+                <table>
+                    <thead><tr><th>Taxa</th><th>Privileges</th></tr></thead>
+                    <tbody>
+                    <c:forEach var="tsp" items="${tsprivileges}">
                         <tr>
-                            <td class="title">Restrict privileges to taxa</td>
+                            <td><ul>
+                            <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
+                                <li>${taxonMap.get(tax)}</li>
+                            </c:forEach>
+                            </ul></td>
                             <td>
-                                <div class="multiplechooser" id="taxonprivileges">
-                                <c:forEach var="tmp" items="${applicableTaxa}">
-                                    <input type="checkbox" name="applicableTaxa" id="ta_${tmp.getID()}" value="${tmp.getID()}" checked="checked"/>
-                                    <label for="ta_${tmp.getID()}" class="wordtag togglebutton">${tmp.getFullName()}</label>
-                                </c:forEach>
-                                </div>
-                                <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="taxonbox"/>
-                                <input type="button" value="Add taxon" class="button" id="addtaxonprivilege"/>
-                                <div id="suggestions"></div>
+                            <c:forEach var="pri" items="${tsp.getPrivileges()}">
+                                <div class="wordtag">${pri.toString()}</div>
+                            </c:forEach>
                             </td>
                         </tr>
+                    </c:forEach>
+                </tbody>
+                </table>
+                </c:if>
+                <h3>Add a new set of privileges to specific taxa</h3>
+                <form class="poster" data-path="/floraon/admin/addtaxonprivileges" data-refresh="true">
+                    <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
+                    <table>
+                        <thead><tr><th>Taxa</th><th>Privileges</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td style="width:20%; vertical-align:top;">
+                                    <div class="multiplechooser" id="taxonprivileges">
+                                    </div>
+                                    <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="taxonbox"/>
+                                    <input type="button" value="Add taxon" class="button" id="addtaxonprivilege"/>
+                                    <div id="suggestions"></div>
+                                </td>
+                                <td class="multiplechooser">
+                                    <c:forEach var="tmp" items="${redlistprivileges}">
+                                        <input type="checkbox" name="taxonPrivileges" value="${tmp}" id="tspriv_${tmp}"/><label for="tspriv_${tmp}" class="wordtag togglebutton">${tmp}</label>
+                                    </c:forEach>
+                                </td>
+                            </tr>
+                        <tr><td colspan="2"><input type="submit" value="Add privileges for these taxa" class="textbutton"/></td></tr>
+                        </tbody>
                     </table>
-                    <input type="submit" value="Update" class="textbutton"/>
                 </form>
             </c:if>
         </c:if>

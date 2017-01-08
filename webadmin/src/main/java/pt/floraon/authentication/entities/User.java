@@ -1,5 +1,6 @@
 package pt.floraon.authentication.entities;
 
+import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
@@ -18,36 +19,14 @@ public class User extends NamedDBNode {
 	private String userName, password;
 	private UserType userType;
 	private Set<Privileges> privileges = new HashSet<>();
-	private transient Set<Privileges> effectivePrivileges;
-	/**
-	 * The INodeKeys of the taxa to which the privileges apply. To all other taxa not listed here, only the
-	 * VIEW_FULL_SHEET privilege applies. NOTE: If this set is empty, then the privileges apply to all taxa.
-	 */
-	private String[] applicableTaxa = new String[0];
+	private List<TaxonPrivileges> taxonPrivileges;
+//	private String[] applicableTaxa = new String[0];
 	public enum UserType {ADMINISTRATOR, REGULAR}
 	public enum PrivilegeType {CHECKLIST, REDLISTDATA, GLOBAL}
 	public enum PrivilegeScope {PER_SPECIES, GLOBAL}
 
-	public static class PrivilegeNameComparator implements Comparator<Privileges> {
-		public int compare(Privileges o1, Privileges o2) {
-			return o1.toString().compareTo(o2.toString());
-		}
-	}
-
-	public static List<Privileges> getAllPrivilegesOfType(PrivilegeType type) {
-		List<Privileges> out = new ArrayList<>();
-		if(type == null) {
-			out = Arrays.asList(Privileges.values());
-			Collections.sort(out, new PrivilegeNameComparator());
-			return out;
-		}
-
-		for (Privileges priv : Privileges.values()) {
-			if(priv.getPrivilegeType() == type) out.add(priv);
-		}
-		Collections.sort(out, new PrivilegeNameComparator());
-		return out;
-	}
+	@Expose(serialize = false, deserialize = false)
+	private transient Set<Privileges> effectivePrivileges;
 
 	public static Map<String, Privileges[]> userProfiles;
 	static {
@@ -376,13 +355,33 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.MANAGE_REDLIST_USERS);
 	}
 
-	public String[] getApplicableTaxa() {
-		return applicableTaxa;
+	public void addTaxonPrivileges(String[] taxa, String[] privileges) {
+		if(this.taxonPrivileges == null)
+			this.taxonPrivileges = new ArrayList<>();
+		this.taxonPrivileges.add(new TaxonPrivileges(taxa, privileges));
 	}
 
-	public void setApplicableTaxa(String[] applicableTaxa) {
-		this.applicableTaxa = applicableTaxa;
+	public void addTaxonPrivileges(String[] taxa, Set<Privileges> privileges) {
+		if(this.taxonPrivileges == null)
+			this.taxonPrivileges = new ArrayList<>();
+		this.taxonPrivileges.add(new TaxonPrivileges(taxa, privileges));
 	}
+
+	public List<TaxonPrivileges> getTaxonPrivileges() {
+		return taxonPrivileges == null ? Collections.<TaxonPrivileges>emptyList() : taxonPrivileges;
+	}
+
+	public void setTaxonPrivileges(List<TaxonPrivileges> taxonPrivileges) {
+		this.taxonPrivileges = taxonPrivileges;
+	}
+
+	//	public String[] getApplicableTaxa() {
+//		return applicableTaxa;
+//	}
+//
+//	public void setApplicableTaxa(String[] applicableTaxa) {
+//		addTaxonPrivileges(applicableTaxa, this.privileges);
+//	}
 
 	/**
 	 * Sets the effective privileges for the given taxon
@@ -390,24 +389,23 @@ public class User extends NamedDBNode {
 	 * @param taxonID
 	 */
 	public void setEffectivePrivilegesFor(IFloraOn driver, INodeKey taxonID) throws FloraOnException {
-		if(this.applicableTaxa.length == 0) {	// privileges apply for all taxa
+		if(this.taxonPrivileges == null || this.taxonPrivileges.size() == 0) {	// privileges are the same as for all taxa
 			this.effectivePrivileges = this.privileges;
 			return;
 		}
-
+		this.effectivePrivileges = new HashSet<>();
 		if(taxonID != null) {
-			for (String taxon : this.applicableTaxa) {
-				if (driver.wrapTaxEnt(taxonID).isInfrataxonOf(driver.asNodeKey(taxon))) {    // is the taxon covered by the privileges?
-					this.effectivePrivileges = this.privileges;
-					return;
-				}
+			for (TaxonPrivileges taxon : this.taxonPrivileges) {
+				this.effectivePrivileges.addAll(taxon.getPrivilegesForTaxon(driver, taxonID));
 			}
 		}
 
-		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
+//		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
+
+		// add global privileges (those that are not taxon-wise by construction)
 		for(Privileges p : this.privileges) {
-			if(p.getPrivilegeScope() == PrivilegeScope.GLOBAL)
-				this.effectivePrivileges.add(p);
+//			if(p.getPrivilegeScope() == PrivilegeScope.GLOBAL)
+			this.effectivePrivileges.add(p);
 		}
 
 	}

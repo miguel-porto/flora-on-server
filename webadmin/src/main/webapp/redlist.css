@@ -18,6 +18,7 @@ body.relative {position:relative}
 
 h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
+h3 {text-align: left; font-size: 1.5em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
 /* CONTENTEDITABLE DIVS */
 div[contenteditable=true] {
@@ -46,21 +47,21 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 .multiplechooser.left {justify-content: left;}
 .multiplechooser input[type=checkbox] {display:none;}
 .multiplechooser label {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     margin:8px;
     text-align:center;
     color:black;
     padding: 4px 18px;
     transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
 }
-
+.multiplechooser.left label {flex: 0 1 auto;}
 .multiplechooser input:checked + label {background-color: #00e676; opacity:1;}
-.multiplechooser input:not(:checked) + label {background-color: #ffcdd2; opacity:0.6;}
+.multiplechooser input:not(:checked) + label {background-color: #ccc; opacity:0.6;}
 
 .triggered.hidden {display:none;}
 
 .wordtag {
-    border-radius: 20px;
+    border-radius: 4px;
     padding: 2px 14px;
     display:inline-block;
     font-size:0.8em;

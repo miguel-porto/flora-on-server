@@ -2,6 +2,8 @@ package pt.floraon.authentication;
 
 import pt.floraon.authentication.entities.User;
 
+import java.util.*;
+
 /**
  * Created by miguel on 06-01-2017.
  */
@@ -47,4 +49,26 @@ public enum Privileges {
     public User.PrivilegeScope getPrivilegeScope() {
         return this.privilegeScope;
     }
+
+    public static class PrivilegeNameComparator implements Comparator<Privileges> {
+        public int compare(Privileges o1, Privileges o2) {
+            return o1.toString().compareTo(o2.toString());
+        }
+    }
+
+    public static List<Privileges> getAllPrivilegesOfType(User.PrivilegeType type) {
+        List<Privileges> out = new ArrayList<>();
+        if(type == null) {
+            out = Arrays.asList(Privileges.values());
+            Collections.sort(out, new PrivilegeNameComparator());
+            return out;
+        }
+
+        for (Privileges priv : Privileges.values()) {
+            if(priv.getPrivilegeType() == type) out.add(priv);
+        }
+        Collections.sort(out, new PrivilegeNameComparator());
+        return out;
+    }
+
 }

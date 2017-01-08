@@ -62,14 +62,31 @@ public class AdminAPI extends FloraOnServlet {
             case "updateuser":
                 user = readUserBean();
                 success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
+/*
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("UPDATE BEAN:");
                 System.out.println(gs.toJson(user));
+*/
                 break;
 
             case "deleteuser":
                 driver.getNodeWorkerDriver().deleteDocument(getParameterAsKey("databaseId"));
                 success("Ok");
+                break;
+
+            case "addtaxonprivileges":
+                String[] taxa = request.getParameterValues("applicableTaxa");
+                String[] privileges = request.getParameterValues("taxonPrivileges");
+
+                if(taxa == null || taxa.length == 0) throw new FloraOnException("You must select at least one taxon.");
+/*
+                gs = new GsonBuilder().setPrettyPrinting().create();
+                System.out.println(gs.toJson(taxa));
+                System.out.println(gs.toJson(privileges));
+*/
+                User u = driver.getAdministration().getUser(getParameterAsKey("userId"));
+                u.addTaxonPrivileges(taxa, privileges);
+                success(driver.getAdministration().updateUser(getParameterAsKey("userId"), u).getID());
                 break;
 
             default:
@@ -83,8 +100,10 @@ public class AdminAPI extends FloraOnServlet {
         Enumeration names = request.getParameterNames();
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
+/*
             System.out.println(name);
             System.out.println(request.getParameterValues(name).toString());
+*/
             map.put(name, request.getParameterValues(name));
         }
 

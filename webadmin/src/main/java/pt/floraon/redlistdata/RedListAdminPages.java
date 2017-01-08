@@ -1,6 +1,8 @@
 package pt.floraon.redlistdata;
 
 import org.apache.commons.lang.ArrayUtils;
+import pt.floraon.authentication.Privileges;
+import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.entities.PreviousAssessment;
@@ -226,20 +228,41 @@ HISTOGRAM!
                 break;
 
             case "users":
-                request.setAttribute("users", driver.getAdministration().getAllUsers());
-                request.setAttribute("redlistprivileges", User.getAllPrivilegesOfType(
+                List<User> allusers = driver.getAdministration().getAllUsers();
+                Map<String, String> taxonMap1 = new HashMap<>();
+                for(User tmp : allusers) {
+                    for (TaxonPrivileges tp : tmp.getTaxonPrivileges()) {
+                        for (TaxEnt te1 : driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa())) {
+                            taxonMap1.put(te1.getID(), te1.getFullName());
+                        }
+                    }
+                }
+
+                request.setAttribute("users", allusers);
+                request.setAttribute("taxonMap", taxonMap1);
+                request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfType(
                         getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
                 break;
 
             case "edituser":
                 User tmp = driver.getAdministration().getUser(getParameterAsKey("user"));
                 List<TaxEnt> applTax = new ArrayList<>();
+/*
                 for(String i : tmp.getApplicableTaxa()) {
                     applTax.add(driver.getNodeWorkerDriver().getTaxEntById(driver.asNodeKey(i)));
                 }
-                request.setAttribute("requesteduser", tmp);
                 request.setAttribute("applicableTaxa", applTax);
-                request.setAttribute("redlistprivileges", User.getAllPrivilegesOfType(
+*/
+                Map<String, String> taxonMap = new HashMap<>();
+                for(TaxonPrivileges tp : tmp.getTaxonPrivileges()) {
+                    for(TaxEnt te1 : driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa())) {
+                        taxonMap.put(te1.getID(), te1.getFullName());
+                    }
+                }
+                request.setAttribute("taxonMap", taxonMap);
+                request.setAttribute("tsprivileges", tmp.getTaxonPrivileges());
+                request.setAttribute("requesteduser", tmp);
+                request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfType(
                         getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
                 break;
         }
