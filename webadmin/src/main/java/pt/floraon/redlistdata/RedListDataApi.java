@@ -52,7 +52,7 @@ public class RedListDataApi extends FloraOnServlet {
                 response.setContentType("application/json; charset=utf-8");
                 response.setCharacterEncoding("UTF-8");
                 response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
-                gs.toJson(driver.getRedListData().getAllRedListTaxa(getParameterAsString("territory")), response.getWriter());
+                gs.toJson(driver.getRedListData().getAllRedListTaxa(getParameterAsString("territory"), false), response.getWriter());
                 break;
 
             case "updatedata":

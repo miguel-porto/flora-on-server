@@ -13,6 +13,7 @@ import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxEntResult;
 import pt.floraon.driver.results.SimpleTaxonResult;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 /**
  * Interface defining methods for high-level querying of the database.
@@ -79,7 +80,7 @@ public interface IQuery {
      * @return
      * @throws FloraOnException
      */
-	Iterator<SimpleTaxEntResult> findTaxonSuggestions(String query, Integer limit) throws FloraOnException;
+	Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException;
 
 	/**
 	 * Gets a list of suggested names similar to the query

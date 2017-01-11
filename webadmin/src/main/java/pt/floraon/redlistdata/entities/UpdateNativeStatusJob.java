@@ -22,7 +22,7 @@ public class UpdateNativeStatusJob implements JobTask {
     public void run(IFloraOn driver, Object options) throws FloraOnException, IOException {
         String territory = (String) options;
         Log.info("Updating red list dataset for " + territory);
-        List<RedListDataEntity> rldel = driver.getRedListData().getAllRedListTaxa(territory);
+        List<RedListDataEntity> rldel = driver.getRedListData().getAllRedListTaxa(territory, false);
         total = rldel.size();
 
         for(RedListDataEntity rlde : rldel) {

@@ -22,8 +22,6 @@ public class User extends NamedDBNode {
 	private List<TaxonPrivileges> taxonPrivileges;
 //	private String[] applicableTaxa = new String[0];
 	public enum UserType {ADMINISTRATOR, REGULAR}
-	public enum PrivilegeType {CHECKLIST, REDLISTDATA, GLOBAL}
-	public enum PrivilegeScope {PER_SPECIES, GLOBAL}
 
 	@Expose(serialize = false, deserialize = false)
 	private transient Set<Privileges> effectivePrivileges;
@@ -32,17 +30,10 @@ public class User extends NamedDBNode {
 	static {
 		userProfiles = new HashMap<>();
 		userProfiles.put("AUTHOR", new Privileges[] { EDIT_1_4, EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
-				, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_9_4_9_7});
-		userProfiles.put("EVALUATOR", new Privileges[] { EDIT_9_1_2_3_5});
-		userProfiles.put("REVIEWER", new Privileges[] { EDIT_9_6_8_41, EDIT_9_1_2_3_5});
+				, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_9_7_9_92});
+		userProfiles.put("EVALUATOR", new Privileges[] {EDIT_9_1_2_3_4});
+		userProfiles.put("REVIEWER", new Privileges[] {EDIT_9_3_9_45, EDIT_9_1_2_3_4});
 	}
-
-	public static Privileges[] EDIT_SECTIONS2_8 = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
-		, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8};
-
-	public static Privileges[] EDIT_ALL_FIELDS = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
-			, EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_ALL_TEXTUAL, EDIT_1_4, EDIT_9_4_9_7
-			, EDIT_9_1_2_3_5, EDIT_9_6_8_41, EDIT_9_9_1, EDIT_9_9_2, EDIT_9_9_3, EDIT_9_9_4 };
 
 	public static Privileges[] DEFAULT_USER_PRIVILEGES = new Privileges[] { VIEW_FULL_SHEET };
 
@@ -151,10 +142,6 @@ public class User extends NamedDBNode {
 		setPrivilege(Privileges.VIEW_OCCURRENCES, value);
 	}
 
-	public void setEDIT_SECTION2(boolean value) {
-		setPrivilege(EDIT_SECTION2, value);
-	}
-
 	public void setEXCLUDE_OCCURRENCES(boolean value) {
 		setPrivilege(EXCLUDE_OCCURRENCES, value);
 	}
@@ -162,8 +149,13 @@ public class User extends NamedDBNode {
 	public void setMODIFY_OCCURRENCES(boolean value) {
 		setPrivilege(MODIFY_OCCURRENCES, value);
 	}
+
 	public void setDOWNLOAD_OCCURRENCES(boolean value) {
 		setPrivilege(DOWNLOAD_OCCURRENCES, value);
+	}
+
+	public void setEDIT_SECTION2(boolean value) {
+		setPrivilege(EDIT_SECTION2, value);
 	}
 	public void setEDIT_SECTION3(boolean value) {
 		setPrivilege(EDIT_SECTION3, value);
@@ -188,36 +180,40 @@ public class User extends NamedDBNode {
 		setPrivilege(EDIT_SECTION8, value);
 	}
 
+	public void setEDIT_SECTION9(boolean value) {
+		setPrivilege(EDIT_SECTION9, value);
+	}
+
 	public void setEDIT_ALL_TEXTUAL(boolean value) {
 		setPrivilege(EDIT_ALL_TEXTUAL, value);
+	}
+
+	public void setEDIT_ALL_1_8(boolean value) {
+		setPrivilege(EDIT_ALL_1_8, value);
 	}
 
 	public void setEDIT_1_4(boolean value) {
 		setPrivilege(EDIT_1_4, value);
 	}
 
-	public void setEDIT_9_4_9_7(boolean value) {
-		setPrivilege(EDIT_9_4_9_7, value);
+	public void setEDIT_9_7_9_92(boolean value) {
+		setPrivilege(EDIT_9_7_9_92, value);
 	}
 
-	public void setEDIT_9_1_2_3_5(boolean value) {
-		setPrivilege(EDIT_9_1_2_3_5, value);
+	public void setEDIT_9_1_2_3_4(boolean value) {
+		setPrivilege(EDIT_9_1_2_3_4, value);
 	}
 
-	public void setEDIT_9_6_8_41(boolean value) {
-		setPrivilege(EDIT_9_6_8_41, value);
+	public void setEDIT_9_3_9_45(boolean value) {
+		setPrivilege(EDIT_9_3_9_45, value);
 	}
 
-	public void setEDIT_9_9_1(boolean value) {
-		setPrivilege(EDIT_9_9_1, value);
+	public void setEDIT_9_5_9_6_9_61_9_91(boolean value) {
+		setPrivilege(EDIT_9_5_9_6_9_61_9_91, value);
 	}
 
-	public void setEDIT_9_9_2(boolean value) {
-		setPrivilege(EDIT_9_9_2, value);
-	}
-
-	public void setEDIT_9_9_3(boolean value) {
-		setPrivilege(EDIT_9_9_3, value);
+	public void setEDIT_9_8_9_93(boolean value) {
+		setPrivilege(EDIT_9_8_9_93, value);
 	}
 
 	public void setEDIT_9_9_4(boolean value) {
@@ -285,62 +281,58 @@ public class User extends NamedDBNode {
 		return hasAnyPrivilege(EDIT_ALL_FIELDS);
 	}
 
-	public boolean canEDIT_1_4() { return hasPrivilege(Privileges.EDIT_1_4); }
+	public boolean canEDIT_1_4() { return hasPrivilege(Privileges.EDIT_1_4) || hasPrivilege(EDIT_ALL_1_8); }
 
 	public boolean canEDIT_SECTION2() {
-		return hasPrivilege(EDIT_SECTION2);
+		return hasPrivilege(EDIT_SECTION2) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
 	public boolean canEDIT_SECTION3() {
-		return hasPrivilege(EDIT_SECTION3);
+		return hasPrivilege(EDIT_SECTION3) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
 	public boolean canEDIT_SECTION4() {
-		return hasPrivilege(EDIT_SECTION4);
+		return hasPrivilege(EDIT_SECTION4) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
 	public boolean canEDIT_SECTION5() {
-		return hasPrivilege(EDIT_SECTION5);
+		return hasPrivilege(EDIT_SECTION5) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
 	public boolean canEDIT_SECTION6() {
-		return hasPrivilege(Privileges.EDIT_SECTION6);
+		return hasPrivilege(Privileges.EDIT_SECTION6) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
 	public boolean canEDIT_SECTION7() {
-		return hasPrivilege(Privileges.EDIT_SECTION7);
+		return hasPrivilege(Privileges.EDIT_SECTION7) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
 	public boolean canEDIT_SECTION8() {
-		return hasPrivilege(Privileges.EDIT_SECTION8);
+		return hasPrivilege(Privileges.EDIT_SECTION8) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
-	public boolean canEDIT_9_1_2_3_5() {
-		return hasPrivilege(Privileges.EDIT_9_1_2_3_5);
+	public boolean canEDIT_9_1_2_3_4() {
+		return hasPrivilege(Privileges.EDIT_9_1_2_3_4) || hasPrivilege(EDIT_SECTION9);
 	}
 
-	public boolean canEDIT_9_4_9_7() {
-		return hasPrivilege(Privileges.EDIT_9_4_9_7);
+	public boolean canEDIT_9_7_9_92() {
+		return hasPrivilege(Privileges.EDIT_9_7_9_92) || hasPrivilege(EDIT_SECTION9);
 	}
 
-	public boolean canEDIT_9_6_8_41() {
-		return hasPrivilege(Privileges.EDIT_9_6_8_41);
+	public boolean canEDIT_9_3_9_45() {
+		return hasPrivilege(Privileges.EDIT_9_3_9_45) || hasPrivilege(EDIT_SECTION9);
 	}
 
-	public boolean canEDIT_9_9_1() {
-		return hasPrivilege(Privileges.EDIT_9_9_1);
+	public boolean canEDIT_9_5_9_6_9_61_9_91() {
+		return hasPrivilege(Privileges.EDIT_9_5_9_6_9_61_9_91) || hasPrivilege(EDIT_SECTION9);
 	}
 
-	public boolean canEDIT_9_9_2() {
-		return hasPrivilege(Privileges.EDIT_9_9_2);
-	}
-
-	public boolean canEDIT_9_9_3() {
-		return hasPrivilege(Privileges.EDIT_9_9_3);
+	public boolean canEDIT_9_8_9_93() {
+		return hasPrivilege(Privileges.EDIT_9_8_9_93) || hasPrivilege(EDIT_SECTION9);
 	}
 
 	public boolean canEDIT_9_9_4() {
-		return hasPrivilege(Privileges.EDIT_9_9_4);
+		return hasPrivilege(Privileges.EDIT_9_9_4) || hasPrivilege(EDIT_SECTION9);
 	}
 
 	public boolean canCREATE_REDLIST_DATASETS() {

@@ -20,7 +20,7 @@ import java.io.StringWriter;
 import java.util.*;
 import java.util.List;
 
-import static pt.floraon.authentication.entities.User.EDIT_ALL_FIELDS;
+import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
 
 /**
  * Main page of red list data
@@ -38,7 +38,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk05");
+        request.setAttribute("uuid", "sk07");
 
         ListIterator<String> path;
         try {
@@ -69,12 +69,24 @@ System.out.println(gs.toJson(getUser()));
         request.setAttribute("userMap", userMap);
 
         switch (what) {
+/*
+ * Shows the taxon list
+ */
             case "main":
-//                Shows the taxon list
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
-                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory);
-//                taxEntList.get(0).getAssessment().getCategory().getLabel()
+                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, getUser().canMANAGE_REDLIST_USERS());
+                int count1 = 0, count2 = 0, count3 = 0;
+                for(RedListDataEntity rlde1 : taxEntList) {
+                    if(rlde1.hasResponsibleForTexts()) count1++;
+                    if(rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.PRELIMINARY) count2++;
+                    if(rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY) count3++;
+                }
+
+//                taxEntList.get(0).getResponsibleAuthors_Texts();
                 request.setAttribute("specieslist", taxEntList);
+                request.setAttribute("nrsppwithresponsible", count1);
+                request.setAttribute("nrspppreliminaryassessment", count2);
+                request.setAttribute("nrspptextsready", count3);
                 break;
 
             case "taxon":
@@ -233,15 +245,16 @@ HISTOGRAM!
                 for(User tmp : allusers) {
                     for (TaxonPrivileges tp : tmp.getTaxonPrivileges()) {
                         for (TaxEnt te1 : driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa())) {
-                            taxonMap1.put(te1.getID(), te1.getFullName());
+                            taxonMap1.put(te1.getID(), te1.getName());
                         }
                     }
                 }
 
                 request.setAttribute("users", allusers);
                 request.setAttribute("taxonMap", taxonMap1);
-                request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfType(
-                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
+                request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
+                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
+                        , null));
                 break;
 
             case "edituser":
@@ -262,8 +275,12 @@ HISTOGRAM!
                 request.setAttribute("taxonMap", taxonMap);
                 request.setAttribute("tsprivileges", tmp.getTaxonPrivileges());
                 request.setAttribute("requesteduser", tmp);
-                request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfType(
-                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : User.PrivilegeType.REDLISTDATA));
+                request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
+                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
+                        , null));
+                request.setAttribute("redlisttaxonprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
+                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
+                        , Privileges.PrivilegeScope.PER_SPECIES));
                 break;
         }
 

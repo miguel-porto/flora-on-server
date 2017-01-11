@@ -56,7 +56,7 @@ public interface IRedListData {
      * @return
      * @throws FloraOnException
      */
-    List<RedListDataEntity> getAllRedListTaxa(String territory) throws FloraOnException;
+    List<RedListDataEntity> getAllRedListTaxa(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException;
 
     /**
      * Gets the {@link RedListDataEntity} for the given TaxEnt and territory

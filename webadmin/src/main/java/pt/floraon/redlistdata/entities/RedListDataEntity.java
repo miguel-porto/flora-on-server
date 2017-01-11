@@ -25,6 +25,14 @@ public class RedListDataEntity extends GeneralDBNode {
      */
     @Expose(serialize = false, deserialize = true)
     private transient TaxEnt taxEnt;
+
+    @Expose(serialize = false, deserialize = false)
+    private transient Set<String> responsibleAuthors_Texts;
+    @Expose(serialize = false, deserialize = false)
+    private transient Set<String> responsibleAuthors_Assessment;
+    @Expose(serialize = false, deserialize = false)
+    private transient Set<String> responsibleAuthors_Revision;
+
     /**
      * The ID of the TaxEnt
      */
@@ -663,6 +671,40 @@ public class RedListDataEntity extends GeneralDBNode {
 
     public void setRevisions(List<Revision> revisions) {
         this.revisions = revisions;
+    }
+
+    public void addResponsibleForTexts(String id) {
+        if(this.responsibleAuthors_Texts == null)
+            this.responsibleAuthors_Texts = new HashSet<>();
+        this.responsibleAuthors_Texts.add(id);
+    }
+
+    public void addResponsibleForAssessment(String id) {
+        if(this.responsibleAuthors_Assessment == null)
+            this.responsibleAuthors_Assessment = new HashSet<>();
+        this.responsibleAuthors_Assessment.add(id);
+    }
+
+    public void addResponsibleForRevision(String id) {
+        if(this.responsibleAuthors_Revision == null)
+            this.responsibleAuthors_Revision = new HashSet<>();
+        this.responsibleAuthors_Revision.add(id);
+    }
+
+    public boolean hasResponsibleForTexts() {
+        return this.responsibleAuthors_Texts != null && this.responsibleAuthors_Texts.size() > 0;
+    }
+
+    public Set<String> getResponsibleAuthors_Texts() {
+        return responsibleAuthors_Texts;
+    }
+
+    public Set<String> getResponsibleAuthors_Assessment() {
+        return responsibleAuthors_Assessment;
+    }
+
+    public Set<String> getResponsibleAuthors_Revision() {
+        return responsibleAuthors_Revision;
     }
 
     @Override

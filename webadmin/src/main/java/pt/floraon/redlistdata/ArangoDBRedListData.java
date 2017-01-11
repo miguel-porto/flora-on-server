@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata;
 
+import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -7,16 +8,18 @@ import com.arangodb.entity.CollectionEntity;
 import com.arangodb.entity.CollectionType;
 import com.arangodb.entity.DocumentUpdateEntity;
 import com.arangodb.model.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import pt.floraon.driver.*;
+import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.dataproviders.FloraOnExternalDataProvider;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by miguel on 05-11-2016.
@@ -83,12 +86,35 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     }
 
     @Override
-    public List<RedListDataEntity> getAllRedListTaxa(String territory) throws FloraOnException {
-        try {
-            return database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
-                    , null, RedListDataEntity.class).asListRemaining();
-        } catch (ArangoDBException e) {
-            throw new DatabaseException(e.getMessage());
+    public List<RedListDataEntity> getAllRedListTaxa(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException {
+        if(withTaxonSpecificPrivileges) {
+            // fetch taxon-specific user privileges for each species / infraspecies. This is needed because
+            // taxon-specific privileges may be assigned to higher taxa, so we must traverse the graph to get the species
+            // or inferior.
+            Iterator<AtomicTaxonPrivilege> apIt;
+            try {
+                apIt = database.query(AQLRedListQueries.getString("redlistdata.3", territory), null
+                        , null, AtomicTaxonPrivilege.class);
+            } catch (ArangoDBException e) {
+                throw new DatabaseException(e.getMessage());
+            }
+
+            Iterator<RedListDataEntity> rldeIt;
+            try {
+                rldeIt = database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
+                        , null, RedListDataEntity.class);
+            } catch (ArangoDBException e) {
+                throw new DatabaseException(e.getMessage());
+            }
+            // now assign responsible authors
+            return super.assignResponsibleAuthors(apIt, rldeIt);
+        } else {
+            try {
+                return database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
+                        , null, RedListDataEntity.class).asListRemaining();
+            } catch (ArangoDBException e) {
+                throw new DatabaseException(e.getMessage());
+            }
         }
     }
 

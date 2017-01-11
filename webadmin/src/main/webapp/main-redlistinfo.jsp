@@ -45,9 +45,27 @@
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
+        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+        <table class="small">
+            <thead><tr><th colspan="2">Statistics</th></tr></thead>
+            <tr><td>Nr. taxa with a responsible</td><td>${nrsppwithresponsible}</td></tr>
+            <tr><td>Nr. taxa with preliminary assessment</td><td>${nrspppreliminaryassessment}</td></tr>
+            <tr><td>Nr. taxa with texts ready</td><td>${nrspptextsready}</td></tr>
+        </table>
+        </c:if>
         <table id="speciesindex" class="sortable smalltext">
         <thead>
-            <tr><th></th><th>Taxon</th><th>Native Status</th><th>Assessment status</th><th>Evaluator</th><th>Reviewer</th><th>Category</th></tr>
+            <tr><th></th><th>Taxon</th><th>Native Status</th>
+            <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+            <th>Responsible for texts</th>
+            <th>Responsible for assessment</th>
+            <th>Responsible for revision</th>
+            </c:if>
+            <th>Assessment status</th>
+            <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
+            <th>Assessor</th><th>Reviewer</th>
+            </c:if>
+            <th>Category</th></tr>
         </thead>
         <c:forEach var="taxon" items="${specieslist.iterator()}">
             <c:if test="${taxon.getTaxEnt().isSpecies()}">
@@ -59,13 +77,20 @@
                 <td><input type="checkbox"/></td>
                 <td><a href="?w=taxon&id=${taxon.getTaxEnt().getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
                 <td>${taxon.getInferredStatus().getStatusSummary()}</td>
+                <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+                <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Texts()}">${userMap.get(ra)}<br/></c:forEach></td>
+                <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Assessment()}">${userMap.get(ra)}<br/></c:forEach></td>
+                <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Revision()}">${userMap.get(ra)}<br/></c:forEach></td>
+                </c:if>
                 <td>${taxon.getAssessment().getAssessmentStatus().getLabel()}</td>
+                <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
                 <td><c:forEach var="eval" items="${taxon.getAssessment().getEvaluator()}">
                     ${userMap.get(eval)}&nbsp;
                 </c:forEach></td>
                 <td><c:forEach var="eval" items="${taxon.getAssessment().getReviewer()}">
                     ${userMap.get(eval)}&nbsp;
                 </c:forEach></td>
+                </c:if>
                 <td>
                 <c:if test="${taxon.getAssessment().getCategory() != null}">
                     <div class="redlistcategory assess_${taxon.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
@@ -832,7 +857,7 @@
                     <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a>Section 9 - Red List Assessment</td></tr>
                     <tr class="section9"><td class="title">9.1</td><td>Category</td><td class="triggergroup">
                         <div id="redlistcategories">
-                            <c:if test="${user.canEDIT_9_1_2_3_5()}">
+                            <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                 <c:forEach var="tmp" items="${assessment_Category}">
                                     <c:if test="${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().equals(tmp)}">
                                         <input type="radio" name="assessment_Category" value="${rlde.getAssessment().getAdjustedCategory().toString()}" id="assess_${tmp.toString()}" checked="checked" class="trigger" data-trigger="${tmp.isTrigger() ? 1 : 0}">
@@ -850,12 +875,12 @@
                                     <c:if test="${tmp == 'RE' || tmp == 'LC'}"><br/></c:if>
                                 </c:forEach>
                             </c:if>
-                            <c:if test="${!user.canEDIT_9_1_2_3_5()}">
+                            <c:if test="${!user.canEDIT_9_1_2_3_4()}">
                                 <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                             </c:if>
                         </div>
                         <div class="triggered ${rlde.getAssessment().getCategory().isTrigger() ? '' : 'hidden'}">
-                        <c:if test="${user.canEDIT_9_1_2_3_5()}">
+                        <c:if test="${user.canEDIT_9_1_2_3_4()}">
                             <select name="assessment_SubCategory">
                                 <c:forEach var="tmp" items="${assessment_SubCategory}">
                                     <c:if test="${rlde.getAssessment().getSubCategory().toString().equals(tmp.toString())}">
@@ -867,26 +892,26 @@
                                 </c:forEach>
                             </select>
                         </c:if>
-                        <c:if test="${!user.canEDIT_9_1_2_3_5()}">
+                        <c:if test="${!user.canEDIT_9_1_2_3_4()}">
                             ${rlde.getAssessment().getSubCategory().getLabel()}
                         </c:if>
                         </div>
                     </td></tr>
                     <tr class="section9"><td class="title">9.2</td><td>Criteria</td><td>
-                        <c:if test="${user.canEDIT_9_1_2_3_5()}">
+                        <c:if test="${user.canEDIT_9_1_2_3_4()}">
                             <input name="assessment_Criteria" type="text" class="longbox" value="${rlde.getAssessment().getCriteria()}"/>
                         </c:if>
-                        <c:if test="${!user.canEDIT_9_1_2_3_5()}">
+                        <c:if test="${!user.canEDIT_9_1_2_3_4()}">
                             ${rlde.getAssessment().getCriteria()}
                         </c:if>
                     </td></tr>
                 </c:if>
                 <tr class="section9 textual"><td class="title">9.3</td><td>Assessment justification</td><td>
-                    <c:if test="${user.canEDIT_9_1_2_3_5()}">
+                    <c:if test="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}">
                         <div contenteditable="true" class="contenteditable">${rlde.getAssessment().getJustification()}</div>
                         <input type="hidden" name="assessment_Justification" value="${fn:escapeXml(rlde.getAssessment().getJustification())}"/>
                     </c:if>
-                    <c:if test="${!user.canEDIT_9_1_2_3_5()}">
+                    <c:if test="${!user.canEDIT_9_1_2_3_4() && !user.canEDIT_9_3_9_45()}">
                         ${rlde.getAssessment().getJustification()}
                     </c:if>
                 </td></tr>
@@ -897,6 +922,7 @@
                                 <td class="title">9.4.1</td>
                                 <td>Does the regional population experience any significant immigration of propagules likely to reproduce in the region?</td>
                                 <td>
+                                <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_PropaguleImmigration">
                                         <c:forEach var="tmp" items="${assessment_RegionalAssessment}">
                                             <c:if test="${rlde.getAssessment().getPropaguleImmigration().toString().equals(tmp.toString())}">
@@ -907,12 +933,17 @@
                                             </c:if>
                                         </c:forEach>
                                     </select>
+                                </c:if>
+                                <c:if test="${!user.canEDIT_9_1_2_3_4()}">
+                                    ${rlde.getAssessment().getPropaguleImmigration().getLabel()}
+                                </c:if>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="title">9.4.2</td>
                                 <td>Is the immigration expected to decrease?</td>
                                 <td>
+                                <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_DecreaseImmigration">
                                         <c:forEach var="tmp" items="${assessment_RegionalAssessment}">
                                             <c:if test="${rlde.getAssessment().getDecreaseImmigration().toString().equals(tmp.toString())}">
@@ -923,12 +954,17 @@
                                             </c:if>
                                         </c:forEach>
                                     </select>
+                                </c:if>
+                                <c:if test="${!user.canEDIT_9_1_2_3_4()}">
+                                    ${rlde.getAssessment().getDecreaseImmigration().getLabel()}
+                                </c:if>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="title">9.4.3</td>
                                 <td>Is the regional population a sink?</td>
                                 <td>
+                                <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_IsSink">
                                         <c:forEach var="tmp" items="${assessment_RegionalAssessment}">
                                             <c:if test="${rlde.getAssessment().getIsSink().toString().equals(tmp.toString())}">
@@ -939,12 +975,17 @@
                                             </c:if>
                                         </c:forEach>
                                     </select>
+                                </c:if>
+                                <c:if test="${!user.canEDIT_9_1_2_3_4()}">
+                                    ${rlde.getAssessment().getIsSink().getLabel()}
+                                </c:if>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="title" rowspan="2">9.4.4</td>
                                 <td>Uplist or downlist category</td>
                                 <td>
+                                <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_UpDownListing">
                                         <c:forEach var="tmp" items="${assessment_UpDownListing}">
                                             <c:if test="${rlde.getAssessment().getUpDownListing().toString().equals(tmp.toString())}">
@@ -955,6 +996,10 @@
                                             </c:if>
                                         </c:forEach>
                                     </select>
+                                </c:if>
+                                <c:if test="${!user.canEDIT_9_1_2_3_4()}">
+                                    ${rlde.getAssessment().getUpDownListing().getLabel()}
+                                </c:if>
                                 </td>
                             </tr>
                             <tr><td style="width:auto">Suggested action</td><td>${assessment_UpDownList}</td></tr>
@@ -962,8 +1007,13 @@
                                 <td class="title">9.4.5</td>
                                 <td>Justification</td>
                                 <td>
+                                <c:if test="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}">
                                     <div contenteditable="true" class="contenteditable">${rlde.getAssessment().getUpDownListingJustification()}</div>
                                     <input type="hidden" name="assessment_UpDownListingJustification" value="${fn:escapeXml(rlde.getAssessment().getUpDownListingJustification())}"/>
+                                </c:if>
+                                <c:if test="${!user.canEDIT_9_1_2_3_4() && !user.canEDIT_9_3_9_45()}">
+                                    ${rlde.getAssessment().getUpDownListingJustification()}
+                                </c:if>
                                 </td>
                             </tr>
                         </table>
@@ -971,7 +1021,7 @@
 
                     <tr class="section9"><td class="title">9.5</td><td>Previous published Red List assessments</td><td>
                         <table><tr><th>Year published</th><th>Category</th></tr>
-                        <c:if test="${user.canEDIT_9_4_9_7()}">
+                        <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <c:forEach var="tmp" items="${previousAssessments}">
                             <tr>
                                 <td><input name="assessment_PreviousAssessmentListYear" type="number" min="1900" max="2020" value="${tmp.getYear()}"/></td>
@@ -989,7 +1039,7 @@
                             </tr>
                         </c:forEach>
                         </c:if>
-                        <c:if test="${!user.canEDIT_9_4_9_7()}">
+                        <c:if test="${!user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <c:forEach var="tmp" items="${previousAssessments}">
                             <tr><td>${tmp.getYear()}</td><td>${tmp.getCategory().getLabel()}</td></tr>
                         </c:forEach>
@@ -997,7 +1047,7 @@
                         </table>
                     </td></tr>
                     <tr class="section9"><td class="title">9.6</td><td>Text author(s)</td>
-                    <c:if test="${user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <td>
                             <div class="multiplechooser left" id="textauthors">
                             <c:forEach var="tmp" items="${authors}">
@@ -1011,7 +1061,7 @@
                             <div id="authorsuggestions"></div>
                         </td>
                     </c:if>
-                    <c:if test="${!user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getAuthors()}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
@@ -1020,15 +1070,15 @@
                     </c:if>
                     </tr>
                     <tr class="section9"><td class="title">9.6.1</td><td>Collaborators</td><td>
-                    <c:if test="${user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <input name="assessment_Collaborators" type="text" class="longbox" value="${rlde.getAssessment().getCollaborators()}"/>
                     </c:if>
-                    <c:if test="${!user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_5_9_6_9_61_9_91()}">
                         ${rlde.getAssessment().getCollaborators()}
                     </c:if>
                     </td></tr>
                     <tr class="section9"><td class="title">9.7</td><td>Assessor(s)</td>
-                    <c:if test="${user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_7_9_92()}">
                         <td>
                             <div class="multiplechooser left" id="assessors">
                             <c:forEach var="tmp" items="${evaluator}">
@@ -1042,7 +1092,7 @@
                             <div id="assessorsuggestions"></div>
                         </td>
                     </c:if>
-                    <c:if test="${!user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_7_9_92()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getEvaluator()}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
@@ -1051,7 +1101,7 @@
                     </c:if>
                     </tr>
                     <tr class="section9"><td class="title">9.8</td><td>Reviewer(s)</td>
-                    <c:if test="${user.canEDIT_9_4_9_7()}">
+                    <c:if test="${user.canEDIT_9_8_9_93()}">
                         <td>
                             <div class="multiplechooser left" id="reviewers">
                             <c:forEach var="tmp" items="${reviewer}">
@@ -1065,7 +1115,7 @@
                             <div id="reviewersuggestions"></div>
                         </td>
                     </c:if>
-                    <c:if test="${!user.canEDIT_9_4_9_7()}">
+                    <c:if test="${!user.canEDIT_9_8_9_93()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getReviewer()}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
@@ -1076,7 +1126,7 @@
                     <tr class="section9"><td class="title">9.9</td><td>Assessment status</td><td>
                         <table class="subtable">
                             <tr><td class="title">9.9.1</td><td>Texts</td><td>
-                            <c:if test="${user.canEDIT_9_9_1()}">
+                            <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                                 <select name="assessment_TextStatus">
                                     <c:forEach var="tmp" items="${assessment_TextStatus}">
                                         <c:if test="${rlde.getAssessment().getTextStatus().toString().equals(tmp.toString())}">
@@ -1088,12 +1138,12 @@
                                     </c:forEach>
                                 </select>
                             </c:if>
-                            <c:if test="${!user.canEDIT_9_9_1()}">
+                            <c:if test="${!user.canEDIT_9_5_9_6_9_61_9_91()}">
                                 ${rlde.getAssessment().getTextStatus().getLabel()}
                             </c:if>
                             </td></tr>
                             <tr><td class="title">9.9.2</td><td>Assessment status</td><td>
-                            <c:if test="${user.canEDIT_9_9_2()}">
+                            <c:if test="${user.canEDIT_9_7_9_92()}">
                                 <select name="assessment_AssessmentStatus">
                                     <c:forEach var="tmp" items="${assessment_AssessmentStatus}">
                                         <c:if test="${rlde.getAssessment().getAssessmentStatus().toString().equals(tmp.toString())}">
@@ -1105,12 +1155,12 @@
                                     </c:forEach>
                                 </select>
                             </c:if>
-                            <c:if test="${!user.canEDIT_9_9_2()}">
+                            <c:if test="${!user.canEDIT_9_7_9_92()}">
                                 ${rlde.getAssessment().getAssessmentStatus().getLabel()}
                             </c:if>
                             </td></tr>
                             <tr><td class="title">9.9.3</td><td>Review status</td><td>
-                            <c:if test="${user.canEDIT_9_9_3()}">
+                            <c:if test="${user.canEDIT_9_8_9_93()}">
                                 <select name="assessment_ReviewStatus">
                                     <c:forEach var="tmp" items="${assessment_ReviewStatus}">
                                         <c:if test="${rlde.getAssessment().getReviewStatus().toString().equals(tmp.toString())}">
@@ -1122,7 +1172,7 @@
                                     </c:forEach>
                                 </select>
                             </c:if>
-                            <c:if test="${!user.canEDIT_9_9_3()}">
+                            <c:if test="${!user.canEDIT_9_8_9_93()}">
                                 ${rlde.getAssessment().getReviewStatus().getLabel()}
                             </c:if>
                             </td></tr>
@@ -1222,15 +1272,18 @@
                     <tr><td>${tmp.getName()}</td>
                         <td>
                         <c:forEach var="tmp1" items="${tmp.getPrivileges()}">
-                            <div class="wordtag">${tmp1}</div>
+                            <div class="wordtag">${tmp1.getLabel()}</div>
                         </c:forEach>
                         </td>
                         <td><ul>
                         <c:forEach var="tmp2" items="${tmp.getTaxonPrivileges()}">
                             <li>
-                            <c:forEach var="tmp3" items="${tmp2.getApplicableTaxa()}">
-                                ${taxonMap.get(tmp3)}
+                            <c:if test="${fn:length(tmp2.getApplicableTaxa()) > 1}">
+                            <c:forEach var="tmp3" begin="0" end="${fn:length(tmp2.getApplicableTaxa()) - 2}">
+                                <i>${taxonMap.get(tmp2.getApplicableTaxa()[tmp3])}</i>,&nbsp;
                             </c:forEach>
+                            </c:if>
+                                <i>${taxonMap.get(tmp2.getApplicableTaxa()[fn:length(tmp2.getApplicableTaxa()) - 1])}</i>
                             </li>
                         </c:forEach>
                         </ul></td>
@@ -1245,10 +1298,10 @@
                     <tr><td class="title">Username</td><td><input type="text" name="userName"/></td></tr>
                     <tr><td class="title">Person name</td><td><input type="text" name="name"/></td></tr>
                     <tr>
-                        <td class="title">Privileges</td>
+                        <td class="title">Global privileges</td>
                         <td class="multiplechooser">
                             <c:forEach var="tmp" items="${redlistprivileges}">
-                                <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp}</label>
+                                <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp.getLabel()}</label>
                             </c:forEach>
                         </td>
                     </tr>
@@ -1284,10 +1337,10 @@
                             <td class="multiplechooser">
                                 <c:forEach var="tmp" items="${redlistprivileges}">
                                     <c:if test="${requesteduser.hasAssignedPrivilege(tmp)}">
-                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}" checked="checked"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp}</label>
+                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}" checked="checked"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp.getLabel()}</label>
                                     </c:if>
                                     <c:if test="${!requesteduser.hasAssignedPrivilege(tmp)}">
-                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp}</label>
+                                        <input type="checkbox" name="${tmp}" id="priv_${tmp}"/><label for="priv_${tmp}" class="wordtag togglebutton">${tmp.getLabel()}</label>
                                     </c:if>
                                 </c:forEach>
                             </td>
@@ -1333,8 +1386,8 @@
                                     <div id="suggestions"></div>
                                 </td>
                                 <td class="multiplechooser">
-                                    <c:forEach var="tmp" items="${redlistprivileges}">
-                                        <input type="checkbox" name="taxonPrivileges" value="${tmp}" id="tspriv_${tmp}"/><label for="tspriv_${tmp}" class="wordtag togglebutton">${tmp}</label>
+                                    <c:forEach var="tmp" items="${redlisttaxonprivileges}">
+                                        <input type="checkbox" name="taxonPrivileges" value="${tmp}" id="tspriv_${tmp}"/><label for="tspriv_${tmp}" class="wordtag togglebutton">${tmp.getLabel()}</label>
                                     </c:forEach>
                                 </td>
                             </tr>

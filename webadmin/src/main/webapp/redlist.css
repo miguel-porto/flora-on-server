@@ -20,6 +20,10 @@ h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
 h3 {text-align: left; font-size: 1.5em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
+table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after {
+    content: " \25B4\25BE"
+}
+
 /* CONTENTEDITABLE DIVS */
 div[contenteditable=true] {
 /*background: linear-gradient(135deg, white 5px, #f3f3f3 5px, #f3f3f3 6px, transparent 6px, transparent 16px, #f3f3f3 16px, #f3f3f3 17px, transparent 17px),
@@ -64,7 +68,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     border-radius: 4px;
     padding: 2px 14px;
     display:inline-block;
-    font-size:0.8em;
+    font-size:0.7em;
     text-transform: uppercase;
     font-weight:bold;
     margin: 6px;
@@ -82,7 +86,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 /********** SPECIES INDEX ***********/
 #speciesindex td {padding:4px;}
 #speciesindex tr.species td:nth-of-type(2) {font-weight:bold}
-#speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:2em}
+#speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:1em}
 #speciesindex .redlistcategory {width:50px; height:50px; padding:6px;}
 #speciesindex .redlistcategory h1 {font-size:1.8rem !important; margin:5px 0 0 0!important;}
 #speciesindex .redlistcategory sup {font-size: 0.8rem !important; right:2px !important;}
@@ -185,6 +189,7 @@ input[type=submit].textbutton {
 label {display:block}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
+table.small {width: auto;}
 table.smalltext {font-size:1rem;}
 table:not(.smalltext) {font-size:1.2rem;}
 table th, table td.title {background-color:#ffcdd2; font-weight:bold; padding:6px; color:black; border:0;}

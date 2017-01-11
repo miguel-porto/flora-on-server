@@ -10,6 +10,7 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.results.ResultProcessor;
 import pt.floraon.driver.results.SimpleTaxEntResult;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 public class Suggestions extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
@@ -19,12 +20,23 @@ public class Suggestions extends FloraOnServlet {
 		String query = getParameterAsString("q");
 		if(query == null) return;
 		Integer limit = getParameterAsInteger("limit", null);
+		PrintWriter pw;
 
 		switch(getParameterAsString("what", "taxon")) {
 			case "taxon":
-				ResultProcessor<SimpleTaxEntResult> rp1 = new ResultProcessor<SimpleTaxEntResult>(driver.getQueryDriver().findTaxonSuggestions(query, limit));
+				Iterator<TaxEnt> ite = driver.getQueryDriver().findTaxonSuggestions(query, limit);
+				TaxEnt te;
 				response.setContentType("text/html");
-				response.getWriter().println(rp1.toHTMLList("suggestions"));
+				pw = response.getWriter();
+				pw.print("<ul class=\"suggestions\">");
+				while(ite.hasNext()) {
+					te = ite.next();
+					pw.print("<li" + (te.getCurrent() == null ? "" : (te.getCurrent() ? "" : " class=\"notcurrent\""))
+							+ " data-key=\"" + te.getID() + "\"><i>" + te.getName()+"</i></li>");
+//							+(this.taxent.getAuthor() == null ? "" : " "+this.taxent.getAuthor())+"</li>";
+				}
+				pw.print("</ul>");
+				pw.flush();
 				break;
 
 			case "user":

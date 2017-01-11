@@ -4,12 +4,17 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import com.arangodb.ArangoCursor;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.InferredStatus;
+import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 /**
  * Base class for all drivers. Provides database-independent functionality to process things.
@@ -71,6 +76,34 @@ public class BaseFloraOnDriver {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Takes a red list data object and fills in the responsible authors.
+	 * @param atomicPrivilegesIt
+	 * @param rldeIt
+	 * @return
+	 */
+	public List<RedListDataEntity> assignResponsibleAuthors(Iterator<AtomicTaxonPrivilege> atomicPrivilegesIt, Iterator<RedListDataEntity> rldeIt) {
+		AtomicTaxonPrivilege atp;
+		Multimap<String, AtomicTaxonPrivilege> atomicPrivileges = ArrayListMultimap.create();
+		while(atomicPrivilegesIt.hasNext()) {
+			atp = atomicPrivilegesIt.next();
+			atomicPrivileges.put(atp.getTaxEntId(), atp);
+		}
+
+		RedListDataEntity rlde;
+		List<RedListDataEntity> out = new ArrayList<>();
+		while(rldeIt.hasNext()) {
+			rlde = rldeIt.next();
+			for(AtomicTaxonPrivilege atp1 : atomicPrivileges.get(rlde.getTaxEntID())) {
+				if(atp1.isResponsibleForTexts()) rlde.addResponsibleForTexts(atp1.getUserId());
+				if(atp1.isResponsibleForAssessment()) rlde.addResponsibleForAssessment(atp1.getUserId());
+				if(atp1.isResponsibleForRevision()) rlde.addResponsibleForRevision(atp1.getUserId());
+			}
+			out.add(rlde);
+		}
+		return out;
 	}
 
 }

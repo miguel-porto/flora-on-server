@@ -25,6 +25,7 @@ import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxEntResult;
 import pt.floraon.driver.results.SimpleTaxonResult;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 public class QueryDriver extends GQuery implements IQuery {
 	protected ArangoDB dbDriver;
@@ -289,13 +290,13 @@ FOR final IN FLATTEN(FOR v IN base
     }
 
 	@Override
-    public Iterator<SimpleTaxEntResult> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
+    public Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
     	String limitQ;
     	if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
     	String _query = AQLQueries.getString("QueryDriver.1", query, limitQ);
 
     	try {
-			return database.query(_query, null, null, SimpleTaxEntResult.class);
+			return database.query(_query, null, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
