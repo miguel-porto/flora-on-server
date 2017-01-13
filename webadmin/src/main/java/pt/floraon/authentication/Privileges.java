@@ -53,16 +53,16 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
      * - assessment
      * - revision
      */
-    public static Set<String> responsibleTexts = new HashSet<>();
-    public static Set<String> responsibleAssessment = new HashSet<>();
-    public static Set<String> responsibleRevision = new HashSet<>();
+    public static Set<String> responsibleTextsPrivileges = new HashSet<>();
+    public static Set<String> responsibleAssessmentPrivileges = new HashSet<>();
+    public static Set<String> responsibleRevisionPrivileges = new HashSet<>();
     static {
-        responsibleTexts.add(EDIT_ALL_1_8.toString());
-        responsibleTexts.add(EDIT_ALL_TEXTUAL.toString());
+        responsibleTextsPrivileges.add(EDIT_ALL_1_8.toString());
+        responsibleTextsPrivileges.add(EDIT_ALL_TEXTUAL.toString());
 
-        responsibleAssessment.add(EDIT_9_1_2_3_4.toString());
+        responsibleAssessmentPrivileges.add(EDIT_9_1_2_3_4.toString());
 
-        responsibleRevision.add(EDIT_9_3_9_45.toString());
+        responsibleRevisionPrivileges.add(EDIT_9_3_9_45.toString());
     }
 
     Privileges(PrivilegeType pt, PrivilegeScope ps, String label) {
@@ -103,15 +103,15 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     }
 
     public static boolean isResponsibleForTexts(List<String> privileges) {
-        return !Collections.disjoint(responsibleTexts, privileges);
+        return !Collections.disjoint(responsibleTextsPrivileges, privileges);
     }
 
     public static boolean isResponsibleForAssessment(List<String> privileges) {
-        return !Collections.disjoint(responsibleAssessment, privileges);
+        return !Collections.disjoint(responsibleAssessmentPrivileges, privileges);
     }
 
     public static boolean isResponsibleForRevision(List<String> privileges) {
-        return !Collections.disjoint(responsibleRevision, privileges);
+        return !Collections.disjoint(responsibleRevisionPrivileges, privileges);
     }
 
     @Override

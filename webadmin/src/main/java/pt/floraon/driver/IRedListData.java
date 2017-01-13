@@ -1,9 +1,11 @@
 package pt.floraon.driver;
 
+import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -49,6 +51,15 @@ public interface IRedListData {
      * @return The new {@link RedListDataEntity}
      */
     RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
+
+    /**
+     * For all users, gets all taxon-specific privileges, disaggregated to species or inferior rank.
+     * Note that in the database they may be assigned to higher taxa. This function must return species or inferior.
+     * @param territory
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<AtomicTaxonPrivilege> getTaxonPrivilegesForAllUsers(String territory) throws DatabaseException;
 
     /**
      * Fetches all red list data for the given territory

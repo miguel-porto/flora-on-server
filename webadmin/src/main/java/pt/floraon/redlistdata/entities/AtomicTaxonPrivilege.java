@@ -5,6 +5,8 @@ import pt.floraon.authentication.Privileges;
 import java.util.List;
 
 /**
+ * Represents the disaggregated form of the taxon-specific privileges. This is basically a triplet:
+ * user-species-privileges
  * Created by miguel on 09-01-2017.
  */
 public class AtomicTaxonPrivilege {

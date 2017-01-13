@@ -5,6 +5,7 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.PreviousAssessment;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
@@ -62,7 +63,7 @@ System.out.println(gs.toJson(getUser()));
         Map<String, String> userMap = new HashMap<>();
         for(User u : allUsers) {
             userMap.put(u.getID(), u.getName());
-            userMap.put(u.getIDURLEncoded(), u.getName());
+//            userMap.put(u.getIDURLEncoded(), u.getName());
         }
 
         request.setAttribute("allUsers", allUsers);
@@ -242,6 +243,38 @@ HISTOGRAM!
             case "users":
                 List<User> allusers = driver.getAdministration().getAllUsers();
                 Map<String, String> taxonMap1 = new HashMap<>();
+
+                Map<String, Integer> responsibleTextCounter = new HashMap<>();
+                Map<String, Integer> responsibleAssessmentCounter = new HashMap<>();
+                Map<String, Integer> responsibleRevisionCounter = new HashMap<>();
+
+                Iterator<AtomicTaxonPrivilege> tps = driver.getRedListData().getTaxonPrivilegesForAllUsers(territory);
+                AtomicTaxonPrivilege atp;
+                while(tps.hasNext()) {
+                    atp = tps.next();
+                    if(atp.isResponsibleForTexts()) {
+                        if(responsibleTextCounter.get(atp.getUserId()) == null)
+                            responsibleTextCounter.put(atp.getUserId(), 1);
+                        else
+                            responsibleTextCounter.put(atp.getUserId(), responsibleTextCounter.get(atp.getUserId()) + 1);
+                    }
+
+                    if(atp.isResponsibleForAssessment()) {
+                        if(responsibleAssessmentCounter.get(atp.getUserId()) == null)
+                            responsibleAssessmentCounter.put(atp.getUserId(), 1);
+                        else
+                            responsibleAssessmentCounter.put(atp.getUserId(), responsibleAssessmentCounter.get(atp.getUserId()) + 1);
+                    }
+
+                    if(atp.isResponsibleForRevision()) {
+                        if(responsibleRevisionCounter.get(atp.getUserId()) == null)
+                            responsibleRevisionCounter.put(atp.getUserId(), 1);
+                        else
+                            responsibleRevisionCounter.put(atp.getUserId(), responsibleRevisionCounter.get(atp.getUserId()) + 1);
+                    }
+                }
+
+                // make a map with all taxon names used in privileges
                 for(User tmp : allusers) {
                     for (TaxonPrivileges tp : tmp.getTaxonPrivileges()) {
                         for (TaxEnt te1 : driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa())) {
@@ -252,6 +285,9 @@ HISTOGRAM!
 
                 request.setAttribute("users", allusers);
                 request.setAttribute("taxonMap", taxonMap1);
+                request.setAttribute("responsibleTextCounter", responsibleTextCounter);
+                request.setAttribute("responsibleAssessmentCounter", responsibleAssessmentCounter);
+                request.setAttribute("responsibleRevisionCounter", responsibleRevisionCounter);
                 request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
                         getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , null));

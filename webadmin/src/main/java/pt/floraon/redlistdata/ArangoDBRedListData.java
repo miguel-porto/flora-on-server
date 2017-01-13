@@ -86,18 +86,24 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     }
 
     @Override
+    public Iterator<AtomicTaxonPrivilege> getTaxonPrivilegesForAllUsers(String territory) throws DatabaseException {
+        // fetch taxon-specific user privileges for each species / infraspecies. This is needed because
+        // taxon-specific privileges may be assigned to higher taxa, so we must traverse the graph to get the species
+        // or inferior.
+        Iterator<AtomicTaxonPrivilege> apIt;
+        try {
+            apIt = database.query(AQLRedListQueries.getString("redlistdata.3", territory), null
+                    , null, AtomicTaxonPrivilege.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        return apIt;
+    }
+
+    @Override
     public List<RedListDataEntity> getAllRedListTaxa(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException {
         if(withTaxonSpecificPrivileges) {
-            // fetch taxon-specific user privileges for each species / infraspecies. This is needed because
-            // taxon-specific privileges may be assigned to higher taxa, so we must traverse the graph to get the species
-            // or inferior.
-            Iterator<AtomicTaxonPrivilege> apIt;
-            try {
-                apIt = database.query(AQLRedListQueries.getString("redlistdata.3", territory), null
-                        , null, AtomicTaxonPrivilege.class);
-            } catch (ArangoDBException e) {
-                throw new DatabaseException(e.getMessage());
-            }
+            Iterator<AtomicTaxonPrivilege> apIt = getTaxonPrivilegesForAllUsers(territory);
 
             Iterator<RedListDataEntity> rldeIt;
             try {

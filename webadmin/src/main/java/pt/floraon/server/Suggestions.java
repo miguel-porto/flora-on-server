@@ -47,7 +47,7 @@ public class Suggestions extends FloraOnServlet {
 				resp.print("<ul class=\"suggestions\">");
 				while(it.hasNext()) {
 					u = it.next();
-					resp.print("<li data-key=\"" + u.getIDURLEncoded() + "\">");
+					resp.print("<li data-key=\"" + u.getID() + "\">");
 					resp.print(u.getName());
 					resp.print("</li>");
 				}

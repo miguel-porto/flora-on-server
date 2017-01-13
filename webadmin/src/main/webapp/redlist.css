@@ -24,6 +24,8 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
     content: " \25B4\25BE"
 }
 
+td.bignumber {font-size:1.2em; vertical-align:middle; text-align:center; font-weight:bold}
+
 /* CONTENTEDITABLE DIVS */
 div[contenteditable=true] {
 /*background: linear-gradient(135deg, white 5px, #f3f3f3 5px, #f3f3f3 6px, transparent 6px, transparent 16px, #f3f3f3 16px, #f3f3f3 17px, transparent 17px),

@@ -26,6 +26,7 @@
             <li><a href="?w=main">Taxon index</a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users">Manage users</a></li>
+                <li><a href="api/downloaddata?territory=${territory}">Download data</a></li>
             </c:if>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
                 <li><a href="api/updatenativestatus?territory=${territory}">Update native status for ${territory}</a></li>
@@ -1265,8 +1266,8 @@
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
             <h1>User management</h1>
             <h2>Existing users</h2>
-            <table class="sortable">
-                <tr><th>Name</th><th>Global privileges</th><th>Taxon-specific privileges</th><th></th></tr>
+            <table class="sortable smalltext">
+                <tr><th>Name</th><th>Global privileges</th><th>Taxon-specific privileges</th><th>Responsible for texts</th><th>Responsible for assessment</th><th>Responsible for revision</th><th></th></tr>
                 <c:forEach var="tmp" items="${users}">
                     <c:if test="${user.getUserType() == 'ADMINISTRATOR' || (user.getUserType() != 'ADMINISTRATOR' && tmp.getUserType() != 'ADMINISTRATOR')}">
                     <tr><td>${tmp.getName()}</td>
@@ -1287,6 +1288,9 @@
                             </li>
                         </c:forEach>
                         </ul></td>
+                        <td class="bignumber">${responsibleTextCounter.get(tmp.getID())}</td>
+                        <td class="bignumber">${responsibleAssessmentCounter.get(tmp.getID())}</td>
+                        <td class="bignumber">${responsibleRevisionCounter.get(tmp.getID())}</td>
                         <td><div class="button anchorbutton"><a href="?w=edituser&amp;user=${tmp.getIDURLEncoded()}">edit user</a></div></td>
                     </tr>
                     </c:if>
