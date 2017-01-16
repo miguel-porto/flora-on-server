@@ -63,7 +63,8 @@ public final class Constants {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}
 
-	public static DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	public static DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 	public enum TaxonRanks {
 		NORANK("non-taxonomic rank",1000),CLASS("Class",50),FAMILY("Family",100),FORM("Form",240),GENUS("Genus",140),KINGDOM("Kingdom",10)

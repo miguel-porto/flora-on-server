@@ -9,7 +9,7 @@
 	<modules>
 		<module>webadmin</module>
 		<module>console</module>
-	</modules>
+    </modules>
 <!--
 	<build>
 	<plugins>

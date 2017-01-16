@@ -77,29 +77,48 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // for user privileges
-    attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=30&q=', 'suggestions');
+    attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=10&q=', 'suggestions', function(ev, name, key) {
+        clickAddTag2(name, key, 'applicableTaxa', 'ta_', 'taxonprivileges');
+    });
+/*
     addEvent('click', document.getElementById('addtaxonprivilege'), function(ev) {
         if(clickAddTag('taxonbox', 'applicableTaxa', 'ta_', 'taxonprivileges'))
             changeHandler.call(this, ev);
     });
+*/
 
-    attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions');
+    attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions', function(ev, name, key) {
+        if(clickAddTag2(name, key, 'assessment_Authors', 'aa_', 'textauthors'))
+            changeHandler.call(this, ev);
+    });
+/*
     addEvent('click', document.getElementById('addtextauthor'), function(ev) {
         if(clickAddTag('authorbox', 'assessment_Authors', 'aa_', 'textauthors'))
             changeHandler.call(this, ev);
     });
+*/
 
-    attachSuggestionHandler('assessorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'assessorsuggestions');
+    attachSuggestionHandler('assessorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'assessorsuggestions', function(ev, name, key) {
+        if(clickAddTag2(name, key, 'assessment_Evaluator', 'aas_', 'assessors'))
+            changeHandler.call(this, ev);
+    });
+/*
     addEvent('click', document.getElementById('addassessor'), function(ev) {
         if(clickAddTag('assessorbox', 'assessment_Evaluator', 'aas_', 'assessors'))
             changeHandler.call(this, ev);
     });
+*/
 
-    attachSuggestionHandler('reviewerbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'reviewersuggestions');
+    attachSuggestionHandler('reviewerbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'reviewersuggestions', function(ev, name, key) {
+        if(clickAddTag2(name, key, 'assessment_Reviewer', 'are_', 'reviewers'))
+            changeHandler.call(this, ev);
+    });
+/*
     addEvent('click', document.getElementById('addreviewer'), function(ev) {
         if(clickAddTag('reviewerbox', 'assessment_Reviewer', 'are_', 'reviewers'))
             changeHandler.call(this, ev);
     });
+*/
 
 /*
         if(!document.getElementById('taxonbox').hasAttribute('data-key')) {
@@ -142,6 +161,26 @@ function contentEditableBlurred(ev) {
     }, 10);
 }
 
+function clickAddTag2(name, key, inputName, prefix, multipleChooserId) {
+        var el = document.createElement('INPUT');
+        el.setAttribute('type', 'checkbox');
+        el.setAttribute('name', inputName);
+        el.setAttribute('id', prefix + key);
+        el.setAttribute('value', key);
+        el.setAttribute('checked', 'checked');
+
+        var el1 = document.createElement('LABEL');
+        el1.setAttribute('class', 'wordtag togglebutton');
+        el1.setAttribute('for', prefix + key);
+        el1.appendChild(document.createTextNode(name));
+
+        document.getElementById(multipleChooserId).appendChild(el);
+        document.getElementById(multipleChooserId).appendChild(el1);
+
+        return true;
+
+}
+
 function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
         var inputBox = document.getElementById(inputBoxId);
         if(!inputBox.hasAttribute('data-key')) {
@@ -170,6 +209,8 @@ function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
 }
 
 function changeHandler(ev) {
+    if(ev.target.classList.contains('nochangeevent')) return;
+
     if(ev.target.classList.contains('trigger')) {   // this field triggers display/hide other fields
         var triggered = getParentbyClass(ev.target, 'triggergroup');
         if(triggered)

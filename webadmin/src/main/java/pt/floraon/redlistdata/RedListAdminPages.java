@@ -5,12 +5,9 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
-import pt.floraon.redlistdata.entities.PreviousAssessment;
+import pt.floraon.redlistdata.entities.*;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
-import pt.floraon.redlistdata.entities.RedListDataEntity;
-import pt.floraon.redlistdata.entities.RedListEnums;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -22,6 +19,7 @@ import java.util.*;
 import java.util.List;
 
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
+import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
  * Main page of red list data
@@ -39,7 +37,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk07");
+        request.setAttribute("uuid", "sk08");
 
         ListIterator<String> path;
         try {
@@ -220,7 +218,20 @@ HISTOGRAM!
                 request.setAttribute("previousAssessments", prev);
 
                 request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
-                request.setAttribute("revisions", rlde.getRevisions());
+
+                Revision c1a;
+                Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
+                for(Revision r : rlde.getRevisions()) {
+                    c1a = r.getDayWiseRevision();
+                    if(edits.get(c1a) == null)
+                        edits.put(c1a, 1);
+                    else
+                        edits.put(c1a, edits.get(c1a) + 1);
+                }
+//                request.setAttribute("revisions", rlde.getRevisions());
+                request.setAttribute("revisions", edits.entrySet());
+//                edits.entrySet().iterator().next().getValue()
+
 
                 if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
                     // if it's published, block editing all fields

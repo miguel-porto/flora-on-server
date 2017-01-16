@@ -89,6 +89,11 @@ public class AdminAPI extends FloraOnServlet {
                 success(driver.getAdministration().updateUser(getParameterAsKey("userId"), u).getID());
                 break;
 
+            case "removetaxonprivileges":
+                success(driver.getAdministration().removeTaxonPrivileges(getParameterAsKey("userId")
+                        , getParameterAsInt("index")).getID());
+                break;
+
             default:
                 error("Command not found.");
         }

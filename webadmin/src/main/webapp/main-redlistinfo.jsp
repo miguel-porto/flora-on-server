@@ -49,9 +49,9 @@
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
         <table class="small">
             <thead><tr><th colspan="2">Statistics</th></tr></thead>
-            <tr><td>Nr. taxa with a responsible</td><td>${nrsppwithresponsible}</td></tr>
-            <tr><td>Nr. taxa with preliminary assessment</td><td>${nrspppreliminaryassessment}</td></tr>
-            <tr><td>Nr. taxa with texts ready</td><td>${nrspptextsready}</td></tr>
+            <tr><td>Nr. taxa with a responsible</td><td class="bignumber">${nrsppwithresponsible}</td></tr>
+            <tr><td>Nr. taxa with preliminary assessment</td><td class="bignumber">${nrspppreliminaryassessment}</td></tr>
+            <tr><td>Nr. taxa with texts ready</td><td class="bignumber">${nrspptextsready}</td></tr>
         </table>
         </c:if>
         <table id="speciesindex" class="sortable smalltext">
@@ -1056,10 +1056,11 @@
                                 <label for="aa_${tmp}" class="wordtag togglebutton">${userMap.get(tmp)}</label>
                             </c:forEach>
                             </div>
-                            <input type="text" class="nochangeevent" name="query" class="withsuggestions" placeholder="type first letters" autocomplete="off" id="authorbox"/>
-                            <input type="button" value="Add author" class="button" id="addtextauthor"/>
+                            <div class="withsuggestions">
+                                <input type="text" class="nochangeevent" name="query" placeholder="type first letters" autocomplete="off" id="authorbox"/>
+                                <div id="authorsuggestions"></div>
+                            </div>
                             <input type="button" value="Create new..." class="button" id="newauthor"/>
-                            <div id="authorsuggestions"></div>
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_5_9_6_9_61_9_91()}">
@@ -1087,10 +1088,11 @@
                                 <label for="aas_${tmp}" class="wordtag togglebutton">${userMap.get(tmp)}</label>
                             </c:forEach>
                             </div>
-                            <input type="text" class="nochangeevent" name="query" class="withsuggestions" placeholder="type first letters" autocomplete="off" id="assessorbox"/>
-                            <input type="button" value="Add assessor" class="button" id="addassessor"/>
+                            <div class="withsuggestions">
+                                <input type="text" class="nochangeevent" name="query" placeholder="type first letters" autocomplete="off" id="assessorbox"/>
+                                <div id="assessorsuggestions"></div>
+                            </div>
                             <input type="button" value="Create new..." class="button" id="newevaluator"/>
-                            <div id="assessorsuggestions"></div>
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_7_9_92()}">
@@ -1110,10 +1112,11 @@
                                 <label for="are_${tmp}" class="wordtag togglebutton">${userMap.get(tmp)}</label>
                             </c:forEach>
                             </div>
-                            <input type="text" class="nochangeevent" name="query" class="withsuggestions" placeholder="type first letters" autocomplete="off" id="reviewerbox"/>
-                            <input type="button" value="Add reviewer" class="button" id="addreviewer"/>
+                            <div class="withsuggestions">
+                                <input type="text" class="nochangeevent" name="query" placeholder="type first letters" autocomplete="off" id="reviewerbox"/>
+                                <div id="reviewersuggestions"></div>
+                            </div>
                             <input type="button" value="Create new..." class="button" id="newreviewer"/>
-                            <div id="reviewersuggestions"></div>
                         </td>
                     </c:if>
                     <c:if test="${!user.canEDIT_9_8_9_93()}">
@@ -1214,10 +1217,10 @@
             </table>
         </form>
         <h1>Revision history</h1>
-        <table>
-            <tr><th>Date saved</th><th>User</th></tr>
+        <table class="small">
+            <tr><th>Date saved</th><th>User</th><th>Number of edits</th></tr>
         <c:forEach var="rev" items="${revisions}">
-            <tr><td>${rev.getFormattedDateSaved()}</td><td>${userMap.get(rev.getUser())}</td></tr>
+            <tr><td>${rev.getKey().getFormattedDateSaved()}</td><td>${userMap.get(rev.getKey().getUser())}</td><td>${rev.getValue()}</td></tr>
         </c:forEach>
         </table>
     </c:when>
@@ -1356,9 +1359,9 @@
                 <c:if test="${tsprivileges.size() > 0}">
                 <h3>Existing privilege sets</h3>
                 <table>
-                    <thead><tr><th>Taxa</th><th>Privileges</th></tr></thead>
+                    <thead><tr><th>Taxa</th><th>Privileges</th><th></th></tr></thead>
                     <tbody>
-                    <c:forEach var="tsp" items="${tsprivileges}">
+                    <c:forEach var="tsp" items="${tsprivileges}" varStatus="loop">
                         <tr>
                             <td><ul>
                             <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
@@ -1369,6 +1372,13 @@
                             <c:forEach var="pri" items="${tsp.getPrivileges()}">
                                 <div class="wordtag">${pri.toString()}</div>
                             </c:forEach>
+                            </td>
+                            <td>
+                                <form class="poster" data-path="/floraon/admin/removetaxonprivileges" data-refresh="true">
+                                    <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
+                                    <input type="hidden" name="index" value="${loop.index}"/>
+                                    <input type="submit" value="Remove this privilege set" class="textbutton"/>
+                                </form>
                             </td>
                         </tr>
                     </c:forEach>
@@ -1383,11 +1393,11 @@
                         <tbody>
                             <tr>
                                 <td style="width:20%; vertical-align:top;">
-                                    <div class="multiplechooser" id="taxonprivileges">
+                                    <div class="multiplechooser" id="taxonprivileges"></div>
+                                    <div class="withsuggestions">
+                                        <input type="text" name="query" class="nochangeevent" placeholder="type some letters to find a taxon" autocomplete="off" id="taxonbox"/>
+                                        <div id="suggestions"></div>
                                     </div>
-                                    <input type="text" name="query" class="withsuggestions" placeholder="type some letters to find a taxon" autocomplete="off" id="taxonbox"/>
-                                    <input type="button" value="Add taxon" class="button" id="addtaxonprivilege"/>
-                                    <div id="suggestions"></div>
                                 </td>
                                 <td class="multiplechooser">
                                     <c:forEach var="tmp" items="${redlisttaxonprivileges}">

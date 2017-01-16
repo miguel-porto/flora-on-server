@@ -1,4 +1,4 @@
-function attachSuggestionHandler(elid, url, suggestionBoxId) {
+function attachSuggestionHandler(elid, url, suggestionBoxId, onClick) {
 	querybox = document.getElementById(elid);
 	addEvent('keydown', querybox, function(ev) {
 		var input=ev.target;
@@ -26,21 +26,40 @@ function attachSuggestionHandler(elid, url, suggestionBoxId) {
 		}
 		fetchAJAX(url + encodeURIComponent(input.value), function(rt) {
 			document.getElementById(suggestionBoxId).innerHTML=rt;
-			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id);
+			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick);
 		});
 	});
 }
 
-function makeSuggestionBox(el,targetInput) {
+function makeSuggestionBox(el, targetInput, onClick) {
 	el.setAttribute('data-inputel',targetInput);
-	
+
+	var style = window.getComputedStyle(document.getElementById(targetInput), null);
+	el.style.minWidth = style.getPropertyValue('width');
+
+    if(el.querySelector('li:first-child') == null) { // empty list
+        el.parentNode.innerHTML = 'no suggestions';
+        return;
+    }
 	el.querySelector('li:first-child').classList.add('selected');
 	var lis=el.querySelectorAll('li');
 	for(var i=0;i<lis.length;i++) {
 		addEvent('mouseenter',lis[i],suggestionOver);
 	}
-	
-	addEvent('click',el,suggestionClick);
+
+	if(onClick == null)
+	    addEvent('click',el,suggestionClick);
+	else
+	    addEvent('click',el,function(ev) {
+            var li = _getParentbyTag(ev.target, 'li');
+	        var el = li.parentNode.getAttribute('data-inputel');
+        	var inp = document.getElementById(el);
+            inp.value='';
+	        onClick(ev, li.innerHTML.replace(/<[^>]*>/g, ''), li.getAttribute('data-key'));
+
+        	var ul=_getParentbyTag(ev.target,'ul');
+           	ul.parentNode.removeChild(ul);
+	    });
 }
 
 function suggestionOver(ev) {

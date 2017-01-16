@@ -11,7 +11,7 @@ import pt.floraon.driver.results.InferredStatus;
 import java.text.ParseException;
 import java.util.*;
 
-import static pt.floraon.driver.Constants.dateFormat;
+import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
@@ -156,7 +156,7 @@ public class RedListDataEntity extends GeneralDBNode {
     public Integer getYearPublished() {
         try {
             Calendar cal = new GregorianCalendar();
-            cal.setTime(dateFormat.parse(datePublished));
+            cal.setTime(dateTimeFormat.parse(datePublished));
             return cal.get(Calendar.YEAR);
         } catch (ParseException e) {
             return null;
@@ -648,21 +648,21 @@ public class RedListDataEntity extends GeneralDBNode {
      * Updates the date assessed with the current date and time
      */
     public void updateDateAssessed() {
-        this.dateAssessed = dateFormat.format(new Date());
+        this.dateAssessed = dateTimeFormat.format(new Date());
     }
 
     /**
      * Updates the date published with the current date and time
      */
     public void updateDatePublished() {
-        this.datePublished = dateFormat.format(new Date());
+        this.datePublished = dateTimeFormat.format(new Date());
     }
 
     public void addRevision(String user) {
         if(this.revisions == null || this.revisions.size() == 0) this.revisions = new ArrayList<Revision>();
         this.revisions.add(new Revision(user));
 //        for(Revision r : this.revisions)
-//            System.out.println(r.getDateSaved().toString()+" "+r.getUser());
+//            System.out.println(r.getDateTimeSaved().toString()+" "+r.getUser());
     }
 
     public List<Revision> getRevisions() {

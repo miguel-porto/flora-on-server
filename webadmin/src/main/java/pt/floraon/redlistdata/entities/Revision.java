@@ -1,8 +1,14 @@
 package pt.floraon.redlistdata.entities;
 
+import pt.floraon.authentication.Privileges;
+
+import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static pt.floraon.driver.Constants.dateFormat;
+import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
  * Created by miguel on 28-12-2016.
@@ -19,12 +25,29 @@ public class Revision {
         this.user = user;
     }
 
-    public Date getDateSaved() {
+    public Date getDateTimeSaved() {
         return dateSaved;
+    }
+
+    public String getFormattedDateTimeSaved() {
+        return dateTimeFormat.format(dateSaved);
     }
 
     public String getFormattedDateSaved() {
         return dateFormat.format(dateSaved);
+    }
+
+    public Revision getDayWiseRevision() {
+        Revision out = new Revision();
+        Calendar c1 = new GregorianCalendar();
+        Calendar c2 = new GregorianCalendar();
+        c1.setTime(dateSaved);
+        c2.set(Calendar.YEAR, c1.get(Calendar.YEAR));
+        c2.set(Calendar.MONTH, c1.get(Calendar.MONTH));
+        c2.set(Calendar.DAY_OF_MONTH, c1.get(Calendar.DAY_OF_MONTH));
+        out.setDateSaved(c2.getTime());
+        out.setUser(user);
+        return out;
     }
 
     public void setDateSaved(Date dateSaved) {
@@ -37,5 +60,29 @@ public class Revision {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public static class RevisionComparator implements Comparator<Revision> {
+        public int compare(Revision o1, Revision o2) {
+            return o1.getDateTimeSaved().compareTo(o2.getDateTimeSaved());
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Revision revision = (Revision) o;
+
+        if (!dateSaved.equals(revision.dateSaved)) return false;
+        return user.equals(revision.user);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = dateSaved.hashCode();
+        result = 31 * result + user.hashCode();
+        return result;
     }
 }

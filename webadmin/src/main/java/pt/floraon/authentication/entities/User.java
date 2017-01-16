@@ -20,7 +20,6 @@ public class User extends NamedDBNode {
 	private UserType userType;
 	private Set<Privileges> privileges = new HashSet<>();
 	private List<TaxonPrivileges> taxonPrivileges;
-//	private String[] applicableTaxa = new String[0];
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)

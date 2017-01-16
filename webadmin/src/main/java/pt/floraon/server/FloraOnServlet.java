@@ -228,6 +228,14 @@ public class FloraOnServlet extends HttpServlet {
 		}
 	}
 
+	public int getParameterAsInt(String name) throws IOException, ServletException, FloraOnException {
+		try {
+			return Integer.parseInt(getParameterAsString(name));
+		} catch (NumberFormatException | NullPointerException e) {
+			throw new FloraOnException("Invalid parameter value");
+		}
+	}
+
 	public boolean getParameterAsBooleanNoNull(String name) throws IOException, ServletException, FloraOnException {
 		String tmp=getParameterAsString(name);
 		if(tmp==null) return false;				// parameter absent
