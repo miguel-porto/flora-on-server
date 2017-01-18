@@ -1,8 +1,11 @@
 package pt.floraon.redlistdata.entities;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static pt.floraon.driver.Constants.cleanArray;
 
 /**
  * Created by miguel on 23-11-2016.
@@ -130,7 +133,7 @@ public class Assessment {
     }
 
     public void setAuthors(String[] authors) {
-        this.authors = authors;
+        this.authors = cleanArray(authors);
     }
 
     public void setCollaborators(String collaborators) {
@@ -138,11 +141,11 @@ public class Assessment {
     }
 
     public void setEvaluator(String[] evaluator) {
-        this.evaluator = evaluator;
+        this.evaluator = cleanArray(evaluator);
     }
 
     public void setReviewer(String[] reviewer) {
-        this.reviewer = reviewer;
+        this.reviewer = cleanArray(reviewer);
     }
 
     public void setUpDownListing(RedListEnums.UpDownList upDownListing) {

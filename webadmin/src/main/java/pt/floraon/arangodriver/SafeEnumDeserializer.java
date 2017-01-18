@@ -17,10 +17,12 @@ public class SafeEnumDeserializer<T extends Enum> implements VPackDeserializer<T
 
     @Override
     public T deserialize(VPackSlice parent, VPackSlice vpack, VPackDeserializationContext vPackDeserializationContext) throws VPackException {
+        String tmp = vpack.getAsString();
+        if(tmp.equals("")) return null;
         try {
-            return (T) T.valueOf(tClass, vpack.getAsString());
+            return (T) T.valueOf(tClass, tmp);
         } catch (IllegalArgumentException e) {
-            Log.warn("Value " + vpack.getAsString() + " not found in enum constant.");
+            Log.warn("Value " + tmp + " not found in enum constant.");
             return null;
         }
 

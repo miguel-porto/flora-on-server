@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
 import pt.floraon.driver.FloraOnException;
@@ -67,9 +68,11 @@ public class RedListDataApi extends FloraOnServlet {
 
                 IntegerConverter iconverter = new IntegerConverter(null);
                 LongConverter longConverter = new LongConverter(null);
+                ArrayConverter arrayConverter = new ArrayConverter(Integer[].class, iconverter);
                 BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
                 beanUtilsBean.getConvertUtils().register(iconverter, Integer.class);
                 beanUtilsBean.getConvertUtils().register(longConverter, Long.class);
+                beanUtilsBean.getConvertUtils().register(arrayConverter, Integer[].class);
 
                 try {
                     beanUtilsBean.populate(rlde, map);
@@ -79,11 +82,9 @@ public class RedListDataApi extends FloraOnServlet {
                     error("Could not populate the java bean");
                     return;
                 }
-/*
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("BEAN:");
                 System.out.println(gs.toJson(rlde));
-*/
 
                 // if the review status is changed from not ready to ready to publish, update date assessed.
                 RedListDataEntity old = driver.getRedListData().getRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getTaxEntID()));

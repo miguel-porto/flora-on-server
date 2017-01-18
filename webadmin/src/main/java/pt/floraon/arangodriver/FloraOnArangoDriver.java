@@ -53,13 +53,14 @@ public class FloraOnArangoDriver implements IFloraOn {
 			}
 		};
 */
-//		driver = new ArangoDB.Builder().user(username).password(pass).build();
 
 		// register deserializers for enums that do not throw exceptions when value is not found
 		driver = new ArangoDB.Builder().user(username).password(pass)
 				.registerDeserializer(RedListEnums.DeclineDistribution.class, new SafeEnumDeserializer<>(RedListEnums.DeclineDistribution.class))
 				.registerDeserializer(RedListEnums.PercentMatureOneSubpop.class, new SafeEnumDeserializer<>(RedListEnums.PercentMatureOneSubpop.class))
 				.registerDeserializer(RedListEnums.AssessmentStatus.class, new SafeEnumDeserializer<>(RedListEnums.AssessmentStatus.class))
+				.registerDeserializer(RedListEnums.ProposedConservationActions.class, new SafeEnumDeserializer<>(RedListEnums.ProposedConservationActions.class))
+				.registerDeserializer(RedListEnums.Uses.class, new SafeEnumDeserializer<>(RedListEnums.Uses.class))
 				.registerDeserializer(Privileges.class, new SafeEnumDeserializer<>(Privileges.class))
 				.build();
 

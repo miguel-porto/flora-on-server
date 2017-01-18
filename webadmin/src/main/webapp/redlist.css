@@ -188,7 +188,22 @@ input[type=submit].textbutton {
 #map rect {fill:red; stroke-width: 1000px; stroke:red;}
 #map.floating rect {stroke-width: 0px;}
 
-label {display:block}
+
+.checkboxes {display:flex; flex-wrap: wrap; justify-content: space-between;}
+.checkboxes input[type=checkbox] {display:none;}
+.checkboxes label {
+    /*display: inline-block;*/
+    flex: 1 1 20%;
+    margin: 6px 10px;
+    padding: 4px 10px;
+    background-color: white;
+    box-shadow: 0 0 5px #ccc;
+    color:black;
+    cursor:pointer;
+}
+.checkboxes input:checked + label {background-color: #00e676; opacity:1; box-shadow: 0 0 5px #888;}
+.checkboxes input:not(:checked) + label {}
+label .legend {font-size: 0.6em; color:gray;}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
 table.small {width: auto;}

@@ -194,6 +194,7 @@ HISTOGRAM!
                 request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ExSituConservation", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ProposedConservationActions", RedListEnums.ProposedConservationActions.values());
+                request.setAttribute("conservation_ProposedStudyMeasures", RedListEnums.ProposedStudyMeasures.values());
                 request.setAttribute("assessment_Category", RedListEnums.RedListCategories.valuesNotUpDownListed());
                 request.setAttribute("assessment_SubCategory", RedListEnums.CRTags.values());
                 request.setAttribute("assessment_RegionalAssessment", RedListEnums.YesNoLikelyUnlikely.values());
@@ -207,6 +208,7 @@ HISTOGRAM!
                 request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
                 request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
                 request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
+                request.setAttribute("proposedStudyMeasures", Arrays.asList(rlde.getConservation().getProposedStudyMeasures()));
                 request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
                 request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
                 request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));

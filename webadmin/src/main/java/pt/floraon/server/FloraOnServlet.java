@@ -2,10 +2,7 @@ package pt.floraon.server;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -149,6 +146,8 @@ public class FloraOnServlet extends HttpServlet {
 	public final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+		response.setLocale(Locale.getDefault());
+
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			request.getRequestDispatcher("/error.html").forward(request, response);

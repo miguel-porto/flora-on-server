@@ -1,6 +1,7 @@
 package pt.floraon.server;
 
 import java.io.*;
+import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.ServletContextEvent;
@@ -17,12 +18,14 @@ import pt.floraon.driver.IFloraOn;
  */
 public class Startup implements ServletContextListener {
 	//public static FloraOnInt FloraOnDriver;
-	
+
 	public void contextInitialized(ServletContextEvent sce) {
 		IFloraOn FloraOnDriver;
 		File dir = new File(sce.getServletContext().getRealPath("/")).getParentFile();
 		Properties properties = new Properties();
 		InputStream propStream;
+
+		Locale.setDefault(Locale.forLanguageTag("pt"));
 
 		try {
 			propStream = new FileInputStream(new File(dir.getAbsolutePath() + "/floraon.properties"));

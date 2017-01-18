@@ -4,18 +4,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
-import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -487,4 +478,15 @@ public final class Constants {
 		return out;
     }
 
+	/**
+	 * Cleans an array from the empty strings. This is needed for the javabeans, where we must distinguish an empty array
+	 * from a null value.
+	 * @param array
+	 * @return
+	 */
+	public static String[] cleanArray(String[] array) {
+		List<String> tmp = new ArrayList<>(Arrays.asList(array));
+		tmp.removeAll(Collections.singleton(""));
+		return tmp.toArray(new String[tmp.size()]);
+	}
 }

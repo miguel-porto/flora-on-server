@@ -1,13 +1,12 @@
 package pt.floraon.redlistdata.entities;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by miguel on 16-11-2016.
  */
 public class RedListEnums {
+    private static ResourceBundle myBundle = ResourceBundle.getBundle("pt.floraon.redlistdata.fieldValues", Locale.forLanguageTag("pt"));
 
     public interface LabelledEnum {
         String getLabel();
@@ -15,6 +14,10 @@ public class RedListEnums {
 
     public interface TriggerEnum extends LabelledEnum {
         boolean isTrigger();
+    }
+
+    public interface LabelledEnumWithDescription extends LabelledEnum {
+        String getDescription();
     }
 
     public static <E extends Enum<E>> String[] getEnumValuesAsString(Class<E> clazz) {
@@ -324,20 +327,40 @@ public class RedListEnums {
         }
     }
 
-    public enum Uses implements LabelledEnum {
-        USE_A("Medicinal")
-        , USE_B("Edible")
-        , USE_C("Ornamental");
+    public enum Uses implements LabelledEnumWithDescription {
+        FOOD_HUMAN("Uses.1", "Uses.1.desc")
+        , FOOD_ANIMAL("Uses.2", "Uses.2.desc")
+        , BEE_PLANT("Uses.3", "Uses.3.desc")
+        , MEDICINES("Uses.4", "Uses.4.desc")
+        , POISONS("Uses.5", "Uses.5.desc")
+        , FUELS("Uses.6", "Uses.6.desc")
+        , ORNAMENTAL("Uses.7", "Uses.7.desc")
+        , HANDICRAFTS("Uses.8", "Uses.8.desc")
+        , WOOD_CORK("Uses.9", "Uses.9.desc")
+        , FIBRES("Uses.10", "Uses.10.desc")
+        , TANNINS("Uses.11", "Uses.11.desc")
+        , GUMS_RESINS("Uses.12", "Uses.12.desc")
+        , OTHER_MATERIALS("Uses.13", "Uses.13.desc")
+        , NATURAL_ENGINEERING("Uses.14", "Uses.14.desc")
+        , GENE_SOURCE("Uses.15", "Uses.15.desc")
+        , OTHER("Uses.16", "Uses.16.desc")
+        , UNKNOWN("Uses.17", "Uses.17.desc");
 
-        private String label;
+        private String label, description;
 
-        Uses(String desc) {
-            this.label = desc;
+        Uses(String label, String description) {
+            this.label = label;
+            this.description = description;
         }
 
         @Override
         public String getLabel() {
             return label;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
         }
     }
 
@@ -360,15 +383,44 @@ public class RedListEnums {
     }
 
     public enum ProposedConservationActions implements LabelledEnum {
-        NOT_REQUIRED("Additional studies or measures are not required")
-        , POPULATION_STUDIES("Requires studies about population dynamics or ecological requirements")
-        , THREAT_STUDIES("Threats should be studied")
-        , LEGISLATION("Requires conservation legislation")
-        , TAXONOMIC_STUDIES("Requires taxonomic studies");
+        SITE_PROTECTION("ProposedConservationActions.1"),
+        INVASIVE_CONTROL("ProposedConservationActions.2"),
+        HABITAT_RESTORATION("ProposedConservationActions.3"),
+        REPOPULATION("ProposedConservationActions.4"),
+        REINTRODUCTION("ProposedConservationActions.5"),
+        OTHER("ProposedConservationActions.6"),
+        ARTIFICIAL_PROPAGATION("ProposedConservationActions.7"),
+        GENOME_BANK("ProposedConservationActions.8"),
+        AWARENESS("ProposedConservationActions.9"),
+        NEW_LEGISLATION("ProposedConservationActions.10"),
+        LEGISLATION_ENFORCEMENT("ProposedConservationActions.11"),
+        INCENTIVES("ProposedConservationActions.12");
 
         private String label;
 
         ProposedConservationActions(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
+    public enum ProposedStudyMeasures implements LabelledEnum {
+        NO_STUDIES("ProposedStudyMeasures.1"),
+        TAXONOMY("ProposedStudyMeasures.2"),
+        POPULATION("ProposedStudyMeasures.3"),
+        ENVIRONMENTAL("ProposedStudyMeasures.4"),
+        THREATS("ProposedStudyMeasures.5"),
+        CONSERVATION("ProposedStudyMeasures.6"),
+        MONITORING("ProposedStudyMeasures.7"),
+        OTHER("ProposedStudyMeasures.8");
+
+        private String label;
+
+        ProposedStudyMeasures(String desc) {
             this.label = desc;
         }
 

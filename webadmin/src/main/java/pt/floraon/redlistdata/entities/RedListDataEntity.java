@@ -11,6 +11,7 @@ import pt.floraon.driver.results.InferredStatus;
 import java.text.ParseException;
 import java.util.*;
 
+import static pt.floraon.driver.Constants.cleanArray;
 import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
@@ -24,7 +25,7 @@ public class RedListDataEntity extends GeneralDBNode {
      * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#taxEntID}
      */
     @Expose(serialize = false, deserialize = true)
-    private transient TaxEnt taxEnt;
+    private TaxEnt taxEnt;
 
     @Expose(serialize = false, deserialize = false)
     private transient Set<String> responsibleAuthors_Texts;
@@ -168,7 +169,7 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setTags(String[] tags) {
-        this.tags = tags;
+        this.tags = cleanArray(tags);
     }
 
     public void setHasTaxonomicProblems(boolean hasTaxonomicProblems) {
@@ -470,6 +471,18 @@ public class RedListDataEntity extends GeneralDBNode {
         }
 //        this.getUsesAndTrade().setUses(tmp.toArray(new RedListEnums.Uses[0]));
         this.conservation.setProposedConservationActions(tmp.toArray(new RedListEnums.ProposedConservationActions[0]));
+    }
+
+    public void setConservation_ProposedStudyMeasures(String[] proposedStudyMeasures) {
+        List<RedListEnums.ProposedStudyMeasures> tmp = new ArrayList<>();
+        for(String s : proposedStudyMeasures) {
+            try {
+                tmp.add(RedListEnums.ProposedStudyMeasures.valueOf(s));
+            } catch (IllegalArgumentException e) {
+                Log.warn("Study measure "+s+" not found");
+            }
+        }
+        this.conservation.setProposedStudyMeasures(tmp.toArray(new RedListEnums.ProposedStudyMeasures[0]));
     }
 
     public void setConservation_ConservationPlansJustification(String conservationPlansJustification) {
