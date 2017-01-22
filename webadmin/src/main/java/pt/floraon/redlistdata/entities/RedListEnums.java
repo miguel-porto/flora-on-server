@@ -421,13 +421,13 @@ public class RedListEnums {
 
     public enum ProposedStudyMeasures implements LabelledEnumWithDescription {
         NO_STUDIES("ProposedStudyMeasures.1", "ProposedStudyMeasures.1.desc"),
-        TAXONOMY("ProposedStudyMeasures.2", "ProposedStudyMeasures.1.desc"),
-        POPULATION("ProposedStudyMeasures.3", "ProposedStudyMeasures.1.desc"),
-        ENVIRONMENTAL("ProposedStudyMeasures.4", "ProposedStudyMeasures.1.desc"),
-        THREATS("ProposedStudyMeasures.5", "ProposedStudyMeasures.1.desc"),
-        CONSERVATION("ProposedStudyMeasures.6", "ProposedStudyMeasures.1.desc"),
-        MONITORING("ProposedStudyMeasures.7", "ProposedStudyMeasures.1.desc"),
-        OTHER("ProposedStudyMeasures.8", "ProposedStudyMeasures.1.desc");
+        TAXONOMY("ProposedStudyMeasures.2", "ProposedStudyMeasures.2.desc"),
+        POPULATION("ProposedStudyMeasures.3", "ProposedStudyMeasures.3.desc"),
+        ENVIRONMENTAL("ProposedStudyMeasures.4", "ProposedStudyMeasures.4.desc"),
+        THREATS("ProposedStudyMeasures.5", "ProposedStudyMeasures.5.desc"),
+        CONSERVATION("ProposedStudyMeasures.6", "ProposedStudyMeasures.6.desc"),
+        MONITORING("ProposedStudyMeasures.7", "ProposedStudyMeasures.7.desc"),
+        OTHER("ProposedStudyMeasures.8", "ProposedStudyMeasures.8.desc");
 
         private String label, description;
 
@@ -583,9 +583,9 @@ public class RedListEnums {
     }
 
     public enum TextStatus implements LabelledEnum {
-        NO_TEXT("No texts")
-        , IN_PROGRESS("In progress")
-        , READY("Ready to be assessed");
+        NO_TEXT("TextStatus.1")
+        , IN_PROGRESS("TextStatus.2")
+        , READY("TextStatus.3");
         private String label;
 
         TextStatus(String desc) {
@@ -599,8 +599,8 @@ public class RedListEnums {
     }
 
     public enum AssessmentStatus implements LabelledEnum {
-        NOT_EVALUATED("Not assessed yet")
-        , PRELIMINARY("Preliminary assessment");
+        NOT_EVALUATED("AssessmentStatus.1")
+        , PRELIMINARY("AssessmentStatus.2");
 
         private String label;
 
@@ -613,12 +613,15 @@ public class RedListEnums {
             return label;
         }
 
+        public boolean isAssessed() {
+            return this == PRELIMINARY;
+        }
     }
 
     public enum ReviewStatus implements LabelledEnum {
-        NOT_REVISED("Not revised")
-        , REVISED_WORKING("Revised, improvements needed")
-        , REVISED_PUBLISHING("Revised, ready to publish");
+        NOT_REVISED("ReviewStatus.1")
+        , REVISED_WORKING("ReviewStatus.2")
+        , REVISED_PUBLISHING("ReviewStatus.3");
 
         private String label;
 
@@ -634,10 +637,10 @@ public class RedListEnums {
     }
 
     public enum PublicationStatus implements LabelledEnum {
-        NOT_PUBLISHED("Not published")
-        , APPROVED("Approved, ready to publish")
-        , SELECTED_DISCUSSION("Selected to discussion")
-        , PUBLISHED("Published");
+        NOT_PUBLISHED("PublicationStatus.1")
+        , APPROVED("PublicationStatus.2")
+        , SELECTED_DISCUSSION("PublicationStatus.3")
+        , PUBLISHED("PublicationStatus.4");
 
         private String label;
 

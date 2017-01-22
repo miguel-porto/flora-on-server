@@ -68,9 +68,9 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 
 .wordtag {
     border-radius: 4px;
-    padding: 2px 14px;
+    padding: 3px 14px;
     display:inline-block;
-    font-size:0.7em;
+    font-size:0.8em;
     text-transform: uppercase;
     font-weight:bold;
     margin: 6px;
@@ -80,23 +80,59 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 .togglebutton {
     background-color: #2979ff;
     cursor:pointer;
+    box-shadow: 0 0 3px gray;
 }
+/*.togglebutton.selected {background-color:#b2ff59; color:black;}*/
 
 .togglebutton, .togglebutton a, .togglebutton a:visited {color:white}
 
 
 /********** SPECIES INDEX ***********/
 #speciesindex td {padding:4px;}
-#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}
+/*#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}*/
+#speciesindex tr.responsible td {background-color: #b2ff59;}
+#speciesindex.onlyresponsible tbody tr:not(.responsible) {display: none;}
+#speciesindex.onlynative tbody tr:not(.native) {display: none;}
+#speciesindex.onlypublished tbody tr:not(.published) {display: none;}
+#speciesindex.onlyassessed tbody tr:not(.assessed) {display: none;}
+
 #speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:1em}
 #speciesindex .redlistcategory {width:50px; height:50px; padding:6px;}
 #speciesindex .redlistcategory h1 {font-size:1.8rem !important; margin:5px 0 0 0!important;}
 #speciesindex .redlistcategory sup {font-size: 0.8rem !important; right:2px !important;}
 #speciesindex .redlistcategory p {font-size:0.7rem !important;}
 
-#filters {padding:16px; text-align:left; background-color: rgba(255,  64, 129, 0.3);}
-#filters .filter {background-color:#ddd; padding:4px 8px; border-radius:8px; margin:6px; display:inline-block; cursor:pointer}
-#filters .filter.selected {background-color:#64dd17;}
+#filters {padding:8px; text-align:left; }
+.filter {
+    border-radius: 50px 4px 4px 50px;
+    padding: 0 8px 0 0;
+    display:inline-block;
+    font-size:0.9em;
+    text-transform: uppercase;
+    font-weight:bold;
+    margin: 6px;
+    box-shadow: 0 0 3px gray;
+    cursor:pointer;
+    background-color: #3949ab;
+}
+
+.filter.selected {background-color: #3949ab}
+
+.filter>div {
+    display: inline-block;
+    vertical-align: middle;
+    color: white;
+}
+
+.filter>div.light {
+    margin: 5px 10px 5px 5px;
+    border-radius: 50%;
+    box-shadow: 0 0 5px gray;
+    width: 1.5em;
+    height: 1.5em;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+.filter.selected>div.light {background-color:#76ff03; box-shadow: 0 0 7px #76ff03;}
 
 /********** RED LIST DATA SHEET *******/
 #sheet-header {
@@ -196,7 +232,7 @@ input[type=submit].textbutton {
 .checkboxes.list {display: block; cursor:pointer;}
 
 .checkboxes input[type=checkbox], .checkboxes input[type=radio] {display:none;}
-.checkboxes label, .checkboxes.list div.placeholder {
+.checkboxes label, .checkboxes.list .placeholder {
     flex: 1 1 20%;
     margin: 6px 6px;
     padding: 4px 10px;
@@ -206,13 +242,13 @@ input[type=submit].textbutton {
     cursor:pointer;
     transition: background-color 0.15s;
 }
-.checkboxes.list label, .checkboxes.list div.placeholder {display: block; transition: max-height 0.5s, padding 0.5s, margin 0.5s, background-color 0.15s; overflow:hidden; max-height:150px;}
+.checkboxes.list label, .checkboxes.list .placeholder {display: block; transition: max-height 0.5s, padding 0.5s, margin 0.5s, background-color 0.15s; overflow:hidden; max-height:100px;}
 .checkboxes input:checked + label {background-color: #64b5f6; opacity:1; box-shadow: 0 0 5px #888;}
 .checkboxes.list input:not(:checked) + label {}
 table.sheet:not(.help) .checkboxes.list:not(:focus) input:not(:checked) + label {max-height: 0px; padding: 0px 10px; margin: 0px 6px;}
 table.sheet:not(.help) .checkboxes.list:not(:focus) input, table.sheet:not(.help) .checkboxes.list:not(:focus) label {pointer-events: none;}
-.checkboxes.list:not(:focus) input:checked + label ~ div.placeholder, .checkboxes.list:focus div.placeholder {display: none}
-table.sheet.help div.placeholder {display: none !important;}
+.checkboxes.list:not(:focus) input:checked + label ~ .placeholder, .checkboxes.list:focus .placeholder {display: none}
+table.sheet.help .placeholder {display: none !important;}
 
 label .legend {font-size: 0.6em; color:gray;}
 

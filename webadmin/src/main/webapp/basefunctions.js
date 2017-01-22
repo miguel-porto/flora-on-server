@@ -3,7 +3,7 @@ var $=function(elem) {
 }
 
 function addEvent(evnt, elem, func) {
-	if(!elem) return;
+    if(!elem) return;
    if (elem.addEventListener)  // W3C DOM
       elem.addEventListener(evnt,func,false);
    else if (elem.attachEvent) { // IE DOM

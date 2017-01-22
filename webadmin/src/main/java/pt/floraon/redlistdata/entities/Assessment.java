@@ -84,19 +84,19 @@ public class Assessment {
     }
 
     public RedListEnums.AssessmentStatus getAssessmentStatus() {
-        return assessmentStatus;
+        return assessmentStatus == null ? RedListEnums.AssessmentStatus.NOT_EVALUATED : assessmentStatus;
     }
 
     public RedListEnums.TextStatus getTextStatus() {
-        return textStatus;
+        return textStatus == null ? RedListEnums.TextStatus.NO_TEXT : textStatus;
     }
 
     public RedListEnums.ReviewStatus getReviewStatus() {
-        return reviewStatus;
+        return reviewStatus == null ? RedListEnums.ReviewStatus.NOT_REVISED : reviewStatus;
     }
 
     public RedListEnums.PublicationStatus getPublicationStatus() {
-        return publicationStatus;
+        return publicationStatus == null ? RedListEnums.PublicationStatus.NOT_PUBLISHED : publicationStatus;
     }
 
     public List<PreviousAssessment> getPreviousAssessmentList() {
@@ -237,4 +237,20 @@ public class Assessment {
         this.previousAssessmentList.add(new PreviousAssessment(year, category));
     }
 
+    /**
+     * Gets the status of this taxon, assuming the sequential order:
+     * PublicationStatus.PUBLISHED => ReviewStatus.REVISED_PUBLISHING => AssessmentStatus.PRELIMINARY => TextStatus.READY
+     * @return
+     */
+    public String[] getSequentialAssessmentStatus() {
+        if(this.publicationStatus != null && this.publicationStatus == RedListEnums.PublicationStatus.PUBLISHED)
+            return new String[] {this.publicationStatus.getLabel(), "EmptyString"};
+        if(this.textStatus != null && this.textStatus != RedListEnums.TextStatus.READY) return new String[] {this.textStatus.getLabel(), "EmptyString"};
+        if(this.assessmentStatus != null && this.assessmentStatus != RedListEnums.AssessmentStatus.PRELIMINARY)
+            return new String[] {this.textStatus == null ? "EmptyString" : this.textStatus.getLabel(), this.assessmentStatus.getLabel()};
+        if(this.reviewStatus != null && this.reviewStatus != RedListEnums.ReviewStatus.REVISED_PUBLISHING)
+            return new String[] {this.assessmentStatus == null ? "EmptyString" : this.assessmentStatus.getLabel(), this.reviewStatus.getLabel()};
+        return this.publicationStatus == null ? null
+            : new String[] {this.reviewStatus == null ? "EmptyString" : this.reviewStatus.getLabel(), this.publicationStatus.getLabel()};
+    }
 }

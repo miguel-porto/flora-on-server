@@ -37,7 +37,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk10");
+        request.setAttribute("uuid", "sk11");
 
         ListIterator<String> path;
         try {
@@ -73,7 +73,8 @@ System.out.println(gs.toJson(getUser()));
  */
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
-                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, getUser().canMANAGE_REDLIST_USERS());
+//                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, getUser().canMANAGE_REDLIST_USERS());
+                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, true);
                 int count1 = 0, count2 = 0, count3 = 0;
                 for(RedListDataEntity rlde1 : taxEntList) {
                     if(rlde1.hasResponsibleForTexts()) count1++;
@@ -81,7 +82,7 @@ System.out.println(gs.toJson(getUser()));
                     if(rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY) count3++;
                 }
 
-//                taxEntList.get(0).getResponsibleAuthors_Texts();
+//                taxEntList.get(0).getAssessment().getAssessmentStatus().isAssessed()
                 request.setAttribute("specieslist", taxEntList);
                 request.setAttribute("nrsppwithresponsible", count1);
                 request.setAttribute("nrspppreliminaryassessment", count2);

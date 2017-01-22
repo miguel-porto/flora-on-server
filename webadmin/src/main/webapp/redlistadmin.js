@@ -40,6 +40,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('table.sheet').classList.toggle('help');
     });
 
+    var filters = document.querySelectorAll('#filters .filter');
+    for(var i=0; i<filters.length; i++) {
+        addEvent('click', filters[i], function(ev) {
+            var el = getParentbyClass(ev.target, 'filter');
+            el.classList.toggle('selected');
+            document.getElementById('speciesindex').classList.toggle(el.id);
+        });
+    }
+
 /*
     addEvent('click', document.getElementById('highlight_toggle'), function(ev) {
         document.querySelector('table.sheet').classList.toggle('showhighlights');
