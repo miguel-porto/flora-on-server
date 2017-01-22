@@ -159,6 +159,7 @@
                             <c:if test="${user.canEDIT_ANY_FIELD()}">
                                 <input type="submit" value="" id="mainformsubmitter" class="hidden"/>
                             </c:if>
+                                <div id="toggle_help"></div>
                             </div>
                         </td>
                     </tr>
@@ -223,14 +224,20 @@
                             No correspondence in Flora-On
                         </c:if>
                         <c:if test="${occurrences != null}">
-                            <c:if test="${EOO == null}">
-                                Not applicable (${occurrences.size()} occurrences, ${nclusters} sites)
-                            </c:if>
-                            <c:if test="${EOO != null}">
-                                <c:if test="${warning != null}"><div class="warning">${warning}</div></c:if>
+                        <table class="subtable">
+                            <tr><td><b>EOO</b></td><td>
                                 <input type="hidden" name="geographicalDistribution_EOO" value="${EOO}"/>
-                                <b><fmt:formatNumber value="${EOO}" maxFractionDigits="0" groupingUsed="false"/></b> km<sup>2</sup> (${occurrences.size()} occurrences, ${nclusters} sites)
+                                <b><fmt:formatNumber value="${EOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup></b> (${occurrences.size()} occurrences, ${nclusters} sites)
+                            </td></tr>
+                            <c:if test="${realEOO != null && realEOO != EOO}">
+                            <tr><td>Real EOO</td><td>
+                                <fmt:formatNumber value="${realEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup>
+                            </td></tr>
                             </c:if>
+                            <tr><td>UTM square EOO</td><td>
+                                <fmt:formatNumber value="${squareEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup>
+                            </td></tr>
+                        </table>
                         </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title">2.3</td><td>Area Of Occupancy<br/>(AOO)</td><td>
@@ -249,10 +256,10 @@
                                 <select name="geographicalDistribution_DeclineDistribution" class="trigger">
                                     <c:forEach var="tmp" items="${geographicalDistribution_DeclineDistribution}">
                                         <c:if test="${rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                         </c:if>
                                         <c:if test="${!rlde.getGeographicalDistribution().getDeclineDistribution().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                         </c:if>
                                     </c:forEach>
                                 </select>
@@ -265,7 +272,7 @@
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION2()}">
                         <table>
-                            <tr><td>Category</td><td>${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}</td></tr>
+                            <tr><td>Category</td><td><fmt:message key="${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}" /></td></tr>
                             <tr><td>Justification</td><td>${rlde.getGeographicalDistribution().getDeclineDistributionJustification()}</td></tr>
                         </table>
                         </c:if>
@@ -362,17 +369,17 @@
                         </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.4</td><td>Decline in population size</td><td>
+                    <tr class="section3"><td class="title">3.4</td><td><fmt:message key="DataSheet.label.3.4" /></td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
                                 <select name="population_PopulationDecline" class="trigger">
                                     <c:forEach var="tmp" items="${population_PopulationDecline}">
                                         <c:if test="${rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                         </c:if>
                                         <c:if test="${!rlde.getPopulation().getPopulationDecline().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                         </c:if>
                                     </c:forEach>
                                 </select>
@@ -388,29 +395,34 @@
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
                         <table>
-                            <tr><td>Category</td><td>${rlde.getPopulation().getPopulationDecline().getLabel()}</td></tr>
+                            <tr><td>Category</td><td><fmt:message key="${rlde.getPopulation().getPopulationDecline().getLabel()}" /></td></tr>
                             <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationDeclinePercent()}</td></tr>
                             <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationDeclineJustification()}</td></tr>
                         </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.5</td><td>Population size reduction</td><td>
+                    <tr class="section3"><td class="title">3.5</td><td><fmt:message key="DataSheet.label.3.5" /></td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
-                        <table>
-                            <tr><td>Percentage</td><td><input type="number" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}"/> %</td></tr>
+                        <table class="triggergroup">
                             <tr><td>Category</td><td>
-                                <select name="population_PopulationSizeReduction">
+                                <div class="checkboxes list" tabindex="0">
                                     <c:forEach var="tmp" items="${population_PopulationSizeReduction}">
                                         <c:if test="${rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                            <input type="radio" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" checked="checked" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
+                                            <label for="psr_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
                                         </c:if>
                                         <c:if test="${!rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                            <input type="radio" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
+                                            <label for="psr_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
                                         </c:if>
                                     </c:forEach>
-                                </select>
+                                    <div class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></div>
+                                </div>
                             </td></tr>
-                            <tr><td>Justification</td><td>
+                            <tr class="triggered ${rlde.getPopulation().getPopulationSizeReduction().isTrigger() ? '' : 'hidden'}"><td>Percentage</td><td>
+                                <input type="number" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}" placeholder="percentage"/> %
+                            </td></tr>
+                            <tr class="triggered ${rlde.getPopulation().getPopulationSizeReduction().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getPopulationSizeReductionJustification()}</div>
                                 <input type="hidden" name="population_PopulationSizeReductionJustification" value="${fn:escapeXml(rlde.getPopulation().getPopulationSizeReductionJustification())}"/>
                             </td></tr>
@@ -570,10 +582,10 @@
                             <select name="ecology_DeclineHabitatQuality" class="trigger">
                                 <c:forEach var="tmp" items="${ecology_DeclineHabitatQuality}">
                                     <c:if test="${rlde.getEcology().getDeclineHabitatQuality().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                     </c:if>
                                     <c:if test="${!rlde.getEcology().getDeclineHabitatQuality().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                     </c:if>
                                 </c:forEach>
                             </select>
@@ -586,7 +598,7 @@
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION4()}">
                     <table>
-                        <tr><td>Category</td><td>${rlde.getEcology().getDeclineHabitatQuality().getLabel()}</td></tr>
+                        <tr><td>Category</td><td><fmt:message key="${rlde.getEcology().getDeclineHabitatQuality().getLabel()}" /></td></tr>
                         <tr><td>Justification</td><td>${rlde.getEcology().getDeclineHabitatQualityJustification()}</td></tr>
                     </table>
                     </c:if>
@@ -605,7 +617,7 @@
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section5"><td class="title">5.2</td><td><fmt:message key="DataSheet.label.5.2" /></td><td>
                         <c:if test="${user.canEDIT_SECTION5()}">
-                            <div class="checkboxes">
+                            <div class="checkboxes list" tabindex="0">
                                 <input type="hidden" name="usesAndTrade_Uses" value=""/>
                             <c:forEach var="tmp" items="${usesAndTrade_Uses}">
                                 <c:if test="${uses.contains(tmp)}">
@@ -617,6 +629,7 @@
                                     <label for="uses_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
                                 </c:if>
                             </c:forEach>
+                            <div class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></div>
                             </div>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION5()}">
@@ -836,18 +849,19 @@
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td><fmt:message key="DataSheet.label.7.5" /></td><td>
                         <c:if test="${user.canEDIT_SECTION7()}">
-                        <div class="checkboxes">
+                        <div class="checkboxes list" tabindex="0">
                             <input type="hidden" name="conservation_ProposedConservationActions" value=""/>
                             <c:forEach var="tmp" items="${conservation_ProposedConservationActions}">
                                 <c:if test="${proposedConservationActions.contains(tmp)}">
                                     <input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}" checked="checked" id="pca_${tmp}"/>
-                                    <label for="pca_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
+                                    <label for="pca_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
                                 </c:if>
                                 <c:if test="${!proposedConservationActions.contains(tmp)}">
                                     <input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}" id="pca_${tmp}"/>
-                                    <label for="pca_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
+                                    <label for="pca_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
                                 </c:if>
                             </c:forEach>
+                            <div class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></div>
                         </div>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION7()}">
@@ -861,18 +875,19 @@
 
                     <tr class="section7"><td class="title">7.6</td><td><fmt:message key="DataSheet.label.7.6" /></td><td>
                         <c:if test="${user.canEDIT_SECTION7()}">
-                        <div class="checkboxes">
+                        <div class="checkboxes list" tabindex="0">
                             <input type="hidden" name="conservation_ProposedStudyMeasures" value=""/>
                             <c:forEach var="tmp" items="${conservation_ProposedStudyMeasures}">
                                 <c:if test="${proposedStudyMeasures.contains(tmp)}">
                                     <input type="checkbox" name="conservation_ProposedStudyMeasures" value="${tmp.toString()}" checked="checked" id="psm_${tmp}"/>
-                                    <label for="psm_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
+                                    <label for="psm_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
                                 </c:if>
                                 <c:if test="${!proposedStudyMeasures.contains(tmp)}">
                                     <input type="checkbox" name="conservation_ProposedStudyMeasures" value="${tmp.toString()}" id="psm_${tmp}"/>
-                                    <label for="psm_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
+                                    <label for="psm_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
                                 </c:if>
                             </c:forEach>
+                            <div class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></div>
                         </div>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION7()}">
@@ -907,7 +922,7 @@
                                         </h1>
                                         <p>${tmp.getLabel()}</p>
                                     </label>
-                                    <c:if test="${tmp == 'RE' || tmp == 'LC'}"><br/></c:if>
+                                    <c:if test="${tmp == 'VU'}"><br/></c:if>
                                 </c:forEach>
                             </c:if>
                             <c:if test="${!user.canEDIT_9_1_2_3_4()}">

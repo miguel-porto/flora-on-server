@@ -26,6 +26,12 @@ public interface ExternalDataProvider extends Iterable<ExternalDataProvider.Simp
     void setClippingPolygon(IPolygonTheme theme);
 
     /**
+     * Sets the minimum year considered for including occurrences
+     * @param minimumYear
+     */
+    void setMinimumYear(Integer minimumYear);
+
+    /**
      * Executes a query and updates the Iterable list of occurrences with the results.
      * @param query
      * @throws FloraOnException

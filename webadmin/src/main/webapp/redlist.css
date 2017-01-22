@@ -74,7 +74,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     text-transform: uppercase;
     font-weight:bold;
     margin: 6px;
-    background-color: #64b5f6
+    background-color: #64b5f6;
 }
 
 .togglebutton {
@@ -127,13 +127,16 @@ input[type=submit], .floatingtoolbar>div {
     color: white;
     border:0;
     transform: scale(1, 1);
+    visibility: visible;
     transition: transform 0.4s;
-    opacity: 1;
+    transition-delay: 0s;
+    pointer-events: auto;
 }
 
 input[type=submit].hidden, .button.hidden, .floatingtoolbar>div.hidden {
     transform: scale(0.01, 0.01);
-    opacity: 0;
+    visibility: hidden;
+    transition: visibility 0s linear 0.4s, transform 0.4s linear;
 }
 
 input[type=submit].textbutton {
@@ -190,19 +193,27 @@ input[type=submit].textbutton {
 
 
 .checkboxes {display:flex; flex-wrap: wrap; justify-content: space-between;}
-.checkboxes input[type=checkbox] {display:none;}
-.checkboxes label {
-    /*display: inline-block;*/
+.checkboxes.list {display: block; cursor:pointer;}
+
+.checkboxes input[type=checkbox], .checkboxes input[type=radio] {display:none;}
+.checkboxes label, .checkboxes.list div.placeholder {
     flex: 1 1 20%;
-    margin: 6px 10px;
+    margin: 6px 6px;
     padding: 4px 10px;
     background-color: white;
     box-shadow: 0 0 5px #ccc;
     color:black;
     cursor:pointer;
+    transition: background-color 0.15s;
 }
-.checkboxes input:checked + label {background-color: #00e676; opacity:1; box-shadow: 0 0 5px #888;}
-.checkboxes input:not(:checked) + label {}
+.checkboxes.list label, .checkboxes.list div.placeholder {display: block; transition: max-height 0.5s, padding 0.5s, margin 0.5s, background-color 0.15s; overflow:hidden; max-height:150px;}
+.checkboxes input:checked + label {background-color: #64b5f6; opacity:1; box-shadow: 0 0 5px #888;}
+.checkboxes.list input:not(:checked) + label {}
+table.sheet:not(.help) .checkboxes.list:not(:focus) input:not(:checked) + label {max-height: 0px; padding: 0px 10px; margin: 0px 6px;}
+table.sheet:not(.help) .checkboxes.list:not(:focus) input, table.sheet:not(.help) .checkboxes.list:not(:focus) label {pointer-events: none;}
+.checkboxes.list:not(:focus) input:checked + label ~ div.placeholder, .checkboxes.list:focus div.placeholder {display: none}
+table.sheet.help div.placeholder {display: none !important;}
+
 label .legend {font-size: 0.6em; color:gray;}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
@@ -220,6 +231,7 @@ table tr:hover td:not(.title) {background-color:#f0fff0;}
     right:0;
     bottom:0;
     z-index: 2;
+    pointer-events: none;
 }
 
 .floatingtoolbar>input, .floatingtoolbar>div {
@@ -235,6 +247,16 @@ table tr:hover td:not(.title) {background-color:#f0fff0;}
     background-color: #2979ff;
     background-image: url(images/remove_formatting.png);
 }
+
+#toggle_help {
+    background-color: #2979ff;
+    background-image: url(images/ic_menu_help.png);
+    background-size: 64px 64px;
+}
+
+table.sheet.help #toggle_help {background-color:yellow;}
+
+table.sheet:not(.help) .legend {display:none;}
 
 table.sheet input[type=submit] {
     background-color: #ff4081;
@@ -311,8 +333,8 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
 }
 
 #redlistcategories label {
-    transition: transform 0.4s, opacity 0.4s;
-    vertical-align:bottom;
+    transition: transform 0.4s, opacity 0.4s, margin 0.4s;
+    vertical-align: middle;
     opacity:0.25;
 }
 
@@ -336,7 +358,7 @@ div.warning {display:inline-block; background-color:#c62828; border-radius:6px; 
 #redlistcategories label p, .redlistcategory p {font-size:1rem !important; text-align: center; color:black; padding:0 !important; line-height:1.2em;}
 #redlistcategories label:hover {opacity:1}
 #redlistcategories input:checked + label {opacity:1}
-#redlistcategories input:not(:checked) + label {transform:scale(0.4, 0.4)}
+#redlistcategories input:not(:checked) + label {transform:scale(0.4, 0.4); margin: -30px;}
 
 /********** RECORD TABLE *******/
 .sortable th {cursor:pointer;}

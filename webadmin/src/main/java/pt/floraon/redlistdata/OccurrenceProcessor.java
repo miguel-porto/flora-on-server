@@ -25,7 +25,7 @@ public class OccurrenceProcessor {
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
     private IPolygonTheme protectedAreas;
-    private Double EOO;
+    private Double EOO, realEOO, squareEOO, AOO;
     private int nQuads;
     private long sizeOfSquare;
 
@@ -39,6 +39,15 @@ public class OccurrenceProcessor {
 
         public Rectangle2D getSquare() {
             return new Rectangle2D.Double(qx * sizeOfSquare, qy * sizeOfSquare, sizeOfSquare, sizeOfSquare);
+        }
+
+        public List<Point2D> getVertices() {
+            List<Point2D> out = new ArrayList<>(4);
+            out.add(new Point2D(qx * sizeOfSquare, qy * sizeOfSquare));
+            out.add(new Point2D((qx + 1) * sizeOfSquare, qy * sizeOfSquare));
+            out.add(new Point2D(qx * sizeOfSquare, (qy + 1) * sizeOfSquare));
+            out.add(new Point2D((qx + 1) * sizeOfSquare, (qy + 1) * sizeOfSquare));
+            return out;
         }
 
         @Override
@@ -88,6 +97,15 @@ public class OccurrenceProcessor {
                 pointsInPolygons.put(tmp1, nullPolygon);    // Multimap does not accept null values
         }
 
+        // now calculate the number of UTM squares occupied
+        squares = new HashSet<>();
+        for (Point2D u : pointsInPolygons.keySet()) {
+            squares.add(new Square(u));
+        }
+
+        this.nQuads = squares.size();
+        this.AOO = (this.nQuads * sizeOfSquare * sizeOfSquare) / 1000000d;
+
         if (occurrences.size() >= 3) {
             // compute convex convexHull
             // TODO use a projection without zones
@@ -105,17 +123,33 @@ public class OccurrenceProcessor {
             }
             sum = 0.5 * sum;
 
-            EOO = sum / 1000000;
+            this.realEOO = sum / 1000000;
+            if(this.realEOO < this.AOO)
+                this.EOO = this.AOO;
+            else
+                this.EOO = this.realEOO;
+        } else {
+            EOO = (this.nQuads * sizeOfSquare * sizeOfSquare) / 1000000D;
+            realEOO = null;
         }
 
-        // now calculate the number of UTM squares occupied
-        squares = new HashSet<>();
-        for (Point2D u : pointsInPolygons.keySet()) {
-            squares.add(new Square(u));
+        // compute convex hull of squares
+        Iterator<Square> it = squares.iterator();
+        List<Point2D> vertices = new ArrayList<>();
+        while(it.hasNext()) {
+            vertices.addAll(it.next().getVertices());
         }
 
-        this.nQuads = squares.size();
-
+        if(vertices.size() >= 3) {
+            Stack<Point2D> tmpConvexHull = (Stack<Point2D>) new GrahamScan(vertices.toArray(new Point2D[0])).hull();
+            tmpConvexHull.add(tmpConvexHull.get(0));
+            double sum = 0.0;
+            for (int i = 0; i < tmpConvexHull.size() - 1; i++) {
+                sum = sum + (tmpConvexHull.get(i).x() * tmpConvexHull.get(i + 1).y()) - (tmpConvexHull.get(i).y() * tmpConvexHull.get(i + 1).x());
+            }
+            sum = 0.5 * sum;
+            squareEOO = sum / 1000000;
+        } else squareEOO = null;
         // now make a clustering to compute approximate number of locations
         DBSCANClusterer<Point2D> cls = new DBSCANClusterer<>(2500, 0);
         clusters = cls.cluster(pointsInPolygons.keySet());
@@ -169,11 +203,27 @@ public class OccurrenceProcessor {
     }
 
     /**
-     * Gets the Extent of Occurrence, in km2
+     * Gets the official Extent of Occurrence, in km2, as per IUCN rules
      * @return
      */
     public Double getEOO() {
         return EOO;
+    }
+
+    /**
+     * Gets the real EOO, computed with occurrence coordinates (only if >= 3)
+     * @return
+     */
+    public Double getRealEOO() {
+        return realEOO;
+    }
+
+    /**
+     * Gets the EOO computed with the square vertices
+     * @return
+     */
+    public Double getSquareEOO() {
+        return squareEOO;
     }
 
     /**
@@ -182,6 +232,14 @@ public class OccurrenceProcessor {
      */
     public int getNQuads() {
         return nQuads;
+    }
+
+    /**
+     * Gets the area of occurrence, based on the squares whose size is given on instantiation.
+     * @return
+     */
+    public double getAOO() {
+        return this.AOO;
     }
 
     public List<Cluster<Point2D>> getClusters() {

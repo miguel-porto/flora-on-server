@@ -33,11 +33,11 @@ public class Conservation {
     }
 
     public RedListEnums.ProposedConservationActions[] getProposedConservationActions() {
-        return proposedConservationActions == null ? new RedListEnums.ProposedConservationActions[0] : proposedConservationActions;
+        return proposedConservationActions == null ? new RedListEnums.ProposedConservationActions[]{RedListEnums.ProposedConservationActions.NO_MEASURES} : proposedConservationActions;
     }
 
     public RedListEnums.ProposedStudyMeasures[] getProposedStudyMeasures() {
-        return proposedStudyMeasures == null ? new RedListEnums.ProposedStudyMeasures[0] : proposedStudyMeasures;
+        return proposedStudyMeasures == null ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES} : proposedStudyMeasures;
     }
 
     public void setDescription(String description) {

@@ -37,7 +37,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk08");
+        request.setAttribute("uuid", "sk10");
 
         ListIterator<String> path;
         try {
@@ -103,6 +103,7 @@ System.out.println(gs.toJson(getUser()));
                     foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
                     // TODO clipping polygon must be a user configuration
                     foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
+                    foop.setMinimumYear(1991);   // TODO year should be a user configuration
 
                     OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
                             foop, protectedAreas, sizeOfSquare);
@@ -115,9 +116,11 @@ System.out.println(gs.toJson(getUser()));
                         AOO = rlde.getGeographicalDistribution().getAOO();
                     }
                     if(EOO == null) EOO = occurrenceProcessor.getEOO();
-                    if(AOO == null) AOO = (occurrenceProcessor.getNQuads() * sizeOfSquare * sizeOfSquare) / 1000000d;
+                    if(AOO == null) AOO = occurrenceProcessor.getAOO();
                     request.setAttribute("EOO", EOO);
                     request.setAttribute("AOO", AOO);
+                    request.setAttribute("realEOO", occurrenceProcessor.getRealEOO());
+                    request.setAttribute("squareEOO", occurrenceProcessor.getSquareEOO());
                     request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
                     request.setAttribute("nquads", occurrenceProcessor.getNQuads());
                     request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
@@ -213,8 +216,13 @@ HISTOGRAM!
                 request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
                 request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
                 List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();
+                if(prev.size() > 2) {
+                    prev = new ArrayList<>();
+                    prev.add(rlde.getAssessment().getPreviousAssessmentList().get(0));
+                    prev.add(rlde.getAssessment().getPreviousAssessmentList().get(1));
+                }
                 if(prev.size() == 0) prev = new ArrayList<>();
-                for (int i = prev.size(); i < 6; i++) {
+                for (int i = prev.size(); i < 2; i++) {
                     prev.add(new PreviousAssessment());
                 }
                 request.setAttribute("previousAssessments", prev);

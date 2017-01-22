@@ -24,10 +24,33 @@ public class FloraOnExternalDataProvider implements ExternalDataProvider {
     final private URL floraOnURL;
     private List<SimpleOccurrence> occurrenceList;
     private IPolygonTheme clippingPolygon;
+    private Integer minimumYear;
 
     @Override
     public int size() {
-        return occurrenceList.size();
+        if(clippingPolygon == null && minimumYear == null)
+            return occurrenceList.size();
+        else {
+            int count = 0;
+            boolean enter;
+            for(SimpleOccurrence so : occurrenceList) {
+                enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+
+                if(clippingPolygon != null) {
+                    boolean tmp2 = false;
+                    for(Map.Entry<String, Polygon> po : clippingPolygon) {
+                        if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                            tmp2 = true;
+                            break;
+                        }
+                    }
+                    enter &= tmp2;
+                }
+
+                if(enter) count++;
+            }
+            return count;
+        }
     }
 
     private class FloraOnOccurrence {
@@ -133,20 +156,35 @@ public class FloraOnExternalDataProvider implements ExternalDataProvider {
 
     @Override
     public Iterator<SimpleOccurrence> iterator() {
-        if(clippingPolygon == null)
+        if(clippingPolygon == null && minimumYear == null)
             return occurrenceList.iterator();
         else {
-            List<SimpleOccurrence> tmp = new ArrayList<>();
+            List<SimpleOccurrence> out = new ArrayList<>();
+            boolean enter;
             for(SimpleOccurrence so : occurrenceList) {
-                for(Map.Entry<String, Polygon> po : clippingPolygon) {
-                    if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                        tmp.add(so);
-                        break;
+                enter = true;
+                if(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear) enter = false;
+
+                if(clippingPolygon != null) {
+                    boolean tmp2 = false;
+                    for(Map.Entry<String, Polygon> po : clippingPolygon) {
+                        if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                            tmp2 = true;
+                            break;
+                        }
                     }
+                    enter &= tmp2;
                 }
+
+                if(enter) out.add(so);
             }
-            return tmp.iterator();
+            return out.iterator();
         }
+    }
+
+    @Override
+    public void setMinimumYear(Integer minimumYear) {
+        this.minimumYear = minimumYear;
     }
 
     @Override

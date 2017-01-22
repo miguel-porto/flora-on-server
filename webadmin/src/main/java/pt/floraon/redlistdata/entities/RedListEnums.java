@@ -38,38 +38,40 @@ public class RedListEnums {
         return out.toArray(new String[out.size()]);
     }
 
-    public enum PopulationSizeReduction implements LabelledEnum {
-        NO_INFORMATION("No information")
-        , STABLE("Stable")
-        , POSSIBLE_INCREASE("Possible increase")
-        , DECREASE_REVERSIBLE("Population reduction observed, estimated, inferred, or suspected in the past where the " +
-                "causes of the reduction are clearly reversible AND understood AND have ceased")
-        , DECREASE_IRREVERSIBLE("Population reduction observed, estimated, inferred, or suspected in the past where the " +
-                "causes of reduction may not have ceased OR may not be understood OR may not be reversible")
-        , POSSIBLE_DECREASE_FUTURE("Population reduction projected, inferred or suspected to be met in the future " +
-                "(up to a maximum of 100 years)")
-        , DECREASE_PAST_FUTURE("An observed, estimated, inferred, projected or suspected population reduction where the " +
-                "time period must include both the past and the future (up to a max of 100 years in future), and where " +
-                "the causes of reduction may not have ceased OR may not be understood OR may not be reversible");
+    public enum PopulationSizeReduction implements TriggerEnum {
+        NO_INFORMATION("PopulationSizeReduction.1", false)
+        , NO_REDUCTION("PopulationSizeReduction.2", false)
+        , DECREASE_REVERSIBLE("PopulationSizeReduction.3", true)
+        , DECREASE_IRREVERSIBLE("PopulationSizeReduction.4", true)
+        , POSSIBLE_DECREASE_FUTURE("PopulationSizeReduction.5", true)
+        , DECREASE_PAST_FUTURE("PopulationSizeReduction.6", true);
 
         private String label;
+        private boolean trigger;
 
-        PopulationSizeReduction(String desc) {
+        PopulationSizeReduction(String desc, boolean trigger) {
             this.label = desc;
+            this.trigger = trigger;
         }
 
         @Override
         public String getLabel() {
             return label;
         }
+
+        @Override
+        public boolean isTrigger() {
+            return this.trigger;
+        }
     }
 
     public enum DeclineDistribution implements TriggerEnum {
-        NO_INFORMATION("No information", false)
-        , NO_DECLINE("No continued decline", false)
-        , DECLINE_EOO("Continued decline in EOO", true)
-        , DECLINE_AOO("Continued decline in AOO", true)
-        , DECLINE_EOO_AOO("Continued decline in EOO and AOO", true);
+        NO_INFORMATION("DeclineDistribution.1", false)
+        , NO_DECLINE("DeclineDistribution.2", false)
+        , DECLINE_EOO("DeclineDistribution.3", true)
+        , DECLINE_AOO("DeclineDistribution.4", true)
+        , DECLINE_EOO_AOO("DeclineDistribution.5", true)
+        , REDUCTION_EOO_AOO("DeclineDistribution.6", true);
 
         private String label;
         private boolean trigger;
@@ -148,10 +150,11 @@ public class RedListEnums {
     }
 
     public enum DeclinePopulation implements TriggerEnum {
-        NO_INFORMATION("No information", false)
-        , STABLE("Stable", false)
-        , INCREASING("Increasing", false)
-        , CONTINUED_DECLINE("Continued decline", true);
+        NO_INFORMATION("DeclinePopulation.1", false)
+        , STABLE("DeclinePopulation.2", false)
+        , INCREASING("DeclinePopulation.3", false)
+        , NON_CONTINUED_DECLINE("DeclinePopulation.4", false)
+        , CONTINUED_DECLINE("DeclinePopulation.5", true);
 
         private String label;
         private boolean trigger;
@@ -278,10 +281,11 @@ public class RedListEnums {
     }
 
     public enum DeclineHabitatQuality implements TriggerEnum {
-        NO_INFORMATION("No information", false)
-        , STABLE("Stable", false)
-        , INCREASING("Increasing", false)
-        , CONTINUED_DECLINE("Continued decline", true);
+        NO_INFORMATION("DeclineHabitatQuality.1", false)
+        , STABLE("DeclineHabitatQuality.2", false)
+        , INCREASING("DeclineHabitatQuality.3", false)
+        , NON_CONTINUED_DECLINE("DeclineHabitatQuality.4", false)
+        , CONTINUED_DECLINE("DeclineHabitatQuality.5", true);
 
         private String label;
         private boolean trigger;
@@ -382,51 +386,64 @@ public class RedListEnums {
         }
     }
 
-    public enum ProposedConservationActions implements LabelledEnum {
-        SITE_PROTECTION("ProposedConservationActions.1"),
-        INVASIVE_CONTROL("ProposedConservationActions.2"),
-        HABITAT_RESTORATION("ProposedConservationActions.3"),
-        REPOPULATION("ProposedConservationActions.4"),
-        REINTRODUCTION("ProposedConservationActions.5"),
-        OTHER("ProposedConservationActions.6"),
-        ARTIFICIAL_PROPAGATION("ProposedConservationActions.7"),
-        GENOME_BANK("ProposedConservationActions.8"),
-        AWARENESS("ProposedConservationActions.9"),
-        NEW_LEGISLATION("ProposedConservationActions.10"),
-        LEGISLATION_ENFORCEMENT("ProposedConservationActions.11"),
-        INCENTIVES("ProposedConservationActions.12");
+    public enum ProposedConservationActions implements LabelledEnumWithDescription {
+        NO_MEASURES("ProposedConservationActions.0", "ProposedConservationActions.0.desc"),
+        SITE_PROTECTION("ProposedConservationActions.1", "ProposedConservationActions.1.desc"),
+        INVASIVE_CONTROL("ProposedConservationActions.2", "ProposedConservationActions.2.desc"),
+        HABITAT_RESTORATION("ProposedConservationActions.3", "ProposedConservationActions.3.desc"),
+        REPOPULATION("ProposedConservationActions.4", "ProposedConservationActions.4.desc"),
+        REINTRODUCTION("ProposedConservationActions.5", "ProposedConservationActions.5.desc"),
+        OTHER("ProposedConservationActions.6", "ProposedConservationActions.6.desc"),
+        ARTIFICIAL_PROPAGATION("ProposedConservationActions.7", "ProposedConservationActions.7.desc"),
+        GENOME_BANK("ProposedConservationActions.8", "ProposedConservationActions.8.desc"),
+        AWARENESS("ProposedConservationActions.9", "ProposedConservationActions.9.desc"),
+        NEW_LEGISLATION("ProposedConservationActions.10", "ProposedConservationActions.10.desc"),
+        LEGISLATION_ENFORCEMENT("ProposedConservationActions.11", "ProposedConservationActions.11.desc"),
+        INCENTIVES("ProposedConservationActions.12", "ProposedConservationActions.12.desc");
 
-        private String label;
+        private String label, description;
 
-        ProposedConservationActions(String desc) {
-            this.label = desc;
+        ProposedConservationActions(String label, String description) {
+            this.label = label;
+            this.description = description;
         }
 
         @Override
         public String getLabel() {
             return label;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
         }
     }
 
-    public enum ProposedStudyMeasures implements LabelledEnum {
-        NO_STUDIES("ProposedStudyMeasures.1"),
-        TAXONOMY("ProposedStudyMeasures.2"),
-        POPULATION("ProposedStudyMeasures.3"),
-        ENVIRONMENTAL("ProposedStudyMeasures.4"),
-        THREATS("ProposedStudyMeasures.5"),
-        CONSERVATION("ProposedStudyMeasures.6"),
-        MONITORING("ProposedStudyMeasures.7"),
-        OTHER("ProposedStudyMeasures.8");
+    public enum ProposedStudyMeasures implements LabelledEnumWithDescription {
+        NO_STUDIES("ProposedStudyMeasures.1", "ProposedStudyMeasures.1.desc"),
+        TAXONOMY("ProposedStudyMeasures.2", "ProposedStudyMeasures.1.desc"),
+        POPULATION("ProposedStudyMeasures.3", "ProposedStudyMeasures.1.desc"),
+        ENVIRONMENTAL("ProposedStudyMeasures.4", "ProposedStudyMeasures.1.desc"),
+        THREATS("ProposedStudyMeasures.5", "ProposedStudyMeasures.1.desc"),
+        CONSERVATION("ProposedStudyMeasures.6", "ProposedStudyMeasures.1.desc"),
+        MONITORING("ProposedStudyMeasures.7", "ProposedStudyMeasures.1.desc"),
+        OTHER("ProposedStudyMeasures.8", "ProposedStudyMeasures.1.desc");
 
-        private String label;
+        private String label, description;
 
-        ProposedStudyMeasures(String desc) {
-            this.label = desc;
+        ProposedStudyMeasures(String label, String description) {
+            this.label = label;
+            this.description = description;
         }
 
         @Override
         public String getLabel() {
             return label;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
         }
     }
 

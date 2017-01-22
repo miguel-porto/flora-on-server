@@ -1,5 +1,6 @@
 var regex_highlight = /\*([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)\*/gi;
 var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)_/gi;
+var regex_sup = /\+([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)\+/gi;
 var regex_htmltag = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/i;
 var regex_htmltagreplace = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/gi;
 var focusedEditableDiv = null;
@@ -32,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // toggle summary / full view
     addEvent('click', document.getElementById('summary_toggle'), function(ev) {
         document.querySelector('table.sheet').classList.toggle('summary');
+    });
+
+    // toggle help tips
+    addEvent('click', document.getElementById('toggle_help'), function(ev) {
+        document.querySelector('table.sheet').classList.toggle('help');
     });
 
 /*
@@ -290,15 +296,17 @@ function addHighlightOnType(ev) {
 
     checkHtmlTags(el.innerHTML);
 
-    if(!regex_highlight.test(el.innerHTML) && !regex_under.test(el.innerHTML) ) {
+    if(!regex_highlight.test(el.innerHTML) && !regex_under.test(el.innerHTML) && !regex_sup.test(el.innerHTML) ) {
         el.nextElementSibling.value = el.innerHTML;
         return;
     }
     var spanhighlight = function(a, b) { return '<span class="highlight yellow">' + b + '</span>';};
     var spanitalic = function(a, b) { return '<span class="highlight italic">' + b + '</span>';};
+    var spansup = function(a, b) { return '<sup>' + b + '</sup>';};
 
     var ma = el.innerHTML.replace(regex_highlight, spanhighlight);
     ma = ma.replace(regex_under, spanitalic);
+    ma = ma.replace(regex_sup, spansup);
     el.innerHTML = ma;
     el.nextElementSibling.value = ma;
 
