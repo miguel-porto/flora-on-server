@@ -1,6 +1,6 @@
 package pt.floraon.authentication;
 
-import pt.floraon.redlistdata.entities.RedListEnums;
+import pt.floraon.redlistdata.RedListEnums;
 
 import java.util.*;
 

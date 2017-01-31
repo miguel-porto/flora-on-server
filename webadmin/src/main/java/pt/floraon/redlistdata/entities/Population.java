@@ -1,9 +1,12 @@
 package pt.floraon.redlistdata.entities;
 
+import pt.floraon.driver.DiffableBean;
+import pt.floraon.redlistdata.RedListEnums;
+
 /**
  * Created by miguel on 16-11-2016.
  */
-public class Population {
+public class Population implements DiffableBean {
     private String description;
     private RedListEnums.NrMatureIndividuals nrMatureIndividualsCategory;
     private Long nrMatureIndividualsExact;
@@ -27,11 +30,11 @@ public class Population {
     private RedListEnums.PercentMatureOneSubpop percentMatureOneSubpop;
 
     public String getDescription() {
-        return description;
+        return description == null ? "" : description;
     }
 
     public RedListEnums.NrMatureIndividuals getNrMatureIndividualsCategory() {
-        return nrMatureIndividualsCategory;
+        return nrMatureIndividualsCategory == null ? RedListEnums.NrMatureIndividuals.NO_DATA : nrMatureIndividualsCategory;
     }
 
     public Long getNrMatureIndividualsExact() {
@@ -39,15 +42,15 @@ public class Population {
     }
 
     public String getNrMatureIndividualsDescription() {
-        return nrMatureIndividualsDescription;
+        return nrMatureIndividualsDescription == null ? "" : nrMatureIndividualsDescription;
     }
 
     public RedListEnums.TypeOfPopulationEstimate getTypeOfEstimate() {
-        return typeOfEstimate;
+        return typeOfEstimate == null ? RedListEnums.TypeOfPopulationEstimate.NO_DATA : typeOfEstimate;
     }
 
     public RedListEnums.DeclinePopulation getPopulationDecline() {
-        return populationDecline;
+        return populationDecline == null ? RedListEnums.DeclinePopulation.NO_INFORMATION : populationDecline;
     }
 
     public Integer getPopulationTrend() {
@@ -55,27 +58,27 @@ public class Population {
     }
 
     public RedListEnums.PopulationSizeReduction getPopulationSizeReduction() {
-        return populationSizeReduction;
+        return populationSizeReduction == null ? RedListEnums.PopulationSizeReduction.NO_INFORMATION : populationSizeReduction;
     }
 
     public String getPopulationSizeReductionJustification() {
-        return populationSizeReductionJustification;
+        return populationSizeReductionJustification == null ? "" : populationSizeReductionJustification;
     }
 
     public RedListEnums.SeverelyFragmented getSeverelyFragmented() {
-        return severelyFragmented;
+        return severelyFragmented == null ? RedListEnums.SeverelyFragmented.NO_INFORMATION : severelyFragmented;
     }
 
     public String getSeverelyFragmentedJustification() {
-        return severelyFragmentedJustification;
+        return severelyFragmentedJustification == null ? "" : severelyFragmentedJustification;
     }
 
     public RedListEnums.YesNoNA getExtremeFluctuations() {
-        return extremeFluctuations;
+        return extremeFluctuations == null ? RedListEnums.YesNoNA.NO_DATA : extremeFluctuations;
     }
 
     public String getExtremeFluctuationsJustification() {
-        return extremeFluctuationsJustification;
+        return extremeFluctuationsJustification == null ? "" : extremeFluctuationsJustification;
     }
 
     public Integer getPopulationDeclinePercent() {
@@ -83,15 +86,15 @@ public class Population {
     }
 
     public String getPopulationDeclineJustification() {
-        return populationDeclineJustification;
+        return populationDeclineJustification == null ? "" : populationDeclineJustification;
     }
 
     public RedListEnums.NrMatureEachSubpop getNrMatureEachSubpop() {
-        return nrMatureEachSubpop;
+        return nrMatureEachSubpop == null ? RedListEnums.NrMatureEachSubpop.NO_DATA : nrMatureEachSubpop;
     }
 
     public RedListEnums.PercentMatureOneSubpop getPercentMatureOneSubpop() {
-        return percentMatureOneSubpop;
+        return percentMatureOneSubpop == null ? RedListEnums.PercentMatureOneSubpop.NO_DATA : percentMatureOneSubpop;
     }
 
     public void setDescription(String description) {

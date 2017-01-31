@@ -20,6 +20,7 @@ h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
 h3 {text-align: left; font-size: 1.5em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
+ul.inlinelistitems li {display:inline-block; margin-right: 12px;}
 table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after {
     content: " \25B4\25BE"
 }
@@ -90,7 +91,9 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 /********** SPECIES INDEX ***********/
 #speciesindex td {padding:4px;}
 /*#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}*/
+/*#speciesindex td {transition: background-color 0.3s;}*/
 #speciesindex tr.responsible td {background-color: #b2ff59;}
+#speciesindex tr.selected td {background-color: #64b5f6;}
 #speciesindex.onlyresponsible tbody tr:not(.responsible) {display: none;}
 #speciesindex.onlynative tbody tr:not(.native) {display: none;}
 #speciesindex.onlypublished tbody tr:not(.published) {display: none;}
@@ -134,9 +137,23 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 }
 .filter.selected>div.light {background-color:#76ff03; box-shadow: 0 0 7px #76ff03;}
 
+input.selectionbox {display:none;}
+input.selectionbox + label {
+    width: 2em;
+    height: 2em;
+    display: block;
+    box-shadow: 0 0 7px #bbb;
+    margin:0 auto;
+    border-radius:50%;
+    cursor: pointer;
+}
+input.selectionbox:checked + label {background-color: #76ff03; box-shadow: 0 0 7px #888;}
+input.selectionbox:not(:checked) + label {background-color: white;}
+
 /********** RED LIST DATA SHEET *******/
 #sheet-header {
     position:relative;
+    color: black;
 }
 
 #sheet-header .redlistcategory {
@@ -146,7 +163,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     /*transform: scale(0.8, 0.8);*/
     box-shadow: 0 0 16px #600;
 }
-#sheet-header h1 {padding-left: 130px; color: black;}
+#sheet-header h1 {padding-left: 130px; color: inherit}
 
 #header-buttons {text-align:right;}
 
@@ -279,6 +296,16 @@ table tr:hover td:not(.title) {background-color:#f0fff0;}
     vertical-align: bottom;
 }
 
+#mainformsubmitter {
+    background-color: #ff4081;
+    background-image: url(images/ic_menu_save.png);
+}
+
+#editselectedtaxa {
+    background-color: #ff4081;
+    background-image: url(images/ic_menu_edit.png);
+}
+
 #removeformatting {
     background-color: #2979ff;
     background-image: url(images/remove_formatting.png);
@@ -291,14 +318,7 @@ table tr:hover td:not(.title) {background-color:#f0fff0;}
 }
 
 table.sheet.help #toggle_help {background-color:yellow;}
-
 table.sheet:not(.help) .legend {display:none;}
-
-table.sheet input[type=submit] {
-    background-color: #ff4081;
-    background-image: url(images/ic_menu_save.png);
-}
-
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}

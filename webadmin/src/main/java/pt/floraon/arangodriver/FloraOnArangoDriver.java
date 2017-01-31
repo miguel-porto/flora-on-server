@@ -15,7 +15,7 @@ import com.arangodb.model.*;
 import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
-import pt.floraon.redlistdata.entities.RedListEnums;
+import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.ArangoDBRedListData;

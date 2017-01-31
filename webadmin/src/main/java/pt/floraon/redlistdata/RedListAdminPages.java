@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.List;
 
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
-import static pt.floraon.driver.Constants.dateTimeFormat;
+import static pt.floraon.driver.Constants.cleanArray;
 
 /**
  * Main page of red list data
@@ -27,6 +27,11 @@ import static pt.floraon.driver.Constants.dateTimeFormat;
  */
 @WebServlet("/redlist/*")
 public class RedListAdminPages extends FloraOnServlet {
+    @Override
+    public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
+        doFloraOnGet();
+    }
+
     @Override
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
         String what;
@@ -37,7 +42,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk11");
+        request.setAttribute("uuid", "sk12");
 
         ListIterator<String> path;
         try {
@@ -74,6 +79,7 @@ System.out.println(gs.toJson(getUser()));
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
 //                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, getUser().canMANAGE_REDLIST_USERS());
+                getUser().resetEffectivePrivileges();
                 List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, true);
                 int count1 = 0, count2 = 0, count3 = 0;
                 for(RedListDataEntity rlde1 : taxEntList) {
@@ -90,94 +96,6 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "taxon":
-                // TODO this should be a user configuration loaded at startup
-                PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
-//                te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
-                RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
-                if(rlde == null) return;
-                // set privileges for this taxon
-                getUser().setEffectivePrivilegesFor(driver, getParameterAsKey("id"));
-
-                request.setAttribute("taxon", rlde.getTaxEnt());
-                request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
-                if (rlde.getTaxEnt().getOldId() != null) {
-                    foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
-                    // TODO clipping polygon must be a user configuration
-                    foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
-                    foop.setMinimumYear(1991);   // TODO year should be a user configuration
-
-                    OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
-                            foop, protectedAreas, sizeOfSquare);
-
-                    // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
-                    // live occurrences
-                    Double EOO = null, AOO = null;
-                    if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
-                        EOO = rlde.getGeographicalDistribution().getEOO();
-                        AOO = rlde.getGeographicalDistribution().getAOO();
-                    }
-                    if(EOO == null) EOO = occurrenceProcessor.getEOO();
-                    if(AOO == null) AOO = occurrenceProcessor.getAOO();
-                    request.setAttribute("EOO", EOO);
-                    request.setAttribute("AOO", AOO);
-                    request.setAttribute("realEOO", occurrenceProcessor.getRealEOO());
-                    request.setAttribute("squareEOO", occurrenceProcessor.getSquareEOO());
-                    request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
-                    request.setAttribute("nquads", occurrenceProcessor.getNQuads());
-                    request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
-
-                    Double[] lAreas = occurrenceProcessor.getLocationAreas();
-                    double sum = 0;
-                    double[] vals = ArrayUtils.toPrimitive(lAreas, -1);
-
-                    for (int i = 0; i < lAreas.length; i++) {
-                        sum += lAreas[i] / 10000;
-                        vals[i] = vals[i] / 10000;
-                    }
-                    sum /= lAreas.length;
-                    request.setAttribute("meanLocationArea", sum );
-
-/*
-HISTOGRAM!
-                    HistogramDataset d = new HistogramDataset();
-                    d.addSeries("Area", vals, 14, 0, sum * 0.5);
-                    JFreeChart ch = ChartFactory.createHistogram("Area", "Sqrt Area", "N", d, PlotOrientation.VERTICAL, false, false, false);
-
-                    XYPlot pl = (XYPlot) ch.getPlot();
-                    pl.getRenderer().setSeriesPaint(0, Color.BLUE);
-                    ((XYBarRenderer) pl.getRenderer()).setBarPainter(new StandardXYBarPainter());
-                    ((XYBarRenderer) pl.getRenderer()).setDrawBarOutline(false);
-                    ((XYBarRenderer) pl.getRenderer()).setMargin(0.25);
-                    ch.setBackgroundPaint(null);
-
-                    SVGGraphics2D g2 = new SVGGraphics2D(600, 400);
-                    ch.draw(g2, new Rectangle(600,400));
-                    String svgElement = g2.getSVGElement();
-                    request.setAttribute("histogram", svgElement);
-*/
-
-                    StringWriter sw = new StringWriter();
-                    occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
-                    request.setAttribute("svgmap", sw.toString());
-
-                    Set<String> groupAreasBy = new HashSet<>();
-                    groupAreasBy.add("SITE_NAME");
-                    groupAreasBy.add("TIPO");   // TODO this should be user configuration
-                    request.setAttribute("occurrenceInProtectedAreas"
-                            , occurrenceProcessor.getOccurrenceInProtectedAreas(groupAreasBy).entrySet());
-                    request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
-
-                    Map<String, Object> taxonInfo = foop.executeInfoQuery(rlde.getTaxEnt().getOldId());
-
-                    if(rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
-                        if(taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
-                            request.setAttribute("ecology", taxonInfo.get("ecology").toString());
-                        }
-                    } else {
-                        request.setAttribute("ecology", rlde.getEcology().getDescription());
-                    }
-                    request.setAttribute("occurrences", foop);
-                }
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
                 request.setAttribute("geographicalDistribution_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());
@@ -207,48 +125,155 @@ HISTOGRAM!
                 request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
                 request.setAttribute("assessment_ReviewStatus", RedListEnums.ReviewStatus.values());
                 request.setAttribute("assessment_PublicationStatus", RedListEnums.PublicationStatus.values());
+//                request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
 
-                request.setAttribute("rlde", rlde);
-                request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
-                request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
-                request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
-                request.setAttribute("proposedStudyMeasures", Arrays.asList(rlde.getConservation().getProposedStudyMeasures()));
-                request.setAttribute("authors", Arrays.asList(rlde.getAssessment().getAuthors()));
-                request.setAttribute("evaluator", Arrays.asList(rlde.getAssessment().getEvaluator()));
-                request.setAttribute("reviewer", Arrays.asList(rlde.getAssessment().getReviewer()));
-                List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();
-                if(prev.size() > 2) {
-                    prev = new ArrayList<>();
-                    prev.add(rlde.getAssessment().getPreviousAssessmentList().get(0));
-                    prev.add(rlde.getAssessment().getPreviousAssessmentList().get(1));
+                // TODO this should be a user configuration loaded at startup
+                PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
+                String[] ids = request.getParameterValues("id");
+                if(ids == null || ids.length == 0) {
+                    request.setAttribute("warning", "Taxon ID not provided.");
+                    break;
                 }
-                if(prev.size() == 0) prev = new ArrayList<>();
-                for (int i = prev.size(); i < 2; i++) {
-                    prev.add(new PreviousAssessment());
-                }
-                request.setAttribute("previousAssessments", prev);
+                if(ids.length == 1) {
+                    RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
+                    if (rlde == null) return;
+                    // set privileges for this taxon
+                    getUser().setEffectivePrivilegesFor(driver, getParameterAsKey("id"));
 
-                request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
+                    request.setAttribute("taxon", rlde.getTaxEnt());
+                    request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
+                    if (rlde.getTaxEnt().getOldId() != null) {
+                        foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+                        // TODO clipping polygon must be a user configuration
+                        foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
+                        foop.setMinimumYear(1991);   // TODO year should be a user configuration
 
-                Revision c1a;
-                Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
-                for(Revision r : rlde.getRevisions()) {
-                    c1a = r.getDayWiseRevision();
-                    if(edits.get(c1a) == null)
-                        edits.put(c1a, 1);
-                    else
-                        edits.put(c1a, edits.get(c1a) + 1);
-                }
-//                request.setAttribute("revisions", rlde.getRevisions());
-                request.setAttribute("revisions", edits.entrySet());
-//                edits.entrySet().iterator().next().getValue()
+                        OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
+                                foop, protectedAreas, sizeOfSquare);
+
+                        // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
+                        // live occurrences
+                        Double EOO = null, AOO = null;
+                        if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                            EOO = rlde.getGeographicalDistribution().getEOO();
+                            AOO = rlde.getGeographicalDistribution().getAOO();
+                        }
+                        if (EOO == null) EOO = occurrenceProcessor.getEOO();
+                        if (AOO == null) AOO = occurrenceProcessor.getAOO();
+                        request.setAttribute("EOO", EOO);
+                        request.setAttribute("AOO", AOO);
+                        request.setAttribute("realEOO", occurrenceProcessor.getRealEOO());
+                        request.setAttribute("squareEOO", occurrenceProcessor.getSquareEOO());
+                        request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
+                        request.setAttribute("nquads", occurrenceProcessor.getNQuads());
+                        request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
+
+                        Double[] lAreas = occurrenceProcessor.getLocationAreas();
+                        double sum = 0;
+                        double[] vals = ArrayUtils.toPrimitive(lAreas, -1);
+
+                        for (int i = 0; i < lAreas.length; i++) {
+                            sum += lAreas[i] / 10000;
+                            vals[i] = vals[i] / 10000;
+                        }
+                        sum /= lAreas.length;
+                        request.setAttribute("meanLocationArea", sum);
+
+    /*
+    HISTOGRAM!
+                        HistogramDataset d = new HistogramDataset();
+                        d.addSeries("Area", vals, 14, 0, sum * 0.5);
+                        JFreeChart ch = ChartFactory.createHistogram("Area", "Sqrt Area", "N", d, PlotOrientation.VERTICAL, false, false, false);
+
+                        XYPlot pl = (XYPlot) ch.getPlot();
+                        pl.getRenderer().setSeriesPaint(0, Color.BLUE);
+                        ((XYBarRenderer) pl.getRenderer()).setBarPainter(new StandardXYBarPainter());
+                        ((XYBarRenderer) pl.getRenderer()).setDrawBarOutline(false);
+                        ((XYBarRenderer) pl.getRenderer()).setMargin(0.25);
+                        ch.setBackgroundPaint(null);
+
+                        SVGGraphics2D g2 = new SVGGraphics2D(600, 400);
+                        ch.draw(g2, new Rectangle(600,400));
+                        String svgElement = g2.getSVGElement();
+                        request.setAttribute("histogram", svgElement);
+    */
+
+                        StringWriter sw = new StringWriter();
+                        occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
+                        request.setAttribute("svgmap", sw.toString());
+
+                        Set<String> groupAreasBy = new HashSet<>();
+                        groupAreasBy.add("SITE_NAME");
+                        groupAreasBy.add("TIPO");   // TODO this should be user configuration
+                        request.setAttribute("occurrenceInProtectedAreas"
+                                , occurrenceProcessor.getOccurrenceInProtectedAreas(groupAreasBy).entrySet());
+                        request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
+
+                        Map<String, Object> taxonInfo = foop.executeInfoQuery(rlde.getTaxEnt().getOldId());
+
+                        if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
+                            if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
+                                request.setAttribute("ecology", taxonInfo.get("ecology").toString());
+                            }
+                        } else {
+                            request.setAttribute("ecology", rlde.getEcology().getDescription());
+                        }
+                        request.setAttribute("occurrences", foop);
+                    }
+
+                    request.setAttribute("rlde", rlde);
+                    // multiple selection fields
+                    request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+                    request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
+                    request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
+                    request.setAttribute("proposedStudyMeasures", Arrays.asList(rlde.getConservation().getProposedStudyMeasures()));
+                    request.setAttribute("authors", Arrays.asList(cleanArray(rlde.getAssessment().getAuthors(), true)));
+                    request.setAttribute("evaluator", Arrays.asList(cleanArray(rlde.getAssessment().getEvaluator(), true)));
+                    request.setAttribute("reviewer", Arrays.asList(cleanArray(rlde.getAssessment().getReviewer(), true)));
+                    List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();
+                    if (prev.size() > 2) {
+                        prev = new ArrayList<>();
+                        prev.add(rlde.getAssessment().getPreviousAssessmentList().get(0));
+                        prev.add(rlde.getAssessment().getPreviousAssessmentList().get(1));
+                    }
+                    if (prev.size() == 0) prev = new ArrayList<>();
+                    for (int i = prev.size(); i < 2; i++) {
+                        prev.add(new PreviousAssessment());
+                    }
+                    request.setAttribute("previousAssessments", prev);
+                    request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
+
+                    Revision c1a;
+                    Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
+                    for (Revision r : rlde.getRevisions()) {
+                        c1a = r.getDayWiseRevision();
+                        if (edits.get(c1a) == null)
+                            edits.put(c1a, 1);
+                        else
+                            edits.put(c1a, edits.get(c1a) + 1);
+                    }
+                    //                request.setAttribute("revisions", rlde.getRevisions());
+                    request.setAttribute("revisions", edits.entrySet());
+                    //                edits.entrySet().iterator().next().getValue()
 
 
-                if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
-                    // if it's published, block editing all fields
-                    boolean canEdit9 = getUser().canEDIT_9_9_4();
-                    getUser().revokePrivileges(EDIT_ALL_FIELDS);
-                    if(canEdit9) getUser().setEDIT_9_9_4(true);
+                    if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                        // if it's published, block editing all fields
+                        boolean canEdit9 = getUser().canEDIT_9_9_4();
+                        getUser().revokePrivileges(EDIT_ALL_FIELDS);
+                        if (canEdit9) getUser().setEDIT_9_9_4(true);
+                    }
+                } else {    // multiple IDs provided, batch update
+                    getUser().resetEffectivePrivileges();
+                    request.setAttribute("warning", "DataSheet.msg.warning.1");
+                    request.setAttribute("multipletaxa", true);
+                    List<TaxEnt> taxEnts = driver.getNodeWorkerDriver().getTaxEntByIds(request.getParameterValues("id"));
+                    request.setAttribute("taxa", taxEnts);
+                    List<PreviousAssessment> prev = new ArrayList<>();
+                    for (int i = 0; i < 2; i++) {
+                        prev.add(new PreviousAssessment());
+                    }
+                    request.setAttribute("previousAssessments", prev);
                 }
                 break;
 

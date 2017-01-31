@@ -1,9 +1,12 @@
 package pt.floraon.redlistdata.entities;
 
+import pt.floraon.driver.DiffableBean;
+import pt.floraon.redlistdata.RedListEnums;
+
 /**
  * Created by miguel on 16-11-2016.
  */
-public class GeographicalDistribution {
+public class GeographicalDistribution implements DiffableBean {
     private String description;
     private Double EOO;
     private Double AOO;
@@ -13,7 +16,7 @@ public class GeographicalDistribution {
     private Integer[] elevationRange;
 
     public String getDescription() {
-        return description;
+        return description == null ? "" : description;
     }
 
     public Double getEOO() {
@@ -25,15 +28,19 @@ public class GeographicalDistribution {
     }
 
     public RedListEnums.DeclineDistribution getDeclineDistribution() {
-        return declineDistribution;
+        return declineDistribution == null ? RedListEnums.DeclineDistribution.NO_INFORMATION : declineDistribution;
+    }
+
+    public String getDeclineDistributionJustification() {
+        return declineDistributionJustification == null ? "" : declineDistributionJustification;
     }
 
     public RedListEnums.ExtremeFluctuations getExtremeFluctuations() {
-        return extremeFluctuations;
+        return extremeFluctuations == null ? RedListEnums.ExtremeFluctuations.NO_INFORMATION : extremeFluctuations;
     }
 
     public Integer[] getElevationRange() {
-        return elevationRange;
+        return elevationRange == null ? new Integer[] {null, null} : elevationRange;
     }
 
     public void setDescription(String description) {
@@ -60,11 +67,8 @@ public class GeographicalDistribution {
         this.declineDistribution = declineDistribution;
     }
 
-    public String getDeclineDistributionJustification() {
-        return declineDistributionJustification;
-    }
-
     public void setDeclineDistributionJustification(String declineDistributionJustification) {
         this.declineDistributionJustification = declineDistributionJustification;
     }
+
 }

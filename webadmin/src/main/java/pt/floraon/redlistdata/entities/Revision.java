@@ -1,7 +1,5 @@
 package pt.floraon.redlistdata.entities;
 
-import pt.floraon.authentication.Privileges;
-
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;

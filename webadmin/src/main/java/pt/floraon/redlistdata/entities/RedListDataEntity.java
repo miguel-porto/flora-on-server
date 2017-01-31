@@ -3,11 +3,14 @@ package pt.floraon.redlistdata.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import jline.internal.Log;
+import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.util.*;
 
@@ -20,7 +23,7 @@ import static pt.floraon.driver.Constants.dateTimeFormat;
  * Thanks to André Carapeto, who carefully designed all the fields needed for this class and its subclasses!
  * Created by Miguel Porto & André Carapeto on 11-11-2016.
  */
-public class RedListDataEntity extends GeneralDBNode {
+public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     /**
      * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#taxEntID}
      */
@@ -125,7 +128,7 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public String getTaxonomicProblemDescription() {
-        return taxonomicProblemDescription;
+        return taxonomicProblemDescription == null ? "" : taxonomicProblemDescription;
     }
 
     public GeographicalDistribution getGeographicalDistribution() {
@@ -155,6 +158,7 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public Integer getYearPublished() {
+        if(datePublished == null) return null;
         try {
             Calendar cal = new GregorianCalendar();
             cal.setTime(dateTimeFormat.parse(datePublished));
@@ -333,6 +337,7 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setEcology_HabitatTypes(String[] habitatTypes) {
+/*
         List<RedListEnums.HabitatTypes> tmp = new ArrayList<>();
         for(String s : habitatTypes) {
             try {
@@ -342,6 +347,8 @@ public class RedListDataEntity extends GeneralDBNode {
             }
         }
         this.getEcology().setHabitatTypes(tmp.toArray(new RedListEnums.HabitatTypes[0]));
+*/
+        this.ecology.setHabitatTypes(stringArrayToEnumArray(habitatTypes, RedListEnums.HabitatTypes.class));
     }
 
     public void setEcology_GenerationLength(String generationLength) {
@@ -373,15 +380,18 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setUsesAndTrade_Uses(String[] uses) {
+/*
         List<RedListEnums.Uses> tmp = new ArrayList<>();
         for(String s : uses) {
             try {
                 tmp.add(RedListEnums.Uses.valueOf(s));
             } catch (IllegalArgumentException e) {
-                Log.warn("Use "+s+" not found");
+                Log.warn("Use " + (s.length() == 0 ? "<empty>" : s) + " not found");
             }
         }
         this.getUsesAndTrade().setUses(tmp.toArray(new RedListEnums.Uses[0]));
+*/
+        this.getUsesAndTrade().setUses(stringArrayToEnumArray(uses, RedListEnums.Uses.class));
     }
 
     public void setUsesAndTrade_Traded(boolean traded) {
@@ -461,6 +471,7 @@ public class RedListDataEntity extends GeneralDBNode {
     }
 
     public void setConservation_ProposedConservationActions(String[] proposedConservationActions) {
+/*
         List<RedListEnums.ProposedConservationActions> tmp = new ArrayList<>();
         for(String s : proposedConservationActions) {
             try {
@@ -469,11 +480,13 @@ public class RedListDataEntity extends GeneralDBNode {
                 Log.warn("Conservation action "+s+" not found");
             }
         }
-//        this.getUsesAndTrade().setUses(tmp.toArray(new RedListEnums.Uses[0]));
         this.conservation.setProposedConservationActions(tmp.toArray(new RedListEnums.ProposedConservationActions[0]));
+*/
+        this.conservation.setProposedConservationActions(stringArrayToEnumArray(proposedConservationActions, RedListEnums.ProposedConservationActions.class));
     }
 
     public void setConservation_ProposedStudyMeasures(String[] proposedStudyMeasures) {
+/*
         List<RedListEnums.ProposedStudyMeasures> tmp = new ArrayList<>();
         for(String s : proposedStudyMeasures) {
             try {
@@ -483,6 +496,8 @@ public class RedListDataEntity extends GeneralDBNode {
             }
         }
         this.conservation.setProposedStudyMeasures(tmp.toArray(new RedListEnums.ProposedStudyMeasures[0]));
+*/
+        this.conservation.setProposedStudyMeasures(stringArrayToEnumArray(proposedStudyMeasures, RedListEnums.ProposedStudyMeasures.class));
     }
 
     public void setConservation_ConservationPlansJustification(String conservationPlansJustification) {
@@ -720,6 +735,26 @@ public class RedListDataEntity extends GeneralDBNode {
         return responsibleAuthors_Revision;
     }
 
+    private <T extends Enum<T>> T[] stringArrayToEnumArray(String[] stringArray, Class<T> clazz) {
+        List<T> tmp = new ArrayList<>();
+        boolean addNull = false;
+        for(String s : stringArray) {
+            if(s.length() == 0) {
+                addNull = true;
+                continue;
+            }
+            try {
+                tmp.add(T.valueOf(clazz, s));
+            } catch (IllegalArgumentException e) {
+                Log.warn("Enum value " + s + " not found in " + clazz.toString());
+            }
+        }
+
+        // this is to distinguish between a null value and an empty array
+        if(tmp.size() == 0 && addNull) tmp.add(null);
+        return tmp.toArray((T[]) Array.newInstance(clazz, tmp.size()));
+    }
+
     @Override
     public Constants.NodeTypes getType() {
         return null;
@@ -739,4 +774,5 @@ public class RedListDataEntity extends GeneralDBNode {
     public String toJsonString() {
         return null;
     }
+
 }

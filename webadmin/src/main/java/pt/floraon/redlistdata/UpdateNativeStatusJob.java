@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata.entities;
+package pt.floraon.redlistdata;
 
 import com.arangodb.internal.velocypack.VPackSerializers;
 import com.google.gson.Gson;
@@ -9,6 +9,7 @@ import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.driver.results.InferredStatus;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.io.IOException;
 import java.util.List;

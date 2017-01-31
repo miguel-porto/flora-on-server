@@ -66,78 +66,96 @@
             <div class="filter" id="onlyassessed"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.6"/></div></div>
             <div class="filter" id="onlypublished"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.5"/></div></div>
         </div>
-        <table id="speciesindex" class="sortable smalltext">
-        <thead>
-            <tr><th></th><th>Taxon</th><th>Native Status</th>
-            <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-            <th>Responsible for texts</th>
-            <th>Responsible for assessment</th>
-            <th>Responsible for revision</th>
+        <form method="post" action="/floraon/redlist/${territory}">
+            <input type="hidden" name="w" value="taxon"/>
+            <c:if test="${user.canEDIT_ANY_FIELD()}">
+            <div class="floatingtoolbar">
+                <input type="submit" value="" id="editselectedtaxa" class="hidden"/>
+            </div>
             </c:if>
-            <th>Assessment status</th>
-            <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
-            <th>Assessor</th><th>Reviewer</th>
-            </c:if>
-            <th>Category</th></tr>
-        </thead>
-            <tbody>
-            <c:forEach var="taxon" items="${specieslist.iterator()}">
-                <c:set var="taxonclasses" value=""/>
-                <c:if test="${taxon.getTaxEnt().isSpecies()}">
-                    <c:set var="taxonclasses" value="${taxonclasses} species"/>
-                </c:if>
-                <c:if test="${taxon.getResponsibleAuthors_Texts().contains(user.getID()) || taxon.getResponsibleAuthors_Assessment().contains(user.getID()) || taxon.getResponsibleAuthors_Revision().contains(user.getID())}">
-                    <c:set var="taxonclasses" value="${taxonclasses} responsible"/>
-                </c:if>
-                <c:if test="${taxon.getInferredStatus().getNativeStatus().isNative()}">
-                    <c:set var="taxonclasses" value="${taxonclasses} native"/>
-                </c:if>
-                <c:if test="${taxon.getAssessment().getPublicationStatus().isPublished()}">
-                    <c:set var="taxonclasses" value="${taxonclasses} published"/>
-                </c:if>
-                <c:if test="${taxon.getAssessment().getAssessmentStatus().isAssessed()}">
-                    <c:set var="taxonclasses" value="${taxonclasses} assessed"/>
-                </c:if>
-                    <tr class="${taxonclasses}">
-                    <td><input type="checkbox"/></td>
-                    <td><a href="?w=taxon&id=${taxon.getTaxEnt().getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
-                    <td>${taxon.getInferredStatus().getStatusSummary()}</td>
+            <table id="speciesindex" class="sortable smalltext">
+                <thead>
+                    <tr>
+                    <c:if test="${user.canEDIT_ANY_FIELD()}"><th class="sorttable_nosort"><div class="button" id="toggleselectedtaxa">Toggle</div></th></c:if>
+                        <th>Taxon</th><th>Native Status</th>
                     <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-                    <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Texts()}">${userMap.get(ra)}<br/></c:forEach></td>
-                    <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Assessment()}">${userMap.get(ra)}<br/></c:forEach></td>
-                    <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Revision()}">${userMap.get(ra)}<br/></c:forEach></td>
+                        <th>Responsible for texts</th>
+                        <th>Responsible for assessment</th>
+                        <th>Responsible for revision</th>
                     </c:if>
-                    <td>
-                    <c:if test="${taxon.getAssessment().getSequentialAssessmentStatus() != null}">
-                        <fmt:message key="${taxon.getAssessment().getSequentialAssessmentStatus()[0]}"/><br/>
-                        <fmt:message key="${taxon.getAssessment().getSequentialAssessmentStatus()[1]}"/>
-                    </c:if>
-                    </td>
-
+                        <th>Assessment status</th>
                     <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
-                    <td><c:forEach var="eval" items="${taxon.getAssessment().getEvaluator()}">
-                        ${userMap.get(eval)}&nbsp;
-                    </c:forEach></td>
-                    <td><c:forEach var="eval" items="${taxon.getAssessment().getReviewer()}">
-                        ${userMap.get(eval)}&nbsp;
-                    </c:forEach></td>
+                        <th>Assessor</th><th>Reviewer</th>
                     </c:if>
-                    <td>
-                    <c:if test="${taxon.getAssessment().getCategory() != null}">
-                        <div class="redlistcategory assess_${taxon.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
-                            ${taxon.getAssessment().getAdjustedCategory().getShortTag()}
-                            <c:if test="${taxon.getAssessment().getCategory().toString().equals('CR') && !taxon.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${taxon.getAssessment().getSubCategory().toString()}</sup></c:if>
-                        </h1></div>
+                        <th>Category</th></tr>
+                </thead>
+                <tbody>
+                <c:forEach var="taxon" items="${specieslist.iterator()}">
+                    <c:set var="taxonclasses" value=""/>
+                    <c:if test="${taxon.getTaxEnt().isSpecies()}">
+                        <c:set var="taxonclasses" value="${taxonclasses} species"/>
                     </c:if>
-                    </td>
-                </tr>
-            </c:forEach>
-            </tbody>
-        </table>
+                    <c:if test="${taxon.getResponsibleAuthors_Texts().contains(user.getID()) || taxon.getResponsibleAuthors_Assessment().contains(user.getID()) || taxon.getResponsibleAuthors_Revision().contains(user.getID())}">
+                        <c:set var="taxonclasses" value="${taxonclasses} responsible"/>
+                    </c:if>
+                    <c:if test="${taxon.getInferredStatus().getNativeStatus().isNative()}">
+                        <c:set var="taxonclasses" value="${taxonclasses} native"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getPublicationStatus().isPublished()}">
+                        <c:set var="taxonclasses" value="${taxonclasses} published"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getAssessmentStatus().isAssessed()}">
+                        <c:set var="taxonclasses" value="${taxonclasses} assessed"/>
+                    </c:if>
+                        <tr class="${taxonclasses}">
+                        <c:if test="${user.canEDIT_ANY_FIELD()}">
+                            <td>
+                                <input type="checkbox" name="id" value="${taxon.getTaxEnt().getID()}" class="selectionbox" id="selbox_${taxon.getTaxEnt().getIDURLEncoded()}"/>
+                                <label for="selbox_${taxon.getTaxEnt().getIDURLEncoded()}"></label>
+                            </td>
+                        </c:if>
+                        <td><a href="?w=taxon&id=${taxon.getTaxEnt().getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
+                        <td>${taxon.getInferredStatus().getStatusSummary()}</td>
+                        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+                        <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Texts()}">${userMap.get(ra)}<br/></c:forEach></td>
+                        <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Assessment()}">${userMap.get(ra)}<br/></c:forEach></td>
+                        <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Revision()}">${userMap.get(ra)}<br/></c:forEach></td>
+                        </c:if>
+                        <td>
+                        <c:if test="${taxon.getAssessment().fetchSequentialAssessmentStatus() != null}">
+                            <fmt:message key="${taxon.getAssessment().fetchSequentialAssessmentStatus()[0]}"/><br/>
+                            <fmt:message key="${taxon.getAssessment().fetchSequentialAssessmentStatus()[1]}"/>
+                        </c:if>
+                        </td>
+
+                        <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
+                        <td><c:forEach var="eval" items="${taxon.getAssessment().getEvaluator()}">
+                            ${userMap.get(eval)}&nbsp;
+                        </c:forEach></td>
+                        <td><c:forEach var="eval" items="${taxon.getAssessment().getReviewer()}">
+                            ${userMap.get(eval)}&nbsp;
+                        </c:forEach></td>
+                        </c:if>
+                        <td>
+                        <c:if test="${taxon.getAssessment().getCategory() != null}">
+                            <div class="redlistcategory assess_${taxon.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
+                                ${taxon.getAssessment().getAdjustedCategory().getShortTag()}
+                                <c:if test="${taxon.getAssessment().getCategory().toString().equals('CR') && !taxon.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${taxon.getAssessment().getSubCategory().toString()}</sup></c:if>
+                            </h1></div>
+                        </c:if>
+                        </td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
+        </form>
     </c:when>
     <c:when test="${what=='taxon'}">
-        <c:if test="${occurrences == null}">
-            <div class="warning"><b>Warning</b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
+        <c:if test="${warning != null}">
+            <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/><fmt:message key="${warning}"/></div>
+        </c:if>
+        <c:if test="${!multipletaxa && occurrences == null}">
+            <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
         </c:if>
         <c:if test="${user.canVIEW_FULL_SHEET()}">
         <div class="navigator">
@@ -148,23 +166,42 @@
             <div class="button anchorbutton section6"><a href="#threats">6. Threats</a></div>
             <div class="button anchorbutton section7"><a href="#conservation">7. Conservation</a></div>
             <div class="button anchorbutton section9"><a href="#assessment">9. Assessment</a></div>
-            <!--<div class="button" id="highlight">highlight</div>-->
         </div>
         </c:if>
+        <c:if test="${multipletaxa}">
+        <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-callback="?w=main">
+        </c:if>
+        <c:if test="${!multipletaxa}">
         <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-refresh="true">
-            <input type="hidden" name="databaseId" value="${rlde.getID()}"/>
+        </c:if>
             <input type="hidden" name="territory" value="${territory}"/>
+            <c:if test="${!multipletaxa}">
+            <input type="hidden" name="databaseId" value="${rlde.getID()}"/>
             <input type="hidden" name="taxEntID" value="${rlde.getTaxEntID()}"/>
+            </c:if>
 
             <table class="sheet">
                 <tr class="textual"><td colspan="3" id="sheet-header" class="title">
+                <c:if test="${multipletaxa}">
+                    <h1><fmt:message key="DataSheet.msg.multipletaxa"/></h1>
+                    <ul class="inlinelistitems">
+                    <c:forEach var="taxon" items="${taxa}">
+                        <li>
+                            <input type="hidden" name="taxEntID" value="${taxon.getID()}"/>
+                            <i>${taxon.getName()}</i>
+                        </li>
+                    </c:forEach>
+                    </ul>
+                </c:if>
+                <c:if test="${!multipletaxa}">
                     <h1><i>${taxon.getName()}</i></h1>
                     <div class="redlistcategory assess_${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}">
                         <h1>
                             ${rlde.getAssessment().getAdjustedCategory().getShortTag()}
                             <c:if test="${rlde.getAssessment().getCategory().toString().equals('CR') && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
                         </h1>
-                        <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p></div>
+                        <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p>
+                    </div>
                     <div id="header-buttons">
                         <!--<div class="wordtag togglebutton" id="highlight_toggle">needs review</div>-->
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
@@ -176,6 +213,7 @@
                             </div>
                         </c:if>
                     </div>
+                </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section1"><td class="title" colspan="3"><fmt:message key="DataSheet.label.1" /></td></tr>
@@ -1298,13 +1336,15 @@
                 </td></tr>
             </table>
         </form>
-        <h1>Revision history</h1>
+        <c:if test="${!multipletaxa}">
+        <h1><fmt:message key="DataSheet.msg.revhistory"/></h1>
         <table class="small">
             <tr><th>Date saved</th><th>User</th><th>Number of edits</th></tr>
         <c:forEach var="rev" items="${revisions}">
             <tr><td>${rev.getKey().getFormattedDateSaved()}</td><td>${userMap.get(rev.getKey().getUser())}</td><td>${rev.getValue()}</td></tr>
         </c:forEach>
         </table>
+        </c:if>
     </c:when>
 
     <c:when test="${what=='taxonrecords'}">
@@ -1314,7 +1354,7 @@
         <c:if test="${user.canVIEW_OCCURRENCES()}">
             <h1>${taxon.getFullName(true)}</h1>
             <c:if test="${occurrences == null}">
-                <div class="warning"><b>Warning</b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
+                <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
             <table class="sortable smalltext" id="recordtable">

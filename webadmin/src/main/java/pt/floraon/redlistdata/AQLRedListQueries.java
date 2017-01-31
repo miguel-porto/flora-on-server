@@ -1,14 +1,13 @@
 package pt.floraon.redlistdata;
 
+import pt.floraon.arangodriver.AQLQueries;
+
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by miguel on 14-11-2016.
- */
 public class AQLRedListQueries {
     private static final String BUNDLE_NAME = "pt.floraon.redlistdata.aqlqueries";
 
@@ -31,7 +30,7 @@ public class AQLRedListQueries {
         String msg = RESOURCE_BUNDLE.getString(key);
         // replace named AQL fragments
         Matcher mat = substitutionPattern.matcher(msg);
-        while(mat.find()) {
+        while (mat.find()) {
             msg = msg.replace("{@" + mat.group(1) + "}", getString(mat.group(1), params));
         }
         // now substitute passed variables
@@ -56,5 +55,4 @@ public class AQLRedListQueries {
         }
         return msg;
     }
-
 }

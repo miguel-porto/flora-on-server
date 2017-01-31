@@ -1,7 +1,9 @@
 package pt.floraon.redlistdata.entities;
 
+import pt.floraon.driver.DiffableBean;
+import pt.floraon.redlistdata.RedListEnums;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,7 +12,7 @@ import static pt.floraon.driver.Constants.cleanArray;
 /**
  * Created by miguel on 23-11-2016.
  */
-public class Assessment {
+public class Assessment implements DiffableBean {
     private RedListEnums.RedListCategories category;
     private RedListEnums.CRTags subCategory;
     private String criteria;
@@ -31,15 +33,15 @@ public class Assessment {
     private List<PreviousAssessment> previousAssessmentList;
 
     public RedListEnums.YesNoLikelyUnlikely getPropaguleImmigration() {
-        return propaguleImmigration;
+        return propaguleImmigration == null ? RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN : propaguleImmigration;
     }
 
     public RedListEnums.YesNoLikelyUnlikely getDecreaseImmigration() {
-        return decreaseImmigration;
+        return decreaseImmigration == null ? RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN : decreaseImmigration;
     }
 
     public RedListEnums.YesNoLikelyUnlikely getIsSink() {
-        return isSink;
+        return isSink == null ? RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN : isSink;
     }
 
     public RedListEnums.RedListCategories getCategory() {
@@ -52,19 +54,19 @@ public class Assessment {
     }
 
     public String getCriteria() {
-        return criteria;
+        return criteria == null ? "" : criteria;
     }
 
     public String getJustification() {
-        return justification;
+        return justification == null ? "" : justification;
     }
 
     public RedListEnums.UpDownList getUpDownListing() {
-        return upDownListing;
+        return upDownListing == null ? RedListEnums.UpDownList.NONE : upDownListing;
     }
 
     public String getUpDownListingJustification() {
-        return upDownListingJustification;
+        return upDownListingJustification == null ? "" : upDownListingJustification;
     }
 
     public String[] getAuthors() {
@@ -72,7 +74,7 @@ public class Assessment {
     }
 
     public String getCollaborators() {
-        return collaborators;
+        return collaborators == null ? "" : collaborators;
     }
 
     public String[] getEvaluator() {
@@ -242,7 +244,7 @@ public class Assessment {
      * PublicationStatus.PUBLISHED => ReviewStatus.REVISED_PUBLISHING => AssessmentStatus.PRELIMINARY => TextStatus.READY
      * @return
      */
-    public String[] getSequentialAssessmentStatus() {
+    public String[] fetchSequentialAssessmentStatus() {
         if(this.publicationStatus != null && this.publicationStatus == RedListEnums.PublicationStatus.PUBLISHED)
             return new String[] {this.publicationStatus.getLabel(), "EmptyString"};
         if(this.textStatus != null && this.textStatus != RedListEnums.TextStatus.READY) return new String[] {this.textStatus.getLabel(), "EmptyString"};

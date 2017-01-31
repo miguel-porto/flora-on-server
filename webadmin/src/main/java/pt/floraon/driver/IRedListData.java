@@ -7,6 +7,7 @@ import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -51,6 +52,8 @@ public interface IRedListData {
      * @return The new {@link RedListDataEntity}
      */
     RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
+
+    void updateRedListDataEntities(String territory, String[] ids, Map<String, Object> values) throws FloraOnException;
 
     /**
      * For all users, gets all taxon-specific privileges, disaggregated to species or inferior rank.

@@ -8,13 +8,13 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class AQLQueries {
-	private static final String BUNDLE_NAME = "pt.floraon.arangodriver.aqlqueries"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "pt.floraon.arangodriver.aqlqueries";
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 	
 	private static final Pattern substitutionPattern = Pattern.compile("\\{@(\\w+)\\}");
 
-	private AQLQueries() {
+	public AQLQueries() {
 	}
 
 	public static String getString(String key) {
@@ -29,17 +29,17 @@ public class AQLQueries {
 		String msg = RESOURCE_BUNDLE.getString(key);
 		// replace named AQL fragments
 		Matcher mat = substitutionPattern.matcher(msg);
-		while(mat.find()) {
+		while (mat.find()) {
 			msg = msg.replace("{@" + mat.group(1) + "}", getString(mat.group(1), params));
 		}
 		// now substitute passed variables
-        try {
-        	msg = String.format(msg, params);
-        } catch (MissingResourceException e) {
-            return '!' + key + '!';
-        }
-        return msg;
-    }
+		try {
+			msg = String.format(msg, params);
+		} catch (MissingResourceException e) {
+			return '!' + key + '!';
+		}
+		return msg;
+	}
 
 	// TODO: named params
 	public static String getString(String key, Map<String,String> params) {

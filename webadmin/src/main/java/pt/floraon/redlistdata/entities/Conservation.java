@@ -1,9 +1,12 @@
 package pt.floraon.redlistdata.entities;
 
+import pt.floraon.driver.DiffableBean;
+import pt.floraon.redlistdata.RedListEnums;
+
 /**
  * Created by miguel on 20-11-2016.
  */
-public class Conservation {
+public class Conservation implements DiffableBean {
     private String description;
     private RedListEnums.YesNoNA conservationPlans;
     private String conservationPlansJustification;
@@ -13,31 +16,39 @@ public class Conservation {
     private RedListEnums.ProposedStudyMeasures[] proposedStudyMeasures;
 
     public String getDescription() {
-        return description;
+        return description == null ? "" : description;
     }
 
     public RedListEnums.YesNoNA getConservationPlans() {
-        return conservationPlans;
+        return conservationPlans == null ? RedListEnums.YesNoNA.NO_DATA : conservationPlans;
     }
 
     public String getConservationPlansJustification() {
-        return conservationPlansJustification;
-    }
-
-    public String getExSituConservationJustification() {
-        return exSituConservationJustification;
+        return conservationPlansJustification == null ? "" : conservationPlansJustification;
     }
 
     public RedListEnums.YesNoNA getExSituConservation() {
-        return exSituConservation;
+        return exSituConservation == null ? RedListEnums.YesNoNA.NO_DATA : exSituConservation;
+    }
+
+    public String getExSituConservationJustification() {
+        return exSituConservationJustification == null ? "" : exSituConservationJustification;
     }
 
     public RedListEnums.ProposedConservationActions[] getProposedConservationActions() {
-        return proposedConservationActions == null ? new RedListEnums.ProposedConservationActions[]{RedListEnums.ProposedConservationActions.NO_MEASURES} : proposedConservationActions;
+        return proposedConservationActions == null
+                || proposedConservationActions.length == 0
+                || proposedConservationActions[0] == null
+                ? new RedListEnums.ProposedConservationActions[]{RedListEnums.ProposedConservationActions.NO_MEASURES}
+                : proposedConservationActions;
     }
 
     public RedListEnums.ProposedStudyMeasures[] getProposedStudyMeasures() {
-        return proposedStudyMeasures == null ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES} : proposedStudyMeasures;
+        return proposedStudyMeasures == null
+                || proposedStudyMeasures.length == 0
+                || proposedStudyMeasures[0] == null
+                ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES}
+                : proposedStudyMeasures;
     }
 
     public void setDescription(String description) {

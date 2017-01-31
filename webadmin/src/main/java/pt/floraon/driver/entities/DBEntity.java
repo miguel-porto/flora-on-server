@@ -28,6 +28,7 @@ public abstract class DBEntity {
 	}
 
 	public String getIDURLEncoded() {
+		if(this._id == null) return null;
 		try {
 			return URLEncoder.encode(this._id, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e) {

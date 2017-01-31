@@ -19,10 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('mainformsubmitter').classList.add('hidden');
     });
 
-    /*addEvent('click', document.getElementById('mainformsubmitter'), function(ev) {
-        document.getElementById('mainformsubmitter').classList.add('hidden');
-    });*/
-
     addEvent('click', document.getElementById('removeformatting'), function(ev) {
         if(focusedEditableDiv.hasAttribute('contenteditable')) {
             focusedEditableDiv.innerHTML = focusedEditableDiv.innerHTML.replace(regex_htmltagreplace, '');
@@ -38,6 +34,56 @@ document.addEventListener('DOMContentLoaded', function() {
     // toggle help tips
     addEvent('click', document.getElementById('toggle_help'), function(ev) {
         document.querySelector('table.sheet').classList.toggle('help');
+    });
+
+    /********************
+        SPECIES INDEX
+    *********************/
+    // click event for taxon list checkboxes
+    addEvent('click', document.getElementById('speciesindex'), function(ev) {
+        if(ev.target.classList.contains('selectionbox')) {
+            var row = getParentbyTag(ev.target, 'tr');
+            if(ev.target.checked)
+                row.classList.add('selected');
+            else
+                row.classList.remove('selected');
+
+            var sel = document.querySelectorAll('#speciesindex tr.selected');
+            if(sel.length == 0)
+                document.getElementById('editselectedtaxa').classList.add('hidden');
+            else
+                document.getElementById('editselectedtaxa').classList.remove('hidden');
+        }
+    });
+
+    // select all checked rows
+    var sel = document.querySelectorAll('#speciesindex input.selectionbox:checked');
+    for(var i = 0; i < sel.length; i++) {
+        var row = getParentbyTag(sel[i], 'tr');
+        row.classList.add('selected');
+    }
+    if(sel.length > 0) document.getElementById('editselectedtaxa').classList.remove('hidden');
+
+    // toggle selection
+    addEvent('click', document.getElementById('toggleselectedtaxa'), function(ev) {
+        var sel = document.querySelectorAll('#speciesindex input.selectionbox');
+        for(var i = 0; i < sel.length; i++) {
+            if(sel[i].parentNode.offsetParent === null) continue;
+            if(sel[i].checked)
+                sel[i].checked = false;
+            else
+                sel[i].checked = true;
+
+        }
+        var row = document.querySelectorAll('#speciesindex tbody tr');
+        for(var i = 0; i < row.length; i++) {
+            if(row[i].offsetParent === null) continue;
+            if(row[i].querySelector('input:checked'))
+                row[i].classList.add('selected');
+            else
+                row[i].classList.remove('selected');
+        }
+        document.getElementById('editselectedtaxa').classList.remove('hidden');
     });
 
     var filters = document.querySelectorAll('#filters .filter');

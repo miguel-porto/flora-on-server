@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata.entities;
+package pt.floraon.redlistdata;
 
 import java.util.*;
 
@@ -6,7 +6,7 @@ import java.util.*;
  * Created by miguel on 16-11-2016.
  */
 public class RedListEnums {
-    private static ResourceBundle myBundle = ResourceBundle.getBundle("pt.floraon.redlistdata.fieldValues", Locale.forLanguageTag("pt"));
+//    private static ResourceBundle myBundle = ResourceBundle.getBundle("pt.floraon.redlistdata.fieldValues", Locale.forLanguageTag("pt"));
 
     public interface LabelledEnum {
         String getLabel();
@@ -63,6 +63,7 @@ public class RedListEnums {
         public boolean isTrigger() {
             return this.trigger;
         }
+
     }
 
     public enum DeclineDistribution implements TriggerEnum {

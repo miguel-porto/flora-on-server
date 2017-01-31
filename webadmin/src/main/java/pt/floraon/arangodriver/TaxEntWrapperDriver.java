@@ -11,7 +11,6 @@ import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 
 import com.arangodb.model.AqlQueryOptions;
-import com.arangodb.model.OptionsBuilder;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;

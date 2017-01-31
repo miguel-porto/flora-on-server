@@ -12,10 +12,12 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import pt.floraon.arangodriver.AQLQueries;
 import pt.floraon.driver.*;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.dataproviders.FloraOnExternalDataProvider;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -151,5 +153,20 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
             throw new DatabaseException(e.getMessage());
         }
         return out.getNew();
+    }
+
+    @Override
+    public void updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException {
+        Map<String, Object> bp = new HashMap<>();
+        bp.put("ids", taxEntIds);
+        bp.put("data", values);
+        System.out.println(AQLRedListQueries.getString("redlistdata.4", territory));
+String a;
+        try {
+            a = database.query(AQLRedListQueries.getString("redlistdata.4", territory), bp, null, String.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        System.out.println(a);
     }
 }
