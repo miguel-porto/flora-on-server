@@ -20,6 +20,13 @@
 	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
 	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/redlistadmin.js?nocache=${uuid}"></script>
+	<c:if test="${what=='main'}">
+	<style>
+	    <c:forEach var="tmp" items="${allTags}">
+	    #speciesindex.onlytag_${tmp.getKey()} tbody tr:not(.tag_${tmp.getKey()}) {display: none;}
+	    </c:forEach>
+	</style>
+	</c:if>
 </head>
 <body>
 <div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
@@ -57,7 +64,16 @@
             <tr><td>Nr. taxa with texts ready</td><td class="bignumber">${nrspptextsready}</td></tr>
         </table>
         </c:if>
-        <div id="filters">
+        <c:if test="${user.canEDIT_ANY_FIELD()}">
+        <div class="filterpanel">
+            <h3><fmt:message key="TaxonIndex.selecting.1"/></h3>
+            <p id="selectedmsg"></p>
+            <div class="button" id="selectall"><fmt:message key="TaxonIndex.selecting.4"/></div>
+            <div class="button" id="toggleselectedtaxa"><fmt:message key="TaxonIndex.selecting.2"/></div>
+            <div class="button" id="selecttaxa"><fmt:message key="TaxonIndex.selecting.3"/></div>
+        </div>
+        </c:if>
+        <div id="filters" class="filterpanel">
             <h3><fmt:message key="TaxonIndex.filters.1"/></h3>
             <c:if test="${!user.isGuest()}">
             <div class="filter wordtag togglebutton" id="onlyresponsible"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.3"/></div></div>
@@ -65,6 +81,12 @@
             <div class="filter" id="onlynative"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.4"/></div></div>
             <div class="filter" id="onlyassessed"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.6"/></div></div>
             <div class="filter" id="onlypublished"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.5"/></div></div>
+            <c:if test="${user.canEDIT_ANY_FIELD()}">
+            <div class="filter" id="onlyselected"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.7"/></div></div>
+            </c:if>
+            <c:forEach var="tmp" items="${allTags}">
+            <div class="filter tag" id="onlytag_${tmp.getKey()}"><div class="light"></div><div>${tmp.getValue()}</div></div>
+            </c:forEach>
         </div>
         <form method="post" action="/floraon/redlist/${territory}">
             <input type="hidden" name="w" value="taxon"/>
@@ -76,7 +98,9 @@
             <table id="speciesindex" class="sortable smalltext">
                 <thead>
                     <tr>
-                    <c:if test="${user.canEDIT_ANY_FIELD()}"><th class="sorttable_nosort"><div class="button" id="toggleselectedtaxa">Toggle</div></th></c:if>
+                    <c:if test="${user.canEDIT_ANY_FIELD()}">
+                        <th class="sorttable_nosort"></th>
+                    </c:if>
                         <th>Taxon</th><th>Native Status</th>
                     <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                         <th>Responsible for texts</th>
@@ -107,6 +131,10 @@
                     <c:if test="${taxon.getAssessment().getAssessmentStatus().isAssessed()}">
                         <c:set var="taxonclasses" value="${taxonclasses} assessed"/>
                     </c:if>
+                    <c:forEach var="tmp" items="${taxon._getHTMLEscapedTags()}">
+                        <c:set var="taxonclasses" value="${taxonclasses} tag_${tmp}"/>
+                    </c:forEach>
+
                         <tr class="${taxonclasses}">
                         <c:if test="${user.canEDIT_ANY_FIELD()}">
                             <td>
@@ -266,6 +294,32 @@
                     </td></tr>
                     <tr class="section1"><td class="title">1.5</td><td><fmt:message key="DataSheet.label.1.5" /></td><td>
                     (a fazer...)
+                    </td></tr>
+                    <tr class="section1"><td class="title">1.6</td><td><fmt:message key="DataSheet.label.1.6" /></td><td>
+                    <c:if test="${user.canEDIT_1_4()}">
+                        <div class="multiplechooser left" id="tagchooser">
+                            <input type="hidden" name="tags" value=""/>
+                        <c:forEach var="tmp" items="${allTags}">
+                            <c:if test="${tags.contains(tmp)}">
+                                <input type="checkbox" name="tags" value="${tmp.toString()}" checked="checked" id="tags_${tmp}"/>
+                                <label for="tags_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
+                            </c:if>
+                            <c:if test="${!tags.contains(tmp)}">
+                                <input type="checkbox" name="tags" value="${tmp.toString()}" id="tags_${tmp}"/>
+                                <label for="tags_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
+                            </c:if>
+                        </c:forEach>
+                        </div>
+                        <input type="text" class="nochangeevent" name="query" placeholder="<fmt:message key="DataSheet.msg.newtag" />" autocomplete="off" id="tagbox"/>
+                        <input type="button" value="Create new..." class="button" id="newtag"/>
+                    </c:if>
+                    <c:if test="${!user.canEDIT_1_4()}">
+                        <ul>
+                        <c:forEach var="tmp" items="${tags}">
+                            <li><fmt:message key="${tmp}" /></li>
+                        </c:forEach>
+                        </ul>
+                    </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title" colspan="3"><a name="distribution"></a><fmt:message key="DataSheet.label.2" /></td></tr>
                 </c:if>
@@ -1184,7 +1238,9 @@
                     <c:if test="${!user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getAuthors()}">
+                            <c:if test="${tmp != null}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
+                            </c:if>
                             </c:forEach>
                         </td>
                     </c:if>
@@ -1217,7 +1273,9 @@
                     <c:if test="${!user.canEDIT_9_7_9_92()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getEvaluator()}">
+                            <c:if test="${tmp != null}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
+                            </c:if>
                             </c:forEach>
                         </td>
                     </c:if>
@@ -1242,7 +1300,9 @@
                     <c:if test="${!user.canEDIT_9_8_9_93()}">
                         <td>
                             <c:forEach var="tmp" items="${rlde.getAssessment().getReviewer()}">
+                            <c:if test="${tmp != null}">
                                 <div class="wordtag">${userMap.get(tmp)}</div>
+                            </c:if>
                             </c:forEach>
                         </td>
                     </c:if>
@@ -1331,7 +1391,7 @@
                 <c:if test="${authors.size() > 1}">
                     <c:forEach var="i" begin="0" end="${authors.size() - 2}">${userMap.get(authors.get(i))}, </c:forEach>
                 </c:if>
-                ${userMap.get(authors.get(authors.size() - 1))}. ${rlde.getAssessment().getPublicationStatus().isPublished() ? rlde.getYearPublished() : 'Unpublished'}. <i>${taxon.getName()}</i>. Lista Vermelha da Flora Vascular de Portugal Continental.
+                ${userMap.get(authors.get(authors.size() - 1))}. ${rlde.getAssessment().getPublicationStatus().isPublished() ? rlde._getYearPublished() : 'Unpublished'}. <i>${taxon.getName()}</i>. Lista Vermelha da Flora Vascular de Portugal Continental.
                 </c:if>
                 </td></tr>
             </table>

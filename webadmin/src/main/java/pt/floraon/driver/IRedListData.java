@@ -5,10 +5,7 @@ import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by miguel on 05-11-2016.
@@ -79,4 +76,10 @@ public interface IRedListData {
      * @return
      */
     RedListDataEntity getRedListDataEntity(String territory, INodeKey id) throws DatabaseException;
+
+    /**
+     * Gets all tags in use in the red list dataset.
+     * @return
+     */
+    Set<String> getRedListTags(String territory) throws DatabaseException;
 }

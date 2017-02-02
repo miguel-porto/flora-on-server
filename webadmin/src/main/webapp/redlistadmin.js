@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.classList.remove('selected');
 
             var sel = document.querySelectorAll('#speciesindex tr.selected');
+            updateSelectedInfo(sel.length);
             if(sel.length == 0)
                 document.getElementById('editselectedtaxa').classList.add('hidden');
             else
@@ -58,23 +59,46 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // select all checked rows
     var sel = document.querySelectorAll('#speciesindex input.selectionbox:checked');
-    for(var i = 0; i < sel.length; i++) {
-        var row = getParentbyTag(sel[i], 'tr');
-        row.classList.add('selected');
+    if(sel > 0) {
+        for(var i = 0; i < sel.length; i++) {
+            var row = getParentbyTag(sel[i], 'tr');
+            row.classList.add('selected');
+        }
+        if(sel.length > 0) document.getElementById('editselectedtaxa').classList.remove('hidden');
+        updateSelectedInfo(sel.length);
     }
-    if(sel.length > 0) document.getElementById('editselectedtaxa').classList.remove('hidden');
+
+    addEvent('click', document.getElementById('selectall'), function(ev) {
+        var sel = document.querySelectorAll('#speciesindex input.selectionbox');
+        var count = 0;
+        for(var i = 0; i < sel.length; i++) {
+            if(sel[i].parentNode.offsetParent === null) continue;
+            sel[i].checked = true;
+            count++;
+        }
+        updateSelectedInfo(count);
+        var row = document.querySelectorAll('#speciesindex tbody tr');
+        for(var i = 0; i < row.length; i++) {
+            if(row[i].offsetParent === null) continue;
+            row[i].classList.add('selected');
+        }
+        document.getElementById('editselectedtaxa').classList.remove('hidden');
+    });
 
     // toggle selection
     addEvent('click', document.getElementById('toggleselectedtaxa'), function(ev) {
         var sel = document.querySelectorAll('#speciesindex input.selectionbox');
+        var count = 0;
         for(var i = 0; i < sel.length; i++) {
             if(sel[i].parentNode.offsetParent === null) continue;
             if(sel[i].checked)
                 sel[i].checked = false;
-            else
+            else {
                 sel[i].checked = true;
-
+                count++;
+            }
         }
+        updateSelectedInfo(count);
         var row = document.querySelectorAll('#speciesindex tbody tr');
         for(var i = 0; i < row.length; i++) {
             if(row[i].offsetParent === null) continue;
@@ -84,6 +108,27 @@ document.addEventListener('DOMContentLoaded', function() {
                 row[i].classList.remove('selected');
         }
         document.getElementById('editselectedtaxa').classList.remove('hidden');
+    });
+
+    addEvent('click', document.getElementById('selecttaxa'), function(ev) {
+        var tids = window.prompt('Enter taxon IDs to select separated by commas');
+        tids = tids.replace(/ /g, '');
+        tids = tids.split(',');
+        var count = 0;
+        var sel = document.querySelectorAll('#speciesindex input.selectionbox');
+        for(var i = 0; i < sel.length; i++) {
+            if(tids.indexOf(sel[i].getAttribute('value')) > -1) {
+                sel[i].checked = true;
+                count++;
+                var row = getParentbyTag(sel[i], 'tr');
+                row.classList.add('selected');
+            } else {
+                sel[i].checked = false;
+                var row = getParentbyTag(sel[i], 'tr');
+                row.classList.remove('selected');
+            }
+        }
+        updateSelectedInfo(count);
     });
 
     var filters = document.querySelectorAll('#filters .filter');
@@ -131,6 +176,14 @@ document.addEventListener('DOMContentLoaded', function() {
     addEvent('click', document.getElementById('newauthor'), createNewAuthor);
     addEvent('click', document.getElementById('newevaluator'), createNewAuthor);
     addEvent('click', document.getElementById('newreviewer'), createNewAuthor);
+    addEvent('click', document.getElementById('newtag'), createNewTag);
+    addEvent('keydown', document.getElementById('tagbox'), function(ev) {
+        if(ev.keyCode == 13) {
+            ev.preventDefault();
+            createNewTag.call(this, ev);
+            return true;
+        }
+    });
 
     addEvent('click', document.getElementById('map'), function(ev) {
         document.getElementById('map').classList.toggle('floating');
@@ -141,12 +194,6 @@ document.addEventListener('DOMContentLoaded', function() {
     attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=10&q=', 'suggestions', function(ev, name, key) {
         clickAddTag2(name, key, 'applicableTaxa', 'ta_', 'taxonprivileges');
     });
-/*
-    addEvent('click', document.getElementById('addtaxonprivilege'), function(ev) {
-        if(clickAddTag('taxonbox', 'applicableTaxa', 'ta_', 'taxonprivileges'))
-            changeHandler.call(this, ev);
-    });
-*/
 
     attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions', function(ev, name, key) {
         if(clickAddTag2(name, key, 'assessment_Authors', 'aa_', 'textauthors'))
@@ -270,9 +317,9 @@ function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
 }
 
 function changeHandler(ev) {
-    if(ev.target.classList.contains('nochangeevent')) return;
+    if(ev != null && ev.target.classList.contains('nochangeevent')) return;
 
-    if(ev.target.classList.contains('trigger')) {   // this field triggers display/hide other fields
+    if(ev != null && ev.target.classList.contains('trigger')) {   // this field triggers display/hide other fields
         var triggered = getParentbyClass(ev.target, 'triggergroup');
         if(triggered)
             triggered = triggered.querySelectorAll('.triggered');
@@ -310,6 +357,29 @@ function changeHandler(ev) {
 
 function showSaveButton() {
     document.getElementById('mainformsubmitter').classList.remove('hidden');
+}
+
+function createNewTag(ev) {
+    var name = document.getElementById('tagbox').value;
+    if(name != null) {
+        var el = document.createElement('INPUT');
+        el.setAttribute('type', 'checkbox');
+        el.setAttribute('name', 'tags');
+        el.setAttribute('id', 'tags_' + name);
+        el.setAttribute('value', name);
+        el.setAttribute('checked', 'checked');
+
+        var el1 = document.createElement('LABEL');
+        el1.setAttribute('class', 'wordtag togglebutton');
+        el1.setAttribute('for', 'tags_' + name);
+        el1.appendChild(document.createTextNode(name));
+
+        document.getElementById('tagchooser').appendChild(el);
+        document.getElementById('tagchooser').appendChild(el1);
+
+        document.getElementById('tagbox').value = '';
+        changeHandler.call(this, null);
+    }
 }
 
 function createNewAuthor(ev) {
@@ -383,6 +453,9 @@ function removeHighlight(ev) {
         alert("Error! Changes will not be saved. Contact the programmer.");
 }
 
+function updateSelectedInfo(n) {
+    document.getElementById('selectedmsg').innerHTML = n + ' selected taxa';
+}
 /*
 function getSelected() {
     if (window.getSelection) {

@@ -20,6 +20,7 @@ import java.util.List;
 
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
 import static pt.floraon.driver.Constants.cleanArray;
+import static pt.floraon.driver.Constants.sanitizeHtmlId;
 
 /**
  * Main page of red list data
@@ -42,7 +43,7 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk12");
+        request.setAttribute("uuid", "sk13");
 
         ListIterator<String> path;
         try {
@@ -89,6 +90,12 @@ System.out.println(gs.toJson(getUser()));
                 }
 
 //                taxEntList.get(0).getAssessment().getAssessmentStatus().isAssessed()
+                Set<String> at = driver.getRedListData().getRedListTags(territory);
+                Map<String, String> ate = new HashMap<>();
+                for(String s : at)
+                    ate.put(sanitizeHtmlId(s), s);
+
+                request.setAttribute("allTags", ate.entrySet());
                 request.setAttribute("specieslist", taxEntList);
                 request.setAttribute("nrsppwithresponsible", count1);
                 request.setAttribute("nrspppreliminaryassessment", count2);
@@ -125,6 +132,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
                 request.setAttribute("assessment_ReviewStatus", RedListEnums.ReviewStatus.values());
                 request.setAttribute("assessment_PublicationStatus", RedListEnums.PublicationStatus.values());
+
 //                request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
 
                 // TODO this should be a user configuration loaded at startup
@@ -230,6 +238,8 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("authors", Arrays.asList(cleanArray(rlde.getAssessment().getAuthors(), true)));
                     request.setAttribute("evaluator", Arrays.asList(cleanArray(rlde.getAssessment().getEvaluator(), true)));
                     request.setAttribute("reviewer", Arrays.asList(cleanArray(rlde.getAssessment().getReviewer(), true)));
+                    request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
+                    request.setAttribute("tags", Arrays.asList(rlde.getTags()));
                     List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();
                     if (prev.size() > 2) {
                         prev = new ArrayList<>();

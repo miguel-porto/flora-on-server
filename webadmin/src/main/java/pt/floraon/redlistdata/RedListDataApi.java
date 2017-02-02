@@ -131,8 +131,8 @@ public class RedListDataApi extends FloraOnServlet {
                         e.printStackTrace();
                     }
 
-//                    System.out.println("Diff:");
-//                    System.out.println(gs.toJson(cb));
+                    System.out.println("Diff:");
+                    System.out.println(gs.toJson(cb));
                     driver.getRedListData().updateRedListDataEntities(getParameterAsString("territory"), ids, cb);
                     success("Ok");
                 }

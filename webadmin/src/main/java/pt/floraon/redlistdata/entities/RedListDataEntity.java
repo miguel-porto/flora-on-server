@@ -16,6 +16,7 @@ import java.util.*;
 
 import static pt.floraon.driver.Constants.cleanArray;
 import static pt.floraon.driver.Constants.dateTimeFormat;
+import static pt.floraon.driver.Constants.sanitizeHtmlId;
 
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
@@ -120,7 +121,15 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public String[] getTags() {
-        return tags;
+        return tags == null ? new String[0] : tags;
+    }
+
+    public String[] _getHTMLEscapedTags() {
+        if(tags == null) return new String[0];
+        List<String> out = new ArrayList<>();
+        for(String s : tags)
+            if(s != null) out.add(sanitizeHtmlId(s));
+        return out.toArray(new String[out.size()]);
     }
 
     public boolean getHasTaxonomicProblems() {
@@ -157,7 +166,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return datePublished;
     }
 
-    public Integer getYearPublished() {
+    public Integer _getYearPublished() {
         if(datePublished == null) return null;
         try {
             Calendar cal = new GregorianCalendar();

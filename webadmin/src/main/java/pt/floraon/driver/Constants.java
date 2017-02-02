@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
@@ -54,8 +55,9 @@ public final class Constants {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}
 
-	public static DateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-	public static DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	public static final DateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+	public static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
 
 	public enum TaxonRanks {
 		NORANK("non-taxonomic rank",1000),CLASS("Class",50),FAMILY("Family",100),FORM("Form",240),GENUS("Genus",140),KINGDOM("Kingdom",10)
@@ -491,7 +493,7 @@ public final class Constants {
 	public static String[] cleanArray(String[] array, boolean returnEmpty) {
 		List<String> tmp = new ArrayList<>(Arrays.asList(array));
 		tmp.removeAll(Collections.singleton(""));
-		tmp.removeAll(Collections.singleton(null));
+		tmp.removeAll(Collections.<String> singleton(null));
 		if(!returnEmpty && tmp.size() == 0) tmp.add(null);
 		return tmp.toArray(new String[tmp.size()]);
 	}
@@ -566,5 +568,9 @@ public final class Constants {
 			}
 		}
 		return bean;
+	}
+
+	public static String sanitizeHtmlId(String txt) {
+		return txt.replaceAll(sanitizeHtmlId, "");
 	}
 }
