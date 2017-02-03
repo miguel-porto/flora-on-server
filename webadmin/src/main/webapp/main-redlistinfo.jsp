@@ -64,6 +64,20 @@
             <tr><td>Nr. taxa with texts ready</td><td class="bignumber">${nrspptextsready}</td></tr>
         </table>
         </c:if>
+        <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
+        <div class="filterpanel">
+            <h3><fmt:message key="TaxonIndex.admin.1"/></h3>
+            <form class="poster" data-path="/floraon/redlist/api/addnewtaxent" data-refresh="true" id="addtaxon2redlist">
+                <div class="withsuggestions">
+                    <input type="text" class="nochangeevent" placeholder="<fmt:message key="DataSheet.msg.typeletters"/>" autocomplete="off" id="addtaxonbox"/>
+                    <div id="addtaxsuggestions"></div>
+                </div>
+                <input type="hidden" name="territory" value="${territory}"/>
+                <input type="submit" value="<fmt:message key="TaxonIndex.admin.2"/>" class="textbutton"/>
+            </form>
+            <p></p>
+        </div>
+        </c:if>
         <c:if test="${user.canEDIT_ANY_FIELD()}">
         <div class="filterpanel">
             <h3><fmt:message key="TaxonIndex.selecting.1"/></h3>
@@ -111,7 +125,8 @@
                     <c:if test="${!user.canMANAGE_REDLIST_USERS()}">
                         <th>Assessor</th><th>Reviewer</th>
                     </c:if>
-                        <th>Category</th></tr>
+                        <th>Category</th>
+                    </tr>
                 </thead>
                 <tbody>
                 <c:forEach var="taxon" items="${specieslist.iterator()}">
@@ -122,7 +137,7 @@
                     <c:if test="${taxon.getResponsibleAuthors_Texts().contains(user.getID()) || taxon.getResponsibleAuthors_Assessment().contains(user.getID()) || taxon.getResponsibleAuthors_Revision().contains(user.getID())}">
                         <c:set var="taxonclasses" value="${taxonclasses} responsible"/>
                     </c:if>
-                    <c:if test="${taxon.getInferredStatus().getNativeStatus().isNative()}">
+                    <c:if test="${taxon.getInferredStatus() != null && taxon.getInferredStatus().getNativeStatus().isNative()}">
                         <c:set var="taxonclasses" value="${taxonclasses} native"/>
                     </c:if>
                     <c:if test="${taxon.getAssessment().getPublicationStatus().isPublished()}">
@@ -143,7 +158,14 @@
                             </td>
                         </c:if>
                         <td><a href="?w=taxon&id=${taxon.getTaxEnt().getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
-                        <td>${taxon.getInferredStatus().getStatusSummary()}</td>
+                        <td>
+                        <c:if test="${taxon.getInferredStatus() != null}">
+                            ${taxon.getInferredStatus().getStatusSummary()}
+                        </c:if>
+                        <c:if test="${taxon.getInferredStatus() == null}">
+                            NONEXISTENT
+                        </c:if>
+                        </td>
                         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                         <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Texts()}">${userMap.get(ra)}<br/></c:forEach></td>
                         <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Assessment()}">${userMap.get(ra)}<br/></c:forEach></td>
@@ -301,11 +323,11 @@
                             <input type="hidden" name="tags" value=""/>
                         <c:forEach var="tmp" items="${allTags}">
                             <c:if test="${tags.contains(tmp)}">
-                                <input type="checkbox" name="tags" value="${tmp.toString()}" checked="checked" id="tags_${tmp}"/>
+                                <input type="checkbox" name="tags" value="${tmp}" checked="checked" id="tags_${tmp}"/>
                                 <label for="tags_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
                             </c:if>
                             <c:if test="${!tags.contains(tmp)}">
-                                <input type="checkbox" name="tags" value="${tmp.toString()}" id="tags_${tmp}"/>
+                                <input type="checkbox" name="tags" value="${tmp}" id="tags_${tmp}"/>
                                 <label for="tags_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
                             </c:if>
                         </c:forEach>
@@ -1404,6 +1426,14 @@
             <tr><td>${rev.getKey().getFormattedDateSaved()}</td><td>${userMap.get(rev.getKey().getUser())}</td><td>${rev.getValue()}</td></tr>
         </c:forEach>
         </table>
+        <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
+        <h1><fmt:message key="TaxonIndex.admin.1"/></h1>
+        <form class="poster" data-path="/floraon/redlist/api/removetaxent" data-refresh="false" data-callback="?w=main">
+            <input type="hidden" name="id" value="${rlde.getTaxEntID()}"/>
+            <input type="hidden" name="territory" value="${territory}"/>
+            <input type="submit" value="Delete this data sheet and remove taxon from red list" class="textbutton"/>
+        </form>
+        </c:if>
         </c:if>
     </c:when>
 
@@ -1577,7 +1607,7 @@
                                 <td style="width:20%; vertical-align:top;">
                                     <div class="multiplechooser" id="taxonprivileges"></div>
                                     <div class="withsuggestions">
-                                        <input type="text" name="query" class="nochangeevent" placeholder="type some letters to find a taxon" autocomplete="off" id="taxonbox"/>
+                                        <input type="text" name="query" class="nochangeevent" placeholder="<fmt:message key="DataSheet.msg.typeletters"/>" autocomplete="off" id="taxonbox"/>
                                         <div id="suggestions"></div>
                                     </div>
                                 </td>

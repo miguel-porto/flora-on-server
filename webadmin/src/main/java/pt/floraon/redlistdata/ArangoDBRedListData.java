@@ -79,8 +79,10 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     @Override
     public RedListDataEntity getRedListDataEntity(String territory, INodeKey taxEntId) throws DatabaseException {
         try {
-            return database.query(AQLRedListQueries.getString("redlistdata.2", territory, taxEntId), null
-                    , null, RedListDataEntity.class).next();
+            Iterator<RedListDataEntity> it =database.query(AQLRedListQueries.getString("redlistdata.2", territory, taxEntId), null
+                    , null, RedListDataEntity.class);
+            if(it.hasNext()) return it.next();
+            return null;
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -176,13 +178,27 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
         Map<String, Object> bp = new HashMap<>();
         bp.put("ids", taxEntIds);
         bp.put("data", values);
-        System.out.println(AQLRedListQueries.getString("redlistdata.4", territory));
-String a;
+        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+        System.out.println(gs.toJson(bp));
+//        System.out.println(AQLRedListQueries.getString("redlistdata.4", territory));
+//String a;
         try {
-            a = database.query(AQLRedListQueries.getString("redlistdata.4", territory), bp, null, String.class).next();
+            database.query(AQLRedListQueries.getString("redlistdata.4", territory), bp, null, String.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
-        System.out.println(a);
+//        System.out.println(a);
+    }
+
+    @Override
+    public void deleteRedListDataEntity(String territory, INodeKey taxonId) throws DatabaseException {
+        String key;
+        try {
+            key = database.query(AQLRedListQueries.getString("redlistdata.6", territory, taxonId.getID()), null
+                    , null, String.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        if(key == null) throw new DatabaseException("Some error occurred");
     }
 }

@@ -7,6 +7,7 @@ import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.apache.commons.io.IOUtils;
 
@@ -20,10 +21,14 @@ public class JobServlet extends FloraOnServlet {
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		ListIterator<String> partIt=this.getPathIterator();
 		while(!partIt.next().equals("job"));
+		if(!partIt.hasNext()) {
+			success(new Gson().toJsonTree(JobSubmitter.getJobList()));
+			return;
+		}
 
 		JobRunner job = JobSubmitter.getJob(partIt.next());
 		if(job == null) throw new FloraOnException("Job not found");
-		if(getParameterAsString("query") != null) {
+		if(getParameterAsString("query") != null || !job.isFileDownload()) {
 			JsonObject resp = new JsonObject();
 			resp.addProperty("ready", job.isReady());
 			resp.addProperty("msg", job.getState());

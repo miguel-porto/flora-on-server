@@ -1,7 +1,5 @@
 package pt.floraon.redlistdata;
 
-import pt.floraon.arangodriver.AQLQueries;
-
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;

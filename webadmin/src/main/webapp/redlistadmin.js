@@ -221,12 +221,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if(clickAddTag2(name, key, 'assessment_Reviewer', 'are_', 'reviewers'))
             changeHandler.call(this, ev);
     });
-/*
-    addEvent('click', document.getElementById('addreviewer'), function(ev) {
-        if(clickAddTag('reviewerbox', 'assessment_Reviewer', 'are_', 'reviewers'))
-            changeHandler.call(this, ev);
+
+    attachSuggestionHandler('addtaxonbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'addtaxsuggestions', function(ev, name, key) {
+        var box = document.getElementById('addtaxonbox');
+        box.value = name + ' <' + key + '>';
+        box.setAttribute('data-key', key);
+        var el = document.querySelector('#addtaxon2redlist input[name=id]');
+        if(!el) {
+            el = document.createElement('INPUT');
+            el.setAttribute('type', 'hidden');
+            el.setAttribute('name', 'id');
+            el.setAttribute('value', key);
+            document.getElementById('addtaxon2redlist').appendChild(el);
+        } else {
+            el.value = key;
+        }
     });
-*/
 
 /*
         if(!document.getElementById('taxonbox').hasAttribute('data-key')) {
@@ -289,6 +299,7 @@ function clickAddTag2(name, key, inputName, prefix, multipleChooserId) {
 
 }
 
+/*
 function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
         var inputBox = document.getElementById(inputBoxId);
         if(!inputBox.hasAttribute('data-key')) {
@@ -315,6 +326,7 @@ function clickAddTag(inputBoxId, inputName, prefix, multipleChooserId) {
         inputBox.value = '';
         return true;
 }
+*/
 
 function changeHandler(ev) {
     if(ev != null && ev.target.classList.contains('nochangeevent')) return;

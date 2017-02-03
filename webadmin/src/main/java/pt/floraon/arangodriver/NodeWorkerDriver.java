@@ -84,6 +84,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
 	public TaxEnt getTaxEntById(INodeKey id) throws FloraOnException {
+		if(id == null) throw new FloraOnException("No ID provided");
 		try {
 			return database.getDocument(id.toString(), TaxEnt.class);
 		} catch (ArangoDBException e) {

@@ -50,7 +50,15 @@ public interface IRedListData {
      */
     RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
 
-    void updateRedListDataEntities(String territory, String[] ids, Map<String, Object> values) throws FloraOnException;
+    void updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException;
+
+    /**
+     * Deletes a data sheet and removes the taxon from the red list
+     * @param territory
+     * @param taxonId
+     * @throws DatabaseException
+     */
+    void deleteRedListDataEntity(String territory, INodeKey taxonId) throws DatabaseException;
 
     /**
      * For all users, gets all taxon-specific privileges, disaggregated to species or inferior rank.
@@ -75,7 +83,7 @@ public interface IRedListData {
      * @param id TaxEnt ID
      * @return
      */
-    RedListDataEntity getRedListDataEntity(String territory, INodeKey id) throws DatabaseException;
+    RedListDataEntity getRedListDataEntity(String territory, INodeKey taxonId) throws DatabaseException;
 
     /**
      * Gets all tags in use in the red list dataset.

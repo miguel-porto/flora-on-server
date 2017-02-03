@@ -30,12 +30,12 @@ public class JobRunnerTask implements JobRunner {
 
     @Override
     public Boolean isReady() throws FloraOnException {
-        return null;
+        return isClosed;
     }
 
     @Override
     public String getState() throws FloraOnException {
-        return null;
+        return job.getState();
     }
 
     @Override
@@ -48,6 +48,7 @@ public class JobRunnerTask implements JobRunner {
         try {
             this.job.run(this.driver, this.options);
             isClosed=true;
+            JobSubmitter.jobs.remove(this.uuid);
         } catch (FloraOnException | IOException e) {
             this.hasError=true;
             this.errorMessage=e.getMessage();

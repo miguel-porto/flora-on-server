@@ -54,7 +54,7 @@ public class ListOfTerritoryStatus {
 		thisTerritory.add(territory);
 		Map<String, InferredStatus> tmp = computeTerritoryStatus(thisTerritory, worldDistributionComplete, endemismDegree);
 		if(tmp.isEmpty())
-			return null;
+			return null;	// null status, does not exist
 		else
 			return tmp.get(territory);
 	}

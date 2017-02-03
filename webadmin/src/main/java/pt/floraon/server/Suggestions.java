@@ -32,7 +32,8 @@ public class Suggestions extends FloraOnServlet {
 				while(ite.hasNext()) {
 					te = ite.next();
 					pw.print("<li" + (te.getCurrent() == null ? "" : (te.getCurrent() ? "" : " class=\"notcurrent\""))
-							+ " data-key=\"" + te.getID() + "\"><i>" + te.getName()+"</i></li>");
+							+ " data-key=\"" + te.getID() + "\"><i>" + te.getName() + (te.getSensu() == null
+							? "" : " sensu " + te.getSensu()) + "</i></li>");
 //							+(this.taxent.getAuthor() == null ? "" : " "+this.taxent.getAuthor())+"</li>";
 				}
 				pw.print("</ul>");

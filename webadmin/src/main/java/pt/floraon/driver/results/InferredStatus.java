@@ -49,7 +49,7 @@ public class InferredStatus {
     }
 
     public Constants.NativeStatus getNativeStatus() {
-        return this.nativeStatus;
+        return this.nativeStatus == null ? Constants.NativeStatus.NULL : this.nativeStatus;
     }
 
     public Constants.OccurrenceStatus getOccurrenceStatus() {
@@ -77,7 +77,7 @@ public class InferredStatus {
     }
 
     public boolean isEndemic() {
-        return this.endemic;
+        return this.endemic == null ? false : this.endemic;
     }
 
     public boolean isRare() {
@@ -98,7 +98,7 @@ public class InferredStatus {
      */
     public String getStatusSummary() {
         if(this.nativeStatus == null || this.occurrenceStatus == null)
-            return "";
+            return "NONEXISTENT";
         List<String> qualifiers = new ArrayList<String>();
         if (this.getOccurrenceStatus() != Constants.OccurrenceStatus.PRESENT)
             qualifiers.add(this.getOccurrenceStatus().toString());

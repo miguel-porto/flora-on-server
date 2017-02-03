@@ -10,18 +10,17 @@ import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 import static pt.floraon.driver.Constants.fillBeanDefaults;
 
@@ -36,6 +35,7 @@ public class RedListDataApi extends FloraOnServlet {
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
         ListIterator<String> path = getPathIteratorAfter("api");
         String territory;
+        RedListDataEntity rlde;
         Gson gs;
 
         switch(path.next()) {
@@ -50,6 +50,27 @@ public class RedListDataApi extends FloraOnServlet {
                 success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(), territory, driver).getID());
                 break;
 
+            case "addnewtaxent":
+                if(!getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
+                territory = getParameterAsString("territory");
+                if(driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id")) != null)
+                    throw new FloraOnException(FieldValues.getString("Error.1"));
+
+                TaxEnt te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+                InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getInferredNativeStatus(territory);
+                System.out.println(is.getStatusSummary());
+                rlde = new RedListDataEntity(te.getID(), is);
+                rlde = driver.getRedListData().createRedListDataEntity(territory, rlde);
+                success(rlde.getID());
+                break;
+
+            case "removetaxent":
+                if(!getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
+                territory = getParameterAsString("territory");
+                driver.getRedListData().deleteRedListDataEntity(territory, getParameterAsKey("id"));
+                success("Ok");
+                break;
+
             case "downloaddata":
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 response.setContentType("application/json; charset=utf-8");
@@ -59,7 +80,7 @@ public class RedListDataApi extends FloraOnServlet {
                 break;
 
             case "updatedata":
-                RedListDataEntity rlde = new RedListDataEntity();
+                rlde = new RedListDataEntity();
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 String[] ids = request.getParameterValues("taxEntID");
                 if(ids == null || ids.length == 0) {

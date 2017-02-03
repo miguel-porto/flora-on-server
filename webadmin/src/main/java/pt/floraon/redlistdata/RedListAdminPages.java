@@ -276,6 +276,7 @@ System.out.println(gs.toJson(getUser()));
                 } else {    // multiple IDs provided, batch update
                     getUser().resetEffectivePrivileges();
                     request.setAttribute("warning", "DataSheet.msg.warning.1");
+                    request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                     request.setAttribute("multipletaxa", true);
                     List<TaxEnt> taxEnts = driver.getNodeWorkerDriver().getTaxEntByIds(request.getParameterValues("id"));
                     request.setAttribute("taxa", taxEnts);
