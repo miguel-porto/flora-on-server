@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<% pageContext.setAttribute("newLineChar", "\n"); %>
 <!DOCTYPE html>
 <div class="${user.canMODIFY_TAXA_TERRITORIES() ? 'editable' : '' }">
 <h1>${taxent.getFullName(true)}</h1>
@@ -55,6 +56,12 @@
 				</table>
 			</c:if>
 		</div>
+		<c:if test="${!taxent.getComment().equals('')}">
+		<div id="taxonnotes"><h3>Taxonomic notes</h3>
+		    <p>${fn:replace(taxent.getComment(), newLineChar, '<br/>')}</p>
+		</div>
+		</c:if>
+		<c:if test="${taxentWrapper.getSynonyms().size() > 0}">
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">
 			<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
@@ -62,7 +69,8 @@
 			</c:forEach>
 			</ul>
 		</div>
-		<c:if test="${taxent.isSpeciesOrInferior() && taxent.getCurrent()}">
+		</c:if>
+		<c:if test="${taxent.isSpeciesOrInferior() && taxent.getCurrent() && taxentWrapper.getIncludedTaxa().hasNext()}">
 			<div id="taxonincluded"><h3>Included taxa</h3>
 				<ul class="synonyms">
 				<c:forEach var="included" items="${taxentWrapper.getIncludedTaxa()}">
@@ -152,7 +160,7 @@
 			<div id="editbox">
 				<h3>Add or modify data</h3>
 				<div class="toggler off" id="updatetaxonbox">
-					<h1>Change name <span class="info">changes this taxon</span></h1>
+					<h1>Change details <span class="info">changes this taxon</span></h1>
 					<div class="content">
 						<form class="poster" data-path="/floraon/checklist/api/update/update/taxent">
 							<table>
@@ -161,6 +169,7 @@
 								<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
 								<tr><td>New annotation</td><td><input type="text" name="annotation" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
 								<tr><td>New legacy ID</td><td><input type="text" name="oldId" value="${taxent.getOldId() == null ? '' : taxent.getOldId()}"/></td></tr>
+								<tr><td>New comment</td><td><textarea name="comment" style="width:100%; min-height:150px;"><c:out value="${taxent.getComment()}"/></textarea></td></tr>
 							</table>
 							<input type="hidden" name="id" value="${taxent.getID()}"/>
 							<input type="hidden" name="replace" value="0"/>

@@ -144,6 +144,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 			else
 				rec.print("");
 		}
+		rec.print(this.taxent.getComment());
 	}
 
 	@Override
@@ -156,6 +157,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		for(String t : territories) {
 			rec.print(t);
 		}
+		rec.print("comment");
 		rec.println();
 	}
 

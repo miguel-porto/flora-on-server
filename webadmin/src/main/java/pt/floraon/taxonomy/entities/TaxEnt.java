@@ -20,6 +20,7 @@ import pt.floraon.driver.results.ResultItem;
 
 /**
  * Represents a taxonomic entity.
+ * TODO: convert to java bean
  * @author miguel
  *
  */
@@ -42,6 +43,10 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	protected Integer gbifKey;
 	protected Boolean isSpeciesOrInf;
 	protected Integer oldId;
+	/**
+	 * Comments about what this taxon is, e.g. this taxon
+	 */
+	protected String comment;
 	/**
 	 * This tells whether the world <b>native</b> distribution is complete, regardless of incompleteness in the exotic distribution.
 	 */
@@ -253,7 +258,15 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	public Boolean getCurrent() {
 		return this.current;
 	}
-	
+
+	public String getComment() {
+		return comment == null ? "" : comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
 	@Override
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		rec.print(this.getFullName());

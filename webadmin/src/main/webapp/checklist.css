@@ -165,10 +165,11 @@ table.taxonlist div.territory {float:left;}
 #taxoninfo table td {border-bottom:2px solid white;}
 #taxoninfo table tr:last-of-type td {border-bottom:0px;}
 #taxoninfo>div {border-radius:5px;margin:12px;padding:0px;border:2px solid #99f;flex:1 1 auto;box-shadow:0 0 12px #aaa;overflow:hidden;background: linear-gradient(#fff,#ddf);}
-#taxoninfo>div h3 {font-size:0.9em;background-color:#cdf;text-align:center;color:blue;padding:3px}
+#taxoninfo>div h3 {background-color:#cdf;text-align:center; color:blue; padding:6px}
 #taxoninfo>div#editbox {flex:0 1 100%;border:2px solid #faa;}
-#taxoninfo>div#editbox h3 {font-size:0.9em;background-color:#fdc;text-align:center;color:blue}
+#taxoninfo>div#editbox h3 {background-color:#fdc;text-align:center;color:blue}
 #taxoninfo>div#generalinfo {flex:0 0 auto;}
+#taxoninfo>div#taxonnotes {flex:0 1 40%;}
 #taxoninfo>div#distributioncompleteness {flex:1 1 300px;}
 #taxoninfo table td:first-of-type {font-size:0.9em;font-weight:bold;border-right:3px solid white}
 #taxoninfo table td:not(:first-of-type) {font-size:0.85em}

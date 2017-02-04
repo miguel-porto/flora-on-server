@@ -26,7 +26,8 @@ public class ChecklistDownload implements JobFileDownload {
 			terr.add(tv.getShortName());
 		
 		ResultProcessor<TaxEntAndNativeStatusResult> rpchk1;
-		Iterator<TaxEntAndNativeStatusResult> chklst = driver.getListDriver().getAllSpeciesOrInferior(true, TaxEntAndNativeStatusResult.class, true, null, null, null, null).iterator();
+		Iterator<TaxEntAndNativeStatusResult> chklst = driver.getListDriver().getAllSpeciesOrInferior(true
+				, TaxEntAndNativeStatusResult.class, true, null, null, null, null).iterator();
 		rpchk1=(ResultProcessor<TaxEntAndNativeStatusResult>) new ResultProcessor<TaxEntAndNativeStatusResult>(chklst);
 		out.write(rpchk1.toCSVTable(terr));
 		

@@ -50,6 +50,14 @@ public interface IRedListData {
      */
     RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
 
+    /**
+     * Updates an array of red list data entities with the specified values. Note that this function replaces the values
+     * of all the fields present in the passed Map.
+     * @param territory
+     * @param taxEntIds
+     * @param values
+     * @throws FloraOnException
+     */
     void updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException;
 
     /**

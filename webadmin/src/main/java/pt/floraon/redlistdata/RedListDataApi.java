@@ -58,7 +58,7 @@ public class RedListDataApi extends FloraOnServlet {
 
                 TaxEnt te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getInferredNativeStatus(territory);
-                System.out.println(is.getStatusSummary());
+//                System.out.println(is.getStatusSummary());
                 rlde = new RedListDataEntity(te.getID(), is);
                 rlde = driver.getRedListData().createRedListDataEntity(territory, rlde);
                 success(rlde.getID());

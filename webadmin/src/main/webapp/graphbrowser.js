@@ -991,7 +991,7 @@ function showRelationships(d) {
 		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+(d.annotation ? ' ['+d.annotation+']' : '')+'</td></tr>'
 			+(d.author ? '<tr><td class="auth" colspan="2">'+d.author+'</td></tr>' : '')
 			+(d.sensu ? '<tr><td><i>sensu</i></td><td>'+d.sensu+'</td></tr>' : '')
-			+'<tr><td>ID</td><td class="id"><a href="/floraon?w=taxdetails&id='+encodeURIComponent(d._id)+'">'+d._id+'</a>'+(d.oldid ? ' ('+d.oldid+')': '')+'</td></tr>'
+			+'<tr><td>ID</td><td class="id"><a href="/floraon/checklist?w=taxdetails&id='+encodeURIComponent(d._id)+'">'+d._id+'</a>'+(d.oldid ? ' ('+d.oldid+')': '')+'</td></tr>'
 			+(d.rank ? '<tr><td>Rank</td><td class="rank">'+reference.rankmap[''+d.rank]+'</td></tr>' : '');
 		break;
 

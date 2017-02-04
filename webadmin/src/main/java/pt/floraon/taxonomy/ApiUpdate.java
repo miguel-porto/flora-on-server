@@ -174,9 +174,7 @@ public class ApiUpdate extends FloraOnServlet {
 				return;*/
 
 			case "taxent":
-				success(NWD.updateTaxEntNode(
-					getParameterAsKey("id")
-					,new TaxEnt(
+				TaxEnt te = new TaxEnt(
 						getParameterAsString("name")
 						,getParameterAsInteger("rank",null)
 						,getParameterAsString("author")
@@ -186,7 +184,10 @@ public class ApiUpdate extends FloraOnServlet {
 						,null
 						,getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
 						,getParameterAsInteger("oldId", null)
-					), getParameterAsBooleanNoNull("replace")).toJsonObject());
+				);
+				te.setComment(getParameterAsString("comment"));
+				success(NWD.updateTaxEntNode(getParameterAsKey("id"), te
+						, getParameterAsBooleanNoNull("replace")).toJsonObject());
 				// aqui o update tem de ser reformulado!
 				/*
 				success(NWD.updateTaxEntNode(
