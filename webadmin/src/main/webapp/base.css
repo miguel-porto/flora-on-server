@@ -32,6 +32,8 @@ label input {vertical-align:middle;}
     box-shadow:0 0 12px #777;
     color:white;
     opacity:0.9;
+    flex: 1 1 40%;
+    max-width: 400px;
 }
 .bigbutton:hover {opacity:1}
 

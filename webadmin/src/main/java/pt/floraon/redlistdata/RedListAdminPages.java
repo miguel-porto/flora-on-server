@@ -43,8 +43,6 @@ Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
 */
 
-        request.setAttribute("uuid", "sk13");
-
         ListIterator<String> path;
         try {
             path = getPathIteratorAfter("redlist");

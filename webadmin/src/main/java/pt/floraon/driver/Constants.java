@@ -117,8 +117,7 @@ public final class Constants {
     		return null;
     	}
 	}
-	
-	
+
 	/**************************************************************************
 	 * STATUS OF TAXA IN TERRITORIES
 	 * These status apply to the EXISTS_IN relationship and intend to describe
