@@ -508,6 +508,7 @@ public final class Constants {
 	 * @return
 	 */
 	public static String cleanText(String text) {
+		if(text == null) return "";
 		return Jsoup.parse(text).text().replace("\u00a0", " ").trim();
 	}
 

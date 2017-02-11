@@ -43,6 +43,10 @@ public class Revision {
         c2.set(Calendar.YEAR, c1.get(Calendar.YEAR));
         c2.set(Calendar.MONTH, c1.get(Calendar.MONTH));
         c2.set(Calendar.DAY_OF_MONTH, c1.get(Calendar.DAY_OF_MONTH));
+        c2.set(Calendar.HOUR, 0);
+        c2.set(Calendar.MINUTE, 0);
+        c2.set(Calendar.SECOND, 0);
+        c2.set(Calendar.MILLISECOND, 0);
         out.setDateSaved(c2.getTime());
         out.setUser(user);
         return out;

@@ -98,10 +98,13 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 /*#speciesindex td {transition: background-color 0.3s;}*/
 #speciesindex tr.responsible td {background-color: #b2ff59;}
 #speciesindex tr.selected td {background-color: #64b5f6;}
+#speciesindex tr.validationerror td {background-color: #b71c1c; color:yellow !important;}
+#speciesindex tr.validationerror td a {color:yellow !important;}
 #speciesindex.onlyresponsible tbody tr:not(.responsible) {display: none;}
 #speciesindex.onlynative tbody tr:not(.native) {display: none;}
 #speciesindex.onlypublished tbody tr:not(.published) {display: none;}
 #speciesindex.onlyassessed tbody tr:not(.assessed) {display: none;}
+#speciesindex.onlyvalidationerror tbody tr:not(.validationerror) {display: none;}
 #speciesindex.onlyselected tbody tr:not(.selected) {display: none;}
 
 #speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:1em}
@@ -124,7 +127,8 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     background-color: #3949ab;
 }
 
-.filter.tag {background-color: #e53935;}
+.filter.tag {background-color: #8e24aa;}
+#onlyvalidationerror.filter {background-color: #b71c1c;}
 
 .filter>div {
     display: inline-block;
@@ -375,8 +379,7 @@ table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 
 div.warning {
-    background-color: rgba(198, 40, 40, 1);
-    border-radius:6px;
+    background-color: rgba(0, 0, 0, 0.93);
     font-size:1.3em;
     color:yellow;
     padding:10px;

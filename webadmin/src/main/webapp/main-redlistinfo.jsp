@@ -96,6 +96,7 @@
             </c:if>
             <div class="filter" id="onlynative"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.4"/></div></div>
             <div class="filter" id="onlyassessed"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.6"/></div></div>
+            <div class="filter" id="onlyvalidationerror"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.8"/></div></div>
             <div class="filter" id="onlypublished"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.5"/></div></div>
             <c:if test="${user.canEDIT_ANY_FIELD()}">
             <div class="filter" id="onlyselected"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.7"/></div></div>
@@ -147,6 +148,9 @@
                     </c:if>
                     <c:if test="${taxon.getAssessment().getAssessmentStatus().isAssessed()}">
                         <c:set var="taxonclasses" value="${taxonclasses} assessed"/>
+                    </c:if>
+                    <c:if test="${taxon.validateCriteria().size() > 0}">
+                        <c:set var="taxonclasses" value="${taxonclasses} validationerror"/>
                     </c:if>
                     <c:forEach var="tmp" items="${taxon._getHTMLEscapedTags()}">
                         <c:set var="taxonclasses" value="${taxonclasses} tag_${tmp}"/>
@@ -848,8 +852,11 @@
                         </table>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION6()}">
-                        ${rlde.getThreats().getNumberOfLocations()}<br/>
-                        ${nclusters} sites (automatic estimate)
+                        <table>
+                            <tr><td>Number</td><td>${rlde.getThreats().getNumberOfLocations()}</td></tr>
+                            <tr><td>Justification</td><td>${rlde.getThreats().getNumberOfLocationsJustification()}</td></tr>
+                            <tr><td>Automatic estimate</td><td>${nclusters} sites</td></tr>
+                        </table>
                     </c:if>
                     </td></tr>
                     <tr class="section6"><td class="title">6.4</td><td>Decline in number of locations or subpopulations</td><td>

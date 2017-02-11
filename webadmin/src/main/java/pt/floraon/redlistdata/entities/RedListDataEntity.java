@@ -768,9 +768,9 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     public List<String> validateCriteria() {
         List<String> warns = new ArrayList<>();
         Population pop = getPopulation();
+        GeographicalDistribution dist = getGeographicalDistribution();
         Set<String> alc = new HashSet<>();
 
-        System.out.println("\""+cleanText(pop.getPopulationSizeReductionJustification())+"\"");
         for(RedListEnums.AssessmentCriteria cr : getAssessment().getCriteria()) {
             // first check the validity of the 5 major criteria
             switch(cr.getCriteria()) {
@@ -783,11 +783,173 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             || cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
                         warns.add("DataSheet.msg.warning.2");
                         alc.add("A");
+                        break;
+                    }
+                    switch(cr.getSubCriteria()) {
+                        case "1":
+                            if(alc.contains("A1")) break;
+                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.DECREASE_REVERSIBLE
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                                warns.add("DataSheet.msg.warning.6.1");
+                                alc.add("A1");
+                            }
+                            break;
+
+                        case "2":
+                            if(alc.contains("A2")) break;
+                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.DECREASE_IRREVERSIBLE
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                                warns.add("DataSheet.msg.warning.6.2");
+                                alc.add("A2");
+                            }
+                            break;
+
+                        case "3":
+                            if(alc.contains("A3")) break;
+                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.POSSIBLE_DECREASE_FUTURE
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                                warns.add("DataSheet.msg.warning.6.3");
+                                alc.add("A3");
+                            }
+                            break;
+
+                        case "4":
+                            if(alc.contains("A4")) break;
+                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.DECREASE_PAST_FUTURE
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                                warns.add("DataSheet.msg.warning.6.4");
+                                alc.add("A4");
+                            }
+                            break;
+
                     }
                     break;
 
                 case "B":
-                    // either EOO or AOO must be filled. But they are automatic.
+                    // either EOO or AOO must be filled. But they are automatic, skip global validation.
+
+                    switch(cr.getSubCriteria()) {
+                        case "1":
+                            if(alc.contains("B1")) break;
+                            if(dist.getEOO() == null || dist.getEOO() > 20000) {
+                                warns.add("DataSheet.msg.warning.7.1");
+                                alc.add("B1");
+                            }
+                            break;
+
+                        case "2":
+                            if(alc.contains("B2")) break;
+                            if(dist.getAOO() == null || dist.getAOO() > 2000) {
+                                warns.add("DataSheet.msg.warning.7.2");
+                                alc.add("B2");
+                            }
+                            break;
+                    }
+
+                    switch(cr.getSubsubCriteria()) {
+                        case "a":
+                            if(alc.contains("B2a")) break;
+                            if(!(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
+                                    && !cleanText(pop.getSeverelyFragmentedJustification()).equals(""))
+                                    && !(getThreats().getNumberOfLocations() != null && getThreats().getNumberOfLocations() <= 10
+                                    && !cleanText(getThreats().getNumberOfLocationsJustification()).equals(""))) {
+                                warns.add("DataSheet.msg.warning.8.1");
+                                alc.add("B2a");
+                            }
+                            break;
+
+                        case "b":
+                            switch (cr.getSubsubsubCriteria()) {
+                                case "i":
+                                    if(alc.contains("B2bi")) break;
+                                    if(cleanText(dist.getDeclineDistributionJustification()).equals("")
+                                            || (dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO
+                                            && dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO_AOO)) {
+                                        warns.add("DataSheet.msg.warning.8.2");
+                                        alc.add("B2bi");
+                                    }
+                                    break;
+
+                                case "ii":
+                                    if(alc.contains("B2bii")) break;
+                                    if(cleanText(dist.getDeclineDistributionJustification()).equals("")
+                                            || (dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_AOO
+                                            && dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO_AOO)) {
+                                        warns.add("DataSheet.msg.warning.8.3");
+                                        alc.add("B2bii");
+                                    }
+                                    break;
+
+                                case "iii":
+                                    if(alc.contains("B2biii")) break;
+                                    if(cleanText(getEcology().getDeclineHabitatQualityJustification()).equals("")
+                                            || getEcology().getDeclineHabitatQuality() != RedListEnums.DeclineHabitatQuality.CONTINUED_DECLINE) {
+                                        warns.add("DataSheet.msg.warning.8.4");
+                                        alc.add("B2biii");
+                                    }
+                                    break;
+
+                                case "iv":
+                                    if(alc.contains("B2biv")) break;
+                                    if(cleanText(getThreats().getDeclineNrLocationsJustification()).equals("")
+                                            || getThreats().getDeclineNrLocations() != RedListEnums.DeclineNrLocations.CONTINUED_DECLINE) {
+                                        warns.add("DataSheet.msg.warning.8.5");
+                                        alc.add("B2biv");
+                                    }
+                                    break;
+
+                                case "v":
+                                    if(alc.contains("B2bv")) break;
+                                    if(cleanText(pop.getPopulationDeclineJustification()).equals("")
+                                            || pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE) {
+                                        warns.add("DataSheet.msg.warning.8.6");
+                                        alc.add("B2bv");
+                                    }
+                                    break;
+                            }
+                            break;
+
+                        case "c":
+                            switch (cr.getSubsubsubCriteria()) {
+                                case "i":
+                                    if(alc.contains("B2ci")) break;
+                                    if(dist.getExtremeFluctuations() != RedListEnums.ExtremeFluctuations.EOO_AOO
+                                            && dist.getExtremeFluctuations() != RedListEnums.ExtremeFluctuations.EOO) {
+                                        warns.add("DataSheet.msg.warning.8.7");
+                                        alc.add("B2ci");
+                                    }
+                                    break;
+
+                                case "ii":
+                                    if(alc.contains("B2cii")) break;
+                                    if(dist.getExtremeFluctuations() != RedListEnums.ExtremeFluctuations.EOO_AOO
+                                            && dist.getExtremeFluctuations() != RedListEnums.ExtremeFluctuations.AOO) {
+                                        warns.add("DataSheet.msg.warning.8.8");
+                                        alc.add("B2cii");
+                                    }
+                                    break;
+
+                                case "iii":
+                                    if(alc.contains("B2ciii")) break;
+                                    if(cleanText(pop.getExtremeFluctuationsJustification()).equals("")
+                                            || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
+                                        warns.add("DataSheet.msg.warning.8.9");
+                                        alc.add("B2ciii");
+                                    }
+                                    break;
+
+                                case "iv":
+                                    if(alc.contains("B2civ")) break;
+                                    if(cleanText(getThreats().getExtremeFluctuationsNrLocationsJustification()).equals("")
+                                            || getThreats().getExtremeFluctuationsNrLocations() != RedListEnums.YesNoNA.YES) {
+                                        warns.add("DataSheet.msg.warning.8.10");
+                                        alc.add("B2civ");
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+
                     break;
 
                 case "C":
@@ -798,6 +960,62 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             || (nr != null && nr > 10000)) {
                         warns.add("DataSheet.msg.warning.3");
                         alc.add("C");
+                        break;
+                    }
+
+                    switch(cr.getSubCriteria()) {
+                        case "1":
+                            if(alc.contains("C1")) break;
+                            if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
+                                    || cleanText(pop.getPopulationDeclineJustification()).equals("")
+                                    || pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 10) {
+                                warns.add("DataSheet.msg.warning.9.1");
+                                alc.add("C1");
+                            }
+                            break;
+
+                        case "2":
+                            if(alc.contains("C2")) break;
+                            if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
+                                    || cleanText(pop.getPopulationDeclineJustification()).equals("")) {
+                                warns.add("DataSheet.msg.warning.9.2");
+                                alc.add("C2");
+                                break;
+                            }
+
+                            switch(cr.getSubsubCriteria()) {
+                                case "a":
+                                    switch(cr.getSubsubsubCriteria()) {
+                                        case "i":
+                                            if(alc.contains("C2ai")) break;
+                                            if(pop.getNrMatureEachSubpop() != RedListEnums.NrMatureEachSubpop.LT_50
+                                                    && pop.getNrMatureEachSubpop() != RedListEnums.NrMatureEachSubpop.LT_250
+                                                    && pop.getNrMatureEachSubpop() != RedListEnums.NrMatureEachSubpop.LT_1000) {
+                                                warns.add("DataSheet.msg.warning.9.3");
+                                                alc.add("C2ai");
+                                            }
+                                            break;
+
+                                        case "ii":
+                                            if(alc.contains("C2aii")) break;
+                                            if(pop.getPercentMatureOneSubpop() == RedListEnums.PercentMatureOneSubpop.NO_DATA) {
+                                                warns.add("DataSheet.msg.warning.9.4");
+                                                alc.add("C2aii");
+                                            }
+                                            break;
+                                    }
+                                    break;
+
+                                case "b":
+                                    if(alc.contains("C2b")) break;
+                                    if(cleanText(pop.getExtremeFluctuationsJustification()).equals("")
+                                            || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
+                                        warns.add("DataSheet.msg.warning.9.5");
+                                        alc.add("C2b");
+                                    }
+                                    break;
+                            }
+                            break;
                     }
                     break;
 
@@ -807,6 +1025,32 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             && getThreats().getNumberOfLocations() == null) {
                         warns.add("DataSheet.msg.warning.4");
                         alc.add("D");
+                        break;
+                    }
+
+                    Integer nr1 = getMaxOfInterval(pop.getNrMatureIndividualsExact());
+                    switch(cr.getSubCriteria()) {
+                        case "1":
+                            if(alc.contains("D1")) break;
+                            if((pop.getNrMatureIndividualsCategory() != RedListEnums.NrMatureIndividuals.LT_50
+                                    && pop.getNrMatureIndividualsCategory() != RedListEnums.NrMatureIndividuals.BET_50_250
+                                    && pop.getNrMatureIndividualsCategory() != RedListEnums.NrMatureIndividuals.BET_250_1000
+                                    && pop.getNrMatureIndividualsCategory() != RedListEnums.NrMatureIndividuals.EXACT_NUMBER)
+                                || (nr1 != null && nr1 > 1000)) {
+                                warns.add("DataSheet.msg.warning.10");
+                                alc.add("D1");
+                            }
+                            break;
+
+                        case "2":
+                            if(alc.contains("D2")) break;
+                            if(!(dist.getAOO() != null && dist.getAOO() <= 20)
+                                    && !(getThreats().getNumberOfLocations() != null && getThreats().getNumberOfLocations() <= 6
+                                        && !cleanText(getThreats().getNumberOfLocationsJustification()).equals(""))) {
+                                warns.add("DataSheet.msg.warning.11");
+                                alc.add("D2");
+                            }
+                            break;
                     }
                     break;
 
