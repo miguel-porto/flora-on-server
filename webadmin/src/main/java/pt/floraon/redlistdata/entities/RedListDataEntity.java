@@ -3,6 +3,7 @@ package pt.floraon.redlistdata.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import jline.internal.Log;
+import org.jsoup.Jsoup;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
@@ -13,10 +14,10 @@ import pt.floraon.driver.results.InferredStatus;
 import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static pt.floraon.driver.Constants.cleanArray;
-import static pt.floraon.driver.Constants.dateTimeFormat;
-import static pt.floraon.driver.Constants.sanitizeHtmlId;
+import static pt.floraon.driver.Constants.*;
 
 /**
  * A JavaBean representing all the data fields for the red list sheets. There can be only one sheet per TaxEnt per
@@ -736,11 +737,15 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return responsibleAuthors_Revision;
     }
 
-    private <T extends Enum<T>> T[] stringArrayToEnumArray(String[] stringArray, Class<T> clazz) {
+    public static boolean isArrayEmpty(Object[] array) {
+        return array == null || array.length == 0 || (array.length == 1 && array[0] == null);
+    }
+
+    public static <T extends Enum<T>> T[] stringArrayToEnumArray(String[] stringArray, Class<T> clazz) {
         List<T> tmp = new ArrayList<>();
         boolean addNull = false;
         for(String s : stringArray) {
-            if(s.length() == 0) {
+            if(s == null || s.length() == 0) {
                 addNull = true;
                 continue;
             }
@@ -754,6 +759,87 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         // this is to distinguish between a null value and an empty array
         if(tmp.size() == 0 && addNull) tmp.add(null);
         return tmp.toArray((T[]) Array.newInstance(clazz, tmp.size()));
+    }
+
+    /**
+     * Checks whether the assigned assessment criteria are valid, taking into account the info of the fields.
+     * @return
+     */
+    public List<String> validateCriteria() {
+        List<String> warns = new ArrayList<>();
+        Population pop = getPopulation();
+        Set<String> alc = new HashSet<>();
+
+        System.out.println("\""+cleanText(pop.getPopulationSizeReductionJustification())+"\"");
+        for(RedListEnums.AssessmentCriteria cr : getAssessment().getCriteria()) {
+            // first check the validity of the 5 major criteria
+            switch(cr.getCriteria()) {
+                case "A":
+                    if(alc.contains("A")) break;
+                    if(pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_INFORMATION
+                            || pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_REDUCTION
+                            || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30
+                            || pop.getPopulationSizeReductionJustification() == null
+                            || cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
+                        warns.add("DataSheet.msg.warning.2");
+                        alc.add("A");
+                    }
+                    break;
+
+                case "B":
+                    // either EOO or AOO must be filled. But they are automatic.
+                    break;
+
+                case "C":
+                    if(alc.contains("C")) break;
+                    Integer nr = getMaxOfInterval(pop.getNrMatureIndividualsExact());
+                    if(pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.NO_DATA
+                            || pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.GT_10000
+                            || (nr != null && nr > 10000)) {
+                        warns.add("DataSheet.msg.warning.3");
+                        alc.add("C");
+                    }
+                    break;
+
+                case "D":
+                    if(alc.contains("D")) break;
+                    if(pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.NO_DATA
+                            && getThreats().getNumberOfLocations() == null) {
+                        warns.add("DataSheet.msg.warning.4");
+                        alc.add("D");
+                    }
+                    break;
+
+                case "E":
+                    if(alc.contains("E")) break;
+                    if(pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_INFORMATION
+                            || pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_REDUCTION
+                            || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 10
+                            || pop.getPopulationSizeReductionJustification() == null
+                            || cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
+                        warns.add("DataSheet.msg.warning.5");
+                        alc.add("E");
+                    }
+                    break;
+            }
+        }
+        return warns;
+    }
+
+    public static Integer getMaxOfInterval(String interval) {
+        // FIXME this must process numeric ranges
+        Pattern intervalMatch = Pattern.compile("^([0-9]+) *- *([0-9]+)$");
+        Matcher mat = intervalMatch.matcher(interval);
+        try {
+            if (mat.find()) {
+                return Integer.valueOf(mat.group(2));
+            } else {
+                return Integer.valueOf(interval);
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override

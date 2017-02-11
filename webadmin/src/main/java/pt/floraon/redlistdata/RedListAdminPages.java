@@ -75,6 +75,8 @@ System.out.println(gs.toJson(getUser()));
         request.setAttribute("allUsers", allUsers);
         request.setAttribute("userMap", userMap);
 
+        List<String> warnings = new ArrayList<>();
+
         switch (what) {
 /*
  * Shows the taxon list
@@ -148,7 +150,7 @@ System.out.println(gs.toJson(getUser()));
                 PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
                 String[] ids = request.getParameterValues("id");
                 if(ids == null || ids.length == 0) {
-                    request.setAttribute("warning", "Taxon ID not provided.");
+                    warnings.add("DataSheet.msg.warning.1a");
                     break;
                 }
                 if(ids.length == 1) {
@@ -244,6 +246,7 @@ System.out.println(gs.toJson(getUser()));
 
                         request.setAttribute("occurrences", foop);
                     } else {
+                        warnings.add("DataSheet.msg.warning.1b");
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
                     }
 
@@ -292,9 +295,11 @@ System.out.println(gs.toJson(getUser()));
                         getUser().revokePrivileges(EDIT_ALL_FIELDS);
                         if (canEdit9) getUser().setEDIT_9_9_4(true);
                     }
+
+                    warnings.addAll(rlde.validateCriteria());
                 } else {    // multiple IDs provided, batch update
                     getUser().resetEffectivePrivileges();
-                    request.setAttribute("warning", "DataSheet.msg.warning.1");
+                    warnings.add("DataSheet.msg.warning.1");
                     request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                     request.setAttribute("multipletaxa", true);
                     List<TaxEnt> taxEnts = driver.getNodeWorkerDriver().getTaxEntByIds(request.getParameterValues("id"));
@@ -305,6 +310,7 @@ System.out.println(gs.toJson(getUser()));
                     }
                     request.setAttribute("previousAssessments", prev);
                 }
+
                 break;
 
             case "taxonrecords":
@@ -397,6 +403,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
         }
 
+        request.setAttribute("warning", warnings);
         request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
     }
 }

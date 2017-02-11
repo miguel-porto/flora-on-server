@@ -276,7 +276,7 @@ table.sheet:not(.help) .checkboxes.list:not(:focus) input, table.sheet:not(.help
 .checkboxes.list:not(:focus) input:checked + label ~ .placeholder, .checkboxes.list:focus .placeholder {display: none}
 table.sheet.help .placeholder {display: none !important;}
 
-label .legend {font-size: 0.6em; color:gray;}
+.legend {font-size: 0.6em; color:gray;}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
 table.small {width: auto;}
@@ -328,6 +328,7 @@ table tr:hover td:not(.title) {background-color:#f0fff0;}
 
 table.sheet.help #toggle_help {background-color:yellow;}
 table.sheet:not(.help) .legend {display:none;}
+.legend.alwaysvisible {display:block !important;}
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
@@ -373,7 +374,21 @@ table.sheet .section7>td:nth-of-type(2) {background-color: rgba(139, 195,  74, 0
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 
-div.warning {display:inline-block; background-color:#c62828; border-radius:6px; margin:10px auto; font-size:1.3em; text-align:center; color:white; padding:10px;}
+div.warning {
+    background-color: rgba(198, 40, 40, 1);
+    border-radius:6px;
+    font-size:1.3em;
+    color:yellow;
+    padding:10px;
+    box-shadow: 0 0 22px black;
+    position: fixed;
+    z-index: 2;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: left;
+}
+div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bold}
 
 #redlistcategories {text-align:center}
 #redlistcategories input[type=radio] {display:none;}

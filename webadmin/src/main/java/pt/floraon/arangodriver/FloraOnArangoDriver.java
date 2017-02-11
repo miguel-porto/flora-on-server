@@ -69,6 +69,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(RedListEnums.Uses.class, new SafeEnumDeserializer<>(RedListEnums.Uses.class))
 				.registerDeserializer(RedListEnums.PopulationSizeReduction.class, new SafeEnumDeserializer<>(RedListEnums.PopulationSizeReduction.class))
 				.registerDeserializer(Privileges.class, new SafeEnumDeserializer<>(Privileges.class))
+				.registerDeserializer(RedListEnums.NrMatureIndividuals.class, new SafeEnumDeserializer<>(RedListEnums.NrMatureIndividuals.class))
 				.build();
 
 		database = driver.db(dbname);

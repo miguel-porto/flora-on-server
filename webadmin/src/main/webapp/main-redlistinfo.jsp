@@ -203,11 +203,15 @@
         </form>
     </c:when>
     <c:when test="${what=='taxon'}">
-        <c:if test="${warning != null}">
-            <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/><fmt:message key="${warning}"/></div>
-        </c:if>
-        <c:if test="${!multipletaxa && occurrences == null}">
-            <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
+        <c:if test="${warning != null && warning.size() > 0}">
+            <div class="warning">
+                <p><fmt:message key="DataSheet.msg.warning"/></p>
+                <ul>
+                <c:forEach var="warn" items="${warning}">
+                    <li><fmt:message key="${warn}"/></li>
+                </c:forEach>
+                </ul>
+            </div>
         </c:if>
         <c:if test="${user.canVIEW_FULL_SHEET()}">
         <div class="navigator">
@@ -475,7 +479,7 @@
                                         </c:forEach>
                                     </select>
                                 </td></tr>
-                                <tr><td>Exact number</td><td><input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
+                                <tr><td>Exact number</td><td><input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/><span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span></td></tr>
                             </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">

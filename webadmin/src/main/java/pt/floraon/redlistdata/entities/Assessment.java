@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static pt.floraon.driver.Constants.cleanArray;
+import static pt.floraon.redlistdata.entities.RedListDataEntity.isArrayEmpty;
 
 /**
  * Created by miguel on 23-11-2016.
@@ -54,11 +55,11 @@ public class Assessment implements DiffableBean {
     }
 
     public RedListEnums.AssessmentCriteria[] getCriteria() {
-        return criteria == null ? new RedListEnums.AssessmentCriteria[0] : criteria;
+        return isArrayEmpty(criteria) ? new RedListEnums.AssessmentCriteria[0] : criteria;
     }
 
     public String _getCriteriaAsString() {
-        if(criteria == null) return "";
+        if(isArrayEmpty(criteria)) return "";
         StringBuilder sb = new StringBuilder();
         int last = 0;
         for (int i = 0; i < criteria.length; i++) {
@@ -107,7 +108,7 @@ public class Assessment implements DiffableBean {
     }
 
     public String[] getAuthors() {
-        return authors == null ? new String[0] : authors;
+        return isArrayEmpty(authors) ? new String[0] : authors;
     }
 
     public String getCollaborators() {
@@ -115,11 +116,11 @@ public class Assessment implements DiffableBean {
     }
 
     public String[] getEvaluator() {
-        return evaluator == null ? new String[0] : evaluator;
+        return isArrayEmpty(evaluator) ? new String[0] : evaluator;
     }
 
     public String[] getReviewer() {
-        return reviewer == null ? new String[0] : reviewer;
+        return isArrayEmpty(reviewer) ? new String[0] : reviewer;
     }
 
     public RedListEnums.AssessmentStatus getAssessmentStatus() {

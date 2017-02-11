@@ -136,7 +136,7 @@ public class ListOfTerritoryStatus {
 		return isEndemic == null ? false : isEndemic;
 	}
 
-	public String getSingleSmallestTerritory() {
+	public String getSingleSmallestTerritory() {	// FIXME this is not done
 		List<List<String>> paths = new ArrayList<List<String>>();
 		for(TerritoryStatus ts : this.territoryStatusList)
 			if(ts.existsIn.getNativeStatus().isNative()) paths.add(ts.vertices);
@@ -160,13 +160,15 @@ public class ListOfTerritoryStatus {
 				}
 			}
 		}
+/*
 		System.out.println("After:");
 		for(List<String> s : paths) {
 			for(String s1 : s)
 				System.out.println(s1+"; ");
 			System.out.println();
 		}
-		
+*/
+
 		// now find all unique vertices of the rooted paths above
 		Set<String> common = new HashSet<String>();
 		Set<String> tmp;
@@ -181,10 +183,12 @@ public class ListOfTerritoryStatus {
 			if(tmp.size() == 3) candidates.add(s);	//nº assignments directos 
 		}
 		
+/*
 	System.out.println("Candidates:");
 	for(String s : candidates) {
 		System.out.println(s);
 	}
+*/
 		// now check, from the common vertices, which one is the lowest (i.e. the samllest territory)
 		int i, mini=10000;
 		String out = null;
@@ -197,7 +201,7 @@ public class ListOfTerritoryStatus {
 				out = s;
 			}
 		}
-		System.out.println("RESUTL: "+out);
+//System.out.println("RESUTL: "+out);
 		return out;
 	}
 	/**

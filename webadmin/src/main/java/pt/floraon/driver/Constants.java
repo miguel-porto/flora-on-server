@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.jsoup.Jsoup;
 import pt.floraon.taxonomy.entities.*;
 import pt.floraon.driver.entities.DBEntity;
 import pt.floraon.driver.entities.GeneralDBEdge;
@@ -501,6 +502,14 @@ public final class Constants {
 		return tmp.toArray(new String[tmp.size()]);
 	}
 
+	/**
+	 * Cleans text from HTML tags and &nbsp
+	 * @param text
+	 * @return
+	 */
+	public static String cleanText(String text) {
+		return Jsoup.parse(text).text().replace("\u00a0", " ").trim();
+	}
 
 	/**
 	 * Compares a new version of a java bean with an old version. <b>Null fields in the new version are ignored</b>.
