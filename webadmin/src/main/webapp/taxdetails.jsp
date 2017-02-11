@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <% pageContext.setAttribute("newLineChar", "\n"); %>
 <!DOCTYPE html>
-<div class="${user.canMODIFY_TAXA_TERRITORIES() ? 'editable' : '' }">
+<div class="${user.canMODIFY_TAXA_TERRITORIES() || user.canMODIFY_TAXA() ? 'editable' : '' }">
 <h1>${taxent.getFullName(true)}</h1>
 <ul class="menu multiplesel" id="currentstatus">
 	<li class="current${taxent.getCurrent() ? ' selected' : ''}">current</li>
@@ -70,7 +70,7 @@
 			</ul>
 		</div>
 		</c:if>
-		<c:if test="${taxent.isSpeciesOrInferior() && taxent.getCurrent() && taxentWrapper.getIncludedTaxa().hasNext()}">
+		<c:if test="${taxent.isSpeciesOrInferior() && taxent.getCurrent() && taxentWrapper.getIncludedTaxa().size() > 0}">
 			<div id="taxonincluded"><h3>Included taxa</h3>
 				<ul class="synonyms">
 				<c:forEach var="included" items="${taxentWrapper.getIncludedTaxa()}">
@@ -156,7 +156,7 @@
 				</c:forEach>
 			</table>
 		</div>
-		<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
+		<c:if test="${user.canMODIFY_TAXA_TERRITORIES() || user.canMODIFY_TAXA()}">
 			<div id="editbox">
 				<h3>Add or modify data</h3>
 				<div class="toggler off" id="updatetaxonbox">
@@ -185,6 +185,8 @@
 						<div id="suggestions"></div>
 					</div>
 				</div>
+
+				<c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
 				<div class="toggler off">
 					<h1>Add status in territory <span class="info">adds or changes the status of this taxon in territories</span></h1>
 					<div class="content">
@@ -268,6 +270,7 @@
 						</form>
 					</div>
 				</div>
+				</c:if>
 				<div class="toggler off" id="addchildbox">
 					<h1>Add new sub-taxon <span class="info">creates a new taxon and adds it as a child of this taxon</span></h1>
 					<div class="content">
@@ -287,7 +290,6 @@
 							<tr><td>Currently accepted?</td><td><input type="checkbox" name="current" checked="checked"/></td></tr>
 							</table>
 							<input type="hidden" name="parent" value="${taxent.getID().toString()}"/>
-							<!-- <input type="button" value="Add" class="actionbutton" id="addchild"/> -->
 							<input type="submit" value="Add"/>
 						</form>
 					</div>

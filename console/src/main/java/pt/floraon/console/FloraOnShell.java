@@ -91,8 +91,8 @@ public class FloraOnShell {
 	            	if(line.equals("\\q")) System.exit(0);
 	            	if(line.equals("\\sampledata")) {
 	            		System.out.println("Reading sample taxonomy (Flora of Portugal)");
-	            		graph.getCSVFileProcessor().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomy.csv"), false);
-	            		graph.getCSVFileProcessor().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/orders.csv"), false);
+	            		graph.getCSVFileProcessor().getTaxonomyImporter().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomy.csv"), false);
+	            		graph.getCSVFileProcessor().getTaxonomyImporter().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/orders.csv"), false);
 	            		System.out.println("Reading morphology");
 	            		graph.getCSVFileProcessor().uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
@@ -110,7 +110,7 @@ public class FloraOnShell {
             		    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             		    switch(conn.getResponseCode()) {
             		    case 200:
-            		    	IOUtils.copy(url.openStream(), System.out);
+            		    	IOUtils.copy(conn.getInputStream(), System.out);
             		    	break;
             		    case 500:
             		    	System.out.println(Constants.ANSI_RED+"HTTP Error 500"+Constants.ANSI_RESET);

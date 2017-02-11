@@ -23,7 +23,7 @@ public class TaxDetails extends FloraOnServlet {
 		//request.setAttribute("taxentWrapper", driver.wrapTaxEnt(driver.asNodeKey(taxent.getID())));
 		request.setAttribute("taxentWrapper", driver.wrapTaxEnt(id));
 		request.setAttribute("assignedNativeStatus", driver.getNodeWorkerDriver().getAssignedNativeStatus(id));
-		/*if(taxent.getRank().getValue() > Constants.TaxonRanks.FAMILY.getValue())
+		/*if(taxent.getRank().getValue() > OccurrenceConstants.TaxonRanks.FAMILY.getValue())
 			request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus(null).entrySet());*/
 		request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus().entrySet());
 		request.setAttribute("restrictedTo", driver.wrapTaxEnt(id).getRestrictedTo(Constants.getIDsList(driver.getListDriver().getChecklistTerritories())));

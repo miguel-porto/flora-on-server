@@ -47,6 +47,10 @@ System.out.println(gs.toJson(getUser()));
         try {
             path = getPathIteratorAfter("redlist");
         } catch (FloraOnException e) {
+            if(!getUser().canCREATE_REDLIST_DATASETS()) {
+                response.sendRedirect("/floraon");
+                return;
+            }
             // no territory specified
             request.setAttribute("what", "addterritory");
             request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
@@ -124,6 +128,13 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("conservation_ProposedStudyMeasures", RedListEnums.ProposedStudyMeasures.values());
                 request.setAttribute("assessment_Category", RedListEnums.RedListCategories.valuesNotUpDownListed());
                 request.setAttribute("assessment_SubCategory", RedListEnums.CRTags.values());
+                Map<String, List<RedListEnums.AssessmentCriteria>> criteria = new TreeMap<>();
+                criteria.put("A", RedListEnums.AssessmentCriteria.getSubCriteriaOf("A"));
+                criteria.put("B", RedListEnums.AssessmentCriteria.getSubCriteriaOf("B"));
+                criteria.put("C", RedListEnums.AssessmentCriteria.getSubCriteriaOf("C"));
+                criteria.put("D", RedListEnums.AssessmentCriteria.getSubCriteriaOf("D"));
+                criteria.put("E", RedListEnums.AssessmentCriteria.getSubCriteriaOf("E"));
+                request.setAttribute("assessment_Criteria", criteria);
                 request.setAttribute("assessment_RegionalAssessment", RedListEnums.YesNoLikelyUnlikely.values());
                 request.setAttribute("assessment_UpDownListing", RedListEnums.UpDownList.values());
                 request.setAttribute("assessment_TextStatus", RedListEnums.TextStatus.values());
@@ -148,6 +159,8 @@ System.out.println(gs.toJson(getUser()));
 
                     request.setAttribute("taxon", rlde.getTaxEnt());
                     request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
+                    request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(getParameterAsKey("id")).getFormerlyIncludedIn());
+                    request.setAttribute("includedTaxa", driver.wrapTaxEnt(getParameterAsKey("id")).getIncludedTaxa());
                     if (rlde.getTaxEnt().getOldId() != null) {
                         foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
                         // TODO clipping polygon must be a user configuration
@@ -224,7 +237,14 @@ System.out.println(gs.toJson(getUser()));
                         } else {
                             request.setAttribute("ecology", rlde.getEcology().getDescription());
                         }
+
+                        if (taxonInfo.containsKey("commonName")) {
+                            request.setAttribute("commonNames", taxonInfo.get("commonName"));
+                        }
+
                         request.setAttribute("occurrences", foop);
+                    } else {
+                        request.setAttribute("ecology", rlde.getEcology().getDescription());
                     }
 
                     request.setAttribute("rlde", rlde);
@@ -236,6 +256,7 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("authors", Arrays.asList(cleanArray(rlde.getAssessment().getAuthors(), true)));
                     request.setAttribute("evaluator", Arrays.asList(cleanArray(rlde.getAssessment().getEvaluator(), true)));
                     request.setAttribute("reviewer", Arrays.asList(cleanArray(rlde.getAssessment().getReviewer(), true)));
+                    request.setAttribute("selcriteria", Arrays.asList(rlde.getAssessment().getCriteria()));
                     request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                     request.setAttribute("tags", Arrays.asList(rlde.getTags()));
                     List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();

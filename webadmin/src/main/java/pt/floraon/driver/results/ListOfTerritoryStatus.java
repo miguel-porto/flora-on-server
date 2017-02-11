@@ -112,7 +112,7 @@ public class ListOfTerritoryStatus {
 		// check if all the endemic territories are in the path of this territory
 //		List<String> eDegs = this.computeEndemismDegreeName();
 //		System.out.println("****\nChecking: "+territory);
-//		System.out.println("Endemic to: "+Constants.implode(", ", eDegs.toArray(new String[0])));
+//		System.out.println("Endemic to: "+OccurrenceConstants.implode(", ", eDegs.toArray(new String[0])));
 		for(Territory terr : endemicTerritories) {
 			it = this.territoryStatusList.iterator();
 //			System.out.println("  Checking endemic terr: "+terr.getName());
@@ -121,7 +121,7 @@ public class ListOfTerritoryStatus {
 				tmp = it.next();
 				if(!tmp.territory.getShortName().equals(territoryShortName)) continue;
 				// for each territory path that leads to the inquired territory
-//				System.out.println(tmp.territory.getName()+": "+Constants.implode(", ", tmp.vertices.toArray(new String[0])));
+//				System.out.println(tmp.territory.getName()+": "+OccurrenceConstants.implode(", ", tmp.vertices.toArray(new String[0])));
 				if(tmp.vertices.contains(terr.getID())) {
 					// yes this endemic terr is on the path of the inquired territory
 					chk = true;
@@ -220,7 +220,7 @@ public class ListOfTerritoryStatus {
 			if(directFrom != null && !ts.existsIn.getFrom().equals(directFrom)) continue;
 			// compile the unique EXISTS_IN edges going out from this TaxEnt and the respective taxonomic depth
 			// each EXISTS_IN is a different territory route in the graph
-			//nativeExistsIn.put(ts.existsIn.getID(), ts.edges.indexOf(Constants.RelTypes.EXISTS_IN.toString()));
+			//nativeExistsIn.put(ts.existsIn.getID(), ts.edges.indexOf(OccurrenceConstants.RelTypes.EXISTS_IN.toString()));
 			// the taxonomic depth is the number of PART_OF relations
 			nativeExistsIn.put(ts.existsIn.getID(), Collections.frequency(ts.edges, Constants.RelTypes.PART_OF.toString()));
 			// compile the base territories, i.e. those which have a native status directly assigned
@@ -241,15 +241,15 @@ public class ListOfTerritoryStatus {
 				//if(!ts.existsIn.getID().equals(ei.getKey()) || ts.vertices.size() <= 2) continue;
 				if(!ts.existsIn.getID().equals(ei.getKey()) || !ts.isInferredFromChildTerritory()) continue;
 				// this is one EXISTS_IN route and we only want to test upstream territories (above the base territory, so there's a BELONGS_TO link)
-				//System.out.println(Constants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
-				//System.out.println(Constants.implode(", ", terr.toArray(new String[0])));
+				//System.out.println(OccurrenceConstants.implode(", ", ts.vertices.subList(2, ts.vertices.size()).toArray(new String[0]) ));
+				//System.out.println(OccurrenceConstants.implode(", ", terr.toArray(new String[0])));
 				//if(!Collections.disjoint(ts.vertices.subList(minExistsInDepth + 2, ts.vertices.size()), terr)) exclude.add(ts.existsIn.getID());
 				// extract vertices after EXISTS_IN (so, territories)
 				if(!Collections.disjoint(ts.getTerritoryPath(), terr)) exclude.add(ts.existsIn.getID());
 			}
 		}
 		/*String[] ex=exclude.toArray(new String[exclude.size()]);
-		System.out.println("Exclu: "+ Constants.implode(", ", ex));*/
+		System.out.println("Exclu: "+ OccurrenceConstants.implode(", ", ex));*/
 		int min;
 		TerritoryStatus mini;
 		for(Entry<String, Integer> ei : nativeExistsIn.entrySet()) {	// for each EXISTS_IN route
@@ -333,7 +333,7 @@ public class ListOfTerritoryStatus {
 			}
 		}
 		/*String[] ex=exclude.toArray(new String[exclude.size()]);
-		System.out.println("Exclu: "+ Constants.implode(", ", ex));*/
+		System.out.println("Exclu: "+ OccurrenceConstants.implode(", ", ex));*/
 		int min;
 		TerritoryStatus mini;
 		Set<Territory> tmp;

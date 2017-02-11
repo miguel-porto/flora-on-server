@@ -42,7 +42,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
     	gvo.setVertexCollectionRestriction(vcr);
     	String query=String.format(
 			AQLQueries.getString("ListDriver.1")
-   			, Constants.TAXONOMICGRAPHNAME, Constants.RelTypes.PART_OF.toString(),Constants.CHECKLISTFIELDS);
+   			, OccurrenceConstants.TAXONOMICGRAPHNAME, OccurrenceConstants.RelTypes.PART_OF.toString(),OccurrenceConstants.CHECKLISTFIELDS);
 
     	try {
     		// traverse all isLeaf nodes outwards

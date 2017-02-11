@@ -9,7 +9,7 @@ import pt.floraon.redlistdata.RedListEnums;
 public class Population implements DiffableBean {
     private String description;
     private RedListEnums.NrMatureIndividuals nrMatureIndividualsCategory;
-    private Long nrMatureIndividualsExact;
+    private String nrMatureIndividualsExact;
     private String nrMatureIndividualsDescription;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private RedListEnums.DeclinePopulation populationDecline;
@@ -37,7 +37,7 @@ public class Population implements DiffableBean {
         return nrMatureIndividualsCategory == null ? RedListEnums.NrMatureIndividuals.NO_DATA : nrMatureIndividualsCategory;
     }
 
-    public Long getNrMatureIndividualsExact() {
+    public String getNrMatureIndividualsExact() {
         return nrMatureIndividualsExact;
     }
 
@@ -105,7 +105,7 @@ public class Population implements DiffableBean {
         this.nrMatureIndividualsCategory = nrMatureIndividualsCategory;
     }
 
-    public void setNrMatureIndividualsExact(Long nrMatureIndividualsExact) {
+    public void setNrMatureIndividualsExact(String nrMatureIndividualsExact) {
         this.nrMatureIndividualsExact = nrMatureIndividualsExact;
     }
 

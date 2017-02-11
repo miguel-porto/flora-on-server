@@ -223,6 +223,10 @@ public class User extends NamedDBNode {
 		setPrivilege(CREATE_REDLIST_DATASETS, value);
 	}
 
+	public void setMODIFY_TAXA(boolean value) {
+		setPrivilege(MODIFY_TAXA, value);
+	}
+
 	public void setMODIFY_TAXA_TERRITORIES(boolean value) {
 		setPrivilege(MODIFY_TAXA_TERRITORIES, value);
 	}
@@ -267,6 +271,10 @@ public class User extends NamedDBNode {
 	public boolean canVIEW_OCCURRENCES() { return hasPrivilege(Privileges.VIEW_OCCURRENCES); }
 
 	public boolean canDOWNLOAD_OCCURRENCES() { return hasPrivilege(Privileges.DOWNLOAD_OCCURRENCES); }
+
+	public boolean canMODIFY_TAXA() {
+		return hasPrivilege(Privileges.MODIFY_TAXA);
+	}
 
 	public boolean canMODIFY_TAXA_TERRITORIES() {
 		return hasPrivilege(Privileges.MODIFY_TAXA_TERRITORIES);

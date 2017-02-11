@@ -62,6 +62,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     transition: background-color 0.2s, transform 0.2s, opacity 0.2s;
 }
 .multiplechooser.left label {flex: 0 1 auto;}
+.multiplechooser label.line-break {width:100%; padding:0; margin:0}
 .multiplechooser input:checked + label {background-color: #00e676; opacity:1;}
 .multiplechooser input:not(:checked) + label {background-color: #ccc; opacity:0.6;}
 
@@ -77,6 +78,8 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     margin: 6px;
     background-color: #64b5f6;
 }
+
+.wordtag.notransform {text-transform: none;}
 
 .togglebutton {
     background-color: #2979ff;

@@ -6,7 +6,7 @@ import java.util.ListIterator;
 import javax.servlet.ServletException;
 
 import com.google.gson.Gson;
-import pt.floraon.driver.CSVFileProcessor;
+import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.server.FloraOnServlet;
 
@@ -23,21 +23,20 @@ public class FileUploader extends FloraOnServlet {
 	 */
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		CSVFileProcessor cfp=new CSVFileProcessor(driver);
 		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
 		
 		switch(partIt.next()) {
 		case "authors":
+/*
 			success(
-//				EntityFactory.toJsonElement(cfp.uploadAuthorsFromFile(getParameterAsString("file")), false)	// TODO: don't use EntityFactory
-					new Gson().toJsonTree(cfp.uploadAuthorsFromFile(getParameterAsString("file")))
+				new Gson().toJsonTree(driver.getCSVFileProcessor().uploadAuthorsFromFile(getParameterAsString("file")))
 			);
+*/
 			break;
 		
 		case "occurrences":
 			success(
-//				EntityFactory.toJsonElement(cfp.uploadRecordsFromFile(getParameterAsString("file")), false) // TODO: don't use EntityFactory
-					new Gson().toJsonTree(cfp.uploadRecordsFromFile(getParameterAsString("file")))
+				new Gson().toJsonTree(driver.getCSVFileProcessor().getOccurrenceImporter().uploadRecordsFromFile(getParameterAsString("file")))
 			);
 			break;
 		}

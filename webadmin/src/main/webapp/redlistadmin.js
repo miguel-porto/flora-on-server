@@ -373,7 +373,7 @@ function showSaveButton() {
 
 function createNewTag(ev) {
     var name = document.getElementById('tagbox').value;
-    if(name != null) {
+    if(name != null && name.trim() != '') {
         var el = document.createElement('INPUT');
         el.setAttribute('type', 'checkbox');
         el.setAttribute('name', 'tags');

@@ -54,7 +54,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String sensu, String annotation,Boolean current) throws FloraOnException {
 		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null, null, null);
 		try {
-			//VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
+			//VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
 			DocumentCreateEntity<TaxEnt> ve = database.collection(NodeTypes.taxent.toString()).insertDocument(out, new DocumentCreateOptions().returnNew(true));
 			out = ve.getNew();
 			out.setID(ve.getId());
@@ -69,7 +69,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public Territory createTerritory(String name, String shortName, TerritoryTypes type, String theme, boolean showInChecklist, INodeKey parent) throws FloraOnException {
 		Territory out = new Territory(name, shortName, type, theme, showInChecklist);
 		try {
-//			VertexEntity<Territory> ve=dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), out, false);
+//			VertexEntity<Territory> ve=dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), out, false);
 			VertexEntity ve = database.graph(Constants.TAXONOMICGRAPHNAME).vertexCollection(NodeTypes.territory.toString())
 					.insertVertex(out, new VertexCreateOptions());
 			out.setID(ve.getId());
@@ -117,7 +117,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public Author createAuthor(Author author) throws FloraOnException {
 		try {
 			return database.collection(NodeTypes.author.toString()).insertDocument(author, new DocumentCreateOptions().returnNew(true)).getNew();
-//			return dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.author.toString(), author, false).getEntity();
+//			return dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.author.toString(), author, false).getEntity();
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
@@ -127,7 +127,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public SpeciesList createSpeciesList(SpeciesList sl) throws FloraOnException {
 		try {
 			return database.collection(NodeTypes.specieslist.toString()).insertDocument(sl, new DocumentCreateOptions().returnNew(true)).getNew();
-//			return dbDriver.graphCreateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), sl, false).getEntity();
+//			return dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), sl, false).getEntity();
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
@@ -224,13 +224,13 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		String tmp;
 		// TODO check for attributes upon delete!
 		String query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s',{direction:'inbound'}) COLLECT WITH COUNT INTO cou RETURN cou"
-			,Constants.TAXONOMICGRAPHNAME,id);
+			,OccurrenceConstants.TAXONOMICGRAPHNAME,id);
 		
 		try {
 			if(dbDriver.executeAqlQuery(query, null, null, Integer.class).getUniqueResult()!=0) throw new FloraOnException("Node has children, inward synonyms or is parent of an hybrid");
 		
 			query=String.format("FOR e IN GRAPH_EDGES('%1$s','%2$s') RETURN e"
-				,Constants.TAXONOMICGRAPHNAME,id);
+				,OccurrenceConstants.TAXONOMICGRAPHNAME,id);
 			Iterator<String> vertexCursor=dbDriver.executeAqlQuery(query, null, null, String.class).iterator();
 			while(vertexCursor.hasNext()) {
 				tmp=vertexCursor.next();
@@ -332,7 +332,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     	node.update(name, shortName, type, theme, showInChecklist);
     	try {
 			database.collection(driver.asNodeKey(node.getID()).getCollection()).updateDocument(node.getKey(), node, new DocumentUpdateOptions().keepNull(false));
-			//dbDriver.graphUpdateVertex(Constants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), driver.asNodeKey(node.getID()).getDBKey(), node, false);
+			//dbDriver.graphUpdateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.territory.toString(), driver.asNodeKey(node.getID()).getDBKey(), node, false);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

@@ -111,31 +111,40 @@ public class RedListEnums {
         }
     }
 
-    public enum TypeOfPopulationEstimate implements LabelledEnum {
-        NO_DATA("Not estimated")
-        , EXACT_COUNT("Exact count")
-        , APPROXIMATE_COUNT("Approximate count")
-        , ROUGH_ESTIMATE("Rough estimate");
+    public enum TypeOfPopulationEstimate implements TriggerEnum {
+        NO_DATA("Not estimated", false)
+        , EXACT_COUNT("Exact count", true)
+        , APPROXIMATE_COUNT("Approximate count", true)
+        , ROUGH_ESTIMATE("Rough estimate", true);
 
         private String label;
+        private boolean trigger;
 
-        TypeOfPopulationEstimate(String desc) {
+        TypeOfPopulationEstimate(String desc, boolean trigger) {
             this.label = desc;
+            this.trigger = trigger;
         }
 
         @Override
         public String getLabel() {
             return label;
         }
+
+        @Override
+        public boolean isTrigger() {
+            return this.trigger;
+        }
     }
 
     public enum NrMatureIndividuals implements LabelledEnum {
-        NO_DATA("No data")
-        , GT_10000("> 10000")
-        , BET_2500_10000("2500 - 10000")
-        , BET_250_2500("250 - 2500")
-        , LT_250("< 250")
-        , EXACT_NUMBER("Exact number");
+        NO_DATA("NrMatureIndividuals.1")
+        , GT_10000("NrMatureIndividuals.2")
+        , BET_2500_10000("NrMatureIndividuals.3")
+        , BET_1000_2500("NrMatureIndividuals.4")
+        , BET_250_1000("NrMatureIndividuals.5")
+        , BET_50_250("NrMatureIndividuals.6")
+        , LT_50("NrMatureIndividuals.7")
+        , EXACT_NUMBER("NrMatureIndividuals.8");
 
         private String label;
 
@@ -245,12 +254,10 @@ public class RedListEnums {
     }
 
     public enum PercentMatureOneSubpop implements LabelledEnum {
-        NO_DATA("No data")
-        , LT_80("< 80%")
-        , BT_80_90("80% - 90%")
-        , BT_90_95("90% - 95%")
-        , BT_95_100("95 - 100%")
-        , LT_1000("100%");
+        NO_DATA("PercentMatureOneSubpop.1")
+        , BT_90_100("PercentMatureOneSubpop.2")
+        , BT_95_100("PercentMatureOneSubpop.3")
+        , LT_1000("PercentMatureOneSubpop.4");
 
         private String label;
 
@@ -308,10 +315,11 @@ public class RedListEnums {
     }
 
     public enum DeclineNrLocations implements TriggerEnum {
-        NO_INFORMATION("No information", false)
-        , STABLE("Stable", false)
-        , INCREASING("Increasing", false)
-        , CONTINUED_DECLINE("Continued decline", true);
+        NO_INFORMATION("DeclineNrLocations.1", false)
+        , STABLE("DeclineNrLocations.2", false)
+        , INCREASING("DeclineNrLocations.3", false)
+        , NON_CONTINUED_DECLINE("DeclineNrLocations.4", false)
+        , CONTINUED_DECLINE("DeclineNrLocations.5", true);
 
         private String label;
         private boolean trigger;
@@ -696,5 +704,108 @@ public class RedListEnums {
         }
     }
 
+    public enum AssessmentCriteria implements LabelledEnum {
+        A1a         ("A1a", "A", "1", "a", null, false)
+        , A1b       ("A1b", "A", "1", "b", null, false)
+        , A1c       ("A1c", "A", "1", "c", null, false)
+        , A1d       ("A1d", "A", "1", "d", null, false)
+        , A1e       ("A1e", "A", "1", "e", null, true)
+        , A2a       ("A2a", "A", "2", "a", null, false)
+        , A2b       ("A2b", "A", "2", "b", null, false)
+        , A2c       ("A2c", "A", "2", "c", null, false)
+        , A2d       ("A2d", "A", "2", "d", null, false)
+        , A2e       ("A2e", "A", "2", "e", null, true)
+        , A3b       ("A3b", "A", "3", "b", null, false)
+        , A3c       ("A3c", "A", "3", "c", null, false)
+        , A3d       ("A3d", "A", "3", "d", null, false)
+        , A3e       ("A3e", "A", "3", "e", null, true)
+        , A4a       ("A4a", "A", "4", "a", null, false)
+        , A4b       ("A4b", "A", "4", "b", null, false)
+        , A4c       ("A4c", "A", "4", "c", null, false)
+        , A4d       ("A4d", "A", "4", "d", null, false)
+        , A4e       ("A4e", "A", "4", "e", null, true)
 
+        , B1a       ("B1a", "B", "1", "a", null, true)
+        , B1bi      ("B1b(i)", "B", "1", "b", "i", false)
+        , B1bii     ("B1b(ii)", "B", "1", "b", "ii", false)
+        , B1biii    ("B1b(iii)", "B", "1", "b", "iii", false)
+        , B1biv     ("B1b(iv)", "B", "1", "b", "iv", false)
+        , B1bv      ("B1b(v)", "B", "1", "b", "v", true)
+        , B1ci      ("B1c(i)", "B", "1", "c", "i", false)
+        , B1cii     ("B1c(ii)", "B", "1", "c", "ii", false)
+        , B1ciii    ("B1c(iii)", "B", "1", "c", "iii", false)
+        , B1civ     ("B1c(iv)", "B", "1", "c", "iv", true)
+        , B2a       ("B2a", "B", "2", "a", null, true)
+        , B2bi      ("B2b(i)", "B", "2", "b", "i", false)
+        , B2bii     ("B2b(ii)", "B", "2", "b", "ii", false)
+        , B2biii    ("B2b(iii)", "B", "2", "b", "iii", false)
+        , B2biv     ("B2b(iv)", "B", "2", "b", "iv", false)
+        , B2bv      ("B2b(v)", "B", "2", "b", "v", true)
+        , B2ci      ("B2c(i)", "B", "2", "c", "i", false)
+        , B2cii     ("B2c(ii)", "B", "2", "c", "ii", false)
+        , B2ciii    ("B2c(iii)", "B", "2", "c", "iii", false)
+        , B2civ     ("B2c(iv)", "B", "2", "c", "iv", true)
+
+        , C1        ("C1", "C", "1", null, null, true)
+        , C2ai      ("C2a(i)", "C", "2", "a", "i", false)
+        , C2aii     ("C2a(ii)", "C", "2", "a", "ii", true)
+        , C2b       ("C2b", "C", "2", "b", null, true)
+
+        , D         ("D", "D", null, null, null, true)
+        , D1        ("D1", "D", "1", null, null, true)
+        , D2        ("D2", "D", "2", null, null, true)
+
+        , E         ("E", "E", null, null, null, false);
+
+        private String label, criteria, subCriteria, subsubCriteria, subsubsubCriteria;
+        private boolean isBreak;
+
+        AssessmentCriteria(String desc, String criteria, String subCriteria, String subsubCriteria, String subsubsubCriteria, boolean isBreak) {
+            this.label = desc;
+            this.criteria = criteria;
+            this.subCriteria = subCriteria;
+            this.subsubCriteria = subsubCriteria;
+            this.subsubsubCriteria = subsubsubCriteria;
+            this.isBreak = isBreak;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+
+        public String getCollapsedLabel() {
+            return subCriteria + subsubCriteria + subsubsubCriteria;
+        }
+
+        public String getCriteria() { return criteria;}
+
+        public String getSubCriteria() {
+            return subCriteria == null ? "" : subCriteria;
+        }
+
+        public String getSubsubCriteria() {
+            return subsubCriteria == null ? "" : subsubCriteria;
+        }
+
+        public String getSubsubsubCriteria() {
+            return subsubsubCriteria == null ? "" : subsubsubCriteria;
+        }
+
+        public boolean isBreak() {
+            return isBreak;
+        }
+
+        public static List<AssessmentCriteria> getSubCriteriaOf(String criteria) {
+            List<AssessmentCriteria> out = new ArrayList<>();
+            for(AssessmentCriteria ac : AssessmentCriteria.values()) {
+                if(ac.getCriteria().equals(criteria)) out.add(ac);
+            }
+            return out;
+        }
+
+        public static List<String> getCriteriaLetters() {
+            return Arrays.asList("A", "B", "C", "D", "E");
+        }
+    }
 }

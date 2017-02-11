@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Red List data portal</title>
+	<title>${taxon.getName()} - <fmt:message key="DataSheet.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
@@ -46,6 +46,7 @@
     <div id="main">
     <c:choose>
     <c:when test="${what=='addterritory'}">
+        <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <h1>Create new red list dataset</h1>
         <h2>Select a territory to create a dataset.</h2>
         <ul>
@@ -53,6 +54,7 @@
             <li><a href="redlist/api/newdataset?territory=${terr.getShortName()}">${terr.getName()}</a></li>
         </c:forEach>
         </ul>
+        </c:if>
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
@@ -209,13 +211,13 @@
         </c:if>
         <c:if test="${user.canVIEW_FULL_SHEET()}">
         <div class="navigator">
-            <div class="button anchorbutton section2"><a href="#distribution">2. Distribution</a></div>
-            <div class="button anchorbutton section3"><a href="#population">3. Population</a></div>
-            <div class="button anchorbutton section4"><a href="#ecology">4. Ecology</a></div>
-            <div class="button anchorbutton section5"><a href="#uses">5. Uses and trade</a></div>
-            <div class="button anchorbutton section6"><a href="#threats">6. Threats</a></div>
-            <div class="button anchorbutton section7"><a href="#conservation">7. Conservation</a></div>
-            <div class="button anchorbutton section9"><a href="#assessment">9. Assessment</a></div>
+            <div class="button anchorbutton section2"><a href="#distribution">2. <fmt:message key="DataSheet.label.2" /></a></div>
+            <div class="button anchorbutton section3"><a href="#population">3. <fmt:message key="DataSheet.label.3" /></a></div>
+            <div class="button anchorbutton section4"><a href="#ecology">4. <fmt:message key="DataSheet.label.4" /></a></div>
+            <div class="button anchorbutton section5"><a href="#uses">5. <fmt:message key="DataSheet.label.5" /></a></div>
+            <div class="button anchorbutton section6"><a href="#threats">6. <fmt:message key="DataSheet.label.6" /></a></div>
+            <div class="button anchorbutton section7"><a href="#conservation">7. <fmt:message key="DataSheet.label.7" /></a></div>
+            <div class="button anchorbutton section9"><a href="#assessment">9. <fmt:message key="DataSheet.label.9" /></a></div>
         </div>
         </c:if>
         <c:if test="${multipletaxa}">
@@ -253,7 +255,7 @@
                         <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p>
                     </div>
                     <div id="header-buttons">
-                        <!--<div class="wordtag togglebutton" id="highlight_toggle">needs review</div>-->
+                        <div class="wordtag togglebutton"><a href="/floraon/checklist?w=taxdetails&id=${taxon.getIDURLEncoded()}">checklist</a></div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
@@ -266,7 +268,7 @@
                 </c:if>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section1"><td class="title" colspan="3"><fmt:message key="DataSheet.label.1" /></td></tr>
+                    <tr class="section1"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 1 - <fmt:message key="DataSheet.label.1" /></td></tr>
                     <tr class="section1">
                         <td class="title">1.1</td>
                         <td>Name</td><td><i>${taxon.getName()}</i>
@@ -281,41 +283,41 @@
                     </tr>
                     <tr class="section1"><td class="title">1.2</td><td><fmt:message key="DataSheet.label.1.2" /></td><td>${taxon.getAuthor()}</td></tr>
                     <tr class="section1"><td class="title">1.3</td><td><fmt:message key="DataSheet.label.1.3" /></td><td>
-                        <ul>
-                        <c:forEach var="synonym" items="${synonyms}">
-                            <li data-key="${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></li>
-                        </c:forEach>
-                        </ul>
+                        <table class="subtable">
+                        <c:if test="${fn:length(synonyms) > 0}">
+                            <tr><td><fmt:message key="DataSheet.label.1.3a"/></td><td>
+                            <ul><c:forEach var="synonym" items="${synonyms}">
+                                <li data-key="${synonym.getID()}">${synonym.getFullName(true)}</li>
+                            </c:forEach></ul>
+                            </td></tr>
+                        </c:if>
+                        <c:if test="${fn:length(includedTaxa) > 0}">
+                            <tr><td><fmt:message key="DataSheet.label.1.3c"/></td><td>
+                            <ul><c:forEach var="synonym" items="${includedTaxa}">
+                                <li data-key="${synonym.getID()}">${synonym.getFullName(true)}</li>
+                            </c:forEach></ul>
+                            </td></tr>
+                        </c:if>
+                        <c:if test="${fn:length(formerlyIncluded) > 0}">
+                        <tr><td><fmt:message key="DataSheet.label.1.3b"/></td><td>
+                            <ul><c:forEach var="synonym" items="${formerlyIncluded}">
+                                <li data-key="${synonym.getID()}">${synonym.getFullName(true)}</li>
+                            </c:forEach></ul>
+                            </td></tr>
+                        </c:if>
+                        </table>
                     </td></tr>
-                    <tr class="section1"><td class="title">1.4</td><td><fmt:message key="DataSheet.label.1.4" /></td><td>
+                    <tr class="section1 textual"><td class="title">1.4</td><td><fmt:message key="DataSheet.label.1.4" /></td><td>
                         <c:if test="${user.canEDIT_1_4()}">
-                            <table>
-                                <tr><td colspan="2"><label>
-                                    <c:if test="${rlde.getHasTaxonomicProblems()}">
-                                        <input type="checkbox" name="hasTaxonomicProblems" checked="checked">
-                                    </c:if>
-                                    <c:if test="${!rlde.getHasTaxonomicProblems()}">
-                                        <input type="checkbox" name="hasTaxonomicProblems">
-                                    </c:if>
-                                    <fmt:message key="DataSheet.label.1.4a" /></label></td>
-                                </tr>
-                                <tr><td><fmt:message key="DataSheet.label.1.4b" /></td>
-                                <td>
-                                    <div contenteditable="true" class="contenteditable">${rlde.getTaxonomicProblemDescription()}</div>
-                                    <input type="hidden" name="taxonomicProblemDescription" value="${fn:escapeXml(rlde.getTaxonomicProblemDescription())}"/>
-                                </td></tr>
-                            </table>
+                            <div contenteditable="true" class="contenteditable">${rlde.getTaxonomicProblemDescription()}</div>
+                            <input type="hidden" name="taxonomicProblemDescription" value="${fn:escapeXml(rlde.getTaxonomicProblemDescription())}"/>
                         </c:if>
                         <c:if test="${!user.canEDIT_1_4()}">
-                            <table>
-                                <tr><td colspan="2"><fmt:message key="DataSheet.label.1.4a" />: ${rlde.getHasTaxonomicProblems() ? "Yes" : "No"}</td></tr>
-                                <tr><td><fmt:message key="DataSheet.label.1.4b" /></td>
-                                <td>${rlde.getTaxonomicProblemDescription()}</td></tr>
-                            </table>
+                            ${rlde.getTaxonomicProblemDescription()}
                         </c:if>
                     </td></tr>
                     <tr class="section1"><td class="title">1.5</td><td><fmt:message key="DataSheet.label.1.5" /></td><td>
-                    (a fazer...)
+                        <c:out value="${commonNames}"/>
                     </td></tr>
                     <tr class="section1"><td class="title">1.6</td><td><fmt:message key="DataSheet.label.1.6" /></td><td>
                     <c:if test="${user.canEDIT_1_4()}">
@@ -338,12 +340,12 @@
                     <c:if test="${!user.canEDIT_1_4()}">
                         <ul>
                         <c:forEach var="tmp" items="${tags}">
-                            <li><fmt:message key="${tmp}" /></li>
+                            <li><c:out value="${tmp}"></c:out></li>
                         </c:forEach>
                         </ul>
                     </c:if>
                     </td></tr>
-                    <tr class="section2"><td class="title" colspan="3"><a name="distribution"></a><fmt:message key="DataSheet.label.2" /></td></tr>
+                    <tr class="section2"><td class="title" colspan="3"><a name="distribution"></a><fmt:message key="DataSheet.label.section"/> 2 - <fmt:message key="DataSheet.label.2" /></td></tr>
                 </c:if>
                 <tr class="section2 textual"><td class="title">2.1</td><td><fmt:message key="DataSheet.label.2.1" /></td><td>
                     <table>
@@ -446,7 +448,7 @@
                         </c:if>
                     </td></tr>
 
-                    <tr class="section3"><td class="title" colspan="3"><a name="population"></a>Section 3 - Population</td></tr>
+                    <tr class="section3"><td class="title" colspan="3"><a name="population"></a><fmt:message key="DataSheet.label.section"/> 3 - <fmt:message key="DataSheet.label.3" /></td></tr>
                 </c:if>
                 <tr class="section3 textual"><td class="title">3.1</td><td><fmt:message key="DataSheet.label.3.1" /></td><td>
                     <c:if test="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}">
@@ -465,44 +467,45 @@
                                     <select name="population_NrMatureIndividualsCategory">
                                         <c:forEach var="tmp" items="${population_NrMatureIndividualsCategory}">
                                             <c:if test="${rlde.getPopulation().getNrMatureIndividualsCategory().toString().equals(tmp.toString())}">
-                                                <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                                <option value="${tmp.toString()}" selected="selected"><fmt:message key="${tmp.getLabel()}"/></option>
                                             </c:if>
                                             <c:if test="${!rlde.getPopulation().getNrMatureIndividualsCategory().toString().equals(tmp.toString())}">
-                                                <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                                <option value="${tmp.toString()}"><fmt:message key="${tmp.getLabel()}"/></option>
                                             </c:if>
                                         </c:forEach>
                                     </select>
                                 </td></tr>
-                                <tr><td>Exact number</td><td><input type="number" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
+                                <tr><td>Exact number</td><td><input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/></td></tr>
                             </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
                             <table>
-                                <tr><td>Category</td><td>${rlde.getPopulation().getNrMatureIndividualsCategory().getLabel()}</td></tr>
+                                <tr><td>Category</td><td><fmt:message key="${rlde.getPopulation().getNrMatureIndividualsCategory().getLabel()}"/></td></tr>
                                 <tr><td>Exact number</td><td>${rlde.getPopulation().getNrMatureIndividualsExact()}</td></tr>
                             </table>
                         </c:if>
                     </td></tr>
                     <tr class="section3"><td class="title">3.3</td><td>Type of estimate</td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
-                        <table>
+                        <table class="triggergroup">
                             <tr><td>Type</td><td>
-                                <select name="population_TypeOfEstimate">
+                                <select name="population_TypeOfEstimate" class="trigger">
                                     <c:forEach var="tmp" items="${population_TypeOfEstimate}">
                                         <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
                                         </c:if>
                                         <c:if test="${!rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
                                         </c:if>
                                     </c:forEach>
                                 </select>
                             </td></tr>
-                            <tr><td>Description</td><td>
+                            <tr class="triggered ${rlde.getPopulation().getTypeOfEstimate().isTrigger() ? '' : 'hidden'}"><td>Description</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getNrMatureIndividualsDescription()}</div>
                                 <input type="hidden" name="population_NrMatureIndividualsDescription" value="${fn:escapeXml(rlde.getPopulation().getNrMatureIndividualsDescription())}"/>
                             </td></tr>
                         </table>
+
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
                         <table>
@@ -573,7 +576,7 @@
                         <c:if test="${!user.canEDIT_SECTION3()}">
                         <table>
                             <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationTrend()} %</td></tr>
-                            <tr><td>Category</td><td>${rlde.getPopulation().getPopulationSizeReduction().getLabel()}</td></tr>
+                            <tr><td>Category</td><td><fmt:message key="${rlde.getPopulation().getPopulationSizeReduction().getLabel()}" /></td></tr>
                             <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationSizeReductionJustification()}</td></tr>
                         </table>
                         </c:if>
@@ -656,19 +659,19 @@
                         <select name="population_PercentMatureOneSubpop">
                             <c:forEach var="tmp" items="${population_PercentMatureOneSubpop}">
                                 <c:if test="${rlde.getPopulation().getPercentMatureOneSubpop().toString().equals(tmp.toString())}">
-                                    <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                    <option value="${tmp.toString()}" selected="selected"><fmt:message key="${tmp.getLabel()}" /></option>
                                 </c:if>
                                 <c:if test="${!rlde.getPopulation().getPercentMatureOneSubpop().toString().equals(tmp.toString())}">
-                                    <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                    <option value="${tmp.toString()}"><fmt:message key="${tmp.getLabel()}" /></option>
                                 </c:if>
                             </c:forEach>
                         </select>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION3()}">
-                        ${rlde.getPopulation().getPercentMatureOneSubpop().getLabel()}
+                        <fmt:message key="${rlde.getPopulation().getPercentMatureOneSubpop().getLabel()}" />
                     </c:if>
                     </td></tr>
-                    <tr class="section4"><td class="title" colspan="3"><a name="ecology"></a>Section 4 - Ecology</td></tr>
+                    <tr class="section4"><td class="title" colspan="3"><a name="ecology"></a><fmt:message key="DataSheet.label.section"/> 4 - <fmt:message key="DataSheet.label.4" /></td></tr>
                 </c:if>     <!-- can view full sheet -->
                 <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information</td><td>
                     <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}">
@@ -745,7 +748,7 @@
                     </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section5"><td class="title" colspan="3"><a name="uses"></a><fmt:message key="DataSheet.label.5" /></td></tr>
+                    <tr class="section5"><td class="title" colspan="3"><a name="uses"></a><fmt:message key="DataSheet.label.section"/> 5 - <fmt:message key="DataSheet.label.5" /></td></tr>
                 </c:if>
                 <tr class="section5 textual"><td class="title">5.1</td><td><fmt:message key="DataSheet.label.5.1" /></td><td>
                     <c:if test="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}">
@@ -812,7 +815,7 @@
                             ${rlde.getUsesAndTrade().getOverexploitation().getLabel()}
                         </c:if>
                     </td></tr>
-                    <tr class="section6"><td class="title" colspan="3"><a name="threats"></a>Section 6 - Threats</td></tr>
+                    <tr class="section6"><td class="title" colspan="3"><a name="threats"></a><fmt:message key="DataSheet.label.section"/> 6 - <fmt:message key="DataSheet.label.6" /></td></tr>
                 </c:if>
                 <tr class="section6 textual"><td class="title">6.1</td><td>Threat description</td><td>
                     <c:if test="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}">
@@ -852,10 +855,10 @@
                             <select name="threats_DeclineNrLocations" class="trigger">
                                 <c:forEach var="tmp" items="${threats_DeclineNrLocations}">
                                     <c:if test="${rlde.getThreats().getDeclineNrLocations().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}"/></option>
                                     </c:if>
                                     <c:if test="${!rlde.getThreats().getDeclineNrLocations().toString().equals(tmp.toString())}">
-                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}"/></option>
                                     </c:if>
                                 </c:forEach>
                             </select>
@@ -868,7 +871,7 @@
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION6()}">
                     <table>
-                        <tr><td>Category</td><td>${rlde.getThreats().getDeclineNrLocations().getLabel()}</td></tr>
+                        <tr><td>Category</td><td><fmt:message key="${rlde.getThreats().getDeclineNrLocations().getLabel()}"/></td></tr>
                         <tr><td>Justification</td><td>${rlde.getThreats().getDeclineNrLocationsJustification()}</td></tr>
                     </table>
                     </c:if>
@@ -902,7 +905,7 @@
                     </c:if>
                     </td></tr>
 
-                    <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a>Section 7 - Conservation</td></tr>
+                    <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a><fmt:message key="DataSheet.label.section"/> 7 - <fmt:message key="DataSheet.label.7" /></td></tr>
                 </c:if>
                 <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures</td><td>
                     <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}">
@@ -1048,7 +1051,7 @@
                     (a fazer)
                     </td></tr>
 
-                    <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a>Section 9 - Red List Assessment</td></tr>
+                    <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a><fmt:message key="DataSheet.label.section"/> 9 - <fmt:message key="DataSheet.label.9" /></td></tr>
                     <tr class="section9"><td class="title">9.1</td><td>Category</td><td class="triggergroup">
                         <div id="redlistcategories">
                             <c:if test="${user.canEDIT_9_1_2_3_4()}">
@@ -1092,11 +1095,36 @@
                         </div>
                     </td></tr>
                     <tr class="section9"><td class="title">9.2</td><td>Criteria</td><td>
+                        <p><b>${rlde.getAssessment()._getCriteriaAsString()}</b></p>
                         <c:if test="${user.canEDIT_9_1_2_3_4()}">
-                            <input name="assessment_Criteria" type="text" class="longbox" value="${rlde.getAssessment().getCriteria()}"/>
+                        <input type="hidden" name="assessment_Criteria" value=""/>
+                        <table class="subtable">
+                            <thead><tr><th>Criteria</th><th>Subcriteria</th></th></thead>
+                            <tbody>
+                                <c:forEach var="cri" items="${assessment_Criteria.entrySet()}">
+                                    <tr><td class="title">${cri.getKey()}</td>
+                                    <td>
+                                    <div class="multiplechooser left">
+                                    <c:forEach var="sub" items="${cri.getValue()}">
+                                        <c:if test="${selcriteria.contains(sub)}">
+                                            <input type="checkbox" name="assessment_Criteria" id="acri_${sub}" value="${sub}" checked="checked"/>
+                                        </c:if>
+                                        <c:if test="${!selcriteria.contains(sub)}">
+                                            <input type="checkbox" name="assessment_Criteria" id="acri_${sub}" value="${sub}"/>
+                                        </c:if>
+                                        <label for="acri_${sub}" class="wordtag togglebutton notransform">${sub.getLabel()}</label>
+                                        <c:if test="${sub.isBreak()}"><label class="line-break"></label></c:if>
+                                    </c:forEach>
+                                    </div>
+                                    </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                            <!--<input name="assessment_Criteria" type="text" class="longbox" value="${rlde.getAssessment().getCriteria()}"/>-->
                         </c:if>
                         <c:if test="${!user.canEDIT_9_1_2_3_4()}">
-                            ${rlde.getAssessment().getCriteria()}
+                            ${rlde.getAssessment()._getCriteriaAsString()}
                         </c:if>
                     </td></tr>
                 </c:if>

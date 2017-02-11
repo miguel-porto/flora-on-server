@@ -218,13 +218,17 @@ public final class Constants {
 		}
 	}
 
+	/**
+	 * https://github.com/miguel-porto/flora-on-server/wiki/Describing-a-relationship-between-a-taxon-and-a-territory#abundance-level
+	 */
 	public enum AbundanceLevel {
 		NOT_SPECIFIED(1)
 		,VERY_COMMON(0)
 		,COMMON(1)
-		,OCCASIONAL(2)
-		,RARE(3)
-		,VERY_RARE(4);						// Few populations with few individuals
+		,OCCASIONALLY_COMMON(2)
+		,OCCASIONAL(3)
+		,RARE(4)
+		,VERY_RARE(5);
 		
 		private final Integer priority;
 		

@@ -41,7 +41,7 @@ public class ApiUpdate extends FloraOnServlet {
 		INodeKey from, to, id;
 		int res;
 		
-		if(!getUser().canMODIFY_TAXA_TERRITORIES()) {
+		if(!getUser().canMODIFY_TAXA_TERRITORIES() && !getUser().canMODIFY_TAXA()) {
 			error("You must login to do this operation!");
 			return;
 		}
@@ -50,14 +50,14 @@ public class ApiUpdate extends FloraOnServlet {
 
 		switch(partIt.next()) {
 		case "delete":
-			if(!getUser().canEDIT_FULL_CHECKLIST()) error("You must login to do this operation!");
+			if(!getUser().canEDIT_FULL_CHECKLIST()) {error("You don't have privileges for this operation!"); return;}
 			id=getParameterAsKey("id");
 //			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
 			success(new Gson().toJsonTree(NWD.deleteVertexOrEdge(id)));
 			return;
 
 		case "deleteleaf":
-			if(!getUser().canEDIT_FULL_CHECKLIST()) error("You must login to do this operation!");
+			if(!getUser().canEDIT_FULL_CHECKLIST()) {error("You don't have privileges for this operation!"); return;}
 			id=getParameterAsKey("id");
 			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
 //			success(EntityFactory.toJsonElement(NWD.deleteLeafNode(id),false));
@@ -80,6 +80,7 @@ public class ApiUpdate extends FloraOnServlet {
 			return;
 
 		case "unsetcompleteterritory":
+			if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
 			res = driver.wrapTaxEnt(getParameterAsKey("id")).unsetTerritoryWithCompleteDistribution(getParameterAsKey("territory"));
 			success(res == 0 ? "Nothing removed" : "Removed");
 			return;
@@ -113,6 +114,7 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 
 			case "territory":
+				if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
 				name=getParameterAsString("name");
 				shortName=getParameterAsString("shortName");
 				rank=getParameterAsString("rank");
@@ -137,6 +139,7 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 			
 			case "completeterritory":
+				if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
 				res = driver.wrapTaxEnt(getParameterAsKey("id")).setTerritoryWithCompleteDistribution(getParameterAsKey("territory"));
 				success(res == 0 ? "Nothing added" : "Added");
 				return;
@@ -200,6 +203,7 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 				
 			case "territory":
+				if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
 				success(NWD.updateTerritoryNode(
 					NWD.getNode(getParameterAsKey("id"), Territory.class)
 					, getParameterAsString("name")

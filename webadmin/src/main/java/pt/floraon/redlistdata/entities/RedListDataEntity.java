@@ -54,7 +54,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     /**
      * Whether the taxon has taxonomic problems
      */
-    private boolean hasTaxonomicProblems;
+//    private boolean hasTaxonomicProblems;
     /**
      * Textual decription of the taxonomic problems
      */
@@ -132,10 +132,6 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return out.toArray(new String[out.size()]);
     }
 
-    public boolean getHasTaxonomicProblems() {
-        return hasTaxonomicProblems;
-    }
-
     public String getTaxonomicProblemDescription() {
         return taxonomicProblemDescription == null ? "" : taxonomicProblemDescription;
     }
@@ -183,10 +179,6 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setTags(String[] tags) {
         this.tags = cleanArray(tags);
-    }
-
-    public void setHasTaxonomicProblems(boolean hasTaxonomicProblems) {
-        this.hasTaxonomicProblems = hasTaxonomicProblems;
     }
 
     public void setTaxonomicProblemDescription(String taxonomicProblemDescription) {
@@ -265,7 +257,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
     }
 
-    public void setPopulation_NrMatureIndividualsExact(Long nrMatureIndividualsExact) {
+    public void setPopulation_NrMatureIndividualsExact(String nrMatureIndividualsExact) {
         this.population.setNrMatureIndividualsExact(nrMatureIndividualsExact);
     }
 
@@ -569,8 +561,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.assessment.setUpDownListingJustification(upDownListingJustification);
     }
 
-    public void setAssessment_Criteria(String criteria) {
-        this.assessment.setCriteria(criteria);
+    public void setAssessment_Criteria(String[] criteria) {
+        this.getAssessment().setCriteria(stringArrayToEnumArray(criteria, RedListEnums.AssessmentCriteria.class));
     }
 
     public void setAssessment_Justification(String justification) {

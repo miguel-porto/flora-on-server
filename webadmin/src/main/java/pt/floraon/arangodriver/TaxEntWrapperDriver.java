@@ -174,10 +174,20 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	}
 
 	@Override
-	public Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException {
-		String query = AQLQueries.getString("TaxEntWrapperDriver.8", RelTypes.PART_OF.toString(), thisNode);
+	public List<TaxEnt> getIncludedTaxa() throws FloraOnException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.8", thisNode);
 		try {
-			return database.query(query,null,null,TaxEnt.class);
+			return database.query(query,null,null,TaxEnt.class).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public List<TaxEnt> getFormerlyIncludedIn() throws FloraOnException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.8a", thisNode);
+		try {
+			return database.query(query,null,null,TaxEnt.class).asListRemaining();
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

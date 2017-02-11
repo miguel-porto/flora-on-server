@@ -15,7 +15,7 @@ import static pt.floraon.driver.Constants.cleanArray;
 public class Assessment implements DiffableBean {
     private RedListEnums.RedListCategories category;
     private RedListEnums.CRTags subCategory;
-    private String criteria;
+    private RedListEnums.AssessmentCriteria[] criteria;
     private String justification;
     private String[] authors;
     private String collaborators;
@@ -53,8 +53,45 @@ public class Assessment implements DiffableBean {
         return category.isTrigger() ? (subCategory == RedListEnums.CRTags.NO_TAG ? null : subCategory) : null;
     }
 
-    public String getCriteria() {
-        return criteria == null ? "" : criteria;
+    public RedListEnums.AssessmentCriteria[] getCriteria() {
+        return criteria == null ? new RedListEnums.AssessmentCriteria[0] : criteria;
+    }
+
+    public String _getCriteriaAsString() {
+        if(criteria == null) return "";
+        StringBuilder sb = new StringBuilder();
+        int last = 0;
+        for (int i = 0; i < criteria.length; i++) {
+            if(i > 0 && criteria[i].getCriteria().equals(criteria[i - 1].getCriteria())) {
+                if(criteria[i].getSubCriteria().equals(criteria[i - 1].getSubCriteria())) {
+                    if(criteria[i].getSubsubCriteria().equals(criteria[i - 1].getSubsubCriteria())) {
+                        sb.append("," + criteria[i].getSubsubsubCriteria());
+                        last = 3;
+                    } else {
+                        if(last == 3) sb.append(")");
+                        sb.append(criteria[i].getSubsubCriteria())
+                                .append(criteria[i].getSubsubsubCriteria().equals("") ? "" : ("(" + criteria[i].getSubsubsubCriteria()));
+                        last = criteria[i].getSubsubsubCriteria().equals("") ? 2 : 3;
+                    }
+                } else {
+                    if(last == 3) sb.append(")");
+                    sb.append("+").append(criteria[i].getSubCriteria())
+                            .append(criteria[i].getSubsubCriteria())
+                            .append(criteria[i].getSubsubsubCriteria().equals("") ? "" : ("(" + criteria[i].getSubsubsubCriteria()));
+                    last = criteria[i].getSubsubsubCriteria().equals("") ? 1 : 3;
+                }
+            } else {
+                if(last == 3) sb.append(")");
+                if (i > 0) sb.append("; ");
+                sb.append(criteria[i].getCriteria())
+                        .append(criteria[i].getSubCriteria())
+                        .append(criteria[i].getSubsubCriteria())
+                        .append(criteria[i].getSubsubsubCriteria().equals("") ? "" : ("(" + criteria[i].getSubsubsubCriteria()));
+                last = criteria[i].getSubsubsubCriteria().equals("") ? 0 : 3;
+            }
+        }
+        if(last == 3) sb.append(")");
+        return sb.toString();
     }
 
     public String getJustification() {
@@ -126,7 +163,7 @@ public class Assessment implements DiffableBean {
         this.isSink = isSink;
     }
 
-    public void setCriteria(String criteria) {
+    public void setCriteria(RedListEnums.AssessmentCriteria[] criteria) {
         this.criteria = criteria;
     }
 

@@ -34,7 +34,14 @@ public interface ITaxEntWrapper {
 	 * @return
 	 * @throws FloraOnException 
 	 */
-	Iterator<TaxEnt> getIncludedTaxa() throws FloraOnException;
+	List<TaxEnt> getIncludedTaxa() throws FloraOnException;
+
+	/**
+	 * Gets the not current taxa of which this taxon is PART_OF
+	 * @return
+	 * @throws FloraOnException
+	 */
+	List<TaxEnt> getFormerlyIncludedIn() throws FloraOnException;
 	/**
 	 * Gets the current taxonomic parent of this taxon.
 	 * @return
