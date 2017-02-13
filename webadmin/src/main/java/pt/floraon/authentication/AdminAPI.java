@@ -52,8 +52,7 @@ public class AdminAPI extends FloraOnServlet {
                     jo.addProperty("alert", true);
                 } else jo.addProperty("text", "Ok");
                 success(jo);
-                gs = new GsonBuilder().setPrettyPrinting().create();
-/*
+/*                gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("CREATE BEAN:");
                 System.out.println(gs.toJson(user));
 */

@@ -4,10 +4,12 @@ import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
 
+import java.io.Serializable;
+
 /**
  * Created by miguel on 05-02-2017.
  */
-public class NewSpeciesList extends GeneralDBNode {
+public class InventoryData extends GeneralDBNode implements Serializable {
     private Float latitude, longitude;
     private String spatialRS;
     private Float elevation;
@@ -24,7 +26,7 @@ public class NewSpeciesList extends GeneralDBNode {
     private String aspect;
     private Integer slope;
 
-    public NewSpeciesList() { }
+    public InventoryData() { }
 
     public Float getLatitude() {
         return latitude;
@@ -103,6 +105,7 @@ public class NewSpeciesList extends GeneralDBNode {
     }
 
     public void setDay(Integer day) {
+        if(day < 1 || day > 31) throw new IllegalArgumentException("Invalid day");
         this.day = day;
     }
 

@@ -114,6 +114,9 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 #speciesindex .redlistcategory p {font-size:0.7rem !important;}
 
 .filterpanel {padding:8px; text-align:left; }
+.filterpanel.inactive {opacity:0.3}
+.filterpanel.inactive .button, .filterpanel.inactive .filter {background-color:#999 !important;}
+
 .filter {
     border-radius: 50px 4px 4px 50px;
     padding: 0 8px 0 0;
@@ -125,6 +128,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     box-shadow: 0 0 3px gray;
     cursor:pointer;
     background-color: #3949ab;
+    transition: opacity 0.4s, background-color 0.4s;
 }
 
 .filter.tag {background-color: #8e24aa;}

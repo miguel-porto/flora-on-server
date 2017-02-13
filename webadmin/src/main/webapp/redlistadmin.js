@@ -8,6 +8,10 @@ var focusedEditableDiv = null;
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
 
+    /********************
+        DATA SHEET
+    *********************/
+
     // any change in the fields will show save button
     var inputs = document.querySelectorAll('#maindataform input:not(.nochangeevent), #maindataform select:not(.nochangeevent), #maindataform textarea:not(.nochangeevent)');
     for (var i = 0; i < inputs.length; i++) {
@@ -140,6 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    var sel = document.querySelectorAll('.filterpanel');
+    for(i = 0; i < sel.length; i++)
+        sel[i].classList.remove('inactive');
 /*
     addEvent('click', document.getElementById('highlight_toggle'), function(ev) {
         document.querySelector('table.sheet').classList.toggle('showhighlights');

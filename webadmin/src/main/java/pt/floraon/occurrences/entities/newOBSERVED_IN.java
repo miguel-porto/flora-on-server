@@ -6,13 +6,14 @@ import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * See https://github.com/miguel-porto/flora-on-server/wiki/The-data-model#observed_in
  * Created by miguel on 05-02-2017.
  */
-public class newOBSERVED_IN extends GeneralDBEdge {
+public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private Constants.PhenologicalStates phenoState;
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;

@@ -1,7 +1,5 @@
 package pt.floraon.occurrences;
 
-import static pt.floraon.driver.Constants.infraRanks;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -21,18 +19,15 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import pt.floraon.driver.*;
-import pt.floraon.driver.Constants.NativeStatus;
-import pt.floraon.driver.Constants.OccurrenceStatus;
-import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.occurrences.entities.Author;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.taxonomy.TaxonomyImporter;
 import pt.floraon.taxonomy.entities.TaxEnt;
-import pt.floraon.taxonomy.entities.Territory;
-import pt.floraon.driver.results.Occurrence;
 
+/**
+ * A bunch of methods to parse and import CSV data files of different facets
+ */
 public class CSVFileProcessor extends BaseFloraOnDriver {
 	public CSVFileProcessor(IFloraOn driver) {
 		super(driver);

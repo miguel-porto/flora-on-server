@@ -3,6 +3,7 @@ package pt.floraon.arangodriver;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
+import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import pt.floraon.driver.*;
@@ -47,6 +48,21 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
         if(id == null) return null;
         try {
             return database.collection(Constants.NodeTypes.user.toString()).getDocument(id.getDBKey(), User.class);
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
+    public User getUser(String name) throws FloraOnException {
+        if(name == null) return null;
+        ArangoCursor<User> cur;
+        try {
+            cur = database.query(AQLQueries.getString("Administration.4", name), null
+                    , new AqlQueryOptions().count(true), User.class);
+            if(!cur.hasNext()) return null;
+            if(cur.getCount() > 1) throw new FloraOnException(Messages.getString("error.1", name));
+            return cur.next();
         } catch (ArangoDBException e) {
             throw new FloraOnException(e.getMessage());
         }

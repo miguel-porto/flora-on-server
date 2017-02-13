@@ -5,20 +5,15 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import pt.floraon.driver.BaseFloraOnDriver;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
-import pt.floraon.driver.INodeWorker;
-import pt.floraon.occurrences.entities.newOccurrence;
-import pt.floraon.occurrences.fieldmappers.AliasFieldParser;
-import pt.floraon.occurrences.fieldmappers.FieldParser;
-import pt.floraon.occurrences.fieldmappers.LatitudeLongitudeParser;
-import pt.floraon.occurrences.fieldmappers.TaxaParser;
+import pt.floraon.driver.*;
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.fieldparsers.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Imports occurrences from text files.
@@ -28,17 +23,25 @@ public class OccurrenceImporter extends BaseFloraOnDriver {
     /**
      * Holds the aliases mappings
      */
-    public static Map<String, FieldParser> fieldMappings = new HashMap<>();
+    public Map<String, FieldParser> fieldMappings = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-    static {
-        fieldMappings.put("latitude", new LatitudeLongitudeParser());
-        fieldMappings.put("longitude", new LatitudeLongitudeParser());
-        fieldMappings.put("taxa", new TaxaParser());
-        fieldMappings.put("lat", new AliasFieldParser("latitude", fieldMappings));
-    }
+    /**
+     * Holds a map os user names to DB IDs. This will be updated as needed.
+     */
+    Map<String, String> userMap = new HashMap<>();
 
     public OccurrenceImporter(IFloraOn driver) {
         super(driver);
+        fieldMappings.put("latitude", new LatitudeLongitudeParser());
+        fieldMappings.put("longitude", new LatitudeLongitudeParser());
+        fieldMappings.put("taxa", new TaxaParser());
+        fieldMappings.put("year", new IntegerParser());
+        fieldMappings.put("month", new IntegerParser());
+        fieldMappings.put("day", new IntegerParser());
+        fieldMappings.put("ano", new AliasFieldParser("year", fieldMappings));
+        fieldMappings.put("observers", new UserListParser(userMap, driver));
+        fieldMappings.put("collectors", new UserListParser(userMap, driver));
+        fieldMappings.put("determiners", new UserListParser(userMap, driver));
     }
 
     public Map<String, Object> uploadRecordsFromFile(String filename) throws IOException, FloraOnException {
@@ -59,28 +62,30 @@ public class OccurrenceImporter extends BaseFloraOnDriver {
 
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
 
-        newOccurrence occ;
+        Inventory occ;
+//        ObjectOutputStream oost = new ObjectOutputStream(new FileOutputStream("/tmp/exp.ser"));
+
         try {
             freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
             CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
             Map<String, Integer> headers = records.getHeaderMap();
             Map<String, FieldParser> fieldMappers = new HashMap<>();
 
+            // associate a parser for each table column
             for(Map.Entry<String, Integer> h : headers.entrySet()) {
-                if(!fieldMappings.containsKey(h.getKey())) throw new FloraOnException("Cannot recognize field named '" + h.getKey() +"'");
-                // TODO aliases
-                if(FieldParser.class.isAssignableFrom(fieldMappings.get(h.getKey()).getClass()))
-                    fieldMappers.put(h.getKey(), (FieldParser) fieldMappings.get(h.getKey()));
+                if(!fieldMappings.containsKey(h.getKey())) throw new FloraOnException(Messages.getString("error.1",h.getKey()));
+                fieldMappers.put(h.getKey(), fieldMappings.get(h.getKey()));
             }
 
             for (CSVRecord record : records) {
                 try {
-                    occ = newOccurrence.fromCSVline(record, fieldMappers);
+                    occ = Inventory.fromCSVline(record, fieldMappers, null);
                     nrecs++;
                     if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
                     if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
 
                     System.out.println(gs.toJson(occ));
+
                     //nwd.createOccurrence(occ);
                 } catch(FloraOnException e) {
                     lineerrors.put(record.getRecordNumber(), e.getMessage());
@@ -93,6 +98,7 @@ public class OccurrenceImporter extends BaseFloraOnDriver {
                     System.out.println(counter+" records processed.");
                 }
             }
+
         } catch (NumberFormatException e) {
             counterr++;
             e.printStackTrace();

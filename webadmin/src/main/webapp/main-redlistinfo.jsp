@@ -4,6 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
@@ -81,7 +82,7 @@
         </div>
         </c:if>
         <c:if test="${user.canEDIT_ANY_FIELD()}">
-        <div class="filterpanel">
+        <div class="filterpanel inactive">
             <h3><fmt:message key="TaxonIndex.selecting.1"/></h3>
             <p id="selectedmsg"></p>
             <div class="button" id="selectall"><fmt:message key="TaxonIndex.selecting.4"/></div>
@@ -89,7 +90,7 @@
             <div class="button" id="selecttaxa"><fmt:message key="TaxonIndex.selecting.3"/></div>
         </div>
         </c:if>
-        <div id="filters" class="filterpanel">
+        <div id="filters" class="filterpanel inactive">
             <h3><fmt:message key="TaxonIndex.filters.1"/></h3>
             <c:if test="${!user.isGuest()}">
             <div class="filter wordtag togglebutton" id="onlyresponsible"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.3"/></div></div>
@@ -316,13 +317,10 @@
                         </table>
                     </td></tr>
                     <tr class="section1 textual"><td class="title">1.4</td><td><fmt:message key="DataSheet.label.1.4" /></td><td>
-                        <c:if test="${user.canEDIT_1_4()}">
-                            <div contenteditable="true" class="contenteditable">${rlde.getTaxonomicProblemDescription()}</div>
-                            <input type="hidden" name="taxonomicProblemDescription" value="${fn:escapeXml(rlde.getTaxonomicProblemDescription())}"/>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_1_4()}">
-                            ${rlde.getTaxonomicProblemDescription()}
-                        </c:if>
+                        <t:editabletext
+                            privilege="${user.canEDIT_1_4()}"
+                            value="${rlde.getTaxonomicProblemDescription()}"
+                            name="taxonomicProblemDescription"/>
                     </td></tr>
                     <tr class="section1"><td class="title">1.5</td><td><fmt:message key="DataSheet.label.1.5" /></td><td>
                         <c:out value="${commonNames}"/>
@@ -358,13 +356,10 @@
                 <tr class="section2 textual"><td class="title">2.1</td><td><fmt:message key="DataSheet.label.2.1" /></td><td>
                     <table>
                         <tr><td style="width:auto">
-                        <c:if test="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}">
-                            <div contenteditable="true" class="contenteditable">${rlde.getGeographicalDistribution().getDescription()}</div>
-                            <input type="hidden" name="geographicalDistribution_Description" value="${fn:escapeXml(rlde.getGeographicalDistribution().getDescription())}"/>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION2() && !user.canEDIT_ALL_TEXTUAL()}">
-                            ${rlde.getGeographicalDistribution().getDescription()}
-                        </c:if>
+                        <t:editabletext
+                            privilege="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}"
+                            value="${rlde.getGeographicalDistribution().getDescription()}"
+                            name="geographicalDistribution_Description"/>
                         </td>
                         <td style="width:0">${svgmap}</td>
                         </tr>
@@ -459,13 +454,10 @@
                     <tr class="section3"><td class="title" colspan="3"><a name="population"></a><fmt:message key="DataSheet.label.section"/> 3 - <fmt:message key="DataSheet.label.3" /></td></tr>
                 </c:if>
                 <tr class="section3 textual"><td class="title">3.1</td><td><fmt:message key="DataSheet.label.3.1" /></td><td>
-                    <c:if test="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}">
-                        <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getDescription()}</div>
-                        <input type="hidden" name="population_Description" value="${fn:escapeXml(rlde.getPopulation().getDescription())}"/>
-                    </c:if>
-                    <c:if test="${!user.canEDIT_SECTION3() && !user.canEDIT_ALL_TEXTUAL()}">
-                        ${rlde.getPopulation().getDescription()}
-                    </c:if>
+                    <t:editabletext
+                        privilege="${user.canEDIT_SECTION3() || user.canEDIT_ALL_TEXTUAL()}"
+                        value="${rlde.getPopulation().getDescription()}"
+                        name="population_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section3"><td class="title">3.2</td><td>Nº of mature individuals</td><td>
@@ -682,13 +674,10 @@
                     <tr class="section4"><td class="title" colspan="3"><a name="ecology"></a><fmt:message key="DataSheet.label.section"/> 4 - <fmt:message key="DataSheet.label.4" /></td></tr>
                 </c:if>     <!-- can view full sheet -->
                 <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information</td><td>
-                    <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}">
-                        <div contenteditable="true" class="contenteditable">${ecology}</div>
-                        <input type="hidden" name="ecology_Description" value="${fn:escapeXml(ecology)}"/>
-                    </c:if>
-                    <c:if test="${!user.canEDIT_SECTION4() && !user.canEDIT_ALL_TEXTUAL()}">
-                        ${ecology}
-                    </c:if>
+                    <t:editabletext
+                        privilege="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}"
+                        value="${ecology}"
+                        name="ecology_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section4"><td class="title">4.2</td><td>Habitat types</td><td>
@@ -759,13 +748,10 @@
                     <tr class="section5"><td class="title" colspan="3"><a name="uses"></a><fmt:message key="DataSheet.label.section"/> 5 - <fmt:message key="DataSheet.label.5" /></td></tr>
                 </c:if>
                 <tr class="section5 textual"><td class="title">5.1</td><td><fmt:message key="DataSheet.label.5.1" /></td><td>
-                    <c:if test="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}">
-                        <div contenteditable="true" class="contenteditable">${rlde.getUsesAndTrade().getDescription()}</div>
-                        <input type="hidden" name="usesAndTrade_Description" value="${fn:escapeXml(rlde.getUsesAndTrade().getDescription())}"/>
-                    </c:if>
-                    <c:if test="${!user.canEDIT_SECTION5() && !user.canEDIT_ALL_TEXTUAL()}">
-                        ${rlde.getUsesAndTrade().getDescription()}
-                    </c:if>
+                    <t:editabletext
+                        privilege="${user.canEDIT_SECTION5() || user.canEDIT_ALL_TEXTUAL()}"
+                        value="${rlde.getUsesAndTrade().getDescription()}"
+                        name="usesAndTrade_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section5"><td class="title">5.2</td><td><fmt:message key="DataSheet.label.5.2" /></td><td>
@@ -826,13 +812,10 @@
                     <tr class="section6"><td class="title" colspan="3"><a name="threats"></a><fmt:message key="DataSheet.label.section"/> 6 - <fmt:message key="DataSheet.label.6" /></td></tr>
                 </c:if>
                 <tr class="section6 textual"><td class="title">6.1</td><td>Threat description</td><td>
-                    <c:if test="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}">
-                        <div contenteditable="true" class="contenteditable">${rlde.getThreats().getDescription()}</div>
-                        <input type="hidden" name="threats_Description" value="${fn:escapeXml(rlde.getThreats().getDescription())}"/>
-                    </c:if>
-                    <c:if test="${!user.canEDIT_SECTION6() && !user.canEDIT_ALL_TEXTUAL()}">
-                        ${rlde.getThreats().getDescription()}
-                    </c:if>
+                    <t:editabletext
+                        privilege="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}"
+                        value="${rlde.getThreats().getDescription()}"
+                        name="threats_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section6"><td class="title">6.2</td><td>Threats</td><td>
@@ -919,13 +902,10 @@
                     <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a><fmt:message key="DataSheet.label.section"/> 7 - <fmt:message key="DataSheet.label.7" /></td></tr>
                 </c:if>
                 <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures</td><td>
-                    <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}">
-                        <div contenteditable="true" class="contenteditable">${rlde.getConservation().getDescription()}</div>
-                        <input type="hidden" name="conservation_Description" value="${fn:escapeXml(rlde.getConservation().getDescription())}"/>
-                    </c:if>
-                    <c:if test="${!user.canEDIT_SECTION7() && !user.canEDIT_ALL_TEXTUAL()}">
-                        ${rlde.getConservation().getDescription()}
-                    </c:if>
+                    <t:editabletext
+                        privilege="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}"
+                        value="${rlde.getConservation().getDescription()}"
+                        name="conservation_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section7"><td class="title">7.2</td><td>Conservation plans</td><td>
@@ -1140,13 +1120,10 @@
                     </td></tr>
                 </c:if>
                 <tr class="section9 textual"><td class="title">9.3</td><td>Assessment justification</td><td>
-                    <c:if test="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}">
-                        <div contenteditable="true" class="contenteditable">${rlde.getAssessment().getJustification()}</div>
-                        <input type="hidden" name="assessment_Justification" value="${fn:escapeXml(rlde.getAssessment().getJustification())}"/>
-                    </c:if>
-                    <c:if test="${!user.canEDIT_9_1_2_3_4() && !user.canEDIT_9_3_9_45()}">
-                        ${rlde.getAssessment().getJustification()}
-                    </c:if>
+                    <t:editabletext
+                        privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}"
+                        value="${rlde.getAssessment().getJustification()}"
+                        name="assessment_Justification"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section9"><td class="title">9.4</td><td>Regional assessment analysis</td><td>
@@ -1240,13 +1217,10 @@
                                 <td class="title">9.4.5</td>
                                 <td>Justification</td>
                                 <td>
-                                <c:if test="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}">
-                                    <div contenteditable="true" class="contenteditable">${rlde.getAssessment().getUpDownListingJustification()}</div>
-                                    <input type="hidden" name="assessment_UpDownListingJustification" value="${fn:escapeXml(rlde.getAssessment().getUpDownListingJustification())}"/>
-                                </c:if>
-                                <c:if test="${!user.canEDIT_9_1_2_3_4() && !user.canEDIT_9_3_9_45()}">
-                                    ${rlde.getAssessment().getUpDownListingJustification()}
-                                </c:if>
+                                    <t:editabletext
+                                        privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}"
+                                        value="${rlde.getAssessment().getUpDownListingJustification()}"
+                                        name="assessment_UpDownListingJustification"/>
                                 </td>
                             </tr>
                         </table>

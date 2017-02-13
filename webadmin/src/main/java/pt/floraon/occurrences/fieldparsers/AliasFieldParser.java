@@ -1,6 +1,7 @@
-package pt.floraon.occurrences.fieldmappers;
+package pt.floraon.occurrences.fieldparsers;
 
-import pt.floraon.occurrences.entities.newOccurrence;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.entities.Inventory;
 
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public class AliasFieldParser implements FieldParser {
     }
 
     @Override
-    public void parseValue(String inputValue, String inputFieldName, newOccurrence occurrence) throws IllegalArgumentException {
+    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
         this.mappings.get(this.baseName).parseValue(inputValue, this.baseName, occurrence);
     }
 }
