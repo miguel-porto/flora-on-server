@@ -13,7 +13,7 @@ public class LatitudeLongitudeParser implements FieldParser {
     @Override
     public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException {
         if(inputValue == null || inputValue.trim().equals("")) return;
-
+// TODO parse other lat long formats
         float v;
         try {
             v = Float.parseFloat(inputValue);
@@ -23,11 +23,11 @@ public class LatitudeLongitudeParser implements FieldParser {
 
         switch(inputFieldName) {
             case "latitude":
-                occurrence.getSpeciesList().setLatitude(v);
+                occurrence.getInventoryData().setLatitude(v);
                 break;
 
             case "longitude":
-                occurrence.getSpeciesList().setLongitude(v);
+                occurrence.getInventoryData().setLongitude(v);
                 break;
 
             default:

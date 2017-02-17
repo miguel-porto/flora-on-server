@@ -9,10 +9,10 @@ h3 {margin:0}
 p {margin:3px;}
 #loader {position:fixed;width:100%;height:100%;top:0;left:0;text-align:center;font-size:3em;display:none;}
 #loader #loadermsg {margin:20% 35%;padding:10px;background-color:rgba(255,255,255,0.35);box-shadow:0 0 5px black;border-radius:12px;text-align:center;}
-::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
-:-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
-::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.9em}
-:-ms-input-placeholder {color:#999;font-style:italic;font-size:0.9em}
+::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.8em}
+:-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.8em}
+::-moz-placeholder {color:#999;opacity:1;font-style:italic;font-size:0.8em}
+:-ms-input-placeholder {color:#999;font-style:italic;font-size:0.8em}
 ul.menu {padding:0}
 ul.menu li {display:inline-block;list-style-type:none;border-radius:5px;box-shadow:0 0 2px gray;padding:1px 6px;margin:4px;background:linear-gradient(170deg,#fff,#f2f2f2);line-height:1.7em;white-space:nowrap;font-weight:bold;font-size:0.9em;color:#444;}
 .editable ul.menu li {cursor:pointer;}
@@ -23,25 +23,25 @@ p.error {color:red;font-weight:bold;}
 
 label input {vertical-align:middle;}
 
-.outer {background-color: #ddc; border-radius:16px; padding:50px; margin:50px; display:flex; flex-wrap: wrap; justify-content: center; align-items:stretch}
+.outer {background-color: #eed; padding:50px; width:480px; margin:0 auto 200px auto;}
 .bigbutton {
     margin:30px;
+    padding:8px;
     text-align:center;
-    display:inline-block;
     border-radius:6px;
     box-shadow:0 0 12px #777;
     color:white;
     opacity:0.9;
-    flex: 1 1 40%;
-    max-width: 400px;
+    min-height:140px;
 }
 .bigbutton:hover {opacity:1}
 
-.bigbutton.section1 {background-color: #81c784; padding:10px; text-align:right}
+#logindiv {position:fixed; bottom:0; left:0; background-color: #ddd; box-shadow: 0 0 12px #777; text-align:right; padding:12px; z-index:1; border-radius:4px}
+.bigbutton.section1 form {margin:10px; display: inline-block;}
 .bigbutton.section2 {background-color: #8bc34a;}
 .bigbutton.section3 {background-color: #f44336;}
-.bigbutton.section4 {background-color: #2196f3}
-.bigbutton h1 {padding:10px 30px 30px 10px; display:inline-block; font-size:2em; color:white; font-weight:normal}
+.bigbutton.section4 {background-color: #2196f3; filter: blur(2px);}
+.bigbutton h1 {padding:0px 10px; font-size:2em; color:white; font-weight:normal}
 .bigbutton h1>a { color:white; font-weight:normal;}
 .bigbutton .subbutton {
     background-color:#2979ff;

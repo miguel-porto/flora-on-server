@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.csv.CSVPrinter;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 
@@ -53,7 +54,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 
 	public Set<String> inferEndemismDegree() {
 		if(!this.worldDistributionCompleteness) return Collections.emptySet();
-		return Constants.getNamesSet(new ListOfTerritoryStatus(territories).computeNativeExtent(this.worldDistributionCompletenessTaxEnt.getID()));
+		return StringUtils.getNamesSet(new ListOfTerritoryStatus(territories).computeNativeExtent(this.worldDistributionCompletenessTaxEnt.getID()));
 	}
 	
 	public Map<String, Set<Territory>> inferRestrictedTo(Set<String> territorySet) {

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.server.FloraOnServlet;
@@ -13,6 +14,7 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.ListIterator;
@@ -91,6 +93,20 @@ public class AdminAPI extends FloraOnServlet {
             case "removetaxonprivileges":
                 success(driver.getAdministration().removeTaxonPrivileges(getParameterAsKey("userId")
                         , getParameterAsInt("index")).getID());
+                break;
+
+            case "updatetaxonprivileges":
+                String[] taxa1 = request.getParameterValues("applicableTaxa");
+                if(taxa1 == null || taxa1.length == 0) throw new FloraOnException("You must select at least one taxon.");
+                User u1 = driver.getAdministration().getUser(getParameterAsKey("userId"));
+                int ps = getParameterAsInt("privilegeSet");
+
+                String[] newTaxa = (String[]) ArrayUtils.addAll(
+                        u1.getTaxonPrivileges().get(ps).getApplicableTaxa()
+                        , taxa1);
+
+                u1.getTaxonPrivileges().get(ps).setApplicableTaxa(newTaxa);
+                success(driver.getAdministration().updateUser(getParameterAsKey("userId"), u1).getID());
                 break;
 
             default:

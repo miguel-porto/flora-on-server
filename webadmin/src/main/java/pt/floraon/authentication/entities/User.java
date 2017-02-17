@@ -20,6 +20,7 @@ public class User extends NamedDBNode {
 	private UserType userType;
 	private Set<Privileges> privileges = new HashSet<>();
 	private List<TaxonPrivileges> taxonPrivileges;
+	private List<String> uploadedTables;
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)
@@ -96,6 +97,20 @@ public class User extends NamedDBNode {
 	@Override
 	public String toJsonString() {
 		return this.toJson().toString();
+	}
+
+	public List<String> getUploadedTables() {
+		return uploadedTables == null ? Collections.<String>emptyList() : uploadedTables;
+	}
+
+	public void setUploadedTables(List<String> uploadedTables) {
+		this.uploadedTables = uploadedTables;
+	}
+
+	public void addUploadedTable(String uploadedTable) {
+		if(uploadedTables == null)
+			uploadedTables = new ArrayList<>();
+		uploadedTables.add(uploadedTable);
 	}
 
 	public Set<Privileges> getPrivileges() {return privileges;}
@@ -373,14 +388,6 @@ public class User extends NamedDBNode {
 	public void setTaxonPrivileges(List<TaxonPrivileges> taxonPrivileges) {
 		this.taxonPrivileges = taxonPrivileges;
 	}
-
-	//	public String[] getApplicableTaxa() {
-//		return applicableTaxa;
-//	}
-//
-//	public void setApplicableTaxa(String[] applicableTaxa) {
-//		addTaxonPrivileges(applicableTaxa, this.privileges);
-//	}
 
 	/**
 	 * Sets the effective privileges for the given taxon

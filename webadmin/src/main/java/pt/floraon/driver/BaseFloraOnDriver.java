@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import com.arangodb.ArangoCursor;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
@@ -13,6 +12,7 @@ import com.google.gson.JsonObject;
 
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.InferredStatus;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
@@ -42,7 +42,7 @@ public class BaseFloraOnDriver {
 		Gson gson = new Gson();
 		Map<String,InferredStatus> tStatus;
 		Set<String> terr = new HashSet<String>();
-		terr.addAll(Constants.getIDsList(this.driver.getListDriver().getChecklistTerritories()));
+		terr.addAll(StringUtils.getIDsList(this.driver.getListDriver().getChecklistTerritories()));
 		
 		while(it.hasNext()) {
 			tmp = it.next();

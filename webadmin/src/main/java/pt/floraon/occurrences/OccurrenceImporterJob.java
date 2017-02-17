@@ -7,7 +7,11 @@ import com.google.gson.GsonBuilder;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import pt.floraon.driver.*;
+import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.INodeWorker;
+import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryData;
@@ -20,10 +24,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Imports occurrences from text files.
- * Created by miguel on 08-02-2017.
+ * Created by miguel on 15-02-2017.
  */
-public class OccurrenceImporter extends BaseFloraOnDriver {
+public class OccurrenceImporterJob implements JobTask {
+    private InputStream stream;
+    private User user;
+    private long countupd=0,countnew=0,counterr=0,nrecs=0;
+    private long newsplist=0;
+    private long counter=0;
+
     /**
      * Holds the aliases mappings
      */
@@ -34,8 +43,9 @@ public class OccurrenceImporter extends BaseFloraOnDriver {
      */
     Map<String, String> userMap = new HashMap<>();
 
-    public OccurrenceImporter(IFloraOn driver) {
-        super(driver);
+    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user) {
+        this.stream = stream;
+        this.user = user;
         fieldMappings.put("latitude", new LatitudeLongitudeParser());
         fieldMappings.put("longitude", new LatitudeLongitudeParser());
         fieldMappings.put("taxa", new TaxaParser());
@@ -50,19 +60,10 @@ public class OccurrenceImporter extends BaseFloraOnDriver {
         fieldMappings.put("determiners", new UserListParser(userMap, driver));
     }
 
-    public Map<String, Object> uploadRecordsFromFile(String filename) throws IOException, FloraOnException {
-        File file=new File(filename);
-        if(!file.canRead()) throw new IOException("Cannot read file "+filename);
-        return uploadRecordsFromStream(new FileInputStream(file));
-    }
-
-    public Map<String,Object> uploadRecordsFromStream(InputStream stream) throws IOException, FloraOnException {
+    @Override
+    public void run(IFloraOn driver) throws FloraOnException, IOException {
         INodeWorker nwd = driver.getNodeWorkerDriver();
-        Map<String,Object> out = new HashMap<String,Object>();
         Reader freader;
-        long countupd=0,countnew=0,counterr=0,nrecs=0;
-        long newsplist=0;
-        long counter=0;
         Map<Long,String> lineerrors=new HashMap<Long,String>();
         System.out.print("Reading records ");
 
@@ -147,15 +148,11 @@ public class OccurrenceImporter extends BaseFloraOnDriver {
         ObjectOutputStream oost = new ObjectOutputStream(new FileOutputStream(temp));
         oost.writeObject(invList);
         oost.close();
+        nwd.addUploadedTableToUser(temp.getName(), driver.asNodeKey(user.getID()));
+    }
 
-        out.put("speciesListsAdded", newsplist);
-        out.put("speciesListsUpdated", countupd);
-        out.put("newObservationsInserted", countnew);
-        out.put("linesSkipped", counterr);
-        out.put("linesProcessed", counter);
-        out.put("errors", lineerrors);
-        out.put("file", temp.getName());
-
-        return out;
+    @Override
+    public String getState() {
+        return "Nº records processed: " + nrecs;
     }
 }

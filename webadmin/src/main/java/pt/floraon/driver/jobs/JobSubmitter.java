@@ -18,8 +18,8 @@ public final class JobSubmitter {
 		return j;
 	}
 
-	public static JobRunnerTask newJobTask(JobTask job, Object options, IFloraOn driver) throws IOException {
-		JobRunnerTask j = new JobRunnerTask(job, options, driver);
+	public static JobRunnerTask newJobTask(JobTask job, IFloraOn driver) throws IOException {
+		JobRunnerTask j = new JobRunnerTask(job, driver);
 		JobSubmitter.jobs.put(j.getID(), j);
 		new Thread(j).start();
 		return j;

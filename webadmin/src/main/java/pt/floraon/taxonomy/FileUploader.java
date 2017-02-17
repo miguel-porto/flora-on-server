@@ -1,15 +1,27 @@
 package pt.floraon.taxonomy;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.Part;
 
 import com.google.gson.Gson;
+import pt.floraon.driver.jobs.ChecklistDownload;
+import pt.floraon.driver.jobs.JobRunnerFileDownload;
+import pt.floraon.driver.jobs.JobRunnerTask;
+import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.server.FloraOnServlet;
 
+@MultipartConfig
 public class FileUploader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	private String filePath;
@@ -35,18 +47,38 @@ public class FileUploader extends FloraOnServlet {
 			break;
 		
 		case "occurrences":
+			File file = new File(getParameterAsString("file"));
+			if(!file.canRead()) throw new IOException("Cannot read file "+getParameterAsString("file"));
+			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, getUser()), driver);
+			success(job.getID());
+/*
 			success(
 				new Gson().toJsonTree(driver.getCSVFileProcessor().getOccurrenceImporter().uploadRecordsFromFile(getParameterAsString("file")))
 			);
+*/
 			break;
 		}
 	}
 	
 	/**
-	 * Upload a file, store it locally and call the processing routine.
+	 * Upload a file, call the processing routine and store it locally in /tmp
 	 */
 	@Override
-	public void doFloraOnPost() throws ServletException {
+	public void doFloraOnPost() throws ServletException, IOException {
+		Part filePart;
+		InputStream fileContent = null;
+		try {
+			filePart = request.getPart("occurrenceTable");
+			fileContent = filePart.getInputStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if(fileContent != null) {
+			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(fileContent, driver, getUser()), driver);
+			success(job.getID());
+		}
+
       // Check that we have a file upload request
 	/*
   boolean isMultipart = ServletFileUpload.isMultipartContent(request);

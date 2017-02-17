@@ -14,6 +14,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
+	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/occurrences.css?nocache=${uuid}"/>
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
 	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
@@ -27,7 +28,11 @@
 </head>
 <body class="occurrencespage">
     <div id="occurrencetoolbar">TOOLS</div>
-    <div id="occurrencetable"></div>
+    <div id="occurrencetable">
+        <c:if test="${user.getUserType() == 'ADMINISTRATOR'}">
+        <jsp:include page="occurrences-pages.jsp"></jsp:include>
+        </c:if>
+    </div>
     <div id="occurrencemap"><div id="mapcontainer"></div></div>
 </body>
 </html>

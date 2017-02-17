@@ -17,8 +17,17 @@ public class Inventory implements Serializable {
     private InventoryData speciesList;
     private List<newOBSERVED_IN> observedIn = new ArrayList<>();
 
-    public InventoryData getSpeciesList() {
+    public InventoryData getInventoryData() {
         return speciesList;
+    }
+
+    public Inventory() {
+        this.speciesList = new InventoryData();
+    }
+
+    public Inventory(Inventory other) {
+        this.speciesList = other.speciesList;
+        this.observedIn = other.observedIn;
     }
 
     public void setSpeciesList(InventoryData speciesList) {
@@ -37,6 +46,7 @@ public class Inventory implements Serializable {
         this.observedIn.add(observedIn);
     }
 
+/*
     public static Inventory fromCSVline(CSVRecord record, Map<String, FieldParser> fieldParsers, Inventory existingInventory) throws FloraOnException {
 //        newOBSERVED_IN obs = new newOBSERVED_IN();
         if(existingInventory == null) {
@@ -50,5 +60,21 @@ public class Inventory implements Serializable {
             fieldParsers.get(e.getKey()).parseValue(e.getValue(), e.getKey(), existingInventory);
         }
         return existingInventory;
+    }
+*/
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Inventory inventory = (Inventory) o;
+
+        return speciesList.equals(inventory.speciesList);
+    }
+
+    @Override
+    public int hashCode() {
+        return speciesList.hashCode();
     }
 }

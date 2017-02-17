@@ -29,6 +29,7 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.occurrences.entities.Author;
 import pt.floraon.morphology.entities.Character;
@@ -163,7 +164,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			
 			case VERTEX:
 				// we do it manually cause we want the IDs of everything that was deleted
-				String query = AQLQueries.getString("NodeWorkerDriver.2", id.getID(), Constants.implode(",", RelTypes.values()));
+				String query = AQLQueries.getString("NodeWorkerDriver.2", id.getID(), StringUtils.implode(",", RelTypes.values()));
 				ArangoKey tmp;
 				ArangoCursor<String> toDelete = database.query(query, null, null, String.class);
 				if(toDelete.getWarnings().size() > 0)
@@ -281,6 +282,16 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			} catch (ArangoDBException | SecurityException | IllegalArgumentException e) {
 				throw new DatabaseException(e.getMessage());
 			}
+		}
+	}
+
+	@Override
+	public void addUploadedTableToUser(String uploadedTableFilename, INodeKey userId) throws DatabaseException {
+		try {
+			database.query(AQLQueries.getString("NodeWorkerDriver.14", userId.getID(), uploadedTableFilename), null
+			, null, null);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 

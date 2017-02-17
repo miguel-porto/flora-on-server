@@ -21,9 +21,14 @@ import java.util.Map;
  */
 public class UpdateNativeStatusJob implements JobTask {
     private int n = 0, total;
+    private String territory;
+
+    UpdateNativeStatusJob(String territory) {
+        this.territory = territory;
+    }
+
     @Override
-    public void run(IFloraOn driver, Object options) throws FloraOnException, IOException {
-        String territory = (String) options;
+    public void run(IFloraOn driver) throws FloraOnException, IOException {
         Log.info("Updating red list dataset for " + territory);
         List<RedListDataEntity> rldel = driver.getRedListData().getAllRedListTaxa(territory, false);
         total = rldel.size();

@@ -167,9 +167,9 @@ public interface INodeWorker {
 	/**
 	 * Low-level document updater. Adds or changes any attribute in any node.
 	 *
-	 * @param id
-	 * @param key
-	 * @param value
+	 * @param id The ID of the document
+	 * @param key The name of the attribute to replace
+	 * @param value The value to replace
 	 * @return
 	 * @throws FloraOnException
 	 */
@@ -217,4 +217,5 @@ public interface INodeWorker {
 
 	<T extends DBEntity> T getNode(INodeKey id) throws FloraOnException;
 
+	void addUploadedTableToUser(String uploadedTableFilename, INodeKey userId) throws DatabaseException;
 }

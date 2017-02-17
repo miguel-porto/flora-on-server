@@ -19,8 +19,8 @@ import java.util.*;
 import java.util.List;
 
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
-import static pt.floraon.driver.Constants.cleanArray;
-import static pt.floraon.driver.Constants.sanitizeHtmlId;
+import static pt.floraon.driver.utils.StringUtils.cleanArray;
+import static pt.floraon.driver.utils.StringUtils.sanitizeHtmlId;
 
 /**
  * Main page of red list data

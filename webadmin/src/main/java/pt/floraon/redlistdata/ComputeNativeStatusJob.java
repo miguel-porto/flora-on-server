@@ -15,9 +15,14 @@ import java.util.List;
  */
 public class ComputeNativeStatusJob implements JobTask {
     private int n = 0, total;
+    private String territory;
+
+    ComputeNativeStatusJob(String territory) {
+        this.territory = territory;
+    }
+
     @Override
-    public void run(IFloraOn driver, Object options) throws FloraOnException, IOException {
-        String territory = (String) options;
+    public void run(IFloraOn driver) throws FloraOnException, IOException {
         System.out.println("Creating red list dataset for " + territory);
         List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
         total = taxEntList.size();

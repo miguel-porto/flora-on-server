@@ -6,8 +6,8 @@
 	<title>Taxonomy &amp; Checklist Manager</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" href="base.css"/>
-	<link rel="stylesheet" type="text/css" href="checklist.css"/>
+	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
+	<link rel="stylesheet" type="text/css" href="checklist.css?nocache=${uuid}"/>
 	<script type="text/javascript" src="basefunctions.js"></script>
 	<script type="text/javascript" src="suggestions.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>

@@ -1095,7 +1095,7 @@
                                 <c:forEach var="cri" items="${assessment_Criteria.entrySet()}">
                                     <tr><td class="title">${cri.getKey()}</td>
                                     <td>
-                                    <div class="multiplechooser left">
+                                    <div class="multiplechooser left compact">
                                     <c:forEach var="sub" items="${cri.getValue()}">
                                         <c:if test="${selcriteria.contains(sub)}">
                                             <input type="checkbox" name="assessment_Criteria" id="acri_${sub}" value="${sub}" checked="checked"/>
@@ -1588,17 +1588,28 @@
                     <tbody>
                     <c:forEach var="tsp" items="${tsprivileges}" varStatus="loop">
                         <tr>
-                            <td><ul>
-                            <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
-                                <li>${taxonMap.get(tax)}</li>
-                            </c:forEach>
-                            </ul></td>
-                            <td>
+                            <td style="width:20%; vertical-align:top;">
+                                <ul>
+                                <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
+                                    <li>${taxonMap.get(tax)}</li>
+                                </c:forEach>
+                                </ul>
+                                <form class="poster" data-path="/floraon/admin/updatetaxonprivileges" data-refresh="true">
+                                    <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
+                                    <input type="hidden" name="privilegeSet" value="${loop.index}"/>
+                                    <div class="withsuggestions">
+                                        <input type="text" name="query" class="nochangeevent" placeholder="<fmt:message key="DataSheet.msg.typeletters"/>" autocomplete="off" id="taxonbox_group_${loop.index}"/>
+                                        <div id="suggestions_group_${loop.index}"></div>
+                                    </div>
+                                    <div class="multiplechooser" id="taxa_group_${loop.index}"></div>
+                                    <input type="submit" value="Add taxa to this group" class="textbutton"/>
+                                </form>
+                            </td><td>
                             <c:forEach var="pri" items="${tsp.getPrivileges()}">
                                 <div class="wordtag">${pri.toString()}</div>
                             </c:forEach>
                             </td>
-                            <td>
+                            <td style="width:0;">
                                 <form class="poster" data-path="/floraon/admin/removetaxonprivileges" data-refresh="true">
                                     <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                                     <input type="hidden" name="index" value="${loop.index}"/>

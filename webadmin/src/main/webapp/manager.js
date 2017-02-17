@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center">don\'t navigate away from this page...</p></div>');
 					var link=rt.msg;
 					timer=setInterval(function() {
-						fetchAJAX('/floraon/checklist/api/job/'+rt.msg+'?query=1',function(rt) {
+						fetchAJAX('/floraon/job/'+rt.msg+'?query=1',function(rt) {
 							rt=JSON.parse(rt);
 							if(rt.success) {
 								if(rt.msg.ready) {
@@ -145,9 +145,9 @@ document.addEventListener('DOMContentLoaded', function() {
 									var wnd1=document.getElementById('checklink');
 									if(wnd1) {
 										wnd1.querySelector('h1').innerHTML='Checklist ready!';
-										wnd1.querySelector('p.content').innerHTML='<a href="/floraon/checklist/api/job/'+link+'" target="_blank">click here to download</a>';
+										wnd1.querySelector('p.content').innerHTML='<a href="/floraon/job/'+link+'" target="_blank">click here to download</a>';
 									} else {
-										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/floraon/checklist/api/job/'+link+'" target="_blank">click here to download</a></p></div>');
+										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/floraon/job/'+link+'" target="_blank">click here to download</a></p></div>');
 									}
 								}
 							} else {

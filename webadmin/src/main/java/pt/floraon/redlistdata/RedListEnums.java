@@ -746,14 +746,14 @@ public class RedListEnums {
         , B2ciii    ("B2c(iii)", "B", "2", "c", "iii", false)
         , B2civ     ("B2c(iv)", "B", "2", "c", "iv", true)
 
-        , C1        ("C1", "C", "1", null, null, true)
+        , C1        ("C1", "C", "1", null, null, false)
         , C2ai      ("C2a(i)", "C", "2", "a", "i", false)
-        , C2aii     ("C2a(ii)", "C", "2", "a", "ii", true)
-        , C2b       ("C2b", "C", "2", "b", null, true)
+        , C2aii     ("C2a(ii)", "C", "2", "a", "ii", false)
+        , C2b       ("C2b", "C", "2", "b", null, false)
 
-        , D         ("D", "D", null, null, null, true)
-        , D1        ("D1", "D", "1", null, null, true)
-        , D2        ("D2", "D", "2", null, null, true)
+        , D         ("D", "D", null, null, null, false)
+        , D1        ("D1", "D", "1", null, null, false)
+        , D2        ("D2", "D", "2", null, null, false)
 
         , E         ("E", "E", null, null, null, false);
 

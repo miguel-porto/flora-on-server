@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.server.FloraOnServlet;
 
@@ -26,7 +27,7 @@ public class TaxDetails extends FloraOnServlet {
 		/*if(taxent.getRank().getValue() > OccurrenceConstants.TaxonRanks.FAMILY.getValue())
 			request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus(null).entrySet());*/
 		request.setAttribute("inferredNativeStatus", driver.wrapTaxEnt(id).getInferredNativeStatus().entrySet());
-		request.setAttribute("restrictedTo", driver.wrapTaxEnt(id).getRestrictedTo(Constants.getIDsList(driver.getListDriver().getChecklistTerritories())));
+		request.setAttribute("restrictedTo", driver.wrapTaxEnt(id).getRestrictedTo(StringUtils.getIDsList(driver.getListDriver().getChecklistTerritories())));
 		request.setAttribute("TaxonRanks", Constants.TaxonRanks.values());
 		request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
 		request.setAttribute("occurrenceStatus", Constants.OccurrenceStatus.values());

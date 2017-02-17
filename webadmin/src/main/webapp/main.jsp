@@ -1,43 +1,46 @@
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page session="false" %>
+<c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
+<fmt:setLocale value="${language}" />
+<fmt:setBundle basename="pt.floraon.driver.globalMessages" />
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Taxonomy &amp; Checklist Manager</title>
-	<link rel="stylesheet" type="text/css" href="base.css"/>
+	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 </head>
 <body style="text-align:center">
+    <div id="logindiv">
+    <c:choose>
+        <c:when test="${user.isGuest()}">
+            <form action="login" method="post" id="loginform">
+                <table>
+                <c:if test="${param.reason!=null}">
+                Incorrect username or password.
+                </c:if>
+                <tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
+                <tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
+                </table>
+                <input type="submit" class="subbutton" value="Login"/>
+            </form>
+        </c:when>
+        <c:otherwise>
+            <p>Welcome <c:out value="${user.getName()}"></c:out></p>
+            <form action="login" method="post">
+                <input type="hidden" name="logout" value="1"/>
+                <input type="submit" value="Logout"/>
+            </form>
+        </c:otherwise>
+    </c:choose>
+    </div>
     <div class="outer">
-        <div class="bigbutton section1">
-        <c:choose>
-            <c:when test="${user.isGuest()}">
-                <form action="login" method="post" id="loginform">
-                    <table>
-                    <c:if test="${param.reason!=null}">
-                    Incorrect username or password.
-                    </c:if>
-                    <tr><td>Username:</td><td><input type="text" name="username"/></td></tr>
-                    <tr><td>Password:</td><td><input type="password" name="password"/></td></tr>
-                    </table>
-                    <input type="submit" class="subbutton" value="Login"/>
-                </form>
-            </c:when>
-            <c:otherwise>
-                <p>Welcome <c:out value="${user.getName()}"></c:out></p>
-                <form action="login" method="post">
-                    <input type="hidden" name="logout" value="1"/>
-                    <input type="submit" value="Logout"/>
-                </form>
-            </c:otherwise>
-        </c:choose>
-        </div>
-
         <div class="bigbutton section2">
-            <h1><a href="/floraon/checklist">Checklist manager</a></h1>
+            <h1><a href="/floraon/checklist"><fmt:message key="Modules.2"/></a></h1>
         </div>
 
         <div class="bigbutton section3">
-            <h1>Red list data portal</h1>
+            <h1><fmt:message key="Modules.1"/></h1>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
                 <div class="subbutton"><a href="/floraon/redlist">create new red list dataset</a></div>
             </c:if>
@@ -49,7 +52,7 @@
         </div>
 
         <div class="bigbutton section4">
-            <h1><a href="/floraon/occurrences">Occurrence manager</a></h1>
+            <h1><a href="/floraon/occurrences"><fmt:message key="Modules.3"/></a></h1><p>under construction</p>
         </div>
     </div>
 

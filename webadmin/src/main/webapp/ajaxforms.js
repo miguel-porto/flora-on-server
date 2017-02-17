@@ -1,10 +1,15 @@
 /**
 	Forms must have a data-path attribute
 */
-function formPoster(ev) {
+function formPoster(ev, callback) {
 	ev.preventDefault();
 	postAJAXForm(ev.target.getAttribute('data-path'), ev.target, function(rt) {
 		var rt1=JSON.parse(rt);
+		if(callback) {
+		    callback(rt1);
+		    return;
+		}
+
 		if(rt1.success) {
 		    if(rt1.msg && rt1.msg.alert)
 		        alert(rt1.msg.text);
@@ -22,9 +27,13 @@ function formPoster(ev) {
 	});
 }
 
-function attachFormPosters() {
+function attachFormPosters(callback) {
 	var forms=document.querySelectorAll('form.poster');
 	for(var i=0;i<forms.length;i++) {
-		addEvent('submit',forms[i],formPoster);
+	    if(callback) {
+	        addEvent('submit', forms[i], function(ev) {
+	            formPoster.call(this, ev, callback);
+	        });
+	    } else addEvent('submit',forms[i],formPoster);
 	}
 }

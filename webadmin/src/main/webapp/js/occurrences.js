@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
     L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(mymap);
 
+    attachFormPosters(fileUploadCallback);
+
 /*
     var viewer = OpenSeadragon({
         id: 'mapcontainer',
@@ -27,3 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 */
 });
+
+function fileUploadCallback(resp) {
+    if(resp.success) alert("AAAA"+resp.msg);
+}

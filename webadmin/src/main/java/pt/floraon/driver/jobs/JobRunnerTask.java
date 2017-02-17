@@ -10,18 +10,18 @@ import java.util.UUID;
  * Created by miguel on 10-11-2016.
  */
 public class JobRunnerTask implements JobRunner {
-    private Object options;
+//    private Object options;
     private boolean isClosed, hasError = false;
     private String uuid, desiredFileName, errorMessage;
     private IFloraOn driver;
     private JobTask job;
 
-    public JobRunnerTask(JobTask job, Object options, IFloraOn driver) throws IOException {
+    public JobRunnerTask(JobTask job, IFloraOn driver) throws IOException {
         this.isClosed = false;
         this.uuid = UUID.randomUUID().toString();
         this.job = job;
         this.driver = driver;
-        this.options = options;
+//        this.options = options;
     }
 
     public String getID() {
@@ -46,7 +46,7 @@ public class JobRunnerTask implements JobRunner {
     @Override
     public void run() {
         try {
-            this.job.run(this.driver, this.options);
+            this.job.run(this.driver);
             isClosed=true;
             JobSubmitter.jobs.remove(this.uuid);
         } catch (FloraOnException | IOException e) {

@@ -2,20 +2,16 @@ package pt.floraon.redlistdata.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
-import jline.internal.Log;
-import org.jsoup.Jsoup;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static pt.floraon.driver.Constants.*;
 
@@ -129,7 +125,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         if(tags == null) return new String[0];
         List<String> out = new ArrayList<>();
         for(String s : tags)
-            if(s != null) out.add(sanitizeHtmlId(s));
+            if(s != null) out.add(StringUtils.sanitizeHtmlId(s));
         return out.toArray(new String[out.size()]);
     }
 
@@ -179,7 +175,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setTags(String[] tags) {
-        this.tags = cleanArray(tags);
+        this.tags = StringUtils.cleanArray(tags);
     }
 
     public void setTaxonomicProblemDescription(String taxonomicProblemDescription) {
@@ -350,7 +346,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
         this.getEcology().setHabitatTypes(tmp.toArray(new RedListEnums.HabitatTypes[0]));
 */
-        this.ecology.setHabitatTypes(stringArrayToEnumArray(habitatTypes, RedListEnums.HabitatTypes.class));
+        this.ecology.setHabitatTypes(StringUtils.stringArrayToEnumArray(habitatTypes, RedListEnums.HabitatTypes.class));
     }
 
     public void setEcology_GenerationLength(String generationLength) {
@@ -393,7 +389,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
         this.getUsesAndTrade().setUses(tmp.toArray(new RedListEnums.Uses[0]));
 */
-        this.getUsesAndTrade().setUses(stringArrayToEnumArray(uses, RedListEnums.Uses.class));
+        this.getUsesAndTrade().setUses(StringUtils.stringArrayToEnumArray(uses, RedListEnums.Uses.class));
     }
 
     public void setUsesAndTrade_Traded(boolean traded) {
@@ -484,7 +480,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
         this.conservation.setProposedConservationActions(tmp.toArray(new RedListEnums.ProposedConservationActions[0]));
 */
-        this.conservation.setProposedConservationActions(stringArrayToEnumArray(proposedConservationActions, RedListEnums.ProposedConservationActions.class));
+        this.conservation.setProposedConservationActions(StringUtils.stringArrayToEnumArray(proposedConservationActions, RedListEnums.ProposedConservationActions.class));
     }
 
     public void setConservation_ProposedStudyMeasures(String[] proposedStudyMeasures) {
@@ -499,7 +495,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
         this.conservation.setProposedStudyMeasures(tmp.toArray(new RedListEnums.ProposedStudyMeasures[0]));
 */
-        this.conservation.setProposedStudyMeasures(stringArrayToEnumArray(proposedStudyMeasures, RedListEnums.ProposedStudyMeasures.class));
+        this.conservation.setProposedStudyMeasures(StringUtils.stringArrayToEnumArray(proposedStudyMeasures, RedListEnums.ProposedStudyMeasures.class));
     }
 
     public void setConservation_ConservationPlansJustification(String conservationPlansJustification) {
@@ -563,7 +559,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setAssessment_Criteria(String[] criteria) {
-        this.getAssessment().setCriteria(stringArrayToEnumArray(criteria, RedListEnums.AssessmentCriteria.class));
+        this.getAssessment().setCriteria(StringUtils.stringArrayToEnumArray(criteria, RedListEnums.AssessmentCriteria.class));
     }
 
     public void setAssessment_Justification(String justification) {
@@ -737,30 +733,6 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return responsibleAuthors_Revision;
     }
 
-    public static boolean isArrayEmpty(Object[] array) {
-        return array == null || array.length == 0 || (array.length == 1 && array[0] == null);
-    }
-
-    public static <T extends Enum<T>> T[] stringArrayToEnumArray(String[] stringArray, Class<T> clazz) {
-        List<T> tmp = new ArrayList<>();
-        boolean addNull = false;
-        for(String s : stringArray) {
-            if(s == null || s.length() == 0) {
-                addNull = true;
-                continue;
-            }
-            try {
-                tmp.add(T.valueOf(clazz, s));
-            } catch (IllegalArgumentException e) {
-                Log.warn("Enum value " + s + " not found in " + clazz.toString());
-            }
-        }
-
-        // this is to distinguish between a null value and an empty array
-        if(tmp.size() == 0 && addNull) tmp.add(null);
-        return tmp.toArray((T[]) Array.newInstance(clazz, tmp.size()));
-    }
-
     /**
      * Checks whether the assigned assessment criteria are valid, taking into account the info of the fields.
      * @return
@@ -780,7 +752,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             || pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_REDUCTION
                             || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30
                             || pop.getPopulationSizeReductionJustification() == null
-                            || cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
+                            || StringUtils.cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
                         warns.add("DataSheet.msg.warning.2");
                         alc.add("A");
                         break;
@@ -850,9 +822,9 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "a":
                             if(alc.contains("B2a")) break;
                             if(!(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
-                                    && !cleanText(pop.getSeverelyFragmentedJustification()).equals(""))
+                                    && !StringUtils.cleanText(pop.getSeverelyFragmentedJustification()).equals(""))
                                     && !(getThreats().getNumberOfLocations() != null && getThreats().getNumberOfLocations() <= 10
-                                    && !cleanText(getThreats().getNumberOfLocationsJustification()).equals(""))) {
+                                    && !StringUtils.cleanText(getThreats().getNumberOfLocationsJustification()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.8.1");
                                 alc.add("B2a");
                             }
@@ -862,7 +834,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             switch (cr.getSubsubsubCriteria()) {
                                 case "i":
                                     if(alc.contains("B2bi")) break;
-                                    if(cleanText(dist.getDeclineDistributionJustification()).equals("")
+                                    if(StringUtils.cleanText(dist.getDeclineDistributionJustification()).equals("")
                                             || (dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO
                                             && dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO_AOO)) {
                                         warns.add("DataSheet.msg.warning.8.2");
@@ -872,7 +844,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "ii":
                                     if(alc.contains("B2bii")) break;
-                                    if(cleanText(dist.getDeclineDistributionJustification()).equals("")
+                                    if(StringUtils.cleanText(dist.getDeclineDistributionJustification()).equals("")
                                             || (dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_AOO
                                             && dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO_AOO)) {
                                         warns.add("DataSheet.msg.warning.8.3");
@@ -882,7 +854,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "iii":
                                     if(alc.contains("B2biii")) break;
-                                    if(cleanText(getEcology().getDeclineHabitatQualityJustification()).equals("")
+                                    if(StringUtils.cleanText(getEcology().getDeclineHabitatQualityJustification()).equals("")
                                             || getEcology().getDeclineHabitatQuality() != RedListEnums.DeclineHabitatQuality.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.4");
                                         alc.add("B2biii");
@@ -891,7 +863,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "iv":
                                     if(alc.contains("B2biv")) break;
-                                    if(cleanText(getThreats().getDeclineNrLocationsJustification()).equals("")
+                                    if(StringUtils.cleanText(getThreats().getDeclineNrLocationsJustification()).equals("")
                                             || getThreats().getDeclineNrLocations() != RedListEnums.DeclineNrLocations.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.5");
                                         alc.add("B2biv");
@@ -900,7 +872,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "v":
                                     if(alc.contains("B2bv")) break;
-                                    if(cleanText(pop.getPopulationDeclineJustification()).equals("")
+                                    if(StringUtils.cleanText(pop.getPopulationDeclineJustification()).equals("")
                                             || pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.6");
                                         alc.add("B2bv");
@@ -931,7 +903,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "iii":
                                     if(alc.contains("B2ciii")) break;
-                                    if(cleanText(pop.getExtremeFluctuationsJustification()).equals("")
+                                    if(StringUtils.cleanText(pop.getExtremeFluctuationsJustification()).equals("")
                                             || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.8.9");
                                         alc.add("B2ciii");
@@ -940,7 +912,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "iv":
                                     if(alc.contains("B2civ")) break;
-                                    if(cleanText(getThreats().getExtremeFluctuationsNrLocationsJustification()).equals("")
+                                    if(StringUtils.cleanText(getThreats().getExtremeFluctuationsNrLocationsJustification()).equals("")
                                             || getThreats().getExtremeFluctuationsNrLocations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.8.10");
                                         alc.add("B2civ");
@@ -954,7 +926,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                 case "C":
                     if(alc.contains("C")) break;
-                    Integer nr = getMaxOfInterval(pop.getNrMatureIndividualsExact());
+                    Integer nr = StringUtils.getMaxOfInterval(pop.getNrMatureIndividualsExact());
                     if(pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.NO_DATA
                             || pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.GT_10000
                             || (nr != null && nr > 10000)) {
@@ -967,7 +939,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "1":
                             if(alc.contains("C1")) break;
                             if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
-                                    || cleanText(pop.getPopulationDeclineJustification()).equals("")
+                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification()).equals("")
                                     || pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 10) {
                                 warns.add("DataSheet.msg.warning.9.1");
                                 alc.add("C1");
@@ -977,7 +949,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "2":
                             if(alc.contains("C2")) break;
                             if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
-                                    || cleanText(pop.getPopulationDeclineJustification()).equals("")) {
+                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification()).equals("")) {
                                 warns.add("DataSheet.msg.warning.9.2");
                                 alc.add("C2");
                                 break;
@@ -1008,7 +980,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "b":
                                     if(alc.contains("C2b")) break;
-                                    if(cleanText(pop.getExtremeFluctuationsJustification()).equals("")
+                                    if(StringUtils.cleanText(pop.getExtremeFluctuationsJustification()).equals("")
                                             || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.9.5");
                                         alc.add("C2b");
@@ -1028,7 +1000,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         break;
                     }
 
-                    Integer nr1 = getMaxOfInterval(pop.getNrMatureIndividualsExact());
+                    Integer nr1 = StringUtils.getMaxOfInterval(pop.getNrMatureIndividualsExact());
                     switch(cr.getSubCriteria()) {
                         case "1":
                             if(alc.contains("D1")) break;
@@ -1046,7 +1018,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             if(alc.contains("D2")) break;
                             if(!(dist.getAOO() != null && dist.getAOO() <= 20)
                                     && !(getThreats().getNumberOfLocations() != null && getThreats().getNumberOfLocations() <= 6
-                                        && !cleanText(getThreats().getNumberOfLocationsJustification()).equals(""))) {
+                                        && !StringUtils.cleanText(getThreats().getNumberOfLocationsJustification()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.11");
                                 alc.add("D2");
                             }
@@ -1060,7 +1032,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             || pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_REDUCTION
                             || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 10
                             || pop.getPopulationSizeReductionJustification() == null
-                            || cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
+                            || StringUtils.cleanText(pop.getPopulationSizeReductionJustification()).equals("")) {
                         warns.add("DataSheet.msg.warning.5");
                         alc.add("E");
                     }
@@ -1068,22 +1040,6 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
             }
         }
         return warns;
-    }
-
-    public static Integer getMaxOfInterval(String interval) {
-        // FIXME this must process numeric ranges
-        Pattern intervalMatch = Pattern.compile("^([0-9]+) *- *([0-9]+)$");
-        Matcher mat = intervalMatch.matcher(interval);
-        try {
-            if (mat.find()) {
-                return Integer.valueOf(mat.group(2));
-            } else {
-                return Integer.valueOf(interval);
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     @Override

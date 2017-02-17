@@ -2,14 +2,16 @@ package pt.floraon.occurrences.entities;
 
 import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.entities.GeneralDBNode;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * Created by miguel on 05-02-2017.
  */
-public class InventoryData extends GeneralDBNode implements Serializable {
+public class InventoryData extends GeneralDBNode implements Serializable, DiffableBean {
     private Float latitude, longitude;
     private String spatialRS;
     private Float elevation;
@@ -25,6 +27,42 @@ public class InventoryData extends GeneralDBNode implements Serializable {
     private Float area, totalCover, meanHeight;
     private String aspect;
     private Integer slope;
+
+    public InventoryData(InventoryData other) {
+        super(other);
+        this.latitude = other.latitude;
+        this.longitude = other.longitude;
+        this.spatialRS = other.spatialRS;
+        this.elevation = other.elevation;
+        this.geometry = other.geometry;
+        this.precision = other.precision;
+        this.gridPrecision = other.gridPrecision;
+        this.year = other.year;
+        this.month = other.month;
+        this.day = other.day;
+        this.complete = other.complete;
+        this.habitat = other.habitat;
+        this.pubNotes = other.pubNotes;
+        this.privNotes = other.privNotes;
+        this.geology = other.geology;
+        this.tags = other.tags;
+        this.observers = other.observers;
+        this.collectors = other.collectors;
+        this.dets = other.dets;
+        this.verbLocality = other.verbLocality;
+        this.locality = other.locality;
+        this.municipality = other.municipality;
+        this.province = other.province;
+        this.county = other.county;
+        this.code = other.code;
+        this.threats = other.threats;
+        this.maintainer = other.maintainer;
+        this.area = other.area;
+        this.totalCover = other.totalCover;
+        this.meanHeight = other.meanHeight;
+        this.aspect = other.aspect;
+        this.slope = other.slope;
+    }
 
     public InventoryData() { }
 
@@ -303,5 +341,41 @@ public class InventoryData extends GeneralDBNode implements Serializable {
     @Override
     public String toJsonString() {
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InventoryData that = (InventoryData) o;
+
+        if(code != null) return code.equals(that.code);
+        if (latitude != null ? !latitude.equals(that.latitude) : that.latitude != null) return false;
+        if (longitude != null ? !longitude.equals(that.longitude) : that.longitude != null) return false;
+        if (year != null ? !year.equals(that.year) : that.year != null) return false;
+        if (month != null ? !month.equals(that.month) : that.month != null) return false;
+        if (day != null ? !day.equals(that.day) : that.day != null) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
+        if (!Arrays.equals(observers, that.observers)) return false;
+        return code != null ? code.equals(that.code) : that.code == null;
+    }
+
+    /**
+     * Note that this implementation of hashCode and equals assume that if an inventory is in the same place, same date
+     * and same observers, then it is the same inventory, no matter the other fields.
+     * @return
+     */
+    @Override
+    public int hashCode() {
+        int result = code != null ? code.hashCode() : 0;
+        if(code != null) return result;     // code rules!
+        result = 31 * result + (latitude != null ? latitude.hashCode() : 0);
+        result = 31 * result + (longitude != null ? longitude.hashCode() : 0);
+        result = 31 * result + (year != null ? year.hashCode() : 0);
+        result = 31 * result + (month != null ? month.hashCode() : 0);
+        result = 31 * result + (day != null ? day.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(observers);
+        return result;
     }
 }

@@ -46,15 +46,15 @@ public class UserListParser implements FieldParser {
         String[] ids = userIds.toArray(new String[userIds.size()]);
         switch (inputFieldName) {
             case "observers":
-                occurrence.getSpeciesList().setObservers(ids);
+                occurrence.getInventoryData().setObservers(ids);
                 break;
 
             case "collectors":
-                occurrence.getSpeciesList().setCollectors(ids);
+                occurrence.getInventoryData().setCollectors(ids);
                 break;
 
             case "determiners":
-                occurrence.getSpeciesList().setDets(ids);
+                occurrence.getInventoryData().setDets(ids);
                 break;
 
             default:

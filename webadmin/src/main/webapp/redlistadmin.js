@@ -202,6 +202,16 @@ document.addEventListener('DOMContentLoaded', function() {
         clickAddTag2(name, key, 'applicableTaxa', 'ta_', 'taxonprivileges');
     });
 
+    var i = 0;
+    while(document.getElementById('taxonbox_group_' + i)) {
+        (function(j) {
+            attachSuggestionHandler('taxonbox_group_' + j, '/floraon/checklist/api/suggestions?limit=10&q=', 'suggestions_group_' + j, function(ev, name, key) {
+                clickAddTag2(name, key, 'applicableTaxa', 'ta_group_' + j + '_', 'taxa_group_' + j);
+            });
+        })(i);
+        i++;
+    }
+
     attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions', function(ev, name, key) {
         if(clickAddTag2(name, key, 'assessment_Authors', 'aa_', 'textauthors'))
             changeHandler.call(this, ev);

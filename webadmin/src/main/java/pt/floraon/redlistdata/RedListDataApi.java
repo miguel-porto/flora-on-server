@@ -7,7 +7,7 @@ import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
 import org.jfree.util.Log;
-import pt.floraon.driver.Constants;
+import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import static pt.floraon.driver.Constants.fillBeanDefaults;
+import static pt.floraon.driver.utils.BeanUtils.fillBeanDefaults;
 
 /**
  * Created by miguel on 01-11-2016.
@@ -42,12 +42,12 @@ public class RedListDataApi extends FloraOnServlet {
             case "newdataset":
                 territory = getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
-                success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(), territory, driver).getID());
+                success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(territory), driver).getID());
                 break;
 
             case "updatenativestatus":
                 territory = getParameterAsString("territory");
-                success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(), territory, driver).getID());
+                success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
                 break;
 
             case "addnewtaxent":
@@ -147,7 +147,7 @@ public class RedListDataApi extends FloraOnServlet {
                     RedListDataEntity old = new RedListDataEntity();
                     try {
                         old = (RedListDataEntity) fillBeanDefaults(old);
-                        cb = Constants.diffBeans(old, rlde);
+                        cb = BeanUtils.diffBeans(old, rlde);
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                         e.printStackTrace();
                     }

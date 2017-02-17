@@ -46,4 +46,9 @@ public class Startup implements ServletContextListener {
 		}
 		sce.getServletContext().setAttribute("driver", FloraOnDriver);
 	}
+
+	@Override
+	public void contextDestroyed(ServletContextEvent servletContextEvent) {
+
+	}
 }

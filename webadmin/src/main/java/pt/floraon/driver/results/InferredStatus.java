@@ -1,6 +1,7 @@
 package pt.floraon.driver.results;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,6 +116,6 @@ public class InferredStatus {
             qualifiers.add(this.getNaturalizationDegree().toString());
 
         return this.getNativeStatus().toString()
-                + (qualifiers.size() > 0 ? " (" + Constants.implode(", ", qualifiers.toArray(new String[0])) + ")" : "");
+                + (qualifiers.size() > 0 ? " (" + StringUtils.implode(", ", qualifiers.toArray(new String[0])) + ")" : "");
     }
 }

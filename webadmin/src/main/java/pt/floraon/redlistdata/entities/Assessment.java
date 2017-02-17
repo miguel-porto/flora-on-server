@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static pt.floraon.driver.Constants.cleanArray;
-import static pt.floraon.redlistdata.entities.RedListDataEntity.isArrayEmpty;
+import static pt.floraon.driver.utils.StringUtils.cleanArray;
+import static pt.floraon.driver.utils.StringUtils.isArrayEmpty;
 
 /**
  * Created by miguel on 23-11-2016.
