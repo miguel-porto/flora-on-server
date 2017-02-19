@@ -2,6 +2,7 @@ package pt.floraon.redlistdata;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
@@ -26,8 +27,9 @@ public class OccurrenceProcessor {
     private Set<Square> squares;
     private IPolygonTheme protectedAreas;
     private Double EOO, realEOO, squareEOO, AOO;
-    private int nQuads;
+    private int nQuads = 0;
     private long sizeOfSquare;
+    private ExternalDataProvider occurrences;
 
     private class Square {
         private long qx, qy;
@@ -74,6 +76,12 @@ public class OccurrenceProcessor {
         }
     }
 
+    /**
+     * This constructor readily computes all indices from the data provider.
+     * @param occurrences
+     * @param protectedAreas
+     * @param sizeOfSquare
+     */
     public OccurrenceProcessor(ExternalDataProvider occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
         Polygon nullPolygon = new Polygon();
         this.protectedAreas = protectedAreas;
@@ -84,6 +92,13 @@ public class OccurrenceProcessor {
         UTMCoordinate tmp;
         Point2D tmp1;
         Set<String> utmZones = new HashSet<>();
+
+        this.occurrences = occurrences;
+
+        if (occurrences.size() == 0) {
+            clusters = new ArrayList<>();
+            return;
+        }
 
         for (ExternalDataProvider.SimpleOccurrence so : occurrences) {
             tmp1 = new Point2D(tmp = so.getUTMCoordinates());
@@ -238,7 +253,7 @@ public class OccurrenceProcessor {
      * Gets the area of occurrence, based on the squares whose size is given on instantiation.
      * @return
      */
-    public double getAOO() {
+    public Double getAOO() {
         return this.AOO;
     }
 

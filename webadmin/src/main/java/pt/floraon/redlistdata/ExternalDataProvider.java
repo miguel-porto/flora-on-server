@@ -1,55 +1,87 @@
 package pt.floraon.redlistdata;
 
+import de.micromata.opengis.kml.v_2_2_0.Document;
+import de.micromata.opengis.kml.v_2_2_0.Folder;
+import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.geometry.CoordinateConversion;
-import pt.floraon.geometry.IPolygonTheme;
-import pt.floraon.geometry.UTMCoordinate;
+import pt.floraon.geometry.*;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Created by miguel on 02-11-2016.
  */
-public interface ExternalDataProvider extends Iterable<ExternalDataProvider.SimpleOccurrence> {
+public abstract class ExternalDataProvider implements Iterable<ExternalDataProvider.SimpleOccurrence> {
+    protected List<SimpleOccurrence> occurrenceList;
+    private IPolygonTheme clippingPolygon;
+    private Integer minimumYear, maximumYear;
+
     /**
      * Returns how many occurrences
      * @return
      */
-    int size();
+    public int size() {
+        if(clippingPolygon == null && minimumYear == null && maximumYear == null)
+            return occurrenceList.size();
+        else {
+            int count = 0;
+            boolean enter;
+            for(SimpleOccurrence so : occurrenceList) {
+                enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+                enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
 
-    /**
-     * Sets a polygon theme to clip occurrences. May have any number of polygons.
-     * @param theme
-     */
-    void setClippingPolygon(IPolygonTheme theme);
+                if(clippingPolygon != null) {
+                    boolean tmp2 = false;
+                    for(Map.Entry<String, Polygon> po : clippingPolygon) {
+                        if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                            tmp2 = true;
+                            break;
+                        }
+                    }
+                    enter &= tmp2;
+                }
 
-    /**
-     * Sets the minimum year considered for including occurrences
-     * @param minimumYear
-     */
-    void setMinimumYear(Integer minimumYear);
+                if(enter) count++;
+            }
+            return count;
+        }
+    }
 
     /**
      * Executes a query and updates the Iterable list of occurrences with the results.
      * @param query
      * @throws FloraOnException
-     * @throws URISyntaxException
      * @throws IOException
      */
-    void executeOccurrenceQuery(Object query) throws FloraOnException, IOException;
+    public abstract void executeOccurrenceQuery(Object query) throws FloraOnException, IOException;
 
     /**
      * Executes a query and returns arbitrary data about a taxon.
      * @param query
      * @throws FloraOnException
-     * @throws URISyntaxException
      * @throws IOException
      */
-    Map<String, Object> executeInfoQuery(Object query) throws FloraOnException, IOException;
+    public abstract Map<String, Object> executeInfoQuery(Object query) throws FloraOnException, IOException;
 
-    class SimpleOccurrence {
+    public void exportKML(PrintWriter out) {
+        final Kml kml = new Kml();
+        Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
+        for(ExternalDataProvider.SimpleOccurrence o : this) {
+            Placemark pl = folder.createAndAddPlacemark();
+            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
+                    .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
+        }
+        kml.marshal(out);
+    }
+
+    public class SimpleOccurrence {
         final float latitude, longitude;
         final Integer year, month, day;
         final String author, genus, species, infrataxon, notes;
@@ -143,4 +175,55 @@ public interface ExternalDataProvider extends Iterable<ExternalDataProvider.Simp
         }
     }
 
+    @Override
+    public Iterator<SimpleOccurrence> iterator() {
+        if(clippingPolygon == null && minimumYear == null && maximumYear == null)
+            return occurrenceList.iterator();
+        else {
+            List<SimpleOccurrence> out = new ArrayList<>();
+            boolean enter;
+            for(SimpleOccurrence so : occurrenceList) {
+                enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+                enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
+
+                if(clippingPolygon != null) {
+                    boolean tmp2 = false;
+                    for(Map.Entry<String, Polygon> po : clippingPolygon) {
+                        if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                            tmp2 = true;
+                            break;
+                        }
+                    }
+                    enter &= tmp2;
+                }
+
+                if(enter) out.add(so);
+            }
+            return out.iterator();
+        }
+    }
+
+    /**
+     * Sets the minimum year considered for including occurrences
+     * @param minimumYear
+     */
+    public void setMinimumYear(Integer minimumYear) {
+        this.minimumYear = minimumYear;
+    }
+
+    /**
+     * Sets the maximum year considered for including occurrences
+     * @param maximumYear
+     */
+    public void setMaximumYear(Integer maximumYear) {
+        this.maximumYear = maximumYear;
+    }
+
+    /**
+     * Sets a polygon theme to clip occurrences. May have any number of polygons.
+     * @param theme
+     */
+    public void setClippingPolygon(IPolygonTheme theme) {
+        clippingPolygon = theme;
+    }
 }

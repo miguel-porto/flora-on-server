@@ -15,6 +15,7 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.*;
 import java.util.List;
 
@@ -167,26 +168,38 @@ System.out.println(gs.toJson(getUser()));
                         foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
                         // TODO clipping polygon must be a user configuration
                         foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
-                        foop.setMinimumYear(1991);   // TODO year should be a user configuration
+                        foop.setMinimumYear(null);   // TODO year should be a user configuration
+                        foop.setMaximumYear(1990);
+                        OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
+                                foop, protectedAreas, sizeOfSquare);
 
+                        foop.setMinimumYear(1991);   // TODO year should be a user configuration
+                        foop.setMaximumYear(null);
                         OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
                                 foop, protectedAreas, sizeOfSquare);
 
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
-                        Double EOO = null, AOO = null;
+                        Double EOO = null, AOO = null, hEOO = null, hAOO = null;
                         if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
                             EOO = rlde.getGeographicalDistribution().getEOO();
                             AOO = rlde.getGeographicalDistribution().getAOO();
+                            hEOO = rlde.getGeographicalDistribution().getHistoricalEOO();
+                            hAOO = rlde.getGeographicalDistribution().getHistoricalAOO();
                         }
                         if (EOO == null) EOO = occurrenceProcessor.getEOO();
                         if (AOO == null) AOO = occurrenceProcessor.getAOO();
+                        if (hEOO == null) hEOO = historicalOccurrenceProcessor.getEOO();
+                        if (hAOO == null) hAOO = historicalOccurrenceProcessor.getAOO();
                         request.setAttribute("EOO", EOO);
                         request.setAttribute("AOO", AOO);
+                        request.setAttribute("hEOO", hEOO);
+                        request.setAttribute("hAOO", hAOO);
                         request.setAttribute("realEOO", occurrenceProcessor.getRealEOO());
                         request.setAttribute("squareEOO", occurrenceProcessor.getSquareEOO());
                         request.setAttribute("sizeofsquare", sizeOfSquare / 1000);
                         request.setAttribute("nquads", occurrenceProcessor.getNQuads());
+                        request.setAttribute("hnquads", historicalOccurrenceProcessor.getNQuads());
                         request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
 
                         Double[] lAreas = occurrenceProcessor.getLocationAreas();
@@ -222,6 +235,13 @@ System.out.println(gs.toJson(getUser()));
                         StringWriter sw = new StringWriter();
                         occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
                         request.setAttribute("svgmap", sw.toString());
+                        sw.close();
+                        if(historicalOccurrenceProcessor.getNQuads() > 0) {
+                            sw = new StringWriter();
+                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
+                            request.setAttribute("historicalsvgmap", sw.toString());
+                            sw.close();
+                        }
 
                         Set<String> groupAreasBy = new HashSet<>();
                         groupAreasBy.add("SITE_NAME");
@@ -320,6 +340,20 @@ System.out.println(gs.toJson(getUser()));
                 if (te.getOldId() != null) {
                     foop.executeOccurrenceQuery(te.getOldId());
                     request.setAttribute("occurrences", foop);
+                }
+                break;
+
+            case "downloadtaxonrecords":
+                if (!getUser().canDOWNLOAD_OCCURRENCES()) break;
+                te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+                if (te.getOldId() != null) {
+                    foop.executeOccurrenceQuery(te.getOldId());
+                    response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
+                    response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
+                    PrintWriter wr = response.getWriter();
+                    foop.exportKML(wr);
+                    wr.close();
+                    return;
                 }
                 break;
 

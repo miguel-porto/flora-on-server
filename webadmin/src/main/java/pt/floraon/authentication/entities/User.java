@@ -210,6 +210,10 @@ public class User extends NamedDBNode {
 		setPrivilege(EDIT_1_4, value);
 	}
 
+	public void setEDIT_7_3(boolean value) {
+		setPrivilege(EDIT_7_3, value);
+	}
+
 	public void setEDIT_9_7_9_92(boolean value) {
 		setPrivilege(EDIT_9_7_9_92, value);
 	}
@@ -304,6 +308,8 @@ public class User extends NamedDBNode {
 	}
 
 	public boolean canEDIT_1_4() { return hasPrivilege(Privileges.EDIT_1_4) || hasPrivilege(EDIT_ALL_1_8); }
+
+	public boolean canEDIT_7_3() { return hasPrivilege(Privileges.EDIT_7_3) || hasPrivilege(EDIT_ALL_1_8); }
 
 	public boolean canEDIT_SECTION2() {
 		return hasPrivilege(EDIT_SECTION2) || hasPrivilege(EDIT_ALL_1_8);

@@ -8,8 +8,8 @@ import pt.floraon.redlistdata.RedListEnums;
  */
 public class GeographicalDistribution implements DiffableBean {
     private String description;
-    private Double EOO;
-    private Double AOO;
+    private Double EOO, historicalEOO;
+    private Double AOO, historicalAOO;
     private RedListEnums.DeclineDistribution declineDistribution;
     private RedListEnums.ExtremeFluctuations extremeFluctuations;
     private String declineDistributionJustification;
@@ -25,6 +25,14 @@ public class GeographicalDistribution implements DiffableBean {
 
     public Double getAOO() {
         return AOO;
+    }
+
+    public Double getHistoricalEOO() {
+        return historicalEOO;
+    }
+
+    public Double getHistoricalAOO() {
+        return historicalAOO;
     }
 
     public RedListEnums.DeclineDistribution getDeclineDistribution() {
@@ -53,6 +61,14 @@ public class GeographicalDistribution implements DiffableBean {
 
     public void setAOO(Double AOO) {
         this.AOO = AOO;
+    }
+
+    public void setHistoricalEOO(Double EOO) {
+        this.historicalEOO = EOO;
+    }
+
+    public void setHistoricalAOO(Double AOO) {
+        this.historicalAOO = AOO;
     }
 
     public void setExtremeFluctuations(RedListEnums.ExtremeFluctuations extremeFluctuations) {

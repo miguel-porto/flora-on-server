@@ -240,12 +240,10 @@ input[type=submit].textbutton {
 
 .button.anchorbutton a, .button.anchorbutton a:visited {padding:4px 12px; display: inline-block; color:white; line-height:1em;}
 
-
-
-#map {width:200px; height:auto; cursor:pointer; float:right;}
-#map.floating {
+/************ MAP ************/
+.svgmap {width:200px; height:auto; cursor:pointer; float:right;}
+.svgmap.floating {
     width:100%;
-
     min-height:100%;
     position:absolute;
     top:0; left:0;
@@ -253,13 +251,12 @@ input[type=submit].textbutton {
     float:none;
     z-index:2;
 }
-#map path.portugal {fill:white;}
-#map path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff; stroke-linejoin: round;}
-#map.floating path.convexhull {stroke-width:500px;}
-#map path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:500px; stroke: gray} /* stroke-width: 2000px; stroke: #64dd17; */
-#map rect {fill:red; stroke-width: 1000px; stroke:red;}
-#map.floating rect {stroke-width: 0px;}
-
+.svgmap path.portugal {fill:white;}
+.svgmap path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff; stroke-linejoin: round;}
+.svgmap.floating path.convexhull {stroke-width:500px;}
+.svgmap path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:500px; stroke: gray} /* stroke-width: 2000px; stroke: #64dd17; */
+.svgmap rect {fill:red; stroke-width: 1000px; stroke:red;}
+.svgmap.floating rect {stroke-width: 0px;}
 
 .checkboxes {display:flex; flex-wrap: wrap; justify-content: space-between;}
 .checkboxes.list {display: block; cursor:pointer;}

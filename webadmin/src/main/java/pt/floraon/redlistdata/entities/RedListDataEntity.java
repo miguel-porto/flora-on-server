@@ -198,6 +198,14 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.geographicalDistribution.setAOO(AOO);
     }
 
+    public void setGeographicalDistribution_historicalEOO(Double EOO) {
+        this.geographicalDistribution.setHistoricalEOO(EOO);
+    }
+
+    public void setGeographicalDistribution_historicalAOO(Double AOO) {
+        this.geographicalDistribution.setHistoricalAOO(AOO);
+    }
+
     public void setGeographicalDistribution_DeclineDistribution(String declineDistribution) {
         try {
             this.geographicalDistribution.setDeclineDistribution(RedListEnums.DeclineDistribution.valueOf(declineDistribution));

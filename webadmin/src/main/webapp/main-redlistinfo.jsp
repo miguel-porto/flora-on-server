@@ -269,9 +269,10 @@
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
                         <c:if test="${user.canVIEW_OCCURRENCES()}">
-                            <div class="wordtag togglebutton">
-                                <a href="?w=taxonrecords&id=${taxon.getIDURLEncoded()}">view occurrences</a>
-                            </div>
+                            <div class="wordtag togglebutton"><a href="?w=taxonrecords&id=${taxon.getIDURLEncoded()}">view occurrences</a></div>
+                        </c:if>
+                        <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
+                            <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon.getIDURLEncoded()}">download KML</a></div>
                         </c:if>
                     </div>
                 </c:if>
@@ -356,12 +357,15 @@
                 <tr class="section2 textual"><td class="title">2.1</td><td><fmt:message key="DataSheet.label.2.1" /></td><td>
                     <table>
                         <tr><td style="width:auto">
-                        <t:editabletext
-                            privilege="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}"
-                            value="${rlde.getGeographicalDistribution().getDescription()}"
-                            name="geographicalDistribution_Description"/>
+                            <t:editabletext
+                                privilege="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}"
+                                value="${rlde.getGeographicalDistribution().getDescription()}"
+                                name="geographicalDistribution_Description"/>
                         </td>
-                        <td style="width:0">${svgmap}</td>
+                        <c:if test="${historicalsvgmap != null}">
+                            <td style="width:0; text-align:center;">${historicalsvgmap}<br/><fmt:message key="DataSheet.label.2.1a"/></td>
+                        </c:if>
+                            <td style="width:0; text-align:center;">${svgmap}<br/><fmt:message key="DataSheet.label.2.1b"/></td>
                         </tr>
                     </table>
                 </td></tr>
@@ -381,9 +385,15 @@
                                 <fmt:formatNumber value="${realEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup>
                             </td></tr>
                             </c:if>
+                            <tr><td>Historical EOO</td><td>
+                                <input type="hidden" name="geographicalDistribution_historicalEOO" value="${hEOO}"/>
+                                <fmt:formatNumber value="${hEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup>
+                            </td></tr>
+<!--
                             <tr><td>UTM square EOO</td><td>
                                 <fmt:formatNumber value="${squareEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup>
                             </td></tr>
+-->
                         </table>
                         </c:if>
                     </td></tr>
@@ -392,8 +402,16 @@
                             No correspondence in Flora-On
                         </c:if>
                         <c:if test="${occurrences != null}">
-                            <input type="hidden" name="geographicalDistribution_AOO" value="${AOO}"/>
-                            <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4" groupingUsed="false"/></b> km<sup>2</sup> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)
+                            <table class="subtable">
+                                <tr><td><b>AOO</b></td><td>
+                                    <input type="hidden" name="geographicalDistribution_AOO" value="${AOO}"/>
+                                    <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4" groupingUsed="false"/></b> km<sup>2</sup> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)
+                                </td></tr>
+                                <tr><td>Historical AOO</td><td>
+                                    <input type="hidden" name="geographicalDistribution_historicalAOO" value="${hAOO}"/>
+                                    <fmt:formatNumber value="${hAOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup> (${hnquads} ${sizeofsquare}x${sizeofsquare} km squares)
+                                </td></tr>
+                            </table>
                         </c:if>
                     </td></tr>
                     <tr class="section2"><td class="title">2.4</td><td>Decline in distribution</td><td>
@@ -937,7 +955,7 @@
                     </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.3</td><td><i>Ex-situ</i> conservation</td><td>
-                    <c:if test="${user.canEDIT_SECTION7()}">
+                    <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_7_3()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
                                 <select name="conservation_ExSituConservation" class="trigger">
@@ -957,7 +975,7 @@
                             </td></tr>
                         </table>
                     </c:if>
-                    <c:if test="${!user.canEDIT_SECTION7()}">
+                    <c:if test="${!user.canEDIT_SECTION7() && !user.canEDIT_7_3()}">
                         <table>
                             <tr><td>Category</td><td>${rlde.getConservation().getExSituConservation().getLabel()}</td></tr>
                             <tr><td>Justification</td><td>${rlde.getConservation().getExSituConservationJustification()}</td></tr>
@@ -1460,6 +1478,9 @@
                 <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
+            <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
+                <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon.getIDURLEncoded()}">download KML</a></div>
+            </c:if>
             <table class="sortable smalltext" id="recordtable">
                 <thead>
                     <tr><th>Record ID</th><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Year</th><th>Month</th>

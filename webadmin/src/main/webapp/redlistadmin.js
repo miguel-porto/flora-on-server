@@ -192,10 +192,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    addEvent('click', document.getElementById('map'), function(ev) {
-        document.getElementById('map').classList.toggle('floating');
-        document.querySelector('body').classList.toggle('relative');
-    });
+    var maps = document.querySelectorAll('.svgmap');
+    for(var i = 0; i < maps.length; i++) {
+        (function(j) {
+            addEvent('click', maps[j], function(ev) {
+                document.querySelectorAll('.svgmap')[j].classList.toggle('floating');
+                document.querySelector('body').classList.toggle('relative');
+            });
+        })(i);
+    }
 
     // for user privileges
     attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=10&q=', 'suggestions', function(ev, name, key) {
