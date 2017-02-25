@@ -7,6 +7,9 @@ import pt.floraon.driver.entities.GeneralDBNode;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Created by miguel on 05-02-2017.
@@ -145,6 +148,21 @@ public class InventoryData extends GeneralDBNode implements Serializable, Diffab
     public void setDay(Integer day) {
         if(day < 1 || day > 31) throw new IllegalArgumentException("Invalid day");
         this.day = day;
+    }
+
+    public String _getDate() {
+/*
+        Calendar c = new GregorianCalendar();
+        if(year != null) c.set(Calendar.YEAR, year);
+        if(month != null) c.set(Calendar.MONTH, month);
+        if(day != null) c.set(Calendar.DAY_OF_MONTH, day);
+        return Constants.dateFormat.format(c.getTime());
+*/
+        StringBuilder sb = new StringBuilder();
+        sb.append(day == null ? "--" : day).append("/")
+                .append(month == null ? "--" : month).append("/")
+                .append(year == null ? "----" : year);
+        return sb.toString();
     }
 
     public boolean isComplete() {

@@ -23,37 +23,47 @@ import java.util.*;
 public class MainPage extends FloraOnServlet {
     @Override
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-        String what;
-        TaxEnt te;
         ObjectInputStream oist;
         List<Inventory> invList;
         List<List<Inventory>> filesList = new ArrayList<>();
         User user = getUser();
         request.setAttribute("user", user);
-        if(!user.isGuest()) {
-            List<String> uts = new ArrayList<>();
-            uts.addAll(user.getUploadedTables());
-            for(String ut : uts) {
-                File f = new File("/tmp/" + ut);
-                if(f.canRead()) {
-                    oist = new ObjectInputStream(new FileInputStream(f));
-                    try {
-                        invList = (List<Inventory>) oist.readObject();
-                        filesList.add(invList);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                        oist.close();
-                        continue;
+
+        String what = getParameterAsString("w");
+
+        if(what == null) what = "main";
+
+        switch(what) {
+            case "uploads":
+                if(!user.isGuest()) {
+                    refreshUser();
+                    List<String> uts = new ArrayList<>();
+                    uts.addAll(user.getUploadedTables());   // clone
+                    for(String ut : uts) {
+                        File f = new File("/tmp/" + ut);
+                        if(f.canRead()) {
+                            Log.info("Read " + f.getName());
+                            oist = new ObjectInputStream(new FileInputStream(f));
+                            try {
+                                invList = (List<Inventory>) oist.readObject();
+                                Log.info(invList.size());
+                                filesList.add(invList);
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                                oist.close();
+                                continue;
+                            }
+                            oist.close();
+                        } else {    // table doesn't exist any more
+                            Log.info("Removing reference to uploaded table" + ut);
+                            List<String> tmp = user.getUploadedTables();
+                            tmp.remove(ut);
+                            driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(user.getID()), "uploadedTables", tmp);
+                        }
                     }
-                    oist.close();
-                } else {    // table doesn't exist any more
-                    Log.info("Removing reference to uploaded table" + ut);
-                    List<String> tmp = user.getUploadedTables();
-                    tmp.remove(ut);
-                    driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(user.getID()), "uploadedTables", tmp);
+                    request.setAttribute("filesList", filesList);
                 }
-            }
-            request.setAttribute("filesList", filesList);
+                break;
         }
 /*
 Gson gs = new GsonBuilder().setPrettyPrinting().create();

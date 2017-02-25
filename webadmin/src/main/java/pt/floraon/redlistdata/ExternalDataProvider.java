@@ -24,6 +24,32 @@ public abstract class ExternalDataProvider implements Iterable<ExternalDataProvi
     private Integer minimumYear, maximumYear;
 
     /**
+     * Tests whether a given occurrence should be included in the iterator.
+     * @param so
+     * @return
+     */
+    private boolean enter(SimpleOccurrence so) {
+        boolean enter;
+        enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+        enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
+        // records that do not have a year are excluded from historical datasets. They're only included in the current dataset.
+        enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0));
+
+        if(clippingPolygon != null) {
+            boolean tmp2 = false;
+            for(Map.Entry<String, Polygon> po : clippingPolygon) {
+                if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                    tmp2 = true;
+                    break;
+                }
+            }
+            enter &= tmp2;
+        }
+
+        return enter;
+    }
+
+    /**
      * Returns how many occurrences
      * @return
      */
@@ -34,21 +60,7 @@ public abstract class ExternalDataProvider implements Iterable<ExternalDataProvi
             int count = 0;
             boolean enter;
             for(SimpleOccurrence so : occurrenceList) {
-                enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
-                enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
-
-                if(clippingPolygon != null) {
-                    boolean tmp2 = false;
-                    for(Map.Entry<String, Polygon> po : clippingPolygon) {
-                        if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                            tmp2 = true;
-                            break;
-                        }
-                    }
-                    enter &= tmp2;
-                }
-
-                if(enter) count++;
+                if(enter(so)) count++;
             }
             return count;
         }
@@ -75,7 +87,8 @@ public abstract class ExternalDataProvider implements Iterable<ExternalDataProvi
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
         for(ExternalDataProvider.SimpleOccurrence o : this) {
             Placemark pl = folder.createAndAddPlacemark();
-            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
+            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon())
+                    + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
                     .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
         }
         kml.marshal(out);
@@ -181,23 +194,8 @@ public abstract class ExternalDataProvider implements Iterable<ExternalDataProvi
             return occurrenceList.iterator();
         else {
             List<SimpleOccurrence> out = new ArrayList<>();
-            boolean enter;
             for(SimpleOccurrence so : occurrenceList) {
-                enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
-                enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
-
-                if(clippingPolygon != null) {
-                    boolean tmp2 = false;
-                    for(Map.Entry<String, Polygon> po : clippingPolygon) {
-                        if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                            tmp2 = true;
-                            break;
-                        }
-                    }
-                    enter &= tmp2;
-                }
-
-                if(enter) out.add(so);
+                if(enter(so)) out.add(so);
             }
             return out.iterator();
         }

@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -15,13 +16,17 @@ import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryData;
+import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
 import pt.floraon.occurrences.fieldparsers.*;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by miguel on 15-02-2017.
@@ -72,12 +77,9 @@ public class OccurrenceImporterJob implements JobTask {
         freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
         Map<String, Integer> headers = records.getHeaderMap();
-        Map<String, FieldParser> fieldMappers = new HashMap<>();
 
-        // associate a parser for each table column
         for(Map.Entry<String, Integer> h : headers.entrySet()) {
-            if(!fieldMappings.containsKey(h.getKey())) throw new FloraOnException(Messages.getString("error.1",h.getKey()));
-            fieldMappers.put(h.getKey(), fieldMappings.get(h.getKey()));
+            if(!fieldMappings.containsKey(h.getKey())) throw new FloraOnException(Messages.getString("error.1", h.getKey()));
         }
 
         Inventory inv;
@@ -108,8 +110,8 @@ public class OccurrenceImporterJob implements JobTask {
             }
         }
 
-        // now let's sweep out the species from all inventory groups and join them into one
-        List<Inventory> invList = new ArrayList<>();
+        // now let's sweep out the species from all inventory groups and aggregate
+        InventoryList invList = new InventoryList();
 
         for(Map.Entry<Inventory, Collection<Inventory>> entr : invMap.asMap().entrySet()) {
             // grab an array of InventoryData of these Inventories
@@ -132,7 +134,7 @@ public class OccurrenceImporterJob implements JobTask {
 //            System.out.println(gs.toJson(merged));
 
             inv = new Inventory();
-            inv.setSpeciesList(merged);
+            inv.setInventoryData(merged);
             // assemble all species found in these inventories into the merged one
             inv.setObservedIn(new ArrayList<newOBSERVED_IN>());
             for (Inventory inventory : entr.getValue()) {
@@ -142,7 +144,27 @@ public class OccurrenceImporterJob implements JobTask {
         }
 
         freader.close();
-        System.out.println(gs.toJson(invList));
+//        System.out.println(gs.toJson(invList));
+        Log.info("Matching taxon names");
+
+        for(Inventory i : invList) {
+            for(newOBSERVED_IN oi : i.getObservedIn()) {
+                TaxEnt te, matched;
+                try {
+                    te = TaxEnt.parse(oi.getVerbTaxon());
+                } catch (FloraOnException e) {
+                    invList.addParseError(oi);
+                    continue;
+                }
+                System.out.println("Verb: "+oi.getVerbTaxon()+" ****");
+                System.out.println("Proc: "+ te.getFullName(false));
+                matched = nwd.getTaxEnt(te);
+                if(matched == null)
+                    System.out.println("No match");
+                else
+                    System.out.println("Matc: "+ matched.getFullName(false));
+            }
+        }
 
         File temp = File.createTempFile("uploadedtable-",".ser", new File("/tmp"));
         ObjectOutputStream oost = new ObjectOutputStream(new FileOutputStream(temp));

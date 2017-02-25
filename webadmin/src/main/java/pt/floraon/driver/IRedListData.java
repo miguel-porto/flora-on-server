@@ -40,17 +40,6 @@ public interface IRedListData {
     RedListDataEntity createRedListDataEntity(String territory, RedListDataEntity rlde) throws DatabaseException;
 
     /**
-     * Updates a red list data entity with the fields of the passed object.
-     * @param territory
-     * @param id The ID of the red list data entity to update (NOT that of the taxon!).
-     * @param rlde The object containing the new values.
-     * @param replace false to ignore null values. true to remove fields that are null.
-     * @throws DatabaseException
-     * @return The new {@link RedListDataEntity}
-     */
-    RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace) throws DatabaseException;
-
-    /**
      * Updates an array of red list data entities with the specified values. Note that this function replaces the values
      * of all the fields present in the passed Map.
      * @param territory
@@ -58,7 +47,7 @@ public interface IRedListData {
      * @param values
      * @throws FloraOnException
      */
-    void updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException;
+    int updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException;
 
     /**
      * Deletes a data sheet and removes the taxon from the red list

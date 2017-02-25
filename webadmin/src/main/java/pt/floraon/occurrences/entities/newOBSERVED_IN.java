@@ -2,6 +2,7 @@ package pt.floraon.occurrences.entities;
 
 import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
@@ -30,6 +31,10 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
     private Date dateInserted;
+    /**
+     * Field to hold the matched TaxEnt ID
+     */
+    private String taxEntMatch;
 
     public Constants.PhenologicalStates getPhenoState() {
         return phenoState;
@@ -157,6 +162,14 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
 
     public void setDateInserted(Date dateInserted) {
         this.dateInserted = dateInserted;
+    }
+
+    public String getTaxEntMatch() {
+        return taxEntMatch;
+    }
+
+    public void setTaxEntMatch(String taxEntMatch) {
+        this.taxEntMatch = taxEntMatch;
     }
 
     @Override

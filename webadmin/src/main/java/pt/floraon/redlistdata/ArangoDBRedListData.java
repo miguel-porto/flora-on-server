@@ -161,29 +161,16 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
     }
 
     @Override
-    public RedListDataEntity updateRedListDataEntity(String territory, INodeKey id, RedListDataEntity rlde, boolean replace)
-            throws DatabaseException {
-        DocumentUpdateEntity<RedListDataEntity> out;
-        try {
-            out = database.collection("redlist_" + territory).updateDocument(id.getDBKey(), rlde
-                    , new DocumentUpdateOptions().serializeNull(replace).keepNull(false).returnNew(true).waitForSync(true));
-        } catch (ArangoDBException e) {
-            throw new DatabaseException(e.getMessage());
-        }
-        return out.getNew();
-    }
-
-    @Override
-    public void updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException {
+    public int updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException {
         Map<String, Object> bp = new HashMap<>();
         bp.put("ids", taxEntIds);
         bp.put("data", values);
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gs.toJson(bp));
-//        System.out.println(AQLRedListQueries.getString("redlistdata.4", territory));
-//String a;
+//        System.out.println(gs.toJson(bp));
+
         try {
-            database.query(AQLRedListQueries.getString("redlistdata.4", territory), bp, null, String.class);
+            ArangoCursor<String> c = database.query(AQLRedListQueries.getString("redlistdata.4", territory), bp, new AqlQueryOptions().count(true), String.class);
+            return c.getCount();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

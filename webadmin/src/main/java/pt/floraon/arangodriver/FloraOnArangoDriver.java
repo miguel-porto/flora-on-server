@@ -12,15 +12,10 @@ import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
-import com.arangodb.velocypack.VPackDeserializationContext;
-import com.arangodb.velocypack.VPackDeserializer;
-import com.arangodb.velocypack.VPackSlice;
-import com.arangodb.velocypack.exception.VPackException;
 import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.occurrences.CSVFileProcessor;
-import pt.floraon.occurrences.OccurrenceImporter;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;

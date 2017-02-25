@@ -7,6 +7,10 @@ import pt.floraon.occurrences.entities.Author;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.Occurrence;
+
+import java.util.Iterator;
+import java.util.List;
+
 /**
  * General DB-free routines for working with nodes. Any implementation should extend this class.
  * @author miguel
@@ -24,7 +28,6 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 
     /**
 	 * Constructs a new species list from a JSON document as documented in the wiki.
-	 * @param graph
 	 * @param sl A {@link JsonObject} as documented <a href="https://github.com/miguel-porto/flora-on-server/wiki/Document-formats-for-uploading-data">here</a>.
 	 * @throws FloraOnException
 	 */
@@ -52,7 +55,6 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 	/**
 	 * Writes this occurrence to DB. This may involve creating a new SpeciesList and/or creating a new OBSERVED_IN relation.
 	 * Does not add anything if an very similar occurrence already exists.
-	 * @param graph
 	 * @return
 	 * @throws FloraOnException
 	 */
@@ -106,4 +108,71 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
     	return getTaxEnt(TaxEnt.parse(q));
     }
 
+	@Override
+    public TaxEnt matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException {
+    	Iterator<TaxEnt> it = nodes.iterator();
+    	TaxEnt tmp;
+    	// Genus species rank infrataxon Author [annotation] sensu somework
+    	while(it.hasNext()) {
+    		tmp = it.next();
+    		System.out.println("   matching to: "+tmp.getFullName());
+    		if(q.getRankValue() != null && !q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
+					&& !q.getRankValue().equals(tmp.getRankValue())) {
+    			it.remove();
+    			continue;
+			}
+
+			if(q.getAuthor() != null && !q.getAuthor().equals(tmp.getAuthor())) {
+    			it.remove();
+    			continue;
+			}
+
+			if(q.getAnnotation() != null && !q.getAnnotation().equals(tmp.getAnnotation())
+					|| (q.getAnnotation() == null && tmp.getAnnotation() != null)) {
+    			it.remove();
+    			continue;
+			}
+
+			if((q.getSensu() != null && !q.getSensu().equals(tmp.getSensu()))
+					|| (q.getSensu() == null && tmp.getSensu() != null)) {
+				it.remove();
+			}
+		}
+
+		switch(nodes.size()) {
+			case 0:
+				return null;
+			case 1:
+				return nodes.get(0);
+			default:
+				throw new QueryException(Messages.getString("error.4", q.getName()));
+		}
+
+/*
+		if(nodes.size() > 1) {	// multiple nodes with this name. Search the one of the right rank
+			if(q.getRankValue() == null || q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue()))
+				throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
+
+			for(TaxEnt n1 : nodes) {
+				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())) {
+					if(out != null)
+						throw new QueryException("More than one node with name "+q.getName()+" and rank "+q.getRank().toString());
+					else
+						out = n1;
+				}
+			}
+			return out;
+		} else {
+			if (q.getRankValue() == null || q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
+					|| nodes.get(0).getRankValue() == null )
+				return nodes.get(0);
+			else {
+				if (!nodes.get(0).getRankValue().equals(q.getRankValue())) return null;
+				else return nodes.get(0);
+			}
+		}
+*/
+
+
+	}
 }

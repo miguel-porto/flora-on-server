@@ -8,6 +8,7 @@ import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.DocumentCreateEntity;
 
+import com.arangodb.entity.DocumentUpdateEntity;
 import com.arangodb.entity.VertexEntity;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
@@ -34,6 +35,7 @@ import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.occurrences.entities.Author;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.driver.entities.DBEntity;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.taxonomy.entities.SYNONYM;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -351,6 +353,18 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
+	public <T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replace, Class<T> tClass) throws FloraOnException {
+		DocumentUpdateEntity<T> out;
+		try {
+			out = database.collection(id.getCollection()).updateDocument(id.getDBKey(), newEntity
+					, new DocumentUpdateOptions().serializeNull(replace).keepNull(false).returnNew(true).waitForSync(true));
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+		return out.getNew();
+	}
+
+	@Override
 	public GraphUpdateResult getRelationshipsBetween(String[] id, Facets[] facets) {
 		RelTypes[] art=RelTypes.getRelTypesOfFacets(facets);
     	String rt=Arrays.toString(art);
@@ -403,52 +417,24 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public TaxEnt getTaxEnt(TaxEnt q) throws QueryException, FloraOnException {
-// NOTE: this AQL query is slower than the code below!	
-		/*String query=String.format("FOR v IN %1$s FILTER LOWER(v.name)=='%2$s' RETURN v",NodeTypes.taxent.toString(),q.name.trim().toLowerCase());
-		TaxEntVertex tev=this.driver.executeAqlQuery(query, null, null, TaxEntVertex.class).getUniqueResult();
-		if(tev==null)
-			return null;
-		else
-			return new TaxEnt(FloraOnGraph.this,tev);*/
-		
-    	if(q.getName()==null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
+	public TaxEnt getTaxEnt(TaxEnt q) throws FloraOnException {
+		// TODO when imported name has not subsp., doesn't work, e.g. cistus ladanifer sulcatus
+		// TODO levenshtein e.g. fetch all taxa starting with the same letter and apply leven in java
+    	if(q.getName() == null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 		ArangoCursor<TaxEnt> cursor;
     	List<TaxEnt> nodes;
-		TaxEnt out = null;
 		String query = AQLQueries.getString("NodeWorkerDriver.12", q.getName());
-
+// FIXME: when no rank is specified!
 		try {
 			cursor = database.query(query, null, null, TaxEnt.class);
 			if(!cursor.hasNext())	// node does not exist
 				return null;
-
 			nodes = cursor.asListRemaining();
     	} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
 
-		if(nodes.size() > 1) {	// multiple nodes with this name. Search the one of the right rank
-			if(q.getRankValue() == null || q.getRankValue().equals(TaxonRanks.NORANK.getValue()))
-				throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
-
-			for(TaxEnt n1 : nodes) {
-				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(TaxonRanks.NORANK.getValue())) {
-					if(out != null)
-						throw new QueryException("More than one node with name "+q.getName()+" and rank "+q.getRank().toString());
-					else
-						out = n1;
-				}
-			}
-			return out;
-		} else {
-			if (q.getRankValue() == null || q.getRankValue().equals(TaxonRanks.NORANK.getValue()) || nodes.get(0).getRankValue() == null)
-				return nodes.get(0);
-			else {
-				if (!nodes.get(0).getRankValue().equals(q.getRankValue())) return null;
-				else return nodes.get(0);
-			}
-		}
+		return matchTaxEntToTaxEntList(q, nodes);
 	}
 
 	@Override

@@ -21,10 +21,11 @@
 	</form>
 </c:if>
 <h1>Taxonomy &amp; Checklist Manager</h1>
-<div style="position:absolute;right:3px;top:3px"><a href="https://github.com/miguel-porto/flora-on-server" target="_blank">fork me on GitHub</a></div>
 <ul class="menu">
-<li id="download-checklist">Download checklist</li>
-<li><a href="?w=graph&depth=3">Graphical taxonomy explorer</a></li>
+    <c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
+    <li id="download-checklist">Download checklist</li>
+    </c:if>
+    <li><a href="?w=graph&depth=3">Graphical taxonomy explorer</a></li>
 </ul>
 <div id="main-holder">
 	<div id="left-bar">
@@ -167,5 +168,6 @@
 	</c:choose>
 </div>
 <div id="loader"><div id="loadermsg">Loading...</div></div>
+<a href="https://github.com/miguel-porto/flora-on-server"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/121cd7cbdc3e4855075ea8b558508b91ac463ac2/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_green_007200.png"></a>
 </body>
 </html>

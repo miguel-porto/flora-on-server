@@ -75,6 +75,10 @@ public class User extends NamedDBNode {
 		return userType == null ? UserType.REGULAR : userType;
 	}
 
+	public boolean isAdministrator() {
+		return userType != null && userType == UserType.ADMINISTRATOR;
+	}
+
 	public void setUserType(String userType) {
 		this.userType = UserType.valueOf(userType);
 	}
@@ -171,9 +175,11 @@ public class User extends NamedDBNode {
 	public void setEDIT_SECTION2(boolean value) {
 		setPrivilege(EDIT_SECTION2, value);
 	}
+
 	public void setEDIT_SECTION3(boolean value) {
 		setPrivilege(EDIT_SECTION3, value);
 	}
+
 	public void setEDIT_SECTION4(boolean value) {
 		setPrivilege(EDIT_SECTION4, value);
 	}

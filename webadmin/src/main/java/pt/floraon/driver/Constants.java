@@ -58,17 +58,24 @@ public final class Constants {
 	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
 
 	public enum TaxonRanks {
-		NORANK("non-taxonomic rank",1000),CLASS("Class",50),FAMILY("Family",100),FORM("Form",240),GENUS("Genus",140),KINGDOM("Kingdom",10)
-    	,ORDER("Order",80),PHYLUM("Phylum (Division)",30),SECTION("Section",160),SERIES("Series",180),SPECIES("Species",200),SUBCLASS("Subclass",60)
-    	,SUBGENUS("Subgenus",150),SUBFAMILY("Subfamily",110),SUBFORM("Subform",250),SUBKINGDOM("Subkingdom",20),SUBORDER("Suborder",90)
-    	,SUBPHYLUM("Subphylum (Subdivision)",40),SUBSECTION("Subsection",170),SUBSERIES("Subseries",190),SUBSPECIES("Subspecies",210)
-    	,SUBTRIBE("Subtribe",130),SUBVARIETY("Subvariety",230),SUPERORDER("Superorder",70),TRIBE("Tribe",120),VARIETY("Variety",220);
+		NORANK("non-taxonomic rank", 1000, null), CLASS("Class", 50, null), FAMILY("Family", 100, null)
+		, FORM("Form", 240, "f."), GENUS("Genus", 140, null), KINGDOM("Kingdom", 10, null), ORDER("Order", 80, null)
+		, PHYLUM("Phylum (Division)", 30, null), SECTION("Section", 160, "sect."), SERIES("Series", 180, null)
+		, SPECIES("Species", 200, null), SUBCLASS("Subclass", 60, null), SUBGENUS("Subgenus", 150, "subgen.")
+		, SUBFAMILY("Subfamily", 110, null), SUBFORM("Subform", 250, null), SUBKINGDOM("Subkingdom", 20, null)
+		, SUBORDER("Suborder", 90, null), SUBPHYLUM("Subphylum (Subdivision)", 40, null), SUBSECTION("Subsection", 170, "subsect.")
+		, SUBSERIES("Subseries", 190, null), SUBSPECIES("Subspecies", 210, "subsp."), SUBTRIBE("Subtribe", 130, null)
+		, SUBVARIETY("Subvariety", 230, null), SUPERORDER("Superorder", 70, null), TRIBE("Tribe", 120, null)
+		, VARIETY("Variety", 220, "var.");
     
 		private final String name;
 		private final Integer value;
-    	TaxonRanks(String name,Integer value) {
+		private final String shortName;
+
+    	TaxonRanks(String name, Integer value, String shortName) {
 			this.name=name;
 			this.value=value;
+			this.shortName = shortName;
 		}
     	
     	public String getName() {
@@ -86,6 +93,14 @@ public final class Constants {
     		}
     		return null;
     	}
+
+		public static TaxonRanks getRankFromShortname(String shortName) {
+			if(shortName == null || shortName.equals("")) return null;
+			for(TaxonRanks tr : values()) {
+				if(Objects.equals(tr.shortName, shortName)) return tr;
+			}
+			return null;
+		}
 	}
 	
 	public enum Facets {	// supertypes of relationships

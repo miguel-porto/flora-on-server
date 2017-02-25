@@ -53,7 +53,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 .navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left; box-shadow: 0 0 12px #600}
 
 .multiplechooser {display:flex; flex-wrap:wrap; justify-content: space-between;}
-.multiplechooser.left {justify-content: left;}
+.multiplechooser.left {justify-content: flex-start;}
 .multiplechooser input[type=checkbox] {display:none;}
 .multiplechooser label {
     flex: 1 1 auto;

@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVPrinter;
 
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.Messages;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
@@ -25,6 +29,14 @@ import pt.floraon.driver.results.ResultItem;
  *
  */
 public class TaxEnt extends NamedDBNode implements ResultItem {
+	/**
+	 * Matches a taxon name of the form:
+	 * Genus species rank infrataxon Author [annotation] sensu somework
+	 */
+	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?(?: +(?:(?<rank>subsp|var|f)\\.? +)?" +
+			"(?<infra>[a-z-]+))?(?: +\\{?(?<author>[A-Z(][^\\[\\]{}]+?)}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
+			"(?: +sensu +(?<sensu1>[^\\[\\]]+))?)|(?:(?: +sensu +(?<sensu2>[^\\[\\]]+))?(?: +\\[(?<annot2>[\\w çãõáàâéêíóôú]+)])?)) *$");
+
 	protected Integer rank;
 	/**
 	 * Some character that distinguishes these populations from the parent taxon
@@ -129,16 +141,38 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	/**
-	 * Creates a TaxEnt from a compound string of the form name {authorship}
+	 * Creates a TaxEnt from a compound string of the form
+	 * Genus species rank infrataxon Author [annotation] sensu somework
 	 * @param name
 	 * @return
 	 * @throws TaxonomyException
 	 */
-	public static TaxEnt parse(String name) throws DatabaseException {
-		name=name.replaceAll(" +", " ").trim();
+	public static TaxEnt parse(String name) throws FloraOnException {
+		name = name.replaceAll(" +", " ").trim();
 		if(name.equals("")) {
-			throw new DatabaseException("Taxon must have a name");
+			throw new DatabaseException(Messages.getString("error.3"));
 		}
+		Matcher m = taxonName.matcher(name);
+		TaxEnt out = new TaxEnt();
+
+		if(m.find()) {
+			StringBuilder sb = new StringBuilder(m.group("genus"));
+			if(m.group("species") != null) sb.append(" ").append(m.group("species"));
+			String r = m.group("rank");
+			if(r != null) {
+				r = r + (r.endsWith(".") ? "" : ".");
+				sb.append(" ").append(r);
+			}
+			if(m.group("infra") != null) sb.append(" ").append(m.group("infra"));
+			out.setName(sb.toString());
+			TaxonRanks tr = TaxonRanks.getRankFromShortname(r);
+			if(tr != null) out.setRank(tr.getValue());
+			out.setAuthor(m.group("author"));
+			out.setAnnotation((m.group("annot1") == null ? m.group("annot2") : m.group("annot1")));
+			out.setSensu((m.group("sensu1") == null ? m.group("sensu2") : m.group("sensu1")));
+		} else throw new FloraOnException(Messages.getString("error.2", name));
+		return out;
+/*
 		// extract the authority between braces (I don't use regex cause it's too simple)
 		int a=name.indexOf('{');
 		int b=name.indexOf('}');
@@ -151,7 +185,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 				name1=name.substring(0,a).trim();
 			}
 		} else name1=name;
-		return new TaxEnt(name1, null, author, null);
+		return new TaxEnt(name1, null, author, null);*/
 	}
 
 	/**
@@ -265,6 +299,30 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}
+
+	public void setAnnotation(String annotation) {
+		this.annotation = annotation;
+	}
+
+	public void setSensu(String sensu) {
+		this.sensu = sensu;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public void setCurrent(Boolean current) {
+		this.current = current;
+	}
+
+	public void setOldId(Integer oldId) {
+		this.oldId = oldId;
+	}
+
+	public void setRank(Integer rank) {
+		this.rank = rank;
 	}
 
 	@Override

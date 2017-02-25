@@ -3,7 +3,6 @@ package pt.floraon.driver;
 import java.util.List;
 
 import pt.floraon.occurrences.CSVFileProcessor;
-import pt.floraon.occurrences.OccurrenceImporter;
 import pt.floraon.taxonomy.entities.Territory;
 
 /**

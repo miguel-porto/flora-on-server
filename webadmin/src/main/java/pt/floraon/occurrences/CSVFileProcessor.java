@@ -164,9 +164,6 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 		return new TaxonomyImporter(driver);
 	}
 
-	public OccurrenceImporter getOccurrenceImporter() {
-		return new OccurrenceImporter(driver);
-	}
 /*
 	public String uploadImagesFromStream(InputStream stream) throws FloraOnException, IOException {
 		Reader freader=null;

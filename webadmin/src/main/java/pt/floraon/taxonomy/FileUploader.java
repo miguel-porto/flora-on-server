@@ -36,7 +36,7 @@ public class FileUploader extends FloraOnServlet {
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
-		
+
 		switch(partIt.next()) {
 		case "authors":
 /*
@@ -64,11 +64,14 @@ public class FileUploader extends FloraOnServlet {
 	 * Upload a file, call the processing routine and store it locally in /tmp
 	 */
 	@Override
-	public void doFloraOnPost() throws ServletException, IOException {
+	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
 		Part filePart;
 		InputStream fileContent = null;
 		try {
 			filePart = request.getPart("occurrenceTable");
+			System.out.println(filePart.getSize());
+
+			if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
 			fileContent = filePart.getInputStream();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -77,6 +80,7 @@ public class FileUploader extends FloraOnServlet {
 		if(fileContent != null) {
 			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(fileContent, driver, getUser()), driver);
 			success(job.getID());
+			fileContent.close();
 		}
 
       // Check that we have a file upload request

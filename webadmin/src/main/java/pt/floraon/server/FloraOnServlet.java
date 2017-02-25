@@ -79,16 +79,33 @@ public class FloraOnServlet extends HttpServlet {
 		response.getWriter().println(out.toString());
 	}
 
-	protected void success(JsonElement obj) throws IOException {
+	protected void success(Object obj) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":true,\"msg\":"+obj.toString()+"}");
+		response.getWriter().println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
 	}
 
-	protected void success(String obj) throws IOException {
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":true,\"msg\":\""+obj+"\"}");
+	protected void success(Object obj, boolean alert) throws IOException {
+		if(!alert)
+			success(obj);
+		else {
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().println("{\"success\":true,\"msg\": {\"alert\": true, \"text\": \"" + obj.toString() + "\"}}");
+		}
+	}
+
+	/**
+	 * Reloads user data from the database
+	 */
+	protected void refreshUser() {
+		try {
+			User user = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(getUser().getID()), User.class);
+			user.clearPassword();
+			user.resetEffectivePrivileges();
+			request.getSession().setAttribute("user", user);
+		} catch (FloraOnException e) {
+		}
 	}
 
 	protected User getUser() {
@@ -157,7 +174,7 @@ public class FloraOnServlet extends HttpServlet {
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk18");
+		request.setAttribute("uuid", "sk19");
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {

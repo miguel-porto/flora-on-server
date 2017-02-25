@@ -110,9 +110,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		if(id.getID().equals(thisNode.getID())) return true;
 		String query = AQLQueries.getString("TaxEntWrapperDriver.13",
 				thisNode.getID(), id.getID());
-		System.out.println(query);
+//		System.out.println(query);
 		try {
-			ArangoCursor<TaxEnt> r = database.query(query,null, new AqlQueryOptions().fullCount(true), TaxEnt.class);
+			ArangoCursor<TaxEnt> r = database.query(query,null, new AqlQueryOptions(), TaxEnt.class);
 			return r.hasNext();
 		} catch (ArangoDBException | NoSuchElementException e) {
 			throw new DatabaseException(e.getMessage());

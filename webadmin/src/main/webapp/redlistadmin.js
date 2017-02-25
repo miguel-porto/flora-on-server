@@ -1,6 +1,6 @@
-var regex_highlight = /\*([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)\*/gi;
-var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)_/gi;
-var regex_sup = /\+([\w çãõáàâéêíóôú\.,;:!?()ñ'\"-]+)\+/gi;
+var regex_highlight = /\*([\w çãõáàâéêíóôú\.,;:!?()ñ&'\"-]+)\*/gi;
+var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()ñ&'\"-]+)_/gi;
+var regex_sup = /\+([\w çãõáàâéêíóôú\.,;:!?()ñ&'\"-]+)\+/gi;
 var regex_htmltag = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/i;
 var regex_htmltagreplace = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/gi;
 var focusedEditableDiv = null;

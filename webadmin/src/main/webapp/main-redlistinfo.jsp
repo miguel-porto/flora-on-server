@@ -34,13 +34,16 @@
 <div id="main-holder">
     <div id="left-bar">
         <ul>
-            <li><a href="?w=main">Taxon index</a></li>
+            <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-                <li><a href="?w=users">Manage users</a></li>
-                <li><a href="api/downloaddata?territory=${territory}">Download data</a></li>
+                <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
+                <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
             </c:if>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
-                <li><a href="api/updatenativestatus?territory=${territory}">Update native status for ${territory}</a></li>
+                <li><a href="api/updatenativestatus?territory=${territory}"><fmt:message key="Separator.4"/> ${territory}</a></li>
+            </c:if>
+            <c:if test="${user.isAdministrator()}">
+                <li><a href="?w=batch"><fmt:message key="Separator.5"/></a></li>
             </c:if>
         </ul>
     </div>
@@ -56,6 +59,15 @@
         </c:forEach>
         </ul>
         </c:if>
+    </c:when>
+    <c:when test="${what=='batch'}">
+        <h1><fmt:message key="Separator.5"/></h1>
+        <p><fmt:message key="Update.1"/></p>
+        <form class="poster" data-path="/floraon/redlist/api/updatefromcsv" data-refresh="false" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="territory" value="${territory}"/>
+            <input type="file" name="updateTable" />
+            <input type="submit" class="textbutton" value="<fmt:message key='Update.2'/>"/>
+        </form>
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>

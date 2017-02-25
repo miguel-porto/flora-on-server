@@ -1,37 +1,33 @@
 package pt.floraon.occurrences.entities;
 
-import org.apache.commons.csv.CSVRecord;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.occurrences.fieldparsers.FieldParser;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * This is an abstract entity representing an inventory, which is composed of the inventory data and the list of taxa.
+ * This is an abstract entity representing an inventory, which is composed of the inventory data, the list of taxa and
+ * additionally some convenience fields.
  * Created by miguel on 08-02-2017.
  */
 public class Inventory implements Serializable {
-    private InventoryData speciesList;
+    private InventoryData inventoryData;
     private List<newOBSERVED_IN> observedIn = new ArrayList<>();
 
     public InventoryData getInventoryData() {
-        return speciesList;
+        return inventoryData;
     }
 
     public Inventory() {
-        this.speciesList = new InventoryData();
+        this.inventoryData = new InventoryData();
     }
 
     public Inventory(Inventory other) {
-        this.speciesList = other.speciesList;
+        this.inventoryData = other.inventoryData;
         this.observedIn = other.observedIn;
     }
 
-    public void setSpeciesList(InventoryData speciesList) {
-        this.speciesList = speciesList;
+    public void setInventoryData(InventoryData inventoryData) {
+        this.inventoryData = inventoryData;
     }
 
     public List<newOBSERVED_IN> getObservedIn() {
@@ -46,23 +42,6 @@ public class Inventory implements Serializable {
         this.observedIn.add(observedIn);
     }
 
-/*
-    public static Inventory fromCSVline(CSVRecord record, Map<String, FieldParser> fieldParsers, Inventory existingInventory) throws FloraOnException {
-//        newOBSERVED_IN obs = new newOBSERVED_IN();
-        if(existingInventory == null) {
-            existingInventory = new Inventory();
-        }
-//        existingInventory.addObservedIn(obs);
-        existingInventory.setSpeciesList(new InventoryData());
-        Map<String, String> map = record.toMap();
-
-        for(Map.Entry<String, String> e : map.entrySet()) {
-            fieldParsers.get(e.getKey()).parseValue(e.getValue(), e.getKey(), existingInventory);
-        }
-        return existingInventory;
-    }
-*/
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -70,11 +49,11 @@ public class Inventory implements Serializable {
 
         Inventory inventory = (Inventory) o;
 
-        return speciesList.equals(inventory.speciesList);
+        return inventoryData.equals(inventory.inventoryData);
     }
 
     @Override
     public int hashCode() {
-        return speciesList.hashCode();
+        return inventoryData.hashCode();
     }
 }

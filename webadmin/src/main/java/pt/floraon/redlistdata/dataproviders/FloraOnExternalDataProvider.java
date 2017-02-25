@@ -117,8 +117,7 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
 //            throw new FloraOnException(resp.getAsJsonPrimitive("msg").getAsString());
         }
 
-        Type listType = new TypeToken<Map<String, Object>>() {
-        }.getType();
+        Type listType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> occArray;
         occArray = new Gson().fromJson(resp.getAsJsonObject("msg"), listType);
         System.out.println(resp.toString());

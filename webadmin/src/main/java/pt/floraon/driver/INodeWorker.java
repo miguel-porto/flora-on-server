@@ -103,14 +103,18 @@ public interface INodeWorker {
 	TaxEnt getTaxEntByName(String q) throws FloraOnException;
 
 	/**
-	 * Gets only one node, or none, based on name and rank.
-	 * NOTE: if rank is "norank", it is ignored.
+	 * Matches a name of the form
+	 * Genus species rank infrataxon Author [annotation] sensu somework
+	 * with the database and returns only one node, or none.
+	 * This function aims to streamline the importing process
 	 *
 	 * @param q
 	 * @return
-	 * @throws FloraOnException
+	 * @throws FloraOnException if more than one node is found
 	 */
 	TaxEnt getTaxEnt(TaxEnt q) throws QueryException, FloraOnException;
+
+	TaxEnt matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException;
 
 	Attribute getAttributeByName(String name) throws FloraOnException;
 
@@ -174,6 +178,18 @@ public interface INodeWorker {
 	 * @throws FloraOnException
 	 */
 	GraphUpdateResult updateDocument(INodeKey id, String key, Object value) throws FloraOnException;
+
+	/**
+	 * Update any document in the DB, with a java bean
+	 * @param id
+	 * @param newEntity
+	 * @param replace
+	 * @param tClass
+	 * @param <T>
+	 * @return
+	 * @throws FloraOnException
+	 */
+	<T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replace, Class<T> tClass) throws FloraOnException;
 
 	/**
 	 * Updates or replaces a TaxEnt node in the DB.
