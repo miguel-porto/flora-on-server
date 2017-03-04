@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
 
 /**
@@ -14,6 +15,7 @@ public class Threats implements DiffableBean {
     private String declineNrLocationsJustification;
     private RedListEnums.YesNoNA extremeFluctuationsNrLocations;
     private String extremeFluctuationsNrLocationsJustification;
+    private RedListEnums.Threats[] threats;
 
     public RedListEnums.DeclineNrLocations getDeclineNrLocations() {
         return declineNrLocations == null ? RedListEnums.DeclineNrLocations.NO_INFORMATION : declineNrLocations;
@@ -43,6 +45,12 @@ public class Threats implements DiffableBean {
         return extremeFluctuationsNrLocationsJustification == null ? "" : extremeFluctuationsNrLocationsJustification;
     }
 
+    public RedListEnums.Threats[] getThreats() {
+        return StringUtils.isArrayEmpty(threats)
+                ? new RedListEnums.Threats[0]
+                : threats;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -69,5 +77,9 @@ public class Threats implements DiffableBean {
 
     public void setExtremeFluctuationsNrLocationsJustification(String extremeFluctuationsNrLocationsJustification) {
         this.extremeFluctuationsNrLocationsJustification = extremeFluctuationsNrLocationsJustification;
+    }
+
+    public void setThreats(RedListEnums.Threats[] threats) {
+        this.threats = threats;
     }
 }

@@ -260,6 +260,7 @@ input[type=submit].textbutton {
 
 .checkboxes {display:flex; flex-wrap: wrap; justify-content: space-between;}
 .checkboxes.list {display: block; cursor:pointer;}
+.checkboxes.list.compact {display: flex;}
 
 .checkboxes input[type=checkbox], .checkboxes input[type=radio] {display:none;}
 .checkboxes label, .checkboxes.list .placeholder {
@@ -274,17 +275,28 @@ input[type=submit].textbutton {
 }
 .checkboxes.list label, .checkboxes.list .placeholder {
     display: block;
-    transition: max-height 0.5s, padding 0.5s, margin 0.5s, background-color 0.15s;
-    overflow:hidden; max-height:100px;
+    transition: max-width 0.5s, max-height 0.5s, padding 0.5s, margin 0.5s, background-color 0.15s;
+    overflow:hidden;
+    max-height:200px;
 }
 .checkboxes input:checked + label {background-color: #64b5f6; opacity:1; box-shadow: 0 0 5px #888;}
 .checkboxes.list input:not(:checked) + label {}
 table.sheet:not(.help) .checkboxes.list:not(:focus) input:not(:checked) + label {max-height: 0px; padding: 0px 10px; margin: 0px 6px;}
+/*table.sheet:not(.help) .checkboxes.list:not(:focus) input:not(:checked) + label {max-height: 0px; max-width: 0; padding: 0; margin: 0}*/
 table.sheet:not(.help) .checkboxes.list:not(:focus) input, table.sheet:not(.help) .checkboxes.list:not(:focus) label {pointer-events: none;}
 .checkboxes.list:not(:focus) input:checked + label ~ .placeholder, .checkboxes.list:focus .placeholder {display: none}
 table.sheet.help .placeholder {display: none !important;}
 
-.legend {font-size: 0.6em; color:gray;}
+.checkboxes label.HUMAN_CONSTRUCTION {background-color: #ffccbc}
+.checkboxes label.VEGETATION_MANAGEMENT {background-color: #f8bbd0}
+.checkboxes label.RESOURCES {background-color: #f0f4c3}
+.checkboxes label.OTHER_HUMAN {background-color: #d1c4e9}
+.checkboxes label.NATURAL_DYNAMICS {background-color: #c8e6c9}
+.checkboxes label.STOCHASTIC {background-color: #bbdefb}
+.checkboxes label.UNKNOWN {background-color: #ffecb3}
+.checkboxes label.OTHER {background-color: #d7ccc8}
+
+.legend {font-size: 0.6em; color:#545454;}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
 table.small {width: auto;}

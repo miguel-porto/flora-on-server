@@ -395,6 +395,90 @@ public class RedListEnums {
         }
     }
 
+    public enum ThreatCategories implements LabelledEnum {
+        HUMAN_CONSTRUCTION("ThreatCategories.1")
+        , VEGETATION_MANAGEMENT("ThreatCategories.2")
+        , RESOURCES("ThreatCategories.3")
+        , OTHER_HUMAN("ThreatCategories.4")
+        , NATURAL_DYNAMICS("ThreatCategories.5")
+        , STOCHASTIC("ThreatCategories.6")
+        , UNKNOWN("ThreatCategories.7")
+        , OTHER("ThreatCategories.8");
+
+        private String label;
+
+        ThreatCategories(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String getLabel() {
+            return this.label;
+        }
+    }
+
+    public enum Threats implements LabelledEnumWithDescription {
+        CURBI("Threats.1", "Threats.1.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , CTRAN("Threats.2", "Threats.2.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , CCOST("Threats.3", "Threats.3.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , CBARR("Threats.4", "Threats.4.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , CEOLS("Threats.5", "Threats.5.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , CLINE("Threats.6", "Threats.6.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , COUTR("Threats.7", "Threats.7.desc", ThreatCategories.HUMAN_CONSTRUCTION)
+        , AAGRO("Threats.8", "Threats.8.desc", ThreatCategories.VEGETATION_MANAGEMENT)
+        , AFLOR("Threats.9", "Threats.9.desc", ThreatCategories.VEGETATION_MANAGEMENT)
+        , APECU("Threats.10", "Threats.10.desc", ThreatCategories.VEGETATION_MANAGEMENT)
+        , ACULT("Threats.11", "Threats.11.desc", ThreatCategories.VEGETATION_MANAGEMENT)
+        , ADESF("Threats.12", "Threats.12.desc", ThreatCategories.VEGETATION_MANAGEMENT)
+        , EXGEO("Threats.13", "Threats.13.desc", ThreatCategories.RESOURCES)
+        , EXHID("Threats.14", "Threats.14.desc", ThreatCategories.RESOURCES)
+        , EXSAL("Threats.15", "Threats.15.desc", ThreatCategories.RESOURCES)
+        , EXAQU("Threats.16", "Threats.16.desc", ThreatCategories.RESOURCES)
+        , EXREC("Threats.17", "Threats.17.desc", ThreatCategories.RESOURCES)
+        , HLAZE("Threats.18", "Threats.18.desc", ThreatCategories.OTHER_HUMAN)
+        , HPOLU("Threats.19", "Threats.19.desc", ThreatCategories.OTHER_HUMAN)
+        , HRESI("Threats.20", "Threats.20.desc", ThreatCategories.OTHER_HUMAN)
+        , HLITO("Threats.21", "Threats.21.desc", ThreatCategories.OTHER_HUMAN)
+        , HFOGO("Threats.22", "Threats.22.desc", ThreatCategories.OTHER_HUMAN)
+        , HDREN("Threats.23", "Threats.23.desc", ThreatCategories.OTHER_HUMAN)
+        , BNATU("Threats.24", "Threats.24.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BEROS("Threats.25", "Threats.25.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BNEVE("Threats.26", "Threats.26.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BHIDR("Threats.27", "Threats.27.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BEXOT("Threats.28", "Threats.28.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BHERB("Threats.29", "Threats.29.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BREPR("Threats.30", "Threats.30.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BDOEN("Threats.31", "Threats.31.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , BPOLG("Threats.32", "Threats.32.desc", ThreatCategories.NATURAL_DYNAMICS)
+        , STOCA("Threats.33", "Threats.33.desc", ThreatCategories.STOCHASTIC)
+        , UNKN("Threats.34", "Threats.34.desc", ThreatCategories.UNKNOWN)
+        , INEXT("Threats.35", "Threats.35.desc", ThreatCategories.UNKNOWN)
+        , OTHER("Threats.36", "Threats.36.desc", ThreatCategories.OTHER);
+
+        private String label, description;
+        private ThreatCategories category;
+
+        Threats(String label, String description, ThreatCategories category) {
+            this.label = label;
+            this.description = description;
+            this.category = category;
+        }
+
+        public ThreatCategories getCategory() {
+            return this.category;
+        }
+
+        @Override
+        public String getLabel() {
+            return this.label;
+        }
+
+        @Override
+        public String getDescription() {
+            return this.description;
+        }
+    }
+
     public enum ProposedConservationActions implements LabelledEnumWithDescription {
         NO_MEASURES("ProposedConservationActions.0", "ProposedConservationActions.0.desc"),
         SITE_PROTECTION("ProposedConservationActions.1", "ProposedConservationActions.1.desc"),

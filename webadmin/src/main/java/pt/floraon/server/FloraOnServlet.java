@@ -85,6 +85,16 @@ public class FloraOnServlet extends HttpServlet {
 		response.getWriter().println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
 	}
 
+	protected void success(JsonObject obj) throws IOException {
+		success((JsonElement) obj);
+	}
+
+	protected void success(JsonElement obj) throws IOException {
+		response.setContentType("application/json");
+		response.setCharacterEncoding("UTF-8");
+		response.getWriter().println("{\"success\":true,\"msg\":" + obj.toString() + "}");
+	}
+
 	protected void success(Object obj, boolean alert) throws IOException {
 		if(!alert)
 			success(obj);

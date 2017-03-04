@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
 
 /**
@@ -36,19 +37,22 @@ public class Conservation implements DiffableBean {
     }
 
     public RedListEnums.ProposedConservationActions[] getProposedConservationActions() {
-        return proposedConservationActions == null
-                || proposedConservationActions.length == 0
-                || proposedConservationActions[0] == null
+        return StringUtils.isArrayEmpty(proposedConservationActions)
                 ? new RedListEnums.ProposedConservationActions[]{RedListEnums.ProposedConservationActions.NO_MEASURES}
                 : proposedConservationActions;
     }
 
     public RedListEnums.ProposedStudyMeasures[] getProposedStudyMeasures() {
+        return StringUtils.isArrayEmpty(proposedStudyMeasures)
+                ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES}
+                : proposedStudyMeasures;
+/*
         return proposedStudyMeasures == null
                 || proposedStudyMeasures.length == 0
                 || proposedStudyMeasures[0] == null
                 ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES}
                 : proposedStudyMeasures;
+*/
     }
 
     public void setDescription(String description) {

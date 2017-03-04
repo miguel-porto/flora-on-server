@@ -452,6 +452,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.threats.setExtremeFluctuationsNrLocationsJustification(extremeFluctuationsNrLocationsJustification);
     }
 
+    public void setThreats_Threats(String[] threats) {
+        this.threats.setThreats(StringUtils.stringArrayToEnumArray(threats, RedListEnums.Threats.class));
+    }
+
     /*******
      * Conservation fields
      *******/

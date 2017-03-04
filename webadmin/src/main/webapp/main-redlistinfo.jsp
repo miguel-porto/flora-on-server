@@ -785,29 +785,13 @@
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section5"><td class="title">5.2</td><td><fmt:message key="DataSheet.label.5.2" /></td><td>
-                        <c:if test="${user.canEDIT_SECTION5()}">
-                            <div class="checkboxes list" tabindex="0">
-                                <input type="hidden" name="usesAndTrade_Uses" value=""/>
-                            <c:forEach var="tmp" items="${usesAndTrade_Uses}">
-                                <c:if test="${uses.contains(tmp)}">
-                                    <input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}" checked="checked" id="uses_${tmp}"/>
-                                    <label for="uses_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
-                                </c:if>
-                                <c:if test="${!uses.contains(tmp)}">
-                                    <input type="checkbox" name="usesAndTrade_Uses" value="${tmp.toString()}" id="uses_${tmp}"/>
-                                    <label for="uses_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
-                                </c:if>
-                            </c:forEach>
-                            <label class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></label>
-                            </div>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION5()}">
-                            <ul>
-                            <c:forEach var="tmp" items="${uses}">
-                                <li><fmt:message key="${tmp.getLabel()}" /></li>
-                            </c:forEach>
-                            </ul>
-                        </c:if>
+                        <t:multiplechooser
+                            privilege="${user.canEDIT_SECTION5()}"
+                            values="${uses}"
+                            allvalues="${usesAndTrade_Uses}"
+                            name="usesAndTrade_Uses"
+                            layout="list"
+                            idprefix="uses" />
                     </td></tr>
                     <tr class="section5"><td class="title">5.3</td><td><fmt:message key="DataSheet.label.5.3" /></td><td>
                         <c:if test="${user.canEDIT_SECTION5()}">
@@ -849,7 +833,14 @@
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section6"><td class="title">6.2</td><td>Threats</td><td>
-                        (a fazer...)
+                    <t:multiplechooser
+                        privilege="${user.canEDIT_SECTION6()}"
+                        values="${threats}"
+                        allvalues="${threats_Threats}"
+                        name="threats_Threats"
+                        layout="list"
+                        categorized="true"
+                        idprefix="thr" />
                     </td></tr>
                     <tr class="section6"><td class="title">6.3</td><td>Number of locations</td><td>
                     <c:if test="${user.canEDIT_SECTION6()}">
@@ -1016,55 +1007,22 @@
                         (a fazer)
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td><fmt:message key="DataSheet.label.7.5" /></td><td>
-                        <c:if test="${user.canEDIT_SECTION7()}">
-                        <div class="checkboxes list" tabindex="0">
-                            <input type="hidden" name="conservation_ProposedConservationActions" value=""/>
-                            <c:forEach var="tmp" items="${conservation_ProposedConservationActions}">
-                                <c:if test="${proposedConservationActions.contains(tmp)}">
-                                    <input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}" checked="checked" id="pca_${tmp}"/>
-                                    <label for="pca_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
-                                </c:if>
-                                <c:if test="${!proposedConservationActions.contains(tmp)}">
-                                    <input type="checkbox" name="conservation_ProposedConservationActions" value="${tmp.toString()}" id="pca_${tmp}"/>
-                                    <label for="pca_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
-                                </c:if>
-                            </c:forEach>
-                            <label class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></label>
-                        </div>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION7()}">
-                            <ul>
-                            <c:forEach var="tmp" items="${proposedConservationActions}">
-                                <li><fmt:message key="${tmp.getLabel()}" /></li>
-                            </c:forEach>
-                            </ul>
-                        </c:if>
+                        <t:multiplechooser
+                            privilege="${user.canEDIT_SECTION7()}"
+                            values="${proposedConservationActions}"
+                            allvalues="${conservation_ProposedConservationActions}"
+                            name="conservation_ProposedConservationActions"
+                            layout="list"
+                            idprefix="pca" />
                     </td></tr>
-
                     <tr class="section7"><td class="title">7.6</td><td><fmt:message key="DataSheet.label.7.6" /></td><td>
-                        <c:if test="${user.canEDIT_SECTION7()}">
-                        <div class="checkboxes list" tabindex="0">
-                            <input type="hidden" name="conservation_ProposedStudyMeasures" value=""/>
-                            <c:forEach var="tmp" items="${conservation_ProposedStudyMeasures}">
-                                <c:if test="${proposedStudyMeasures.contains(tmp)}">
-                                    <input type="checkbox" name="conservation_ProposedStudyMeasures" value="${tmp.toString()}" checked="checked" id="psm_${tmp}"/>
-                                    <label for="psm_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
-                                </c:if>
-                                <c:if test="${!proposedStudyMeasures.contains(tmp)}">
-                                    <input type="checkbox" name="conservation_ProposedStudyMeasures" value="${tmp.toString()}" id="psm_${tmp}"/>
-                                    <label for="psm_${tmp}"> <fmt:message key="${tmp.getLabel()}" /><div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
-                                </c:if>
-                            </c:forEach>
-                            <label class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></label>
-                        </div>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION7()}">
-                            <ul>
-                            <c:forEach var="tmp" items="${proposedStudyMeasures}">
-                                <li><fmt:message key="${tmp.getLabel()}" /></li>
-                            </c:forEach>
-                            </ul>
-                        </c:if>
+                        <t:multiplechooser
+                            privilege="${user.canEDIT_SECTION7()}"
+                            values="${proposedStudyMeasures}"
+                            allvalues="${conservation_ProposedStudyMeasures}"
+                            name="conservation_ProposedStudyMeasures"
+                            layout="list"
+                            idprefix="psm" />
                     </td></tr>
 
                     <tr class="section8"><td class="title" colspan="3">Section 8 - Bibliographic references</td></tr>
