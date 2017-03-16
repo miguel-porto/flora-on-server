@@ -1,12 +1,8 @@
 package pt.floraon.redlistdata;
 
-import com.arangodb.internal.velocypack.VPackSerializers;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import jline.internal.Log;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
-import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -30,7 +26,7 @@ public class UpdateNativeStatusJob implements JobTask {
     @Override
     public void run(IFloraOn driver) throws FloraOnException, IOException {
         Log.info("Updating red list dataset for " + territory);
-        List<RedListDataEntity> rldel = driver.getRedListData().getAllRedListTaxa(territory, false);
+        List<RedListDataEntity> rldel = driver.getRedListData().getAllRedListData(territory, false);
         total = rldel.size();
         Map<String, Object> v = new HashMap<>();
 

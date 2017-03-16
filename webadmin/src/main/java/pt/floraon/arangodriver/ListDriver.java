@@ -16,6 +16,7 @@ import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.taxonomy.entities.ChecklistEntry;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.GraphUpdateResult;
@@ -30,6 +31,16 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 		this.database = (ArangoDatabase) driver.getDatabase();
 	}
 
+	@Override
+	public Iterator<ChecklistEntry> getCheckList() throws FloraOnException {
+		String query = AQLQueries.getString("Checklist", true);
+		try {
+			return database.query(query, null, null, ChecklistEntry.class);
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
+		}
+
+	}
 /*
 	public List<ChecklistEntry> getCheckList() {
 		// TODO the query is very slow!
@@ -171,7 +182,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 				, filter == null ? "" : "FILTER LIKE(thistaxon.name, '%%" + filter + "%%', true) "
 			);//onlyCurrent ? "FILTER v.current==true" : ""
 		} else {
-			if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist."); //$NON-NLS-1$
+			if(onlyLeafNodes) System.out.println("Warning: possibly omitting taxa from the checklist.");
 //FIXME do this!
 		}
 		//System.out.println(query);

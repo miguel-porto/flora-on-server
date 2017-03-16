@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import pt.floraon.taxonomy.entities.ChecklistEntry;
 import pt.floraon.taxonomy.entities.EXISTS_IN;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
@@ -19,7 +20,7 @@ public interface IListDriver {
 	 * Gets the complete list of taxa in the DB
 	 * @return
 	 */
-//	List<ChecklistEntry> getCheckList();
+	Iterator<ChecklistEntry> getCheckList() throws FloraOnException;
     /**
      * Gets the territories that should be listed in the checklist
      * @return

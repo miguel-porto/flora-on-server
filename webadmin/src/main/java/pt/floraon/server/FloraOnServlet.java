@@ -184,7 +184,7 @@ public class FloraOnServlet extends HttpServlet {
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk19");
+		request.setAttribute("uuid", "sk20");
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {
@@ -228,6 +228,23 @@ public class FloraOnServlet extends HttpServlet {
 			tmp = request.getPart(name)==null ? null : IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8);
 		} else tmp = request.getParameter(name);
 		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
+	}
+
+	/**
+	 * Gets the parameter as a String array or null if the parameter is not present.
+	 * @param name
+	 * @return
+	 * @throws IOException
+	 * @throws ServletException
+	 */
+	public String[] getParameterAsStringArray(String name) throws IOException, ServletException {
+		String[] tmp;
+		if(request.getContentType()==null)
+			tmp = request.getParameterValues(name);
+		else if(request.getContentType().contains("multipart/formdata")) {
+			tmp = request.getPart(name)==null ? new String[0] : new String[] {IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8)};
+		} else tmp = request.getParameterValues(name);
+		return tmp;
 	}
 
 	/**

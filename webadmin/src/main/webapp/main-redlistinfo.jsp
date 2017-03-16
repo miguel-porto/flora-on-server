@@ -38,6 +38,7 @@
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
                 <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
+                <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
             </c:if>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
                 <li><a href="api/updatenativestatus?territory=${territory}"><fmt:message key="Separator.4"/> ${territory}</a></li>
@@ -68,6 +69,44 @@
             <input type="file" name="updateTable" />
             <input type="submit" class="textbutton" value="<fmt:message key='Update.2'/>"/>
         </form>
+    </c:when>
+    <c:when test="${what=='jobs'}">
+        <iframe style="visibility: hidden; width:0; height:0" name="trash"></iframe>
+        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+            <h1><fmt:message key="Separator.6"/></h1>
+            <h2><fmt:message key="Downloads.1"/></h2>
+            <p><fmt:message key="Downloads.3"/></p>
+            <!--<form action="api/downloadtable" target="trash">-->
+            <form class="poster" data-path="/floraon/redlist/api/downloadtable" data-refresh="true">
+                <h3>Tabela de taxa da Lista Alvo e Lista B com EOO, AOO, etc.</h3>
+                <input type="hidden" name="territory" value="${territory}"/>
+                <c:forEach var="tag" items="${allTags}">
+                <label><input type="checkbox" name="tags" value="${tag}"/> ${tag}</label>
+                </c:forEach>
+                <input type="submit" value="Descarregar" class="textbutton"/>
+            </form>
+            <h2><fmt:message key="Downloads.2"/></h2>
+            <table>
+                <tr>
+                    <th>Date started</th>
+                    <th>Ready</th>
+                    <th>Status</th>
+                    <th>Download</th>
+                </tr>
+                <c:forEach var="job" items="${jobs}">
+                <tr>
+                    <td>${job.getDateSubmitted()}</td>
+                    <td><t:yesno test="${job.isReady()}"/></td>
+                    <td>${job.getState()}</td>
+                    <td>
+                        <c:if test="${job.isFileDownload() && job.isReady()}">
+                        <a href="/floraon/job/${job.getID()}">Download file</a>
+                        </c:if>
+                    </td>
+                </tr>
+                </c:forEach>
+            </table>
+        </c:if>
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
@@ -399,7 +438,7 @@
                             </c:if>
                             <tr><td>Historical EOO</td><td>
                                 <input type="hidden" name="geographicalDistribution_historicalEOO" value="${hEOO}"/>
-                                <fmt:formatNumber value="${hEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup>
+                                <fmt:formatNumber value="${hEOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup> (${historicalOccurrences.size()} occurrences)
                             </td></tr>
 <!--
                             <tr><td>UTM square EOO</td><td>
@@ -825,14 +864,14 @@
                     </td></tr>
                     <tr class="section6"><td class="title" colspan="3"><a name="threats"></a><fmt:message key="DataSheet.label.section"/> 6 - <fmt:message key="DataSheet.label.6" /></td></tr>
                 </c:if>
-                <tr class="section6 textual"><td class="title">6.1</td><td>Threat description</td><td>
+                <tr class="section6 textual"><td class="title">6.1</td><td><fmt:message key="DataSheet.label.6.1"/></td><td>
                     <t:editabletext
                         privilege="${user.canEDIT_SECTION6() || user.canEDIT_ALL_TEXTUAL()}"
                         value="${rlde.getThreats().getDescription()}"
                         name="threats_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section6"><td class="title">6.2</td><td>Threats</td><td>
+                    <tr class="section6"><td class="title">6.2</td><td><fmt:message key="DataSheet.label.6.2"/></td><td>
                     <t:multiplechooser
                         privilege="${user.canEDIT_SECTION6()}"
                         values="${threats}"
@@ -842,7 +881,7 @@
                         categorized="true"
                         idprefix="thr" />
                     </td></tr>
-                    <tr class="section6"><td class="title">6.3</td><td>Number of locations</td><td>
+                    <tr class="section6"><td class="title">6.3</td><td><fmt:message key="DataSheet.label.6.3"/></td><td>
                     <c:if test="${user.canEDIT_SECTION6()}">
                         <table>
                             <tr><td>Number</td><td>
@@ -852,14 +891,14 @@
                                 <div contenteditable="true" class="contenteditable">${rlde.getThreats().getNumberOfLocationsJustification()}</div>
                                 <input type="hidden" name="threats_NumberOfLocationsJustification" value="${fn:escapeXml(rlde.getThreats().getNumberOfLocationsJustification())}"/>
                             </td></tr>
-                            <tr><td>Automatic estimate</td><td>${nclusters} sites</td></tr>
+                            <tr><td><fmt:message key="DataSheet.label.6.3b"/></td><td>${nclusters} <fmt:message key="DataSheet.label.6.3a"/></td></tr>
                         </table>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION6()}">
                         <table>
                             <tr><td>Number</td><td>${rlde.getThreats().getNumberOfLocations()}</td></tr>
                             <tr><td>Justification</td><td>${rlde.getThreats().getNumberOfLocationsJustification()}</td></tr>
-                            <tr><td>Automatic estimate</td><td>${nclusters} sites</td></tr>
+                            <tr><td><fmt:message key="DataSheet.label.6.3b"/></td><td>${nclusters} <fmt:message key="DataSheet.label.6.3a"/></td></tr>
                         </table>
                     </c:if>
                     </td></tr>
@@ -1003,8 +1042,12 @@
                             <p>No occurrences</p>
                         </c:if>
                     </td></tr>
-                    <tr class="section7"><td class="title">7.4.1</td><td>Legally protected?</td><td>
-                        (a fazer)
+                    <tr class="section7"><td class="title">7.4.1</td><td>Legal protection</td><td>
+                        <ul>
+                            <c:forEach var="tmp" items="${legalProtection}">
+                            <li>${tmp}</li>
+                            </c:forEach>
+                        </ul>
                     </td></tr>
                     <tr class="section7"><td class="title">7.5</td><td><fmt:message key="DataSheet.label.7.5" /></td><td>
                         <t:multiplechooser

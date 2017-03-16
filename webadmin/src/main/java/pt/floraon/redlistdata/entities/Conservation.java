@@ -15,6 +15,7 @@ public class Conservation implements DiffableBean {
     private String exSituConservationJustification;
     private RedListEnums.ProposedConservationActions[] proposedConservationActions;
     private RedListEnums.ProposedStudyMeasures[] proposedStudyMeasures;
+    private String[] legalProtection;
 
     public String getDescription() {
         return description == null ? "" : description;
@@ -46,13 +47,12 @@ public class Conservation implements DiffableBean {
         return StringUtils.isArrayEmpty(proposedStudyMeasures)
                 ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES}
                 : proposedStudyMeasures;
-/*
-        return proposedStudyMeasures == null
-                || proposedStudyMeasures.length == 0
-                || proposedStudyMeasures[0] == null
-                ? new RedListEnums.ProposedStudyMeasures[]{RedListEnums.ProposedStudyMeasures.NO_STUDIES}
-                : proposedStudyMeasures;
-*/
+    }
+
+    public String[] getLegalProtection() {
+        return StringUtils.isArrayEmpty(legalProtection)
+                ? new String[0]
+                : legalProtection;
     }
 
     public void setDescription(String description) {
@@ -81,5 +81,9 @@ public class Conservation implements DiffableBean {
 
     public void setExSituConservationJustification(String exSituConservationJustification) {
         this.exSituConservationJustification = exSituConservationJustification;
+    }
+
+    public void setLegalProtection(String[] legalProtection) {
+        this.legalProtection = StringUtils.cleanArray(legalProtection);
     }
 }

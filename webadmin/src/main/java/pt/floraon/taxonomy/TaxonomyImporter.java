@@ -102,12 +102,10 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
 
                     if(pastspecies && parsedName.getAuthor()==null) author=parentNode.getAuthor(); else author=null;
 
-                    parsedName.update(
-                            name
-                            , Constants.TaxonRanks.valueOf(rankNames[i].toUpperCase()).getValue()
-                            , author
-                            , null
-                            , true);
+                    parsedName.setName(name);
+                    parsedName.setRank(Constants.TaxonRanks.valueOf(rankNames[i].toUpperCase()).getValue());
+                    parsedName.setAuthor(author);
+                    parsedName.setCurrent(true);
 
                     curTaxEnt=nwd.getTaxEnt(parsedName);
 

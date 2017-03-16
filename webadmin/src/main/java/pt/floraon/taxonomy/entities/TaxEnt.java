@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jline.internal.Log;
 import org.apache.commons.csv.CSVPrinter;
 
 import com.google.gson.JsonObject;
@@ -32,9 +33,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	/**
 	 * Matches a taxon name of the form:
 	 * Genus species rank infrataxon Author [annotation] sensu somework
+	 * TODO allow muiltiple infrataxa
 	 */
-	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?(?: +(?:(?<rank>subsp|var|f)\\.? +)?" +
-			"(?<infra>[a-z-]+))?(?: +\\{?(?<author>[A-Z(][^\\[\\]{}]+?)}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
+	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?" +
+			//"(?: +(?:(?<rank>subsp|var|f)\\.? +)?(?<infra>[a-z-]+))?" +
+			"(?<infras>[ a-z-.]*?)?" +
+			"(?: +\\{?(?<author>[A-Z(][^\\[\\]{}]+?)}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
 			"(?: +sensu +(?<sensu1>[^\\[\\]]+))?)|(?:(?: +sensu +(?<sensu2>[^\\[\\]]+))?(?: +\\[(?<annot2>[\\w çãõáàâéêíóôú]+)])?)) *$");
 
 	protected Integer rank;
@@ -115,29 +119,11 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	/**
-	 * Changes properties of this TaxEnt object. Pass null to leave as it is.
-	 * TODO: empty string to remove
-	 * @param name
-	 * @param rank
-	 * @param author
-	 * @param annotation
-	 * @param current
-	 * @throws TaxonomyException
+	 * Gets binomial species
+	 * @return
 	 */
-	public void update(String name,Integer rank,String author,String annotation,Boolean current) throws DatabaseException {
-		if(name!=null && name.trim().length()==0) throw new DatabaseException("Taxon must have a name");
-		
-		if(name!=null) this.name=name;
-		if(rank!=null) this.rank=rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
-		
-		if(author!=null && author.trim().length()==0) this.author=null;
-		else if(author!=null) this.author=author;
-
-		if(annotation!=null && annotation.trim().length()==0) this.annotation=null;
-		else if(annotation!=null) this.annotation=annotation;
-
-		if(current!=null) this.current=current;
+	public CanonicalName getSpeciesOnly() {
+		return new CanonicalName(this.getName());
 	}
 
 	/**
@@ -158,13 +144,22 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 		if(m.find()) {
 			StringBuilder sb = new StringBuilder(m.group("genus"));
 			if(m.group("species") != null) sb.append(" ").append(m.group("species"));
+
+			String r = m.group("infras");
+			if(r != null) {
+				sb.append(" ").append(r);
+			}
+			CanonicalName cn = new CanonicalName(sb.toString());
+
+/*
 			String r = m.group("rank");
 			if(r != null) {
 				r = r + (r.endsWith(".") ? "" : ".");
 				sb.append(" ").append(r);
 			}
 			if(m.group("infra") != null) sb.append(" ").append(m.group("infra"));
-			out.setName(sb.toString());
+*/
+			out.setName(cn.toString());
 			TaxonRanks tr = TaxonRanks.getRankFromShortname(r);
 			if(tr != null) out.setRank(tr.getValue());
 			out.setAuthor(m.group("author"));

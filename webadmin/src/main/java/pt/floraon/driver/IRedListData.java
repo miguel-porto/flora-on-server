@@ -1,6 +1,7 @@
 package pt.floraon.driver;
 
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
+import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -67,12 +68,20 @@ public interface IRedListData {
     Iterator<AtomicTaxonPrivilege> getTaxonPrivilegesForAllUsers(String territory) throws DatabaseException;
 
     /**
-     * Fetches all red list data for the given territory
+     * Fetches all red list data for the given territory. Note this is memory intensive.
      * @param territory The territory shortName
+     * @param withTaxonSpecificPrivileges True to compute who is responsible for texts, assessment, etc. for each taxon
+     * @throws FloraOnException
+     */
+    List<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException;
+
+    /**
+     * Fetches all taxa included in the red list data for the given territory.
+     * @param territory
      * @return
      * @throws FloraOnException
      */
-    List<RedListDataEntity> getAllRedListTaxa(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException;
+    Iterator<TaxEnt> getAllRedListTaxa(String territory) throws FloraOnException;
 
     /**
      * Gets the {@link RedListDataEntity} for the given TaxEnt and territory

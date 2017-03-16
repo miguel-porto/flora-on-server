@@ -4,19 +4,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Part;
 
-import com.google.gson.Gson;
-import pt.floraon.driver.jobs.ChecklistDownload;
-import pt.floraon.driver.jobs.JobRunnerFileDownload;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
-import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.server.FloraOnServlet;
@@ -80,7 +75,6 @@ public class FileUploader extends FloraOnServlet {
 		if(fileContent != null) {
 			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(fileContent, driver, getUser()), driver);
 			success(job.getID());
-			fileContent.close();
 		}
 
       // Check that we have a file upload request

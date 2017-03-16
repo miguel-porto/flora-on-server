@@ -4,6 +4,8 @@ import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.jobs.JobRunner;
+import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.entities.*;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -15,7 +17,6 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.*;
 import java.util.List;
 
@@ -61,7 +62,6 @@ System.out.println(gs.toJson(getUser()));
 
         String territory = path.next();
         request.setAttribute("territory", territory);
-        final ExternalDataProvider foop = driver.getRedListData().getExternalDataProviders().get(0);
 
         request.setAttribute("what", what = getParameterAsString("w", "main"));
 
@@ -84,9 +84,9 @@ System.out.println(gs.toJson(getUser()));
  */
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
-//                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, getUser().canMANAGE_REDLIST_USERS());
+//                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, getUser().canMANAGE_REDLIST_USERS());
                 getUser().resetEffectivePrivileges();
-                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListTaxa(territory, true);
+                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true);
                 int count1 = 0, count2 = 0, count3 = 0;
                 for(RedListDataEntity rlde1 : taxEntList) {
                     if(rlde1.hasResponsibleForTexts()) count1++;
@@ -166,18 +166,17 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(getParameterAsKey("id")).getFormerlyIncludedIn());
                     request.setAttribute("includedTaxa", driver.wrapTaxEnt(getParameterAsKey("id")).getIncludedTaxa());
                     if (rlde.getTaxEnt().getOldId() != null) {
-                        foop.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
-                        // TODO clipping polygon must be a user configuration
-                        foop.setClippingPolygon(new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null));
-                        foop.setMinimumYear(null);   // TODO year should be a user configuration
-                        foop.setMaximumYear(1990);
-                        OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
-                                foop, protectedAreas, sizeOfSquare);
+                        for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
+                            edp.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+                        }
 
-                        foop.setMinimumYear(1991);   // TODO year should be a user configuration
-                        foop.setMaximumYear(null);
+                        // TODO clipping polygon and years must be a user configuration
+                        PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                        OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
+                                driver.getRedListData().getExternalDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990);
+
                         OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
-                                foop, protectedAreas, sizeOfSquare);
+                                driver.getRedListData().getExternalDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null);
 
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
@@ -251,7 +250,8 @@ System.out.println(gs.toJson(getUser()));
                                 , occurrenceProcessor.getOccurrenceInProtectedAreas(groupAreasBy).entrySet());
                         request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
 
-                        Map<String, Object> taxonInfo = foop.executeInfoQuery(rlde.getTaxEnt().getOldId());
+                        // FIXME!!!! this only for Flora-On...
+                        Map<String, Object> taxonInfo = driver.getRedListData().getExternalDataProviders().get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
 
                         if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
                             if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
@@ -264,8 +264,8 @@ System.out.println(gs.toJson(getUser()));
                         if (taxonInfo.containsKey("commonName")) {
                             request.setAttribute("commonNames", taxonInfo.get("commonName"));
                         }
-
-                        request.setAttribute("occurrences", foop);
+                        request.setAttribute("occurrences", occurrenceProcessor);
+                        request.setAttribute("historicalOccurrences", historicalOccurrenceProcessor);
                     } else {
                         warnings.add("DataSheet.msg.warning.1b");
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
@@ -284,6 +284,7 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("selcriteria", Arrays.asList(rlde.getAssessment().getCriteria()));
                     request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                     request.setAttribute("tags", Arrays.asList(rlde.getTags()));
+                    request.setAttribute("legalProtection", Arrays.asList(rlde.getConservation().getLegalProtection()));
                     List<PreviousAssessment> prev = rlde.getAssessment().getPreviousAssessmentList();
                     if (prev.size() > 2) {
                         prev = new ArrayList<>();
@@ -339,9 +340,13 @@ System.out.println(gs.toJson(getUser()));
                 if (!getUser().canVIEW_OCCURRENCES()) break;
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
+
                 if (te.getOldId() != null) {
-                    foop.executeOccurrenceQuery(te.getOldId());
-                    request.setAttribute("occurrences", foop);
+                    for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders())
+                        edp.executeOccurrenceQuery(te.getOldId());
+
+                    request.setAttribute("occurrences", OccurrenceProcessor.iterableOf(
+                            driver.getRedListData().getExternalDataProviders()));
                 }
                 break;
 
@@ -349,11 +354,13 @@ System.out.println(gs.toJson(getUser()));
                 if (!getUser().canDOWNLOAD_OCCURRENCES()) break;
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 if (te.getOldId() != null) {
-                    foop.executeOccurrenceQuery(te.getOldId());
+                    for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders())
+                        edp.executeOccurrenceQuery(te.getOldId());
+
                     response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
                     response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
                     PrintWriter wr = response.getWriter();
-                    foop.exportKML(wr);
+                    OccurrenceProcessor.iterableOf(driver.getRedListData().getExternalDataProviders()).exportKML(wr);
                     wr.close();
                     return;
                 }
@@ -436,6 +443,17 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("redlisttaxonprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
                         getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , Privileges.PrivilegeScope.PER_SPECIES));
+                break;
+
+            case "jobs":
+                Set<String> allt = driver.getRedListData().getRedListTags(territory);
+
+                List<JobRunner> jobs = new ArrayList<>();
+                for(String jobID : JobSubmitter.getJobList()) {
+                    jobs.add(JobSubmitter.getJob(jobID));
+                }
+                request.setAttribute("jobs", jobs);
+                request.setAttribute("allTags", allt);
                 break;
         }
 

@@ -2,11 +2,14 @@ package pt.floraon.redlistdata;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
+import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.geometry.*;
+import pt.floraon.taxonomy.entities.CanonicalName;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -17,7 +20,7 @@ import java.util.List;
  * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceProcessor {
+public class OccurrenceProcessor implements Iterable<ExternalDataProvider.SimpleOccurrence> {
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
@@ -29,7 +32,142 @@ public class OccurrenceProcessor {
     private Double EOO, realEOO, squareEOO, AOO;
     private int nQuads = 0;
     private long sizeOfSquare;
-    private ExternalDataProvider occurrences;
+    private List<ExternalDataProvider> occurrences;
+
+    /**
+     * A polygon theme to clip occurrences. May have any number of polygons.
+     */
+    private IPolygonTheme clippingPolygon;
+    /**
+     * The minimum and maximum years considered for including occurrences
+     */
+    private Integer minimumYear, maximumYear;
+
+    /**
+     * Tests whether a given occurrence should be included in the iterator.
+     * @param so
+     * @return
+     */
+    private boolean enter(ExternalDataProvider.SimpleOccurrence so) {
+        if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
+        boolean enter;
+        enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+        enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
+        // records that do not have a year are excluded from historical datasets. They're only included in the current dataset.
+        enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0));
+
+        if(clippingPolygon != null) {
+            boolean tmp2 = false;
+            for(Map.Entry<String, Polygon> po : clippingPolygon) {
+                if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                    tmp2 = true;
+                    break;
+                }
+            }
+            enter &= tmp2;
+        }
+
+        return enter;
+    }
+
+    @Override
+    public Iterator<ExternalDataProvider.SimpleOccurrence> iterator() {
+        return new ExternalDataProviderIterator(occurrences);
+    }
+
+    public class ExternalDataProviderIterator implements Iterator<ExternalDataProvider.SimpleOccurrence> {
+        private List<ExternalDataProvider> providers;
+        private int curIteratorDataProvider = 0;
+        private Iterator<ExternalDataProvider.SimpleOccurrence> curIterator;
+        private ExternalDataProvider.SimpleOccurrence prevElement;
+
+        ExternalDataProviderIterator(List<ExternalDataProvider> providers) {
+            this.providers = providers;
+        }
+
+        @Override
+        public boolean hasNext() {
+            if(prevElement != null) return true;
+
+            if(this.curIterator == null)
+                this.curIterator = this.providers.get(0).iterator();
+
+            do {
+                while (this.curIterator.hasNext()) {
+                    if (enter(prevElement = this.curIterator.next())) return true;
+                }
+                this.curIteratorDataProvider++;
+                if(this.curIteratorDataProvider >= this.providers.size()) break;
+
+                this.curIterator = this.providers.get(curIteratorDataProvider).iterator();
+            } while(true);
+
+            return false;
+        }
+
+        @Override
+        public ExternalDataProvider.SimpleOccurrence next() {
+            ExternalDataProvider.SimpleOccurrence so;
+            if(this.prevElement != null) {
+                so = this.prevElement;
+                this.prevElement = null;
+                return so;
+            }
+            if(this.curIterator == null)
+                this.curIterator = this.providers.get(0).iterator();
+
+            do {
+                while (this.curIterator.hasNext()) {
+                    if (enter(so = this.curIterator.next())) return so;
+                }
+                this.curIteratorDataProvider++;
+                if(this.curIteratorDataProvider >= this.providers.size()) break;
+
+                this.curIterator = this.providers.get(curIteratorDataProvider).iterator();
+            } while(true);
+
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Returns how many occurrences
+     * @return
+     */
+    public int size() {
+        int size = 0;
+        if (clippingPolygon == null && minimumYear == null && maximumYear == null) {
+            for(ExternalDataProvider edp : this.occurrences) {
+                size = size + edp.size();
+            }
+        } else {
+            for(ExternalDataProvider edp : this.occurrences) {
+                for (ExternalDataProvider.SimpleOccurrence so : edp) {
+                    if (enter(so)) size++;
+                }
+            }
+        }
+        return size;
+    }
+
+
+    public void exportKML(PrintWriter out) {
+        final Kml kml = new Kml();
+        Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
+
+        for(ExternalDataProvider.SimpleOccurrence o : this) {
+            Placemark pl = folder.createAndAddPlacemark();
+            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon())
+                    + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
+                    .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
+        }
+        kml.marshal(out);
+    }
 
     private class Square {
         private long qx, qy;
@@ -76,13 +214,45 @@ public class OccurrenceProcessor {
         }
     }
 
+    public static OccurrenceProcessor iterableOf(List<ExternalDataProvider> occurrences) {
+        return new OccurrenceProcessor(occurrences);
+    }
+
+    public static OccurrenceProcessor iterableOf(List<ExternalDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
+        return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear);
+    }
+
     /**
-     * This constructor readily computes all indices from the data provider.
+     * This constructor does nothing but providing an Iterator for all data providers merged. No calculations are done.
+     * @param occurrences
+     */
+    private OccurrenceProcessor(List<ExternalDataProvider> occurrences) {
+        this.occurrences = occurrences;
+        this.pointsInPolygons = null;
+        this.clusters = null;
+    }
+
+    private OccurrenceProcessor(List<ExternalDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
+        this.occurrences = occurrences;
+        this.pointsInPolygons = null;
+        this.clusters = null;
+        this.clippingPolygon = clippingPolygon;
+        this.minimumYear = minimumYear;
+        this.maximumYear = maximumYear;
+    }
+
+    /**
+     * This constructor readily computes all indices from the data providers, for all records.
      * @param occurrences
      * @param protectedAreas
      * @param sizeOfSquare
      */
-    public OccurrenceProcessor(ExternalDataProvider occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
+    public OccurrenceProcessor(List<ExternalDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
+            , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
+        this.clippingPolygon = clippingPolygon;
+        this.minimumYear = minimumYear;
+        this.maximumYear = maximumYear;
+
         Polygon nullPolygon = new Polygon();
         this.protectedAreas = protectedAreas;
 //        this.pointsUTM = new ArrayList<>();
@@ -95,20 +265,23 @@ public class OccurrenceProcessor {
 
         this.occurrences = occurrences;
 
-        if (occurrences.size() == 0) {
+        if (this.size() == 0) {
             clusters = new ArrayList<>();
             return;
         }
 
-        for (ExternalDataProvider.SimpleOccurrence so : occurrences) {
+        // process occurrences and at the same time assign each occurrence to the protected area it falls within
+        for (ExternalDataProvider.SimpleOccurrence so : this) {
             tmp1 = new Point2D(tmp = so.getUTMCoordinates());
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
-            for(Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
-                if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                    pointsInPolygons.put(tmp1, e.getValue());
+            if(protectedAreas != null) {
+                for (Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
+                    if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                        pointsInPolygons.put(tmp1, e.getValue());
+                    }
                 }
             }
-            if(!pointsInPolygons.containsKey(tmp1)) // if the point does not fall in any polygon, add the point anyway
+            if (!pointsInPolygons.containsKey(tmp1)) // if the point does not fall in any polygon, add the point anyway
                 pointsInPolygons.put(tmp1, nullPolygon);    // Multimap does not accept null values
         }
 
@@ -121,7 +294,7 @@ public class OccurrenceProcessor {
         this.nQuads = squares.size();
         this.AOO = (this.nQuads * sizeOfSquare * sizeOfSquare) / 1000000d;
 
-        if (occurrences.size() >= 3) {
+        if (this.size() >= 3) {
             // compute convex convexHull
             // TODO use a projection without zones
 /*
@@ -168,6 +341,10 @@ public class OccurrenceProcessor {
         // now make a clustering to compute approximate number of locations
         DBSCANClusterer<Point2D> cls = new DBSCANClusterer<>(2500, 0);
         clusters = cls.cluster(pointsInPolygons.keySet());
+    }
+
+    public OccurrenceProcessor(List<ExternalDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
+        this(occurrences, protectedAreas, sizeOfSquare, null, null, null);
     }
 
     public void exportSVG(PrintWriter out, boolean showOccurrences) {

@@ -109,6 +109,7 @@ public class OccurrenceImporterJob implements JobTask {
                 System.out.println(counter+" records processed.");
             }
         }
+        freader.close();
 
         // now let's sweep out the species from all inventory groups and aggregate
         InventoryList invList = new InventoryList();
@@ -143,7 +144,6 @@ public class OccurrenceImporterJob implements JobTask {
             invList.add(inv);
         }
 
-        freader.close();
 //        System.out.println(gs.toJson(invList));
         Log.info("Matching taxon names");
 
@@ -156,13 +156,14 @@ public class OccurrenceImporterJob implements JobTask {
                     invList.addParseError(oi);
                     continue;
                 }
-                System.out.println("Verb: "+oi.getVerbTaxon()+" ****");
-                System.out.println("Proc: "+ te.getFullName(false));
+                Log.info("    Verbose name: "+ oi.getVerbTaxon());
+                Log.info("    Parsed name: "+ te.getFullName(false));
                 matched = nwd.getTaxEnt(te);
-                if(matched == null)
-                    System.out.println("No match");
-                else
-                    System.out.println("Matc: "+ matched.getFullName(false));
+                if(matched == null) {
+                    Log.warn("    No match");
+                    invList.addNoMatch(oi);
+                } else
+                    Log.info("    Matched name: "+ matched.getFullName(false), " -- ", matched.getID());
             }
         }
 

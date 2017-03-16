@@ -12,15 +12,11 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.jfree.util.Log;
-import pt.floraon.authentication.entities.User;
-import pt.floraon.driver.INodeWorker;
-import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
-import pt.floraon.occurrences.Messages;
-import pt.floraon.occurrences.OccurrenceImporterJob;
+import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -66,6 +62,18 @@ public class RedListDataApi extends FloraOnServlet {
                 success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
                 break;
 
+            case "downloadtable":
+                territory = getParameterAsString("territory");
+                String[] filter = getParameterAsStringArray("tags");
+                // TODO clipping polygon and years must be a user configuration
+                PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                success(JobSubmitter.newJobFileDownload(
+                        new ComputeAOOEOOJob(territory, clippingPolygon, 1991, 2000
+                                , filter == null ? null : new HashSet<>(Arrays.asList(filter))
+                        )
+                        , "AOO.csv", driver).getID());
+                break;
+
             case "addnewtaxent":
                 if(!getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
                 territory = getParameterAsString("territory");
@@ -92,7 +100,7 @@ public class RedListDataApi extends FloraOnServlet {
                 response.setContentType("application/json; charset=utf-8");
                 response.setCharacterEncoding("UTF-8");
                 response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
-                gs.toJson(driver.getRedListData().getAllRedListTaxa(getParameterAsString("territory"), false), response.getWriter());
+                gs.toJson(driver.getRedListData().getAllRedListData(getParameterAsString("territory"), false), response.getWriter());
                 break;
 
             case "updatedata":

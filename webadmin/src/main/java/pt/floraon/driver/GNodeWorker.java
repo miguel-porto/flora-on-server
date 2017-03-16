@@ -3,6 +3,7 @@ package pt.floraon.driver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import jline.internal.Log;
 import pt.floraon.occurrences.entities.Author;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -115,7 +116,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
     	// Genus species rank infrataxon Author [annotation] sensu somework
     	while(it.hasNext()) {
     		tmp = it.next();
-    		System.out.println("   matching to: "+tmp.getFullName());
+			Log.info("    trying: " + tmp.getFullName());
     		if(q.getRankValue() != null && !q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
 					&& !q.getRankValue().equals(tmp.getRankValue())) {
     			it.remove();

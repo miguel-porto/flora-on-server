@@ -37,7 +37,12 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
 
     @Override
     public void executeOccurrenceQuery(Object query) throws FloraOnException, IOException {
-        int legacyID = (int) query;
+        String legacyID;
+        if(query != null)
+            legacyID = query.toString();
+        else
+            legacyID = "all";
+
         URI oldUri;
         try {
             oldUri = floraOnURL.toURI();

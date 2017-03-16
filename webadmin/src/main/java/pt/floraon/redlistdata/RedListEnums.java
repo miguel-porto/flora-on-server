@@ -138,6 +138,7 @@ public class RedListEnums {
 
     public enum NrMatureIndividuals implements LabelledEnum {
         NO_DATA("NrMatureIndividuals.1")
+        , GT_15000("NrMatureIndividuals.1b")
         , GT_10000("NrMatureIndividuals.2")
         , BET_2500_10000("NrMatureIndividuals.3")
         , BET_1000_2500("NrMatureIndividuals.4")

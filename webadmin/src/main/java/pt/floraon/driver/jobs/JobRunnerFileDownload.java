@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
+
+import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
  * Runs the commands meant to be run asynchronously to a file to be downloaded.
@@ -28,6 +31,7 @@ public class JobRunnerFileDownload implements JobRunner {
 	private String uuid, desiredFileName, errorMessage;
 	private IFloraOn driver;
 	private JobFileDownload job;
+	private Date date;
 	
 	public JobRunnerFileDownload(JobFileDownload job, String desiredFileName, IFloraOn driver) throws IOException {
 		this.tmpFile = File.createTempFile("floraon_", null);
@@ -57,12 +61,17 @@ public class JobRunnerFileDownload implements JobRunner {
 	@Override
 	public String getState() throws FloraOnException {
 		if(hasError) throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
-		return job.getState();
+		return isClosed ? "Finished" : job.getState();
 	}
 
 	@Override
 	public boolean isFileDownload() {
 		return true;
+	}
+
+	@Override
+	public String getDateSubmitted() {
+		return dateTimeFormat.format(this.date);
 	}
 
 	/*
@@ -84,6 +93,7 @@ public class JobRunnerFileDownload implements JobRunner {
 	
 	@Override
 	public void run() {
+		this.date = new Date();
 		try {
 			this.job.run(this.driver, this.outputStream);
 			isClosed=true;

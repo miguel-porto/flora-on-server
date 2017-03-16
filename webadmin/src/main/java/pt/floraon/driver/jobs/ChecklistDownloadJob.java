@@ -10,11 +10,12 @@ import java.util.List;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
+import pt.floraon.taxonomy.entities.ChecklistEntry;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.ResultProcessor;
 
-public class ChecklistDownload implements JobFileDownload {
+public class ChecklistDownloadJob implements JobFileDownload {
 	private boolean finished = false;
 
 	@Override
@@ -24,7 +25,15 @@ public class ChecklistDownload implements JobFileDownload {
 		List<String> terr=new ArrayList<String>();
 		for(Territory tv : driver.getChecklistTerritories())
 			terr.add(tv.getShortName());
-		
+
+		ResultProcessor<ChecklistEntry> rpchk1;
+		Iterator<ChecklistEntry> chklst = driver.getListDriver().getCheckList();
+		rpchk1 = new ResultProcessor<>(chklst);
+		out.write(rpchk1.toCSVTable(terr));
+		out.close();
+		finished = true;
+
+/*
 		ResultProcessor<TaxEntAndNativeStatusResult> rpchk1;
 		Iterator<TaxEntAndNativeStatusResult> chklst = driver.getListDriver().getAllSpeciesOrInferior(true
 				, TaxEntAndNativeStatusResult.class, false, null, null, null, null).iterator();
@@ -34,6 +43,7 @@ public class ChecklistDownload implements JobFileDownload {
 		//out.print(rpchk1.toCSVTable(terr));
 		out.close();
 		finished = true;
+*/
 	}
 
 	@Override

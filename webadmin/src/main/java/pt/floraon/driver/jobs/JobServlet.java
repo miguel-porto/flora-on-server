@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -14,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.server.FloraOnServlet;
 
+@WebServlet("/job/*")
 public class JobServlet extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 

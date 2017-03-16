@@ -1,16 +1,9 @@
 package pt.floraon.redlistdata;
 
-import de.micromata.opengis.kml.v_2_2_0.Document;
-import de.micromata.opengis.kml.v_2_2_0.Folder;
-import de.micromata.opengis.kml.v_2_2_0.Kml;
-import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.*;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,50 +13,9 @@ import java.util.Map;
  */
 public abstract class ExternalDataProvider implements Iterable<ExternalDataProvider.SimpleOccurrence> {
     protected List<SimpleOccurrence> occurrenceList;
-    private IPolygonTheme clippingPolygon;
-    private Integer minimumYear, maximumYear;
 
-    /**
-     * Tests whether a given occurrence should be included in the iterator.
-     * @param so
-     * @return
-     */
-    private boolean enter(SimpleOccurrence so) {
-        boolean enter;
-        enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
-        enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
-        // records that do not have a year are excluded from historical datasets. They're only included in the current dataset.
-        enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0));
-
-        if(clippingPolygon != null) {
-            boolean tmp2 = false;
-            for(Map.Entry<String, Polygon> po : clippingPolygon) {
-                if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                    tmp2 = true;
-                    break;
-                }
-            }
-            enter &= tmp2;
-        }
-
-        return enter;
-    }
-
-    /**
-     * Returns how many occurrences
-     * @return
-     */
     public int size() {
-        if(clippingPolygon == null && minimumYear == null && maximumYear == null)
-            return occurrenceList.size();
-        else {
-            int count = 0;
-            boolean enter;
-            for(SimpleOccurrence so : occurrenceList) {
-                if(enter(so)) count++;
-            }
-            return count;
-        }
+        return this.occurrenceList.size();
     }
 
     /**
@@ -81,18 +33,6 @@ public abstract class ExternalDataProvider implements Iterable<ExternalDataProvi
      * @throws IOException
      */
     public abstract Map<String, Object> executeInfoQuery(Object query) throws FloraOnException, IOException;
-
-    public void exportKML(PrintWriter out) {
-        final Kml kml = new Kml();
-        Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
-        for(ExternalDataProvider.SimpleOccurrence o : this) {
-            Placemark pl = folder.createAndAddPlacemark();
-            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon())
-                    + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
-                    .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
-        }
-        kml.marshal(out);
-    }
 
     public class SimpleOccurrence {
         final float latitude, longitude;
@@ -190,38 +130,7 @@ public abstract class ExternalDataProvider implements Iterable<ExternalDataProvi
 
     @Override
     public Iterator<SimpleOccurrence> iterator() {
-        if(clippingPolygon == null && minimumYear == null && maximumYear == null)
-            return occurrenceList.iterator();
-        else {
-            List<SimpleOccurrence> out = new ArrayList<>();
-            for(SimpleOccurrence so : occurrenceList) {
-                if(enter(so)) out.add(so);
-            }
-            return out.iterator();
-        }
+        return occurrenceList.iterator();
     }
 
-    /**
-     * Sets the minimum year considered for including occurrences
-     * @param minimumYear
-     */
-    public void setMinimumYear(Integer minimumYear) {
-        this.minimumYear = minimumYear;
-    }
-
-    /**
-     * Sets the maximum year considered for including occurrences
-     * @param maximumYear
-     */
-    public void setMaximumYear(Integer maximumYear) {
-        this.maximumYear = maximumYear;
-    }
-
-    /**
-     * Sets a polygon theme to clip occurrences. May have any number of polygons.
-     * @param theme
-     */
-    public void setClippingPolygon(IPolygonTheme theme) {
-        clippingPolygon = theme;
-    }
 }

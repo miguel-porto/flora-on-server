@@ -25,12 +25,24 @@ public class AQLQueries {
 		}
 	}
 
+	public static String getString(String key, boolean fragments) {
+		String msg = RESOURCE_BUNDLE.getString(key);
+		if(fragments) {
+			// replace named AQL fragments
+			Matcher mat = substitutionPattern.matcher(msg);
+			while (mat.find()) {
+				msg = msg.replace("{@" + mat.group(1) + "}", getString(mat.group(1)));
+			}
+			return msg;
+		} else return msg;
+	}
+
 	public static String getString(String key, Object... params) {
 		String msg = RESOURCE_BUNDLE.getString(key);
 		// replace named AQL fragments
 		Matcher mat = substitutionPattern.matcher(msg);
 		while (mat.find()) {
-			msg = msg.replace("{@" + mat.group(1) + "}", getString(mat.group(1), params));
+			msg = msg.replace("{@" + mat.group(1) + "}", getString(mat.group(1)));
 		}
 		// now substitute passed variables
 		try {

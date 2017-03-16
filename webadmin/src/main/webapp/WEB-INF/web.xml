@@ -56,11 +56,6 @@
    </servlet>
 
    <servlet>
-      <servlet-name>JobDownload</servlet-name>
-      <servlet-class>pt.floraon.driver.jobs.JobServlet</servlet-class>
-   </servlet>
-
-   <servlet>
       <servlet-name>Suggestions</servlet-name>
       <servlet-class>pt.floraon.server.Suggestions</servlet-class>
    </servlet>
@@ -111,11 +106,6 @@
    <servlet-mapping>
       <servlet-name>TaxDetails</servlet-name>
       <url-pattern>/checklist/api/taxdetails/*</url-pattern>
-   </servlet-mapping>
-
-   <servlet-mapping>
-      <servlet-name>JobDownload</servlet-name>
-      <url-pattern>/job/*</url-pattern>
    </servlet-mapping>
 
    <servlet-mapping>

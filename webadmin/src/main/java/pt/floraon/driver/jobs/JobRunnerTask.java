@@ -4,7 +4,10 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.UUID;
+
+import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
  * Created by miguel on 10-11-2016.
@@ -15,6 +18,7 @@ public class JobRunnerTask implements JobRunner {
     private String uuid, desiredFileName, errorMessage;
     private IFloraOn driver;
     private JobTask job;
+    private Date date;
 
     public JobRunnerTask(JobTask job, IFloraOn driver) throws IOException {
         this.isClosed = false;
@@ -35,7 +39,7 @@ public class JobRunnerTask implements JobRunner {
 
     @Override
     public String getState() throws FloraOnException {
-        return job.getState();
+        return isClosed ? "Finished" : job.getState();
     }
 
     @Override
@@ -44,7 +48,13 @@ public class JobRunnerTask implements JobRunner {
     }
 
     @Override
+    public String getDateSubmitted() {
+        return dateTimeFormat.format(this.date);
+    }
+
+    @Override
     public void run() {
+        this.date = new Date();
         try {
             this.job.run(this.driver);
             isClosed=true;

@@ -464,6 +464,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.conservation.setDescription(description);
     }
 
+    public void setConservation_LegalProtection(String[] legalProtection) {
+        this.conservation.setLegalProtection(legalProtection);
+    }
+
     public void setConservation_ConservationPlans(String conservationPlans) {
         try {
             this.conservation.setConservationPlans(RedListEnums.YesNoNA.valueOf(conservationPlans));

@@ -114,6 +114,14 @@ public interface INodeWorker {
 	 */
 	TaxEnt getTaxEnt(TaxEnt q) throws QueryException, FloraOnException;
 
+	/**
+	 * Matches a given TaxEnt with the name, annotation, author and sensu, with a List of TaxEnt.
+	 * Returns no more than one TaxEnt.
+	 * @param q
+	 * @param nodes
+	 * @return
+	 * @throws FloraOnException if provided filters are ambiguous
+	 */
 	TaxEnt matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException;
 
 	Attribute getAttributeByName(String name) throws FloraOnException;

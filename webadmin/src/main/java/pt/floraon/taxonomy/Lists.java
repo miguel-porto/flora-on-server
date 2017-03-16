@@ -17,7 +17,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
-import pt.floraon.driver.jobs.ChecklistDownload;
+import pt.floraon.driver.jobs.ChecklistDownloadJob;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.jobs.JobRunnerFileDownload;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
@@ -48,7 +48,7 @@ public class Lists extends FloraOnServlet {
 
 		case "checklist":
 			if(format.equals("csv")) {
-				JobRunnerFileDownload job=JobSubmitter.newJobFileDownload(new ChecklistDownload(), "checklist.csv", driver);
+				JobRunnerFileDownload job=JobSubmitter.newJobFileDownload(new ChecklistDownloadJob(), "checklist.csv", driver);
 				success(job.getID());
 			} else {
 				error("Not implemented");
