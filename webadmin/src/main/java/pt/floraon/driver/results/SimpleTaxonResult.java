@@ -71,7 +71,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 		rec.print(this.count);
 		rec.print(this.taxent.getID());
 		rec.print(Arrays.toString(this.reltypes));
-		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly()+(this.partim ? " (partim)" : ""));
+		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly(false)+(this.partim ? " (partim)" : ""));
 		rec.print(Arrays.toString(this.match));		// FIXME handle the array!
 	}
 
@@ -91,7 +91,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 			.append(this.taxent.getID())
 			.append("</td><td>")
 			.append(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))
-			.append(this.taxent.getNameWithAnnotationOnly())
+			.append(this.taxent.getNameWithAnnotationOnly(true))
 			//.append(this.partim ? " <i>partim</i>" : "")
 			.append("</td><td>")
 			.append(Arrays.toString(this.reltypes))
@@ -113,7 +113,7 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 			(this.notcurrentpath ? "not reachable ":"")+(this.partim ? "included in ":"")
 			,this.taxent.getID()
 			,Arrays.toString(this.reltypes)
-			,(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly()+(this.partim ? " (partim)" : "")
+			,(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly(false)+(this.partim ? " (partim)" : "")
 			,sb.toString()
 		};
 	}

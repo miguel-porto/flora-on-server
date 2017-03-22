@@ -47,4 +47,9 @@ public class UpdateNativeStatusJob implements JobTask {
     public String getState() {
         return String.format("%d / %d done.", n, total);
     }
+
+    @Override
+    public String getDescription() {
+        return "Update native status";
+    }
 }

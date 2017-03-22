@@ -11,7 +11,7 @@ ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
     background-color:#f44336; color:white; font-weight:bold; border:0
 }
 #left-bar a {color:white}
-#left-bar ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}
+.buttonmenu ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}
 /*ul li {
 	list-style-type:none;
 	padding:0.7em;

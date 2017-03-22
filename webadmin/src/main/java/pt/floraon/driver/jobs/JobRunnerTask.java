@@ -43,6 +43,11 @@ public class JobRunnerTask implements JobRunner {
     }
 
     @Override
+    public String getDescription() {
+        return job.getDescription();
+    }
+
+    @Override
     public boolean isFileDownload() {
         return false;
     }

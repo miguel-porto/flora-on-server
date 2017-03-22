@@ -157,12 +157,12 @@ div.toggler.off .content {display:none;}
 	flex: 0 0 auto;
 }
 
-#left-bar ul {
+.buttonmenu ul {
 	color:blue;
 	padding:0px 12px;
 }
 
-#left-bar ul li {list-style-type:none; font-size:1.4em; margin-top:12px;}
+.buttonmenu ul li {list-style-type:none; font-size:1.4em; margin-top:12px;}
 
 #main {flex: 1 3 auto}
 

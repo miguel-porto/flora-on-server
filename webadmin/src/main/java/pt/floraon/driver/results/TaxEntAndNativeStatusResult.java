@@ -87,7 +87,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 				.append(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))
 				.append("><td><a href=\"/floraon/checklist?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
 				.append(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))
-				.append(this.taxent.getNameWithAnnotationOnly())
+				.append(this.taxent.getNameWithAnnotationOnly(true))
 				.append("</i></a></td><td>")
 				.append(this.taxent.getAuthor())
 				.append("</td><td>");
@@ -136,7 +136,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		List<String> allTerritories=(List<String>) obj;
 		rec.print(this.taxent.getCurrent() ? "yes" : "no");
 		rec.print(this.taxent.getID());
-		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+this.taxent.getNameWithAnnotationOnly());
+		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+")) + this.taxent.getNameWithAnnotationOnly(false));
 		rec.print(this.taxent.getAuthor());
 		if(this.territories==null) return;
 

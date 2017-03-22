@@ -50,4 +50,9 @@ public class ChecklistDownloadJob implements JobFileDownload {
 	public String getState() {
 		return finished ? "Ok" : "Processing";
 	}
+
+	@Override
+	public String getDescription() {
+		return "Checklist";
+	}
 }

@@ -56,21 +56,30 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             curSpeciesName = rlde.getTaxEnt().getName();
             if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
 
-            for (ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
-                edp.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+            if(rlde.getTaxEnt().getOldId() == null) {
+                csvp.print(rlde.getTaxEnt().getID());
+                csvp.print(rlde.getTaxEnt().getName());
+                csvp.print("");
+                csvp.print("");
+                csvp.print("");
+                csvp.print("");
+                csvp.println();
+            } else {
+                for (ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
+                    edp.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+                }
+
+                op = new OccurrenceProcessor(driver.getRedListData().getExternalDataProviders(), null
+                        , sizeOfSquare, clippingPolygon, minimumYear, null);
+
+                csvp.print(rlde.getTaxEnt().getID());
+                csvp.print(rlde.getTaxEnt().getName());
+                csvp.print(op.getAOO());
+                csvp.print(op.getEOO());
+                csvp.print(op.getRealEOO());
+                csvp.print(op.getNLocations());
+                csvp.println();
             }
-
-            op = new OccurrenceProcessor(driver.getRedListData().getExternalDataProviders(), null
-                    , sizeOfSquare, clippingPolygon, minimumYear, null);
-
-            csvp.print(rlde.getTaxEnt().getID());
-            csvp.print(rlde.getTaxEnt().getName());
-            csvp.print(op.getAOO());
-            csvp.print(op.getEOO());
-            csvp.print(op.getRealEOO());
-            csvp.print(op.getNLocations());
-            csvp.println();
-
         }
         csvp.close();
     }
@@ -78,5 +87,10 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     @Override
     public String getState() {
         return "Processing species " + curSpeciesI + " of " + total + " (" + curSpeciesName + ")";
+    }
+
+    @Override
+    public String getDescription() {
+        return "AOO and EOO table";
     }
 }

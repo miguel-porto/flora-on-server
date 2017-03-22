@@ -228,7 +228,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 * @return
 	 */
 	public String getFullName(boolean htmlFormatted) {
-		if(htmlFormatted && rank>=TaxonRanks.GENUS.getValue())
+		if(htmlFormatted && rank >= TaxonRanks.GENUS.getValue())
 			return "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
 				+ (this.getSensu() != null ? " <i>sensu</i> "+this.getSensu() : "")
 				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
@@ -254,9 +254,9 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 		return TaxonRanks.getRankFromValue(rank);
 	}
 
-	public String getNameWithAnnotationOnly() {
+	public String getNameWithAnnotationOnly(boolean htmlFormatted) {
 		return this.getName()
-			+ (this.getSensu() != null ? " <i>sensu</i> " + this.getSensu() : "")
+			+ (this.getSensu() != null ? (htmlFormatted ? " <i>sensu</i> " : " sensu ") + this.getSensu() : "")
 			+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 	}
 

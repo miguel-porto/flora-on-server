@@ -2,7 +2,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ attribute name="values" required="true" type="java.util.List" %>
+<%@ attribute name="values" required="false" type="java.util.List" %>
 <%@ attribute name="allvalues" required="true" type="java.lang.Object[]" %>
 <%@ attribute name="privilege" required="true" %>
 <%@ attribute name="name" required="true" %>
@@ -18,10 +18,10 @@
 <div class="checkboxes ${layout}" tabindex="0">
     <input type="hidden" name="${name}" value=""/>
     <c:forEach var="tmp" items="${allvalues}">
-        <c:if test="${values.contains(tmp)}">
+        <c:if test="${values != null && values.contains(tmp)}">
             <input type="checkbox" name="${name}" value="${tmp.toString()}" checked="checked" id="${idprefix}_${tmp}"/>
         </c:if>
-        <c:if test="${!values.contains(tmp)}">
+        <c:if test="${values == null || !values.contains(tmp)}">
             <input type="checkbox" name="${name}" value="${tmp.toString()}" id="${idprefix}_${tmp}"/>
         </c:if>
         <c:if test="${categorized}"><label for="${idprefix}_${tmp}" class="${tmp.getCategory()}"> <fmt:message key="${tmp.getLabel()}" /></c:if>

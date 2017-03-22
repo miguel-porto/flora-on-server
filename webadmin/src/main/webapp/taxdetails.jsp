@@ -65,7 +65,7 @@
 		<div id="taxonsynonyms"><h3>Synonyms</h3>
 			<ul class="synonyms">
 			<c:forEach var="synonym" items="${taxentWrapper.getSynonyms()}">
-	  			<li data-key="${synonym.getID()}"><a href="checklist?w=taxdetails&id=${synonym.getID()}"><c:out value="${synonym.getFullName()}"></c:out></a> <div class="button remove">detach</div></li>
+	  			<li data-key="${synonym.getID()}"><a href="checklist?w=taxdetails&id=${synonym.getID()}">${synonym.getFullName(true)}</a> <div class="button remove">detach</div></li>
 			</c:forEach>
 			</ul>
 		</div>
@@ -74,7 +74,7 @@
 			<div id="taxonincluded"><h3>Included taxa</h3>
 				<ul class="synonyms">
 				<c:forEach var="included" items="${taxentWrapper.getIncludedTaxa()}">
-		  			<li data-key="${included.getID()}"><a href="checklist?w=taxdetails&id=${included.getID()}"><c:out value="${included.getFullName()}"></c:out></a></li>
+		  			<li data-key="${included.getID()}"><a href="checklist?w=taxdetails&id=${included.getID()}">${included.getFullName(true)}</a></li>
 				</c:forEach>
 				</ul>
 			</div>

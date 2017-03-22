@@ -11,4 +11,5 @@ import java.io.IOException;
 public interface JobTask {
     void run(IFloraOn driver) throws FloraOnException, IOException;
     String getState();
+    String getDescription();
 }

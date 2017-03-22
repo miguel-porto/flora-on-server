@@ -178,4 +178,9 @@ public class OccurrenceImporterJob implements JobTask {
     public String getState() {
         return "Nº records processed: " + nrecs;
     }
+
+    @Override
+    public String getDescription() {
+        return "Occurrence importer";
+    }
 }

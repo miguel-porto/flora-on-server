@@ -28,7 +28,7 @@
     <li><a href="?w=graph&depth=3">Graphical taxonomy explorer</a></li>
 </ul>
 <div id="main-holder">
-	<div id="left-bar">
+	<div id="left-bar" class="buttonmenu">
 		<ul>
 			<li><a href="?w=login">Login</a></li>
 			<li><a href="?w=main">Taxon list</a></li>
@@ -103,7 +103,7 @@
                     <tr data-key="${row.getTaxent().getID()}" class="${row.getTaxent().getCurrent() ? '' : 'notcurrent'}">
                         <td><a href="/floraon/checklist?w=taxdetails&id=${row.getTaxent().getIDURLEncoded()}"><i>
                             <c:if test="${row.isLeaf()}">+</c:if>
-                            ${row.getTaxent().getNameWithAnnotationOnly()}
+                            ${row.getTaxent().getNameWithAnnotationOnly(true)}
                         </i></a></td>
                         <td><c:out value="${row.getTaxent().getAuthor()}"></c:out></td>
                         <td>

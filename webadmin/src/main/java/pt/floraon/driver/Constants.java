@@ -429,15 +429,10 @@ public final class Constants {
     		}
     	}
     }
-    
-    public static String CHECKLISTFIELDS=
-    		"{rank:"+TaxonRanks.SPECIES.getValue()+"}"
-    		+ ",{rank:"+TaxonRanks.FORM.getValue()+"}"
-			+ ",{rank:"+TaxonRanks.SUBSPECIES.getValue()+"}"
-			+ ",{rank:"+TaxonRanks.VARIETY.getValue()+"}"
-			+ ",{rank:"+TaxonRanks.GENUS.getValue()+"}"
-			+ ",{rank:"+TaxonRanks.FAMILY.getValue()+"}"
-			+ ",{rank:"+TaxonRanks.ORDER.getValue()+"}";
+
+	public static TaxonRanks[] CHECKLISTFIELDS = new TaxonRanks[] {
+			TaxonRanks.SUBCLASS, TaxonRanks.SUPERORDER, TaxonRanks.ORDER, TaxonRanks.FAMILY
+	};
 
 	public static Map<String,String> infraRanks;
     static {

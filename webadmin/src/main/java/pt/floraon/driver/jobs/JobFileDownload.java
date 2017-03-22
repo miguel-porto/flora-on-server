@@ -12,4 +12,5 @@ import java.io.OutputStream;
 public interface JobFileDownload {
     void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException;
     String getState();
+    String getDescription();
 }

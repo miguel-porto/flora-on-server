@@ -11,6 +11,7 @@ public interface JobRunner extends Runnable {
     String getID();
     Boolean isReady() throws FloraOnException;
     String getState() throws FloraOnException;
+    String getDescription();
     boolean isFileDownload();
     String getDateSubmitted();
 }

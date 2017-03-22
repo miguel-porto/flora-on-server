@@ -1,7 +1,10 @@
 package pt.floraon.redlistdata.dataproviders;
 
 import com.google.gson.*;
+import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.redlistdata.ExternalDataProvider;
 import pt.floraon.geometry.IPolygonTheme;
@@ -37,6 +40,7 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
 
     @Override
     public void executeOccurrenceQuery(Object query) throws FloraOnException, IOException {
+        // FIXME when all records!
         String legacyID;
         if(query != null)
             legacyID = query.toString();
@@ -72,6 +76,34 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
         }.getType();
         List<FloraOnOccurrence> occArray;
 
+        Gson gson = new Gson();
+        JsonReader jr = new JsonReader(new InputStreamReader(u.openStream()));
+        JsonElement resp;
+//        occArray = new ArrayList<>();
+        occurrenceList = new ArrayList<>();
+        jr.beginObject();
+        int c=0;
+        while (jr.hasNext()) {
+//            System.out.print("OBJ");
+            if(jr.peek() == JsonToken.BEGIN_ARRAY) {
+                jr.beginArray();
+                while (jr.hasNext()) {
+                    FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
+                    occurrenceList.add(new SimpleOccurrence(o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
+                            , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));
+
+//                    occArray.add((FloraOnOccurrence) gson.fromJson(jr, FloraOnOccurrence.class));
+//                    System.out.print(c+" ");
+                    c++;
+//                    System.out.flush();
+                }
+                jr.endArray();
+            } else jr.skipValue();
+        }
+        jr.endObject();
+        jr.close();
+
+/*
         InputStreamReader isr = new InputStreamReader(u.openStream());
         JsonElement resp = new JsonParser().parse(isr);
         if (!resp.getAsJsonObject().getAsJsonPrimitive("success").getAsBoolean()) {
@@ -79,12 +111,14 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
         }
         occArray = new Gson().fromJson(resp.getAsJsonObject().getAsJsonArray("msg"), listType);
 
+
         occurrenceList = new ArrayList<>();
         for (FloraOnOccurrence o : occArray) {
             if (!o.duvida)
                 occurrenceList.add(new SimpleOccurrence(o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
                         , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));
         }
+        */
     }
 
     @Override

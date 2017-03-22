@@ -168,6 +168,7 @@ System.out.println(gs.toJson(getUser()));
                     if (rlde.getTaxEnt().getOldId() != null) {
                         for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
                             edp.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+//                            edp.executeOccurrenceQuery(null);
                         }
 
                         // TODO clipping polygon and years must be a user configuration
@@ -446,7 +447,8 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "jobs":
-                Set<String> allt = driver.getRedListData().getRedListTags(territory);
+                if (!getUser().canMANAGE_REDLIST_USERS()) break;
+                String[] allt = driver.getRedListData().getRedListTags(territory).toArray(new String[0]);
 
                 List<JobRunner> jobs = new ArrayList<>();
                 for(String jobID : JobSubmitter.getJobList()) {

@@ -32,7 +32,7 @@
 <body>
 <div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
-    <div id="left-bar">
+    <div id="left-bar" class="buttonmenu">
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
@@ -75,37 +75,44 @@
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
             <h1><fmt:message key="Separator.6"/></h1>
             <h2><fmt:message key="Downloads.1"/></h2>
-            <p><fmt:message key="Downloads.3"/></p>
             <!--<form action="api/downloadtable" target="trash">-->
-            <form class="poster" data-path="/floraon/redlist/api/downloadtable" data-refresh="true">
+            <form class="poster bigbutton" data-path="/floraon/redlist/api/downloadtable" data-refresh="true">
                 <h3>Tabela de taxa da Lista Alvo e Lista B com EOO, AOO, etc.</h3>
                 <input type="hidden" name="territory" value="${territory}"/>
-                <c:forEach var="tag" items="${allTags}">
-                <label><input type="checkbox" name="tags" value="${tag}"/> ${tag}</label>
+                <div class="multiplechooser left">
+                <c:forEach var="tmp" items="${allTags}">
+                    <input type="checkbox" name="tags" value="${tmp}" id="tags_${tmp}"/>
+                    <label for="tags_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
                 </c:forEach>
+                </div>
                 <input type="submit" value="Descarregar" class="textbutton"/>
             </form>
-            <h2><fmt:message key="Downloads.2"/></h2>
-            <table>
-                <tr>
-                    <th>Date started</th>
-                    <th>Ready</th>
-                    <th>Status</th>
-                    <th>Download</th>
-                </tr>
-                <c:forEach var="job" items="${jobs}">
-                <tr>
-                    <td>${job.getDateSubmitted()}</td>
-                    <td><t:yesno test="${job.isReady()}"/></td>
-                    <td>${job.getState()}</td>
-                    <td>
-                        <c:if test="${job.isFileDownload() && job.isReady()}">
-                        <a href="/floraon/job/${job.getID()}">Download file</a>
-                        </c:if>
-                    </td>
-                </tr>
-                </c:forEach>
-            </table>
+            <p><fmt:message key="Downloads.3"/></p>
+            <c:if test="${jobs.size() > 0}">
+                <h2><fmt:message key="Downloads.2"/></h2>
+                <table>
+                    <tr>
+                        <th>Download type</th>
+                        <th>Date started</th>
+                        <th>Ready</th>
+                        <th>Status</th>
+                        <th>Download</th>
+                    </tr>
+                    <c:forEach var="job" items="${jobs}">
+                    <tr>
+                        <td>${job.getDescription()}</td>
+                        <td>${job.getDateSubmitted()}</td>
+                        <td><t:yesno test="${job.isReady()}"/></td>
+                        <td>${job.getState()}</td>
+                        <td>
+                            <c:if test="${job.isFileDownload() && job.isReady()}">
+                            <a href="/floraon/job/${job.getID()}">Download file</a>
+                            </c:if>
+                        </td>
+                    </tr>
+                    </c:forEach>
+                </table>
+            </c:if>
         </c:if>
     </c:when>
     <c:when test="${what=='main'}">
