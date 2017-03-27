@@ -430,7 +430,7 @@
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section2"><td class="title">2.2</td><td>Extent Of Occurrence<br/>(EOO)</td><td>
                         <c:if test="${occurrences == null}">
-                            No correspondence in Flora-On
+                            No occurrence records
                         </c:if>
                         <c:if test="${occurrences != null}">
                         <table class="subtable">
@@ -457,7 +457,7 @@
                     </td></tr>
                     <tr class="section2"><td class="title">2.3</td><td>Area Of Occupancy<br/>(AOO)</td><td>
                         <c:if test="${occurrences == null}">
-                            No correspondence in Flora-On
+                            No occurrence records
                         </c:if>
                         <c:if test="${occurrences != null}">
                             <table class="subtable">
@@ -1046,7 +1046,7 @@
                             </table>
                         </c:if>
                         <c:if test="${occurrences.size() == 0}">
-                            <p>No occurrences</p>
+                            <p>No occurrence records</p>
                         </c:if>
                     </td></tr>
                     <tr class="section7"><td class="title">7.4.1</td><td>Legal protection</td><td>
@@ -1503,11 +1503,12 @@
             </c:if>
             <table class="sortable smalltext" id="recordtable">
                 <thead>
-                    <tr><th>Record ID</th><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Year</th><th>Month</th>
+                    <tr><th>Source</th><th>Record ID</th><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Year</th><th>Month</th>
                     <th>Day</th><th>Author</th><th style="width:180px">Notes</th><th>Precision</th><th>ID in doubt?</th><th>In flower?</th></tr>
                 </thead>
                 <c:forEach var="occ" items="${occurrences.iterator()}">
                     <tr>
+                        <td>${occ.getDataSource()}</td>
                         <td>${occ.getId_reg()}</td>
                         <td><i>${occ.getGenus()} ${occ.getSpecies()} ${occ.getInfrataxon() == null ? '' : occ.getInfrataxon()}</i></td>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">

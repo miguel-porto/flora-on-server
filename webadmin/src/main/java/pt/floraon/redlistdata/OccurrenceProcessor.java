@@ -9,7 +9,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.geometry.*;
-import pt.floraon.taxonomy.entities.CanonicalName;
+import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -20,7 +21,7 @@ import java.util.List;
  * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceProcessor implements Iterable<ExternalDataProvider.SimpleOccurrence> {
+public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
@@ -48,7 +49,7 @@ public class OccurrenceProcessor implements Iterable<ExternalDataProvider.Simple
      * @param so
      * @return
      */
-    private boolean enter(ExternalDataProvider.SimpleOccurrence so) {
+    private boolean enter(SimpleOccurrence so) {
         if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
         boolean enter;
         enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
@@ -71,15 +72,15 @@ public class OccurrenceProcessor implements Iterable<ExternalDataProvider.Simple
     }
 
     @Override
-    public Iterator<ExternalDataProvider.SimpleOccurrence> iterator() {
+    public Iterator<SimpleOccurrence> iterator() {
         return new ExternalDataProviderIterator(occurrences);
     }
 
-    public class ExternalDataProviderIterator implements Iterator<ExternalDataProvider.SimpleOccurrence> {
+    public class ExternalDataProviderIterator implements Iterator<SimpleOccurrence> {
         private List<ExternalDataProvider> providers;
         private int curIteratorDataProvider = 0;
-        private Iterator<ExternalDataProvider.SimpleOccurrence> curIterator;
-        private ExternalDataProvider.SimpleOccurrence prevElement;
+        private Iterator<SimpleOccurrence> curIterator;
+        private SimpleOccurrence prevElement;
 
         ExternalDataProviderIterator(List<ExternalDataProvider> providers) {
             this.providers = providers;
@@ -106,8 +107,8 @@ public class OccurrenceProcessor implements Iterable<ExternalDataProvider.Simple
         }
 
         @Override
-        public ExternalDataProvider.SimpleOccurrence next() {
-            ExternalDataProvider.SimpleOccurrence so;
+        public SimpleOccurrence next() {
+            SimpleOccurrence so;
             if(this.prevElement != null) {
                 so = this.prevElement;
                 this.prevElement = null;
@@ -147,7 +148,7 @@ public class OccurrenceProcessor implements Iterable<ExternalDataProvider.Simple
             }
         } else {
             for(ExternalDataProvider edp : this.occurrences) {
-                for (ExternalDataProvider.SimpleOccurrence so : edp) {
+                for (SimpleOccurrence so : edp) {
                     if (enter(so)) size++;
                 }
             }
@@ -160,7 +161,7 @@ public class OccurrenceProcessor implements Iterable<ExternalDataProvider.Simple
         final Kml kml = new Kml();
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
 
-        for(ExternalDataProvider.SimpleOccurrence o : this) {
+        for(SimpleOccurrence o : this) {
             Placemark pl = folder.createAndAddPlacemark();
             pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon())
                     + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
@@ -271,7 +272,7 @@ public class OccurrenceProcessor implements Iterable<ExternalDataProvider.Simple
         }
 
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
-        for (ExternalDataProvider.SimpleOccurrence so : this) {
+        for (SimpleOccurrence so : this) {
             tmp1 = new Point2D(tmp = so.getUTMCoordinates());
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             if(protectedAreas != null) {

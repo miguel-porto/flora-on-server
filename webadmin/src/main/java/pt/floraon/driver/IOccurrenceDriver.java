@@ -1,0 +1,51 @@
+package pt.floraon.driver;
+
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.InventoryList;
+
+import java.util.Iterator;
+
+/**
+ * Created by miguel on 24-03-2017.
+ */
+public interface IOccurrenceDriver {
+    void createInventory(Inventory inventory);
+
+    /**
+     * Gets all the occurrences of the given taxon. Multi-species inventories are decomposed in single-species, which
+     * are output one at a time.
+     * @param taxEntId
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException;
+
+    /**
+     * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
+     * observer). Inventories as disaggregated into individual occurrences.
+     * @param authorId
+     * @param offset
+     * @param count
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+
+    /**
+     * Deletes an uploaded occurrence table from temporary storage. Note that these tables are not guaranteed to remain
+     * in temporary storage, they may get deleted upon server restart.
+     * @param authorId
+     * @param filename
+     * @return
+     * @throws FloraOnException
+     */
+    boolean discardUploadedTable(INodeKey authorId, String filename) throws FloraOnException;
+
+    /**
+     * Matches all the taxon names observed in a list of inventories, to the taxonomic database. The IDs of the TaxEnt
+     * are set in the passedobject, and errors are stored.
+     * @param inventories
+     * @throws FloraOnException
+     */
+    void matchTaxEntNames(InventoryList inventories) throws FloraOnException;
+}

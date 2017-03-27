@@ -33,7 +33,6 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	/**
 	 * Matches a taxon name of the form:
 	 * Genus species rank infrataxon Author [annotation] sensu somework
-	 * TODO allow muiltiple infrataxa
 	 */
 	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?" +
 			//"(?: +(?:(?<rank>subsp|var|f)\\.? +)?(?<infra>[a-z-]+))?" +
@@ -75,6 +74,10 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 * Is it a isLeaf node? This field is computed from the graph when a TaxEnt is returned.
 	 */
 	protected transient Boolean isLeaf;
+	/**
+	 * Just a temporary storage for the parsed name
+	 */
+	private transient CanonicalName canonicalName;
 
 	public TaxEnt() {
 		super();
@@ -119,11 +122,11 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	/**
-	 * Gets binomial species
+	 * Gets the parsed canonical name
 	 * @return
 	 */
-	public CanonicalName getSpeciesOnly() {
-		return new CanonicalName(this.getName());
+	public CanonicalName getCanonicalName() {
+		return this.canonicalName == null ? (this.canonicalName = new CanonicalName(this.getName())) : this.canonicalName;
 	}
 
 	/**
@@ -149,6 +152,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 			if(r != null) {
 				sb.append(" ").append(r);
 			}
+			// this strips out any other words than the name itself
 			CanonicalName cn = new CanonicalName(sb.toString());
 
 /*
@@ -237,7 +241,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 				+ (this.getSensu() != null ? " sensu "+this.getSensu() : "")
 				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 	}
-	
+
 	public String getFullName() {
 		return getFullName(false);
 	}

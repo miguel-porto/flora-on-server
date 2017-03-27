@@ -1,19 +1,16 @@
 package pt.floraon.redlistdata;
 
 import com.arangodb.ArangoCursor;
-import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.entity.CollectionEntity;
 import com.arangodb.entity.CollectionType;
-import com.arangodb.entity.DocumentUpdateEntity;
 import com.arangodb.model.*;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import pt.floraon.arangodriver.AQLQueries;
 import pt.floraon.driver.*;
+import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.dataproviders.FloraOnExternalDataProvider;
@@ -26,14 +23,12 @@ import java.util.*;
 /**
  * Created by miguel on 05-11-2016.
  */
-public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListData {
-    final private ArangoDB dbDriver;
+public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRedListDataDriver {
     final protected ArangoDatabase database;
     final private List<ExternalDataProvider> externalDataProviders = new ArrayList<>();
 
-    public ArangoDBRedListData(IFloraOn driver) {
+    public RedListDataArangoDBDriver(IFloraOn driver) {
         super(driver);
-        dbDriver = (ArangoDB) driver.getDatabaseDriver();
         database = (ArangoDatabase) driver.getDatabase();
     }
 
@@ -61,6 +56,7 @@ public class ArangoDBRedListData extends BaseFloraOnDriver implements IRedListDa
         } catch (MalformedURLException e) {
             throw new FloraOnException(e.getMessage());
         }
+        externalDataProviders.add(new InternalDataProvider(driver));
     }
 
     public List<ExternalDataProvider> getExternalDataProviders() {

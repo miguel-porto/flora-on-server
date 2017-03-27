@@ -8,7 +8,7 @@ body.occurrencespage .warning {position: static; width:auto;}
     flex: 0 0 auto;
 }
 
-#occurrencetable {
+#occurrencetable-holder {
     flex: 1 1 50%;
     overflow: scroll;
 }
@@ -22,4 +22,18 @@ body.occurrencespage .warning {position: static; width:auto;}
 .occurrencetable tr td {cursor: pointer;}
 .occurrencetable tr.selected td {background-color:yellow !important;}
 .leaflet-marker-icon {border:2px solid transparent; border-radius:50%}
-.leaflet-marker-icon.selected {border:2px solid yellow; border-radius:50%}
+.leaflet-marker-icon.selected {border:2px solid yellow; border-radius:50%; z-index: 5}
+
+/* occurrence table */
+.occurrencetable th {background-color: #8bc34a}
+.occurrencetable td.taxon {min-width:60%; padding: 0}
+tr.unmatched td {background-color: #ffcdd2}
+#suggestionstaxon {position:relative; width:0; height:0;}
+#taxonsearchwrapper {width: 100%;}
+.occurrencetable #taxonsearchbox {border: 2px dotted #2979ff; box-sizing: border-box; width: 100%; font-size: 0.9rem; padding: 4px;}
+
+.select .selectbutton {
+    width:16px; height:16px; box-shadow: 0 0 3px #555; border-radius: 50%;
+}
+
+.select .selectbutton.selected {background-color: green;}

@@ -7,6 +7,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.*;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
@@ -165,20 +166,19 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
                     request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(getParameterAsKey("id")).getFormerlyIncludedIn());
                     request.setAttribute("includedTaxa", driver.wrapTaxEnt(getParameterAsKey("id")).getIncludedTaxa());
-                    if (rlde.getTaxEnt().getOldId() != null) {
-                        for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
-                            edp.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+                    for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
+                        edp.executeOccurrenceQuery(rlde.getTaxEntID(), rlde.getTaxEnt().getOldId());
 //                            edp.executeOccurrenceQuery(null);
-                        }
+                    }
 
-                        // TODO clipping polygon and years must be a user configuration
-                        PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                        OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
-                                driver.getRedListData().getExternalDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990);
+                    // TODO clipping polygon and years must be a user configuration
+                    PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                    OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
+                            driver.getRedListData().getExternalDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990);
 
-                        OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
-                                driver.getRedListData().getExternalDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null);
-
+                    OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
+                            driver.getRedListData().getExternalDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null);
+                    if(occurrenceProcessor.size() > 0) {
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
                         Double EOO = null, AOO = null, hEOO = null, hAOO = null;
@@ -267,7 +267,9 @@ System.out.println(gs.toJson(getUser()));
                         }
                         request.setAttribute("occurrences", occurrenceProcessor);
                         request.setAttribute("historicalOccurrences", historicalOccurrenceProcessor);
-                    } else {
+                    }
+
+                    if(rlde.getTaxEnt().getOldId() == null) {
                         warnings.add("DataSheet.msg.warning.1b");
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
                     }
@@ -342,30 +344,25 @@ System.out.println(gs.toJson(getUser()));
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
 
-                if (te.getOldId() != null) {
-                    for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders())
-                        edp.executeOccurrenceQuery(te.getOldId());
+                for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders())
+                    edp.executeOccurrenceQuery(te.getID(), te.getOldId());
 
-                    request.setAttribute("occurrences", OccurrenceProcessor.iterableOf(
-                            driver.getRedListData().getExternalDataProviders()));
-                }
+                request.setAttribute("occurrences", OccurrenceProcessor.iterableOf(
+                        driver.getRedListData().getExternalDataProviders()));
                 break;
 
             case "downloadtaxonrecords":
                 if (!getUser().canDOWNLOAD_OCCURRENCES()) break;
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
-                if (te.getOldId() != null) {
-                    for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders())
-                        edp.executeOccurrenceQuery(te.getOldId());
+                for(ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders())
+                    edp.executeOccurrenceQuery(te.getID(), te.getOldId());
 
-                    response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
-                    response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
-                    PrintWriter wr = response.getWriter();
-                    OccurrenceProcessor.iterableOf(driver.getRedListData().getExternalDataProviders()).exportKML(wr);
-                    wr.close();
-                    return;
-                }
-                break;
+                response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
+                response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
+                PrintWriter wr = response.getWriter();
+                OccurrenceProcessor.iterableOf(driver.getRedListData().getExternalDataProviders()).exportKML(wr);
+                wr.close();
+                return;
 
             case "users":
                 List<User> allusers = driver.getAdministration().getAllUsers();

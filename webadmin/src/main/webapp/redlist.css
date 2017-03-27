@@ -93,7 +93,6 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 
 .togglebutton, .togglebutton a, .togglebutton a:visited {color:white}
 
-
 /********** SPECIES INDEX ***********/
 #speciesindex {margin-bottom: 60px;}
 #speciesindex td {padding:4px;}
@@ -232,13 +231,12 @@ input[type=submit].textbutton {
     color: white;
     border:0;
     float:none;
+    line-height: 1em;
 }
 
-.button.anchorbutton {
-    padding:0;
-}
-
-.button.anchorbutton a, .button.anchorbutton a:visited {padding:4px 12px; display: inline-block; color:white; line-height:1em;}
+.button.anchorbutton {padding:0;}
+.button.anchorbutton a, .button.anchorbutton a:visited {padding:8px 14px; display: inline-block; color:white; line-height:1em;}
+#main .navigator .button.anchorbutton a {padding: 4px 12px}
 
 /************ MAP ************/
 .svgmap {width:200px; height:auto; cursor:pointer; float:right;}
@@ -298,10 +296,10 @@ table.sheet.help .placeholder {display: none !important;}
 
 .legend {font-size: 0.6em; color:#545454;}
 
-table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px}
+table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px; font-size:1.2rem;}
 table.small {width: auto;}
 table.smalltext {font-size:1rem;}
-table:not(.smalltext) {font-size:1.2rem;}
+table.verysmalltext {font-size:0.8rem;}
 table th, table td.title {background-color:#ffcdd2; font-weight:bold; padding:6px; color:black; border:0;}
 table td {padding:5px; background-color:#f0f0f0;}
 table.smalltext td {padding:0px;}

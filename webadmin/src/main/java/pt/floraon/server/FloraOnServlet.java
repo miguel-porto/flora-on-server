@@ -108,13 +108,15 @@ public class FloraOnServlet extends HttpServlet {
 	/**
 	 * Reloads user data from the database
 	 */
-	protected void refreshUser() {
+	protected User refreshUser() {
 		try {
 			User user = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(getUser().getID()), User.class);
 			user.clearPassword();
 			user.resetEffectivePrivileges();
 			request.getSession().setAttribute("user", user);
+			return user;
 		} catch (FloraOnException e) {
+			return null;
 		}
 	}
 
@@ -184,7 +186,7 @@ public class FloraOnServlet extends HttpServlet {
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk20");
+		request.setAttribute("uuid", "sk22");
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {

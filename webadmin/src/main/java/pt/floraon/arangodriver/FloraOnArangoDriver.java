@@ -16,10 +16,11 @@ import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.occurrences.CSVFileProcessor;
+import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
-import pt.floraon.redlistdata.ArangoDBRedListData;
+import pt.floraon.redlistdata.RedListDataArangoDBDriver;
 import pt.floraon.authentication.RandomString;
 
 public class FloraOnArangoDriver implements IFloraOn {
@@ -29,7 +30,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 	private IQuery QD;
 	private IListDriver LD;
 	private CSVFileProcessor CSV;
-	private IRedListData RLD;
+	private IRedListDataDriver RLD;
+	private IOccurrenceDriver OCD;
 	private IAdministration ADMIN;
 	private List<Territory> checklistTerritories;
 	
@@ -39,21 +41,6 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 		if(username == null || pass == null)
 			throw new FloraOnException("You must provide login details for ArangoDB in the floraon.properties file (arango.user and arango.password)");
-
-/*
-		VPackDeserializer<RedListEnums.DeclinePopulation> deserializer = new VPackDeserializer<RedListEnums.DeclinePopulation>() {
-			@Override
-			public RedListEnums.DeclinePopulation deserialize(VPackSlice parent, VPackSlice vpack, VPackDeserializationContext context)
-					throws VPackException {
-				try {
-					return RedListEnums.DeclinePopulation.valueOf(vpack.getAsString());
-				} catch (IllegalArgumentException e) {
-					Log.warn("Value " + vpack.getAsString() + " not found in enum constant.");
-					return null;
-				}
-			}
-		};
-*/
 
 		// register deserializers for enums that do not throw exceptions when value is not found
 		driver = new ArangoDB.Builder().user(username).password(pass)
@@ -72,7 +59,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 		QD = new QueryDriver(this);
 		LD = new ListDriver(this);
 		CSV = new CSVFileProcessor(this);
-		RLD = new ArangoDBRedListData(this);
+		RLD = new RedListDataArangoDBDriver(this);
+		OCD = new OccurrenceArangoDriver(this);
 		ADMIN = new Administration(this);
 
         try {
@@ -125,8 +113,13 @@ public class FloraOnArangoDriver implements IFloraOn {
 	}
 
 	@Override
-	public IRedListData getRedListData() {
+	public IRedListDataDriver getRedListData() {
 		return RLD;
+	}
+
+	@Override
+	public IOccurrenceDriver getOccurrenceDriver() {
+		return OCD;
 	}
 
 	@Override
@@ -189,7 +182,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 		createTaxonomicGraph();
 
-		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
+//		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
+		database.collection(NodeTypes.inventory.toString()).createGeoIndex(Arrays.asList("latitude", "longitude"), new GeoIndexOptions().geoJson(false));
 		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
 		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("oldId"), new HashIndexOptions().unique(false).sparse(true));
 		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("rank"), new HashIndexOptions().unique(false).sparse(true));
@@ -221,7 +215,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 			} catch (ArangoDBException e) {
 				System.out.println("Creating collection: "+nt.toString());
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.DOCUMENT));
-				if(nt == NodeTypes.user) {	// create administrator account
+				if(nt == NodeTypes.user) {	// create administrator account if creating collection of users
 					try {
 						User user = new User("admin", "Administrator", new Privileges[] {
 								Privileges.MANAGE_REDLIST_USERS});
@@ -283,12 +277,12 @@ public class FloraOnArangoDriver implements IFloraOn {
 		edgeDefinition = new EdgeDefinition();
 		edgeDefinition.collection(RelTypes.OBSERVED_IN.toString());
 		edgeDefinition.from(NodeTypes.taxent.toString());
-		edgeDefinition.to(NodeTypes.specieslist.toString());
+		edgeDefinition.to(NodeTypes.inventory.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		edgeDefinition = new EdgeDefinition();
 		edgeDefinition.collection(RelTypes.OBSERVED_BY.toString());
-		edgeDefinition.from(NodeTypes.specieslist.toString());
+		edgeDefinition.from(NodeTypes.inventory.toString());
 		edgeDefinition.to(NodeTypes.author.toString());
 		edgeDefinitions.add(edgeDefinition);
 

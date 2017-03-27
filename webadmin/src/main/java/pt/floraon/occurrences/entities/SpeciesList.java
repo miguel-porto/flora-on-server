@@ -7,8 +7,8 @@ import pt.floraon.driver.entities.GeneralDBNode;
 
 public class SpeciesList extends GeneralDBNode {
 	protected Float[] location={null,null};
-	protected Integer year,month,day,precision,area;
-	protected String pubNotes,privNotes,habitat;
+	private Integer year,month,day,precision,area;
+	private String pubNotes, privNotes, habitat;
 	protected Boolean complete;		// did the observer identify all species he was able to?
 	
 	public Float[] getLocation() {

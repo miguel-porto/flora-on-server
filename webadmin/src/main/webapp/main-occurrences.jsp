@@ -27,11 +27,9 @@
 	<script type="text/javascript" src="/floraon/js/occurrences.js?nocache=${uuid}"></script>
 </head>
 <body class="occurrencespage">
-    <div id="occurrencetoolbar">TOOLS</div>
-    <div id="occurrencetable">
-        <c:if test="${user.getUserType() == 'ADMINISTRATOR'}">
+    <!--<div id="occurrencetoolbar">TOOLS</div>-->
+    <div id="occurrencetable-holder">
         <jsp:include page="occurrences-pages.jsp"></jsp:include>
-        </c:if>
     </div>
     <div id="occurrencemap"><div id="mapcontainer"></div></div>
 </body>

@@ -23,11 +23,11 @@ public class LatitudeLongitudeParser implements FieldParser {
 
         switch(inputFieldName) {
             case "latitude":
-                occurrence.getInventoryData().setLatitude(v);
+                occurrence.setLatitude(v);
                 break;
 
             case "longitude":
-                occurrence.getInventoryData().setLongitude(v);
+                occurrence.setLongitude(v);
                 break;
 
             default:

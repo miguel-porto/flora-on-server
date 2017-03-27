@@ -1,15 +1,10 @@
 package pt.floraon.redlistdata.dataproviders;
 
 import com.google.gson.*;
-import com.google.gson.internal.bind.JsonTreeReader;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.redlistdata.ExternalDataProvider;
-import pt.floraon.geometry.IPolygonTheme;
-import pt.floraon.geometry.Point2D;
-import pt.floraon.geometry.Polygon;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,13 +34,16 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
     }
 
     @Override
-    public void executeOccurrenceQuery(Object query) throws FloraOnException, IOException {
+    public void executeOccurrenceQuery(String newId, Integer oldId) throws FloraOnException, IOException {
         // FIXME when all records!
         String legacyID;
-        if(query != null)
-            legacyID = query.toString();
-        else
-            legacyID = "all";
+        if(oldId != null)
+            legacyID = oldId.toString();
+        else {
+            occurrenceList = new ArrayList<>();
+            return;
+            //legacyID = "all";
+        }
 
         URI oldUri;
         try {
@@ -89,7 +87,7 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
                 jr.beginArray();
                 while (jr.hasNext()) {
                     FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
-                    occurrenceList.add(new SimpleOccurrence(o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
+                    occurrenceList.add(new SimpleOccurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
                             , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));
 
 //                    occArray.add((FloraOnOccurrence) gson.fromJson(jr, FloraOnOccurrence.class));
@@ -163,5 +161,10 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
         for (String s : occArray.keySet())
             System.out.println(s);
         return occArray;
+    }
+
+    @Override
+    public String getDataSource() {
+        return "Flora-On";
     }
 }

@@ -13,7 +13,7 @@ public class PlainTextParser implements FieldParser {
 
         switch (inputFieldName.toLowerCase()) {
             case "code":
-                occurrence.getInventoryData().setCode(inputValue);
+                occurrence.setCode(inputValue);
                 break;
         }
     }

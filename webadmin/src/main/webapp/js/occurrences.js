@@ -14,8 +14,27 @@ document.addEventListener('DOMContentLoaded', function() {
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
     L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
 
+    myMap.on('click', addNewOccurrence);
+
     attachFormPosters(fileUploadCallback);
     attachOccurrenceTableEvents();
+
+    attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', function(ev, name, key, parent, dry) {
+        if(!dry) return;
+        document.getElementById('taxonsearchwrapper-holder').appendChild(document.getElementById('taxonsearchwrapper'));
+        parent.innerHTML = name;
+        var id = getParentbyTag(parent, 'tr').getAttribute('data-id');
+        if(id)
+            insertOrReplaceHiddenInput(parent, id + '_taxa', name);
+        else
+            insertOrReplaceHiddenInput(parent, 'taxa', name);
+    }, true, ',');
+
+
+    addEvent('click', document.getElementById('hidemap'), function(ev) {
+        ev.target.classList.toggle('selected');
+        document.getElementById('occurrencemap').classList.toggle('hidden');
+    });
 
 /*
     var viewer = OpenSeadragon({
@@ -38,34 +57,133 @@ document.addEventListener('DOMContentLoaded', function() {
 */
 });
 
+
+function clickOccurrenceTable(ev) {
+    var cell = getParentbyTag(ev.target, 'td');
+    if(cell.classList.contains('taxon')) { // clicked taxon cell
+        if(cell.querySelector('#taxonsearchwrapper')) return;
+        var txt = cell.textContent;
+        cell.textContent = '';
+        displayTaxonSearchbox(cell, txt);
+    } else if(cell.classList.contains('select')) {    // select row
+        var tr = getParentbyTag(cell, 'tr');
+        if(tr.marker) {
+            cell.querySelector('.selectbutton').classList.toggle('selected');
+            tr.classList.toggle('selected');
+            tr.marker.classList.toggle('selected');
+        }
+    }
+}
+
 function attachOccurrenceTableEvents() {
-    var ot = document.querySelectorAll('table.occurrencetable tr');
+    // click on an occurrence table
+    addEvent('click', document.getElementById('occurrencetable'), clickOccurrenceTable);
+    addEvent('click', document.getElementById('newoccurrencetable'), clickOccurrenceTable);
+
+    var ot = document.querySelectorAll('.occurrencetable tr');
     var coo;
     for(var i=0; i<ot.length; i++) {
         coo = ot[i].querySelector('td.coordinates');
         if(coo == null) continue;
-        var marker = L.marker([parseFloat(coo.getAttribute('data-lat')), parseFloat(coo.getAttribute('data-lng'))]
-            , {icon: redCircle, draggable: true, keyboard: false});
-        marker.on('click', markerClick).addTo(myMap);
-        marker.tableRow = ot[i];
-        ot[i].marker = marker._icon;
-        addEvent('click', ot[i], function(ev) {
-            var tr = getParentbyTag(ev.target, 'tr');
-            if(tr.marker) {
-                tr.classList.toggle('selected');
-                tr.marker.classList.toggle('selected');
-            }
-        })
+
+        addPointMarker(parseFloat(coo.getAttribute('data-lat')), parseFloat(coo.getAttribute('data-lng')), ot[i]);
     }
+}
+
+function addPointMarker(lat, lng, bondEl) {
+    var marker = L.marker([lat, lng], {icon: redCircle, draggable: false, keyboard: false});
+    marker.on('click', markerClick).addTo(myMap);
+    if(bondEl) {
+        marker.tableRow = bondEl;
+        bondEl.marker = marker._icon;
+    }
+}
+
+function displayTaxonSearchbox(el, text) {
+    var old = document.getElementById('taxonsearchwrapper');
+    if(!el.querySelector('#taxonsearchwrapper') && old.offsetParent !== null) {     // there's one visible in other cell
+        var txt = old.querySelector('textarea').value;
+        var par = old.parentNode;
+        document.getElementById('taxonsearchwrapper-holder').appendChild(old);
+        par.innerHTML = txt;
+        var id = getParentbyTag(par, 'tr').getAttribute('data-id');
+        if(id)
+            insertOrReplaceHiddenInput(par, id + '_taxa', txt);
+        else
+            insertOrReplaceHiddenInput(par, 'taxa', txt);
+    }
+
+    el.appendChild(old);
+    var inp = old.querySelector('textarea');
+    inp.value = text;
+    inp.setSelectionRange(0, inp.value.length);
+    inp.focus();
 }
 
 function markerClick(ev) {
     if(ev.target.tableRow) {
+        ev.target.tableRow.querySelector('.select .selectbutton').classList.toggle('selected');
         ev.target._icon.classList.toggle('selected');
         ev.target.tableRow.classList.toggle('selected');
     }
 }
 
-function fileUploadCallback(resp) {
-    if(resp.success) alert("AAAA"+resp.msg);
+function fileUploadCallback(resp, ev) {
+    if(ev.target.getAttribute('data-refresh') != 'false')
+        window.location.reload();
+    else {
+        if(resp.success) alert(resp.msg);
+    }
+}
+
+function addNewOccurrence(ev) {
+    var id = randomString(6);
+    var lat = Math.round(ev.latlng.lat * 100000) / 100000;
+    var lng = Math.round(ev.latlng.lng * 100000) / 100000;
+
+    var tab = document.querySelector('#newoccurrencetable tbody');
+    var row = document.createElement('tr');
+    var cell0 = document.createElement('td');
+    var cell1 = document.createElement('td');
+    var cell2 = document.createElement('td');
+    var cell3 = document.createElement('td');
+    var selectbut = document.createElement('div');
+    var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
+    var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
+
+    row.setAttribute('data-id', id);
+    cell0.classList.add('select');
+    selectbut.classList.add('selectbutton');
+    cell0.appendChild(selectbut);
+    cell1.classList.add('taxon');
+    cell2.innerHTML = lat + ', ' + lng;
+    cell2.appendChild(inp_latitude);
+    cell2.appendChild(inp_longitude);
+    cell2.setAttribute('data-lat', lat);
+    cell2.setAttribute('data-lng', lng);
+    addPointMarker(ev.latlng.lat, ev.latlng.lng, row);
+
+    row.appendChild(cell0);
+    row.appendChild(cell1);
+    row.appendChild(cell2);
+    row.appendChild(cell3);
+    tab.appendChild(row);
+
+    document.getElementById('addnewoccurrences').classList.remove('hidden');
+}
+
+function createHiddenInputElement(name, value) {
+    var inp = document.createElement('input');
+    inp.setAttribute('name', name);
+    inp.setAttribute('type', 'hidden');
+    inp.setAttribute('value', value);
+    return inp;
+}
+
+function insertOrReplaceHiddenInput(parent, name, value) {
+    var el = parent.querySelector('input[type=hidden][name=\'' + name +'\']');
+    if(!el)
+        parent.appendChild(createHiddenInputElement(name, value));
+    else
+        el.setAttribute(name, value);
 }

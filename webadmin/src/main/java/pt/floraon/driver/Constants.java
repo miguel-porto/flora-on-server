@@ -7,13 +7,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
-import org.jsoup.Jsoup;
-import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.*;
 import pt.floraon.driver.entities.DBEntity;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.driver.entities.GeneralDBNode;
-import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.occurrences.entities.Author;
@@ -25,7 +23,7 @@ public final class Constants {
 	 * TODO:
 		- centaurea langei rothmaleriana restricted to
 		- territories with complete distributions must propagate through synonym
-		- update node no grafo remove legacy ID!
+		- legacy ID must propagate through synonym
 	 */
 	public static String TAXONOMICGRAPHNAME="taxgraph";
 
@@ -401,7 +399,8 @@ public final class Constants {
 	}
 
 	public enum NodeTypes {
-    	specieslist(SpeciesList.class),		// node representing a species inventory
+    	specieslist(SpeciesList.class),		// DEPRECATED
+		inventory(Inventory.class),		// node representing a species inventory (without the species)
     	taxent(TaxEnt.class),				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
     	author(Author.class),				// a data contributor

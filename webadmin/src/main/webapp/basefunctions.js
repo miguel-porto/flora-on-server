@@ -150,6 +150,10 @@ function getQueryVariable(query,variable) {
 }*/
 
 function getParentbyTag(el,tagname) {
+/*
+console.log(el);
+console.log(tagname);
+*/
 	while(el.tagName.toLowerCase()!=tagname) {
 		el=el.parentNode;
 	};
@@ -192,3 +196,50 @@ function createHTML(htmlStr) {
 }
 
 
+function eventFire(el, etype){
+  if (el.fireEvent) {
+    el.fireEvent('on' + etype);
+  } else {
+    var evObj = document.createEvent('Events');
+    evObj.initEvent(etype, true, false);
+    el.dispatchEvent(evObj);
+  }
+}
+
+/*
+** Returns the caret (cursor) position of the specified text field.
+** Return value range is 0-oField.value.length.
+** http://stackoverflow.com/questions/2897155/get-cursor-position-in-characters-within-a-text-input-field
+*/
+function doGetCaretPosition (oField) {
+  var iCaretPos = 0;
+
+  // IE Support
+  if (document.selection) {
+
+    // Set focus on the element
+    oField.focus();
+
+    // To get cursor position, get empty selection range
+    var oSel = document.selection.createRange();
+
+    // Move selection start to 0 position
+    oSel.moveStart('character', -oField.value.length);
+
+    // The caret position is selection length
+    iCaretPos = oSel.text.length;
+  }
+
+  // Firefox support
+  else if (oField.selectionStart || oField.selectionStart == '0')
+    iCaretPos = oField.selectionStart;
+
+  return iCaretPos;
+}
+
+function randomString(length) {
+    var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+}

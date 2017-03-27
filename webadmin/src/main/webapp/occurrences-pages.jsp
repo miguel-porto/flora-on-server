@@ -7,15 +7,52 @@
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 
+<div id="taxonsearchwrapper-holder" class="hidden">
+    <div class="withsuggestions" id="taxonsearchwrapper">
+        <!--<input id="taxonsearchbox" type="text" name="query" placeholder="taxon" autocomplete="off"/>-->
+        <textarea id="taxonsearchbox" name="query" rows="4"></textarea>
+        <div id="suggestionstaxon"></div>
+    </div>
+</div>
 <c:choose>
-<c:when test="${param.w == 'ba'}">
-    <h1>BA</h1>
-    <div>AAAAAAAA</div>
-</c:when>
-
-<c:when test="${param.w == null}">
-    <h1>Main</h1>
-    <a href="?w=uploads">Uploads</a>
+<c:when test="${param.w == null || param.w == 'main'}">
+    <h1>${user.getFullName()}</h1>
+    <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
+    <div class="button" id="hidemap">Hide map</div>
+    <div id="addnewoccurrences" class="hidden">
+        <h2>Add new occurrences</h2>
+        <form class="poster" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
+            <input type="submit" class="textbutton" value="Save"/>
+            <table id="newoccurrencetable" class="verysmalltext occurrencetable sortable">
+                <thead>
+                    <tr><th></th><th>Taxa</th><th>Coordinates</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <table id="occurrencetable" class="verysmalltext occurrencetable sortable">
+        <tr><th></th><th>Taxon</th><th>Coordinates</th><th>Date</th></tr>
+    <c:forEach var="occ" items="${occurrences}">
+        <c:if test="${occ.getTaxa()[0].getTaxEnt() == null}">
+        <tr class="unmatched">
+        </c:if>
+        <c:if test="${occ.getTaxa()[0].getTaxEnt() != null}">
+        <tr>
+        </c:if>
+            <td class="select"><div class="selectbutton"></div></td>
+            <c:if test="${occ.getTaxa()[0].getTaxEnt() == null}">
+                <td class="taxon">${occ.getTaxa()[0].getVerbTaxon()}</td>
+            </c:if>
+            <c:if test="${occ.getTaxa()[0].getTaxEnt() != null}">
+                <td class="taxon">${occ.getTaxa()[0].getTaxEnt().getName()}</td>
+            </c:if>
+            <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ.getLatitude()}, ${occ.getLongitude()}</td>
+            <td>${occ._getDate()}</td>
+        </tr>
+    </c:forEach>
+    </table>
 </c:when>
 
 <c:when test="${param.w == 'uploads'}">
@@ -27,23 +64,41 @@
     </form>
     <h2>Uploaded tables</h2>
     <c:forEach var="file" items="${filesList}">
-        <h3>File</h3>
+        <h3>File uploaded on ${file.getUploadDate()}</h3>
         <c:if test="${file.getParseErrors().size() > 0}">
-        <div class="warning"><b><fmt:message key="error.4"/></b><br/><fmt:message key="error.4a"/></div>
-        <table>
-            <tr><th><fmt:message key="error.4b"/></th></tr>
+        <div class="warning">
+            <b><fmt:message key="error.4"/></b><br/><fmt:message key="error.4a"/><br/><fmt:message key="error.4b"/>
+            <ul>
             <c:forEach var="errors" items="${file.getParseErrors()}">
-            <tr><td>${errors.getVerbTaxon()}</td></tr>
+                <li>${errors.getVerbTaxon()}</li>
             </c:forEach>
-        </table>
+            </ul>
+        </div>
         </c:if>
+        <div class="warning">
+            <b><fmt:message key="error.5"/></b><br/>
+            <form class="poster inlineblock" data-path="occurrences/api/savetable">
+                <input type="hidden" name="file" value="${file.getFileName()}"/>
+                <label><input type="checkbox" name="mainobserver" checked="checked"/> I am the main observer</label>
+                <input type="submit" class="textbutton" value="<fmt:message key="save"/>"/>
+            </form>
+            <form class="poster inlineblock" data-path="occurrences/api/discardtable" data-refresh="true">
+                <input type="hidden" name="file" value="${file.getFileName()}"/>
+                <input type="submit" class="textbutton" value="<fmt:message key="discard"/>"/>
+            </form>
+        </div>
         <table class="occurrencetable">
-            <tr><th>Date</th><th>Coordinates</th><th>Nr. species</th></tr>
+            <tr><th>Date</th><th>Coordinates</th><th>Species</th></tr>
             <c:forEach var="inv" items="${file}">
             <tr>
-                <td>${inv.getInventoryData()._getDate()}</td>
-                <td class="coordinates" data-lat="${inv.getInventoryData().getLatitude()}" data-lng="${inv.getInventoryData().getLongitude()}">${inv.getInventoryData().getLatitude()}, ${inv.getInventoryData().getLongitude()}</td>
-                <td>${inv.getObservedIn().size()} species</td>
+                <td>${inv._getDate()}</td>
+                <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv.getLatitude()}, ${inv.getLongitude()}</td>
+                <c:if test="${inv.getUnmatchedOccurrences().size() == 1}">
+                <td><c:out value="${inv.getUnmatchedOccurrences().get(0).getVerbTaxon()}"/></td>
+                </c:if>
+                <c:if test="${inv.getUnmatchedOccurrences().size() != 1}">
+                <td>${inv.getUnmatchedOccurrences().size()} species</td>
+                </c:if>
             </tr>
         </c:forEach>
         </table>

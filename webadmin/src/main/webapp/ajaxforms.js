@@ -4,9 +4,10 @@
 function formPoster(ev, callback) {
 	ev.preventDefault();
 	postAJAXForm(ev.target.getAttribute('data-path'), ev.target, function(rt) {
+//	    console.log(rt);
 		var rt1=JSON.parse(rt);
 		if(callback) {
-		    callback(rt1);
+		    callback(rt1, ev);
 		    return;
 		}
 
@@ -34,6 +35,6 @@ function attachFormPosters(callback) {
 	        addEvent('submit', forms[i], function(ev) {
 	            formPoster.call(this, ev, callback);
 	        });
-	    } else addEvent('submit',forms[i],formPoster);
+	    } else addEvent('submit', forms[i], formPoster);
 	}
 }

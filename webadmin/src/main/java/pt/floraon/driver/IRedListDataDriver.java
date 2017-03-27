@@ -3,7 +3,7 @@ package pt.floraon.driver;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
-import pt.floraon.redlistdata.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.util.*;
@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * Created by miguel on 05-11-2016.
  */
-public interface IRedListData {
+public interface IRedListDataDriver {
     /**
      * Prepares database for holding red list data and checks for which territories there is data
      */

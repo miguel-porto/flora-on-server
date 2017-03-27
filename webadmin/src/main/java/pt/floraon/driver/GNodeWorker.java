@@ -33,6 +33,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 	 * @throws FloraOnException
 	 */
     @Override
+	@Deprecated
 	public SpeciesList createSpeciesList(JsonObject sl) throws FloraOnException {
 		if(!(sl.has("latitude") && sl.has("longitude") && sl.has("precision") && sl.has("authors") && sl.has("taxa"))) throw new FloraOnException("Species list document must have at least the fields latitude, longitude, precision, authors, taxa.");
 		JsonElement tmp;
@@ -60,6 +61,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 	 * @throws FloraOnException
 	 */
     @Override
+	@Deprecated
 	public void createOccurrence(Occurrence occ) throws FloraOnException {
 		// FIXME!
 		ISpeciesListWrapper slwd;

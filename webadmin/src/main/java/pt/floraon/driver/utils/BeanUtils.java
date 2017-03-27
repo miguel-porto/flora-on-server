@@ -8,10 +8,7 @@ import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by miguel on 14-02-2017.
@@ -118,15 +115,17 @@ public class BeanUtils {
      * @throws InstantiationException
      */
     @SafeVarargs
-    public static <T extends DiffableBean> T mergeBeans(Class<T> cls, T... beans) throws IllegalAccessException
+    public static <T extends DiffableBean> T mergeBeans(Class<T> cls, Collection<String> ignoreProperties, T... beans) throws IllegalAccessException
             , InvocationTargetException, NoSuchMethodException, FloraOnException, InstantiationException {
-        BeanMap map = new BeanMap(beans[0]);    // we assume beans are all same class!
+        BeanMap propertyMap = new BeanMap(beans[0]);    // we assume beans are all same class! so we take the first as a model
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
 
         T out = cls.newInstance();
 
-        for (Object propNameObject : map.keySet()) {
+        for (Object propNameObject : propertyMap.keySet()) {
             String propertyName = (String) propNameObject;
+            if(ignoreProperties.contains(propertyName)) continue;
+
             Object property = null, newProperty;
 
             for (DiffableBean dB : beans) {

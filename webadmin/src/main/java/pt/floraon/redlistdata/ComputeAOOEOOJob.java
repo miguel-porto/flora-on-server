@@ -6,6 +6,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.println();
             } else {
                 for (ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
-                    edp.executeOccurrenceQuery(rlde.getTaxEnt().getOldId());
+                    edp.executeOccurrenceQuery(rlde.getTaxEntID(), rlde.getTaxEnt().getOldId());
                 }
 
                 op = new OccurrenceProcessor(driver.getRedListData().getExternalDataProviders(), null

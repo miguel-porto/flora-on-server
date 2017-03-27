@@ -112,7 +112,7 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException if more than one node is found
 	 */
-	TaxEnt getTaxEnt(TaxEnt q) throws QueryException, FloraOnException;
+	TaxEnt getTaxEnt(TaxEnt q) throws FloraOnException;
 
 	/**
 	 * Matches a given TaxEnt with the name, annotation, author and sensu, with a List of TaxEnt.

@@ -1,7 +1,21 @@
-function attachSuggestionHandler(elid, url, suggestionBoxId, onClick) {
+function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeText, separator) {
 	querybox = document.getElementById(elid);
 	addEvent('keydown', querybox, function(ev) {
 		var input=ev.target;
+		if(document.getElementById(suggestionBoxId).querySelector('ul.suggestions')) {
+		    var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
+		    if(ev.keyCode == 38 && sel.previousSibling) {
+		        ev.preventDefault();
+                sel.previousSibling.classList.add('selected');
+                sel.classList.remove('selected');
+            }
+		    if(ev.keyCode == 40 && sel.nextSibling) {
+		        ev.preventDefault();
+                sel.nextSibling.classList.add('selected');
+                sel.classList.remove('selected');
+            }
+		}
+
 		if(input.hasAttribute('data-key')) {
 		    input.removeAttribute('data-key');
 		    input.value = '';
@@ -12,27 +26,64 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick) {
     addEvent('keypress', querybox, function(ev) {
         if(ev.keyCode == 13) {
             ev.preventDefault();
-
             return true;
         }
     });
 
 	addEvent('keyup', querybox, function(ev) {
         var input=ev.target;
+
+        if(ev.keyCode == 13) {
+            var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
+            if(sel)
+                eventFire(sel, 'click');
+            else if(allowFreeText) {
+                var dry = (document.getElementById(suggestionBoxId).innerHTML == '');
+
+			    document.getElementById(suggestionBoxId).innerHTML = '';
+			    if(onClick) {
+                    onClick(ev, querybox.value, null, document.getElementById(suggestionBoxId).parentNode.parentNode, dry);
+                }
+            }
+			return;
+        }
+
+        if(ev.keyCode == 27) {
+			document.getElementById(suggestionBoxId).innerHTML='';
+			return;
+        }
+
 		if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
-		if(input.value.trim().length==0) {
+
+        var it = getSuggestionInputText(input, separator);
+		if(it.length == 0) {
 			document.getElementById(suggestionBoxId).innerHTML='';
 			return;
 		}
-		fetchAJAX(url + encodeURIComponent(input.value), function(rt) {
+		fetchAJAX(url + encodeURIComponent(it), function(rt) {
 			document.getElementById(suggestionBoxId).innerHTML=rt;
-			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick);
+			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick, separator);
 		});
 	});
 }
 
-function makeSuggestionBox(el, targetInput, onClick) {
-	el.setAttribute('data-inputel',targetInput);
+function getSuggestionInputText(el, separator) {
+    if(!separator) return el.value;
+    var c = doGetCaretPosition(el);
+    var v = el.value.split(separator);
+    if(c == 0) return v[0].trim();
+
+    var i = 0;
+    var len = 0;
+    while(len <= c) {
+        len += v[i].length + 1;
+        i++;
+    }
+    return v[i-1].trim();
+}
+
+function makeSuggestionBox(el, targetInput, onClick, separator) {
+	el.setAttribute('data-inputel', targetInput);
 
 	var style = window.getComputedStyle(document.getElementById(targetInput), null);
 	el.style.minWidth = style.getPropertyValue('width');
@@ -47,19 +98,10 @@ function makeSuggestionBox(el, targetInput, onClick) {
 		addEvent('mouseenter',lis[i],suggestionOver);
 	}
 
-	if(onClick == null)
-	    addEvent('click',el,suggestionClick);
-	else
-	    addEvent('click',el,function(ev) {
-            var li = _getParentbyTag(ev.target, 'li');
-	        var el = li.parentNode.getAttribute('data-inputel');
-        	var inp = document.getElementById(el);
-            inp.value='';
-	        onClick(ev, li.innerHTML.replace(/<[^>]*>/g, ''), li.getAttribute('data-key'));
-
-        	var ul=_getParentbyTag(ev.target,'ul');
-           	ul.parentNode.removeChild(ul);
-	    });
+    addEvent('click', el, function(ev) {
+        ev.stopPropagation();
+        suggestionClick(ev, onClick, separator);
+    });
 }
 
 function suggestionOver(ev) {
@@ -70,15 +112,30 @@ function suggestionOver(ev) {
 	}
 }
 
-function suggestionClick(ev) {
-	var li=_getParentbyTag(ev.target,'li');
-	var el=li.parentNode.getAttribute('data-inputel');
-	var inp=document.getElementById(el);
-	inp.value=li.innerHTML.replace(/<[^>]*>/g, '');
-	inp.setAttribute('data-key',li.getAttribute('data-key'));
-	
+function suggestionClick(ev, onClick, separator) {
+	var li = _getParentbyTag(ev.target,'li');
+	var el = li.parentNode.getAttribute('data-inputel');
+	var inp = document.getElementById(el);
+
+	var tmp1 = li.textContent.replace(/<[^>]*>/g, '');
+	if(!separator)
+	    var key = li.getAttribute('data-key');
+	else
+        var key = null;
+
 	var ul=_getParentbyTag(ev.target,'ul');
+	var parent = ul.parentNode.parentNode.parentNode;
 	ul.parentNode.removeChild(ul);
+
+    setSuggestionInputText(inp, separator, tmp1);
+    inp.focus();
+	if(onClick) {
+	    tmp1 = inp.value;
+//        inp.value = '';
+        onClick(ev, tmp1, key, parent);
+	} else {
+	    inp.setAttribute('data-key', key);
+	}
 }
 
 function _getParentbyTag(el,tagname) {
@@ -88,3 +145,21 @@ function _getParentbyTag(el,tagname) {
 	return(el);
 }
 
+function setSuggestionInputText(el, separator, text) {
+    if(!separator) {
+        el.value = text;
+        return;
+    }
+    var c = doGetCaretPosition(el);
+    var v = el.value.split(separator);
+    var i = 0;
+    var len = 0;
+    while(len < c) {
+        len += v[i].length + 1;
+        i++;
+    }
+    if(i == 0) i = 1;
+    v[i-1] = text;
+    for(i=0; i<v.length; i++) v[i] = v[i].trim();
+    el.value = v.join(separator + ' ');
+}

@@ -1,15 +1,29 @@
 package pt.floraon.occurrences.entities;
 
+import pt.floraon.driver.Constants;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
+ * Represents a list of inventories.
  * Created by miguel on 22-02-2017.
  */
 public class InventoryList extends ArrayList<Inventory> implements Serializable {
+    private String fileName;
+    private Date uploadDate;
     private List<newOBSERVED_IN> parseErrors = new ArrayList<>();
     private List<newOBSERVED_IN> noMatches = new ArrayList<>();
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public void addParseError(newOBSERVED_IN error) {
         this.parseErrors.add(error);
@@ -25,5 +39,13 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
 
     public List<newOBSERVED_IN> getNoMatches() {
         return noMatches;
+    }
+
+    public void setUploadDate() {
+        this.uploadDate = new Date();
+    }
+
+    public String getUploadDate() {
+        return Constants.dateFormat.format(this.uploadDate);
     }
 }

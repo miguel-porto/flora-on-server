@@ -1,14 +1,17 @@
 package pt.floraon.occurrences.entities;
 
+import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.INodeKey;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * See https://github.com/miguel-porto/flora-on-server/wiki/The-data-model#observed_in
@@ -31,10 +34,21 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
     private Date dateInserted;
+    private UUID uuid;
+
     /**
      * Field to hold the matched TaxEnt ID
      */
     private String taxEntMatch;
+    /**
+     * Field to be populated, if needed, with the TaxEnt that is matched.
+     */
+    @Expose(serialize = false)
+    private TaxEnt taxEnt;
+
+    public newOBSERVED_IN() {
+        uuid = UUID.randomUUID();
+    }
 
     public Constants.PhenologicalStates getPhenoState() {
         return phenoState;
@@ -170,6 +184,18 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
 
     public void setTaxEntMatch(String taxEntMatch) {
         this.taxEntMatch = taxEntMatch;
+    }
+
+    public TaxEnt getTaxEnt() {
+        return this.taxEnt;
+    }
+
+    public UUID getUuid() {
+        return uuid == null ? (uuid = UUID.randomUUID()) : uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override

@@ -19,15 +19,15 @@ public class IntegerParser implements FieldParser {
 
         switch(inputFieldName.toLowerCase()) {
             case "year":
-                occurrence.getInventoryData().setYear(v);
+                occurrence.setYear(v);
                 break;
 
             case "month":
-                occurrence.getInventoryData().setMonth(v);
+                occurrence.setMonth(v);
                 break;
 
             case "day":
-                occurrence.getInventoryData().setDay(v);
+                occurrence.setDay(v);
                 break;
 
             default:
