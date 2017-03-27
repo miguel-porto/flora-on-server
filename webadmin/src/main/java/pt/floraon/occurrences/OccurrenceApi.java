@@ -109,6 +109,12 @@ public class OccurrenceApi extends FloraOnServlet {
                 }
                 success(count + " inventories saved.");
                 break;
+
+            case "deleteoccurrences":
+                driver.getOccurrenceDriver().deleteOccurrences(request.getParameterValues("inventoryId")
+                        , request.getParameterValues("occurrenceUuid"));
+                success("Ok");
+                break;
         }
     }
 }

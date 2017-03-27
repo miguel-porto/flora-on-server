@@ -17,7 +17,7 @@ import java.util.*;
  * Created by miguel on 05-02-2017.
  */
 @WebServlet("/occurrences/*")
-public class MainPage extends FloraOnServlet {
+public class OccurrencesMainPage extends FloraOnServlet {
     @Override
     public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
         List<InventoryList> filesList = new ArrayList<>();

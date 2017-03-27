@@ -4,15 +4,21 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
 		var input=ev.target;
 		if(document.getElementById(suggestionBoxId).querySelector('ul.suggestions')) {
 		    var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
-		    if(ev.keyCode == 38 && sel.previousSibling) {
+		    if((ev.keyCode == 38 || ev.keyCode == 40) && !sel) {
 		        ev.preventDefault();
-                sel.previousSibling.classList.add('selected');
-                sel.classList.remove('selected');
-            }
-		    if(ev.keyCode == 40 && sel.nextSibling) {
-		        ev.preventDefault();
-                sel.nextSibling.classList.add('selected');
-                sel.classList.remove('selected');
+		        document.getElementById(suggestionBoxId).querySelector('li:first-child').classList.add('selected');
+		        sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
+		    } else {
+                if(ev.keyCode == 38 && sel.previousSibling) {
+                    ev.preventDefault();
+                    sel.previousSibling.classList.add('selected');
+                    sel.classList.remove('selected');
+                }
+                if(ev.keyCode == 40 && sel.nextSibling) {
+                    ev.preventDefault();
+                    sel.nextSibling.classList.add('selected');
+                    sel.classList.remove('selected');
+                }
             }
 		}
 
@@ -92,7 +98,8 @@ function makeSuggestionBox(el, targetInput, onClick, separator) {
         el.parentNode.innerHTML = 'no suggestions';
         return;
     }
-	el.querySelector('li:first-child').classList.add('selected');
+	//el.querySelector('li:first-child').classList.add('selected');
+
 	var lis=el.querySelectorAll('li');
 	for(var i=0;i<lis.length;i++) {
 		addEvent('mouseenter',lis[i],suggestionOver);

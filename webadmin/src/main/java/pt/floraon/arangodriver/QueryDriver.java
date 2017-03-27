@@ -1,8 +1,6 @@
 package pt.floraon.arangodriver;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
@@ -290,10 +288,25 @@ FOR final IN FLATTEN(FOR v IN base
 	@Override
     public Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
     	String limitQ;
-    	if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
-    	String _query = AQLQueries.getString("QueryDriver.1", query, limitQ);
+		String _query = null;
+		if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
 
-    	try {
+		if(query.length() == 1)
+			_query = AQLQueries.getString("QueryDriver.1", query, limitQ);
+    	else if(query.length() > 1) {
+			String first = query.substring(0, 1);
+			String last = query.substring(1);
+			if(query.length() % 2 != 0) {
+				_query = AQLQueries.getString("QueryDriver.1a", query, limitQ, first, last);
+			} else {
+				String firstHalf = query.substring(0, query.length() / 2);
+				String lastHalf = query.substring(query.length() / 2);
+				_query = AQLQueries.getString("QueryDriver.1b", query, limitQ, first, last, firstHalf, lastHalf);
+			}
+		}
+		if(_query == null) return Collections.emptyIterator();
+
+		try {
 			return database.query(_query, null, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());

@@ -75,7 +75,7 @@ public interface IQuery {
 	List<SimpleTaxonResult> speciesTextQuerySimple(String q, StringMatchTypes matchtype, boolean onlyLeafNodes, boolean onlyCurrent, String[] collections, TaxonRanks rank) throws DatabaseException;
 	List<SimpleTaxonResult> speciesTextQuerySimple(ArangoKey node, boolean onlyLeafNodes, boolean onlyCurrent) throws DatabaseException;
     /**
-     * Gets a list of suggested names similar to the query
+     * Gets a list of suggested names similar to the query. Abbreviations should also be accepted.
      * @param query
      * @return
      * @throws FloraOnException

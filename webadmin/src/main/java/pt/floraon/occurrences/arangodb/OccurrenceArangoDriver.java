@@ -59,4 +59,21 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         driver.getNodeWorkerDriver().updateDocument(authorId, "uploadedTables", tmp);
         return true;
     }
+
+    @Override
+    public int deleteOccurrences(String[] inventoryId, String[] uuid) {
+        int count = 0;
+        for (int i = 0; i < inventoryId.length; i++) {
+            try {
+                database.query(
+                        AQLOccurrenceQueries.getString("occurrencequery.3", inventoryId[i], uuid[i])
+                        , null, null, Inventory.class);
+            } catch (ArangoDBException e) {
+                e.printStackTrace();
+                continue;
+            }
+            count++;
+        }
+        return count;
+    }
 }

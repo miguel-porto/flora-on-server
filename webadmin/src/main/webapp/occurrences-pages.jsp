@@ -32,27 +32,50 @@
             </table>
         </form>
     </div>
-    <table id="occurrencetable" class="verysmalltext occurrencetable sortable">
-        <tr><th></th><th>Taxon</th><th>Coordinates</th><th>Date</th></tr>
-    <c:forEach var="occ" items="${occurrences}">
-        <c:if test="${occ.getTaxa()[0].getTaxEnt() == null}">
-        <tr class="unmatched">
-        </c:if>
-        <c:if test="${occ.getTaxa()[0].getTaxEnt() != null}">
-        <tr>
-        </c:if>
-            <td class="select"><div class="selectbutton"></div></td>
+    <div id="deleteoccurrences" class="hidden">
+        <h2>Confirm deletion of occurrences</h2>
+        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
+            <input type="submit" class="textbutton" value="Delete"/>
+            <table id="deleteoccurrencetable" class="verysmalltext sortable">
+                <thead>
+                    <tr><th></th><th>Taxa</th><th>Coordinates</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div id="alloccurrences">
+        <h2>Your occurrences</h2>
+        <!--<div class="button anchorbutton"><a href="?w=main">Occurrences</a></div>
+        <div class="button anchorbutton"><a href="?w=inventories">Inventories</a></div>-->
+        <div class="button" id="deleteselected">Delete selected occurrences</div>
+        <table id="occurrencetable" class="verysmalltext occurrencetable sortable">
+            <tr><th></th><th>Taxon</th><th>Coordinates</th><th>Date</th></tr>
+        <c:forEach var="occ" items="${occurrences}">
             <c:if test="${occ.getTaxa()[0].getTaxEnt() == null}">
-                <td class="taxon">${occ.getTaxa()[0].getVerbTaxon()}</td>
+            <tr class="unmatched">
             </c:if>
             <c:if test="${occ.getTaxa()[0].getTaxEnt() != null}">
-                <td class="taxon">${occ.getTaxa()[0].getTaxEnt().getName()}</td>
+            <tr>
             </c:if>
-            <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ.getLatitude()}, ${occ.getLongitude()}</td>
-            <td>${occ._getDate()}</td>
-        </tr>
-    </c:forEach>
-    </table>
+                <td class="select">
+                    <input type="hidden" name="occurrenceUuid" value="${occ.getTaxa()[0].getUuid()}"/>
+                    <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
+                    <div class="selectbutton"></div>
+                </td>
+                <c:if test="${occ.getTaxa()[0].getTaxEnt() == null}">
+                    <td class="taxon">${occ.getTaxa()[0].getVerbTaxon()}</td>
+                </c:if>
+                <c:if test="${occ.getTaxa()[0].getTaxEnt() != null}">
+                    <td class="taxon">${occ.getTaxa()[0].getTaxEnt().getName()}</td>
+                </c:if>
+                <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ.getLatitude()}, ${occ.getLongitude()}</td>
+                <td>${occ._getDate()}</td>
+            </tr>
+        </c:forEach>
+        </table>
+    </div>
 </c:when>
 
 <c:when test="${param.w == 'uploads'}">

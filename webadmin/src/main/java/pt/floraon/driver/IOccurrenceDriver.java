@@ -48,4 +48,12 @@ public interface IOccurrenceDriver {
      * @throws FloraOnException
      */
     void matchTaxEntNames(InventoryList inventories) throws FloraOnException;
+
+    /**
+     * Deletes occurrences by their UUID. The ID of the inventory must also be provided in a parallel array.
+     * @param inventoryId
+     * @param uuid
+     * @throws DatabaseException
+     */
+    int deleteOccurrences(String[] inventoryId, String[] uuid);
 }

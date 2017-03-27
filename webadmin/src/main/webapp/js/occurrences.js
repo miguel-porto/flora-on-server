@@ -36,6 +36,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('occurrencemap').classList.toggle('hidden');
     });
 
+    addEvent('click', document.getElementById('deleteselected'), function(ev) {
+        acceptVisibleSearchbox();
+        var sel = document.querySelectorAll('#occurrencetable tr.selected');
+        if(sel.length == 0) return;
+        var tbody = document.querySelector('#deleteoccurrencetable tbody');
+        for(var i=0; i<sel.length; i++)
+            tbody.appendChild(sel[i]);
+
+        document.getElementById('deleteoccurrences').classList.remove('hidden');
+    });
+
 /*
     var viewer = OpenSeadragon({
         id: 'mapcontainer',
@@ -99,6 +110,14 @@ function addPointMarker(lat, lng, bondEl) {
     }
 }
 
+function acceptVisibleSearchbox() {
+    if(!document.getElementById('taxonsearchwrapper')) return;
+    while(document.getElementById('taxonsearchwrapper').offsetParent !== null) {
+        var event = new KeyboardEvent('keyup', { 'keyCode': 13});
+        document.getElementById('taxonsearchbox').dispatchEvent(event);
+    }
+}
+
 function displayTaxonSearchbox(el, text) {
     var old = document.getElementById('taxonsearchwrapper');
     if(!el.querySelector('#taxonsearchwrapper') && old.offsetParent !== null) {     // there's one visible in other cell
@@ -122,7 +141,9 @@ function displayTaxonSearchbox(el, text) {
 
 function markerClick(ev) {
     if(ev.target.tableRow) {
-        ev.target.tableRow.querySelector('.select .selectbutton').classList.toggle('selected');
+        if(ev.target.tableRow.querySelector('.select .selectbutton'))
+            ev.target.tableRow.querySelector('.select .selectbutton').classList.toggle('selected');
+
         ev.target._icon.classList.toggle('selected');
         ev.target.tableRow.classList.toggle('selected');
     }
