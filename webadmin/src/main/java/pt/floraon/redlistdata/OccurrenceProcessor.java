@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.geometry.*;
-import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 
 import java.awt.geom.Rectangle2D;
@@ -33,7 +33,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private Double EOO, realEOO, squareEOO, AOO;
     private int nQuads = 0;
     private long sizeOfSquare;
-    private List<ExternalDataProvider> occurrences;
+    private List<SimpleOccurrenceDataProvider> occurrences;
 
     /**
      * A polygon theme to clip occurrences. May have any number of polygons.
@@ -77,12 +77,12 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     }
 
     public class ExternalDataProviderIterator implements Iterator<SimpleOccurrence> {
-        private List<ExternalDataProvider> providers;
+        private List<SimpleOccurrenceDataProvider> providers;
         private int curIteratorDataProvider = 0;
         private Iterator<SimpleOccurrence> curIterator;
         private SimpleOccurrence prevElement;
 
-        ExternalDataProviderIterator(List<ExternalDataProvider> providers) {
+        ExternalDataProviderIterator(List<SimpleOccurrenceDataProvider> providers) {
             this.providers = providers;
         }
 
@@ -143,11 +143,11 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     public int size() {
         int size = 0;
         if (clippingPolygon == null && minimumYear == null && maximumYear == null) {
-            for(ExternalDataProvider edp : this.occurrences) {
+            for(SimpleOccurrenceDataProvider edp : this.occurrences) {
                 size = size + edp.size();
             }
         } else {
-            for(ExternalDataProvider edp : this.occurrences) {
+            for(SimpleOccurrenceDataProvider edp : this.occurrences) {
                 for (SimpleOccurrence so : edp) {
                     if (enter(so)) size++;
                 }
@@ -215,11 +215,11 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         }
     }
 
-    public static OccurrenceProcessor iterableOf(List<ExternalDataProvider> occurrences) {
+    public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences) {
         return new OccurrenceProcessor(occurrences);
     }
 
-    public static OccurrenceProcessor iterableOf(List<ExternalDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
+    public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
         return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear);
     }
 
@@ -227,13 +227,13 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      * This constructor does nothing but providing an Iterator for all data providers merged. No calculations are done.
      * @param occurrences
      */
-    private OccurrenceProcessor(List<ExternalDataProvider> occurrences) {
+    private OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences) {
         this.occurrences = occurrences;
         this.pointsInPolygons = null;
         this.clusters = null;
     }
 
-    private OccurrenceProcessor(List<ExternalDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
+    private OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
         this.occurrences = occurrences;
         this.pointsInPolygons = null;
         this.clusters = null;
@@ -248,7 +248,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      * @param protectedAreas
      * @param sizeOfSquare
      */
-    public OccurrenceProcessor(List<ExternalDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
+    public OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
             , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
         this.clippingPolygon = clippingPolygon;
         this.minimumYear = minimumYear;
@@ -344,7 +344,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
-    public OccurrenceProcessor(List<ExternalDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
+    public OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
         this(occurrences, protectedAreas, sizeOfSquare, null, null, null);
     }
 

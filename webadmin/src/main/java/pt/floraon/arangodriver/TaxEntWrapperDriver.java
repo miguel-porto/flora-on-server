@@ -225,4 +225,15 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 			throw new DatabaseException(e.getMessage());
 		}
 	}
+
+	@Override
+	public Iterator<TaxEnt> getInfrataxa(int level) throws DatabaseException {
+		String query = AQLQueries.getString("TaxEntWrapperDriver.14", thisNode.getID(), level);
+
+		try {
+			return database.query(query,null,null,TaxEnt.class);
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
 }

@@ -9,11 +9,11 @@ import com.arangodb.model.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import pt.floraon.driver.*;
-import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
-import pt.floraon.redlistdata.dataproviders.FloraOnExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.FloraOnDataProvider;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.net.MalformedURLException;
@@ -25,7 +25,7 @@ import java.util.*;
  */
 public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRedListDataDriver {
     final protected ArangoDatabase database;
-    final private List<ExternalDataProvider> externalDataProviders = new ArrayList<>();
+    final private List<SimpleOccurrenceDataProvider> simpleOccurrenceDataProviders = new ArrayList<>();
 
     public RedListDataArangoDBDriver(IFloraOn driver) {
         super(driver);
@@ -51,16 +51,16 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
     public void initializeRedListData(Properties properties) throws FloraOnException {
         try {
             for(String op : getPropertyList(properties, "occurrenceProvider")) {
-                externalDataProviders.add(new FloraOnExternalDataProvider(new URL(op)));    // TODO use reflection
+                simpleOccurrenceDataProviders.add(new FloraOnDataProvider(new URL(op), driver));    // TODO use reflection
             }
         } catch (MalformedURLException e) {
             throw new FloraOnException(e.getMessage());
         }
-        externalDataProviders.add(new InternalDataProvider(driver));
+        simpleOccurrenceDataProviders.add(new InternalDataProvider(driver));
     }
 
-    public List<ExternalDataProvider> getExternalDataProviders() {
-        return externalDataProviders;
+    public List<SimpleOccurrenceDataProvider> getSimpleOccurrenceDataProviders() {
+        return simpleOccurrenceDataProviders;
     }
 
     @Override

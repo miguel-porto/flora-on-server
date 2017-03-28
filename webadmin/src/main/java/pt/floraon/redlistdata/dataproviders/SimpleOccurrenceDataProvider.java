@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.dataproviders;
 
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Created by miguel on 02-11-2016.
  */
-public abstract class ExternalDataProvider implements Iterable<SimpleOccurrence> {
+public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOccurrence> {
     protected List<SimpleOccurrence> occurrenceList;
 
     public int size() {
@@ -22,10 +23,11 @@ public abstract class ExternalDataProvider implements Iterable<SimpleOccurrence>
      * @throws FloraOnException
      * @throws IOException
      */
-    public abstract void executeOccurrenceQuery(String newId, Integer oldId) throws FloraOnException, IOException;
+    public abstract void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException;
 
     /**
      * Executes a query and returns arbitrary data about a taxon.
+     * TODO: this shouldn't be here, it's just a workaround for fetching info in Flora-On
      * @param query
      * @throws FloraOnException
      * @throws IOException

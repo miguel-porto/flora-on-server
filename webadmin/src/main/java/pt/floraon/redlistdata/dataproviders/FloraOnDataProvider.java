@@ -5,6 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.IFloraOn;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,8 +20,9 @@ import java.util.*;
  * A class to fetch records from flora-on.pt
  * Created by miguel on 02-11-2016.
  */
-public class FloraOnExternalDataProvider extends ExternalDataProvider {
+public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     final private URL floraOnURL;
+    final private IFloraOn driver;
 
     private class FloraOnOccurrence {
         String autor, genero, especie, subespecie, notas;
@@ -29,17 +32,26 @@ public class FloraOnExternalDataProvider extends ExternalDataProvider {
         Boolean floracao;
     }
 
-    public FloraOnExternalDataProvider(URL url) {
+    public FloraOnDataProvider(URL url, IFloraOn driver) {
         this.floraOnURL = url;
+        this.driver = driver;
     }
 
     @Override
-    public void executeOccurrenceQuery(String newId, Integer oldId) throws FloraOnException, IOException {
+    public void executeOccurrenceQuery(TaxEnt taxa) throws FloraOnException, IOException {
         // FIXME when all records!
         String legacyID;
-        if(oldId != null)
-            legacyID = oldId.toString();
-        else {
+        if(taxa != null) {
+            Iterator<TaxEnt> it1 = driver.wrapTaxEnt(driver.asNodeKey(taxa.getID())).getInfrataxa(1000);
+            List<Integer> oldIds = new ArrayList<>();
+            while(it1.hasNext()) {
+                TaxEnt t1 = it1.next();
+                if(t1.getOldId() != null) oldIds.add(t1.getOldId());
+            }
+
+            legacyID = Arrays.toString(oldIds.toArray(new Integer[oldIds.size()]));
+            legacyID = legacyID.substring(1, legacyID.length());
+        } else {
             occurrenceList = new ArrayList<>();
             return;
             //legacyID = "all";

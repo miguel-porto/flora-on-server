@@ -6,16 +6,13 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * For a given red list dataset, download a table with the taxa, AOO, EOO, etc.
@@ -57,7 +54,13 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             curSpeciesName = rlde.getTaxEnt().getName();
             if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
 
-            if(rlde.getTaxEnt().getOldId() == null) {
+            for (SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders()) {
+                edp.executeOccurrenceQuery(rlde.getTaxEnt());
+            }
+            op = new OccurrenceProcessor(driver.getRedListData().getSimpleOccurrenceDataProviders(), null
+                    , sizeOfSquare, clippingPolygon, minimumYear, null);
+
+            if(op.size() == 0) {
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
                 csvp.print("");
@@ -66,13 +69,6 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.print("");
                 csvp.println();
             } else {
-                for (ExternalDataProvider edp : driver.getRedListData().getExternalDataProviders()) {
-                    edp.executeOccurrenceQuery(rlde.getTaxEntID(), rlde.getTaxEnt().getOldId());
-                }
-
-                op = new OccurrenceProcessor(driver.getRedListData().getExternalDataProviders(), null
-                        , sizeOfSquare, clippingPolygon, minimumYear, null);
-
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
                 csvp.print(op.getAOO());

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by miguel on 24-03-2017.
  */
-public class InternalDataProvider extends ExternalDataProvider {
+public class InternalDataProvider extends SimpleOccurrenceDataProvider {
     private IFloraOn driver;
 
     public InternalDataProvider(IFloraOn driver) {
@@ -23,10 +23,10 @@ public class InternalDataProvider extends ExternalDataProvider {
     }
 
     @Override
-    public void executeOccurrenceQuery(String taxEntId, Integer oldId) throws FloraOnException, IOException {
-        if(taxEntId == null) throw new FloraOnException("Must specify as taxon");
+    public void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException {
+        if(taxon == null) throw new FloraOnException("Must specify as taxon");
 
-        Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesOfTaxon(driver.asNodeKey(taxEntId));
+        Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesOfTaxon(driver.asNodeKey(taxon.getID()));
 
         occurrenceList = new ArrayList<>();
 

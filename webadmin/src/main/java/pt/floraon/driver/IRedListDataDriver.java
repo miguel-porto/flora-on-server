@@ -3,7 +3,7 @@ package pt.floraon.driver;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
-import pt.floraon.redlistdata.dataproviders.ExternalDataProvider;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.util.*;
@@ -29,7 +29,7 @@ public interface IRedListDataDriver {
      */
     void initializeRedListDataForTerritory(String territory) throws FloraOnException;
 
-    List<ExternalDataProvider> getExternalDataProviders();
+    List<SimpleOccurrenceDataProvider> getSimpleOccurrenceDataProviders();
 
     /**
      * Stores in the DB a new red list data entity.

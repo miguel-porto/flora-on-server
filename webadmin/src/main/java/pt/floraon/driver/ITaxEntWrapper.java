@@ -162,4 +162,6 @@ public interface ITaxEntWrapper {
 	 * @return
 	 */
 	boolean isInfrataxonOf(INodeKey id) throws DatabaseException;
+
+	Iterator<TaxEnt> getInfrataxa(int level) throws DatabaseException;
 }
