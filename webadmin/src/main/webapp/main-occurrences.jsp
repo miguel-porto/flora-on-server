@@ -21,8 +21,8 @@
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
 	<script type="text/javascript" src="/floraon/sorttable.js"></script>
-	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
+	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/js/occurrences.js?nocache=${uuid}"></script>
 </head>

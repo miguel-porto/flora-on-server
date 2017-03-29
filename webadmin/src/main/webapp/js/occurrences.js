@@ -5,8 +5,21 @@ var redCircle = L.icon({
     iconSize: [12, 12],
     iconAnchor: [6, 6],
 });
+
 var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
+
+window.addEventListener('beforeunload', function (ev) {
+    if(isFormSubmitting) return;
+    var confirmationMessage = 'You have unsaved occurrences! Are you sure you want to lose them?';
+    var sel = document.querySelectorAll('#newoccurrencetable tbody tr');
+    if(sel.length > 0) {
+        (ev || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    } else
+        return null;
 });
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -31,21 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }, true, ',');
 
 
-    addEvent('click', document.getElementById('hidemap'), function(ev) {
-        ev.target.classList.toggle('selected');
-        document.getElementById('occurrencemap').classList.toggle('hidden');
-    });
-
-    addEvent('click', document.getElementById('deleteselected'), function(ev) {
-        acceptVisibleSearchbox();
-        var sel = document.querySelectorAll('#occurrencetable tr.selected');
-        if(sel.length == 0) return;
-        var tbody = document.querySelector('#deleteoccurrencetable tbody');
-        for(var i=0; i<sel.length; i++)
-            tbody.appendChild(sel[i]);
-
-        document.getElementById('deleteoccurrences').classList.remove('hidden');
-    });
+    var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
+    for(var i = 0; i < buttons.length; i++) {
+        addEvent('click', buttons[i], clickButton);
+    }
 
 /*
     var viewer = OpenSeadragon({
@@ -68,9 +70,43 @@ document.addEventListener('DOMContentLoaded', function() {
 */
 });
 
+function clickButton(ev) {
+    var b = getParentbyClass(ev.target, 'button');
+    switch(b.id) {
+    case 'hidemap':
+        ev.target.classList.toggle('selected');
+        document.getElementById('occurrencemap').classList.toggle('hidden');
+        break;
+
+    case 'deleteselected':
+        acceptVisibleSearchbox();
+        var sel = document.querySelectorAll('#occurrencetable tr.selected');
+        if(sel.length == 0) return;
+        var tbody = document.querySelector('#deleteoccurrencetable tbody');
+        for(var i=0; i<sel.length; i++)
+            tbody.appendChild(sel[i]);
+
+        document.getElementById('deleteoccurrences').classList.remove('hidden');
+        break;
+
+    case 'deleteselectednew':
+        acceptVisibleSearchbox();
+        var sel = document.querySelectorAll('#newoccurrencetable tr.selected');
+        var tab = document.getElementById('newoccurrencetable');
+        if(sel.length == 0) return;
+        for(var i=0; i<sel.length; i++) {
+            if(sel[i].marker) {
+                sel[i].marker.remove();
+            }
+            sel[i].parentNode.removeChild(sel[i]);
+        }
+        break;
+    }
+}
 
 function clickOccurrenceTable(ev) {
     var cell = getParentbyTag(ev.target, 'td');
+    if(!cell.classList) return;
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
         var txt = cell.textContent;

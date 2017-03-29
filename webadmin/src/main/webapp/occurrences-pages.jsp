@@ -20,12 +20,14 @@
     <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
     <div class="button" id="hidemap">Hide map</div>
     <div id="addnewoccurrences" class="hidden">
-        <h2>Add new occurrences</h2>
         <form class="poster" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
-            <input type="submit" class="textbutton" value="Save"/>
+            <h2>Add new occurrences or inventories<br/>
+                <div class="button" id="deleteselectednew">Delete selected</div>
+                <input type="submit" class="textbutton" value="Save"/>
+            </h2>
             <table id="newoccurrencetable" class="verysmalltext occurrencetable sortable">
                 <thead>
-                    <tr><th></th><th>Taxa</th><th>Coordinates</th><th>Date</th></tr>
+                    <tr><th class="sorttable_nosort"></th><th>Taxa</th><th>Coordinates</th><th>Date</th></tr>
                 </thead>
                 <tbody>
                 </tbody>
@@ -33,12 +35,13 @@
         </form>
     </div>
     <div id="deleteoccurrences" class="hidden">
-        <h2>Confirm deletion of occurrences</h2>
         <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
-            <input type="submit" class="textbutton" value="Delete"/>
+            <h2>Confirm deletion of occurrences<br/>
+                <input type="submit" class="textbutton" value="Delete"/>
+            </h2>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
                 <thead>
-                    <tr><th></th><th>Taxa</th><th>Coordinates</th><th>Date</th></tr>
+                    <tr><th class="sorttable_nosort"></th><th>Taxa</th><th>Coordinates</th><th>Date</th></tr>
                 </thead>
                 <tbody>
                 </tbody>
@@ -46,12 +49,14 @@
         </form>
     </div>
     <div id="alloccurrences">
-        <h2>Your occurrences</h2>
+        <h2>Your occurrences<br/>
+            <div class="button" id="deleteselected">Delete selected occurrences</div>
+        </h2>
         <!--<div class="button anchorbutton"><a href="?w=main">Occurrences</a></div>
         <div class="button anchorbutton"><a href="?w=inventories">Inventories</a></div>-->
-        <div class="button" id="deleteselected">Delete selected occurrences</div>
+
         <table id="occurrencetable" class="verysmalltext occurrencetable sortable">
-            <tr><th></th><th>Taxon</th><th>Coordinates</th><th>Date</th></tr>
+            <tr><th class="sorttable_nosort"></th><th>Taxon</th><th>Coordinates</th><th>Date</th></tr>
         <c:forEach var="occ" items="${occurrences}">
             <c:if test="${occ.getTaxa()[0].getTaxEnt() == null}">
             <tr class="unmatched">

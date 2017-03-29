@@ -363,6 +363,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return unmatchedOccurrences == null ? (this.unmatchedOccurrences = new ArrayList<>()) : unmatchedOccurrences;
     }
 
+    public List<newOBSERVED_IN> getOccurrences() {
+        // FIXME: this should return the occurrences that are graph links aswell!
+        return getUnmatchedOccurrences();
+    }
+
     public void setUnmatchedOccurrences(List<newOBSERVED_IN> unmatchedOccurrences) {
         this.unmatchedOccurrences = unmatchedOccurrences;
     }

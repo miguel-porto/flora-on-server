@@ -25,10 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Part;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
@@ -49,6 +46,7 @@ public class RedListDataApi extends FloraOnServlet {
         String territory;
         RedListDataEntity rlde;
         Gson gs;
+        PrintWriter pw;
 
         switch(path.next()) {
             case "newdataset":
@@ -100,7 +98,8 @@ public class RedListDataApi extends FloraOnServlet {
                 response.setContentType("application/json; charset=utf-8");
                 response.setCharacterEncoding("UTF-8");
                 response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
-                gs.toJson(driver.getRedListData().getAllRedListData(getParameterAsString("territory"), false), response.getWriter());
+                gs.toJson(driver.getRedListData().getAllRedListData(getParameterAsString("territory"), false), pw = response.getWriter());
+                pw.close();
                 break;
 
             case "updatedata":

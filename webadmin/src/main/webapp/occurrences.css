@@ -1,7 +1,7 @@
 html.occurrencespage, body.occurrencespage {width:100%; height:100%; overflow:auto;}
 body.occurrencespage {display:flex; height: 100%; align-items: stretch;}
 body.occurrencespage .warning {position: static; width:auto;}
-body.occurrencespage h2 {background-color: #1565c0; color: white;}
+body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 
 #occurrencetoolbar {
     background-color: yellow;
@@ -19,8 +19,9 @@ body.occurrencespage h2 {background-color: #1565c0; color: white;}
 
 #mapcontainer {width:100%; height:100%}
 
-.occurrencetable tr td {cursor: pointer;}
-.occurrencetable tr.selected td {background-color:yellow !important;}
+table.occurrencetable {border-spacing: 0}
+table.occurrencetable tr td {cursor: pointer;}
+table.occurrencetable tr.selected td {background-color:yellow !important;}
 .leaflet-marker-icon {border:2px solid transparent; border-radius:50%}
 .leaflet-marker-icon.selected {border:2px solid yellow; border-radius:50%; z-index: 5}
 

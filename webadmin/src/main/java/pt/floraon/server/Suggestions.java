@@ -28,16 +28,19 @@ public class Suggestions extends FloraOnServlet {
 				TaxEnt te;
 				response.setContentType("text/html");
 				pw = response.getWriter();
-				pw.print("<ul class=\"suggestions\">");
-				while(ite.hasNext()) {
-					te = ite.next();
-					pw.print("<li" + (te.getCurrent() == null ? "" : (te.getCurrent() ? "" : " class=\"notcurrent\""))
-							+ " data-key=\"" + te.getID() + "\"><i>" + te.getName() + (te.getSensu() == null
-							? "" : " sensu " + te.getSensu()) + "</i></li>");
+				if(pw != null) {
+					pw.print("<ul class=\"suggestions\">");
+					while (ite.hasNext()) {
+						te = ite.next();
+						pw.print("<li" + (te.getCurrent() == null ? "" : (te.getCurrent() ? "" : " class=\"notcurrent\""))
+								+ " data-key=\"" + te.getID() + "\"><i>" + te.getName() + (te.getSensu() == null
+								? "" : " sensu " + te.getSensu()) + "</i></li>");
 //							+(this.taxent.getAuthor() == null ? "" : " "+this.taxent.getAuthor())+"</li>";
+					}
+					pw.print("</ul>");
+					pw.flush();
+					pw.close();
 				}
-				pw.print("</ul>");
-				pw.flush();
 				break;
 
 			case "user":
@@ -53,6 +56,7 @@ public class Suggestions extends FloraOnServlet {
 					resp.print("</li>");
 				}
 				resp.print("</ul>");
+				resp.close();
 				break;
 		}
 

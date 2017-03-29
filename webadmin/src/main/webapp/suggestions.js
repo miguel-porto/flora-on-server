@@ -1,3 +1,5 @@
+var currentSuggestionAjax = null;
+
 function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeText, separator) {
 	querybox = document.getElementById(elid);
 	addEvent('keydown', querybox, function(ev) {
@@ -66,8 +68,14 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
 			document.getElementById(suggestionBoxId).innerHTML='';
 			return;
 		}
-		fetchAJAX(url + encodeURIComponent(it), function(rt) {
-			document.getElementById(suggestionBoxId).innerHTML=rt;
+
+        if(currentSuggestionAjax !== null) {
+            currentSuggestionAjax.abort();
+        }
+
+        currentSuggestionAjax = fetchAJAX(url + encodeURIComponent(it), function(rt) {
+            currentSuggestionAjax = null;
+			document.getElementById(suggestionBoxId).innerHTML = rt;
 			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick, separator);
 		});
 	});

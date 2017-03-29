@@ -1,8 +1,10 @@
+var isFormSubmitting = false;
 /**
 	Forms must have a data-path attribute
 */
 function formPoster(ev, callback) {
 	ev.preventDefault();
+	isFormSubmitting = true;
 	postAJAXForm(ev.target.getAttribute('data-path'), ev.target, function(rt) {
 //	    console.log(rt);
 		var rt1=JSON.parse(rt);
@@ -18,8 +20,9 @@ function formPoster(ev, callback) {
 		    if(ev.target.getAttribute('data-callback') == null) {
 		        if(ev.target.getAttribute('data-refresh') == 'false') {
                     alert('Ok');
-		        } else
+		        } else {
                     window.location.reload();
+                }
 			} else
 			    window.location = ev.target.getAttribute('data-callback');
 		} else

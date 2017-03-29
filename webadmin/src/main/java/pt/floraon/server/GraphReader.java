@@ -1,6 +1,7 @@
 package pt.floraon.server;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
@@ -29,6 +30,7 @@ public class GraphReader extends FloraOnServlet {
 		String id,query;
 		StringBuilder rk=new StringBuilder();
 		ListIterator<String> partIt=this.getPathIteratorAfter("graph");
+		PrintWriter pw;
 
 		switch(partIt.next()) {
 		case "reference":
@@ -60,7 +62,9 @@ public class GraphReader extends FloraOnServlet {
 					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
 				}
 				rk.append("</select>");
-				response.getWriter().print(rk.toString());
+				pw = response.getWriter();
+				pw.print(rk.toString());
+				pw.close();
 				break;
 				
 			case "territorytypes":
@@ -69,7 +73,9 @@ public class GraphReader extends FloraOnServlet {
 					rk.append("<option value=\""+e.toString()+"\">"+e.toString()+"</option>");
 				}
 				rk.append("</select>");
-				response.getWriter().print(rk.toString());
+				pw = response.getWriter();
+				pw.print(rk.toString());
+				pw.close();
 				break;
 			}
 			break;

@@ -102,8 +102,9 @@ public class Lists extends FloraOnServlet {
 				return;
 			case "htmllist":
 				response.setContentType("text/html");
-				out=response.getWriter();
+				out = response.getWriter();
 				out.println(rpchk.toHTMLList(htmlClass));
+				out.close();
 				break;
 			case "html":
 			case "htmltable":
@@ -120,6 +121,7 @@ public class Lists extends FloraOnServlet {
 				response.setCharacterEncoding("Windows-1252");
 				out=response.getWriter();
 				out.println(rpchk.toCSVTable(null));
+				out.close();
 				break;
 			}
 		} else {

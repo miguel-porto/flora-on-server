@@ -1,6 +1,7 @@
 package pt.floraon.taxonomy;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,7 +50,9 @@ public class Query extends FloraOnServlet {
 		switch(format) {
 		case "html":
 			response.setContentType("text/html");
-			rp.toHTMLTable(response.getWriter(), "taxonlist", null);
+			PrintWriter pw = response.getWriter();
+			rp.toHTMLTable(pw = response.getWriter(), "taxonlist", null);
+			pw.close();
 			break;
 			
 		case "json":

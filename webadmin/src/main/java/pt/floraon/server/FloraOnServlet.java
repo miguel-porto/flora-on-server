@@ -1,6 +1,7 @@
 package pt.floraon.server;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -41,14 +42,18 @@ public class FloraOnServlet extends HttpServlet {
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":false,\"msg\":\""+obj+"\"}");
+		PrintWriter pw = response.getWriter();
+		pw.println("{\"success\":false,\"msg\":\""+obj+"\"}");
+		pw.close();
 	}
 
 	protected void errorHTML(String obj) throws IOException {
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		response.setContentType("text/html");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("<html><body>" + obj + "</body></html>");
+		PrintWriter pw = response.getWriter();
+		pw.println("<html><body>" + obj + "</body></html>");
+		pw.close();
 	}
 
 	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
@@ -76,13 +81,17 @@ public class FloraOnServlet extends HttpServlet {
 
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println(out.toString());
+		PrintWriter pw = response.getWriter();
+		pw.println(out.toString());
+		pw.close();
 	}
 
 	protected void success(Object obj) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
+		PrintWriter pw = response.getWriter();
+		pw.println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
+		pw.close();
 	}
 
 	protected void success(JsonObject obj) throws IOException {
@@ -92,7 +101,9 @@ public class FloraOnServlet extends HttpServlet {
 	protected void success(JsonElement obj) throws IOException {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
-		response.getWriter().println("{\"success\":true,\"msg\":" + obj.toString() + "}");
+		PrintWriter pw = response.getWriter();
+		pw.println("{\"success\":true,\"msg\":" + obj.toString() + "}");
+		pw.close();
 	}
 
 	protected void success(Object obj, boolean alert) throws IOException {
@@ -101,7 +112,9 @@ public class FloraOnServlet extends HttpServlet {
 		else {
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
-			response.getWriter().println("{\"success\":true,\"msg\": {\"alert\": true, \"text\": \"" + obj.toString() + "\"}}");
+			PrintWriter pw = response.getWriter();
+			pw.println("{\"success\":true,\"msg\": {\"alert\": true, \"text\": \"" + obj.toString() + "\"}}");
+			pw.close();
 		}
 	}
 

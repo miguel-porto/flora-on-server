@@ -2,6 +2,7 @@ package pt.floraon.driver.jobs;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ListIterator;
 
@@ -22,6 +23,7 @@ public class JobServlet extends FloraOnServlet {
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
 		ListIterator<String> partIt=this.getPathIterator();
+		PrintWriter pw;
 		while(!partIt.next().equals("job"));
 		if(!partIt.hasNext()) {
 			success(new Gson().toJsonTree(JobSubmitter.getJobList()));
@@ -58,7 +60,8 @@ public class JobServlet extends FloraOnServlet {
 			}
 			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 			//IOUtils.copy(jobInput, response.getOutputStream());
-			IOUtils.copy(jobInput, response.getWriter());
+			IOUtils.copy(jobInput, pw = response.getWriter());
+			pw.close();
 		} else {
 
 		}

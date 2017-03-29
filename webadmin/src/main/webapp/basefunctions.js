@@ -40,7 +40,7 @@ function postAJAXForm(addr,formElement,callback) {
 		xmlo=xmlo.target;
 		if(xmlo.readyState == 4) {
 			if(xmlo.status == 200) callback(xmlo.responseText); else {
-			    console.log(xmlo.responseText);
+//			    console.log(xmlo.responseText);
 				var rt=JSON.parse(xmlo.responseText);
 				alert('ERROR: '+rt.msg);
 			}
@@ -90,6 +90,7 @@ function loadXMLDoc(doc,onopen) {
     xmlhttp.onreadystatechange = onopen;
     xmlhttp.open("GET", doc, true);
     xmlhttp.send();
+    return xmlhttp;
 }
 
 function showLoader() {
@@ -101,14 +102,16 @@ function hideLoader() {
 	var el=document.getElementById('loader');
 	if(el) el.style.display='none';
 }
+
 function fetchAJAX(addr,callback) {
 	//showLoader();
-	loadXMLDoc(addr,function(xmlo) {
-		xmlo=xmlo.target;
-		if(xmlo.readyState == 4) {
-			if(xmlo.status == 200) callback(xmlo.responseText); else {
-			    console.log(xmlo.responseText);
-				var rt=JSON.parse(xmlo.responseText);
+	return loadXMLDoc(addr,function() {
+		if(this.readyState == 4) {
+			if(this.status == 200) {
+			    callback(this.responseText);
+            } else {
+			    if(this.responseText == '') return;
+				var rt=JSON.parse(this.responseText);
 				alert('ERROR: '+rt.msg);
 			}
 		}
@@ -154,7 +157,7 @@ function getParentbyTag(el,tagname) {
 console.log(el);
 console.log(tagname);
 */
-	while(el.tagName.toLowerCase()!=tagname) {
+	while(el.tagName && el.tagName.toLowerCase() != tagname) {
 		el=el.parentNode;
 	};
 	return(el);

@@ -22,7 +22,8 @@ public interface IOccurrenceDriver {
 
     /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
-     * observer). Inventories as disaggregated into individual occurrences.
+     * observer). Inventories as disaggregated into individual occurrences. NOTE: in case of empty inventories, one
+     * (empty) occurrence is returned, to allow the user to populate the empty inventory with taxa.
      * @param authorId
      * @param offset
      * @param count
@@ -50,10 +51,11 @@ public interface IOccurrenceDriver {
     void matchTaxEntNames(InventoryList inventories) throws FloraOnException;
 
     /**
-     * Deletes occurrences by their UUID. The ID of the inventory must also be provided in a parallel array.
+     * Deletes occurrences by their UUID. The ID of the inventory must also be provided in a parallel array. If the
+     * inventory becomes empty after deleting the occurrences, it is deleted also.
      * @param inventoryId
      * @param uuid
      * @throws DatabaseException
      */
-    int deleteOccurrences(String[] inventoryId, String[] uuid);
+    int deleteOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException;
 }

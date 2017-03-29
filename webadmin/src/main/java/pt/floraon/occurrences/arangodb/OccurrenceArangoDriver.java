@@ -61,13 +61,20 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public int deleteOccurrences(String[] inventoryId, String[] uuid) {
+    public int deleteOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException {
         int count = 0;
         for (int i = 0; i < inventoryId.length; i++) {
             try {
-                database.query(
-                        AQLOccurrenceQueries.getString("occurrencequery.3", inventoryId[i], uuid[i])
-                        , null, null, Inventory.class);
+                if(uuid[i].trim().equals("")) {
+                    driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(inventoryId[i]));
+                } else {
+                    Inventory inv = database.query(
+                            AQLOccurrenceQueries.getString("occurrencequery.3", inventoryId[i], uuid[i])
+                            , null, null, Inventory.class).next();
+                    // if the inventory became empty, delete the inventory
+                    if(inv.getOccurrences().size() == 0)
+                        driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(inventoryId[i]));
+                }
             } catch (ArangoDBException e) {
                 e.printStackTrace();
                 continue;
@@ -76,4 +83,5 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         }
         return count;
     }
+
 }
