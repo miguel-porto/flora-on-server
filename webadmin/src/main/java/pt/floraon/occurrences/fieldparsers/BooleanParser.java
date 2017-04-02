@@ -1,0 +1,42 @@
+package pt.floraon.occurrences.fieldparsers;
+
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.Messages;
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.newOBSERVED_IN;
+
+/**
+ * Created by miguel on 31-03-2017.
+ */
+public class BooleanParser implements FieldParser {
+    @Override
+    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
+        boolean value = false;
+        if (inputValue != null && !inputValue.trim().equals("")) {
+            if(inputValue.toLowerCase().equals("1") || inputValue.toLowerCase().equals("true")
+                    || inputValue.toLowerCase().equals("sim") || inputValue.toLowerCase().equals("yes")
+                    || inputValue.toLowerCase().equals("y") || inputValue.toLowerCase().equals("s")
+                    || inputValue.toLowerCase().equals("t"))
+                value = true;
+        }
+
+        switch (inputFieldName.toLowerCase()) {
+            case "hasspecimen":
+                if(occurrence.getUnmatchedOccurrences().size() == 0)
+                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN());
+                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
+                    obs.setHasSpecimen(value);
+                break;
+
+            case "hasphoto":
+                if(occurrence.getUnmatchedOccurrences().size() == 0)
+                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN());
+                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
+                    obs.setHasPhoto(value);
+                break;
+
+            default:
+                throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
+        }
+    }
+}

@@ -8,8 +8,11 @@ function formPoster(ev, callback) {
 	postAJAXForm(ev.target.getAttribute('data-path'), ev.target, function(rt) {
 //	    console.log(rt);
 		var rt1=JSON.parse(rt);
+
+
 		if(callback) {
 		    callback(rt1, ev);
+		    isFormSubmitting = false;
 		    return;
 		}
 
@@ -20,6 +23,7 @@ function formPoster(ev, callback) {
 		    if(ev.target.getAttribute('data-callback') == null) {
 		        if(ev.target.getAttribute('data-refresh') == 'false') {
                     alert('Ok');
+                    isFormSubmitting = false;
 		        } else {
                     window.location.reload();
                 }
@@ -27,7 +31,7 @@ function formPoster(ev, callback) {
 			    window.location = ev.target.getAttribute('data-callback');
 		} else
 			alert(rt1.msg);
-
+        isFormSubmitting = false;
 	});
 }
 

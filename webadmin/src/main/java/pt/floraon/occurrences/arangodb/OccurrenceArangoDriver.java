@@ -2,10 +2,13 @@ package pt.floraon.occurrences.arangodb;
 
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
+import org.apache.commons.collections.iterators.EmptyIterator;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,12 +41,40 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
+    public Iterator<Inventory> getOccurrencesByUuid(INodeKey authorId, String[] uuid) throws DatabaseException {
+        // TODO: this should return the OBSERVED_IN graph links, not the unmatched
+        if(uuid == null || uuid.length == 0) return Collections.emptyIterator();
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.2b", authorId.getID()
+                            , "[\"" + StringUtils.implode("\",\"", uuid) + "\"]")
+                    , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+
+    @Override
     public Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.2", authorId.getID(), offset, count)
+                    , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> getInventoriesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
+        if(offset == null) offset = 0;
+        if(count == null) count = 999999;
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.2a", authorId.getID(), offset, count)
                     , null, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
@@ -72,7 +103,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                             AQLOccurrenceQueries.getString("occurrencequery.3", inventoryId[i], uuid[i])
                             , null, null, Inventory.class).next();
                     // if the inventory became empty, delete the inventory
-                    if(inv.getOccurrences().size() == 0)
+                    if(inv._getOccurrences().size() == 0)
                         driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(inventoryId[i]));
                 }
             } catch (ArangoDBException e) {

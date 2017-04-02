@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import de.micromata.opengis.kml.v_2_2_0.*;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -35,11 +36,13 @@ public class OccurrenceImporterJob implements JobTask {
     private long newsplist=0;
     private long counter=0;
     private OccurrenceParser occurrenceParser;
+    private String format;
 
 
-    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user) {
+    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user, String format) {
         this.stream = stream;
         this.user = user;
+        this.format = format == null ? "csv" : format;
         occurrenceParser = new OccurrenceParser(driver);
     }
 
@@ -48,79 +51,102 @@ public class OccurrenceImporterJob implements JobTask {
         INodeWorker nwd = driver.getNodeWorkerDriver();
         Reader freader;
         Map<Long,String> lineerrors=new HashMap<Long,String>();
+        InventoryList invList = new InventoryList();
         System.out.print("Reading records ");
 
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
 
-        freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-        CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
-        Map<String, Integer> headers = records.getHeaderMap();
+        switch(this.format) {
+            case "kml":
+                Kml kml = Kml.unmarshal(stream);
+                Document document = (Document) kml.getFeature();
+                for (int i = 0; i < document.getFeature().size(); i++) {
+                    Placemark pm = (Placemark) document.getFeature().get(i);
+                    Point p = (Point) pm.getGeometry();
+                    Inventory inv = new Inventory();
+                    inv.setLatitude((float) p.getCoordinates().get(0).getLatitude());
+                    inv.setLongitude((float) p.getCoordinates().get(0).getLongitude());
+                    inv.setCode(pm.getName());
+                    inv.setPubNotes(pm.getDescription());
+                    inv.setMaintainer(user.getID());
+                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN());
 
-        occurrenceParser.checkFieldNames(headers.keySet());
-
-        Inventory inv;
-        Multimap<Inventory, Inventory> invMap = ArrayListMultimap.create();
-
-        for (CSVRecord record : records) {
-            inv = new Inventory();
-            try {
-                for(String col : headers.keySet()) {
-                    occurrenceParser.parseField(record.get(col), col, inv);
-//                    fieldMappings.get(col).parseValue(record.get(col), col, inv);
+                    invList.add(inv);
+//                    System.out.println(pm.getName()+": "+ p.getCoordinates().get(0).getLatitude()+", "+p.getCoordinates().get(0).getLongitude());
                 }
-                nrecs++;
-                if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
-                if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
+                break;
 
-                // this groups inventories by coordinates, location and observers
-                invMap.put(inv, inv);
+            default:
+                freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+                CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
+                Map<String, Integer> headers = records.getHeaderMap();
 
-                //nwd.createOccurrence(occ);
-            } catch(FloraOnException | IllegalArgumentException e) {
-                lineerrors.put(record.getRecordNumber(), e.getMessage());
-                counterr++;
-                continue;
-            }
-            counter++;
-            if((counter % 2500)==0) {
-                System.out.println(counter+" records processed.");
-            }
-        }
-        freader.close();
+                occurrenceParser.checkFieldNames(headers.keySet());
 
-        // now let's sweep out the species from all inventory groups and aggregate
-        InventoryList invList = new InventoryList();
+                Inventory inv;
+                Multimap<Inventory, Inventory> invMap = ArrayListMultimap.create();
 
-        for(Map.Entry<Inventory, Collection<Inventory>> entr : invMap.asMap().entrySet()) {
-            // grab an array of Inventory of these Inventories
-            Collection<Inventory> tmp = entr.getValue();
+                for (CSVRecord record : records) {
+                    inv = new Inventory();
+                    Map<String, String> recordValues = new HashMap<>();
+                    try {
+                        for(String col : headers.keySet())
+                            recordValues.put(col, record.get(col));
+
+                        occurrenceParser.parseFields(recordValues, inv);
+                        nrecs++;
+                        if(nrecs % 100==0) {System.out.print(".");System.out.flush();}
+                        if(nrecs % 1000==0) {System.out.print(nrecs);System.out.flush();}
+
+                        // this groups inventories by coordinates, location and observers
+                        invMap.put(inv, inv);
+
+                        //nwd.createOccurrence(occ);
+                    } catch(FloraOnException | IllegalArgumentException e) {
+                        lineerrors.put(record.getRecordNumber(), e.getMessage());
+                        counterr++;
+                        continue;
+                    }
+                    counter++;
+                    if((counter % 2500)==0) {
+                        System.out.println(counter+" records processed.");
+                    }
+                }
+                freader.close();
+
+                // now let's sweep out the species from all inventory groups and aggregate
+                for(Map.Entry<Inventory, Collection<Inventory>> entr : invMap.asMap().entrySet()) {
+                    // grab an array of Inventory of these Inventories
+                    Collection<Inventory> tmp = entr.getValue();
 //            List<Inventory> tmp = new ArrayList<>();
 //            for(Inventory i : entr.getValue()) {
 //                tmp.add(i.getInventoryData());
 //            }
 
-            // merge all the Inventory into one
-            Inventory merged = null;
-            try {
-                // we ignore the field that holds the occurrences
-                merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences"), tmp.toArray(new Inventory[tmp.size()]));
-            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
-                e.printStackTrace();
-                throw new FloraOnException(e.getMessage());
-            } catch (FloraOnException e) {
-                throw new FloraOnException(Messages.getString("error.3"));
-            }
+                    // merge all the Inventory into one
+                    Inventory merged = null;
+                    try {
+                        // we ignore the field that holds the occurrences
+                        merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences"), tmp.toArray(new Inventory[tmp.size()]));
+                    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+                        e.printStackTrace();
+                        throw new FloraOnException(e.getMessage());
+                    } catch (FloraOnException e) {
+                        throw new FloraOnException(Messages.getString("error.3"));
+                    }
 
 //            System.out.println("MERGE OF "+tmp.size()+" BEANS:");
 //            System.out.println(gs.toJson(merged));
 
-            // assemble all species found in these inventories into the merged one
-            List<newOBSERVED_IN> occ = new ArrayList<>();
-            for (Inventory inventory : entr.getValue()) {
-                occ.addAll(inventory.getUnmatchedOccurrences());
-            }
-            merged.setUnmatchedOccurrences(occ);
-            invList.add(merged);
+                    // assemble all species found in these inventories into the merged one
+                    List<newOBSERVED_IN> occ = new ArrayList<>();
+                    for (Inventory inventory : entr.getValue()) {
+                        occ.addAll(inventory.getUnmatchedOccurrences());
+                    }
+                    if(occ.size() == 0) occ.add(new newOBSERVED_IN());
+                    merged.setUnmatchedOccurrences(occ);
+                    merged.setMaintainer(user.getID());
+                    invList.add(merged);
 /*
             inv = new Inventory();
             inv.setInventoryData(merged);
@@ -131,6 +157,8 @@ public class OccurrenceImporterJob implements JobTask {
             }
             invList.add(inv);
 */
+                }
+                break;
         }
 
 //        System.out.println(gs.toJson(invList));

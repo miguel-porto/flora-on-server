@@ -10,39 +10,23 @@ var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 
-
-window.addEventListener('beforeunload', function (ev) {
-    if(isFormSubmitting) return;
-    var confirmationMessage = 'You have unsaved occurrences! Are you sure you want to lose them?';
-    var sel = document.querySelectorAll('#newoccurrencetable tbody tr');
-    if(sel.length > 0) {
-        (ev || window.event).returnValue = confirmationMessage;
-        return confirmationMessage;
-    } else
-        return null;
-});
-
 document.addEventListener('DOMContentLoaded', function() {
-    myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([37.5, -8], 12);
+    myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
     L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
 
-    myMap.on('click', addNewOccurrence);
+    myMap.on('click', addNewFeature);
 
     attachFormPosters(fileUploadCallback);
-    attachOccurrenceTableEvents();
+    // click on an occurrence table
+    var ot = document.querySelectorAll('.occurrencetable');
+    for(var i=0; i<ot.length; i++)
+        addEvent('click', ot[i], clickOccurrenceTable);
 
-    attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', function(ev, name, key, parent, dry) {
-        if(!dry) return;
-        document.getElementById('taxonsearchwrapper-holder').appendChild(document.getElementById('taxonsearchwrapper'));
-        parent.innerHTML = name;
-        var id = getParentbyTag(parent, 'tr').getAttribute('data-id');
-        if(id)
-            insertOrReplaceHiddenInput(parent, id + '_taxa', name);
-        else
-            insertOrReplaceHiddenInput(parent, 'taxa', name);
-    }, true, ',');
+    projectPointsOnMap();
 
+    attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, ',', tabHandler);
+    attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
 
     var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
     for(var i = 0; i < buttons.length; i++) {
@@ -50,37 +34,99 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 /*
-    var viewer = OpenSeadragon({
-        id: 'mapcontainer',
-        showNavigator: false,
-        wrapHorizontal: true,
-        zoomPerScroll: 1.2,
-        minZoomImageRatio:0.5,
-        tileSources: {
-            height: 512*256,
-            width:  512*256,
-            tileSize: 256,
-            minLevel: 8,
-            getTileUrl: function( level, x, y ){
-                return "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/" +
-                        (level-8) + "/" + y + "/" + x + ".jpg";
-            }
-        }
-    });
+    var inventories = document.querySelectorAll('.inventory');
+    for(var i = 0; i < inventories.length; i++) {
+    // FIXME
+        addEvent('click', inventories[i].querySelector('.button'), addNewTaxon);
+        doMouseClick(inventories[i].querySelector('.button'));
+    }
 */
 });
 
+window.addEventListener('beforeunload', function (ev) {
+    if(isFormSubmitting) return;
+    var confirmationMessage = 'You have unsaved occurrences! Are you sure you want to lose them?';
+    var sel = document.querySelectorAll('.newoccurrencetable tbody tr:not(.dummy)');
+    if(sel.length > 0) {
+        (ev || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    } else
+        return null;
+});
+
+function onConfirmEdit(ev, name, key, parent, dry) {
+    if(!dry) return;
+    var fieldname = parent.getAttribute('data-name');
+    document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
+    var changed = (parent.innerHTML.trim() != name.trim());
+    if(!changed) return;
+
+    parent.innerHTML = name;
+
+    if(getParentbyClass(parent, 'id1holder'))
+        var id1 = getParentbyClass(parent, 'id1holder').getAttribute('data-id');
+
+    if(getParentbyClass(parent, 'id2holder'))
+        var id2 = getParentbyClass(parent, 'id2holder').getAttribute('data-id');
+
+    if(id1 && id2) {
+        insertOrReplaceHiddenInput(parent, id1 + '_' + id2 + '_' + fieldname, name);
+        var inv = getParentbyClass(parent, 'inventory');
+        if(inv) {   // we're in the add new occurrences. add new row if needed.
+            var lastRow = getParentbyClass(parent, 'newoccurrencetable').querySelector('tbody tr:last-of-type');
+            if(lastRow.querySelectorAll('input[type=hidden]').length > 0) { // only add if there is no empty row already
+                doMouseClick(inv.querySelector('.button'));
+            }
+        }
+    } else if(id1) {
+        insertOrReplaceHiddenInput(parent, id1 + '_' + fieldname, name);
+    }
+}
+
+function tabHandler(ev) {
+    if(ev.keyCode == 9) {
+        ev.preventDefault();
+        var cell = ev.target.parentNode.parentNode;
+        var next = getNextSiblingByClass(cell, 'editable');
+        if(next) doMouseClick(next);
+    }
+}
+
+function doMouseClick(el) {
+    var event = new MouseEvent('click', {bubbles: true});
+    el.dispatchEvent(event);
+}
+
 function clickButton(ev) {
     var b = getParentbyClass(ev.target, 'button');
+
     switch(b.id) {
     case 'hidemap':
         ev.target.classList.toggle('selected');
         document.getElementById('occurrencemap').classList.toggle('hidden');
         break;
 
+    case 'selectpoints':
+        var areaSelect = L.areaSelect({width:200, height:300});
+        areaSelect.addTo(myMap);
+        break;
+
+    case 'mergeocc':
+        var sel = document.querySelectorAll('#alloccurrences .geoelement.selected');
+        var form = document.querySelector('#mergeoccurrencetable tbody');
+        form.innerHTML = '';
+        if(sel.length > 0) {
+            for(var i=0; i<sel.length; i++) {
+                form.appendChild(sel[i].cloneNode(true));
+            }
+
+            document.getElementById('mergeoccurrences').classList.remove('hidden');
+        }
+        break;
+
     case 'deleteselected':
         acceptVisibleSearchbox();
-        var sel = document.querySelectorAll('#occurrencetable tr.selected');
+        var sel = document.querySelectorAll('#alloccurrencetable tr.selected');
         if(sel.length == 0) return;
         var tbody = document.querySelector('#deleteoccurrencetable tbody');
         for(var i=0; i<sel.length; i++)
@@ -91,8 +137,8 @@ function clickButton(ev) {
 
     case 'deleteselectednew':
         acceptVisibleSearchbox();
-        var sel = document.querySelectorAll('#newoccurrencetable tr.selected');
-        var tab = document.getElementById('newoccurrencetable');
+        var sel = document.querySelectorAll('.newoccurrencetable tr.selected');
+        if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected');
         if(sel.length == 0) return;
         for(var i=0; i<sel.length; i++) {
             if(sel[i].marker) {
@@ -104,9 +150,19 @@ function clickButton(ev) {
     }
 }
 
+function addNewTaxon(ev) {
+    var id = randomString(6);
+    var inv = getParentbyClass(ev.target, 'inventory');
+    var row = inv.querySelector('.newoccurrencetable tr.dummy').cloneNode(true);
+    row.classList.remove('dummy');
+    row.setAttribute('data-id', id);
+    inv.querySelector('.newoccurrencetable tbody').appendChild(row);
+}
+
 function clickOccurrenceTable(ev) {
-    var cell = getParentbyTag(ev.target, 'td');
-    if(!cell.classList) return;
+    var cell = getParentbyClass(ev.target, 'editable') || getParentbyClass(ev.target, 'clickable');
+    if(!cell || !cell.classList) return;
+console.log(cell);
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
         var txt = cell.textContent;
@@ -114,24 +170,23 @@ function clickOccurrenceTable(ev) {
         displayTaxonSearchbox(cell, txt);
     } else if(cell.classList.contains('select')) {    // select row
         var tr = getParentbyTag(cell, 'tr');
-        if(tr.marker) {
-            cell.querySelector('.selectbutton').classList.toggle('selected');
-            tr.classList.toggle('selected');
-            tr.marker.classList.toggle('selected');
-        }
+        cell.querySelector('.selectbutton').classList.toggle('selected');
+        tr.classList.toggle('selected');
+        if(tr.marker) tr.marker.classList.toggle('selected');
+    } else if(cell.classList.contains('editable')) {    // select row
+        if(cell.querySelector('#editfieldwrapper')) return;
+        var txt = cell.textContent;
+        cell.textContent = '';
+        displayEditField(cell, txt);
     }
 }
 
-function attachOccurrenceTableEvents() {
-    // click on an occurrence table
-    addEvent('click', document.getElementById('occurrencetable'), clickOccurrenceTable);
-    addEvent('click', document.getElementById('newoccurrencetable'), clickOccurrenceTable);
-
-    var ot = document.querySelectorAll('.occurrencetable tr');
+function projectPointsOnMap() {
+    var ot = document.querySelectorAll('.geoelement');
     var coo;
     for(var i=0; i<ot.length; i++) {
-        coo = ot[i].querySelector('td.coordinates');
-        if(coo == null) continue;
+        coo = ot[i].querySelector('*:not(.geoelement) .coordinates');
+        if(coo == null || !coo.getAttribute('data-lat')) continue;
 
         addPointMarker(parseFloat(coo.getAttribute('data-lat')), parseFloat(coo.getAttribute('data-lng')), ot[i]);
     }
@@ -147,29 +202,49 @@ function addPointMarker(lat, lng, bondEl) {
 }
 
 function acceptVisibleSearchbox() {
-    if(!document.getElementById('taxonsearchwrapper')) return;
-    while(document.getElementById('taxonsearchwrapper').offsetParent !== null) {
-        var event = new KeyboardEvent('keyup', { 'keyCode': 13});
-        document.getElementById('taxonsearchbox').dispatchEvent(event);
+    if(document.getElementById('taxonsearchwrapper')) {
+        while(document.getElementById('taxonsearchwrapper').offsetParent !== null) {
+            var event = new KeyboardEvent('keyup', { 'keyCode': 13});
+            document.getElementById('taxonsearchbox').dispatchEvent(event);
+        }
+    }
+
+    if(document.getElementById('editfieldwrapper')) {
+        while(document.getElementById('editfieldwrapper').offsetParent !== null) {
+            var event = new KeyboardEvent('keyup', { 'keyCode': 13});
+            document.getElementById('editfield').dispatchEvent(event);
+        }
     }
 }
 
 function displayTaxonSearchbox(el, text) {
-    var old = document.getElementById('taxonsearchwrapper');
+    acceptVisibleSearchbox();
+/*
     if(!el.querySelector('#taxonsearchwrapper') && old.offsetParent !== null) {     // there's one visible in other cell
         var txt = old.querySelector('textarea').value;
-        var par = old.parentNode;
-        document.getElementById('taxonsearchwrapper-holder').appendChild(old);
-        par.innerHTML = txt;
-        var id = getParentbyTag(par, 'tr').getAttribute('data-id');
-        if(id)
-            insertOrReplaceHiddenInput(par, id + '_taxa', txt);
-        else
-            insertOrReplaceHiddenInput(par, 'taxa', txt);
+        onConfirmEdit({target: old.querySelector('textarea')}, txt, null, old.parentNode, true);
     }
-
+*/
+    var old = document.getElementById('taxonsearchwrapper');
     el.appendChild(old);
     var inp = old.querySelector('textarea');
+    inp.value = text;
+    inp.setSelectionRange(0, inp.value.length);
+    inp.focus();
+}
+
+function displayEditField(el, text) {
+    acceptVisibleSearchbox();
+
+/*
+    if(!el.querySelector('#editfieldwrapper') && old.offsetParent !== null) {     // there's one visible in other cell
+        var txt = old.querySelector('input').value;
+        onConfirmEdit({target: old.querySelector('input')}, txt, null, old.parentNode, true);
+    }
+*/
+    var old = document.getElementById('editfieldwrapper');
+    el.appendChild(old);
+    var inp = old.querySelector('input');
     inp.value = text;
     inp.setSelectionRange(0, inp.value.length);
     inp.focus();
@@ -193,37 +268,66 @@ function fileUploadCallback(resp, ev) {
     }
 }
 
+function addNewFeature(ev) {
+    if(document.getElementById('addoccurrencetable'))
+        addNewOccurrence.call(this, ev);
+    else
+        addNewInventory.call(this, ev);
+}
+
+function addNewInventory(ev) {
+    var id = randomString(6);
+    var lat = Math.round(ev.latlng.lat * 100000) / 100000;
+    var lng = Math.round(ev.latlng.lng * 100000) / 100000;
+
+    var inv = document.querySelector('.inventory.dummy').cloneNode(true);
+//    var tab = document.querySelector('#newinventorytable tbody');
+    var cell2 = inv.querySelector('.coordinates');
+    inv.classList.remove('dummy');
+
+    inv.querySelector('input[name=code]').setAttribute('name', id + '_code');
+    var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
+    var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
+
+    inv.setAttribute('data-id', id);
+    cell2.innerHTML = lat + ', ' + lng;
+    cell2.appendChild(inp_latitude);
+    cell2.appendChild(inp_longitude);
+    cell2.setAttribute('data-lat', lat);
+    cell2.setAttribute('data-lng', lng);
+    addPointMarker(ev.latlng.lat, ev.latlng.lng, inv);
+    document.getElementById('addnewinventories').appendChild(inv);
+
+    var ot = inv.querySelectorAll('.occurrencetable');
+    for(var i=0; i<ot.length; i++)
+        addEvent('click', ot[i], clickOccurrenceTable);
+
+    document.getElementById('addnewinventories').classList.remove('hidden');
+    addEvent('click', inv.querySelector('.button'), addNewTaxon);
+    doMouseClick(inv.querySelector('.button'));
+}
+
+
 function addNewOccurrence(ev) {
     var id = randomString(6);
     var lat = Math.round(ev.latlng.lat * 100000) / 100000;
     var lng = Math.round(ev.latlng.lng * 100000) / 100000;
 
-    var tab = document.querySelector('#newoccurrencetable tbody');
-    var row = document.createElement('tr');
-    var cell0 = document.createElement('td');
-    var cell1 = document.createElement('td');
-    var cell2 = document.createElement('td');
-    var cell3 = document.createElement('td');
-    var selectbut = document.createElement('div');
+    var tab = document.querySelector('#addoccurrencetable tbody');
+    var row = document.querySelector('#addoccurrencetable tr.dummy').cloneNode(true);
+    var cell2 = row.querySelector('td.coordinates');
+    row.classList.remove('dummy');
+
     var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
     var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
 
     row.setAttribute('data-id', id);
-    cell0.classList.add('select');
-    selectbut.classList.add('selectbutton');
-    cell0.appendChild(selectbut);
-    cell1.classList.add('taxon');
     cell2.innerHTML = lat + ', ' + lng;
     cell2.appendChild(inp_latitude);
     cell2.appendChild(inp_longitude);
     cell2.setAttribute('data-lat', lat);
     cell2.setAttribute('data-lng', lng);
     addPointMarker(ev.latlng.lat, ev.latlng.lng, row);
-
-    row.appendChild(cell0);
-    row.appendChild(cell1);
-    row.appendChild(cell2);
-    row.appendChild(cell3);
     tab.appendChild(row);
 
     document.getElementById('addnewoccurrences').classList.remove('hidden');

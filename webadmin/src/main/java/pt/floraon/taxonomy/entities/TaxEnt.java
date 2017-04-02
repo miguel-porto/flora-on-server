@@ -137,6 +137,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 * @throws TaxonomyException
 	 */
 	public static TaxEnt parse(String name) throws FloraOnException {
+		if(name == null) throw new DatabaseException(Messages.getString("error.3"));
 		name = name.replaceAll(" +", " ").trim();
 		if(name.equals("")) {
 			throw new DatabaseException(Messages.getString("error.3"));

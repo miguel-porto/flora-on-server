@@ -40,7 +40,7 @@ function postAJAXForm(addr,formElement,callback) {
 		xmlo=xmlo.target;
 		if(xmlo.readyState == 4) {
 			if(xmlo.status == 200) callback(xmlo.responseText); else {
-//			    console.log(xmlo.responseText);
+			    console.log(xmlo.responseText);
 				var rt=JSON.parse(xmlo.responseText);
 				alert('ERROR: '+rt.msg);
 			}
@@ -170,6 +170,19 @@ function getParentbyClass(el,classname) {
 		if(!el.classList) return null;
 	};
 	return(el);
+}
+
+function getNextSiblingByClass(el, classname) {
+	if(!el) return null;
+	el = el.nextSibling;
+	if(!el) return null;
+
+	while(true) {
+	    if(el.classList && el.classList.contains(classname)) return el;
+		el = el.nextSibling;
+		if(!el) break;
+	};
+	return null;
 }
 
 SVGElement.prototype.addClass = function (className) {

@@ -33,7 +33,7 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
         while(it.hasNext()) {
             Inventory inv = it.next();
             String[] mainObserver = inv.getObserverNames();
-            newOBSERVED_IN te = inv.getTaxa()[0];
+            newOBSERVED_IN te = inv._getTaxa()[0];
             CanonicalName cn = te.getTaxEnt().getCanonicalName();
 
             this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), inv.getLatitude(), inv.getLongitude(), inv.getYear()

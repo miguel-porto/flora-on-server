@@ -10,7 +10,7 @@
 </ul>
 <ul class="menu">
 	<!-- <li><a href="?w=graph&q=${taxent.getURLEncodedName()}">View in graph</a></li> -->
-	<li><a href="?w=graph&depth=2&id=${taxent.getIDURLEncoded()}">View in graph</a></li>
+	<li><a href="?w=graph&depth=2&id=${taxent._getIDURLEncoded()}">View in graph</a></li>
 	<c:if test="${taxentWrapper.isLeafNode() && user.canEDIT_FULL_CHECKLIST()}">
 		<li id="deletetaxon" class="actionbutton">Delete taxon</li>
 	</c:if>

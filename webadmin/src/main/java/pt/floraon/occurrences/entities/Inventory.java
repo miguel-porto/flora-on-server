@@ -34,6 +34,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     /**
      * This list holds the occurrencces ({@link newOBSERVED_IN}) that are not yet matched to the taxonomic graph.
      * Occurrences that are matched are removed from this list and converted into graph links.
+     * All new occurrences shall go in here.
      */
     private List<newOBSERVED_IN> unmatchedOccurrences;
 
@@ -88,7 +89,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     public Inventory() { }
 
     public Float getLatitude() {
-        return latitude;
+        return latitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getLatitude() : null) : latitude;
     }
 
     public void setLatitude(Float latitude) {
@@ -96,7 +97,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public Float getLongitude() {
-        return longitude;
+        return longitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getLongitude() : null) : longitude;
     }
 
     public void setLongitude(Float longitude) {
@@ -164,7 +165,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public void setDay(Integer day) {
-        if(day < 1 || day > 31) throw new IllegalArgumentException("Invalid day");
+        if(day != null && (day < 1 || day > 31)) throw new IllegalArgumentException("Invalid day");
         this.day = day;
     }
 
@@ -296,7 +297,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String getCode() {
-        return code;
+        return code == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getGpsCode() : null) : code;
     }
 
     public void setCode(String code) {
@@ -363,11 +364,6 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return unmatchedOccurrences == null ? (this.unmatchedOccurrences = new ArrayList<>()) : unmatchedOccurrences;
     }
 
-    public List<newOBSERVED_IN> getOccurrences() {
-        // FIXME: this should return the occurrences that are graph links aswell!
-        return getUnmatchedOccurrences();
-    }
-
     public void setUnmatchedOccurrences(List<newOBSERVED_IN> unmatchedOccurrences) {
         this.unmatchedOccurrences = unmatchedOccurrences;
     }
@@ -380,8 +376,16 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return StringUtils.isArrayEmpty(this.observerNames) ? new String[0] : this.observerNames;
     }
 
-    public newOBSERVED_IN[] getTaxa() {
-        return StringUtils.isArrayEmpty(this.taxa) ? new newOBSERVED_IN[0] : this.taxa;
+    public newOBSERVED_IN[] _getTaxa() {
+        return StringUtils.isArrayEmpty(this.taxa) ?
+                (unmatchedOccurrences == null ?
+                        new newOBSERVED_IN[0] : unmatchedOccurrences.toArray(new newOBSERVED_IN[unmatchedOccurrences.size()]))
+                : this.taxa;
+    }
+
+    public List<newOBSERVED_IN> _getOccurrences() {
+        // FIXME: this should return the occurrences that are graph links aswell!
+        return getUnmatchedOccurrences();
     }
 
     @Override

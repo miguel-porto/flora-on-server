@@ -218,11 +218,11 @@
                         <tr class="${taxonclasses}">
                         <c:if test="${user.canEDIT_ANY_FIELD()}">
                             <td>
-                                <input type="checkbox" name="id" value="${taxon.getTaxEnt().getID()}" class="selectionbox" id="selbox_${taxon.getTaxEnt().getIDURLEncoded()}"/>
-                                <label for="selbox_${taxon.getTaxEnt().getIDURLEncoded()}"></label>
+                                <input type="checkbox" name="id" value="${taxon.getTaxEnt().getID()}" class="selectionbox" id="selbox_${taxon.getTaxEnt()._getIDURLEncoded()}"/>
+                                <label for="selbox_${taxon.getTaxEnt()._getIDURLEncoded()}"></label>
                             </td>
                         </c:if>
-                        <td><a href="?w=taxon&id=${taxon.getTaxEnt().getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
+                        <td><a href="?w=taxon&id=${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
                         <td>
                         <c:if test="${taxon.getInferredStatus() != null}">
                             ${taxon.getInferredStatus().getStatusSummary()}
@@ -322,15 +322,15 @@
                         <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p>
                     </div>
                     <div id="header-buttons">
-                        <div class="wordtag togglebutton"><a href="/floraon/checklist?w=taxdetails&id=${taxon.getIDURLEncoded()}">checklist</a></div>
+                        <div class="wordtag togglebutton"><a href="/floraon/checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
                         <c:if test="${user.canVIEW_OCCURRENCES()}">
-                            <div class="wordtag togglebutton"><a href="?w=taxonrecords&id=${taxon.getIDURLEncoded()}">view occurrences</a></div>
+                            <div class="wordtag togglebutton"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
                         </c:if>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                            <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon.getIDURLEncoded()}">download KML</a></div>
+                            <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
                         </c:if>
                     </div>
                 </c:if>
@@ -568,10 +568,10 @@
                                 <select name="population_TypeOfEstimate" class="trigger">
                                     <c:forEach var="tmp" items="${population_TypeOfEstimate}">
                                         <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                         </c:if>
                                         <c:if test="${!rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
+                                            <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}"><fmt:message key="${tmp.getLabel()}" /></option>
                                         </c:if>
                                     </c:forEach>
                                 </select>
@@ -585,7 +585,7 @@
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
                         <table>
-                            <tr><td>Type</td><td>${rlde.getPopulation().getTypeOfEstimate().getLabel()}</td></tr>
+                            <tr><td>Type</td><td><fmt:message key="${rlde.getPopulation().getTypeOfEstimate().getLabel()}" /></td></tr>
                             <tr><td>Description</td><td>${rlde.getPopulation().getNrMatureIndividualsDescription()}</td></tr>
                         </table>
                         </c:if>
@@ -1499,7 +1499,7 @@
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
             <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon.getIDURLEncoded()}">download KML</a></div>
+                <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
             </c:if>
             <table class="sortable smalltext" id="recordtable">
                 <thead>
@@ -1561,7 +1561,7 @@
                         <td class="bignumber">${responsibleTextCounter.get(tmp.getID())}</td>
                         <td class="bignumber">${responsibleAssessmentCounter.get(tmp.getID())}</td>
                         <td class="bignumber">${responsibleRevisionCounter.get(tmp.getID())}</td>
-                        <td><div class="button anchorbutton"><a href="?w=edituser&amp;user=${tmp.getIDURLEncoded()}">edit user</a></div></td>
+                        <td><div class="button anchorbutton"><a href="?w=edituser&amp;user=${tmp._getIDURLEncoded()}">edit user</a></div></td>
                     </tr>
                     </c:if>
                 </c:forEach>

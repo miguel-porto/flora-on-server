@@ -1,35 +1,42 @@
 var currentSuggestionAjax = null;
 
-function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeText, separator) {
-	querybox = document.getElementById(elid);
-	addEvent('keydown', querybox, function(ev) {
-		var input=ev.target;
-		if(document.getElementById(suggestionBoxId).querySelector('ul.suggestions')) {
-		    var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
-		    if((ev.keyCode == 38 || ev.keyCode == 40) && !sel) {
-		        ev.preventDefault();
-		        document.getElementById(suggestionBoxId).querySelector('li:first-child').classList.add('selected');
-		        sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
-		    } else {
-                if(ev.keyCode == 38 && sel.previousSibling) {
+function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeText, separator, keyDownHandler) {
+	var querybox = document.getElementById(elid);
+
+	if(suggestionBoxId) {
+        addEvent('keydown', querybox, function(ev) {
+            var input = ev.target;
+            if(keyDownHandler) keyDownHandler.call(this, ev);
+
+            if(document.getElementById(suggestionBoxId).querySelector('ul.suggestions')) {  // suggestions are visible
+                var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
+                if((ev.keyCode == 38 || ev.keyCode == 40) && !sel) {
                     ev.preventDefault();
-                    sel.previousSibling.classList.add('selected');
-                    sel.classList.remove('selected');
-                }
-                if(ev.keyCode == 40 && sel.nextSibling) {
-                    ev.preventDefault();
-                    sel.nextSibling.classList.add('selected');
-                    sel.classList.remove('selected');
+                    document.getElementById(suggestionBoxId).querySelector('li:first-child').classList.add('selected');
+                    sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
+                } else {
+                    if(ev.keyCode == 38 && sel.previousSibling) {
+                        ev.preventDefault();
+                        sel.previousSibling.classList.add('selected');
+                        sel.classList.remove('selected');
+                    }
+                    if(ev.keyCode == 40 && sel.nextSibling) {
+                        ev.preventDefault();
+                        sel.nextSibling.classList.add('selected');
+                        sel.classList.remove('selected');
+                    }
                 }
             }
-		}
 
-		if(input.hasAttribute('data-key')) {
-		    input.removeAttribute('data-key');
-		    input.value = '';
-		    return false;
-		}
-	});
+            if(input.hasAttribute('data-key')) {
+                input.removeAttribute('data-key');
+                input.value = '';
+                return false;
+            }
+        });
+    } else if(keyDownHandler) {
+        addEvent('keydown', querybox, keyDownHandler);
+    }
 
     addEvent('keypress', querybox, function(ev) {
         if(ev.keyCode == 13) {
@@ -39,45 +46,54 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
     });
 
 	addEvent('keyup', querybox, function(ev) {
-        var input=ev.target;
+        var input = ev.target;
 
         if(ev.keyCode == 13) {
-            var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
-            if(sel)
-                eventFire(sel, 'click');
-            else if(allowFreeText) {
-                var dry = (document.getElementById(suggestionBoxId).innerHTML == '');
-
-			    document.getElementById(suggestionBoxId).innerHTML = '';
-			    if(onClick) {
-                    onClick(ev, querybox.value, null, document.getElementById(suggestionBoxId).parentNode.parentNode, dry);
+            if(suggestionBoxId) {
+                var sel = document.getElementById(suggestionBoxId).querySelector('ul.suggestions li.selected');
+                if(sel)
+                    eventFire(sel, 'click');
+                else if(allowFreeText) {
+                    var dry = (document.getElementById(suggestionBoxId).innerHTML == '');   // no suggestions being shown
+                    document.getElementById(suggestionBoxId).innerHTML = '';
+                    if(onClick) {
+                        onClick(ev, querybox.value, null, document.getElementById(suggestionBoxId).parentNode.parentNode, dry);
+                    }
+                }
+                return;
+            } else {
+                if(onClick) {
+                    onClick(ev, querybox.value, null, querybox.parentNode.parentNode, true);
                 }
             }
-			return;
         }
 
-        if(ev.keyCode == 27) {
+        if(ev.keyCode == 27 && suggestionBoxId) {
 			document.getElementById(suggestionBoxId).innerHTML='';
 			return;
         }
 
 		if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
 
-        var it = getSuggestionInputText(input, separator);
-		if(it.length == 0) {
-			document.getElementById(suggestionBoxId).innerHTML='';
-			return;
-		}
-
-        if(currentSuggestionAjax !== null) {
-            currentSuggestionAjax.abort();
+        if(suggestionBoxId) {
+            var it = getSuggestionInputText(input, separator);
+            if(it.length == 0) {
+                document.getElementById(suggestionBoxId).innerHTML='';
+                return;
+            }
         }
 
-        currentSuggestionAjax = fetchAJAX(url + encodeURIComponent(it), function(rt) {
-            currentSuggestionAjax = null;
-			document.getElementById(suggestionBoxId).innerHTML = rt;
-			makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick, separator);
-		});
+        if(url) {
+            if(currentSuggestionAjax !== null) {
+                currentSuggestionAjax.abort();
+            }
+
+            currentSuggestionAjax = fetchAJAX(url + encodeURIComponent(it), function(rt) {
+                currentSuggestionAjax = null;
+                document.getElementById(suggestionBoxId).innerHTML = rt;
+                makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick, separator);
+            });
+        }
 	});
 }
 

@@ -43,7 +43,11 @@ public class FloraOnServlet extends HttpServlet {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter pw = response.getWriter();
-		pw.println("{\"success\":false,\"msg\":\""+obj+"\"}");
+		JsonObject resp = new JsonObject();
+		resp.addProperty("success", false);
+		resp.addProperty("msg", obj);
+		pw.print(resp.toString());
+//		pw.println("{\"success\":false,\"msg\":\""+obj+"\"}");
 		pw.close();
 	}
 
@@ -90,7 +94,11 @@ public class FloraOnServlet extends HttpServlet {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter pw = response.getWriter();
-		pw.println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
+		JsonObject resp = new JsonObject();
+		resp.addProperty("success", true);
+		resp.addProperty("msg", obj.toString());
+		pw.print(resp.toString());
+//		pw.println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
 		pw.close();
 	}
 
@@ -102,7 +110,11 @@ public class FloraOnServlet extends HttpServlet {
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		PrintWriter pw = response.getWriter();
-		pw.println("{\"success\":true,\"msg\":" + obj.toString() + "}");
+		JsonObject resp = new JsonObject();
+		resp.addProperty("success", true);
+		resp.add("msg", obj);
+		pw.print(resp.toString());
+//		pw.println("{\"success\":true,\"msg\":" + obj.toString() + "}");
 		pw.close();
 	}
 
@@ -199,7 +211,7 @@ public class FloraOnServlet extends HttpServlet {
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk23");
+		request.setAttribute("uuid", "sk25");
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {

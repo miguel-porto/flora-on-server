@@ -21,6 +21,8 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
             for(newOBSERVED_IN oi : i.getUnmatchedOccurrences()) {
                 TaxEnt te, matched;
                 Log.info("Verbose name: "+ oi.getVerbTaxon());
+                if(oi.getVerbTaxon() == null) continue;
+
                 try {
                     te = TaxEnt.parse(oi.getVerbTaxon());
                 } catch (FloraOnException e) {

@@ -18,23 +18,36 @@ body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 }
 
 #mapcontainer {width:100%; height:100%}
+#hidemap {position: absolute; right:0; top:0; z-index:1001}
 
-table.occurrencetable {border-spacing: 0}
-table.occurrencetable tr td {cursor: pointer;}
-table.occurrencetable tr.selected td {background-color:yellow !important;}
 .leaflet-marker-icon {border:2px solid transparent; border-radius:50%}
 .leaflet-marker-icon.selected {border:2px solid yellow; border-radius:50%; z-index: 5}
 
+
 /* occurrence table */
+.occurrencetable {table-layout: fixed;}
+.occurrencetable tbody tr td {cursor: pointer; height:16px;}
+.geoelement.selected, .geoelement.selected td {background-color:yellow !important;}
+.occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a}
-.occurrencetable td.taxon {min-width:60%; padding: 0}
+.occurrencetable th.selectcol {width:5%;}
+.occurrencetable th.bigcol {width:30%;}
+.occurrencetable th.smallcol {width:10%;}
 tr.unmatched td {background-color: #ffcdd2}
 #suggestionstaxon {position:relative; width:0; height:0;}
 #taxonsearchwrapper {width: 100%;}
-.occurrencetable #taxonsearchbox {border: 2px dotted #2979ff; box-sizing: border-box; width: 100%; font-size: 0.9rem; padding: 4px;}
+.occurrencetable textarea, .occurrencetable input[type=text] {border: 2px dotted #2979ff; box-sizing: border-box; width: 100%; font-size: 0.9rem; padding: 4px;}
 
 .select .selectbutton {
     width:16px; height:16px; box-shadow: 0 0 3px #555; border-radius: 50%;
 }
 
 .select .selectbutton.selected {background-color: green;}
+
+.inventory {margin-bottom: 16px; background-color:#90caf9}
+.inventory.selected {background-color: yellow;}
+.inventory .editable {background-color:#bbdefb}
+.inventory .occurrencetable th {background-color: transparent}
+.inventory table td {background-color: transparent}
+.inventory table tr:hover td:not(.title) {background-color:transparent;}
+.inventory table tr:hover .editable {background-color:#e3f2fd !important;}

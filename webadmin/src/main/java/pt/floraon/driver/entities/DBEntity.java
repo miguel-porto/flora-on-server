@@ -27,7 +27,7 @@ public abstract class DBEntity {
 		return this._key;
 	}
 
-	public String getIDURLEncoded() {
+	public String _getIDURLEncoded() {
 		if(this._id == null) return null;
 		try {
 			return URLEncoder.encode(this._id, StandardCharsets.UTF_8.name());

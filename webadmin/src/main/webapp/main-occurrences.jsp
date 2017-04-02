@@ -16,10 +16,12 @@
 	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/occurrences.css?nocache=${uuid}"/>
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+	<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet-areaselect.css"/>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
+	<script src="js/leaflet-areaselect.js"></script>
 	<script type="text/javascript" src="/floraon/sorttable.js"></script>
 	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
 	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
@@ -31,6 +33,9 @@
     <div id="occurrencetable-holder">
         <jsp:include page="occurrences-pages.jsp"></jsp:include>
     </div>
-    <div id="occurrencemap"><div id="mapcontainer"></div></div>
+    <div id="occurrencemap">
+        <div id="mapcontainer"></div>
+    </div>
+    <div class="button" id="hidemap">Hide map</div>
 </body>
 </html>

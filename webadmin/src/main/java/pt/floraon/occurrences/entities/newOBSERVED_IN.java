@@ -18,6 +18,7 @@ import java.util.UUID;
  * Created by miguel on 05-02-2017.
  */
 public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
+    private Float latitude, longitude;
     private Constants.PhenologicalStates phenoState;
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
@@ -35,6 +36,7 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private OccurrenceConstants.ValidationStatus validationStatus;
     private Date dateInserted;
     private UUID uuid;
+    private String gpsCode;
 
     /**
      * Field to hold the matched TaxEnt ID
@@ -47,6 +49,7 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private TaxEnt taxEnt;
 
     public newOBSERVED_IN() {
+        dateInserted = new Date();
         uuid = UUID.randomUUID();
     }
 
@@ -196,6 +199,30 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
 
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
+    }
+
+    public Float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Float latitude) {
+        this.latitude = latitude;
+    }
+
+    public Float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Float longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getGpsCode() {
+        return gpsCode;
+    }
+
+    public void setGpsCode(String gpsCode) {
+        this.gpsCode = gpsCode;
     }
 
     @Override

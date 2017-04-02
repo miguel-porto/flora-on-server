@@ -112,10 +112,10 @@ public class RedListEnums {
     }
 
     public enum TypeOfPopulationEstimate implements TriggerEnum {
-        NO_DATA("Not estimated", false)
-        , EXACT_COUNT("Exact count", true)
-        , APPROXIMATE_COUNT("Approximate count", true)
-        , ROUGH_ESTIMATE("Rough estimate", true);
+        NO_DATA("TypeOfEstimate.1", false)
+        , EXACT_COUNT("TypeOfEstimate.2", true)
+        , APPROXIMATE_COUNT("TypeOfEstimate.3", true)
+        , ROUGH_ESTIMATE("TypeOfEstimate.4", true);
 
         private String label;
         private boolean trigger;
