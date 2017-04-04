@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Flora-On-server.iml" filepath="$PROJECT_DIR$/Flora-On-server.iml" />
+      <module fileurl="file://$PROJECT_DIR$/console/Flora-On-server-shell.iml" filepath="$PROJECT_DIR$/console/Flora-On-server-shell.iml" />
+      <module fileurl="file://$PROJECT_DIR$/webadmin/Flora-On-server-web.iml" filepath="$PROJECT_DIR$/webadmin/Flora-On-server-web.iml" />
+    </modules>
+  </component>
+</project>

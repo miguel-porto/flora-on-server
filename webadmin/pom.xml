@@ -20,9 +20,9 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>dnl.utils</groupId>
+			<groupId>com.massisframework</groupId>
 			<artifactId>j-text-utils</artifactId>
-			<version>0.3.3</version>
+			<version>0.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
