@@ -403,6 +403,8 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			return database.query(query, null, null, Territory.class).next();
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
+		} catch (NoSuchElementException e) {
+			return null;
 		}
 	}
 

@@ -37,7 +37,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?" +
 			//"(?: +(?:(?<rank>subsp|var|f)\\.? +)?(?<infra>[a-z-]+))?" +
 			"(?<infras>[ a-z-.]*?)?" +
-			"(?: +\\{?(?<author>[A-Z(][^\\[\\]{}]+?)}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
+			"(?: +\\{?(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
 			"(?: +sensu +(?<sensu1>[^\\[\\]]+))?)|(?:(?: +sensu +(?<sensu2>[^\\[\\]]+))?(?: +\\[(?<annot2>[\\w çãõáàâéêíóôú]+)])?)) *$");
 
 	protected Integer rank;

@@ -203,16 +203,24 @@ function addPointMarker(lat, lng, bondEl) {
 
 function acceptVisibleSearchbox() {
     if(document.getElementById('taxonsearchwrapper')) {
-        while(document.getElementById('taxonsearchwrapper').offsetParent !== null) {
+        var c = 0;
+        while(document.getElementById('taxonsearchwrapper').offsetParent !== null && c < 4) {
             var event = new KeyboardEvent('keyup', { 'keyCode': 13});
+            Object.defineProperty(event, 'keyCode', {get:function(){return this.charCodeVal;}});
+            event.charCodeVal = 13;
             document.getElementById('taxonsearchbox').dispatchEvent(event);
+            c++;
         }
     }
 
     if(document.getElementById('editfieldwrapper')) {
-        while(document.getElementById('editfieldwrapper').offsetParent !== null) {
+        var c = 0;
+        while(document.getElementById('editfieldwrapper').offsetParent !== null && c < 4) {
             var event = new KeyboardEvent('keyup', { 'keyCode': 13});
+            Object.defineProperty(event, 'keyCode', {get:function(){return this.charCodeVal;}});
+            event.charCodeVal = 13;
             document.getElementById('editfield').dispatchEvent(event);
+            c++;
         }
     }
 }

@@ -93,10 +93,10 @@ public class FloraOnShell {
 	            		System.out.println("Reading sample taxonomy (Flora of Portugal)");
 	            		graph.getCSVFileProcessor().getTaxonomyImporter().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/taxonomy.csv"), false);
 	            		graph.getCSVFileProcessor().getTaxonomyImporter().uploadTaxonomyListFromStream(graph.getClass().getResourceAsStream("/orders.csv"), false);
-	            		System.out.println("Reading morphology");
+	           /* 		System.out.println("Reading morphology");
 	            		graph.getCSVFileProcessor().uploadMorphologyFromStream(graph.getClass().getResourceAsStream("/morphology.csv"));
 	            		System.out.println("\nGenerating random species lists");
-	            		//generateRandomSpeciesLists(graph,50);
+	           */ 		//generateRandomSpeciesLists(graph,50);
 	            		// \\upload/authors?file=/home/miguel/workspace/Flora-On-server/sampledata/authors
 	            		// \\upload/occurrences?file=/home/miguel/workspace/Flora-On-server/sampledata/100records
 	            		continue;

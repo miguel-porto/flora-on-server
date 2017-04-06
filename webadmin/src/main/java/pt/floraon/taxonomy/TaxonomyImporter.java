@@ -96,13 +96,13 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                     if(rankNames[i].equals("species")) pastspecies=true;
                     // special cases: if species or lower rank, must prepend genus.
                     if(pastspecies)
-                        name=parentNode.getName()+" "+(rankNames[i].equals("species") ? "" : (infraRanks.containsKey(rankNames[i]) ? infraRanks.get(rankNames[i]) : rankNames[i])+" ")+parsedName.getName();
+                        name = parentNode.getName()+" "+(rankNames[i].equals("species") ? "" : (infraRanks.containsKey(rankNames[i]) ? infraRanks.get(rankNames[i]) : rankNames[i])+" ")+parsedName.getName();
                     else
                         name=null;
 
                     if(pastspecies && parsedName.getAuthor()==null) author=parentNode.getAuthor(); else author=null;
 
-                    parsedName.setName(name);
+                    if(name != null) parsedName.setName(name);
                     parsedName.setRank(Constants.TaxonRanks.valueOf(rankNames[i].toUpperCase()).getValue());
                     parsedName.setAuthor(author);
                     parsedName.setCurrent(true);
