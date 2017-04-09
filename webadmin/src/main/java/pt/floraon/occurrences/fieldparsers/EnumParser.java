@@ -12,12 +12,12 @@ import pt.floraon.redlistdata.RedListEnums;
 public class EnumParser implements FieldParser {
     @Override
     public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
-        if (inputValue == null || inputValue.trim().equals("")) return;
+        if (inputValue == null) return;
 
         switch (inputFieldName.toLowerCase()) {
             case "typeofestimate":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN());
+                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
 
                 RedListEnums.TypeOfPopulationEstimate value;
                 switch(inputValue.toLowerCase()) {
@@ -36,6 +36,10 @@ public class EnumParser implements FieldParser {
                     case "r":   // quantitative estimation
                     case "rough":
                         value = RedListEnums.TypeOfPopulationEstimate.ROUGH_ESTIMATE;
+                        break;
+
+                    case "":    // TODO: how to clear field?
+                        value = null;
                         break;
 
                     default:

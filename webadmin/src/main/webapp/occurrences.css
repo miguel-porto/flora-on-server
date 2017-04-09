@@ -25,7 +25,7 @@ body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 
 
 /* occurrence table */
-.occurrencetable {table-layout: fixed;}
+/*.occurrencetable {table-layout: fixed;}*/
 .occurrencetable tbody tr td {cursor: pointer; height:16px;}
 .geoelement.selected, .geoelement.selected td {background-color:yellow !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
@@ -34,9 +34,11 @@ body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 .occurrencetable th.bigcol {width:30%;}
 .occurrencetable th.smallcol {width:10%;}
 tr.unmatched td {background-color: #ffcdd2}
+tr.modified td {background-color: #ce93d8}
+
 #suggestionstaxon {position:relative; width:0; height:0;}
 #taxonsearchwrapper {width: 100%;}
-.occurrencetable textarea, .occurrencetable input[type=text] {border: 2px dotted #2979ff; box-sizing: border-box; width: 100%; font-size: 0.9rem; padding: 4px;}
+.occurrencetable textarea, .occurrencetable input[type=text] {border: 2px dotted #2979ff; box-sizing: border-box; width: 100%; font-size: 0.9rem; padding: 4px; min-width:100px;}
 
 .select .selectbutton {
     width:16px; height:16px; box-shadow: 0 0 3px #555; border-radius: 50%;
@@ -45,9 +47,13 @@ tr.unmatched td {background-color: #ffcdd2}
 .select .selectbutton.selected {background-color: green;}
 
 .inventory {margin-bottom: 16px; background-color:#90caf9}
+.inventory h3 {background-color: #2196f3; color:white;}
 .inventory.selected {background-color: yellow;}
 .inventory .editable {background-color:#bbdefb}
 .inventory .occurrencetable th {background-color: transparent}
 .inventory table td {background-color: transparent}
 .inventory table tr:hover td:not(.title) {background-color:transparent;}
 .inventory table tr:hover .editable {background-color:#e3f2fd !important;}
+
+.onlywhenmodified {display:none !important;}
+.modified .onlywhenmodified {display:inherit !important;}

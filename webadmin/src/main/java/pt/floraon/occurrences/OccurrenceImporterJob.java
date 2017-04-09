@@ -69,10 +69,10 @@ public class OccurrenceImporterJob implements JobTask {
                     inv.setCode(pm.getName());
                     inv.setPubNotes(pm.getDescription());
                     inv.setMaintainer(user.getID());
-                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN());
+                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
 
                     invList.add(inv);
-//                    System.out.println(pm.getName()+": "+ p.getCoordinates().get(0).getLatitude()+", "+p.getCoordinates().get(0).getLongitude());
+//                    System.out.println(pm.getName()+": "+ p.getCoordinates().get(0).getObservationLatitude()+", "+p.getCoordinates().get(0).getObservationLongitude());
                 }
                 break;
 
@@ -143,7 +143,7 @@ public class OccurrenceImporterJob implements JobTask {
                     for (Inventory inventory : entr.getValue()) {
                         occ.addAll(inventory.getUnmatchedOccurrences());
                     }
-                    if(occ.size() == 0) occ.add(new newOBSERVED_IN());
+                    if(occ.size() == 0) occ.add(new newOBSERVED_IN(true));
                     merged.setUnmatchedOccurrences(occ);
                     merged.setMaintainer(user.getID());
                     invList.add(merged);

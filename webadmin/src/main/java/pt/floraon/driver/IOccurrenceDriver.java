@@ -71,11 +71,21 @@ public interface IOccurrenceDriver {
     void matchTaxEntNames(InventoryList inventories) throws FloraOnException;
 
     /**
-     * Deletes occurrences by their UUID. The ID of the inventory must also be provided in a parallel array. If the
-     * inventory becomes empty after deleting the occurrences, it is deleted also.
+     * Deletes occurrences by their UUID or inventories, if UUIDs are not provided. If UUIDs are provided, the ID of the
+     * inventory must also be provided in a parallel array. If the inventory becomes empty after deleting the
+     * occurrences, it is deleted also.
      * @param inventoryId
      * @param uuid
      * @throws DatabaseException
      */
-    int deleteOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException;
+    int deleteInventoriesOrOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException;
+
+    /**
+     * Updates one inventory with the fields present in the passed Inventory. The occurrence array is merged by their
+     * UUID. Same UUIDs are replaced, others are added. No occurrences are removed.
+     * @param inv
+     * @return
+     * @throws FloraOnException
+     */
+    Inventory updateInventory(Inventory inv) throws FloraOnException;
 }

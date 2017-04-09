@@ -124,7 +124,7 @@ public class BeanUtils {
 
         for (Object propNameObject : propertyMap.keySet()) {
             String propertyName = (String) propNameObject;
-            if(ignoreProperties.contains(propertyName)) continue;
+            if(ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
         System.out.println("PROP: " + propertyName);
             Object property = null, newProperty;
 
@@ -153,4 +153,43 @@ public class BeanUtils {
         }
         return out;
     }
+
+    /**
+     * Updates a oldBean with all non-null values in the newBean.
+     * @param cls
+     * @param ignoreProperties
+     * @param oldBean
+     * @param newBean
+     * @param <T>
+     * @return
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws FloraOnException
+     * @throws InstantiationException
+     */
+    public static <T extends DiffableBean> T updateBean(Class<T> cls, Collection<String> ignoreProperties, T oldBean, T newBean) throws IllegalAccessException
+            , InvocationTargetException, NoSuchMethodException, FloraOnException, InstantiationException {
+        BeanMap propertyMap = new BeanMap(oldBean);    // we assume beans are the same class! so we take the first as a model
+        PropertyUtilsBean propUtils = new PropertyUtilsBean();
+
+        T out = cls.newInstance();
+
+        for (Object propNameObject : propertyMap.keySet()) {
+            String propertyName = (String) propNameObject;
+            if(ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
+            System.out.println("PROP: " + propertyName);
+            Object newProperty;
+
+            newProperty = propUtils.getProperty(newBean, propertyName);
+
+            if(newProperty == null)
+                beanUtilsNull.setProperty(out, propertyName, propUtils.getProperty(oldBean, propertyName));
+            else
+                beanUtilsNull.setProperty(out, propertyName, newProperty);
+            // TODO: nested beans
+        }
+        return out;
+    }
+
 }

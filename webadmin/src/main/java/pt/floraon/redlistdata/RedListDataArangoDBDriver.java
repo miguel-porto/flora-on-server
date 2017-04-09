@@ -151,6 +151,16 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
     }
 
     @Override
+    public Iterator<TaxEnt> getAllRedListTaxa(String territory, String filterTag) throws FloraOnException {
+        try {
+            return database.query(AQLRedListQueries.getString("redlistdata.7a", territory, filterTag), null
+                    , null, TaxEnt.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
     public void initializeRedListDataForTerritory(String territory) throws FloraOnException {
         final String collectionName = "redlist_" + territory;
         try {

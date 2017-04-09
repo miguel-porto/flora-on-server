@@ -3,7 +3,7 @@ package pt.floraon.occurrences.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
@@ -17,8 +17,8 @@ import java.util.UUID;
  * See https://github.com/miguel-porto/flora-on-server/wiki/The-data-model#observed_in
  * Created by miguel on 05-02-2017.
  */
-public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
-    private Float latitude, longitude;
+public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, DiffableBean {
+    private Float observationLatitude, observationLongitude;
     private Constants.PhenologicalStates phenoState;
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
@@ -30,8 +30,8 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private String cover;
     private OccurrenceConstants.CoverType coverScale;
-    private boolean hasPhoto;
-    private boolean hasSpecimen;
+    private Boolean hasPhoto;
+    private Boolean hasSpecimen;
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
     private Date dateInserted;
@@ -49,8 +49,13 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
     private TaxEnt taxEnt;
 
     public newOBSERVED_IN() {
-        dateInserted = new Date();
-        uuid = UUID.randomUUID();
+    }
+
+    public newOBSERVED_IN(boolean createNew) {
+        if(createNew) {
+            dateInserted = new Date();
+            uuid = UUID.randomUUID();
+        }
     }
 
     public Constants.PhenologicalStates getPhenoState() {
@@ -141,19 +146,19 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
         this.coverScale = coverScale;
     }
 
-    public boolean isHasPhoto() {
+    public Boolean getHasPhoto() {
         return hasPhoto;
     }
 
-    public void setHasPhoto(boolean hasPhoto) {
+    public void setHasPhoto(Boolean hasPhoto) {
         this.hasPhoto = hasPhoto;
     }
 
-    public boolean isHasSpecimen() {
+    public Boolean getHasSpecimen() {
         return hasSpecimen;
     }
 
-    public void setHasSpecimen(boolean hasSpecimen) {
+    public void setHasSpecimen(Boolean hasSpecimen) {
         this.hasSpecimen = hasSpecimen;
     }
 
@@ -201,20 +206,20 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable {
         this.uuid = uuid;
     }
 
-    public Float getLatitude() {
-        return latitude;
+    public Float getObservationLatitude() {
+        return observationLatitude;
     }
 
-    public void setLatitude(Float latitude) {
-        this.latitude = latitude;
+    public void setObservationLatitude(Float latitude) {
+        this.observationLatitude = latitude;
     }
 
-    public Float getLongitude() {
-        return longitude;
+    public Float getObservationLongitude() {
+        return observationLongitude;
     }
 
-    public void setLongitude(Float longitude) {
-        this.longitude = longitude;
+    public void setObservationLongitude(Float longitude) {
+        this.observationLongitude = longitude;
     }
 
     public String getGpsCode() {

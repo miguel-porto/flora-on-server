@@ -21,7 +21,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private Float elevation;
     private String geometry;
     private Integer precision, gridPrecision, year, month, day;
-    private boolean complete;
+    private Boolean complete;
     private String habitat, pubNotes, privNotes, geology;
     private String[] tags, observers, collectors, dets;
     private String verbLocality, locality, municipality, province, county;
@@ -88,8 +88,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public Inventory() { }
 
+    /**
+     * Returns the latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
+     * @return
+     */
     public Float getLatitude() {
-        return latitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getLatitude() : null) : latitude;
+        return (_getTaxa() != null && _getTaxa().length == 1) ? (_getTaxa()[0].getObservationLatitude() == null ?
+                latitude : _getTaxa()[0].getObservationLatitude()) : latitude;
+//        return latitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getObservationLatitude() : null) : latitude;
     }
 
     public void setLatitude(Float latitude) {
@@ -97,7 +103,9 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public Float getLongitude() {
-        return longitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getLongitude() : null) : longitude;
+        return (_getTaxa() != null && _getTaxa().length == 1) ? (_getTaxa()[0].getObservationLongitude() == null ?
+                longitude : _getTaxa()[0].getObservationLongitude()) : longitude;
+//        return longitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getObservationLongitude() : null) : longitude;
     }
 
     public void setLongitude(Float longitude) {
@@ -184,11 +192,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return sb.toString();
     }
 
-    public boolean isComplete() {
+    public Boolean getComplete() {
         return complete;
     }
 
-    public void setComplete(boolean complete) {
+    public void setComplete(Boolean complete) {
         this.complete = complete;
     }
 

@@ -38,15 +38,18 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     }
 
     @Override
-    public void executeOccurrenceQuery(TaxEnt taxa) throws FloraOnException, IOException {
+    public void executeOccurrenceQuery(Iterator<TaxEnt> taxa) throws FloraOnException, IOException {
         // FIXME when all records!
         String legacyID;
         if(taxa != null) {
-            Iterator<TaxEnt> it1 = driver.wrapTaxEnt(driver.asNodeKey(taxa.getID())).getInfrataxa(1000);
-            List<Integer> oldIds = new ArrayList<>();
-            while(it1.hasNext()) {
-                TaxEnt t1 = it1.next();
-                if(t1.getOldId() != null) oldIds.add(t1.getOldId());
+            Set<Integer> oldIds = new HashSet<>();
+            while(taxa.hasNext()) {
+                TaxEnt te = taxa.next();
+                Iterator<TaxEnt> it1 = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getInfrataxa(1000);
+                while (it1.hasNext()) {
+                    TaxEnt t1 = it1.next();
+                    if (t1.getOldId() != null) oldIds.add(t1.getOldId());
+                }
             }
 
             legacyID = Arrays.toString(oldIds.toArray(new Integer[oldIds.size()]));

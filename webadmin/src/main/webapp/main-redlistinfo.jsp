@@ -46,6 +46,9 @@
             <c:if test="${user.isAdministrator()}">
                 <li><a href="?w=batch"><fmt:message key="Separator.5"/></a></li>
             </c:if>
+            <c:if test="${user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
+                <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
+            </c:if>
         </ul>
     </div>
     <div id="main">
@@ -1621,6 +1624,25 @@
                         </tr>
                         <tr><td colspan="2"><input type="submit" value="Update user" class="textbutton"/></td></tr>
                     </table>
+                </form>
+                <h2>User polygons</h2>
+                <table>
+                    <tr><th>Attributes</th><th>Nr. vertices</th></tr>
+                    <c:forEach var="pol" items="${userPolygon}" >
+                        <tr><td>${pol.getValue().getProperties().values().toString()}</td><td>${pol.getValue().size()}</td></tr>
+                    </c:forEach>
+                </table>
+                <form class="poster" data-path="/floraon/admin/setuserpolygon" data-callback="?w=users">
+                    <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
+                    <table>
+                        <tr><td class="title">Set/replace user area with a polygon file (GeoJSON)</td>
+                        <td><input type="file" name="userarea"/><input type="submit" value="Set area" class="textbutton"/></td>
+                    </table>
+                </form>
+                <form class="poster" data-path="/floraon/admin/setuserpolygon" data-callback="?w=users">
+                    <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
+                    <input type="hidden" name="userarea" value=""/>
+                    <input type="submit" value="Delete all areas" class="textbutton"/>
                 </form>
                 <h2>Taxon-specific privileges</h2>
                 <c:if test="${tsprivileges.size() > 0}">

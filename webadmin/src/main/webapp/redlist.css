@@ -219,6 +219,7 @@ input[type=submit].textbutton {
 
 .button {
     font-size: 1.2rem;
+    font-weight: normal;
     display: inline-block;
     border-radius:3px;
     width:auto;

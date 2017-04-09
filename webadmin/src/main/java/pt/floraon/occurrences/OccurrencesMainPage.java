@@ -28,8 +28,16 @@ public class OccurrencesMainPage extends FloraOnServlet {
         }
         request.setAttribute("user", user);
 
-        String what = getParameterAsString("w");
+        // make a map of user IDs and names
+        List<User> allUsers = driver.getAdministration().getAllUsers();
+        Map<String, String> userMap = new HashMap<>();
+        for(User u : allUsers)
+            userMap.put(u.getID(), u.getName());
 
+        request.setAttribute("allUsers", allUsers);
+        request.setAttribute("userMap", userMap);
+
+        String what = getParameterAsString("w");
         if(what == null) what = "main";
 
         switch(what) {
@@ -38,7 +46,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         , driver.getOccurrenceDriver().getInventoriesOfObserver(driver.asNodeKey(user.getID()), null, null));
 
                 Inventory i;
-//                i.getTaxa()[0].isHasSpecimen()
+//                i.getObservers()
                 break;
 
             case "occurrenceview":

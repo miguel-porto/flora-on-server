@@ -41,8 +41,9 @@ public class OccurrenceApi extends FloraOnServlet {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
+        String option = path.next();
 
-        switch (path.next()) {
+        switch (option) {
             case "savetable":
                 fileName = getParameterAsString("file");
                 errorIfAnyNull(fileName);
@@ -80,7 +81,11 @@ public class OccurrenceApi extends FloraOnServlet {
                 break;
 
             case "addoccurrences":
-                // NOTE: this expects HTML field names of the form xxxxxx_yyyyyy_latitude, xxxxxx_yyyyyy_taxa, etc. (6 uid digits for grouping, other 6 ofr table rows)
+            case "updateoccurrences":
+            case "updateinventory":
+                // NOTE: this expects HTML field names of the form xxxxxx_yyyyyy_latitude, xxxxxx_yyyyyy_taxa, etc. or just xxxxxx_taxa, etc.
+                // First form is for inventories - 6 uid digits for grouping, other 6 for table rows
+                // Second form for occurrences
                 Pattern ids = Pattern.compile("^(?<id1>[a-zA-Z0-9]{6})_((?<id2>[a-zA-Z0-9]{6})_)?(?<name>[a-zA-Z0-9]+)$");
                 Enumeration<String> en = request.getParameterNames();
                 Multimap<String, String> grp = ArrayListMultimap.create();
@@ -100,15 +105,22 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 }
 
+                System.out.println(gs.toJson(grp.asMap()));
+                System.out.println(gs.toJson(map.asMap()));
+                System.out.println(gs.toJson(invfields.asMap()));
+
                 InventoryList inventories = new InventoryList();
                 Inventory inv;
                 OccurrenceParser op = new OccurrenceParser(driver);
-                for(String invid : invfields.keySet()) {    // each inventory
+                Set<String> tmpset = new HashSet<>(grp.keySet());
+                tmpset.addAll(invfields.keySet());
+                for(String invid : tmpset) {    // each inventory
                     inventories.add(inv = new Inventory());
                     Map<String, String> keyValues = new HashMap<>();
 
                     for(String name : invfields.get(invid)) {   // set the inventory fields
                         String field = name.substring(7);
+                        System.out.println(name + ": "+getParameterAsString(name));
                         keyValues.put(field, getParameterAsString(name));
                     }
                     op.parseFields(keyValues, inv);     // feed in inventory fields
@@ -122,73 +134,41 @@ public class OccurrenceApi extends FloraOnServlet {
                             System.out.println(name + ": "+getParameterAsString(name));
                             keyValues.put(field, getParameterAsString(name));
                         }
+
                         op.parseFields(keyValues, tmp);
                         inv.getUnmatchedOccurrences().addAll(tmp.getUnmatchedOccurrences());
                     }
-                    if(inv.getUnmatchedOccurrences().size() == 0)
-                        inv.getUnmatchedOccurrences().add(new newOBSERVED_IN());
-                    System.out.println(gs.toJson(inv));
+
+                    if(option.equals("addoccurrences") && inv.getUnmatchedOccurrences().size() == 0)
+                        inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
                 }
-
-/*
-
-                for(String id1 : grp.keySet()) {    // each inventory
-                    inventories.add(inv = new Inventory());
-                    for(String id2 : grp.get(id1)) {    // each occurrence
-                        Map<String, String> keyValues = new HashMap<>();
-                        for(String name : map.get(id2)) {
-                            String field = name.substring(14);
-                            keyValues.put(field, getParameterAsString(name));
-                        }
-                        op.parseFields(keyValues, inv);
-                        System.out.println(gs.toJson(inv));
-                    }
-                }
-*/
-
-/*
-
-                for(Map.Entry<String, Collection<String>> grpent : grp.asMap().entrySet()) {
-                    for(String id2 : grpent.getValue()) {
-//                    for (Map.Entry<String, Collection<String>> ent : map.get(grpent.getValue())) {
-                        // new table line means new inventory
-                        inventories.add(inv = new Inventory());
-                        int i = 0;
-                        boolean finished = false;
-                        while (true) {
-                            Map<String, String> keyValues = new HashMap<>();
-                            for (String name : ent.getValue()) {
-                                String field = name.substring(7);
-                                if (i >= request.getParameterValues(name).length) {
-                                    finished = true;
-                                    break;
-                                }
-                                keyValues.put(field, request.getParameterValues(name)[i]);
-                            }
-                            op.parseFields(keyValues, inv);
-                            if (finished) break;
-                            i++;
-                        }
-                    }
-                }
-*/
 
                 driver.getOccurrenceDriver().matchTaxEntNames(inventories);
+                System.out.println("************ REQUESTED BEANS:");
                 System.out.println(gs.toJson(inventories));
 
-                int count = 0;
-                for(Inventory inv1 : inventories) {
-                    if(StringUtils.isArrayEmpty(inv1.getObservers()))
-                        inv1.setObservers(new String[] {getUser().getID()});
+                if(option.equals("addoccurrences")) {
+                    int count = 0;
+                    for(Inventory inv1 : inventories) {
+                        if(StringUtils.isArrayEmpty(inv1.getObservers()))
+                            inv1.setObservers(new String[] {getUser().getID()});
 
-                    driver.getOccurrenceDriver().createInventory(inv1);
-                    count++;
+                        driver.getOccurrenceDriver().createInventory(inv1);
+                        count++;
+                    }
+                    success(count + " inventories saved.");
                 }
-                success(count + " inventories saved.");
+// FIXME update empty fields
+                if(option.equals("updateoccurrences") || option.equals("updateinventory")) {
+                    for(Inventory inv1 : inventories) {
+                        driver.getOccurrenceDriver().updateInventory(inv1);
+                    }
+                    success("ok");
+                }
                 break;
 
             case "deleteoccurrences":
-                driver.getOccurrenceDriver().deleteOccurrences(request.getParameterValues("inventoryId")
+                driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(request.getParameterValues("inventoryId")
                         , request.getParameterValues("occurrenceUuid"));
                 success("Ok");
                 break;
@@ -207,10 +187,10 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 for(Inventory tmp1 : tmp) {
                     for(newOBSERVED_IN occ : tmp1._getOccurrences()) {
-                        if(occ.getLatitude() == null)
-                            occ.setLatitude(tmp1.getLatitude());
-                        if(occ.getLongitude() == null)
-                            occ.setLongitude(tmp1.getLongitude());
+                        if(occ.getObservationLatitude() == null)
+                            occ.setObservationLatitude(tmp1.getLatitude());
+                        if(occ.getObservationLongitude() == null)
+                            occ.setObservationLongitude(tmp1.getLongitude());
                     }
                 }
 
@@ -231,7 +211,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 newOBSERVED_IN tmpo;
                 for (Inventory inventory : tmp) {
                     if(inventory._getOccurrences().size() == 0) {
-                        tmpo = new newOBSERVED_IN();
+                        tmpo = new newOBSERVED_IN(true);
                         tmpo.setGpsCode(inventory.getCode());
                         occ.add(tmpo);
                     } else {
@@ -246,7 +226,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 driver.getOccurrenceDriver().createInventory(merged);
 
                 for(Inventory tmp1 : tmp) {
-                    driver.getOccurrenceDriver().deleteOccurrences(
+                    driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(
                             new String[] {tmp1.getID()}, new String[] {tmp1._getOccurrences().size() == 0 ? ""
                                     : tmp1._getOccurrences().get(0).getUuid().toString()});
                 }
@@ -262,6 +242,7 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 success("Ok");
                 break;
+
         }
     }
 }

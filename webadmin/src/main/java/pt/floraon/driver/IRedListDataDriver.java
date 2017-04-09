@@ -84,9 +84,17 @@ public interface IRedListDataDriver {
     Iterator<TaxEnt> getAllRedListTaxa(String territory) throws FloraOnException;
 
     /**
+     * Fetches all taxa included in the red list data for the given territory filtered by one tag.
+     * @param territory
+     * @return
+     * @throws FloraOnException
+     */
+    Iterator<TaxEnt> getAllRedListTaxa(String territory, String filterTag) throws FloraOnException;
+
+    /**
      * Gets the {@link RedListDataEntity} for the given TaxEnt and territory
      * @param territory Territory short name
-     * @param id TaxEnt ID
+     * @param taxonId TaxEnt ID
      * @return
      */
     RedListDataEntity getRedListDataEntity(String territory, INodeKey taxonId) throws DatabaseException;

@@ -28,6 +28,7 @@ public class OccurrenceParser {
         this.driver = driver;
         fieldMappings.put("latitude", new LatitudeLongitudeParser());
         fieldMappings.put("longitude", new LatitudeLongitudeParser());
+        fieldMappings.put("coordinates", new LatitudeLongitudeParser());
         fieldMappings.put("taxa", new TaxaParser());
         fieldMappings.put("year", new IntegerParser());
         fieldMappings.put("month", new IntegerParser());
@@ -43,12 +44,18 @@ public class OccurrenceParser {
         fieldMappings.put("observers", new UserListParser(userMap, driver));
         fieldMappings.put("collectors", new UserListParser(userMap, driver));
         fieldMappings.put("determiners", new UserListParser(userMap, driver));
+        fieldMappings.put("inventoryId", new PlainTextParser());
 
         fieldMappingsSecondRound.put("abundance", new PlainTextParser());
         fieldMappingsSecondRound.put("typeOfEstimate", new EnumParser());
         fieldMappingsSecondRound.put("comment", new PlainTextParser());
         fieldMappingsSecondRound.put("hasPhoto", new BooleanParser());
         fieldMappingsSecondRound.put("hasSpecimen", new BooleanParser());
+        fieldMappingsSecondRound.put("occurrenceUuid", new UUIDParser());
+        fieldMappingsSecondRound.put("observationLatitude", new LatitudeLongitudeParser());
+        fieldMappingsSecondRound.put("observationLongitude", new LatitudeLongitudeParser());
+        fieldMappingsSecondRound.put("observationCoordinates", new LatitudeLongitudeParser());
+
     }
 
     /**

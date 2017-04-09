@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     projectPointsOnMap();
 
     attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, ',', tabHandler);
+    attachSuggestionHandler('authorsearchbox', '/floraon/checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, ',', tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
 
     var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
@@ -47,7 +48,9 @@ window.addEventListener('beforeunload', function (ev) {
     if(isFormSubmitting) return;
     var confirmationMessage = 'You have unsaved occurrences! Are you sure you want to lose them?';
     var sel = document.querySelectorAll('.newoccurrencetable tbody tr:not(.dummy)');
-    if(sel.length > 0) {
+    var sel1 = document.querySelectorAll('#alloccurrencetable tr.modified');
+    var sel2 = document.querySelectorAll('.inventory .modified');
+    if(sel.length > 0 || sel1.length > 0 || sel2.length > 0) {
         (ev || window.event).returnValue = confirmationMessage;
         return confirmationMessage;
     } else
@@ -57,29 +60,60 @@ window.addEventListener('beforeunload', function (ev) {
 function onConfirmEdit(ev, name, key, parent, dry) {
     if(!dry) return;
     var fieldname = parent.getAttribute('data-name');
-    document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
-    var changed = (parent.innerHTML.trim() != name.trim());
-    if(!changed) return;
+    if(ev.target) document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
+    var original = parent.getAttribute('data-original');
+    if(original !== null) {
+        parent.removeAttribute('data-original');
+        var modified = (original.trim() !== name.trim());
+    } else var modified = true;
+
+    if(!modified) {
+        parent.innerHTML = original;
+        return;
+    }
 
     parent.innerHTML = name;
 
-    if(getParentbyClass(parent, 'id1holder'))
-        var id1 = getParentbyClass(parent, 'id1holder').getAttribute('data-id');
+    var id1el = getParentbyClass(parent, 'id1holder');
+    var id2el = getParentbyClass(parent, 'id2holder');
+    if(id1el) {
+        var id1 = id1el.getAttribute('data-id');
+        if(!id1) {
+            id1 = randomString(6);
+            id1el.setAttribute('data-id', id1);
+        }
+    }
 
-    if(getParentbyClass(parent, 'id2holder'))
-        var id2 = getParentbyClass(parent, 'id2holder').getAttribute('data-id');
+    if(id2el) {
+        var id2 = id2el.getAttribute('data-id');
+        if(!id2) {
+            id2 = randomString(6);
+            id2el.setAttribute('data-id', id2);
+        }
+    }
 
-    if(id1 && id2) {
+    if(id1 && id2) {    // inventories
+        // ad the input for the current modified cell
         insertOrReplaceHiddenInput(parent, id1 + '_' + id2 + '_' + fieldname, name);
-        var inv = getParentbyClass(parent, 'inventory');
-        if(inv) {   // we're in the add new occurrences. add new row if needed.
+        var ou = id2el.querySelector('input[name=occurrenceUuid]');
+        var iid = id1el.querySelector('input[name=inventoryId]');
+//        var cell = id2el.querySelector('.select');
+        insertOrReplaceHiddenInput(ou.parentNode, id1 + '_' + id2 + '_occurrenceUuid', ou.value);
+        insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
+
+// we're in the add new occurrences of the inventory. add new row if needed.
+        if(getParentbyClass(parent, 'newoccurrencetable')) {
             var lastRow = getParentbyClass(parent, 'newoccurrencetable').querySelector('tbody tr:last-of-type');
-            if(lastRow.querySelectorAll('input[type=hidden]').length > 0) { // only add if there is no empty row already
-                doMouseClick(inv.querySelector('.button'));
+            if(lastRow.querySelectorAll('input[type=hidden]').length > 1) { // only add if there is no empty row already NOTE empty rows have one hidden input
+                doMouseClick(id1el.querySelector('.newtaxon'));
             }
         }
-    } else if(id1) {
+        id1el.classList.add('modified');
+    } else if(id1) {    // occurrences or inventory fields
         insertOrReplaceHiddenInput(parent, id1 + '_' + fieldname, name);
+        var iid = id1el.querySelector('input[name=inventoryId]');
+        insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
+        id1el.classList.add('modified');
     }
 }
 
@@ -93,60 +127,89 @@ function tabHandler(ev) {
 }
 
 function doMouseClick(el) {
+    if(!el) return;
     var event = new MouseEvent('click', {bubbles: true});
     el.dispatchEvent(event);
 }
 
 function clickButton(ev) {
     var b = getParentbyClass(ev.target, 'button');
+    if(!b.id) {
+        if(b.classList.contains('updatemodifiedinv')) {
+        }
+    } else {
+        switch(b.id) {
+        case 'hidemap':
+            ev.target.classList.toggle('selected');
+            document.getElementById('occurrencemap').classList.toggle('hidden');
+            break;
 
-    switch(b.id) {
-    case 'hidemap':
-        ev.target.classList.toggle('selected');
-        document.getElementById('occurrencemap').classList.toggle('hidden');
-        break;
+        case 'selectpoints':
+            var areaSelect = L.areaSelect({width:200, height:300});
+            areaSelect.addTo(myMap);
+            break;
 
-    case 'selectpoints':
-        var areaSelect = L.areaSelect({width:200, height:300});
-        areaSelect.addTo(myMap);
-        break;
+        case 'mergeocc':
+            var sel = document.querySelectorAll('#alloccurrences .geoelement.selected');
+            var form = document.querySelector('#mergeoccurrencetable tbody');
+            form.innerHTML = '';
+            if(sel.length > 0) {
+                for(var i=0; i<sel.length; i++) {
+                    form.appendChild(sel[i].cloneNode(true));
+                }
 
-    case 'mergeocc':
-        var sel = document.querySelectorAll('#alloccurrences .geoelement.selected');
-        var form = document.querySelector('#mergeoccurrencetable tbody');
-        form.innerHTML = '';
-        if(sel.length > 0) {
+                document.getElementById('mergeoccurrences').classList.remove('hidden');
+            }
+            break;
+
+        case 'deleteselected':
+            acceptVisibleSearchbox();
+            var sel = document.querySelectorAll('#alloccurrencetable tr.selected');
+            if(sel.length == 0) return;
+            var tbody = document.querySelector('#deleteoccurrencetable tbody');
+            for(var i=0; i<sel.length; i++)
+                tbody.appendChild(sel[i]);
+
+            document.getElementById('deleteoccurrences').classList.remove('hidden');
+            break;
+
+        case 'updatemodified':
+            acceptVisibleSearchbox();
+            var sel = document.querySelectorAll('#alloccurrencetable tr.modified');
+            if(sel.length == 0) return;
+            var tbody = document.querySelector('#updateoccurrencetable tbody');
             for(var i=0; i<sel.length; i++) {
-                form.appendChild(sel[i].cloneNode(true));
+                var ou = sel[i].querySelector('input[name=occurrenceUuid]').value;
+                var iid = sel[i].querySelector('input[name=inventoryId]').value;
+                var cell = sel[i].querySelector('.select');
+                var did = sel[i].getAttribute('data-id');
+                insertOrReplaceHiddenInput(cell, did + '_occurrenceUuid', ou);
+                insertOrReplaceHiddenInput(cell, did + '_inventoryId', iid);
+                tbody.appendChild(sel[i]);
             }
 
-            document.getElementById('mergeoccurrences').classList.remove('hidden');
-        }
-        break;
+            document.getElementById('updateoccurrences').classList.remove('hidden');
+            break;
 
-    case 'deleteselected':
-        acceptVisibleSearchbox();
-        var sel = document.querySelectorAll('#alloccurrencetable tr.selected');
-        if(sel.length == 0) return;
-        var tbody = document.querySelector('#deleteoccurrencetable tbody');
-        for(var i=0; i<sel.length; i++)
-            tbody.appendChild(sel[i]);
+/*
+        case 'updatemodifiedinv':
+            acceptVisibleSearchbox();
+            break;
+*/
 
-        document.getElementById('deleteoccurrences').classList.remove('hidden');
-        break;
-
-    case 'deleteselectednew':
-        acceptVisibleSearchbox();
-        var sel = document.querySelectorAll('.newoccurrencetable tr.selected');
-        if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected');
-        if(sel.length == 0) return;
-        for(var i=0; i<sel.length; i++) {
-            if(sel[i].marker) {
-                sel[i].marker.remove();
+        case 'deleteselectednew':
+            acceptVisibleSearchbox();
+            var sel = document.querySelectorAll('.newoccurrencetable tr.selected');
+            if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected');
+            if(sel.length == 0) return;
+            for(var i=0; i<sel.length; i++) {
+                if(sel[i].marker) {
+                    sel[i].marker.remove();
+                }
+                sel[i].parentNode.removeChild(sel[i]);
             }
-            sel[i].parentNode.removeChild(sel[i]);
+            break;
         }
-        break;
     }
 }
 
@@ -162,18 +225,23 @@ function addNewTaxon(ev) {
 function clickOccurrenceTable(ev) {
     var cell = getParentbyClass(ev.target, 'editable') || getParentbyClass(ev.target, 'clickable');
     if(!cell || !cell.classList) return;
-console.log(cell);
+//console.log(cell);
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
         var txt = cell.textContent;
         cell.textContent = '';
-        displayTaxonSearchbox(cell, txt);
+        displaySearchbox(cell, txt, 'taxonsearchwrapper');
+    } else if(cell.classList.contains('authors')) { // clicked authors cell
+        if(cell.querySelector('#authorsearchwrapper')) return;
+        var txt = cell.textContent;
+        cell.textContent = '';
+        displaySearchbox(cell, txt, 'authorsearchwrapper');
     } else if(cell.classList.contains('select')) {    // select row
         var tr = getParentbyTag(cell, 'tr');
         cell.querySelector('.selectbutton').classList.toggle('selected');
         tr.classList.toggle('selected');
         if(tr.marker) tr.marker.classList.toggle('selected');
-    } else if(cell.classList.contains('editable')) {    // select row
+    } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
         var txt = cell.textContent;
         cell.textContent = '';
@@ -185,19 +253,29 @@ function projectPointsOnMap() {
     var ot = document.querySelectorAll('.geoelement');
     var coo;
     for(var i=0; i<ot.length; i++) {
-        coo = ot[i].querySelector('*:not(.geoelement) .coordinates');
-        if(coo == null || !coo.getAttribute('data-lat')) continue;
-
-        addPointMarker(parseFloat(coo.getAttribute('data-lat')), parseFloat(coo.getAttribute('data-lng')), ot[i]);
+        coo = ot[i].querySelectorAll('*:not(.geoelement) .coordinates');
+        for(var j=0; j<coo.length; j++) {
+            if(!coo[j].getAttribute('data-lat')) continue;
+//            console.log("added "+coo[j].getAttribute('data-lat')+coo[j].getAttribute('data-lng'));
+            addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng')), ot[i]);
+        }
     }
 }
 
 function addPointMarker(lat, lng, bondEl) {
-    var marker = L.marker([lat, lng], {icon: redCircle, draggable: false, keyboard: false});
+    var marker = L.marker([lat, lng], {icon: redCircle, draggable: true, keyboard: false});
+    marker.on('dragend', markerMove);
     marker.on('click', markerClick).addTo(myMap);
     if(bondEl) {
         marker.tableRow = bondEl;
         bondEl.marker = marker._icon;
+    }
+}
+
+function markerMove(ev) {
+    if(ev.target.tableRow) {
+        var ll = ev.target.getLatLng();
+        onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, ev.target.tableRow.querySelector('.coordinates'), true);
     }
 }
 
@@ -225,16 +303,11 @@ function acceptVisibleSearchbox() {
     }
 }
 
-function displayTaxonSearchbox(el, text) {
+function displaySearchbox(el, text, whichBox) {
     acceptVisibleSearchbox();
-/*
-    if(!el.querySelector('#taxonsearchwrapper') && old.offsetParent !== null) {     // there's one visible in other cell
-        var txt = old.querySelector('textarea').value;
-        onConfirmEdit({target: old.querySelector('textarea')}, txt, null, old.parentNode, true);
-    }
-*/
-    var old = document.getElementById('taxonsearchwrapper');
+    var old = document.getElementById(whichBox);
     el.appendChild(old);
+    el.setAttribute('data-original', text);
     var inp = old.querySelector('textarea');
     inp.value = text;
     inp.setSelectionRange(0, inp.value.length);
@@ -252,6 +325,7 @@ function displayEditField(el, text) {
 */
     var old = document.getElementById('editfieldwrapper');
     el.appendChild(old);
+    el.setAttribute('data-original', text);
     var inp = old.querySelector('input');
     inp.value = text;
     inp.setSelectionRange(0, inp.value.length);
@@ -351,6 +425,7 @@ function createHiddenInputElement(name, value) {
 
 function insertOrReplaceHiddenInput(parent, name, value) {
     var el = parent.querySelector('input[type=hidden][name=\'' + name +'\']');
+    console.log(name+" : "+value);
     if(!el)
         parent.appendChild(createHiddenInputElement(name, value));
     else

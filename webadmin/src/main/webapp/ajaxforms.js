@@ -4,11 +4,13 @@ var isFormSubmitting = false;
 */
 function formPoster(ev, callback) {
 	ev.preventDefault();
+	if(ev.target.getAttribute('data-confirm')) {
+	    if(!confirm('Are you sure? There\'s no way back.')) return;
+	}
 	isFormSubmitting = true;
 	postAJAXForm(ev.target.getAttribute('data-path'), ev.target, function(rt) {
 //	    console.log(rt);
 		var rt1=JSON.parse(rt);
-
 
 		if(callback) {
 		    callback(rt1, ev);

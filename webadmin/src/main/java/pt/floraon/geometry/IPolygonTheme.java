@@ -10,4 +10,5 @@ import java.util.Map;
  */
 public interface IPolygonTheme extends Iterable<Map.Entry<String, Polygon>> {
     Collection<Polygon> get(String k);
+    int size();
 }

@@ -4,6 +4,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,16 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
      * @throws FloraOnException
      * @throws IOException
      */
-    public abstract void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException;
+    public void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException {
+        executeOccurrenceQuery(Arrays.asList(taxon).iterator());
+    }
+
+    /**
+     * Executes a query and updates the Iterable list of occurrences with the results.
+     * @throws FloraOnException
+     * @throws IOException
+     */
+    public abstract void executeOccurrenceQuery(Iterator<TaxEnt> taxon) throws FloraOnException, IOException;
 
     /**
      * Executes a query and returns arbitrary data about a taxon.

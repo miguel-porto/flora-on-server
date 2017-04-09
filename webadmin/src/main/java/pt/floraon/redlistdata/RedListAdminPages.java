@@ -1,11 +1,13 @@
 package pt.floraon.redlistdata;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
@@ -367,6 +369,27 @@ System.out.println(gs.toJson(getUser()));
                 wr.close();
                 return;
 
+            case "downloadtargetrecords":
+                PolygonTheme clip = getUser()._getUserPolygonsAsTheme();
+                if(clip == null || clip.size() == 0) break;
+                List<TaxEnt> lt = new ArrayList<>();
+                Iterator<TaxEnt> it = driver.getRedListData().getAllRedListTaxa(territory, "Prospecção");
+
+                while(it.hasNext())
+                    lt.add(it.next());
+
+                for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
+                    edp.executeOccurrenceQuery(lt.iterator());
+
+                response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
+                response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
+                PrintWriter wr1 = response.getWriter();
+//                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()).exportKML(wr1);
+                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
+                        , clip, null, null).exportKML(wr1);
+                wr1.close();
+                return;
+
             case "users":
                 List<User> allusers = driver.getAdministration().getAllUsers();
                 Map<String, String> taxonMap1 = new HashMap<>();
@@ -438,6 +461,13 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("taxonMap", taxonMap);
                 request.setAttribute("tsprivileges", tmp.getTaxonPrivileges());
                 request.setAttribute("requesteduser", tmp);
+                if(tmp._getUserPolygonsAsTheme() != null) {
+                    request.setAttribute("userPolygon", tmp._getUserPolygonsAsTheme().iterator());
+/*
+                    Arrays.toString()
+                    tmp._getUserPolygonsAsTheme().iterator().next().getValue().getProperties().values().toArray()
+*/
+                }
                 request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
                         getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , null));

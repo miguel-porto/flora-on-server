@@ -6,11 +6,10 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
 import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
+import sun.misc.IOUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by miguel on 24-03-2017.
@@ -23,13 +22,21 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
     }
 
     @Override
-    public void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException {
-        if(taxon == null) throw new FloraOnException("Must specify as taxon");
+    public void executeOccurrenceQuery(Iterator<TaxEnt> taxa) throws FloraOnException, IOException {
+        if(taxa == null) throw new FloraOnException("Must specify a taxon");
+        List<Inventory> result = new ArrayList<>();
+        Iterator<Inventory> it;
 
-        Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesOfTaxon(driver.asNodeKey(taxon.getID()));
+        while(taxa.hasNext()) {
+            TaxEnt te = taxa.next();
+            it = driver.getOccurrenceDriver().getOccurrencesOfTaxon(driver.asNodeKey(te.getID()));
+            while(it.hasNext())
+                result.add(it.next());
+        }
 
         occurrenceList = new ArrayList<>();
 
+        it = result.iterator();
         while(it.hasNext()) {
             Inventory inv = it.next();
             String[] mainObserver = inv.getObserverNames();

@@ -8,4 +8,4 @@
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
 
 <c:if test="${test}"><fmt:message key="yes"/></c:if>
-<c:if test="${!test}"><fmt:message key="no"/></c:if>
+<c:if test="${test != null && !test}"><fmt:message key="no"/></c:if>

@@ -5,12 +5,13 @@ import com.arangodb.ArangoDatabase;
 import org.apache.commons.collections.iterators.EmptyIterator;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
+import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.newOBSERVED_IN;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * Created by miguel on 24-03-2017.
@@ -31,6 +32,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     @Override
     public Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException {
         // TODO: this should return the OBSERVED_IN graph links, not the unmatched
+        // FIXME must traverse to infrataxa!!!
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.1", taxEntId.getID())
@@ -92,12 +94,13 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public int deleteOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException {
+    public int deleteInventoriesOrOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException {
         int count = 0;
         for (int i = 0; i < inventoryId.length; i++) {
             try {
-                if(uuid[i].trim().equals("")) {
-                    driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(inventoryId[i]));
+                if(StringUtils.isArrayEmpty(uuid) || uuid[i].trim().equals("")) {
+//                    driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(inventoryId[i]));  // FIXME: check for connected links
+                    driver.getNodeWorkerDriver().deleteVertexOrEdge(driver.asNodeKey(inventoryId[i]));
                 } else {
                     Inventory inv = database.query(
                             AQLOccurrenceQueries.getString("occurrencequery.3", inventoryId[i], uuid[i])
@@ -115,4 +118,49 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         return count;
     }
 
+    public Inventory updateInventory(Inventory inv) throws FloraOnException {
+/*
+        if(inv._getOccurrences().size() == 0)
+            return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(inv.getID()), inv, false, Inventory.class);
+        else {
+*/
+            Inventory tmp = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(inv.getID()), Inventory.class);
+            Map<UUID, newOBSERVED_IN> origMap = new HashMap<>();
+            Set<UUID> alreadUpdated = new HashSet<>();
+            for(newOBSERVED_IN occ : tmp._getOccurrences())
+                origMap.put(occ.getUuid(), occ);
+
+            Map<UUID, newOBSERVED_IN> updMap = new HashMap<>(origMap);
+
+            for(newOBSERVED_IN occ : inv._getOccurrences()) {
+                if(origMap.containsKey(occ.getUuid())) {
+                    if(alreadUpdated.contains(occ.getUuid())) { // this occurrence was already updated, so add new and copy
+                        UUID newUuid = UUID.randomUUID();
+                        newOBSERVED_IN newOcc;
+                        try {
+                            newOcc = BeanUtils.updateBean(newOBSERVED_IN.class, null, origMap.get(occ.getUuid()), occ);
+                            newOcc.setUuid(newUuid);
+                        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                            throw new FloraOnException(e.getMessage());
+                        }
+                        updMap.put(newUuid, newOcc);
+                    } else {
+                        try {
+                            updMap.put(occ.getUuid()
+                                    , BeanUtils.updateBean(newOBSERVED_IN.class, null, origMap.get(occ.getUuid()), occ));
+                        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                            throw new FloraOnException(e.getMessage());
+                        }
+                    }
+                } else
+                    updMap.put(occ.getUuid(), occ);
+                alreadUpdated.add(occ.getUuid());
+            }
+
+            inv.setUnmatchedOccurrences(new ArrayList<>(updMap.values()));
+            return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(inv.getID()), inv, false, Inventory.class);
+       // }
+    }
 }

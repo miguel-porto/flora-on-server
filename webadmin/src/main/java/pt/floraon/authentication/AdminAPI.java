@@ -4,15 +4,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.jobs.JobRunnerTask;
+import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Part;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -73,6 +82,42 @@ public class AdminAPI extends FloraOnServlet {
             case "deleteuser":
                 driver.getNodeWorkerDriver().deleteDocument(getParameterAsKey("databaseId"));
                 success("Ok");
+                break;
+
+            case "setuserpolygon":
+                Part filePart;
+                InputStream fileContent = null;
+                try {
+                    filePart = request.getPart("userarea");
+                    if(filePart.getSize() == 0) {
+                        driver.getNodeWorkerDriver().updateDocument(getParameterAsKey("databaseId")
+                                , "userPolygons", "");
+                        success("Ok");
+                        return;
+                    }
+                    System.out.println(filePart.getSize());
+
+                    fileContent = filePart.getInputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if(fileContent != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    IOUtils.copy(fileContent, baos);
+                    byte[] bytes = baos.toByteArray();
+
+                    ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+
+                    PolygonTheme pt = new PolygonTheme(bais, null);
+                    if(pt.size() == 0)
+                        error("File could not be processed. Upload in GeoJson format.");
+                    else {
+                        bais = new ByteArrayInputStream(bytes);
+                        success(driver.getNodeWorkerDriver().updateDocument(getParameterAsKey("databaseId")
+                                , "userPolygons", IOUtils.toString(bais)).toJsonObject());
+                    }
+                }
                 break;
 
             case "addtaxonprivileges":

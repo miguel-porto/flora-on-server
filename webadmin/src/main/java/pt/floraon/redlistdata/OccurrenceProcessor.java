@@ -163,8 +163,9 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
         for(SimpleOccurrence o : this) {
             Placemark pl = folder.createAndAddPlacemark();
-            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon())
-                    + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : ""))).withDescription(o.getAuthor())
+            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon()) + (o.getConfidence() ? "" : "?")
+                    + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : "")))
+                    .withDescription(o.getAuthor() + "(" + o.getYear() + ")")
                     .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
         }
         kml.marshal(out);

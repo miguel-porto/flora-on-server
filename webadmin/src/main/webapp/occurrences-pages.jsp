@@ -4,6 +4,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
@@ -14,6 +15,10 @@
         <!--<input id="taxonsearchbox" type="text" name="query" placeholder="taxon" autocomplete="off"/>-->
         <textarea id="taxonsearchbox" name="query" rows="4"></textarea>
         <div id="suggestionstaxon"></div>
+    </div>
+    <div class="withsuggestions" id="authorsearchwrapper">
+        <textarea id="authorsearchbox" name="query" rows="2"></textarea>
+        <div id="suggestionsauthor"></div>
     </div>
     <div class="withsuggestions" id="editfieldwrapper">
         <input id="editfield" type="text" name="query" autocomplete="off"/>
@@ -27,6 +32,7 @@
     <div class="button anchorbutton"><a href="?w=occurrenceview">View as occurrences</a></div>
     <!-- This is the model for the inventory. It will be cloned when adding new. -->
     <div class="inventory dummy id1holder">
+        <input type="hidden" name="inventoryId" value=""/>
         <h3><fmt:message key="inventory.1"/> <input type="text" name="code" placeholder="<fmt:message key="inventory.6"/>"/></h3>
         <table class="verysmalltext occurrencetable">
             <tr>
@@ -34,10 +40,10 @@
                 <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
             </tr>
             <tr>
-                <td class="field coordinates"></td>
+                <td class="field coordinates" data-name="coordinates"></td>
                 <td class="field editable" data-name="locality"></td>
                 <td class="field editable" data-name="date"></td>
-                <td class="field editable" data-name="observers"></td>
+                <td class="field editable authors" data-name="observers">${user.getFullName()}</td>
             </tr>
         </table>
         <table class="verysmalltext occurrencetable">
@@ -64,7 +70,7 @@
             </thead>
             <tbody>
                 <tr class="dummy id2holder geoelement">
-                    <td class="select clickable"><div class="selectbutton"></div></td>
+                    <td class="select clickable"><input type="hidden" name="occurrenceUuid" value=""/><div class="selectbutton"></div></td>
                     <td class="coordinates"></td>
                     <td class="taxon editable" data-name="taxa"></td>
                     <td class="editable" data-name="abundance"></td>
@@ -88,72 +94,86 @@
     <div id="allinventories">
         <h2>Your inventories</h2>
         <c:forEach var="inv" items="${inventories}">
-        <div class="inventory id1holder">
-            <c:if test="${inv.getCode() != null}">
-            <h3><fmt:message key="inventory.1"/> ${inv.getCode()}</h3>
-            </c:if>
-            <table class="verysmalltext occurrencetable geoelement">
-                <tr>
-                    <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.3"/></th>
-                    <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
-                </tr>
-                <tr>
-                    <td class="field coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv.getLatitude()}, ${inv.getLongitude()}</td>
-                    <td class="field editable" data-name="locality">${inv.getLocality()}</td>
-                    <td class="field editable" data-name="date">${inv._getDate()}</td>
-                    <td class="field editable" data-name="observers">TODO</td>
-                </tr>
-            </table>
-            <table class="verysmalltext occurrencetable">
-                <thead><tr>
-                    <th><fmt:message key="inventory.7"/></th><th><fmt:message key="inventory.8"/></th>
-                </tr></thead>
-                <tbody><tr>
-                    <td class="field editable" data-name="habitat">${inv.getHabitat()}</td>
-                    <td class="field editable" data-name="threats">${inv.getThreats()}</td>
-                </tr></tbody>
-            </table>
-            <table class="verysmalltext occurrencetable sortable">
-                <thead>
+        <c:if test="${inv.getLatitude() == null}"><div class="inventory"></c:if>
+        <c:if test="${inv.getLatitude() != null}"><div class="inventory geoelement"></c:if>
+            <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
+            <c:if test="${inv.getLatitude() != null}"> ${inv.getLatitude()}, ${inv.getLongitude()}</c:if>
+            </h3>
+            <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
+                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
+                <input type="submit" class="textbutton" value="Delete inventory" style="float:left"/>
+            </form>
+            <form class="poster id1holder" data-path="/floraon/occurrences/api/updateinventory" data-refresh="true">
+                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
+                <input type="submit" class="textbutton onlywhenmodified" value="Update inventory"/>
+                <table class="verysmalltext occurrencetable">
                     <tr>
-                        <th class="sorttable_nosort selectcol"></th>
-                        <th class="smallcol">Code</th>
-                        <th class="smallcol">Coord</th>
-                        <th class="bigcol">Taxon</th>
-                        <th class="smallcol">Abund</th>
-                        <th class="smallcol">Estim</th>
-                        <th class="bigcol">Comment</th>
-                        <th class="smallcol">Specimen</th>
-                        <th class="smallcol">Photo</th>
+                        <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
+                        <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
                     </tr>
-                </thead>
-                <tbody>
-                    <c:forEach var="tax" items="${inv._getTaxa()}">
-                    <tr class="id2holder">
-                        <td class="select clickable"><div class="selectbutton"></div></td>
-                        <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
-                        <c:if test="${tax.getLatitude() != null && tax.getLongitude() != null}">
-                        <td class="coordinates" data-lat="${tax.getLatitude()}" data-lng="${tax.getLongitude()}">${tax.getLatitude()}, ${tax.getLongitude()}</td>
-                        </c:if>
-                        <c:if test="${tax.getLatitude() == null || tax.getLongitude() == null}">
-                        <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">*</td>
-                        </c:if>
-                        <c:if test="${tax.getTaxEnt() == null}">
-                        <td class="taxon editable" data-name="taxa">${tax.getVerbTaxon()}</td>
-                        </c:if>
-                        <c:if test="${tax.getTaxEnt() != null}">
-                        <td class="taxon editable" data-name="taxa">${tax.getTaxEnt().getName()}</td>
-                        </c:if>
-                        <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
-                        <td class="editable" data-name="typeOfEstimate">${tax.getTypeOfEstimate()}</td>
-                        <td class="editable" data-name="comment">${tax.getComment()}</td>
-                        <td class="editable" data-name="hasSpecimen"><t:yesno test="${tax.isHasSpecimen()}"/></td>
-                        <td class="editable" data-name="hasPhoto"><t:yesno test="${tax.isHasPhoto()}"/></td>
+                    <tr>
+                        <td class="field editable coordinates" data-name="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv.getLatitude()}, ${inv.getLongitude()}</td>
+                        <td class="field editable" data-name="code">${inv.getCode()}</td>
+                        <td class="field editable" data-name="locality">${inv.getLocality()}</td>
+                        <td class="field editable" data-name="date">${inv._getDate()}</td>
+                        <td class="field editable authors" data-name="observers"><t:usernames idarray="${inv.getObservers()}" usermap="${userMap}"/></td>
                     </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-            <div class="button newtaxon hidden">Add taxon</div>
+                </table>
+                <table class="verysmalltext occurrencetable">
+                    <thead><tr>
+                        <th><fmt:message key="inventory.7"/></th><th><fmt:message key="inventory.8"/></th>
+                    </tr></thead>
+                    <tbody><tr>
+                        <td class="field editable" data-name="habitat">${inv.getHabitat()}</td>
+                        <td class="field editable" data-name="threats">${inv.getThreats()}</td>
+                    </tr></tbody>
+                </table>
+                <table class="verysmalltext occurrencetable sortable">
+                    <thead>
+                        <tr>
+                            <th class="sorttable_nosort selectcol"></th>
+                            <th class="smallcol">Code</th>
+                            <th class="smallcol">Coord</th>
+                            <th class="bigcol">Taxon</th>
+                            <th class="smallcol">Abund</th>
+                            <th class="smallcol">Estim</th>
+                            <th class="bigcol">Comment</th>
+                            <th class="smallcol">Specimen</th>
+                            <th class="smallcol">Photo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="tax" items="${inv._getTaxa()}">
+                        <c:if test="${tax.getObservationLatitude() == null}"><tr class="id2holder"></c:if>
+                        <c:if test="${tax.getObservationLatitude() != null}"><tr class="id2holder geoelement"></c:if>
+                            <td class="select clickable">
+                                <div class="selectbutton"></div>
+                                <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
+                            </td>
+                            <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
+                            <c:if test="${tax.getObservationLatitude() != null && tax.getObservationLongitude() != null}">
+                            <td class="coordinates" data-lat="${tax.getObservationLatitude()}" data-lng="${tax.getObservationLongitude()}">${tax.getObservationLatitude()}, ${tax.getObservationLongitude()}</td>
+                            </c:if>
+                            <c:if test="${tax.getObservationLatitude() == null || tax.getObservationLongitude() == null}">
+                            <td>*</td>
+                            </c:if>
+                            <c:if test="${tax.getTaxEnt() == null}">
+                            <td class="taxon editable" data-name="taxa">${tax.getVerbTaxon()}</td>
+                            </c:if>
+                            <c:if test="${tax.getTaxEnt() != null}">
+                            <td class="taxon editable" data-name="taxa">${tax.getTaxEnt().getName()}</td>
+                            </c:if>
+                            <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
+                            <td class="editable" data-name="typeOfEstimate">${tax.getTypeOfEstimate()}</td>
+                            <td class="editable" data-name="comment">${tax.getComment()}</td>
+                            <td class="editable" data-name="hasSpecimen"><t:yesno test="${tax.getHasSpecimen()}"/></td>
+                            <td class="editable" data-name="hasPhoto"><t:yesno test="${tax.getHasPhoto()}"/></td>
+                        </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+                <div class="button newtaxon hidden">Add taxon</div>
+            </form>
         </div>
         </c:forEach>
     </div>
@@ -220,7 +240,6 @@
 
 <c:when test="${param.w == 'occurrenceview'}">
     <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
-    <div class="button" id="mergeocc">Merge occurrences</div>
     <div class="button anchorbutton"><a href="?w=main">View as inventories</a></div>
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
@@ -228,6 +247,18 @@
                 <input type="submit" class="textbutton" value="Delete"/>
             </h2>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
+                <t:occurrenceheader />
+                <tbody></tbody>
+            </table>
+        </form>
+    </div>
+
+    <div id="updateoccurrences" class="hidden">
+        <form class="poster" data-path="/floraon/occurrences/api/updateoccurrences" data-refresh="true">
+            <h2>Confirm updating the following occurrences<br/>
+                <input type="submit" class="textbutton" value="Update"/>
+            </h2>
+            <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
                 <t:occurrenceheader />
                 <tbody></tbody>
             </table>
@@ -270,7 +301,9 @@
 
     <div id="alloccurrences">
         <h2>Your occurrences<br/>
-            <div class="button" id="deleteselected">Delete selected occurrences</div>
+            <div class="button" id="deleteselected">Delete selected</div>
+            <div class="button" id="mergeocc">Re-group selected</div>
+            <div class="button" id="updatemodified">Update modified</div>
         </h2>
 
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
@@ -278,10 +311,10 @@
             <tbody>
             <c:forEach var="occ" items="${occurrences}">
                 <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-                <tr class="unmatched geoelement">
+                <tr class="unmatched geoelement id1holder">
                 </c:if>
                 <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-                <tr class="geoelement">
+                <tr class="geoelement id1holder">
                 </c:if>
                     <td class="select clickable">
                         <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
@@ -295,12 +328,12 @@
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
                     </c:if>
-                    <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ.getLatitude()}, ${occ.getLongitude()}</td>
+                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ.getLatitude()}, ${occ.getLongitude()}</td>
                     <td class="editable" data-name="abundance">${occ._getTaxa()[0].getAbundance()}</td>
                     <td class="editable" data-name="typeOfEstimate">${occ._getTaxa()[0].getTypeOfEstimate()}</td>
                     <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
-                    <td class="editable" data-name="hasSpecimen"><t:yesno test="${occ._getTaxa()[0].isHasSpecimen()}"/></td>
-                    <td class="editable" data-name="hasPhoto"><t:yesno test="${occ._getTaxa()[0].isHasPhoto()}"/></td>
+                    <td class="editable" data-name="hasSpecimen"><t:yesno test="${occ._getTaxa()[0].getHasSpecimen()}"/></td>
+                    <td class="editable" data-name="hasPhoto"><t:yesno test="${occ._getTaxa()[0].getHasPhoto()}"/></td>
                     <td class="editable" data-name="date">${occ._getDate()}</td>
                 </tr>
             </c:forEach>

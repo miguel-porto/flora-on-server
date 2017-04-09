@@ -14,7 +14,7 @@ import java.util.List;
 public class TaxaParser implements FieldParser {
     @Override
     public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException {
-        if(inputValue == null || inputValue.trim().equals("")) return;
+        if(inputValue == null) return;
 
         String[] spl = inputValue.split("\\+");
         if(spl.length == 1) spl = inputValue.split(",");
@@ -25,7 +25,7 @@ public class TaxaParser implements FieldParser {
 
         for(String taxon : spl) {
             tmp = taxon.trim();
-            n = new newOBSERVED_IN();
+            n = new newOBSERVED_IN(true);
             if(tmp.contains("?")) n.setConfidence(OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
             if(tmp.contains("#")) n.setPhenoState(Constants.PhenologicalStates.FLOWER);
             tmp = tmp.replace("?", "");

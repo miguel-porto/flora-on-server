@@ -23,10 +23,18 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
                 Log.info("Verbose name: "+ oi.getVerbTaxon());
                 if(oi.getVerbTaxon() == null) continue;
 
+                if(oi.getVerbTaxon().trim().equals("")) {
+                    Log.info("    Empty name, clearing");
+                    inventories.addNoMatch(oi);
+                    oi.setTaxEntMatch("");
+                    continue;
+                }
+
                 try {
                     te = TaxEnt.parse(oi.getVerbTaxon());
                 } catch (FloraOnException e) {
                     inventories.addParseError(oi);
+                    oi.setTaxEntMatch("");
                     continue;
                 }
                 Log.info("    Parsed name: "+ te.getFullName(false));
@@ -34,6 +42,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
                 if(matched == null) {
                     Log.warn("    No match");
                     inventories.addNoMatch(oi);
+                    oi.setTaxEntMatch("");
                 } else {
                     Log.info("    Matched name: " + matched.getFullName(false), " -- ", matched.getID());
                     oi.setTaxEntMatch(matched.getID());

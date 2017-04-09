@@ -6,8 +6,12 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.authentication.PasswordAuthentication;
+import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.entities.Author;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static pt.floraon.authentication.Privileges.*;
@@ -21,10 +25,14 @@ public class User extends NamedDBNode {
 	private Set<Privileges> privileges = new HashSet<>();
 	private List<TaxonPrivileges> taxonPrivileges;
 	private List<String> uploadedTables;
+	private String userPolygons;
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)
 	private transient Set<Privileges> effectivePrivileges;
+
+	@Expose(serialize = false, deserialize = false)
+	private transient PolygonTheme userPolygonsTheme;
 
 	public static Map<String, Privileges[]> userProfiles;
 	static {
@@ -81,6 +89,22 @@ public class User extends NamedDBNode {
 
 	public void setUserType(String userType) {
 		this.userType = UserType.valueOf(userType);
+	}
+
+	public String getUserPolygons() {
+		return userPolygons;
+	}
+
+	public PolygonTheme _getUserPolygonsAsTheme() {
+		if(userPolygons == null) return null;
+		if(userPolygonsTheme == null) {
+			InputStream stream = new ByteArrayInputStream(userPolygons.getBytes(StandardCharsets.UTF_8));
+			return userPolygonsTheme = new PolygonTheme(stream, null);
+		} else return userPolygonsTheme;
+	}
+
+	public void setUserPolygons(String userPolygons) {
+		this.userPolygons = userPolygons;
 	}
 
 	@Override
