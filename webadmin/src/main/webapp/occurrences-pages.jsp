@@ -71,7 +71,7 @@
             <tbody>
                 <tr class="dummy id2holder geoelement">
                     <td class="select clickable"><input type="hidden" name="occurrenceUuid" value=""/><div class="selectbutton"></div></td>
-                    <td class="coordinates"></td>
+                    <td class="coordinates" data-name="coordinates"></td>
                     <td class="taxon editable" data-name="taxa"></td>
                     <td class="editable" data-name="abundance"></td>
                     <td class="editable" data-name="typeOfEstimate"></td>
@@ -277,7 +277,7 @@
                     <td class="select clickable"><div class="selectbutton"></div></td>
                     <td class="editable" data-name="gpsCode"></td>
                     <td class="taxon editable" data-name="taxa"></td>
-                    <td class="coordinates"></td>
+                    <td class="coordinates" data-name="coordinates"></td>
                     <td class="editable" data-name="abundance"></td>
                     <td class="editable" data-name="typeOfEstimate"></td>
                     <td class="editable" data-name="comment"></td>

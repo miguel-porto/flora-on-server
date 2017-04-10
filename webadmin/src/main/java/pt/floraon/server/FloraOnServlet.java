@@ -211,7 +211,7 @@ public class FloraOnServlet extends HttpServlet {
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk28");
+		request.setAttribute("uuid", "sk30");
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {

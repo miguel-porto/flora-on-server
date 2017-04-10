@@ -21,8 +21,12 @@ body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 #hidemap {position: absolute; right:0; top:0; z-index:1001}
 
 .leaflet-marker-icon {border:2px solid transparent; border-radius:50%}
-.leaflet-marker-icon.selected {border:2px solid yellow; border-radius:50%; z-index: 5}
-
+.leaflet-marker-icon.selected {
+    border:2px solid yellow;
+    border-radius:25%;
+    background-color: yellow;
+    z-index: 1000 !important;
+}
 
 /* occurrence table */
 /*.occurrencetable {table-layout: fixed;}*/

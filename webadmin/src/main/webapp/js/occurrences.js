@@ -112,7 +112,7 @@ function onConfirmEdit(ev, name, key, parent, dry) {
     } else if(id1) {    // occurrences or inventory fields
         insertOrReplaceHiddenInput(parent, id1 + '_' + fieldname, name);
         var iid = id1el.querySelector('input[name=inventoryId]');
-        insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
+        if(iid) insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
         id1el.classList.add('modified');
     }
 }
@@ -228,6 +228,7 @@ function clickOccurrenceTable(ev) {
 //console.log(cell);
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
+        selectGeoElement(cell, true, true);
         var txt = cell.textContent;
         cell.textContent = '';
         displaySearchbox(cell, txt, 'taxonsearchwrapper');
@@ -237,15 +238,48 @@ function clickOccurrenceTable(ev) {
         cell.textContent = '';
         displaySearchbox(cell, txt, 'authorsearchwrapper');
     } else if(cell.classList.contains('select')) {    // select row
-        var tr = getParentbyTag(cell, 'tr');
-        cell.querySelector('.selectbutton').classList.toggle('selected');
-        tr.classList.toggle('selected');
-        if(tr.marker) tr.marker.classList.toggle('selected');
+        selectGeoElement(cell);
     } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
+        selectGeoElement(cell, true, true);
         var txt = cell.textContent;
         cell.textContent = '';
         displayEditField(cell, txt);
+    }
+}
+
+function selectGeoElement(cell, value, clearothers) {
+//    var tr = getParentbyTag(cell, 'tr');
+    var geoel = getParentbyTag(cell, 'tr');
+//    var geoel = getParentbyClass(cell, 'geoelement');
+    if(value === undefined) {
+        geoel.classList.toggle('selected');
+        if(geoel.querySelector('.selectbutton'))
+            geoel.querySelector('.selectbutton').classList.toggle('selected');
+        if(geoel.marker) geoel.marker.classList.toggle('selected');
+        return;
+    }
+
+    if(clearothers) {
+        var par = geoel.parentNode;
+        var selected = par.querySelectorAll('.geoelement.selected');
+        for(var i=0; i<selected.length; i++) {
+            selected[i].classList.remove('selected');
+            if(selected[i].querySelector('.selectbutton'))
+                selected[i].querySelector('.selectbutton').classList.remove('selected');
+            if(selected[i].marker) selected[i].marker.classList.remove('selected');
+        }
+    }
+    if(value) {
+        geoel.classList.add('selected');
+        if(geoel.querySelector('.selectbutton'))
+            geoel.querySelector('.selectbutton').classList.add('selected');
+        if(geoel.marker) geoel.marker.classList.add('selected');
+    } else {
+        geoel.classList.remove('selected');
+        if(geoel.querySelector('.selectbutton'))
+            geoel.querySelector('.selectbutton').classList.remove('selected');
+        if(geoel.marker) geoel.marker.classList.remove('selected');
     }
 }
 

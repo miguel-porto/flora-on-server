@@ -46,6 +46,37 @@ public class OccurrenceImporterJob implements JobTask {
         occurrenceParser = new OccurrenceParser(driver);
     }
 
+    /**
+     * Recursively process a KML and spit out all placemarks in all folders
+     * @param feature
+     * @param output
+     */
+    private void processKMLFeature(List<Feature> feature, List<Inventory> output) {
+        for (int i = 0; i < feature.size(); i++) {
+            if(Folder.class.isAssignableFrom(feature.get(i).getClass())) {
+                Folder folder = (Folder) feature.get(i);
+                processKMLFeature(folder.getFeature(), output);
+                continue;
+            }
+            if(Placemark.class.isAssignableFrom(feature.get(i).getClass())) {
+                Placemark pm = (Placemark) feature.get(i);
+                if(Point.class.isAssignableFrom(pm.getGeometry().getClass())) {
+                    Point p = (Point) pm.getGeometry();
+                    Inventory inv = new Inventory();
+                    inv.setLatitude((float) p.getCoordinates().get(0).getLatitude());
+                    inv.setLongitude((float) p.getCoordinates().get(0).getLongitude());
+                    inv.setCode(pm.getName());
+                    inv.setPubNotes(pm.getDescription());
+                    inv.setMaintainer(user.getID());
+                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+//                    System.out.println(pm.getName()+": "+ p.getCoordinates().get(0).getObservationLatitude()+", "+p.getCoordinates().get(0).getObservationLongitude());
+                    output.add(inv);
+                } else
+                    Log.warn("Skipped non-point placemark in KML");
+            }
+        }
+    }
+
     @Override
     public void run(IFloraOn driver) throws FloraOnException, IOException {
         INodeWorker nwd = driver.getNodeWorkerDriver();
@@ -60,20 +91,7 @@ public class OccurrenceImporterJob implements JobTask {
             case "kml":
                 Kml kml = Kml.unmarshal(stream);
                 Document document = (Document) kml.getFeature();
-                for (int i = 0; i < document.getFeature().size(); i++) {
-                    Placemark pm = (Placemark) document.getFeature().get(i);
-                    Point p = (Point) pm.getGeometry();
-                    Inventory inv = new Inventory();
-                    inv.setLatitude((float) p.getCoordinates().get(0).getLatitude());
-                    inv.setLongitude((float) p.getCoordinates().get(0).getLongitude());
-                    inv.setCode(pm.getName());
-                    inv.setPubNotes(pm.getDescription());
-                    inv.setMaintainer(user.getID());
-                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-
-                    invList.add(inv);
-//                    System.out.println(pm.getName()+": "+ p.getCoordinates().get(0).getObservationLatitude()+", "+p.getCoordinates().get(0).getObservationLongitude());
-                }
+                processKMLFeature(document.getFeature(), invList);
                 break;
 
             default:
