@@ -175,7 +175,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setTags(String[] tags) {
-        this.tags = StringUtils.cleanArray(tags);
+        this.tags = StringUtils.cleanArray(tags, false);
     }
 
     public void setTaxonomicProblemDescription(String taxonomicProblemDescription) {

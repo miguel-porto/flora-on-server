@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
@@ -10,8 +11,10 @@ import pt.floraon.occurrences.entities.newOBSERVED_IN;
  */
 public class BooleanParser implements FieldParser {
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
         boolean value = false;
+        Inventory occurrence = (Inventory) bean;
+
         if (inputValue != null && !inputValue.trim().equals("")) {
             if(inputValue.toLowerCase().equals("1") || inputValue.toLowerCase().equals("true")
                     || inputValue.toLowerCase().equals("sim") || inputValue.toLowerCase().equals("yes")

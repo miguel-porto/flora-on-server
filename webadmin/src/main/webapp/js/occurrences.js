@@ -47,10 +47,11 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('beforeunload', function (ev) {
     if(isFormSubmitting) return;
     var confirmationMessage = 'You have unsaved occurrences! Are you sure you want to lose them?';
-    var sel = document.querySelectorAll('.newoccurrencetable tbody tr:not(.dummy)');
+    var sel = document.querySelectorAll('#addoccurrencetable tbody tr:not(.dummy)');
     var sel1 = document.querySelectorAll('#alloccurrencetable tr.modified');
     var sel2 = document.querySelectorAll('.inventory .modified');
-    if(sel.length > 0 || sel1.length > 0 || sel2.length > 0) {
+    var sel3 = document.querySelectorAll('#updateoccurrencetable tbody tr.modified');
+    if(sel.length > 0 || sel1.length > 0 || sel2.length > 0 || sel3.length > 0) {
         (ev || window.event).returnValue = confirmationMessage;
         return confirmationMessage;
     } else
@@ -62,12 +63,13 @@ function onConfirmEdit(ev, name, key, parent, dry) {
     var fieldname = parent.getAttribute('data-name');
     if(ev.target) document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
     var original = parent.getAttribute('data-original');
+    console.log(original+':'+name);
     if(original !== null) {
         parent.removeAttribute('data-original');
         var modified = (original.trim() !== name.trim());
     } else var modified = true;
 
-    if(!modified) {
+    if(!modified || ev.keyCode == 27) {
         parent.innerHTML = original;
         return;
     }
@@ -209,6 +211,10 @@ function clickButton(ev) {
                 sel[i].parentNode.removeChild(sel[i]);
             }
             break;
+
+        case 'newoccurrence':
+            addNewOccurrence();
+            break;
         }
     }
 }
@@ -283,8 +289,10 @@ function selectGeoElement(cell, value, clearothers) {
     }
 }
 
-function projectPointsOnMap() {
-    var ot = document.querySelectorAll('.geoelement');
+function projectPointsOnMap(ot) {
+    if(!ot)
+        var ot = document.querySelectorAll('.geoelement');
+    if(!ot.length) ot = [ot];
     var coo;
     for(var i=0; i<ot.length; i++) {
         coo = ot[i].querySelectorAll('*:not(.geoelement) .coordinates');
@@ -301,6 +309,8 @@ function addPointMarker(lat, lng, bondEl) {
     marker.on('dragend', markerMove);
     marker.on('click', markerClick).addTo(myMap);
     if(bondEl) {
+        if(bondEl.marker)
+            bondEl.marker.remove();
         marker.tableRow = bondEl;
         bondEl.marker = marker._icon;
     }
@@ -308,30 +318,24 @@ function addPointMarker(lat, lng, bondEl) {
 
 function markerMove(ev) {
     if(ev.target.tableRow) {
+        acceptVisibleSearchbox();
         var ll = ev.target.getLatLng();
-        onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, ev.target.tableRow.querySelector('.coordinates'), true);
+        var cooel = ev.target.tableRow.querySelector('.coordinates');
+        cooel.setAttribute('data-lat', ll.lat);
+        cooel.setAttribute('data-lng', ll.lng);
+        onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, cooel, true);
     }
 }
 
 function acceptVisibleSearchbox() {
-    if(document.getElementById('taxonsearchwrapper')) {
+    var editboxes = document.querySelectorAll('.editbox');
+    for(var i = 0; i < editboxes.length; i++) {
         var c = 0;
-        while(document.getElementById('taxonsearchwrapper').offsetParent !== null && c < 4) {
+        while(editboxes[i].offsetParent !== null && c < 4) {
             var event = new KeyboardEvent('keyup', { 'keyCode': 13});
             Object.defineProperty(event, 'keyCode', {get:function(){return this.charCodeVal;}});
             event.charCodeVal = 13;
-            document.getElementById('taxonsearchbox').dispatchEvent(event);
-            c++;
-        }
-    }
-
-    if(document.getElementById('editfieldwrapper')) {
-        var c = 0;
-        while(document.getElementById('editfieldwrapper').offsetParent !== null && c < 4) {
-            var event = new KeyboardEvent('keyup', { 'keyCode': 13});
-            Object.defineProperty(event, 'keyCode', {get:function(){return this.charCodeVal;}});
-            event.charCodeVal = 13;
-            document.getElementById('editfield').dispatchEvent(event);
+            editboxes[i].querySelector('[name=query]').dispatchEvent(event);
             c++;
         }
     }
@@ -350,13 +354,6 @@ function displaySearchbox(el, text, whichBox) {
 
 function displayEditField(el, text) {
     acceptVisibleSearchbox();
-
-/*
-    if(!el.querySelector('#editfieldwrapper') && old.offsetParent !== null) {     // there's one visible in other cell
-        var txt = old.querySelector('input').value;
-        onConfirmEdit({target: old.querySelector('input')}, txt, null, old.parentNode, true);
-    }
-*/
     var old = document.getElementById('editfieldwrapper');
     el.appendChild(old);
     el.setAttribute('data-original', text);
@@ -385,6 +382,26 @@ function fileUploadCallback(resp, ev) {
 }
 
 function addNewFeature(ev) {
+
+    var editboxes = document.querySelectorAll('.editbox');
+    for(var i = 0; i < editboxes.length; i++) {
+        if(editboxes[i].offsetParent !== null) {
+            var par = editboxes[i].parentNode;
+            if(par.classList.contains('coordinates')) {
+                acceptVisibleSearchbox();
+                var ll = ev.latlng;
+                par.setAttribute('data-lat', ll.lat);
+                par.setAttribute('data-lng', ll.lng);
+                onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, par, true);
+                var ge = getParentbyClass(par, 'geoelement');
+                projectPointsOnMap(ge);
+                if(ge.marker) ge.marker.classList.add('selected');
+                return;
+            }
+        }
+    }
+
+    acceptVisibleSearchbox();
     if(document.getElementById('addoccurrencetable'))
         addNewOccurrence.call(this, ev);
     else
@@ -411,7 +428,7 @@ function addNewInventory(ev) {
     cell2.appendChild(inp_longitude);
     cell2.setAttribute('data-lat', lat);
     cell2.setAttribute('data-lng', lng);
-    addPointMarker(ev.latlng.lat, ev.latlng.lng, inv);
+    addPointMarker(lat, lng, inv);
     document.getElementById('addnewinventories').appendChild(inv);
 
     var ot = inv.querySelectorAll('.occurrencetable');
@@ -426,42 +443,33 @@ function addNewInventory(ev) {
 
 function addNewOccurrence(ev) {
     var id = randomString(6);
-    var lat = Math.round(ev.latlng.lat * 100000) / 100000;
-    var lng = Math.round(ev.latlng.lng * 100000) / 100000;
+    if(ev && ev.latlng) {
+        var lat = Math.round(ev.latlng.lat * 100000) / 100000;
+        var lng = Math.round(ev.latlng.lng * 100000) / 100000;
+    } else {
+        var lat = null;
+        var lng = null;
+    }
 
     var tab = document.querySelector('#addoccurrencetable tbody');
     var row = document.querySelector('#addoccurrencetable tr.dummy').cloneNode(true);
     var cell2 = row.querySelector('td.coordinates');
     row.classList.remove('dummy');
 
-    var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
-    var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
+    if(lat && lng) {
+        var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
+        var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
+
+        cell2.innerHTML = lat + ', ' + lng;
+        cell2.appendChild(inp_latitude);
+        cell2.appendChild(inp_longitude);
+        cell2.setAttribute('data-lat', lat);
+        cell2.setAttribute('data-lng', lng);
+        addPointMarker(lat, lng, row);
+    }
 
     row.setAttribute('data-id', id);
-    cell2.innerHTML = lat + ', ' + lng;
-    cell2.appendChild(inp_latitude);
-    cell2.appendChild(inp_longitude);
-    cell2.setAttribute('data-lat', lat);
-    cell2.setAttribute('data-lng', lng);
-    addPointMarker(ev.latlng.lat, ev.latlng.lng, row);
     tab.appendChild(row);
 
     document.getElementById('addnewoccurrences').classList.remove('hidden');
-}
-
-function createHiddenInputElement(name, value) {
-    var inp = document.createElement('input');
-    inp.setAttribute('name', name);
-    inp.setAttribute('type', 'hidden');
-    inp.setAttribute('value', value);
-    return inp;
-}
-
-function insertOrReplaceHiddenInput(parent, name, value) {
-    var el = parent.querySelector('input[type=hidden][name=\'' + name +'\']');
-    console.log(name+" : "+value);
-    if(!el)
-        parent.appendChild(createHiddenInputElement(name, value));
-    else
-        el.setAttribute(name, value);
 }

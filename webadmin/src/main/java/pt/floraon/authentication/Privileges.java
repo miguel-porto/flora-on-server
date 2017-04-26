@@ -25,6 +25,8 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     , EDIT_ALL_1_8(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit sections 1-8")
     , EDIT_1_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 1.4")
     , EDIT_7_3(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 7.3")
+    , EDIT_4_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 4.2")
+    , EDIT_6_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 6.2")
     , EDIT_9_1_2_3_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.1 - 9.4")
     , EDIT_9_7_9_92(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.7, 9.9.2")
     , EDIT_9_8_9_93(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.8, 9.9.3")

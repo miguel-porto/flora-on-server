@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
@@ -12,9 +13,10 @@ import java.util.UUID;
  */
 public class UUIDParser implements FieldParser {
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
         if (inputValue == null || inputValue.trim().equals("")) return;
         UUID uuid = UUID.fromString(inputValue);
+        Inventory occurrence = (Inventory) bean;
 
         switch (inputFieldName.toLowerCase()) {
             case "occurrenceuuid":

@@ -15,6 +15,13 @@ import java.util.regex.Pattern;
  * Created by miguel on 14-02-2017.
  */
 public class StringUtils {
+    public static Collection<String> cleanCollection(Collection<String> tmp, boolean returnEmpty) {
+        tmp.removeAll(Collections.singleton(""));
+        tmp.removeAll(Collections.<String> singleton(null));
+        if(!returnEmpty && tmp.size() == 0) tmp.add(null);
+        return tmp;
+    }
+
     public static String[] cleanArray(String[] array, boolean returnEmpty) {
         List<String> tmp = new ArrayList<>(Arrays.asList(array));
         tmp.removeAll(Collections.singleton(""));

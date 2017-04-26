@@ -30,6 +30,7 @@
 	</c:if>
 </head>
 <body>
+<input type="hidden" name="territory" value="${territory}"/>
 <div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
     <div id="left-bar" class="buttonmenu">
@@ -149,7 +150,11 @@
             <div class="button" id="selectall"><fmt:message key="TaxonIndex.selecting.4"/></div>
             <div class="button" id="toggleselectedtaxa"><fmt:message key="TaxonIndex.selecting.2"/></div>
             <div class="button" id="selecttaxa"><fmt:message key="TaxonIndex.selecting.3"/></div>
+            <div class="button" id="addtag"><fmt:message key="TaxonIndex.selecting.5"/></div>
         </div>
+        <form data-path="/floraon/redlist/api/addtag" id="addtagform">
+            <input type="hidden" name="territory" value="${territory}"/>
+        </form>
         </c:if>
         <div id="filters" class="filterpanel inactive">
             <h3><fmt:message key="TaxonIndex.filters.1"/></h3>
@@ -167,6 +172,7 @@
             <div class="filter tag" id="onlytag_${tmp.getKey()}"><div class="light"></div><div>${tmp.getValue()}</div></div>
             </c:forEach>
         </div>
+
         <form method="post" action="/floraon/redlist/${territory}">
             <input type="hidden" name="w" value="taxon"/>
             <c:if test="${user.canEDIT_ANY_FIELD()}">
@@ -760,7 +766,7 @@
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section4"><td class="title">4.2</td><td>Habitat types</td><td>
-                        <c:if test="${user.canEDIT_SECTION4()}">
+                        <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_4_2()}">
                             <c:forEach var="tmp" items="${ecology_HabitatTypes}">
                                 <c:if test="${habitatTypes.contains(tmp)}">
                                     <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
@@ -770,7 +776,7 @@
                                 </c:if>
                             </c:forEach>
                         </c:if>
-                        <c:if test="${!user.canEDIT_SECTION4()}">
+                        <c:if test="${!user.canEDIT_SECTION4() && !user.canEDIT_4_2()}">
                             <c:forEach var="tmp" items="${habitatTypes}">
                                 <div class="wordtag">${tmp}</div>
                             </c:forEach>
@@ -883,7 +889,7 @@
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section6"><td class="title">6.2</td><td><fmt:message key="DataSheet.label.6.2"/></td><td>
                     <t:multiplechooser
-                        privilege="${user.canEDIT_SECTION6()}"
+                        privilege="${user.canEDIT_SECTION6() || user.canEDIT_6_2()}"
                         values="${threats}"
                         allvalues="${threats_Threats}"
                         name="threats_Threats"

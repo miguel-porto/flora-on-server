@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Part;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.FloraOnException;
@@ -64,19 +65,31 @@ public class FileUploader extends FloraOnServlet {
 		String type = getParameterAsString("type");
 		Part filePart;
 		InputStream fileContent = null;
-		try {
-			filePart = request.getPart("occurrenceTable");
+
+		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
+		switch(partIt.next()) {
+		case "occurrences":
+			try {
+				filePart = request.getPart("occurrenceTable");
+				System.out.println(filePart.getSize());
+
+				if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
+				fileContent = filePart.getInputStream();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			if(fileContent != null) {
+				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(fileContent, driver, getUser(), type), driver);
+				success(job.getID());
+			}
+			break;
+
+		case "toponyms":
+			filePart = request.getPart("toponymTable");
 			System.out.println(filePart.getSize());
-
-			if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
-			fileContent = filePart.getInputStream();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		if(fileContent != null) {
-			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(fileContent, driver, getUser(), type), driver);
-			success(job.getID());
+			success(filePart.getName());
+			break;
 		}
 
       // Check that we have a file upload request

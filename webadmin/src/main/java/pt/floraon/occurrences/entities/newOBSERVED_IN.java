@@ -11,6 +11,7 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -228,6 +229,13 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
 
     public void setGpsCode(String gpsCode) {
         this.gpsCode = gpsCode;
+    }
+
+    public String _getObservationCoordinates() {
+        if (this.getObservationLatitude() == null || this.getObservationLongitude() == null)
+            return "*";
+        else
+            return String.format(Locale.ROOT, "%.5f, %.5f", this.getObservationLatitude(), this.getObservationLongitude());
     }
 
     @Override

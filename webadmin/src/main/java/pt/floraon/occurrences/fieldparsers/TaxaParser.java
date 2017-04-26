@@ -1,6 +1,7 @@
 package pt.floraon.occurrences.fieldparsers;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
@@ -13,8 +14,9 @@ import java.util.List;
  */
 public class TaxaParser implements FieldParser {
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException {
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
         if(inputValue == null) return;
+        Inventory occurrence = (Inventory) bean;
 
         String[] spl = inputValue.split("\\+");
         if(spl.length == 1) spl = inputValue.split(",");

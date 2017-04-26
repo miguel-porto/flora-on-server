@@ -4,6 +4,7 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.*;
+import org.jfree.util.Log;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
 
@@ -120,6 +121,7 @@ public class BeanUtils {
         BeanMap propertyMap = new BeanMap(beans[0]);    // we assume beans are all same class! so we take the first as a model
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
 
+        System.out.println("Merging "+beans.length+" beans");
         T out = cls.newInstance();
 
         for (Object propNameObject : propertyMap.keySet()) {

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
+import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.*;
 import pt.floraon.driver.entities.DBEntity;
@@ -408,7 +409,8 @@ public final class Constants {
     	character(Character.class),			// a morphological character (e.g. flower color, isLeaf shape...)
     	image(pt.floraon.driver.entities.Image.class),
 		user(User.class),					// a database user
-    	territory(Territory.class);			// a geographic territory (e.g. country)
+    	territory(Territory.class),			// a geographic territory (e.g. country)
+		toponym(Toponym.class);				// a name of a place
     	
     	Class<? extends GeneralDBNode> nodeClass;
 

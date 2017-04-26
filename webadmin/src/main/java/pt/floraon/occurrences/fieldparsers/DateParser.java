@@ -1,6 +1,6 @@
 package pt.floraon.occurrences.fieldparsers;
 
-import pt.floraon.occurrences.Messages;
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.entities.Inventory;
 
 import java.util.Calendar;
@@ -17,8 +17,9 @@ public class DateParser implements FieldParser {
             Pattern.compile("^ *(?<day>[0-9?-]{1,2})(?:-|/)(?<month>[0-9?-]{1,2})(?:-|/)(?<year>([0-9]{4})|([-?]{1,4})) *$");
 
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException {
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
         if(inputValue == null || inputValue.trim().equals("")) return;
+        Inventory occurrence = (Inventory) bean;
         Integer day, month, year;
         Matcher matcher = datePattern.matcher(inputValue);
         if(!matcher.find()) throw new IllegalArgumentException("Date format not recognized.");

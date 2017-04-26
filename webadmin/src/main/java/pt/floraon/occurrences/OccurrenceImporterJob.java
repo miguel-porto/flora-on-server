@@ -145,7 +145,8 @@ public class OccurrenceImporterJob implements JobTask {
                     Inventory merged = null;
                     try {
                         // we ignore the field that holds the occurrences
-                        merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences"), tmp.toArray(new Inventory[tmp.size()]));
+                        merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences")
+                                , tmp.toArray(new Inventory[tmp.size()]));
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                         e.printStackTrace();
                         throw new FloraOnException(e.getMessage());

@@ -1,6 +1,7 @@
 package pt.floraon.occurrences.fieldparsers;
 
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.occurrences.Messages;
@@ -17,15 +18,18 @@ import java.util.Map;
 public class UserListParser implements FieldParser {
     private Map<String, String> userMap;
     private IFloraOn driver;
+    private boolean createUsers;
 
-    public UserListParser(Map<String, String> userMap, IFloraOn driver) {
+    public UserListParser(Map<String, String> userMap, IFloraOn driver, boolean createUsers) {
         this.userMap = userMap;
         this.driver = driver;
+        this.createUsers = createUsers;
     }
 
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
         if(inputValue == null || inputValue.trim().equals("")) return;
+        Inventory occurrence = (Inventory) bean;
 
         String[] spl = inputValue.split(",");
         String tmp;
@@ -37,7 +41,13 @@ public class UserListParser implements FieldParser {
                 userIds.add(userMap.get(tmp));
             else {
                 User user = driver.getAdministration().getUser(username.trim());
-                if(user == null) throw new FloraOnException(Messages.getString("error.2", username.trim()));
+                if(user == null) {
+                    if(!createUsers) throw new FloraOnException(Messages.getString("error.2", username.trim()));
+                    user = new User();
+                    user.setName(username.trim());
+                    String id = driver.getAdministration().createUser(user).getID();
+                    user.setID(id);
+                }
                 userMap.put(user.getName().toLowerCase(), user.getID());
                 userIds.add(user.getID());
             }

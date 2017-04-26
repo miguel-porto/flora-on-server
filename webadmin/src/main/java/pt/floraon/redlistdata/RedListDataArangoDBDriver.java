@@ -181,7 +181,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
         Map<String, Object> bp = new HashMap<>();
         bp.put("ids", taxEntIds);
         bp.put("data", values);
-        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+//        Gson gs = new GsonBuilder().setPrettyPrinting().create();
 //        System.out.println(gs.toJson(bp));
 
         try {
@@ -191,6 +191,23 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
             throw new DatabaseException(e.getMessage());
         }
 //        System.out.println(a);
+    }
+
+    public int addTagToRedListDataEntities(String territory, String[] taxEntIds, String tag) throws FloraOnException {
+        Map<String, Object> bp = new HashMap<>();
+        bp.put("ids", taxEntIds);
+        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+/*
+        System.out.println(gs.toJson(bp));
+        System.out.println(AQLRedListQueries.getString("redlistdata.8", territory, tag));
+*/
+        try {
+            ArangoCursor<String> c = database.query(AQLRedListQueries.getString("redlistdata.8", territory, tag)
+                    , bp, new AqlQueryOptions().count(true), String.class);
+            return c.getCount();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
     }
 
     @Override

@@ -1,17 +1,18 @@
 package pt.floraon.occurrences;
 
+import pt.floraon.driver.parsers.CSVParser;
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.*;
 
-import javax.xml.parsers.FactoryConfigurationError;
 import java.util.*;
 
 /**
  * Created by miguel on 26-03-2017.
  */
-public class OccurrenceParser {
+public class OccurrenceParser implements CSVParser {
     private IFloraOn driver;
     /**
      * Holds the aliases mappings
@@ -29,33 +30,53 @@ public class OccurrenceParser {
         fieldMappings.put("latitude", new LatitudeLongitudeParser());
         fieldMappings.put("longitude", new LatitudeLongitudeParser());
         fieldMappings.put("coordinates", new LatitudeLongitudeParser());
+        fieldMappings.put("x", new UTMCoordinateParser());
+        fieldMappings.put("y", new UTMCoordinateParser());
+        fieldMappings.put("elevation", new IntegerParser());
         fieldMappings.put("taxa", new TaxaParser());
         fieldMappings.put("year", new IntegerParser());
         fieldMappings.put("month", new IntegerParser());
         fieldMappings.put("date", new DateParser());
         fieldMappings.put("day", new IntegerParser());
         fieldMappings.put("code", new PlainTextParser());
-        fieldMappings.put("gpsCode", new PlainTextParser());
+        fieldMappings.put("gpscode", new PlainTextParser());
         fieldMappings.put("locality", new PlainTextParser());
+        fieldMappings.put("verblocality", new PlainTextParser());
+
         fieldMappings.put("habitat", new PlainTextParser());
         fieldMappings.put("threats", new PlainTextParser());
         fieldMappings.put("ano", new AliasFieldParser("year", fieldMappings));
         fieldMappings.put("código", new AliasFieldParser("code", fieldMappings));
-        fieldMappings.put("observers", new UserListParser(userMap, driver));
-        fieldMappings.put("collectors", new UserListParser(userMap, driver));
-        fieldMappings.put("determiners", new UserListParser(userMap, driver));
-        fieldMappings.put("inventoryId", new PlainTextParser());
+        fieldMappings.put("data", new AliasFieldParser("date", fieldMappings));
+        fieldMappings.put("gps", new AliasFieldParser("gpscode", fieldMappings));
+        fieldMappings.put("z", new AliasFieldParser("elevation", fieldMappings));
+        fieldMappings.put("altitude", new AliasFieldParser("elevation", fieldMappings));
+        fieldMappings.put("observers", new UserListParser(userMap, driver, false));
+        fieldMappings.put("collectors", new UserListParser(userMap, driver, false));
+        fieldMappings.put("determiners", new UserListParser(userMap, driver, false));
+        fieldMappings.put("inventoryid", new PlainTextParser());
 
         fieldMappingsSecondRound.put("abundance", new PlainTextParser());
-        fieldMappingsSecondRound.put("typeOfEstimate", new EnumParser());
+        fieldMappingsSecondRound.put("typeofestimate", new EnumParser());
         fieldMappingsSecondRound.put("comment", new PlainTextParser());
-        fieldMappingsSecondRound.put("hasPhoto", new BooleanParser());
-        fieldMappingsSecondRound.put("hasSpecimen", new BooleanParser());
-        fieldMappingsSecondRound.put("occurrenceUuid", new UUIDParser());
-        fieldMappingsSecondRound.put("observationLatitude", new LatitudeLongitudeParser());
-        fieldMappingsSecondRound.put("observationLongitude", new LatitudeLongitudeParser());
-        fieldMappingsSecondRound.put("observationCoordinates", new LatitudeLongitudeParser());
+        fieldMappingsSecondRound.put("phenostate", new EnumParser());
+        fieldMappingsSecondRound.put("hasphoto", new BooleanParser());
+        fieldMappingsSecondRound.put("hasspecimen", new BooleanParser());
+        fieldMappingsSecondRound.put("occurrenceuuid", new UUIDParser());
+        fieldMappingsSecondRound.put("observationlatitude", new LatitudeLongitudeParser());
+        fieldMappingsSecondRound.put("observationlongitude", new LatitudeLongitudeParser());
+        fieldMappingsSecondRound.put("observationcoordinates", new LatitudeLongitudeParser());
+        fieldMappingsSecondRound.put("labeldata", new PlainTextParser());
 
+    }
+
+    @Override
+    public void registerParser(String fieldName, FieldParser parser) {
+        fieldMappings.put(fieldName, parser);
+    }
+
+    public Map<String, String> getUserMap() {
+        return this.userMap;
     }
 
     /**
@@ -65,19 +86,21 @@ public class OccurrenceParser {
      */
     public void checkFieldNames(Set<String> names) throws FloraOnException {
         for(String name : names) {
-            if (!fieldMappings.containsKey(name) && !fieldMappingsSecondRound.containsKey(name))
+            if (!fieldMappings.containsKey(name.toLowerCase()) && !fieldMappingsSecondRound.containsKey(name.toLowerCase()))
                 throw new FloraOnException(Messages.getString("error.1", name));
         }
     }
 
-    public void parseFields(Map<String, String> keyValues, Inventory inv) throws FloraOnException {
+    @Override
+    public void parseFields(Map<String, String> keyValues, Object bean) throws FloraOnException {
+        Inventory inv = (Inventory) bean;
         checkFieldNames(keyValues.keySet());
         // first round
         Set<String> intersection = new HashSet<>(keyValues.keySet());
         intersection.retainAll(fieldMappings.keySet());
         for(String key : intersection) {
             try {
-                fieldMappings.get(key).parseValue(keyValues.get(key), key, inv);
+                fieldMappings.get(key.toLowerCase()).parseValue(keyValues.get(key), key.toLowerCase(), inv);
             } catch(IllegalArgumentException e) {
                 throw new FloraOnException(e.getMessage());
             }
@@ -88,7 +111,7 @@ public class OccurrenceParser {
         intersection.retainAll(fieldMappingsSecondRound.keySet());
         for(String key : intersection) {
             try {
-                fieldMappingsSecondRound.get(key).parseValue(keyValues.get(key), key, inv);
+                fieldMappingsSecondRound.get(key.toLowerCase()).parseValue(keyValues.get(key), key.toLowerCase(), inv);
             } catch(IllegalArgumentException e) {
                 throw new FloraOnException(e.getMessage());
             }

@@ -43,6 +43,8 @@ function postAJAXForm(addr,formElement,callback) {
 			    console.log(xmlo.responseText);
 				var rt=JSON.parse(xmlo.responseText);
 				alert('ERROR: '+rt.msg);
+				var loader = document.getElementById('loader');
+				if(loader) loader.style.display = 'none';
 			}
 		}
 	});
@@ -258,4 +260,21 @@ function randomString(length) {
     var result = '';
     for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
     return result;
+}
+
+function createHiddenInputElement(name, value) {
+    var inp = document.createElement('input');
+    inp.setAttribute('name', name);
+    inp.setAttribute('type', 'hidden');
+    inp.setAttribute('value', value);
+    return inp;
+}
+
+function insertOrReplaceHiddenInput(parent, name, value) {
+    var el = parent.querySelector('input[type=hidden][name=\'' + name +'\']');
+    console.log(name+" : "+value);
+    if(!el)
+        parent.appendChild(createHiddenInputElement(name, value));
+    else
+        el.setAttribute(name, value);
 }

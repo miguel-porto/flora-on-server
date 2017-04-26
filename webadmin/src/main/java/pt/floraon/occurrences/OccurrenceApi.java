@@ -13,6 +13,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.fieldparsers.UserListParser;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -112,6 +113,13 @@ public class OccurrenceApi extends FloraOnServlet {
                 InventoryList inventories = new InventoryList();
                 Inventory inv;
                 OccurrenceParser op = new OccurrenceParser(driver);
+
+                if(getParameterAsBoolean("createUsers", false)) {
+                    op.registerParser("observers", new UserListParser(op.getUserMap(), driver, true));
+                    op.registerParser("collectors", new UserListParser(op.getUserMap(), driver, true));
+                    op.registerParser("determiners", new UserListParser(op.getUserMap(), driver, true));
+                }
+
                 Set<String> tmpset = new HashSet<>(grp.keySet());
                 tmpset.addAll(invfields.keySet());
                 for(String invid : tmpset) {    // each inventory
@@ -149,18 +157,31 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 if(option.equals("addoccurrences")) {
                     int count = 0;
-                    for(Inventory inv1 : inventories) {
-                        if(StringUtils.isArrayEmpty(inv1.getObservers()))
-                            inv1.setObservers(new String[] {getUser().getID()});
-
-                        driver.getOccurrenceDriver().createInventory(inv1);
-                        count++;
+                    boolean main1 = getParameterAsBoolean("mainobserver", false);
+                    if(inventories.size() == 0)
+                        error("Empty inventories, none saved.");
+                    else {
+                        for (Inventory inv1 : inventories) {
+                            if(main1) {
+                                Set<String> obs = new LinkedHashSet<>();
+                                obs.add(getUser().getID());
+                                obs.addAll(Arrays.asList(inv1.getObservers()));
+                                inv1.setObservers(obs.toArray(new String[obs.size()]));
+                            }/* else {
+                                if (StringUtils.isArrayEmpty(inv1.getObservers()))
+                                    inv1.setObservers(new String[]{getUser().getID()});
+                            }*/
+                            inv1.setMaintainer(getUser().getID());
+                            driver.getOccurrenceDriver().createInventory(inv1);
+                            count++;
+                        }
+                        success(count + " inventories saved.", true);
                     }
-                    success(count + " inventories saved.");
                 }
 // FIXME update empty fields
                 if(option.equals("updateoccurrences") || option.equals("updateinventory")) {
                     for(Inventory inv1 : inventories) {
+//                        Log.warn(inv1.getID());
                         driver.getOccurrenceDriver().updateInventory(inv1);
                     }
                     success("ok");

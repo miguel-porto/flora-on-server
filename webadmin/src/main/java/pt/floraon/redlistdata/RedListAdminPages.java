@@ -158,7 +158,7 @@ System.out.println(gs.toJson(getUser()));
                     warnings.add("DataSheet.msg.warning.1a");
                     break;
                 }
-                if(ids.length == 1) {
+                if(ids.length == 1) {       // only one taxon requested
                     RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
                     if (rlde == null) return;
                     // set privileges for this taxon

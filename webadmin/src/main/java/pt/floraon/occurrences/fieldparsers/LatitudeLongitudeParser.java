@@ -1,5 +1,7 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import pt.floraon.driver.parsers.FieldParser;
+import pt.floraon.driver.GeoBean;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
@@ -17,7 +19,9 @@ public class LatitudeLongitudeParser implements FieldParser {
     private static Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+.[0-9]+)[ ,;]+(?<lng>[0-9-]+.[0-9]+)$");
 
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException {
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
+        GeoBean occurrence = (GeoBean) bean;
+        Inventory inv;
         if(inputValue == null || inputValue.trim().equals("")) return;
 // TODO parse other lat long formats
         Float v = null;
@@ -49,25 +53,28 @@ public class LatitudeLongitudeParser implements FieldParser {
 
             case "observationlatitude":
                 if(v == null) throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
-                if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
+                inv = (Inventory) occurrence;
+                if(inv.getUnmatchedOccurrences().size() == 0)
+                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+                for(newOBSERVED_IN obs : inv.getUnmatchedOccurrences())
                     obs.setObservationLatitude(v);
                 break;
 
             case "observationlongitude":
                 if(v == null) throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
-                if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
+                inv = (Inventory) occurrence;
+                if(inv.getUnmatchedOccurrences().size() == 0)
+                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+                for(newOBSERVED_IN obs : inv.getUnmatchedOccurrences())
                     obs.setObservationLongitude(v);
                 break;
 
             case "observationcoordinates":
                 if(mat == null) throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
-                if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences()) {
+                inv = (Inventory) occurrence;
+                if(inv.getUnmatchedOccurrences().size() == 0)
+                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+                for(newOBSERVED_IN obs : inv.getUnmatchedOccurrences()) {
                     obs.setObservationLatitude(Float.parseFloat(mat.group("lat")));
                     obs.setObservationLongitude(Float.parseFloat(mat.group("lng")));
                 }

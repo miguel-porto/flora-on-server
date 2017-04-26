@@ -71,12 +71,38 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
+    public Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
+        if(offset == null) offset = 0;
+        if(count == null) count = 999999;
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.4", authorId.getID(), offset, count)
+                    , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
     public Iterator<Inventory> getInventoriesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.2a", authorId.getID(), offset, count)
+                    , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
+        if(offset == null) offset = 0;
+        if(count == null) count = 999999;
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.4a", authorId.getID(), offset, count)
                     , null, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
@@ -124,6 +150,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(inv.getID()), inv, false, Inventory.class);
         else {
 */
+
             Inventory tmp = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(inv.getID()), Inventory.class);
             Map<UUID, newOBSERVED_IN> origMap = new HashMap<>();
             Set<UUID> alreadUpdated = new HashSet<>();

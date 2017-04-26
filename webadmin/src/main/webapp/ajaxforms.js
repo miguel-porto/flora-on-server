@@ -8,13 +8,20 @@ function formPoster(ev, callback) {
 	    if(!confirm('Are you sure? There\'s no way back.')) return;
 	}
 	isFormSubmitting = true;
+	var loader = document.getElementById('loader');
+	if(loader) {
+	    loader.style.display = 'block';
+	}
+
 	postAJAXForm(ev.target.getAttribute('data-path'), ev.target, function(rt) {
+	    var loader = document.getElementById('loader');
 //	    console.log(rt);
 		var rt1=JSON.parse(rt);
 
 		if(callback) {
 		    callback(rt1, ev);
 		    isFormSubmitting = false;
+		    if(loader) loader.style.display = 'none';
 		    return;
 		}
 
@@ -28,12 +35,17 @@ function formPoster(ev, callback) {
                     isFormSubmitting = false;
 		        } else {
                     window.location.reload();
+                    return;
                 }
-			} else
+			} else {
 			    window.location = ev.target.getAttribute('data-callback');
+			    return;
+            }
 		} else
 			alert(rt1.msg);
         isFormSubmitting = false;
+
+        if(loader) loader.style.display = 'none';
 	});
 }
 

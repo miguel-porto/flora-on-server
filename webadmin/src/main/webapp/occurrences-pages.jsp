@@ -11,16 +11,16 @@
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 
 <div id="taxonsearchwrapper-holder" class="hidden">
-    <div class="withsuggestions" id="taxonsearchwrapper">
+    <div class="withsuggestions editbox" id="taxonsearchwrapper">
         <!--<input id="taxonsearchbox" type="text" name="query" placeholder="taxon" autocomplete="off"/>-->
         <textarea id="taxonsearchbox" name="query" rows="4"></textarea>
         <div id="suggestionstaxon"></div>
     </div>
-    <div class="withsuggestions" id="authorsearchwrapper">
+    <div class="withsuggestions editbox" id="authorsearchwrapper">
         <textarea id="authorsearchbox" name="query" rows="2"></textarea>
         <div id="suggestionsauthor"></div>
     </div>
-    <div class="withsuggestions" id="editfieldwrapper">
+    <div class="withsuggestions editbox" id="editfieldwrapper">
         <input id="editfield" type="text" name="query" autocomplete="off"/>
     </div>
 </div>
@@ -85,10 +85,11 @@
     </div>
 
     <form id="addnewinventories" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
-        <h2><fmt:message key="inventory.add"/><br/>
+        <div class="heading2">
+            <h2><fmt:message key="inventory.add"/></h2>
             <div class="button" id="deleteselectednew">Delete selected</div>
             <input type="submit" class="textbutton" value="Save"/>
-        </h2>
+        </div>
     </form>
 
     <div id="allinventories">
@@ -97,7 +98,7 @@
         <c:if test="${inv.getLatitude() == null}"><div class="inventory"></c:if>
         <c:if test="${inv.getLatitude() != null}"><div class="inventory geoelement"></c:if>
             <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
-            <c:if test="${inv.getLatitude() != null}"> ${inv.getLatitude()}, ${inv.getLongitude()}</c:if>
+            <c:if test="${inv.getLatitude() != null}"> ${inv._getCoordinates()}</c:if>
             </h3>
             <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
                 <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
@@ -112,7 +113,7 @@
                         <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
                     </tr>
                     <tr>
-                        <td class="field editable coordinates" data-name="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv.getLatitude()}, ${inv.getLongitude()}</td>
+                        <td class="field editable coordinates" data-name="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
                         <td class="field editable" data-name="code">${inv.getCode()}</td>
                         <td class="field editable" data-name="locality">${inv.getLocality()}</td>
                         <td class="field editable" data-name="date">${inv._getDate()}</td>
@@ -152,7 +153,7 @@
                             </td>
                             <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
                             <c:if test="${tax.getObservationLatitude() != null && tax.getObservationLongitude() != null}">
-                            <td class="coordinates" data-lat="${tax.getObservationLatitude()}" data-lng="${tax.getObservationLongitude()}">${tax.getObservationLatitude()}, ${tax.getObservationLongitude()}</td>
+                            <td class="coordinates" data-lat="${tax.getObservationLatitude()}" data-lng="${tax.getObservationLongitude()}">${tax._getObservationCoordinates()}</td>
                             </c:if>
                             <c:if test="${tax.getObservationLatitude() == null || tax.getObservationLongitude() == null}">
                             <td>*</td>
@@ -225,7 +226,7 @@
             <c:forEach var="inv" items="${file}">
             <tr class="geoelement">
                 <td>${inv._getDate()}</td>
-                <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv.getLatitude()}, ${inv.getLongitude()}</td>
+                <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
                 <c:if test="${inv.getUnmatchedOccurrences().size() == 1}">
                 <td><c:out value="${inv.getUnmatchedOccurrences().get(0).getVerbTaxon()}"/></td>
                 </c:if>
@@ -241,13 +242,18 @@
 <c:when test="${param.w == 'occurrenceview'}">
     <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
     <div class="button anchorbutton"><a href="?w=main">View as inventories</a></div>
+    <p>Choose your flavour:</p>
+    <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple">Simple occurrences</a></div>
+    <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=redlist">Red List ccurrences</a></div>
+    <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium">Herbarium data</a></div>
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
-            <h2>Confirm deletion of occurrences<br/>
+            <div class="heading2">
+                <h2>Confirm deletion of occurrences</h2>
                 <input type="submit" class="textbutton" value="Delete"/>
-            </h2>
+            </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
-                <t:occurrenceheader />
+                <t:occurrenceheader flavour="${param.flavour}"/>
                 <tbody></tbody>
             </table>
         </form>
@@ -255,26 +261,44 @@
 
     <div id="updateoccurrences" class="hidden">
         <form class="poster" data-path="/floraon/occurrences/api/updateoccurrences" data-refresh="true">
-            <h2>Confirm updating the following occurrences<br/>
+            <div class="heading2">
+                <h2>Confirm updating the following occurrences</h2>
+                <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
                 <input type="submit" class="textbutton" value="Update"/>
-            </h2>
+            </div>
             <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-                <t:occurrenceheader />
+                <t:occurrenceheader flavour="${param.flavour}"/>
                 <tbody></tbody>
             </table>
         </form>
     </div>
 
     <form id="addnewoccurrences" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
-        <h2><fmt:message key="inventory.add1"/><br/>
+        <div class="heading2">
+            <h2><fmt:message key="inventory.add1"/></h2>
+            <c:if test="${param.flavour != 'herbarium'}">
+            <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
+            </c:if>
+            <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
             <div class="button" id="deleteselectednew">Delete selected</div>
             <input type="submit" class="textbutton" value="Save"/>
-        </h2>
+        </div>
         <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
-            <t:occurrenceheader />
+            <t:occurrenceheader flavour="${param.flavour}"/>
             <tbody>
                 <tr class="geoelement dummy id1holder">
                     <td class="select clickable"><div class="selectbutton"></div></td>
+                    <c:choose>
+                    <c:when test="${param.flavour == null || param.flavour == 'simple'}">
+                    <td class="taxon editable" data-name="taxa"></td>
+                    <td class="editable coordinates" data-name="coordinates"></td>
+                    <td class="editable" data-name="comment"></td>
+                    <td class="editable" data-name="date"></td>
+                    <td class="editable" data-name="phenoState"></td>
+                    <td class="editable authors" data-name="observers"></td>
+                    </c:when>
+
+                    <c:when test="${param.flavour == 'redlist'}">
                     <td class="editable" data-name="gpsCode"></td>
                     <td class="taxon editable" data-name="taxa"></td>
                     <td class="coordinates" data-name="coordinates"></td>
@@ -284,30 +308,46 @@
                     <td class="editable" data-name="hasSpecimen"></td>
                     <td class="editable" data-name="hasPhoto"></td>
                     <td class="editable" data-name="date"></td>
+                    <td class="editable" data-name="phenoState"></td>
+                    <td class="editable authors" data-name="observers"></td>
+                    </c:when>
+
+                    <c:when test="${param.flavour == 'herbarium'}">
+                    <td class="taxon editable" data-name="taxa"></td>
+                    <td class="editable" data-name="verbLocality"></td>
+                    <td class="coordinates" data-name="coordinates"></td>
+                    <td class="editable" data-name="labelData"></td>
+                    <td class="editable" data-name="date"></td>
+                    <td class="editable authors" data-name="collectors"></td>
+                    <td class="editable authors" data-name="determiners"></td>
+                    </c:when>
+                    </c:choose>
                 </tr>
             </tbody>
         </table>
     </form>
 
     <form id="mergeoccurrences" data-path="occurrences/api/mergeoccurrences" method="post" enctype="multipart/form-data" class="hidden poster">
-        <h2>Confirm merge occurrences in the same inventory<br/>
+        <div class="heading2">
+            <h2>Confirm merge occurrences in the same inventory</h2>
             <input type="submit" class="textbutton" value="Merge"/>
-        </h2>
+        </div>
         <table id="mergeoccurrencetable" class="verysmalltext">
-            <t:occurrenceheader />
+            <t:occurrenceheader flavour="${param.flavour}"/>
             <tbody></tbody>
         </table>
     </form>
 
     <div id="alloccurrences">
-        <h2>Your occurrences<br/>
+        <div class="heading2">
+            <h2>Your occurrences</h2>
+            <div class="button" id="newoccurrence">New</div>
             <div class="button" id="deleteselected">Delete selected</div>
             <div class="button" id="mergeocc">Re-group selected</div>
             <div class="button" id="updatemodified">Update modified</div>
-        </h2>
-
+        </div>
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
-            <t:occurrenceheader />
+            <t:occurrenceheader flavour="${param.flavour}"/>
             <tbody>
             <c:forEach var="occ" items="${occurrences}">
                 <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
@@ -321,20 +361,55 @@
                         <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
                         <div class="selectbutton"></div>
                     </td>
-                    <td>${occ.getCode()}</td>
+                    <c:choose>
+                    <c:when test="${param.flavour == null || param.flavour == 'simple'}">
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
                     </c:if>
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
                     </c:if>
-                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ.getLatitude()}, ${occ.getLongitude()}</td>
+                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
+                    <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
+                    <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
+                    <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
+                    </c:when>
+
+                    <c:when test="${param.flavour == 'redlist'}">
+                    <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
+                    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
+                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
+                    </c:if>
+                    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
+                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
+                    </c:if>
+                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
                     <td class="editable" data-name="abundance">${occ._getTaxa()[0].getAbundance()}</td>
                     <td class="editable" data-name="typeOfEstimate">${occ._getTaxa()[0].getTypeOfEstimate()}</td>
                     <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
                     <td class="editable" data-name="hasSpecimen"><t:yesno test="${occ._getTaxa()[0].getHasSpecimen()}"/></td>
                     <td class="editable" data-name="hasPhoto"><t:yesno test="${occ._getTaxa()[0].getHasPhoto()}"/></td>
                     <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
+                    <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
+                    </c:when>
+
+                    <c:when test="${param.flavour == 'herbarium'}">
+                    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
+                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
+                    </c:if>
+                    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
+                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
+                    </c:if>
+                    <td class="editable" data-name="verbLocality">${occ.getVerbLocality()}</td>
+                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
+                    <td class="editable" data-name="labelData">${occ._getTaxa()[0].getLabelData()}</td>
+                    <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable authors" data-name="collectors"><t:usernames idarray="${occ.getCollectors()}" usermap="${userMap}"/></td>
+                    <td class="editable authors" data-name="determiners"><t:usernames idarray="${occ.getDets()}" usermap="${userMap}"/></td>
+                    </c:when>
+                    </c:choose>
                 </tr>
             </c:forEach>
             </tbody>

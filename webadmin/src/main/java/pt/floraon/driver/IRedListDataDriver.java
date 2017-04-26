@@ -42,13 +42,24 @@ public interface IRedListDataDriver {
 
     /**
      * Updates an array of red list data entities with the specified values. Note that this function replaces the values
-     * of all the fields present in the passed Map.
+     * of all the fields present in the passed Map (i.e. it does not add new elements to arrays, but replaces the entire
+     * array!)
      * @param territory
      * @param taxEntIds
      * @param values
      * @throws FloraOnException
      */
     int updateRedListDataEntities(String territory, String[] taxEntIds, Map<String, Object> values) throws FloraOnException;
+
+    /**
+     * Adds a tag to an array of red list data entities.
+     * @param territory
+     * @param taxEntIds
+     * @param tag
+     * @return
+     * @throws FloraOnException
+     */
+    int addTagToRedListDataEntities(String territory, String[] taxEntIds, String tag) throws FloraOnException;
 
     /**
      * Deletes a data sheet and removes the taxon from the red list

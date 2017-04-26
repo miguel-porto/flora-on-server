@@ -135,6 +135,31 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelectedInfo(count);
     });
 
+    addEvent('click', document.getElementById('addtag'), function(ev) {
+        var tag = window.prompt('Add the following tag to all the selected taxa:');
+        if(!tag || tag.trim() == '') return;
+        var sel = document.querySelectorAll('#speciesindex input.selectionbox:checked');
+        if(sel.length == 0) {
+            alert('No taxon selected.');
+            return;
+        }
+        var form = document.getElementById('addtagform');
+        var el = createHiddenInputElement('tag', tag);
+        form.appendChild(el);
+        for(var i = 0; i < sel.length; i++) {
+            el = createHiddenInputElement('taxEntID', sel[i].value);
+            form.appendChild(el);
+        }
+        postAJAXForm(form.getAttribute('data-path'), form, function(rt) {
+            var rt1=JSON.parse(rt);
+            if(rt1.success) {
+                alert(rt1.msg);
+                window.location.reload();
+            } else
+                alert(rt1.msg);
+        });
+    });
+
     var filters = document.querySelectorAll('#filters .filter');
     for(var i=0; i<filters.length; i++) {
         addEvent('click', filters[i], function(ev) {

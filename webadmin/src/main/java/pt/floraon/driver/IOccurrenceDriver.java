@@ -42,6 +42,18 @@ public interface IOccurrenceDriver {
     Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
     /**
+     * Gets all or part of the occurrences maintained by the given user. Inventories as disaggregated into individual
+     * occurrences. NOTE: in case of empty inventories, one (empty) occurrence is returned, to allow the user to
+     * populate the empty inventory with taxa.
+     * @param authorId
+     * @param offset
+     * @param count
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+
+    /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
      * observer), aggregated in Inventories.
      * @param authorId
@@ -51,6 +63,16 @@ public interface IOccurrenceDriver {
      * @throws DatabaseException
      */
     Iterator<Inventory> getInventoriesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+
+    /**
+     * Gets all or part of the occurrences maintained by the given user, aggregated in Inventories.
+     * @param authorId
+     * @param offset
+     * @param count
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Deletes an uploaded occurrence table from temporary storage. Note that these tables are not guaranteed to remain

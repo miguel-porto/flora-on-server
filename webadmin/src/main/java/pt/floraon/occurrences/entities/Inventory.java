@@ -4,8 +4,11 @@ import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.GeoBean;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.LatLongCoordinate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -15,7 +18,7 @@ import java.util.*;
  * to graph links and removed from this entity.
  * Created by miguel on 05-02-2017.
  */
-public class Inventory extends GeneralDBNode implements Serializable, DiffableBean {
+public class Inventory extends GeneralDBNode implements Serializable, DiffableBean, GeoBean {
     private Float latitude, longitude;
     private String spatialRS;
     private Float elevation;
@@ -49,6 +52,9 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      */
     @Expose(serialize = false)
     private String[] observerNames;
+
+    @Expose(serialize = false)
+    private Float utmX, utmY;
 
     public Inventory(Inventory other) {
         super(other);
@@ -89,25 +95,62 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     public Inventory() { }
 
     /**
+     * Check if latitude-longitude coordinates are set. If not, try to convert from UTM, if set.
+     */
+    private void checkGeographicCoordinates() {
+        if((latitude == null || longitude == null) && utmX != null && utmY != null) {
+            // TODO support for UTM zones!!
+            LatLongCoordinate llc = CoordinateConversion.UtmToLatLonWGS84(29, 'S', utmX.longValue(), utmY.longValue());
+            this.latitude = llc.getLatitude();
+            this.longitude = llc.getLongitude();
+        }
+    }
+    /**
      * Returns the latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
      * @return
      */
+    @Override
     public Float getLatitude() {
+        checkGeographicCoordinates();
         return (_getTaxa() != null && _getTaxa().length == 1) ? (_getTaxa()[0].getObservationLatitude() == null ?
                 latitude : _getTaxa()[0].getObservationLatitude()) : latitude;
 //        return latitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getObservationLatitude() : null) : latitude;
     }
 
+    @Override
     public void setLatitude(Float latitude) {
         this.latitude = latitude;
     }
 
+    @Override
     public Float getLongitude() {
+        checkGeographicCoordinates();
         return (_getTaxa() != null && _getTaxa().length == 1) ? (_getTaxa()[0].getObservationLongitude() == null ?
                 longitude : _getTaxa()[0].getObservationLongitude()) : longitude;
 //        return longitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getObservationLongitude() : null) : longitude;
     }
 
+    @Override
+    public void _setUTMX(Float x) {
+        this.utmX = x;
+    }
+
+    @Override
+    public Float _getsetUTMX() {
+        return this.utmX;
+    }
+
+    @Override
+    public void _setUTMY(Float y) {
+        this.utmY = y;
+    }
+
+    @Override
+    public Float _getsetUTMY() {
+        return this.utmY;
+    }
+
+    @Override
     public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
@@ -192,6 +235,13 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return sb.toString();
     }
 
+    public String _getCoordinates() {
+        if(this.getLatitude() == null || this.getLongitude() == null)
+            return "*";
+        else
+            return String.format(Locale.ROOT, "%.5f, %.5f", this.getLatitude(), this.getLongitude());
+    }
+
     public Boolean getComplete() {
         return complete;
     }
@@ -241,7 +291,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String[] getObservers() {
-        return observers;
+        return StringUtils.isArrayEmpty(observers) ? new String[0] : observers;
     }
 
     public void setObservers(String[] observers) {
@@ -249,7 +299,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String[] getCollectors() {
-        return collectors;
+        return StringUtils.isArrayEmpty(collectors) ? new String[0] : collectors;
     }
 
     public void setCollectors(String[] collectors) {
@@ -257,7 +307,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String[] getDets() {
-        return dets;
+        return StringUtils.isArrayEmpty(dets) ? new String[0] : dets;
     }
 
     public void setDets(String[] dets) {
@@ -423,15 +473,15 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
         Inventory that = (Inventory) o;
 
-        if(code != null) return code.equals(that.code);
-        if (latitude != null ? !latitude.equals(that.latitude) : that.latitude != null) return false;
-        if (longitude != null ? !longitude.equals(that.longitude) : that.longitude != null) return false;
+        if(getCode() != null) return getCode().equals(that.getCode());
+        if (getLatitude() != null ? !getLatitude().equals(that.getLatitude()) : that.getLatitude() != null) return false;
+        if (getLongitude() != null ? !getLongitude().equals(that.getLongitude()) : that.getLongitude() != null) return false;
         if (year != null ? !year.equals(that.year) : that.year != null) return false;
         if (month != null ? !month.equals(that.month) : that.month != null) return false;
         if (day != null ? !day.equals(that.day) : that.day != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(observers, that.observers)) return false;
-        return code != null ? code.equals(that.code) : that.code == null;
+        return getCode() != null ? getCode().equals(that.getCode()) : that.getCode() == null;
     }
 
     /**
@@ -441,14 +491,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      */
     @Override
     public int hashCode() {
-        int result = code != null ? code.hashCode() : 0;
-        if(code != null) return result;     // code rules!
-        result = 31 * result + (latitude != null ? latitude.hashCode() : 0);
-        result = 31 * result + (longitude != null ? longitude.hashCode() : 0);
+        int result = getCode() != null ? getCode().hashCode() : 0;
+        if(getCode() != null && !getCode().equals("")) return result;     // code rules!
+        result = 31 * result + (getLatitude() != null ? getLatitude().hashCode() : 0);
+        result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);
         result = 31 * result + (year != null ? year.hashCode() : 0);
         result = 31 * result + (month != null ? month.hashCode() : 0);
         result = 31 * result + (day != null ? day.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(observers);
+        result = 31 * result + (observers != null ? Arrays.hashCode(observers) : 0);
         return result;
     }
 }

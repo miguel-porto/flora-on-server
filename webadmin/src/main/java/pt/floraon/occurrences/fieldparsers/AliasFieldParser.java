@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.entities.Inventory;
 
@@ -18,7 +19,7 @@ public class AliasFieldParser implements FieldParser {
     }
 
     @Override
-    public void parseValue(String inputValue, String inputFieldName, Inventory occurrence) throws IllegalArgumentException, FloraOnException {
-        this.mappings.get(this.baseName).parseValue(inputValue, this.baseName, occurrence);
+    public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
+        this.mappings.get(this.baseName).parseValue(inputValue, this.baseName, bean);
     }
 }

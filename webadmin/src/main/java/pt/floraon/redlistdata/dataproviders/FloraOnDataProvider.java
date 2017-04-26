@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.*;
 
 /**
@@ -87,10 +88,16 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
 
         Type listType = new TypeToken<List<FloraOnOccurrence>>() {
         }.getType();
-        List<FloraOnOccurrence> occArray;
 
         Gson gson = new Gson();
-        JsonReader jr = new JsonReader(new InputStreamReader(u.openStream()));
+        JsonReader jr;
+        try {
+            jr = new JsonReader(new InputStreamReader(u.openStream()));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            occurrenceList = new ArrayList<>();
+            return;
+        }
         JsonElement resp;
 //        occArray = new ArrayList<>();
         occurrenceList = new ArrayList<>();

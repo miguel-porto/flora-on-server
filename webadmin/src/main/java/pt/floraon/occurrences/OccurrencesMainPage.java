@@ -43,15 +43,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
         switch(what) {
             case "main":
                 request.setAttribute("inventories"
-                        , driver.getOccurrenceDriver().getInventoriesOfObserver(driver.asNodeKey(user.getID()), null, null));
+                        , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
 
                 Inventory i;
-//                i.getObservers()
+//                i.getDets()
                 break;
 
             case "occurrenceview":
                 request.setAttribute("occurrences"
-                        , driver.getOccurrenceDriver().getOccurrencesOfObserver(driver.asNodeKey(user.getID()), null, null));
+                        , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
                 break;
 
             case "uploads":

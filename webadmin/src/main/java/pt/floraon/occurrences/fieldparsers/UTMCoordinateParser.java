@@ -1,39 +1,32 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import pt.floraon.driver.GeoBean;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.Messages;
-import pt.floraon.occurrences.entities.Inventory;
 
 /**
- * Created by miguel on 12-02-2017.
+ * Created by miguel on 26-04-2017.
  */
-public class IntegerParser implements FieldParser {
+public class UTMCoordinateParser implements FieldParser {
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
+        GeoBean occurrence = (GeoBean) bean;
         if(inputValue == null || inputValue.trim().equals("")) return;
-        Inventory occurrence = (Inventory) bean;
-        Integer v;
+
+        Float v;
         try {
-            v = ((Float) Float.parseFloat(inputValue)).intValue();
+            v = Float.parseFloat(inputValue);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(e);
         }
 
         switch(inputFieldName.toLowerCase()) {
-            case "year":
-                occurrence.setYear(v);
+            case "x":
+                occurrence._setUTMX(v);
                 break;
 
-            case "month":
-                occurrence.setMonth(v);
-                break;
-
-            case "day":
-                occurrence.setDay(v);
-                break;
-
-            case "elevation":
-                occurrence.setElevation(v.floatValue());
+            case "y":
+                occurrence._setUTMY(v);
                 break;
 
             default:

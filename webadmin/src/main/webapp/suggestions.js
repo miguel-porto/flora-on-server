@@ -68,9 +68,15 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
             }
         }
 
-        if(ev.keyCode == 27 && suggestionBoxId) {
-			document.getElementById(suggestionBoxId).innerHTML='';
-			return;
+        if(ev.keyCode == 27) {
+            if(suggestionBoxId) {
+                document.getElementById(suggestionBoxId).innerHTML='';
+                return;
+			} else {
+                if(onClick) {
+                    onClick(ev, querybox.value, null, querybox.parentNode.parentNode, true);
+                }
+			}
         }
 
 		if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;

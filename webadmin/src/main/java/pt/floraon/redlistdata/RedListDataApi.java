@@ -8,6 +8,7 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
+import org.apache.commons.beanutils.converters.StringConverter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -127,6 +128,7 @@ public class RedListDataApi extends FloraOnServlet {
                 beanUtilsBean.getConvertUtils().register(longConverter, Long.class);
                 beanUtilsBean.getConvertUtils().register(arrayConverter, Integer[].class);
 
+
                 try {
                     beanUtilsBean.populate(rlde, map);
                 } catch (InvocationTargetException | IllegalAccessException e) {
@@ -182,6 +184,14 @@ public class RedListDataApi extends FloraOnServlet {
                     success("Ok");
                 }
                 break;
+
+            case "addtag":
+                System.out.println(getParameterAsString("territory"));
+                System.out.println(getParameterAsString("tag"));
+                System.out.println(getParameterAsString("taxEntID"));
+                success("Updated " + driver.getRedListData().addTagToRedListDataEntities(getParameterAsString("territory")
+                        , request.getParameterValues("taxEntID"), getParameterAsString("tag")) + " taxa");
+                break;
         }
     }
 
@@ -193,7 +203,7 @@ public class RedListDataApi extends FloraOnServlet {
         Gson gs;
 
         switch(path.next()) {
-            /**
+            /*
              *  update from an uploaded table:
              *  col 1: TaxEnt ID
              *  col 2: JSON string with fields to update in the RedListDataEntity

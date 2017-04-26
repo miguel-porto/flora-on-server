@@ -237,6 +237,8 @@ input[type=submit].textbutton {
 
 .button.anchorbutton {padding:0;}
 .button.anchorbutton a, .button.anchorbutton a:visited {padding:8px 14px; display: inline-block; color:white; line-height:1em;}
+.button.anchorbutton.selected a, .button.anchorbutton.selected a:visited {color:green;}
+
 #main .navigator .button.anchorbutton a {padding: 4px 12px}
 
 /************ MAP ************/

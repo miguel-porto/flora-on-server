@@ -50,7 +50,7 @@ public class Query extends FloraOnServlet {
 		switch(format) {
 		case "html":
 			response.setContentType("text/html");
-			PrintWriter pw = response.getWriter();
+			PrintWriter pw;
 			rp.toHTMLTable(pw = response.getWriter(), "taxonlist", null);
 			pw.close();
 			break;

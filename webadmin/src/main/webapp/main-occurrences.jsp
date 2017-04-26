@@ -17,8 +17,12 @@
 	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/occurrences.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet-areaselect.css"/>
+	<!--
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
 	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+	-->
+	<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet.css"/>
+	<script src="/floraon/js/leaflet.js"></script>
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
 	<script src="js/leaflet-areaselect.js"></script>
@@ -37,5 +41,9 @@
         <div id="mapcontainer"></div>
     </div>
     <div class="button" id="hidemap">Hide map</div>
+
+    <div id="loader">
+        <div id="loadermsg">Um momento...</div>
+    </div>
 </body>
 </html>
