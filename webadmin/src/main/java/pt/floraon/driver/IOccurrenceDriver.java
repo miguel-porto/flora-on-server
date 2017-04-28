@@ -74,6 +74,8 @@ public interface IOccurrenceDriver {
      */
     Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
+    Iterator<Inventory> getInventoriesByIds(String[] inventoryIds) throws DatabaseException;
+
     /**
      * Deletes an uploaded occurrence table from temporary storage. Note that these tables are not guaranteed to remain
      * in temporary storage, they may get deleted upon server restart.

@@ -446,6 +446,29 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return getUnmatchedOccurrences();
     }
 
+    /**
+     * Gets a textual summary of the taxa.
+     * @param nTaxa How many taxa to show
+     * @return
+     */
+    public String _getSampleTaxa(int nTaxa) {
+        newOBSERVED_IN[] tmp = _getTaxa();
+        if(tmp.length == 0) return "[sem taxa]";
+        List<String> tmp1 = new ArrayList<>();
+        int i;
+        for (i = 0; i < nTaxa && i < tmp.length; i++) {
+            if(tmp[i].getTaxEnt() == null) {
+                if(tmp[i].getVerbTaxon() == null || tmp[i].getVerbTaxon().equals(""))
+                    tmp1.add("[sem nome]");
+                else
+                    tmp1.add(tmp[i].getVerbTaxon());
+            } else
+                tmp1.add("<i>" + tmp[i].getTaxEnt().getName() + "</i>");
+        }
+        if(i < tmp.length) tmp1.add("... e mais " + (tmp.length - i));
+        return StringUtils.implode(", ", tmp1.toArray(new String[tmp1.size()]));
+    }
+
     @Override
     public Constants.NodeTypes getType() {
         return Constants.NodeTypes.inventory;

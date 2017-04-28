@@ -28,7 +28,7 @@ public class UTMCoordinateParser implements FieldParser {
             case "y":
                 occurrence._setUTMY(v);
                 break;
-
+            // TODO UTM zone parsing, military grid, etc.
             default:
                 throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
         }

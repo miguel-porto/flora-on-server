@@ -1,7 +1,11 @@
 package pt.floraon.occurrences.arangodb;
 
+import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
+import com.arangodb.model.AqlQueryOptions;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.collections.iterators.EmptyIterator;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
@@ -9,6 +13,7 @@ import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.redlistdata.AQLRedListQueries;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -110,6 +115,21 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
+    public Iterator<Inventory> getInventoriesByIds(String[] inventoryIds) throws DatabaseException {
+        Map<String, Object> bp = new HashMap<>();
+        bp.put("ids", inventoryIds);
+//        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+        ArangoCursor<Inventory> c;
+        try {
+             c = database.query(AQLOccurrenceQueries.getString("occurrencequery.5")
+                    , bp, new AqlQueryOptions().count(true), Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        return c;
+    }
+
+    @Override
     public boolean discardUploadedTable(INodeKey authorId, String filename) throws FloraOnException {
         User user = driver.getAdministration().getUser(authorId);
         List<String> tmp = user.getUploadedTables();
@@ -144,6 +164,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         return count;
     }
 
+    @Override
     public Inventory updateInventory(Inventory inv) throws FloraOnException {
 /*
         if(inv._getOccurrences().size() == 0)

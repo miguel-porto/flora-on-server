@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     myMap.on('click', addNewFeature);
 
-    attachFormPosters(fileUploadCallback);
+//    attachFormPosters(fileUploadCallback);
+    attachFormPosters();
     // click on an occurrence table
     var ot = document.querySelectorAll('.occurrencetable');
     for(var i=0; i<ot.length; i++)
@@ -34,14 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
         addEvent('click', buttons[i], clickButton);
     }
 
-/*
-    var inventories = document.querySelectorAll('.inventory');
+    var inventories = document.querySelectorAll('.inventory:not(.dummy)');
     for(var i = 0; i < inventories.length; i++) {
     // FIXME
         addEvent('click', inventories[i].querySelector('.button'), addNewTaxon);
         doMouseClick(inventories[i].querySelector('.button'));
     }
-*/
 });
 
 window.addEventListener('beforeunload', function (ev) {
@@ -201,7 +200,7 @@ function clickButton(ev) {
 
         case 'deleteselectednew':
             acceptVisibleSearchbox();
-            var sel = document.querySelectorAll('.newoccurrencetable tr.selected');
+            var sel = document.querySelectorAll('#addnewinventories .newoccurrencetable tr.selected');
             if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected');
             if(sel.length == 0) return;
             for(var i=0; i<sel.length; i++) {
@@ -299,14 +298,14 @@ function projectPointsOnMap(ot) {
         for(var j=0; j<coo.length; j++) {
             if(!coo[j].getAttribute('data-lat')) continue;
 //            console.log("added "+coo[j].getAttribute('data-lat')+coo[j].getAttribute('data-lng'));
-            addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng')), ot[i]);
+            addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng')), ot[i], coo[j].classList.contains('editable'));
         }
     }
 }
 
-function addPointMarker(lat, lng, bondEl) {
-    var marker = L.marker([lat, lng], {icon: redCircle, draggable: true, keyboard: false});
-    marker.on('dragend', markerMove);
+function addPointMarker(lat, lng, bondEl, draggable) {
+    var marker = L.marker([lat, lng], {icon: redCircle, draggable: draggable, keyboard: false});
+    if(draggable) marker.on('dragend', markerMove);
     marker.on('click', markerClick).addTo(myMap);
     if(bondEl) {
         if(bondEl.marker)
@@ -404,8 +403,12 @@ function addNewFeature(ev) {
     acceptVisibleSearchbox();
     if(document.getElementById('addoccurrencetable'))
         addNewOccurrence.call(this, ev);
+    else if(document.getElementById('inventorysummary'))
+//        window.location = '?w=openinventory&lat=' + ev.latlng.lat + '&lng=' + ev.latlng.lng;
+        addNewInventory.call(this, ev);
     else
         addNewInventory.call(this, ev);
+
 }
 
 function addNewInventory(ev) {
@@ -423,12 +426,13 @@ function addNewInventory(ev) {
     var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
 
     inv.setAttribute('data-id', id);
+
     cell2.innerHTML = lat + ', ' + lng;
     cell2.appendChild(inp_latitude);
     cell2.appendChild(inp_longitude);
     cell2.setAttribute('data-lat', lat);
     cell2.setAttribute('data-lng', lng);
-    addPointMarker(lat, lng, inv);
+    addPointMarker(lat, lng, inv, true);
     document.getElementById('addnewinventories').appendChild(inv);
 
     var ot = inv.querySelectorAll('.occurrencetable');
@@ -465,7 +469,7 @@ function addNewOccurrence(ev) {
         cell2.appendChild(inp_longitude);
         cell2.setAttribute('data-lat', lat);
         cell2.setAttribute('data-lng', lng);
-        addPointMarker(lat, lng, row);
+        addPointMarker(lat, lng, row, true);
     }
 
     row.setAttribute('data-id', id);

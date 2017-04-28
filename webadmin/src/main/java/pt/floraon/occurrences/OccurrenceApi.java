@@ -106,9 +106,11 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 }
 
+/*
                 System.out.println(gs.toJson(grp.asMap()));
                 System.out.println(gs.toJson(map.asMap()));
                 System.out.println(gs.toJson(invfields.asMap()));
+*/
 
                 InventoryList inventories = new InventoryList();
                 Inventory inv;
@@ -219,7 +221,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 try {
                     // we ignore the field that holds the occurrences and those that are replicated in the OBSERVED_BY
                     merged = BeanUtils.mergeBeans(Inventory.class
-                            , Arrays.asList("unmatchedOccurrences", "latitude", "longitude", "ID", "key", "databaseId", "code"), tmp.toArray(new Inventory[tmp.size()]));
+                            , Arrays.asList("unmatchedOccurrences", "latitude", "longitude", "ID", "key", "databaseId", "code", "elevation"), tmp.toArray(new Inventory[tmp.size()]));
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                     e.printStackTrace();
                     throw new FloraOnException(e.getMessage());

@@ -44,9 +44,18 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "main":
                 request.setAttribute("inventories"
                         , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
+                break;
+
+            case "openinventory":
+                if(getParameterAsString("id") != null) {
+                    request.setAttribute("inventories"
+                            , driver.getOccurrenceDriver().getInventoriesByIds(new String[] {getParameterAsString("id")}));
+                } else
+                    request.setAttribute("inventories"
+                            , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
 
                 Inventory i;
-//                i.getDets()
+//                i._getIDURLEncoded()
                 break;
 
             case "occurrenceview":
