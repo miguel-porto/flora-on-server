@@ -95,8 +95,11 @@ public class OccurrenceImporterJob implements JobTask {
                 break;
 
             default:
-                freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
-                CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
+//                freader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+//                CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
+                freader = new InputStreamReader(stream, StandardCharsets.ISO_8859_1);
+                CSVParser records = CSVFormat.EXCEL.withDelimiter('\t').withHeader().parse(freader);
+
                 Map<String, Integer> headers = records.getHeaderMap();
 
                 occurrenceParser.checkFieldNames(headers.keySet());

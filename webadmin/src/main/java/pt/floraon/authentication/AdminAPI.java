@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.jobs.JobRunnerTask;
@@ -47,22 +48,20 @@ public class AdminAPI extends FloraOnServlet {
 
         switch (path.next()) {
             case "createuser":
-                char[] pass = new char[0];
                 user = readUserBean();
                 if(user == null) break;
-                if(user.getUserName() == null) {
+                char[] pass = new char[0];
+                if(user.getUserName() == null)
                     user.setUserName("user_" + new RandomString(8).nextString());
-                } else {    // we only set password if a username has been provided
-                    pass = new RandomString(12).nextString().toCharArray();
-                    user.setPassword(pass);
-                }
+                else
+                    pass = generatePassword(user);
+
                 driver.getAdministration().createUser(user);
-                JsonObject jo = new JsonObject();
-                if(pass.length > 0) {
-                    jo.addProperty("text", new String(pass));
-                    jo.addProperty("alert", true);
-                } else jo.addProperty("text", "Ok");
-                success(jo);
+                if(pass.length > 0)
+                    success(new String(pass), true);
+                else
+                    success("Ok", true);
+
 /*                gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("CREATE BEAN:");
                 System.out.println(gs.toJson(user));
@@ -82,6 +81,20 @@ public class AdminAPI extends FloraOnServlet {
             case "deleteuser":
                 driver.getNodeWorkerDriver().deleteDocument(getParameterAsKey("databaseId"));
                 success("Ok");
+                break;
+
+            case "newpassword":
+                user = readUserBean();
+                if(user == null) break;
+
+                if(user.getUserName() == null || user.getUserName().trim().equals(""))
+                    user.setUserName("user_" + new RandomString(8).nextString());
+
+                if(user.getUserType() == null) user.setUserType(User.UserType.REGULAR.toString());
+
+                char[] pass1 = generatePassword(user);
+                driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user);
+                success("username: " + user.getUserName() + "\npassword: " + new String(pass1), true);
                 break;
 
             case "setuserpolygon":
@@ -183,6 +196,13 @@ public class AdminAPI extends FloraOnServlet {
             return null;
         }
         return user;
+    }
+
+    private char[] generatePassword(User u) {
+        char[] pass;
+        pass = new RandomString(12).nextString().toCharArray();
+        u.setPassword(pass);
+        return pass;
     }
 
     @Override

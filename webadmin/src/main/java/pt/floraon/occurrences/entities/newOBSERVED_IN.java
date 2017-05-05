@@ -24,7 +24,11 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     private String verbTaxon;
+    /**
+     * Public comments
+     */
     private String comment;
+    private String privateComment;
     private String labelData;
     private String accession;
     private String abundance;
@@ -32,13 +36,12 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
     private String cover;
     private OccurrenceConstants.CoverType coverScale;
     private Boolean hasPhoto;
-    private Boolean hasSpecimen;
+    private Integer hasSpecimen;
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
     private Date dateInserted;
     private UUID uuid;
     private String gpsCode;
-
     /**
      * Field to hold the matched TaxEnt ID
      */
@@ -155,11 +158,11 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
         this.hasPhoto = hasPhoto;
     }
 
-    public Boolean getHasSpecimen() {
+    public Integer getHasSpecimen() {
         return hasSpecimen;
     }
 
-    public void setHasSpecimen(Boolean hasSpecimen) {
+    public void setHasSpecimen(Integer hasSpecimen) {
         this.hasSpecimen = hasSpecimen;
     }
 
@@ -229,6 +232,14 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
 
     public void setGpsCode(String gpsCode) {
         this.gpsCode = gpsCode;
+    }
+
+    public String getPrivateComment() {
+        return privateComment;
+    }
+
+    public void setPrivateComment(String privateComment) {
+        this.privateComment = privateComment;
     }
 
     public String _getObservationCoordinates() {

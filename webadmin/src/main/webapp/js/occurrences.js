@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, ',', tabHandler);
     attachSuggestionHandler('authorsearchbox', '/floraon/checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, ',', tabHandler);
+    attachSuggestionHandler('threatsearchbox', '/floraon/checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, ',', tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
 
     var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
@@ -242,7 +243,12 @@ function clickOccurrenceTable(ev) {
         var txt = cell.textContent;
         cell.textContent = '';
         displaySearchbox(cell, txt, 'authorsearchwrapper');
-    } else if(cell.classList.contains('select')) {    // select row
+    } else if(cell.classList.contains('threats')) { // clicked authors cell
+         if(cell.querySelector('#threatsearchwrapper')) return;
+         var txt = cell.textContent;
+         cell.textContent = '';
+         displaySearchbox(cell, txt, 'threatsearchwrapper');
+     } else if(cell.classList.contains('select')) {    // select row
         selectGeoElement(cell);
     } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
@@ -421,7 +427,7 @@ function addNewInventory(ev) {
     var cell2 = inv.querySelector('.coordinates');
     inv.classList.remove('dummy');
 
-    inv.querySelector('input[name=code]').setAttribute('name', id + '_code');
+//    inv.querySelector('input[name=code]').setAttribute('name', id + '_code');
     var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
     var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
 

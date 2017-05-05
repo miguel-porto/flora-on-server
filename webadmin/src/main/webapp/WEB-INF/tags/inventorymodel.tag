@@ -9,14 +9,17 @@
 <!-- This is the model for the inventory. It will be cloned when adding new. -->
 <div class="inventory dummy id1holder">
     <input type="hidden" name="inventoryId" value=""/>
-    <h3><fmt:message key="inventory.1"/> <input type="text" name="code" placeholder="<fmt:message key="inventory.6"/>"/></h3>
+    <h3><fmt:message key="inventory.1"/></h3>
     <table class="verysmalltext occurrencetable">
         <tr>
-            <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.3"/></th>
+            <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
+            <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
             <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
         </tr>
         <tr>
             <td class="field coordinates" data-name="coordinates"></td>
+            <td class="field editable" data-name="gridPrecision"></td>
+            <td class="field editable" data-name="code"></td>
             <td class="field editable" data-name="locality"></td>
             <td class="field editable" data-name="date"></td>
             <td class="field editable authors" data-name="observers"></td>
@@ -34,28 +37,30 @@
     <table class="verysmalltext occurrencetable sortable newoccurrencetable">
         <thead>
             <tr>
-                <th class="sorttable_nosort selectcol"></th>
-                <th class="smallcol">Code</th>
+                <th class="hidden"></th>
+                <th class="smallcol">GPS</th>
                 <th class="bigcol">Taxon</th>
-                <th class="smallcol">Abundance</th>
-                <th class="smallcol">Type of estimate</th>
+                <th class="smallcol">Conf</th>
+                <th class="smallcol">Fen</th>
+                <th class="smallcol">Nº</th>
+                <th class="smallcol">Met</th>
+                <th class="smallcol">Fot</th>
+                <th class="smallcol">Colh</th>
                 <th class="smallcol">Comment</th>
-                <th class="smallcol">Phen</th>
-                <th class="smallcol">Has specimen</th>
-                <th class="smallcol">Has photo</th>
             </tr>
         </thead>
         <tbody>
             <tr class="dummy id2holder geoelement">
-                <td class="select clickable"><input type="hidden" name="occurrenceUuid" value=""/><div class="selectbutton"></div></td>
+                <td class="hidden"><input type="hidden" name="occurrenceUuid" value=""/></td>
                 <td class="editable" data-name="gpsCode"></td>
                 <td class="taxon editable" data-name="taxa"></td>
+                <td class="editable" data-name="confidence"></td>
+                <td class="editable" data-name="phenoState"></td>
                 <td class="editable" data-name="abundance"></td>
                 <td class="editable" data-name="typeOfEstimate"></td>
-                <td class="editable" data-name="comment"></td>
-                <td class="editable" data-name="phenoState"></td>
-                <td class="editable" data-name="hasSpecimen"></td>
                 <td class="editable" data-name="hasPhoto"></td>
+                <td class="editable" data-name="hasSpecimen"></td>
+                <td class="editable" data-name="comment"></td>
             </tr>
         </tbody>
     </table>

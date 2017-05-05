@@ -4,8 +4,10 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
@@ -102,7 +104,6 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
 //        occArray = new ArrayList<>();
         occurrenceList = new ArrayList<>();
         jr.beginObject();
-        int c=0;
         while (jr.hasNext()) {
 //            System.out.print("OBJ");
             if(jr.peek() == JsonToken.BEGIN_ARRAY) {
@@ -110,12 +111,10 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                 while (jr.hasNext()) {
                     FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
                     occurrenceList.add(new SimpleOccurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
-                            , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));
-
-//                    occArray.add((FloraOnOccurrence) gson.fromJson(jr, FloraOnOccurrence.class));
-//                    System.out.print(c+" ");
-                    c++;
-//                    System.out.flush();
+                            , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent
+                            , o.precisao == 0 ? 1 : (o.precisao == 1 ? 100 : (o.precisao == 2 ? 1000 : 10000))
+                            , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
+                            , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER));
                 }
                 jr.endArray();
             } else jr.skipValue();

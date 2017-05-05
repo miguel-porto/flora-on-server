@@ -357,7 +357,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "downloadtaxonrecords":
-                if (!getUser().canDOWNLOAD_OCCURRENCES()) break;
+                if (!getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
                 te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
                 for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
                     edp.executeOccurrenceQuery(te);
@@ -370,6 +370,7 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "downloadtargetrecords":
+                if(!getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
                 PolygonTheme clip = getUser()._getUserPolygonsAsTheme();
                 if(clip == null || clip.size() == 0) break;
                 List<TaxEnt> lt = new ArrayList<>();

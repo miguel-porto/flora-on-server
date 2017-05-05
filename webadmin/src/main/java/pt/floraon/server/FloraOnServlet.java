@@ -118,14 +118,21 @@ public class FloraOnServlet extends HttpServlet {
 		pw.close();
 	}
 
-	protected void success(Object obj, boolean alert) throws IOException {
+	protected void success(String obj, boolean alert) throws IOException {
 		if(!alert)
 			success(obj);
 		else {
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
+			JsonObject resp = new JsonObject();
+			JsonObject obj1 = new JsonObject();
+			resp.addProperty("success", true);
+			obj1.addProperty("alert", true);
+			obj1.addProperty("text", obj);
+			resp.add("msg", obj1);
+
 			PrintWriter pw = response.getWriter();
-			pw.println("{\"success\":true,\"msg\": {\"alert\": true, \"text\": \"" + obj.toString() + "\"}}");
+			pw.println(resp.toString());
 			pw.close();
 		}
 	}
@@ -211,7 +218,7 @@ public class FloraOnServlet extends HttpServlet {
 		this.response=response;
 		this.request=request;
 		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk33");
+		request.setAttribute("uuid", "sk35");
 		try {
 			doFloraOnGet();
 		} catch (FloraOnException e) {

@@ -38,6 +38,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("month", new IntegerParser());
         fieldMappings.put("date", new DateParser());
         fieldMappings.put("day", new IntegerParser());
+        fieldMappings.put("gridprecision", new IntegerParser());
         fieldMappings.put("code", new PlainTextParser());
         fieldMappings.put("gpscode", new PlainTextParser());
         fieldMappings.put("locality", new PlainTextParser());
@@ -59,9 +60,11 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("abundance", new PlainTextParser());
         fieldMappingsSecondRound.put("typeofestimate", new EnumParser());
         fieldMappingsSecondRound.put("comment", new PlainTextParser());
+        fieldMappingsSecondRound.put("privatenote", new PlainTextParser());
         fieldMappingsSecondRound.put("phenostate", new EnumParser());
+        fieldMappingsSecondRound.put("confidence", new EnumParser());
         fieldMappingsSecondRound.put("hasphoto", new BooleanParser());
-        fieldMappingsSecondRound.put("hasspecimen", new BooleanParser());
+        fieldMappingsSecondRound.put("hasspecimen", new IntegerParser());
         fieldMappingsSecondRound.put("occurrenceuuid", new UUIDParser());
         fieldMappingsSecondRound.put("observationlatitude", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("observationlongitude", new LatitudeLongitudeParser());

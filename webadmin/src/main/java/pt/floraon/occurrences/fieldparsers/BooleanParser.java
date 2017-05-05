@@ -22,15 +22,8 @@ public class BooleanParser implements FieldParser {
                     || inputValue.toLowerCase().equals("t"))
                 value = true;
         }
-System.out.println(inputFieldName.toLowerCase()+": "+value);
+//System.out.println(inputFieldName.toLowerCase()+": "+value);
         switch (inputFieldName.toLowerCase()) {
-            case "hasspecimen":
-                if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
-                    obs.setHasSpecimen(value);
-                break;
-
             case "hasphoto":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));

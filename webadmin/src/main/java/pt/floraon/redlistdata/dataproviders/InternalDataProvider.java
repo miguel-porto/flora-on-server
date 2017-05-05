@@ -6,7 +6,6 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
 import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
-import sun.misc.IOUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -39,14 +38,18 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
         it = result.iterator();
         while(it.hasNext()) {
             Inventory inv = it.next();
-            String[] mainObserver = inv.getObserverNames();
+            String[] mainObserver = inv._getObserverNames();
+            SimpleOccurrence so;
             newOBSERVED_IN te = inv._getTaxa()[0];
             CanonicalName cn = te.getTaxEnt().getCanonicalName();
-
-            this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), inv.getLatitude(), inv.getLongitude(), inv.getYear()
+            this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), inv));
+/*
+            this.occurrenceList.add(so = new SimpleOccurrence(this.getDataSource(), inv.getLatitude(), inv.getLongitude(), inv.getYear()
                     , inv.getMonth(), inv.getDay(), mainObserver.length == 0 ? "" : mainObserver[0]
-                    , cn.getGenus(), cn.getSpecificEpithet(), cn.getInfraRanksAsString(), null, 0
-                    , te.getTaxEnt().getOldId(), 0, true, null) );
+                    , cn.getGenus(), cn.getSpecificEpithet(), cn.getInfraRanksAsString(), te.getComment(), 0
+                    , te.getTaxEnt().getOldId(), 0, te.getConfidence(), te.getPhenoState()) );
+*/
+
         }
     }
 

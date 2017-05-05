@@ -46,6 +46,7 @@ public class PlainTextParser implements FieldParser {
             case "abundance":
             case "gpscode":
             case "comment":
+            case "privatenote":
             case "labeldata":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
@@ -54,6 +55,7 @@ public class PlainTextParser implements FieldParser {
                         case "abundance": obs.setAbundance(inputValue); break;
                         case "gpscode": obs.setGpsCode(inputValue); break;
                         case "comment": obs.setComment(inputValue); break;
+                        case "privatenote": obs.setPrivateComment(inputValue); break;
                         case "labeldata": obs.setLabelData(inputValue); break;
                     }
                 break;

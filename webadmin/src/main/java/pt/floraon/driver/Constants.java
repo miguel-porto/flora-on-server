@@ -111,8 +111,14 @@ public final class Constants {
 	}
 
 	public enum PhenologicalStates {
-		UNKNOWN((short)0),VEGETATIVE((short)1),FLOWER((short)2),DISPERSION((short)3),FLOWER_DISPERSION((short)4);
-		
+		UNKNOWN((short) 0)
+		, VEGETATIVE((short) 1)
+		, FLOWER((short) 2)
+		, DISPERSION((short) 3)
+		, FLOWER_DISPERSION((short) 4)
+		, FRUIT((short) 5)
+		, RESTING((short) 6);
+
 		private final Short code;
 		PhenologicalStates (Short code) {
 			this.code=code;

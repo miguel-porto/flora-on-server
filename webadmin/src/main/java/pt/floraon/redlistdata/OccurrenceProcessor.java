@@ -9,8 +9,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.geometry.*;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.taxonomy.entities.CanonicalName;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -163,12 +165,24 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
         for(SimpleOccurrence o : this) {
             Placemark pl = folder.createAndAddPlacemark();
-            pl.withName(o.getGenus() + " " + o.getSpecies() + (o.getInfrataxon() == null ? "" : " " + o.getInfrataxon()) + (o.getConfidence() ? "" : "?")
-                    + (o.getPrecision() == 1 ? " (100x100 m)" : (o.getPrecision() == 2 ? " (1x1 km)" : "")))
-                    .withDescription(o.getAuthor() + "(" + o.getYear() + ")")
+            CanonicalName co = new CanonicalName(o.getOccurrence().getVerbTaxon());
+
+            pl.withName(co.getGenus() + " " + co.getSpecificEpithet() + (co.getInfraRanksAsString() == null ? "" : " " + co.getInfraRanksAsString()) + (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "")
+                    + (o.getGridPrecision() > 1 ? " (" + precisionToString(o.getGridPrecision()) + ")" : ""))
+                    .withDescription((o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") + " (" + o.getYear() + ")"
+                            + (o.getOccurrence().getComment() != null ? ": " + o.getOccurrence().getComment() : ""))
                     .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
         }
         kml.marshal(out);
+    }
+
+    private String precisionToString(int prec) {
+        if(prec > 1) {
+            if(prec >= 1000)
+                return (prec / 1000) + "x" + (prec / 1000) + " km";
+            else
+                return (prec) + "x" + (prec) + " m";
+        } else return "";
     }
 
     private class Square {
@@ -274,7 +288,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
         for (SimpleOccurrence so : this) {
-            tmp1 = new Point2D(tmp = so.getUTMCoordinates());
+            tmp1 = new Point2D(tmp = so._getUTMCoordinates());
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             if(protectedAreas != null) {
                 for (Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {

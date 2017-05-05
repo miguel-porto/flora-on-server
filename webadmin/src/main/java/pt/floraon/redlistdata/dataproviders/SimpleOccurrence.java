@@ -1,70 +1,27 @@
 package pt.floraon.redlistdata.dataproviders;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.UTMCoordinate;
+import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.taxonomy.entities.CanonicalName;
 
 /**
  * Created by miguel on 24-03-2017.
  */
-public class SimpleOccurrence {
+public class SimpleOccurrence extends Inventory {
     /**
      * The data dataSource.
      */
     private final String dataSource;
-    private final float latitude, longitude;
-    private final Integer year, month, day;
-    private final String author, genus, species, infrataxon, notes;
-    private final int id_reg, precision;
+    private newOBSERVED_IN occurrence;
+    private final int id_reg;
     private final Integer id_ent;
-    final boolean confidence;
-    final Boolean flowering;
-
-    public float getLatitude() {
-        return latitude;
-    }
-
-    public float getLongitude() {
-        return longitude;
-    }
-
-    public UTMCoordinate getUTMCoordinates() {
-        return CoordinateConversion.LatLonToUtmWGS84(latitude, longitude, 0);
-    }
-
-    public Integer getYear() {
-        return year;
-    }
-
-    public Integer getMonth() {
-        return month;
-    }
-
-    public Integer getDay() {
-        return day;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getGenus() {
-        return genus;
-    }
-
-    public String getSpecies() {
-        return species;
-    }
-
-    public String getInfrataxon() {
-        return infrataxon;
-    }
 
     public String getDataSource() {
         return dataSource;
-    }
-
-    public String getNotes() {
-        return notes;
     }
 
     public int getId_reg() {
@@ -75,36 +32,50 @@ public class SimpleOccurrence {
         return id_ent;
     }
 
-    public int getPrecision() {
-        return precision;
+    public newOBSERVED_IN getOccurrence() {
+        return occurrence;
     }
 
-    public boolean getConfidence() {
-        return confidence;
+    public void setOccurrence(newOBSERVED_IN occurrence) {
+        this.occurrence = occurrence;
     }
 
-    public Boolean getFlowering() {
-        return flowering;
+    public SimpleOccurrence(String dataSource, Inventory inv) {
+        super(inv);
+        this.dataSource = dataSource;
+        this.id_reg = 0;
+        this.id_ent = null;
+        this.occurrence = inv._getTaxa()[0];
+        if(this.getGridPrecision() == null) this.setGridPrecision(1);
     }
 
     public SimpleOccurrence(String dataSource, float latitude, float longitude, Integer year, Integer month, Integer day, String author
-            , String genus, String species, String infrataxon, String notes, int id_reg, Integer id_ent, int precision
-            , boolean confidence, Boolean flowering) {
+            , String genus, String species, String infrataxon, String pubNotes, int id_reg, Integer id_ent, int precision
+            , OccurrenceConstants.ConfidenceInIdentifiction confidence, Constants.PhenologicalStates flowering) {
         this.dataSource = dataSource;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.year = year;
-        this.month = month;
-        this.day = day;
-        this.author = author;
-        this.genus = genus;
-        this.species = species;
-        this.infrataxon = infrataxon;
-        this.notes = notes;
         this.id_reg = id_reg;
         this.id_ent = id_ent;
-        this.precision = precision;
-        this.confidence = confidence;
-        this.flowering = flowering;
+
+        this.occurrence = new newOBSERVED_IN();
+
+        this.setLatitude(latitude);
+        this.setLongitude(longitude);
+        this.setYear(year);
+        this.setMonth(month);
+        this.setDay(day);
+        this._setObserverNames(new String[] {author});
+
+        this.setGridPrecision(precision);
+
+        this.occurrence.setVerbTaxon(genus + " " + species + (infrataxon == null ? "" : " " + infrataxon));
+        this.occurrence.setComment(pubNotes);
+        this.occurrence.setConfidence(confidence);
+        this.occurrence.setPhenoState(flowering);
+
+/*
+        getInventory().getPrecision()
+        getOccurrence().getTypeOfEstimate()
+*/
+
     }
 }

@@ -33,6 +33,7 @@
 <input type="hidden" name="territory" value="${territory}"/>
 <div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
+    <c:if test="${what != 'taxonrecords'}">
     <div id="left-bar" class="buttonmenu">
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
@@ -47,11 +48,12 @@
             <c:if test="${user.isAdministrator()}">
                 <li><a href="?w=batch"><fmt:message key="Separator.5"/></a></li>
             </c:if>
-            <c:if test="${user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
+            <c:if test="${user.canDOWNLOAD_OCCURRENCES() && user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
                 <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
             </c:if>
         </ul>
     </div>
+    </c:if>
     <div id="main">
     <c:choose>
     <c:when test="${what=='addterritory'}">
@@ -394,7 +396,7 @@
                         <c:out value="${commonNames}"/>
                     </td></tr>
                     <tr class="section1"><td class="title">1.6</td><td><fmt:message key="DataSheet.label.1.6" /></td><td>
-                    <c:if test="${user.canEDIT_1_4()}">
+                    <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                         <div class="multiplechooser left" id="tagchooser">
                             <input type="hidden" name="tags" value=""/>
                         <c:forEach var="tmp" items="${allTags}">
@@ -1512,26 +1514,30 @@
             </c:if>
             <table class="sortable smalltext" id="recordtable">
                 <thead>
-                    <tr><th>Source</th><th>Record ID</th><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Year</th><th>Month</th>
-                    <th>Day</th><th>Author</th><th style="width:180px">Notes</th><th>Precision</th><th>ID in doubt?</th><th>In flower?</th></tr>
+                    <tr><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Date</th>
+                    <th>Author</th><th style="width:180px">Notes</th><th>Precision</th><th>Confid</th><th>Pheno</th>
+                    <th>Ameaças</th><th>Nº ind</th><th>Met</th><th>Fot</th><th>Colh</th>
+                    </tr>
                 </thead>
                 <c:forEach var="occ" items="${occurrences.iterator()}">
                     <tr>
-                        <td>${occ.getDataSource()}</td>
-                        <td>${occ.getId_reg()}</td>
-                        <td><i>${occ.getGenus()} ${occ.getSpecies()} ${occ.getInfrataxon() == null ? '' : occ.getInfrataxon()}</i></td>
+                        <!--<td>${occ.getDataSource()}</td>-->
+                        <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
                         <td><fmt:formatNumber value="${occ.getLatitude()}" maxFractionDigits="4"/></td>
                         <td><fmt:formatNumber value="${occ.getLongitude()}" maxFractionDigits="4"/></td>
                         </c:if>
-                        <td>${occ.getYear()}</td>
-                        <td>${occ.getMonth()}</td>
-                        <td>${occ.getDay()}</td>
-                        <td>${occ.getAuthor()}</td>
-                        <td style="width:180px">${occ.getNotes()}</td>
-                        <td>${occ.getPrecision()}</td>
-                        <td>${occ.getConfidence() ? '' : 'Yes'}</td>
-                        <td>${occ.getFlowering() ? 'Yes' : ''}</td>
+                        <td>${occ._getDate()}</td>
+                        <td>${occ._getObserverNames()[0]}</td>
+                        <td style="width:180px">${occ.getOccurrence().getComment()}</td>
+                        <td>${occ.getGridPrecision()}</td>
+                        <td>${occ.getOccurrence().getConfidence()}</td>
+                        <td>${occ.getOccurrence().getPhenoState()}</td>
+                        <td>${occ.getThreats()}</td>
+                        <td>${occ.getOccurrence().getAbundance()}</td>
+                        <td>${occ.getOccurrence().getTypeOfEstimate()}</td>
+                        <td><t:yesno test="${occ.getOccurrence().getHasPhoto()}"/></td>
+                        <td>${occ.getOccurrence().getHasSpecimen()}</td>
                     </tr>
                 </c:forEach>
             </table>
@@ -1607,6 +1613,12 @@
                 <form class="poster" data-path="/floraon/admin/deleteuser" style="float:right" data-callback="?w=users">
                     <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
                     <input type="submit" value="Delete user" class="textbutton"/>
+                </form>
+                <form class="poster" data-path="/floraon/admin/newpassword" style="float:right" data-callback="?w=users">
+                    <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
+                    <input type="hidden" name="userName" value="${requesteduser.getUserName()}"/>
+                    <input type="hidden" name="userType" value="${requesteduser.getUserType()}"/>
+                    <input type="submit" value="Generate new password" class="textbutton"/>
                 </form>
                 <h2>Edit user</h2>
                 <form class="poster" data-path="/floraon/admin/updateuser" data-callback="?w=users">

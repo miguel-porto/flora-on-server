@@ -2,6 +2,7 @@ package pt.floraon.occurrences.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
+import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.GeoBean;
@@ -9,6 +10,7 @@ import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.LatLongCoordinate;
+import pt.floraon.geometry.UTMCoordinate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -90,6 +92,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.meanHeight = other.meanHeight;
         this.aspect = other.aspect;
         this.slope = other.slope;
+        this.observerNames = other.observerNames;
     }
 
     public Inventory() { }
@@ -208,6 +211,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public void setMonth(Integer month) {
+        if(month != null && (month < 1 || month > 12)) {
+            Log.warn("Invalid month " + month);
+            return;
+        }
         this.month = month;
     }
 
@@ -216,7 +223,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public void setDay(Integer day) {
-        if(day != null && (day < 1 || day > 31)) throw new IllegalArgumentException("Invalid day");
+        if(day != null && (day < 1 || day > 31)) {
+            Log.warn("Invalid day " + day);
+            return;
+//            throw new IllegalArgumentException("Invalid day " + day);
+        }
         this.day = day;
     }
 
@@ -240,6 +251,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
             return "*";
         else
             return String.format(Locale.ROOT, "%.5f, %.5f", this.getLatitude(), this.getLongitude());
+    }
+
+    public UTMCoordinate _getUTMCoordinates() {
+        return CoordinateConversion.LatLonToUtmWGS84(this.getLatitude(), this.getLongitude(), 0);
     }
 
     public Boolean getComplete() {
@@ -430,8 +445,12 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     /* Getters for transient fields           */
     /* ****************************************/
 
-    public String[] getObserverNames() {
+    public String[] _getObserverNames() {
         return StringUtils.isArrayEmpty(this.observerNames) ? new String[0] : this.observerNames;
+    }
+
+    public void _setObserverNames(String[] observerNames) {
+        this.observerNames = observerNames;
     }
 
     public newOBSERVED_IN[] _getTaxa() {

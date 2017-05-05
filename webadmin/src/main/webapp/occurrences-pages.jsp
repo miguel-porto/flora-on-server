@@ -20,6 +20,10 @@
         <textarea id="authorsearchbox" name="query" rows="2"></textarea>
         <div id="suggestionsauthor"></div>
     </div>
+    <div class="withsuggestions editbox" id="threatsearchwrapper">
+        <textarea id="threatsearchbox" name="query" rows="2"></textarea>
+        <div id="suggestionsthreat"></div>
+    </div>
     <div class="withsuggestions editbox" id="editfieldwrapper">
         <input id="editfield" type="text" name="query" autocomplete="off"/>
     </div>
@@ -74,11 +78,13 @@
                 <input type="submit" class="textbutton onlywhenmodified" value="<fmt:message key="inventory.upd"/>"/>
                 <table class="verysmalltext occurrencetable">
                     <tr>
-                        <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
+                        <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
+                        <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
                         <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
                     </tr>
                     <tr>
                         <td class="field editable coordinates" data-name="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
+                        <td class="field editable" data-name="gridPrecision">${inv.getGridPrecision()}</td>
                         <td class="field editable" data-name="code">${inv.getCode()}</td>
                         <td class="field editable" data-name="locality">${inv.getLocality()}</td>
                         <td class="field editable" data-name="date">${inv._getDate()}</td>
@@ -91,30 +97,28 @@
                     </tr></thead>
                     <tbody><tr>
                         <td class="field editable" data-name="habitat">${inv.getHabitat()}</td>
-                        <td class="field editable" data-name="threats">${inv.getThreats()}</td>
+                        <td class="field editable threats" data-name="threats">${inv.getThreats()}</td>
                     </tr></tbody>
                 </table>
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
                     <thead>
                         <tr>
-                            <th class="sorttable_nosort selectcol"></th>
-                            <th class="smallcol">Code</th>
+                            <th class="hidden"></th>
+                            <th class="smallcol">GPS</th>
                             <th class="bigcol">Taxon</th>
-                            <th class="smallcol">Abund</th>
-                            <th class="smallcol">Estim</th>
+                            <th class="smallcol">Conf</th>
+                            <th class="smallcol">Fen</th>
+                            <th class="smallcol">Nº</th>
+                            <th class="smallcol">Met</th>
+                            <th class="smallcol">Fot</th>
+                            <th class="smallcol">Colh</th>
                             <th class="smallcol">Comment</th>
-                            <th class="smallcol">Phen</th>
-                            <th class="smallcol">Specimen</th>
-                            <th class="smallcol">Photo</th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
                         <tr class="id2holder">
-                            <td class="select clickable">
-                                <div class="selectbutton"></div>
-                                <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
-                            </td>
+                            <td class="hidden"><input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/></td>
                             <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
                             <c:if test="${tax.getTaxEnt() == null}">
                             <td class="taxon editable" data-name="taxa">${tax.getVerbTaxon()}</td>
@@ -122,25 +126,27 @@
                             <c:if test="${tax.getTaxEnt() != null}">
                             <td class="taxon editable" data-name="taxa">${tax.getTaxEnt().getName()}</td>
                             </c:if>
+                            <td class="editable" data-name="confidence">${tax.getConfidence()}</td>
+                            <td class="editable" data-name="phenoState">${tax.getPhenoState()}</td>
                             <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
                             <td class="editable" data-name="typeOfEstimate">${tax.getTypeOfEstimate()}</td>
-                            <td class="editable" data-name="comment">${tax.getComment()}</td>
-                            <td class="editable" data-name="phenoState">${tax.getPhenoState()}</td>
-                            <td class="editable" data-name="hasSpecimen"><t:yesno test="${tax.getHasSpecimen()}"/></td>
                             <td class="editable" data-name="hasPhoto"><t:yesno test="${tax.getHasPhoto()}"/></td>
+                            <td class="editable" data-name="hasSpecimen">${tax.getHasSpecimen()}</td>
+                            <td class="editable" data-name="comment">${tax.getComment()}</td>
                         </tr>
                         </c:forEach>
 
                         <tr class="dummy id2holder geoelement">
-                            <td class="select clickable"><input type="hidden" name="occurrenceUuid" value=""/><div class="selectbutton"></div></td>
+                            <td class="hidden"><input type="hidden" name="occurrenceUuid" value=""/></td>
                             <td class="editable" data-name="gpsCode"></td>
                             <td class="taxon editable" data-name="taxa"></td>
+                            <td class="editable" data-name="confidence"></td>
+                            <td class="editable" data-name="phenoState"></td>
                             <td class="editable" data-name="abundance"></td>
                             <td class="editable" data-name="typeOfEstimate"></td>
-                            <td class="editable" data-name="comment"></td>
-                            <td class="editable" data-name="phenoState"></td>
-                            <td class="editable" data-name="hasSpecimen"></td>
                             <td class="editable" data-name="hasPhoto"></td>
+                            <td class="editable" data-name="hasSpecimen"></td>
+                            <td class="editable" data-name="comment"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -262,25 +268,31 @@
                     <c:choose>
                     <c:when test="${param.flavour == null || param.flavour == 'simple'}">
                     <td class="taxon editable" data-name="taxa"></td>
+                    <td class="editable" data-name="confidence"></td>
                     <td class="editable coordinates" data-name="coordinates"></td>
+                    <td class="editable" data-name="gridPrecision"></td>
                     <td class="editable" data-name="comment"></td>
+                    <td class="editable" data-name="privateNote"></td>
                     <td class="editable" data-name="date"></td>
                     <td class="editable" data-name="phenoState"></td>
                     <td class="editable authors" data-name="observers"></td>
                     </c:when>
 
                     <c:when test="${param.flavour == 'redlist'}">
+                    <td class="editable" data-name="date"></td>
+                    <td class="editable authors" data-name="observers"></td>
+                    <td class="editable coordinates" data-name="coordinates"></td>
+                    <td class="editable" data-name="gridPrecision"></td>
                     <td class="editable" data-name="gpsCode"></td>
                     <td class="taxon editable" data-name="taxa"></td>
-                    <td class="editable coordinates" data-name="coordinates"></td>
+                    <td class="editable" data-name="confidence"></td>
+                    <td class="editable" data-name="phenoState"></td>
                     <td class="editable" data-name="abundance"></td>
                     <td class="editable" data-name="typeOfEstimate"></td>
-                    <td class="editable" data-name="comment"></td>
-                    <td class="editable" data-name="hasSpecimen"></td>
                     <td class="editable" data-name="hasPhoto"></td>
-                    <td class="editable" data-name="date"></td>
-                    <td class="editable" data-name="phenoState"></td>
-                    <td class="editable authors" data-name="observers"></td>
+                    <td class="editable" data-name="hasSpecimen"></td>
+                    <td class="threats editable" data-name="threats"></td>
+                    <td class="editable" data-name="comment"></td>
                     </c:when>
 
                     <c:when test="${param.flavour == 'herbarium'}">
@@ -340,14 +352,21 @@
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
                     </c:if>
+                    <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
                     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
+                    <td class="editable" data-name="gridPrecision">${occ.getGridPrecision()}</td>
                     <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
+                    <td class="editable" data-name="privateNote">${occ._getTaxa()[0].getPrivateComment()}</td>
                     <td class="editable" data-name="date">${occ._getDate()}</td>
                     <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
                     <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
                     </c:when>
 
                     <c:when test="${param.flavour == 'redlist'}">
+                    <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
+                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
+                    <td class="editable" data-name="gridPrecision"></td>
                     <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
@@ -355,15 +374,14 @@
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
                     </c:if>
-                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
+                    <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
+                    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
                     <td class="editable" data-name="abundance">${occ._getTaxa()[0].getAbundance()}</td>
                     <td class="editable" data-name="typeOfEstimate">${occ._getTaxa()[0].getTypeOfEstimate()}</td>
-                    <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
-                    <td class="editable" data-name="hasSpecimen"><t:yesno test="${occ._getTaxa()[0].getHasSpecimen()}"/></td>
                     <td class="editable" data-name="hasPhoto"><t:yesno test="${occ._getTaxa()[0].getHasPhoto()}"/></td>
-                    <td class="editable" data-name="date">${occ._getDate()}</td>
-                    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
-                    <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
+                    <td class="editable" data-name="hasSpecimen">${occ._getTaxa()[0].getHasSpecimen()}</td>
+                    <td class="threats editable" data-name="threats">${occ.getThreats()}</td>
+                    <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
                     </c:when>
 
                     <c:when test="${param.flavour == 'herbarium'}">

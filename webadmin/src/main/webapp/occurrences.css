@@ -38,7 +38,7 @@ body.occurrencespage .legend {color:#d5d5d5; margin:4px}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a}
 .occurrencetable th.selectcol {width:5%;}
-.occurrencetable th.bigcol {width:30%;}
+.occurrencetable th.bigcol {min-width:150px;}
 .occurrencetable th.smallcol {width:10%;}
 tr.unmatched td {background-color: #ffcdd2}
 tr.modified td {background-color: #ce93d8}
