@@ -162,14 +162,17 @@
     <div class="button anchorbutton"><a href="?w=occurrenceview">View as occurrences</a></div>
     <h1>Uploads</h1>
     <h2>Upload new table</h2>
-    <h3>From a tab-delimited text file</h3>
-    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster" data-path="upload/occurrences">
+    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster bigoption" data-path="upload/occurrences">
+        <h3>From a tab-delimited text file</h3>
+        <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
+        <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
-    <h3>From KML</h3>
-    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster" data-path="upload/occurrences">
+    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster bigoption" data-path="upload/occurrences">
+        <h3>From KML</h3>
         <input type="hidden" name="type" value="kml"/>
+        <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
@@ -178,7 +181,8 @@
         <h3>File uploaded on ${file.getUploadDate()}</h3>
         <c:if test="${file.getParseErrors().size() > 0}">
         <div class="warning">
-            <b><fmt:message key="error.4"/></b><br/><fmt:message key="error.4a"/><br/><fmt:message key="error.4b"/>
+            <p><fmt:message key="error.4"/></p>
+            <fmt:message key="error.4a"/>
             <ul>
             <c:forEach var="errors" items="${file.getParseErrors()}">
                 <li>${errors.getVerbTaxon()}</li>
@@ -186,11 +190,20 @@
             </ul>
         </div>
         </c:if>
+        <c:if test="${file.getVerboseErrors().size() > 0}">
         <div class="warning">
-            <b><fmt:message key="error.5"/></b><br/>
+            <p><fmt:message key="error.6"/></p>
+            <ul>
+            <c:forEach var="errors" items="${file.getVerboseErrors()}">
+                <li>${errors}</li>
+            </c:forEach>
+            </ul>
+        </div>
+        </c:if>
+        <div class="warning">
+            <p><fmt:message key="error.5"/></p>
             <form class="poster inlineblock" data-path="occurrences/api/savetable">
                 <input type="hidden" name="file" value="${file.getFileName()}"/>
-                <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
                 <input type="submit" class="textbutton" value="<fmt:message key="save"/>"/>
             </form>
             <form class="poster inlineblock" data-path="occurrences/api/discardtable" data-refresh="true">
@@ -204,12 +217,7 @@
             <tr class="geoelement">
                 <td>${inv._getDate()}</td>
                 <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
-                <c:if test="${inv.getUnmatchedOccurrences().size() == 1}">
-                <td><c:out value="${inv.getUnmatchedOccurrences().get(0).getVerbTaxon()}"/></td>
-                </c:if>
-                <c:if test="${inv.getUnmatchedOccurrences().size() != 1}">
-                <td>${inv.getUnmatchedOccurrences().size()} species</td>
-                </c:if>
+                <td>${inv._getSampleTaxa(5)}</td>
             </tr>
         </c:forEach>
         </table>

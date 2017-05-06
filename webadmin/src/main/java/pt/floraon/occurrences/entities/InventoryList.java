@@ -3,9 +3,7 @@ package pt.floraon.occurrences.entities;
 import pt.floraon.driver.Constants;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a list of inventories.
@@ -16,6 +14,15 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
     private Date uploadDate;
     private List<newOBSERVED_IN> parseErrors = new ArrayList<>();
     private List<newOBSERVED_IN> noMatches = new ArrayList<>();
+    private Set<String> verboseErrors = new LinkedHashSet<>();
+
+    public Set<String> getVerboseErrors() {
+        return verboseErrors;
+    }
+
+    public void setVerboseErrors(Set<String> verboseErrors) {
+        this.verboseErrors = verboseErrors;
+    }
 
     public String getFileName() {
         return fileName;

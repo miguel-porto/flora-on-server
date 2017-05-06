@@ -27,7 +27,7 @@ public class FileUploader extends FloraOnServlet {
 	}*/
 	
 	/**
-	 * The GET method is for processing files stored in the local server.
+	 * The GET method is for processing files stored in the local server. We don't need this!
 	 */
 	@Override
 	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
@@ -46,7 +46,7 @@ public class FileUploader extends FloraOnServlet {
 			File file = new File(getParameterAsString("file"));
 			if(!file.canRead()) throw new IOException("Cannot read file "+getParameterAsString("file"));
 			String type = getParameterAsString("type");
-			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, getUser(), type), driver);
+			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, getUser(), type, true, false), driver);
 			success(job.getID());
 /*
 			success(
@@ -69,9 +69,12 @@ public class FileUploader extends FloraOnServlet {
 		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
 		switch(partIt.next()) {
 		case "occurrences":
+			boolean main = getParameterAsBoolean("mainobserver", false);
+			Boolean create = getParameterAsBoolean("createUsers", false);
+
 			try {
 				filePart = request.getPart("occurrenceTable");
-				System.out.println(filePart.getSize());
+//				System.out.println(filePart.getSize());
 
 				if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
 				fileContent = filePart.getInputStream();
@@ -80,7 +83,8 @@ public class FileUploader extends FloraOnServlet {
 			}
 
 			if(fileContent != null) {
-				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(fileContent, driver, getUser(), type), driver);
+				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(
+						fileContent, driver, getUser(), type, main, create), driver);
 				success(job.getID());
 			}
 			break;

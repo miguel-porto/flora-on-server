@@ -4,6 +4,7 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
 
@@ -18,9 +19,16 @@ import java.util.Map;
 public class UserListParser implements FieldParser {
     private Map<String, String> userMap;
     private IFloraOn driver;
-    private boolean createUsers;
+    private Boolean createUsers;
 
-    public UserListParser(Map<String, String> userMap, IFloraOn driver, boolean createUsers) {
+    /**
+     *
+     * @param userMap
+     * @param driver
+     * @param createUsers Set to true to automatically create user accounts for non-existing names; false to throw an error
+     *                  in that case, null to ignore the user and keep on parsing the record.
+     */
+    public UserListParser(Map<String, String> userMap, IFloraOn driver, Boolean createUsers) {
         this.userMap = userMap;
         this.driver = driver;
         this.createUsers = createUsers;
@@ -34,6 +42,7 @@ public class UserListParser implements FieldParser {
         String[] spl = inputValue.split(",");
         String tmp;
         List<String> userIds = new ArrayList<>();
+        List<String> errors = new ArrayList<>();
 
         for(String username : spl) {
             tmp = username.trim();
@@ -42,7 +51,12 @@ public class UserListParser implements FieldParser {
             else {
                 User user = driver.getAdministration().getUser(username.trim());
                 if(user == null) {
-                    if(!createUsers) throw new FloraOnException(Messages.getString("error.2", username.trim()));
+                    if(createUsers == null)
+                        continue;
+                    else if(!createUsers) {
+                        errors.add(Messages.getString("error.2", username.trim()));
+                        continue;
+                    }
                     user = new User();
                     user.setName(username.trim());
                     String id = driver.getAdministration().createUser(user).getID();
@@ -68,7 +82,10 @@ public class UserListParser implements FieldParser {
                 break;
 
             default:
-                throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
+                errors.add(Messages.getString("error.1", inputFieldName));
         }
+
+        if(errors.size() > 0)
+            throw new FloraOnException(StringUtils.implode("; ", errors.toArray(new String[errors.size()])));
     }
 }

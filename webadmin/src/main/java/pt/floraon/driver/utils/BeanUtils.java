@@ -127,7 +127,7 @@ public class BeanUtils {
         for (Object propNameObject : propertyMap.keySet()) {
             String propertyName = (String) propNameObject;
             if(ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
-        System.out.println("PROP: " + propertyName);
+
             Object property = null, newProperty;
 
             for (DiffableBean dB : beans) {
@@ -146,6 +146,7 @@ public class BeanUtils {
                 }/* else if(DiffableBean.class.isAssignableFrom(property.getClass())) {
                     property = mergeBeans(DiffableBean.class, (DiffableBean) property, (DiffableBean) newProperty);
                 }*/ else {  // TODO: nested beans
+                    System.out.println("PROP: " + propertyName);
                     System.out.println(property+" : "+newProperty);
                     if(!property.equals(newProperty)) throw new FloraOnException("Cannot merge beans.");
                 }

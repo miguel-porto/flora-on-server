@@ -1506,7 +1506,7 @@
         <c:if test="${user.canVIEW_OCCURRENCES()}">
             <h1>${taxon.getFullName(true)}</h1>
             <c:if test="${occurrences == null}">
-                <div class="warning"><b><fmt:message key="DataSheet.msg.warning"/></b><br/>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
+                <div class="warning"><p><fmt:message key="DataSheet.msg.warning"/></p>This taxon has no correspondence in Flora-On, please contact the checklist administrator</div>
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
             <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">

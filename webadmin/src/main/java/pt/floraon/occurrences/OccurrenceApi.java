@@ -48,8 +48,6 @@ public class OccurrenceApi extends FloraOnServlet {
             case "savetable":
                 fileName = getParameterAsString("file");
                 errorIfAnyNull(fileName);
-
-                boolean main = getParameterAsBoolean("mainobserver", false);
                 user = refreshUser();
                 if(!user.getUploadedTables().contains(fileName)) throw new FloraOnException("File not found.");
 
@@ -61,18 +59,11 @@ public class OccurrenceApi extends FloraOnServlet {
                     throw new FloraOnException(e.getMessage());
                 }
 
-                for(Inventory inv : invList) {
-                    if(main) {
-                        if(StringUtils.isArrayEmpty(inv.getObservers()))
-                            inv.setObservers(new String[] {getUser().getID()});
-                    }
-
+                for(Inventory inv : invList)
                     driver.getOccurrenceDriver().createInventory(inv);
-                }
 
                 driver.getOccurrenceDriver().discardUploadedTable(driver.asNodeKey(getUser().getID()), fileName);
                 success("Ok");
-
                 break;
 
             case "discardtable":

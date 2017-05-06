@@ -31,6 +31,7 @@ public class UserLogin extends FloraOnServlet {
 				user.clearPassword();
 				user.resetEffectivePrivileges();
 				request.getSession().setAttribute("user", user);
+				request.getSession().setAttribute("userName", user.getName());
 				response.sendRedirect("main");
 			}
 		}

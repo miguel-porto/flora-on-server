@@ -4,6 +4,7 @@ import pt.floraon.driver.parsers.CSVParser;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.*;
 
@@ -88,24 +89,31 @@ public class OccurrenceParser implements CSVParser {
      * @throws FloraOnException If any name is not recognized.
      */
     public void checkFieldNames(Set<String> names) throws FloraOnException {
+        List<String> errors = new ArrayList<>();
+
         for(String name : names) {
+            if(name.trim().length() == 0) continue;
             if (!fieldMappings.containsKey(name.toLowerCase()) && !fieldMappingsSecondRound.containsKey(name.toLowerCase()))
-                throw new FloraOnException(Messages.getString("error.1", name));
+                errors.add(Messages.getString("error.1", name));
         }
+        if(errors.size() > 0)
+            throw new FloraOnException(StringUtils.implode("; ", errors.toArray(new String[errors.size()])));
     }
 
     @Override
     public void parseFields(Map<String, String> keyValues, Object bean) throws FloraOnException {
+        List<String> errors = new ArrayList<>();
         Inventory inv = (Inventory) bean;
-        checkFieldNames(keyValues.keySet());
+//        checkFieldNames(keyValues.keySet());
         // first round
         Set<String> intersection = new HashSet<>(keyValues.keySet());
         intersection.retainAll(fieldMappings.keySet());
         for(String key : intersection) {
+            if (!fieldMappings.containsKey(key.toLowerCase())) continue;
             try {
                 fieldMappings.get(key.toLowerCase()).parseValue(keyValues.get(key), key.toLowerCase(), inv);
-            } catch(IllegalArgumentException e) {
-                throw new FloraOnException(e.getMessage());
+            } catch(IllegalArgumentException | FloraOnException e) {
+                errors.add(e.getMessage());
             }
         }
 
@@ -113,11 +121,14 @@ public class OccurrenceParser implements CSVParser {
         intersection = new HashSet<>(keyValues.keySet());
         intersection.retainAll(fieldMappingsSecondRound.keySet());
         for(String key : intersection) {
+            if (!fieldMappingsSecondRound.containsKey(key.toLowerCase())) continue;
             try {
                 fieldMappingsSecondRound.get(key.toLowerCase()).parseValue(keyValues.get(key), key.toLowerCase(), inv);
-            } catch(IllegalArgumentException e) {
-                throw new FloraOnException(e.getMessage());
+            } catch(IllegalArgumentException | FloraOnException e) {
+                errors.add(e.getMessage());
             }
         }
+        if(errors.size() > 0)
+            throw new FloraOnException(StringUtils.implode("; ", errors.toArray(new String[errors.size()])));
     }
 }

@@ -397,7 +397,6 @@ table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0
 
 div.warning {
     background-color: rgba(0, 0, 0, 0.93);
-    font-size:1.3em;
     color:yellow;
     padding:10px;
     box-shadow: 0 0 22px black;

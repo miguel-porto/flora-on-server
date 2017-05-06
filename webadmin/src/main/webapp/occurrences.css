@@ -31,6 +31,12 @@ body.occurrencespage .legend {color:#d5d5d5; margin:4px}
     z-index: 1000 !important;
 }
 
+.bigoption {
+    margin: 30px;
+    padding-left: 20px;
+    border-left: 5px solid #1565c0
+}
+
 /* occurrence table */
 /*.occurrencetable {table-layout: fixed;}*/
 .occurrencetable tbody tr td {cursor: pointer; height:16px; padding:2px}
