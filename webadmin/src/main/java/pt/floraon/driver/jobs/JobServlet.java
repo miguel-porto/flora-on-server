@@ -21,47 +21,47 @@ public class JobServlet extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		ListIterator<String> partIt=this.getPathIterator();
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		ListIterator<String> partIt=thisRequest.getPathIterator();
 		PrintWriter pw;
 		while(!partIt.next().equals("job"));
 		if(!partIt.hasNext()) {
-			success(new Gson().toJsonTree(JobSubmitter.getJobList()));
+			thisRequest.success(new Gson().toJsonTree(JobSubmitter.getJobList()));
 			return;
 		}
 
 		JobRunner job = JobSubmitter.getJob(partIt.next());
 		if(job == null) throw new FloraOnException("Job not found");
-		if(getParameterAsString("query") != null || !job.isFileDownload()) {
+		if(thisRequest.getParameterAsString("query") != null || !job.isFileDownload()) {
 			JsonObject resp = new JsonObject();
 			resp.addProperty("ready", job.isReady());
 			resp.addProperty("msg", job.getState());
-			success(resp);
+			thisRequest.success(resp);
 			return;
 		}
 
 		if(job.isFileDownload()) {
 			JobRunnerFileDownload jobFD = (JobRunnerFileDownload) job;
 			if(!job.isReady()) {
-				error("Job is not ready");
+				thisRequest.error("Job is not ready");
 				return;
 			}
 			InputStreamReader jobInput = jobFD.getInputStreamReader(StandardCharsets.UTF_8);
 			switch (jobFD.getFileType().toLowerCase()) {
 				case "html":
 				case "htm":
-					response.setContentType("text/html; charset=utf-8");
+					thisRequest.response.setContentType("text/html; charset=utf-8");
 					break;
 				case "csv":
 					//response.setContentType("text/csv; charset=Windows-1252");
-					response.setContentType("text/csv; charset=utf-8");
-					response.addHeader("Content-Disposition", "attachment;Filename=\"" + jobFD.getFileName() + "\"");
+					thisRequest.response.setContentType("text/csv; charset=utf-8");
+					thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"" + jobFD.getFileName() + "\"");
 					break;
 			}
-			response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+			thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 			//IOUtils.copy(jobInput, response.getOutputStream());
-			IOUtils.copy(jobInput, pw = response.getWriter());
-			pw.close();
+			IOUtils.copy(jobInput, pw = thisRequest.response.getWriter());
+			pw.flush();
 		} else {
 
 		}

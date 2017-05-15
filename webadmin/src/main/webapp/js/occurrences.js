@@ -1,4 +1,5 @@
 var myMap = null;
+var filterTimeout = null;
 //var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-5, -5]});
 var redCircle = L.icon({
     iconUrl: 'images/redcircle.png',
@@ -39,9 +40,41 @@ document.addEventListener('DOMContentLoaded', function() {
     var inventories = document.querySelectorAll('.inventory:not(.dummy)');
     for(var i = 0; i < inventories.length; i++) {
     // FIXME
-        addEvent('click', inventories[i].querySelector('.button'), addNewTaxon);
-        doMouseClick(inventories[i].querySelector('.button'));
+        addEvent('click', inventories[i].querySelector('.newtaxon'), addNewTaxon);
+        doMouseClick(inventories[i].querySelector('.newtaxon'));
     }
+
+    var ft = document.getElementById('filtertable');
+    if(ft)
+        addEvent('keyup', ft, function(ev) {
+            if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32 && !(ev.keyCode >= 48 && ev.keyCode <= 57) ) return;
+            var inp = ev.target;
+            if(filterTimeout) clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(function () {
+                filterTimeout = null;
+                var val = inp.value.toLowerCase();
+                var rows = document.querySelectorAll('#' + inp.getAttribute('data-table') + ' tr.geoelement');
+                if(val.trim() == '') {
+                    for(var i=0; i<rows.length; i++) {
+                        rows[i].classList.remove('hidden');
+                    }
+                } else {
+                    for(var i=0; i<rows.length; i++) {
+                        var gpsc = rows[i].querySelector('td[data-name="gpsCode"]') || rows[i].querySelector('td[data-name="code"]');
+                        var loca = rows[i].querySelector('td[data-name="locality"]');
+                        if(rows[i].querySelector('td.taxon').textContent.toLowerCase().indexOf(val) == -1
+                            && rows[i].querySelector('td[data-name="date"]').textContent.toLowerCase().indexOf(val) == -1
+                            && (!gpsc || gpsc.textContent.toLowerCase().indexOf(val) == -1)
+                            && (!loca || loca.textContent.toLowerCase().indexOf(val) == -1)
+                            )
+                                rows[i].classList.add('hidden');
+                        else
+                            rows[i].classList.remove('hidden');
+                    }
+                }
+            }, 500);
+        })
+
 });
 
 window.addEventListener('beforeunload', function (ev) {
@@ -51,7 +84,8 @@ window.addEventListener('beforeunload', function (ev) {
     var sel1 = document.querySelectorAll('#alloccurrencetable tr.modified');
     var sel2 = document.querySelectorAll('.inventory .modified');
     var sel3 = document.querySelectorAll('#updateoccurrencetable tbody tr.modified');
-    if(sel.length > 0 || sel1.length > 0 || sel2.length > 0 || sel3.length > 0) {
+    var sel4 = document.querySelectorAll('#addnewinventories .inventory');
+    if(sel.length > 0 || sel1.length > 0 || sel2.length > 0 || sel3.length > 0 || sel4.length > 0) {
         (ev || window.event).returnValue = confirmationMessage;
         return confirmationMessage;
     } else
@@ -171,6 +205,20 @@ function clickButton(ev) {
             var tbody = document.querySelector('#deleteoccurrencetable tbody');
             for(var i=0; i<sel.length; i++)
                 tbody.appendChild(sel[i]);
+
+            document.getElementById('deleteoccurrences').classList.remove('hidden');
+            break;
+
+        case 'deleteselectedinv':
+            acceptVisibleSearchbox();
+            var inv = getParentbyClass(b, 'inventory');
+            var sel = inv.querySelectorAll('.newoccurrencetable tr.selected');
+            if(sel.length == 0) return;
+            var tbody = document.querySelector('#deleteoccurrencetable tbody');
+            for(var i=0; i<sel.length; i++) {
+                if(sel[i].querySelector('input[name=occurrenceUuid]').value != '')
+                    tbody.appendChild(sel[i]);
+            }
 
             document.getElementById('deleteoccurrences').classList.remove('hidden');
             break;
@@ -446,8 +494,8 @@ function addNewInventory(ev) {
         addEvent('click', ot[i], clickOccurrenceTable);
 
     document.getElementById('addnewinventories').classList.remove('hidden');
-    addEvent('click', inv.querySelector('.button'), addNewTaxon);
-    doMouseClick(inv.querySelector('.button'));
+    addEvent('click', inv.querySelector('.newtaxon'), addNewTaxon);
+    doMouseClick(inv.querySelector('.newtaxon'));
 }
 
 

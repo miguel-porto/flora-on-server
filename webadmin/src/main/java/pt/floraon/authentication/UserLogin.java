@@ -12,27 +12,27 @@ public class UserLogin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-		if(getParameterAsString("logout") != null) {
-			if(request.getSession(false) != null) {
-				request.getSession().removeAttribute("user");
-				request.getSession().invalidate();
-				response.sendRedirect("main");
+	public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		if(thisRequest.getParameterAsString("logout") != null) {
+			if(thisRequest.request.getSession(false) != null) {
+				thisRequest.request.getSession().removeAttribute("user");
+				thisRequest.request.getSession().invalidate();
+				thisRequest.response.sendRedirect("main");
 				return;
 			}
 		} else {
-			String username=getParameterAsString("username");
-			char[] password=getParameterAsString("password").toCharArray();
+			String username=thisRequest.getParameterAsString("username");
+			char[] password=thisRequest.getParameterAsString("password").toCharArray();
 			User user = driver.getAdministration().authenticateUser(username, password);
 
 			if(user == null) {
-				response.sendRedirect("main?w=login&reason=notfound");
+				thisRequest.response.sendRedirect("main?w=login&reason=notfound");
 			} else {
 				user.clearPassword();
 				user.resetEffectivePrivileges();
-				request.getSession().setAttribute("user", user);
-				request.getSession().setAttribute("userName", user.getName());
-				response.sendRedirect("main");
+				thisRequest.request.getSession().setAttribute("user", user);
+				thisRequest.request.getSession().setAttribute("userName", user.getName());
+				thisRequest.response.sendRedirect("main");
 			}
 		}
 	}

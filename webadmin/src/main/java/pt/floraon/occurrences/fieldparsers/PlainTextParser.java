@@ -43,6 +43,10 @@ public class PlainTextParser implements FieldParser {
                 occurrence.setVerbLocality(inputValue);
                 break;
 
+            case "precision":
+                occurrence.setPrecision(inputValue);
+                break;
+
             case "abundance":
             case "gpscode":
             case "comment":

@@ -13,10 +13,10 @@ import java.io.IOException;
 @WebServlet("/adminpage/*")
 public class AdminPage extends FloraOnServlet {
     @Override
-    public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         String what;
 
-        request.setAttribute("what", what = getParameterAsString("w", "main"));
+        thisRequest.request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
 /*
         switch (what) {
@@ -24,6 +24,6 @@ public class AdminPage extends FloraOnServlet {
         }
 */
 
-        request.getRequestDispatcher("/main-admin.jsp").forward(request, response);
+        thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
     }
 }

@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.taxonomy.entities.Territory;
@@ -14,10 +16,10 @@ public class ChecklistAdmin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
-		
+		final HttpServletRequest request = thisRequest.request;
 		boolean hasTaxonInfoModule = true;
 
 		try {
@@ -37,9 +39,9 @@ public class ChecklistAdmin extends FloraOnServlet {
 
 		switch(what) {		// the 'w' parameter of the URL querystring
 		case "main":	// CHECKLIST
-			Integer offset=getParameterAsInteger("offset",0);
+			Integer offset=thisRequest.getParameterAsInteger("offset", 0);
 			List<TaxEntAndNativeStatusResult> nsr = driver.getListDriver().getAllSpeciesOrInferior(territory == null
-					, TaxEntAndNativeStatusResult.class, false, territory, getParameterAsString("filter"), offset, PAGESIZE);
+					, TaxEntAndNativeStatusResult.class, false, territory, thisRequest.getParameterAsString("filter"), offset, PAGESIZE);
 
 			if(territory==null)
 				request.setAttribute("territory", "");
@@ -53,15 +55,15 @@ public class ChecklistAdmin extends FloraOnServlet {
 			request.setAttribute("checklist", nsr);
 			request.setAttribute("checklistTerritories", checklistTerritories);
 			request.setAttribute("offset", offset);
-			request.setAttribute("filter", getParameterAsString("filter"));
+			request.setAttribute("filter", thisRequest.getParameterAsString("filter"));
 			request.setAttribute("PAGESIZE", PAGESIZE);
 			break;
 			
 		case "graph":
-			request.getRequestDispatcher("/graph.jsp").forward(request, response);
+			request.getRequestDispatcher("/graph.jsp").forward(request, thisRequest.response);
 			return;
 		}
 		
-		request.getRequestDispatcher("/main-checklist.jsp").forward(request, response);
+		request.getRequestDispatcher("/main-checklist.jsp").forward(request, thisRequest.response);
 	}
 }

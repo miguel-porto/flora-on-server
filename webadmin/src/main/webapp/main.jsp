@@ -1,3 +1,5 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page session="false" %>
@@ -35,6 +37,8 @@
     </c:choose>
     </div>
     <div class="outer">
+        <p>Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes.
+        Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>
         <div class="bigbutton section2">
             <h1><a href="/floraon/checklist"><fmt:message key="Modules.2"/></a></h1>
         </div>
@@ -50,9 +54,11 @@
                 </c:forEach>
             </c:if>
         </div>
+        <c:if test="${!user.isGuest()}">
         <div class="bigbutton section4">
             <h1><a href="/floraon/occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></h1><p>under construction</p>
         </div>
+        </c:if>
         <c:if test="${user.isAdministrator()}">
         <div class="bigbutton section2">
             <h1><a href="/floraon/adminpage">Administration</a></h1>

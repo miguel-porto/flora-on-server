@@ -27,8 +27,6 @@ public class FloraOnServlet extends HttpServlet {
 	protected IListDriver LD;
 	protected IFloraOn driver;
 	private static final long serialVersionUID = 2390926316338894377L;
-	protected HttpServletResponse response;
-	protected HttpServletRequest request;
 
 	public final void init() throws ServletException {
 		this.driver = (IFloraOn) this.getServletContext().getAttribute("driver");
@@ -38,28 +36,6 @@ public class FloraOnServlet extends HttpServlet {
 		}
 	}
 	
-	protected void error(String obj) throws IOException {
-		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter pw = response.getWriter();
-		JsonObject resp = new JsonObject();
-		resp.addProperty("success", false);
-		resp.addProperty("msg", obj);
-		pw.print(resp.toString());
-//		pw.println("{\"success\":false,\"msg\":\""+obj+"\"}");
-		pw.close();
-	}
-
-	protected void errorHTML(String obj) throws IOException {
-		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		response.setContentType("text/html");
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter pw = response.getWriter();
-		pw.println("<html><body>" + obj + "</body></html>");
-		pw.close();
-	}
-
 	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
 		for(Object o : pars) {
 			if(o == null) throw new FloraOnException("Missing parameter.");
@@ -74,134 +50,6 @@ public class FloraOnServlet extends HttpServlet {
 		if(resp) throw new FloraOnException("Missing parameter.");
 	}
 
-	protected void success(JsonElement obj,JsonObject header) throws IOException {
-		JsonObject out;
-		if(header==null)
-			out=new JsonObject();
-		else
-			out=header;
-		out.addProperty("success", true);
-		out.add("msg", obj);
-
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter pw = response.getWriter();
-		pw.println(out.toString());
-		pw.close();
-	}
-
-	protected void success(Object obj) throws IOException {
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter pw = response.getWriter();
-		JsonObject resp = new JsonObject();
-		resp.addProperty("success", true);
-		resp.addProperty("msg", obj.toString());
-		pw.print(resp.toString());
-//		pw.println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
-		pw.close();
-	}
-
-	protected void success(JsonObject obj) throws IOException {
-		success((JsonElement) obj);
-	}
-
-	protected void success(JsonElement obj) throws IOException {
-		response.setContentType("application/json");
-		response.setCharacterEncoding("UTF-8");
-		PrintWriter pw = response.getWriter();
-		JsonObject resp = new JsonObject();
-		resp.addProperty("success", true);
-		resp.add("msg", obj);
-		pw.print(resp.toString());
-//		pw.println("{\"success\":true,\"msg\":" + obj.toString() + "}");
-		pw.close();
-	}
-
-	protected void success(String obj, boolean alert) throws IOException {
-		if(!alert)
-			success(obj);
-		else {
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
-			JsonObject resp = new JsonObject();
-			JsonObject obj1 = new JsonObject();
-			resp.addProperty("success", true);
-			obj1.addProperty("alert", true);
-			obj1.addProperty("text", obj);
-			resp.add("msg", obj1);
-
-			PrintWriter pw = response.getWriter();
-			pw.println(resp.toString());
-			pw.close();
-		}
-	}
-
-	/**
-	 * Reloads user data from the database
-	 */
-	protected User refreshUser() {
-		try {
-			User user = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(getUser().getID()), User.class);
-			user.clearPassword();
-			user.resetEffectivePrivileges();
-			request.getSession().setAttribute("user", user);
-			return user;
-		} catch (FloraOnException e) {
-			return null;
-		}
-	}
-
-	protected User getUser() {
-		HttpSession session = request.getSession(false);
-
-		if(session == null || session.getAttribute("user") == null) {
-			try {
-				return User.guest();
-			} catch (DatabaseException e) {
-				e.printStackTrace();
-				return null;
-			}
-		} else
-			return (User) session.getAttribute("user");
-	}
-
-	/**
-	 * Gets the called path, either if it was jsp:included or requested by browser
-	 * @return
-	 */
-	protected ListIterator<String> getPathIterator() {
-		List<String> tmp;
-		Object tmp1=request.getAttribute("javax.servlet.include.request_uri");
-		if(tmp1!=null)
-			tmp=Arrays.asList(tmp1.toString().split("/"));
-		else
-			tmp=Arrays.asList(request.getRequestURI().split("/"));
-		/*   		if(tmp.get(2).startsWith("_"))		// check whether we want to set the universe to a given territory or not
-   			territory=tmp.get(2).replaceFirst("_", "");
-   		else
-   			territory=null;*/
-		
-		ListIterator<String> it=tmp.listIterator();//  subList(territory==null ? 4 : 5, tmp.size()).listIterator();
-		return it;
-	}
-	
-	/**
-	 * Gets an iterator of the path parts after the given one. It is guaranteed to exist at least one part, otherwise an exception is thrown.
-	 * @param part
-	 * @return
-	 * @throws FloraOnException
-	 */
-	protected ListIterator<String> getPathIteratorAfter(String part) throws FloraOnException {
-		ListIterator<String> partIt=this.getPathIterator();
-		try {
-			while(!partIt.next().equals(part));
-		} catch(NoSuchElementException e) {
-			throw new FloraOnException("Invalid path");
-		}
-		if(!partIt.hasNext()) throw new FloraOnException("Incomplete path, expecting more options");
-		return partIt;
-	}
 
 	@Override
 	public final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -215,15 +63,16 @@ public class FloraOnServlet extends HttpServlet {
 			return;
 		}
 
-		this.response=response;
-		this.request=request;
-		request.setAttribute("user", getUser());
-		request.setAttribute("uuid", "sk36");
+		ThisRequest thisRequest = new ThisRequest(request, response);
+
+		request.setAttribute("user", thisRequest.getUser());
+		request.setAttribute("uuid", "sk39");
+
 		try {
-			doFloraOnGet();
+			doFloraOnGet(thisRequest);
 		} catch (FloraOnException e) {
 			e.printStackTrace();
-			error(e.getMessage());
+			thisRequest.error(e.getMessage());
 		}
 	}
 
@@ -236,121 +85,287 @@ public class FloraOnServlet extends HttpServlet {
 			request.getRequestDispatcher("/error.html").forward(request, response);
 			return;
 		}
-		this.response=response;
-		this.request=request;
-		request.setAttribute("user", getUser());
+		ThisRequest thisRequest = new ThisRequest(request, response);
+		request.setAttribute("user", thisRequest.getUser());
 		try {
-			doFloraOnPost();
+			doFloraOnPost(thisRequest);
 		} catch (FloraOnException e) {
 			e.printStackTrace();
-			error(e.getMessage());
+			thisRequest.error(e.getMessage());
 		}
 	}
 
-	/**
-	 * Gets the parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.
-	 * @param name
-	 * @return
-	 * @throws IOException
-	 * @throws ServletException
-	 */
-	public String getParameterAsString(String name) throws IOException, ServletException {
-		String tmp;
-		if(request.getContentType()==null)
-			tmp = request.getParameter(name);
-		else if(request.getContentType().contains("multipart/formdata")) {
-			tmp = request.getPart(name)==null ? null : IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8);
-		} else tmp = request.getParameter(name);
-		return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
-	}
 
-	/**
-	 * Gets the parameter as a String array or null if the parameter is not present.
-	 * @param name
-	 * @return
-	 * @throws IOException
-	 * @throws ServletException
-	 */
-	public String[] getParameterAsStringArray(String name) throws IOException, ServletException {
-		String[] tmp;
-		if(request.getContentType()==null)
-			tmp = request.getParameterValues(name);
-		else if(request.getContentType().contains("multipart/formdata")) {
-			tmp = request.getPart(name)==null ? new String[0] : new String[] {IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8)};
-		} else tmp = request.getParameterValues(name);
-		return tmp;
-	}
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {}
+	public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {}
 
-	/**
-	 * Gets the parameter value, or defaultvalue if parameter is absent
-	 * @param name
-	 * @param defaultValue
-	 * @return
-	 * @throws IOException
-	 * @throws ServletException
-	 */
-	public String getParameterAsString(String name, String defaultValue) throws IOException, ServletException {
-		String tmp = getParameterAsString(name);
-		return tmp == null ? defaultValue : tmp;
-	}
+	protected class ThisRequest {
+		public final HttpServletResponse response;
+		public final HttpServletRequest request;
 
-	public INodeKey getParameterAsKey(String name) throws IOException, ServletException, FloraOnException {
-		return driver.asNodeKey(getParameterAsString(name));
-	}
-
-	public Integer getParameterAsInteger(String name,Integer nullValue) throws IOException, ServletException, FloraOnException {
-		try {
-			return Integer.parseInt(getParameterAsString(name));
-		} catch (NumberFormatException e) {
-			return nullValue;
+		public ThisRequest(HttpServletRequest request, HttpServletResponse response) {
+			this.response = response;
+			this.request = request;
 		}
-	}
 
-	public int getParameterAsInt(String name) throws IOException, ServletException, FloraOnException {
-		try {
-			return Integer.parseInt(getParameterAsString(name));
-		} catch (NumberFormatException | NullPointerException e) {
-			throw new FloraOnException("Invalid parameter value");
+		/**
+		 * Gets the parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @throws ServletException
+		 */
+		public String getParameterAsString(String name) throws IOException, ServletException {
+			String tmp;
+			if(request.getContentType()==null)
+				tmp = request.getParameter(name);
+			else if(request.getContentType().contains("multipart/formdata")) {
+				tmp = request.getPart(name)==null ? null : IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8);
+			} else tmp = request.getParameter(name);
+			return tmp;//URLDecoder.decode(tmp, StandardCharsets.UTF_8.name());
 		}
-	}
 
-	public boolean getParameterAsBooleanNoNull(String name) throws IOException, ServletException, FloraOnException {
-		String tmp=getParameterAsString(name);
-		if(tmp==null) return false;				// parameter absent
-		if(tmp.trim().length()==0) return true;	// present
-		if(tmp.equals("on")) return true;		// for HTML checkboxes
-		try {
-			if(Boolean.parseBoolean(tmp) || Integer.parseInt(tmp)!=0) return true;	// true or not zero
-		} catch (NumberFormatException e) {
-			return false;		// any other case
+		/**
+		 * Gets the parameter as a String array or null if the parameter is not present.
+		 * @param name
+		 * @return
+		 * @throws IOException
+		 * @throws ServletException
+		 */
+		public String[] getParameterAsStringArray(String name) throws IOException, ServletException {
+			String[] tmp;
+			if(request.getContentType()==null)
+				tmp = request.getParameterValues(name);
+			else if(request.getContentType().contains("multipart/formdata")) {
+				tmp = request.getPart(name)==null ? new String[0] : new String[] {IOUtils.toString(request.getPart(name).getInputStream(), StandardCharsets.UTF_8)};
+			} else tmp = request.getParameterValues(name);
+			return tmp;
 		}
-		return false;
-	}
 
-	public Boolean getParameterAsBoolean(String name) throws IOException, ServletException, FloraOnException {
-		String tmp=getParameterAsString(name);
-		if(tmp==null) return null;				// parameter absent
-		return getParameterAsBooleanNoNull(name);
-	}
-
-	public boolean getParameterAsBoolean(String name, boolean nullValue) throws IOException, ServletException, FloraOnException {
-		String tmp=getParameterAsString(name);
-		if(tmp==null) return nullValue;				// parameter absent
-		return getParameterAsBooleanNoNull(name);
-	}
-
-	public <T extends Enum<T>> T getParameterAsEnum (String name, Class<T> T) throws IOException, ServletException, FloraOnException {
-		T out;
-		String value=getParameterAsString(name);
-		if(value==null || value.toUpperCase().equals("NULL")) return null;
-		try {
-			out=Enum.valueOf(T, value);
-		} catch (IllegalArgumentException e) {
-			throw new FloraOnException("Illegal value: "+value);
+		/**
+		 * Gets the parameter value, or defaultvalue if parameter is absent
+		 * @param name
+		 * @param defaultValue
+		 * @return
+		 * @throws IOException
+		 * @throws ServletException
+		 */
+		public String getParameterAsString(String name, String defaultValue) throws IOException, ServletException {
+			String tmp = getParameterAsString(name);
+			return tmp == null ? defaultValue : tmp;
 		}
-		return out;
-	}
 
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {}
-	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {}
+		public INodeKey getParameterAsKey(String name) throws IOException, ServletException, FloraOnException {
+			return driver.asNodeKey(getParameterAsString(name));
+		}
+
+		public Integer getParameterAsInteger(String name,Integer nullValue) throws IOException, ServletException, FloraOnException {
+			try {
+				return Integer.parseInt(getParameterAsString(name));
+			} catch (NumberFormatException e) {
+				return nullValue;
+			}
+		}
+
+		public int getParameterAsInt(String name) throws IOException, ServletException, FloraOnException {
+			try {
+				return Integer.parseInt(getParameterAsString(name));
+			} catch (NumberFormatException | NullPointerException e) {
+				throw new FloraOnException("Invalid parameter value");
+			}
+		}
+
+		public boolean getParameterAsBooleanNoNull(String name) throws IOException, ServletException, FloraOnException {
+			String tmp=getParameterAsString(name);
+			if(tmp==null) return false;				// parameter absent
+			if(tmp.trim().length()==0) return true;	// present
+			if(tmp.equals("on")) return true;		// for HTML checkboxes
+			try {
+				if(Boolean.parseBoolean(tmp) || Integer.parseInt(tmp)!=0) return true;	// true or not zero
+			} catch (NumberFormatException e) {
+				return false;		// any other case
+			}
+			return false;
+		}
+
+		public Boolean getParameterAsBoolean(String name) throws IOException, ServletException, FloraOnException {
+			String tmp=getParameterAsString(name);
+			if(tmp==null) return null;				// parameter absent
+			return getParameterAsBooleanNoNull(name);
+		}
+
+		public boolean getParameterAsBoolean(String name, boolean nullValue) throws IOException, ServletException, FloraOnException {
+			String tmp=getParameterAsString(name);
+			if(tmp==null) return nullValue;				// parameter absent
+			return getParameterAsBooleanNoNull(name);
+		}
+
+		public <T extends Enum<T>> T getParameterAsEnum (String name, Class<T> T) throws IOException, ServletException, FloraOnException {
+			T out;
+			String value=getParameterAsString(name);
+			if(value==null || value.toUpperCase().equals("NULL")) return null;
+			try {
+				out=Enum.valueOf(T, value);
+			} catch (IllegalArgumentException e) {
+				throw new FloraOnException("Illegal value: "+value);
+			}
+			return out;
+		}
+
+		/**
+		 * Gets the called path, either if it was jsp:included or requested by browser
+		 * @return
+		 */
+		public ListIterator<String> getPathIterator() {
+			List<String> tmp;
+			Object tmp1=request.getAttribute("javax.servlet.include.request_uri");
+			if(tmp1!=null)
+				tmp=Arrays.asList(tmp1.toString().split("/"));
+			else
+				tmp=Arrays.asList(request.getRequestURI().split("/"));
+		/*   		if(tmp.get(2).startsWith("_"))		// check whether we want to set the universe to a given territory or not
+   			territory=tmp.get(2).replaceFirst("_", "");
+   		else
+   			territory=null;*/
+
+			ListIterator<String> it=tmp.listIterator();//  subList(territory==null ? 4 : 5, tmp.size()).listIterator();
+			return it;
+		}
+
+		/**
+		 * Gets an iterator of the path parts after the given one. It is guaranteed to exist at least one part, otherwise an exception is thrown.
+		 * @param part
+		 * @return
+		 * @throws FloraOnException
+		 */
+		public ListIterator<String> getPathIteratorAfter(String part) throws FloraOnException {
+			ListIterator<String> partIt=this.getPathIterator();
+			try {
+				while(!partIt.next().equals(part));
+			} catch(NoSuchElementException e) {
+				throw new FloraOnException("Invalid path");
+			}
+			if(!partIt.hasNext()) throw new FloraOnException("Incomplete path, expecting more options");
+			return partIt;
+		}
+
+		/**
+		 * Reloads user data from the database
+		 */
+		public User refreshUser() {
+			try {
+				User user = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(getUser().getID()), User.class);
+				user.clearPassword();
+				user.resetEffectivePrivileges();
+				request.getSession().setAttribute("user", user);
+				return user;
+			} catch (FloraOnException e) {
+				return null;
+			}
+		}
+
+		public User getUser() {
+			HttpSession session = request.getSession(false);
+
+			if(session == null || session.getAttribute("user") == null) {
+				try {
+					return User.guest();
+				} catch (DatabaseException e) {
+					e.printStackTrace();
+					return null;
+				}
+			} else
+				return (User) session.getAttribute("user");
+		}
+
+		public void error(String obj) throws IOException {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			PrintWriter pw = response.getWriter();
+			JsonObject resp = new JsonObject();
+			resp.addProperty("success", false);
+			resp.addProperty("msg", obj);
+			pw.print(resp.toString());
+//		pw.println("{\"success\":false,\"msg\":\""+obj+"\"}");
+			pw.flush();
+		}
+
+		protected void errorHTML(String obj) throws IOException {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			response.setContentType("text/html");
+			response.setCharacterEncoding("UTF-8");
+			PrintWriter pw = response.getWriter();
+			pw.println("<html><body>" + obj + "</body></html>");
+			pw.flush();
+		}
+
+		public void success(JsonElement obj, JsonObject header) throws IOException {
+			JsonObject out;
+			if(header==null)
+				out=new JsonObject();
+			else
+				out=header;
+			out.addProperty("success", true);
+			out.add("msg", obj);
+
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			PrintWriter pw = response.getWriter();
+			pw.println(out.toString());
+			pw.flush();
+		}
+
+		public void success(Object obj) throws IOException {
+			if(JsonObject.class.isAssignableFrom(obj.getClass())) {
+				success((JsonObject) obj);
+				return;
+			}
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			PrintWriter pw = response.getWriter();
+			JsonObject resp = new JsonObject();
+			resp.addProperty("success", true);
+			resp.addProperty("msg", obj.toString());
+			pw.print(resp.toString());
+//		pw.println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
+			pw.flush();
+		}
+
+		protected void success(JsonObject obj) throws IOException {
+			success((JsonElement) obj);
+		}
+
+		protected void success(JsonElement obj) throws IOException {
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			PrintWriter pw = response.getWriter();
+			JsonObject resp = new JsonObject();
+			resp.addProperty("success", true);
+			resp.add("msg", obj);
+			pw.print(resp.toString());
+//		pw.println("{\"success\":true,\"msg\":" + obj.toString() + "}");
+			pw.flush();
+		}
+
+		public void success(String obj, boolean alert) throws IOException {
+			if(!alert)
+				success(obj);
+			else {
+				response.setContentType("application/json");
+				response.setCharacterEncoding("UTF-8");
+				JsonObject resp = new JsonObject();
+				JsonObject obj1 = new JsonObject();
+				resp.addProperty("success", true);
+				obj1.addProperty("alert", true);
+				obj1.addProperty("text", obj);
+				resp.add("msg", obj1);
+
+				PrintWriter pw = response.getWriter();
+				pw.println(resp.toString());
+				pw.flush();
+			}
+		}
+
+	}
 }

@@ -12,10 +12,13 @@ import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
-import com.arangodb.velocypack.ValueType;
+import com.arangodb.velocypack.*;
+import com.arangodb.velocypack.exception.VPackException;
+import com.arangodb.velocypack.exception.VPackParserException;
 import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
+import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
@@ -53,7 +56,41 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(RedListEnums.PopulationSizeReduction.class, new SafeEnumDeserializer<>(RedListEnums.PopulationSizeReduction.class))
 				.registerDeserializer(Privileges.class, new SafeEnumDeserializer<>(Privileges.class))
 				.registerDeserializer(RedListEnums.NrMatureIndividuals.class, new SafeEnumDeserializer<>(RedListEnums.NrMatureIndividuals.class))
-				.build();
+				.registerDeserializer(Precision.class, new VPackDeserializer<Precision>() {
+					@Override
+					public Precision deserialize(
+							final VPackSlice parent,
+							final VPackSlice vpack,
+							final VPackDeserializationContext context) throws VPackException {
+
+						final Precision obj;
+						String v;
+						if(vpack.getType() == ValueType.INT || vpack.getType() == ValueType.UINT || vpack.getType() == ValueType.SMALLINT)
+							v = ((Integer) vpack.getAsInt()).toString();
+						else if(vpack.getType() == ValueType.DOUBLE)
+							v = ((Double) vpack.getAsDouble()).toString();
+						else
+							v = vpack.getAsString();
+
+						try {
+							obj = new Precision(v);
+						} catch (FloraOnException e) {
+							throw new VPackParserException(e);
+						}
+						return obj;
+					}
+				}).registerSerializer(Precision.class, new VPackSerializer<Precision>() {
+					@Override
+					public void serialize(
+							final VPackBuilder builder,
+							final String attribute,
+							final Precision value,
+							final VPackSerializationContext context) throws VPackException {
+//						builder.add(attribute, ValueType.STRING);
+						builder.add(attribute, value.toString());
+//						builder.close();
+					}
+				}).build();
 
 		database = driver.db(dbname);
 		NWD = new NodeWorkerDriver(this);

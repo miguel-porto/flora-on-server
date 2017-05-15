@@ -37,18 +37,18 @@ import java.util.ListIterator;
 public class AdminAPI extends FloraOnServlet {
 
     @Override
-    public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-        ListIterator<String> path = getPathIteratorAfter("admin");
+    public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        ListIterator<String> path = thisRequest.getPathIteratorAfter("admin");
         User user;
         Gson gs;
-        if(!getUser().canMANAGE_REDLIST_USERS()) {
-            error("You don't have privileges to do this action.");
+        if(!thisRequest.getUser().canMANAGE_REDLIST_USERS()) {
+            thisRequest.error("You don't have privileges to do this action.");
             return;
         }
 
         switch (path.next()) {
             case "createuser":
-                user = readUserBean();
+                user = readUserBean(thisRequest);
                 if(user == null) break;
                 char[] pass = new char[0];
                 if(user.getUserName() == null)
@@ -58,9 +58,9 @@ public class AdminAPI extends FloraOnServlet {
 
                 driver.getAdministration().createUser(user);
                 if(pass.length > 0)
-                    success(new String(pass), true);
+                    thisRequest.success(new String(pass), true);
                 else
-                    success("Ok", true);
+                    thisRequest.success("Ok", true);
 
 /*                gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("CREATE BEAN:");
@@ -69,8 +69,8 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             case "updateuser":
-                user = readUserBean();
-                success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
+                user = readUserBean(thisRequest);
+                thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
 /*
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("UPDATE BEAN:");
@@ -79,12 +79,12 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             case "deleteuser":
-                driver.getNodeWorkerDriver().deleteDocument(getParameterAsKey("databaseId"));
-                success("Ok");
+                driver.getNodeWorkerDriver().deleteDocument(thisRequest.getParameterAsKey("databaseId"));
+                thisRequest.success("Ok");
                 break;
 
             case "newpassword":
-                user = readUserBean();
+                user = readUserBean(thisRequest);
                 if(user == null) break;
 
                 if(user.getUserName() == null || user.getUserName().trim().equals(""))
@@ -94,18 +94,18 @@ public class AdminAPI extends FloraOnServlet {
 
                 char[] pass1 = generatePassword(user);
                 driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user);
-                success("username: " + user.getUserName() + "\npassword: " + new String(pass1), true);
+                thisRequest.success("username: " + user.getUserName() + "\npassword: " + new String(pass1), true);
                 break;
 
             case "setuserpolygon":
                 Part filePart;
                 InputStream fileContent = null;
                 try {
-                    filePart = request.getPart("userarea");
+                    filePart = thisRequest.request.getPart("userarea");
                     if(filePart.getSize() == 0) {
-                        driver.getNodeWorkerDriver().updateDocument(getParameterAsKey("databaseId")
+                        driver.getNodeWorkerDriver().updateDocument(thisRequest.getParameterAsKey("databaseId")
                                 , "userPolygons", "");
-                        success("Ok");
+                        thisRequest.success("Ok");
                         return;
                     }
                     System.out.println(filePart.getSize());
@@ -124,18 +124,18 @@ public class AdminAPI extends FloraOnServlet {
 
                     PolygonTheme pt = new PolygonTheme(bais, null);
                     if(pt.size() == 0)
-                        error("File could not be processed. Upload in GeoJson format.");
+                        thisRequest.error("File could not be processed. Upload in GeoJson format.");
                     else {
                         bais = new ByteArrayInputStream(bytes);
-                        success(driver.getNodeWorkerDriver().updateDocument(getParameterAsKey("databaseId")
+                        thisRequest.success(driver.getNodeWorkerDriver().updateDocument(thisRequest.getParameterAsKey("databaseId")
                                 , "userPolygons", IOUtils.toString(bais)).toJsonObject());
                     }
                 }
                 break;
 
             case "addtaxonprivileges":
-                String[] taxa = request.getParameterValues("applicableTaxa");
-                String[] privileges = request.getParameterValues("taxonPrivileges");
+                String[] taxa = thisRequest.request.getParameterValues("applicableTaxa");
+                String[] privileges = thisRequest.request.getParameterValues("taxonPrivileges");
 
                 if(taxa == null || taxa.length == 0) throw new FloraOnException("You must select at least one taxon.");
 /*
@@ -143,46 +143,46 @@ public class AdminAPI extends FloraOnServlet {
                 System.out.println(gs.toJson(taxa));
                 System.out.println(gs.toJson(privileges));
 */
-                User u = driver.getAdministration().getUser(getParameterAsKey("userId"));
+                User u = driver.getAdministration().getUser(thisRequest.getParameterAsKey("userId"));
                 u.addTaxonPrivileges(taxa, privileges);
-                success(driver.getAdministration().updateUser(getParameterAsKey("userId"), u).getID());
+                thisRequest.success(driver.getAdministration().updateUser(thisRequest.getParameterAsKey("userId"), u).getID());
                 break;
 
             case "removetaxonprivileges":
-                success(driver.getAdministration().removeTaxonPrivileges(getParameterAsKey("userId")
-                        , getParameterAsInt("index")).getID());
+                thisRequest.success(driver.getAdministration().removeTaxonPrivileges(thisRequest.getParameterAsKey("userId")
+                        , thisRequest.getParameterAsInt("index")).getID());
                 break;
 
             case "updatetaxonprivileges":
-                String[] taxa1 = request.getParameterValues("applicableTaxa");
+                String[] taxa1 = thisRequest.request.getParameterValues("applicableTaxa");
                 if(taxa1 == null || taxa1.length == 0) throw new FloraOnException("You must select at least one taxon.");
-                User u1 = driver.getAdministration().getUser(getParameterAsKey("userId"));
-                int ps = getParameterAsInt("privilegeSet");
+                User u1 = driver.getAdministration().getUser(thisRequest.getParameterAsKey("userId"));
+                int ps = thisRequest.getParameterAsInt("privilegeSet");
 
                 String[] newTaxa = (String[]) ArrayUtils.addAll(
                         u1.getTaxonPrivileges().get(ps).getApplicableTaxa()
                         , taxa1);
 
                 u1.getTaxonPrivileges().get(ps).setApplicableTaxa(newTaxa);
-                success(driver.getAdministration().updateUser(getParameterAsKey("userId"), u1).getID());
+                thisRequest.success(driver.getAdministration().updateUser(thisRequest.getParameterAsKey("userId"), u1).getID());
                 break;
 
             default:
-                error("Command not found.");
+                thisRequest.error("Command not found.");
         }
     }
 
-    private User readUserBean() throws IOException {
+    private User readUserBean(ThisRequest thisRequest) throws IOException {
         User user = new User();
         HashMap<String, String[]> map = new HashMap<>();
-        Enumeration names = request.getParameterNames();
+        Enumeration names = thisRequest.request.getParameterNames();
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
 /*
             System.out.println(name);
             System.out.println(request.getParameterValues(name).toString());
 */
-            map.put(name, request.getParameterValues(name));
+            map.put(name, thisRequest.request.getParameterValues(name));
         }
 
         try {
@@ -190,9 +190,9 @@ public class AdminAPI extends FloraOnServlet {
         } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
             if(e.getCause() != null)
-                error(e.getCause().getMessage());
+                thisRequest.error(e.getCause().getMessage());
             else
-                error("Could not populate the java bean");
+                thisRequest.error("Could not populate the java bean");
             return null;
         }
         return user;
@@ -206,7 +206,7 @@ public class AdminAPI extends FloraOnServlet {
     }
 
     @Override
-    public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-        error("Expecting POST.");
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        thisRequest.error("Expecting POST.");
     }
 }

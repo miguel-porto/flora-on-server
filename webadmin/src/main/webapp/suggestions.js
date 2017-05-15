@@ -69,8 +69,8 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
         }
 
         if(ev.keyCode == 27) {
-            if(suggestionBoxId) {
-                document.getElementById(suggestionBoxId).innerHTML='';
+            if(suggestionBoxId && document.getElementById(suggestionBoxId).innerHTML != '') {
+                document.getElementById(suggestionBoxId).innerHTML = '';
                 return;
 			} else {
                 if(onClick) {

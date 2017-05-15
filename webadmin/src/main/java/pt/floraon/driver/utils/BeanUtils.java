@@ -142,13 +142,13 @@ public class BeanUtils {
 
                 if(property.getClass().isArray()) {
                     if (!Arrays.equals((Object[]) property, (Object[]) newProperty))
-                        throw new FloraOnException("Cannot merge beans.");
+                        throw new FloraOnException("Cannot merge beans: field " + propertyName + " has different values.");
                 }/* else if(DiffableBean.class.isAssignableFrom(property.getClass())) {
                     property = mergeBeans(DiffableBean.class, (DiffableBean) property, (DiffableBean) newProperty);
                 }*/ else {  // TODO: nested beans
                     System.out.println("PROP: " + propertyName);
                     System.out.println(property+" : "+newProperty);
-                    if(!property.equals(newProperty)) throw new FloraOnException("Cannot merge beans.");
+                    if(!property.equals(newProperty)) throw new FloraOnException("Cannot merge beans: field " + propertyName + " has different values.");
                 }
 
             }

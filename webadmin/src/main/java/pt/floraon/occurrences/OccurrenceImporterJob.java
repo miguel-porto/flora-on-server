@@ -169,28 +169,41 @@ public class OccurrenceImporterJob implements JobTask {
                         e.printStackTrace();
                         throw new FloraOnException(e.getMessage());
                     } catch (FloraOnException e) {
-                        throw new FloraOnException(Messages.getString("error.3"));
+                        lineerrors.put(0L, e.getMessage());
                     }
 
+                    if(merged == null) {    // could not merge, go on without merging
+                        for(Inventory i : entr.getValue()) {
+                            if (mainObserver) {
+                                Set<String> obs = new LinkedHashSet<>();
+                                obs.add(user.getID());
+                                obs.addAll(Arrays.asList(i.getObservers()));
+                                i.setObservers(obs.toArray(new String[obs.size()]));
+                            }
+                            i.setMaintainer(user.getID());
+                            invList.add(i);
+                        }
+                    } else {
 //            System.out.println("MERGE OF "+tmp.size()+" BEANS:");
 //            System.out.println(gs.toJson(merged));
 
-                    // assemble all species found in these inventories into the merged one
-                    List<newOBSERVED_IN> occ = new ArrayList<>();
-                    for (Inventory inventory : entr.getValue()) {
-                        occ.addAll(inventory.getUnmatchedOccurrences());
-                    }
-                    if (occ.size() == 0) occ.add(new newOBSERVED_IN(true));
-                    merged.setUnmatchedOccurrences(occ);
+                        // assemble all species found in these inventories into the merged one
+                        List<newOBSERVED_IN> occ = new ArrayList<>();
+                        for (Inventory inventory : entr.getValue()) {
+                            occ.addAll(inventory.getUnmatchedOccurrences());
+                        }
+                        if (occ.size() == 0) occ.add(new newOBSERVED_IN(true));
+                        merged.setUnmatchedOccurrences(occ);
 
-                    if (mainObserver) {
-                        Set<String> obs = new LinkedHashSet<>();
-                        obs.add(user.getID());
-                        obs.addAll(Arrays.asList(merged.getObservers()));
-                        merged.setObservers(obs.toArray(new String[obs.size()]));
+                        if (mainObserver) {
+                            Set<String> obs = new LinkedHashSet<>();
+                            obs.add(user.getID());
+                            obs.addAll(Arrays.asList(merged.getObservers()));
+                            merged.setObservers(obs.toArray(new String[obs.size()]));
+                        }
+                        merged.setMaintainer(user.getID());
+                        invList.add(merged);
                     }
-                    merged.setMaintainer(user.getID());
-                    invList.add(merged);
                 }
                 break;
         }

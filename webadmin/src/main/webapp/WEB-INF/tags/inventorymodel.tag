@@ -9,7 +9,7 @@
 <!-- This is the model for the inventory. It will be cloned when adding new. -->
 <div class="inventory dummy id1holder">
     <input type="hidden" name="inventoryId" value=""/>
-    <h3><fmt:message key="inventory.1"/></h3>
+    <h3><fmt:message key="inventory.1a"/></h3>
     <table class="verysmalltext occurrencetable">
         <tr>
             <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
@@ -18,7 +18,7 @@
         </tr>
         <tr>
             <td class="field coordinates" data-name="coordinates"></td>
-            <td class="field editable" data-name="gridPrecision"></td>
+            <td class="field editable" data-name="precision"></td>
             <td class="field editable" data-name="code"></td>
             <td class="field editable" data-name="locality"></td>
             <td class="field editable" data-name="date"></td>
@@ -64,14 +64,5 @@
             </tr>
         </tbody>
     </table>
-    <div class="button newtaxon hidden">Add taxon</div>
+    <div class="button newtaxon">Add taxon</div>
 </div>
-
-<form id="addnewinventories" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
-    <div class="heading2">
-        <h2><fmt:message key="inventory.add"/></h2>
-        <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
-        <div class="button" id="deleteselectednew">Delete selected</div>
-        <input type="submit" class="textbutton" value="Save"/>
-    </div>
-</form>

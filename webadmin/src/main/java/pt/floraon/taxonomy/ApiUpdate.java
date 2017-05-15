@@ -30,74 +30,74 @@ import pt.floraon.server.FloraOnServlet;
 public class ApiUpdate extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		doFloraOnPost();
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		doFloraOnPost(thisRequest);
 	}
 
 	@Override
-	public void doFloraOnPost()
+	public void doFloraOnPost(ThisRequest thisRequest)
 			throws ServletException, IOException, FloraOnException {
 		String rank, name, annot, shortName;
 		INodeKey from, to, id;
 		int res;
 		
-		if(!getUser().canMODIFY_TAXA_TERRITORIES() && !getUser().canMODIFY_TAXA()) {
-			error("You must login to do this operation!");
+		if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES() && !thisRequest.getUser().canMODIFY_TAXA()) {
+			thisRequest.error("You must login to do this operation!");
 			return;
 		}
 		
-		ListIterator<String> partIt=this.getPathIteratorAfter("update");
+		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("update");
 
 		switch(partIt.next()) {
 		case "delete":
-			if(!getUser().canEDIT_FULL_CHECKLIST()) {error("You don't have privileges for this operation!"); return;}
-			id=getParameterAsKey("id");
+			if(!thisRequest.getUser().canEDIT_FULL_CHECKLIST()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+			id=thisRequest.getParameterAsKey("id");
 //			success(EntityFactory.toJsonElement(NWD.deleteVertexOrEdge(id),false));
-			success(new Gson().toJsonTree(NWD.deleteVertexOrEdge(id)));
+			thisRequest.success(new Gson().toJsonTree(NWD.deleteVertexOrEdge(id)));
 			return;
 
 		case "deleteleaf":
-			if(!getUser().canEDIT_FULL_CHECKLIST()) {error("You don't have privileges for this operation!"); return;}
-			id=getParameterAsKey("id");
+			if(!thisRequest.getUser().canEDIT_FULL_CHECKLIST()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+			id=thisRequest.getParameterAsKey("id");
 			//if(id==null || id.trim().length()<1) throw new FloraOnException("You must provide a document handle as id");
 //			success(EntityFactory.toJsonElement(NWD.deleteLeafNode(id),false));
-			success(new Gson().toJsonTree(NWD.deleteLeafNode(id)));
+			thisRequest.success(new Gson().toJsonTree(NWD.deleteLeafNode(id)));
 			return;
 
 		case "setsynonym":
-			from=getParameterAsKey("from");
-			to=getParameterAsKey("to");
+			from=thisRequest.getParameterAsKey("from");
+			to=thisRequest.getParameterAsKey("to");
 			driver.wrapTaxEnt(from).setSynonymOf(to);
 			//.setSynonymOf(graph.dbNodeWorker.getTaxEntVertex(ArangoKey.fromString(to)));
-			success("Ok");
+			thisRequest.success("Ok");
 			return;
 			
 		case "detachsynonym":
-			from=getParameterAsKey("from");
-			to=getParameterAsKey("to");
+			from=thisRequest.getParameterAsKey("from");
+			to=thisRequest.getParameterAsKey("to");
 			NWD.detachSynonym(from, to);
-			success("Ok");
+			thisRequest.success("Ok");
 			return;
 
 		case "unsetcompleteterritory":
-			if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
-			res = driver.wrapTaxEnt(getParameterAsKey("id")).unsetTerritoryWithCompleteDistribution(getParameterAsKey("territory"));
-			success(res == 0 ? "Nothing removed" : "Removed");
+			if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+			res = driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).unsetTerritoryWithCompleteDistribution(thisRequest.getParameterAsKey("territory"));
+			thisRequest.success(res == 0 ? "Nothing removed" : "Removed");
 			return;
 			
 		case "add":
 			if(!partIt.hasNext()) {
-				error("Choose the node type: taxent");
+				thisRequest.error("Choose the node type: taxent");
 				return;
 			}
 			switch(partIt.next()) {
 			case "link":
-				from = getParameterAsKey("from");
-				to = getParameterAsKey("to");
-				String type = getParameterAsString("type");
+				from = thisRequest.getParameterAsKey("from");
+				to = thisRequest.getParameterAsKey("to");
+				String type = thisRequest.getParameterAsString("type");
 				try {
 					//success(n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject());
-					success(driver.wrapNode(from).createRelationshipTo(to, RelTypes.valueOf(type.toUpperCase())).toJsonObject());
+					thisRequest.success(driver.wrapNode(from).createRelationshipTo(to, RelTypes.valueOf(type.toUpperCase())).toJsonObject());
 				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 						| IllegalArgumentException | InvocationTargetException e1) {
 					e1.printStackTrace();
@@ -105,21 +105,21 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 				
 			case "inferiortaxent":	// this adds a bond taxent child of the given parent and ensures it is taxonomically valid
-				success(driver.wrapTaxEnt(getParameterAsKey("parent")).createTaxEntChild(
-					getParameterAsString("name")
-					, getParameterAsString("author")
-					, TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null))
-					, getParameterAsString("sensu"), getParameterAsString("annot"), getParameterAsBooleanNoNull("current")
+				thisRequest.success(driver.wrapTaxEnt(thisRequest.getParameterAsKey("parent")).createTaxEntChild(
+						thisRequest.getParameterAsString("name")
+					, thisRequest.getParameterAsString("author")
+					, TaxonRanks.getRankFromValue(thisRequest.getParameterAsInteger("rank",null))
+					, thisRequest.getParameterAsString("sensu"), thisRequest.getParameterAsString("annot"), thisRequest.getParameterAsBooleanNoNull("current")
 				).toString());
 				return;
 
 			case "territory":
-				if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
-				name=getParameterAsString("name");
-				shortName=getParameterAsString("shortName");
-				rank=getParameterAsString("rank");
-				annot=getParameterAsString("annot");
-				success(
+				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				name=thisRequest.getParameterAsString("name");
+				shortName=thisRequest.getParameterAsString("shortName");
+				rank=thisRequest.getParameterAsString("rank");
+				annot=thisRequest.getParameterAsString("annot");
+				thisRequest.success(
 					new GraphUpdateResult(
 						driver
 						, NWD.createTerritory(name, shortName, rank==null ? TerritoryTypes.COUNTRY : TerritoryTypes.valueOf(rank), annot, false, null).getID()
@@ -128,20 +128,20 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 				
 			case "taxent":	// this only adds a free taxent
-		    	success(
+				thisRequest.success(
 	    			new GraphUpdateResult(driver
     					, NWD.createTaxEntFromName(
-							getParameterAsString("name")
-							,getParameterAsString("author")
-							,TaxonRanks.getRankFromValue(getParameterAsInteger("rank",null)),null,null,true).getID()).toJsonObject()
+							thisRequest.getParameterAsString("name")
+							,thisRequest.getParameterAsString("author")
+							,TaxonRanks.getRankFromValue(thisRequest.getParameterAsInteger("rank",null)),null,null,true).getID()).toJsonObject()
 				);
 				//success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
 				return;
 			
 			case "completeterritory":
-				if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
-				res = driver.wrapTaxEnt(getParameterAsKey("id")).setTerritoryWithCompleteDistribution(getParameterAsKey("territory"));
-				success(res == 0 ? "Nothing added" : "Added");
+				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				res = driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).setTerritoryWithCompleteDistribution(thisRequest.getParameterAsKey("territory"));
+				thisRequest.success(res == 0 ? "Nothing added" : "Added");
 				return;
 				
 /*			case "attribute":
@@ -159,13 +159,13 @@ public class ApiUpdate extends FloraOnServlet {
 				return;*/
 				
 			default:
-				error("Invalid node type");
+				thisRequest.error("Invalid node type");
 				return;
 			}
 			
 		case "update":
 			if(!partIt.hasNext()) {
-				error("Choose the node type: taxent");
+				thisRequest.error("Choose the node type: taxent");
 				return;
 			}
 			switch(partIt.next()) {
@@ -178,19 +178,19 @@ public class ApiUpdate extends FloraOnServlet {
 
 			case "taxent":
 				TaxEnt te = new TaxEnt(
-						getParameterAsString("name")
-						,getParameterAsInteger("rank",null)
-						,getParameterAsString("author")
-						,getParameterAsString("sensu")
-						,getParameterAsString("annotation")
-						,getParameterAsBoolean("current")
+						thisRequest.getParameterAsString("name")
+						,thisRequest.getParameterAsInteger("rank",null)
+						,thisRequest.getParameterAsString("author")
+						,thisRequest.getParameterAsString("sensu")
+						,thisRequest.getParameterAsString("annotation")
+						,thisRequest.getParameterAsBoolean("current")
 						,null
-						,getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
-						,getParameterAsInteger("oldId", null)
+						,thisRequest.getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
+						,thisRequest.getParameterAsInteger("oldId", null)
 				);
-				te.setComment(getParameterAsString("comment"));
-				success(NWD.updateTaxEntNode(getParameterAsKey("id"), te
-						, getParameterAsBooleanNoNull("replace")).toJsonObject());
+				te.setComment(thisRequest.getParameterAsString("comment"));
+				thisRequest.success(NWD.updateTaxEntNode(thisRequest.getParameterAsKey("id"), te
+						, thisRequest.getParameterAsBooleanNoNull("replace")).toJsonObject());
 				// aqui o update tem de ser reformulado!
 				/*
 				success(NWD.updateTaxEntNode(
@@ -203,20 +203,20 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 				
 			case "territory":
-				if(!getUser().canMODIFY_TAXA_TERRITORIES()) {error("You don't have privileges for this operation!"); return;}
-				success(NWD.updateTerritoryNode(
-					NWD.getNode(getParameterAsKey("id"), Territory.class)
-					, getParameterAsString("name")
-					, getParameterAsString("shortName")
-					, getParameterAsEnum("type", TerritoryTypes.class)
-					, getParameterAsString("theme")
-					, getParameterAsBoolean("checklist", true)
+				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				thisRequest.success(NWD.updateTerritoryNode(
+					NWD.getNode(thisRequest.getParameterAsKey("id"), Territory.class)
+					, thisRequest.getParameterAsString("name")
+					, thisRequest.getParameterAsString("shortName")
+					, thisRequest.getParameterAsEnum("type", TerritoryTypes.class)
+					, thisRequest.getParameterAsString("theme")
+					, thisRequest.getParameterAsBoolean("checklist", true)
 					).toJsonObject()
 				);
 				return;
 
 			default:
-				error("Invalid node type");
+				thisRequest.error("Invalid node type");
 				return;
 			}
 		}

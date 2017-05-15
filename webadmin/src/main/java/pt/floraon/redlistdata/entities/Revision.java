@@ -78,13 +78,13 @@ public class Revision {
         Revision revision = (Revision) o;
 
         if (!dateSaved.equals(revision.dateSaved)) return false;
-        return user.equals(revision.user);
+        return user != null ? user.equals(revision.user) : revision.user == null;
     }
 
     @Override
     public int hashCode() {
         int result = dateSaved.hashCode();
-        result = 31 * result + user.hashCode();
+        result = 31 * result + (user != null ? user.hashCode() : 0);
         return result;
     }
 }

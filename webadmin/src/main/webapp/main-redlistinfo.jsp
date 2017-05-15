@@ -48,7 +48,7 @@
             <c:if test="${user.isAdministrator()}">
                 <li><a href="?w=batch"><fmt:message key="Separator.5"/></a></li>
             </c:if>
-            <c:if test="${user.canDOWNLOAD_OCCURRENCES() && user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
+            <c:if test="${user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
                 <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
             </c:if>
         </ul>
@@ -189,8 +189,10 @@
                         <th class="sorttable_nosort"></th>
                     </c:if>
                         <th>Taxon</th><th>Native Status</th>
-                    <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+                    <c:if test="${user.canVIEW_FULL_SHEET()}">
                         <th>Responsible for texts</th>
+                    </c:if>
+                    <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                         <th>Responsible for assessment</th>
                         <th>Responsible for revision</th>
                     </c:if>
@@ -242,8 +244,10 @@
                             NONEXISTENT
                         </c:if>
                         </td>
-                        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+                        <c:if test="${user.canVIEW_FULL_SHEET()}">
                         <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Texts()}">${userMap.get(ra)}<br/></c:forEach></td>
+                        </c:if>
+                        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                         <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Assessment()}">${userMap.get(ra)}<br/></c:forEach></td>
                         <td><c:forEach var="ra" items="${taxon.getResponsibleAuthors_Revision()}">${userMap.get(ra)}<br/></c:forEach></td>
                         </c:if>
@@ -1530,7 +1534,7 @@
                         <td>${occ._getDate()}</td>
                         <td>${occ._getObserverNames()[0]}</td>
                         <td style="width:180px">${occ.getOccurrence().getComment()}</td>
-                        <td>${occ.getGridPrecision()}</td>
+                        <td>${occ.getPrecision()}</td>
                         <td>${occ.getOccurrence().getConfidence()}</td>
                         <td>${occ.getOccurrence().getPhenoState()}</td>
                         <td>${occ.getThreats()}</td>

@@ -158,7 +158,6 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         return size;
     }
 
-
     public void exportKML(PrintWriter out) {
         final Kml kml = new Kml();
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
@@ -167,10 +166,20 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             Placemark pl = folder.createAndAddPlacemark();
             CanonicalName co = new CanonicalName(o.getOccurrence().getVerbTaxon());
 
-            pl.withName(co.getGenus() + " " + co.getSpecificEpithet() + (co.getInfraRanksAsString() == null ? "" : " " + co.getInfraRanksAsString()) + (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "")
-                    + (o.getGridPrecision() > 1 ? " (" + precisionToString(o.getGridPrecision()) + ")" : ""))
-                    .withDescription((o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") + " (" + o.getYear() + ")"
-                            + (o.getOccurrence().getComment() != null ? ": " + o.getOccurrence().getComment() : ""))
+            String name = co.getGenus() + " " +
+                    co.getSpecificEpithet() +
+                    (co.getInfraRanksAsString() == null ? "" : " " + co.getInfraRanksAsString()) +
+                    (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
+                    (" (" + o.getPrecision().toString() + ")") +
+                    (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA ? " JÁ CONTADO" : "");
+
+            String desc = (o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") +
+                    " (" + o.getYear() + ")" +
+                    (o.getOccurrence().getComment() != null ? ": " + o.getOccurrence().getComment() : "") +
+                    (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA
+                        ? " " + o.getOccurrence().getTypeOfEstimate() + " = " + o.getOccurrence().getAbundance() : "");
+
+            pl.withName(name).withDescription(desc)
                     .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
         }
         kml.marshal(out);

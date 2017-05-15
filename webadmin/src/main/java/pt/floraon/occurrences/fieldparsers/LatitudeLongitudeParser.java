@@ -31,7 +31,7 @@ public class LatitudeLongitudeParser implements FieldParser {
         } catch (NumberFormatException e) {
             mat = coordParse.matcher(inputValue);
             if(!mat.find())
-                throw new IllegalArgumentException(e);
+                throw e;
         }
 
         switch(inputFieldName.toLowerCase()) {

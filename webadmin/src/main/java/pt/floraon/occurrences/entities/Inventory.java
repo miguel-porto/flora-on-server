@@ -5,12 +5,11 @@ import com.google.gson.JsonObject;
 import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.GeoBean;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.geometry.CoordinateConversion;
-import pt.floraon.geometry.LatLongCoordinate;
-import pt.floraon.geometry.UTMCoordinate;
+import pt.floraon.geometry.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -25,7 +24,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String spatialRS;
     private Float elevation;
     private String geometry;
-    private Integer precision, gridPrecision, year, month, day;
+    private Integer year, month, day;
+    private Precision precision;
     private Boolean complete;
     private String habitat, pubNotes, privNotes, geology;
     private String[] tags, observers, collectors, dets;
@@ -66,7 +66,6 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.elevation = other.elevation;
         this.geometry = other.geometry;
         this.precision = other.precision;
-        this.gridPrecision = other.gridPrecision;
         this.year = other.year;
         this.month = other.month;
         this.day = other.day;
@@ -182,20 +181,16 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.geometry = geometry;
     }
 
-    public Integer getPrecision() {
+    public Precision getPrecision() {
         return precision;
     }
 
-    public void setPrecision(Integer precision) {
+    public void setPrecision(String precision) throws FloraOnException {
+        this.precision = new Precision(precision);
+    }
+
+    public void setPrecision(Precision precision) {
         this.precision = precision;
-    }
-
-    public Integer getGridPrecision() {
-        return gridPrecision;
-    }
-
-    public void setGridPrecision(Integer gridPrecision) {
-        this.gridPrecision = gridPrecision;
     }
 
     public Integer getYear() {
@@ -243,6 +238,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         sb.append(day == null ? "--" : day).append("/")
                 .append(month == null ? "--" : month).append("/")
                 .append(year == null ? "----" : year);
+        return sb.toString();
+    }
+
+    public String _getDateYMD() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(year == null ? "----" : year).append("/")
+                .append(month == null ? "--" : month).append("/")
+                .append(day == null ? "--" : day);
         return sb.toString();
     }
 
@@ -515,7 +518,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
         Inventory that = (Inventory) o;
 
-        if(getCode() != null) return getCode().equals(that.getCode());
+        if(code != null) return code.equals(that.code);
         if (getLatitude() != null ? !getLatitude().equals(that.getLatitude()) : that.getLatitude() != null) return false;
         if (getLongitude() != null ? !getLongitude().equals(that.getLongitude()) : that.getLongitude() != null) return false;
         if (year != null ? !year.equals(that.year) : that.year != null) return false;
@@ -523,7 +526,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         if (day != null ? !day.equals(that.day) : that.day != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(observers, that.observers)) return false;
-        return getCode() != null ? getCode().equals(that.getCode()) : that.getCode() == null;
+        return code != null ? code.equals(that.code) : that.code == null;
     }
 
     /**
@@ -533,8 +536,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      */
     @Override
     public int hashCode() {
-        int result = getCode() != null ? getCode().hashCode() : 0;
-        if(getCode() != null && !getCode().equals("")) return result;     // code rules!
+        int result = code != null ? code.hashCode() : 0;    // NOTE: we don't use the getter here cause the getter does some processing to avoid nulls. here we want the real inventory code as is.
+        if(code != null && !code.equals("")) return result;     // code rules!
         result = 31 * result + (getLatitude() != null ? getLatitude().hashCode() : 0);
         result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);
         result = 31 * result + (year != null ? year.hashCode() : 0);

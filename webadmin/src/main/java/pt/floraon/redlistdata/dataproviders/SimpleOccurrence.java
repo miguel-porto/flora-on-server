@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.dataproviders;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.FloraOnException;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.occurrences.OccurrenceConstants;
@@ -46,11 +47,14 @@ public class SimpleOccurrence extends Inventory {
         this.id_reg = 0;
         this.id_ent = null;
         this.occurrence = inv._getTaxa()[0];
-        if(this.getGridPrecision() == null) this.setGridPrecision(1);
+        if(this.getPrecision() == null) try {
+            this.setPrecision("1");
+        } catch (FloraOnException e) {
+        }
     }
 
     public SimpleOccurrence(String dataSource, float latitude, float longitude, Integer year, Integer month, Integer day, String author
-            , String genus, String species, String infrataxon, String pubNotes, int id_reg, Integer id_ent, int precision
+            , String genus, String species, String infrataxon, String pubNotes, int id_reg, Integer id_ent, String precision
             , OccurrenceConstants.ConfidenceInIdentifiction confidence, Constants.PhenologicalStates flowering) {
         this.dataSource = dataSource;
         this.id_reg = id_reg;
@@ -65,7 +69,11 @@ public class SimpleOccurrence extends Inventory {
         this.setDay(day);
         this._setObserverNames(new String[] {author});
 
-        this.setGridPrecision(precision);
+        try {
+            this.setPrecision(precision);
+        } catch (FloraOnException e) {
+            e.printStackTrace();
+        }
 
         this.occurrence.setVerbTaxon(genus + " " + species + (infrataxon == null ? "" : " " + infrataxon));
         this.occurrence.setComment(pubNotes);
@@ -78,4 +86,21 @@ public class SimpleOccurrence extends Inventory {
 */
 
     }
+
+    @Override
+    public Float getLatitude() {
+        if(this.getOccurrence().getObservationLatitude() == null)
+            return super.getLatitude();
+        else
+            return this.getOccurrence().getObservationLatitude();
+    }
+
+    @Override
+    public Float getLongitude() {
+        if(this.getOccurrence().getObservationLongitude() == null)
+            return super.getLongitude();
+        else
+            return this.getOccurrence().getObservationLongitude();
+    }
+
 }

@@ -25,11 +25,11 @@ public class Query extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
 		String query;
-		String format=request.getParameter("fmt");
+		String format=thisRequest.getParameterAsString("fmt");
 
-		errorIfAnyNull(query = request.getParameter("q"));
+		errorIfAnyNull(query = thisRequest.getParameterAsString("q"));
 		
 		if(format==null) format="json";
 		Iterator<SimpleTaxonResult> it;
@@ -49,15 +49,15 @@ public class Query extends FloraOnServlet {
 		rp=new ResultProcessor<SimpleTaxonResult>(it);
 		switch(format) {
 		case "html":
-			response.setContentType("text/html");
+			thisRequest.response.setContentType("text/html");
 			PrintWriter pw;
-			rp.toHTMLTable(pw = response.getWriter(), "taxonlist", null);
-			pw.close();
+			rp.toHTMLTable(pw = thisRequest.response.getWriter(), "taxonlist", null);
+			pw.flush();
 			break;
 			
 		case "json":
 		default:
-			success(rp.toJSONElement(),header);
+			thisRequest.success(rp.toJSONElement(),header);
 			return;
 		}
 	}

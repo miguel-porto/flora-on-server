@@ -33,13 +33,14 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("coordinates", new LatitudeLongitudeParser());
         fieldMappings.put("x", new UTMCoordinateParser());
         fieldMappings.put("y", new UTMCoordinateParser());
+        fieldMappings.put("mgrs", new UTMCoordinateParser());
         fieldMappings.put("elevation", new IntegerParser());
         fieldMappings.put("taxa", new TaxaParser());
         fieldMappings.put("year", new IntegerParser());
         fieldMappings.put("month", new IntegerParser());
         fieldMappings.put("date", new DateParser());
         fieldMappings.put("day", new IntegerParser());
-        fieldMappings.put("gridprecision", new IntegerParser());
+        fieldMappings.put("precision", new PlainTextParser());
         fieldMappings.put("code", new PlainTextParser());
         fieldMappings.put("gpscode", new PlainTextParser());
         fieldMappings.put("locality", new PlainTextParser());
@@ -49,8 +50,10 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("threats", new PlainTextParser());
         fieldMappings.put("ano", new AliasFieldParser("year", fieldMappings));
         fieldMappings.put("código", new AliasFieldParser("code", fieldMappings));
+        fieldMappings.put("inventário", new AliasFieldParser("code", fieldMappings));
         fieldMappings.put("data", new AliasFieldParser("date", fieldMappings));
         fieldMappings.put("gps", new AliasFieldParser("gpscode", fieldMappings));
+        fieldMappings.put("gps code", new AliasFieldParser("gpscode", fieldMappings));
         fieldMappings.put("z", new AliasFieldParser("elevation", fieldMappings));
         fieldMappings.put("altitude", new AliasFieldParser("elevation", fieldMappings));
         fieldMappings.put("observers", new UserListParser(userMap, driver, false));

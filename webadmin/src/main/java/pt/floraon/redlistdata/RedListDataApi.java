@@ -42,8 +42,8 @@ import static pt.floraon.driver.utils.BeanUtils.fillBeanDefaults;
 public class RedListDataApi extends FloraOnServlet {
 
     @Override
-    public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-        ListIterator<String> path = getPathIteratorAfter("api");
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        ListIterator<String> path = thisRequest.getPathIteratorAfter("api");
         String territory;
         RedListDataEntity rlde;
         Gson gs;
@@ -51,22 +51,22 @@ public class RedListDataApi extends FloraOnServlet {
 
         switch(path.next()) {
             case "newdataset":
-                territory = getParameterAsString("territory");
+                territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
-                success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(territory), driver).getID());
+                thisRequest.success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(territory), driver).getID());
                 break;
 
             case "updatenativestatus":
-                territory = getParameterAsString("territory");
-                success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
+                territory = thisRequest.getParameterAsString("territory");
+                thisRequest.success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
                 break;
 
             case "downloadtable":
-                territory = getParameterAsString("territory");
-                String[] filter = getParameterAsStringArray("tags");
+                territory = thisRequest.getParameterAsString("territory");
+                String[] filter = thisRequest.getParameterAsStringArray("tags");
                 // TODO clipping polygon and years must be a user configuration
                 PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                success(JobSubmitter.newJobFileDownload(
+                thisRequest.success(JobSubmitter.newJobFileDownload(
                         new ComputeAOOEOOJob(territory, clippingPolygon, 1991, 2000
                                 , filter == null ? null : new HashSet<>(Arrays.asList(filter))
                         )
@@ -74,50 +74,50 @@ public class RedListDataApi extends FloraOnServlet {
                 break;
 
             case "addnewtaxent":
-                if(!getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
-                territory = getParameterAsString("territory");
-                if(driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id")) != null)
+                if(!thisRequest.getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
+                territory = thisRequest.getParameterAsString("territory");
+                if(driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id")) != null)
                     throw new FloraOnException(FieldValues.getString("Error.1"));
 
-                TaxEnt te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+                TaxEnt te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getInferredNativeStatus(territory);
 //                System.out.println(is.getStatusSummary());
                 rlde = new RedListDataEntity(te.getID(), is);
                 rlde = driver.getRedListData().createRedListDataEntity(territory, rlde);
-                success(rlde.getID());
+                thisRequest.success(rlde.getID());
                 break;
 
             case "removetaxent":
-                if(!getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
-                territory = getParameterAsString("territory");
-                driver.getRedListData().deleteRedListDataEntity(territory, getParameterAsKey("id"));
-                success("Ok");
+                if(!thisRequest.getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
+                territory = thisRequest.getParameterAsString("territory");
+                driver.getRedListData().deleteRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
+                thisRequest.success("Ok");
                 break;
 
             case "downloaddata":
                 gs = new GsonBuilder().setPrettyPrinting().create();
-                response.setContentType("application/json; charset=utf-8");
-                response.setCharacterEncoding("UTF-8");
-                response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
-                gs.toJson(driver.getRedListData().getAllRedListData(getParameterAsString("territory"), false), pw = response.getWriter());
-                pw.close();
+                thisRequest.response.setContentType("application/json; charset=utf-8");
+                thisRequest.response.setCharacterEncoding("UTF-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
+                gs.toJson(driver.getRedListData().getAllRedListData(thisRequest.getParameterAsString("territory"), false), pw = thisRequest.response.getWriter());
+                pw.flush();
                 break;
 
             case "updatedata":
                 // update one or multiple data sheets with a bean
                 rlde = new RedListDataEntity();
                 gs = new GsonBuilder().setPrettyPrinting().create();
-                String[] ids = request.getParameterValues("taxEntID");
+                String[] ids = thisRequest.request.getParameterValues("taxEntID");
                 if(ids == null || ids.length == 0) {
                     Log.error("IDs not provided to update");
                     break;
                 }
 
                 HashMap<String, String[]> map = new HashMap<>();
-                Enumeration names = request.getParameterNames();
+                Enumeration names = thisRequest.request.getParameterNames();
                 while (names.hasMoreElements()) {
                     String name = (String) names.nextElement();
-                    map.put(name, request.getParameterValues(name));
+                    map.put(name, thisRequest.request.getParameterValues(name));
                 }
 
                 IntegerConverter iconverter = new IntegerConverter(null);
@@ -133,7 +133,7 @@ public class RedListDataApi extends FloraOnServlet {
                     beanUtilsBean.populate(rlde, map);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
-                    error("Could not populate the java bean");
+                    thisRequest.error("Could not populate the java bean");
                     return;
                 }
 
@@ -144,7 +144,7 @@ public class RedListDataApi extends FloraOnServlet {
                 if(ids.length == 1) {
                     // TODO: must check for privileges on save!
                     // if the review status is changed from not ready to ready to publish, update date assessed.
-                    RedListDataEntity old = driver.getRedListData().getRedListDataEntity(getParameterAsString("territory"), driver.asNodeKey(rlde.getTaxEntID()));
+                    RedListDataEntity old = driver.getRedListData().getRedListDataEntity(thisRequest.getParameterAsString("territory"), driver.asNodeKey(rlde.getTaxEntID()));
 
                     if (rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_PUBLISHING) {
                         rlde.updateDateAssessed();
@@ -159,12 +159,12 @@ public class RedListDataApi extends FloraOnServlet {
                         rlde.updateDatePublished();
                     }
                     rlde.setRevisions(old.getRevisions());
-                    rlde.addRevision(getUser().getID());
+                    rlde.addRevision(thisRequest.getUser().getID());
 //                    rlde = driver.getRedListData().updateRedListDataEntity(driver.asNodeKey(rlde.getID()), rlde, false);
                     rlde = driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rlde.getID()), rlde, false, RedListDataEntity.class);
 //                System.out.println("NEW DOC:");
 //                System.out.println(gs.toJson(rlde));
-                    success("Ok");
+                    thisRequest.success("Ok");
                 } else {
                     // we'll not update IDs
                     rlde.setTaxEntID(null);
@@ -180,24 +180,24 @@ public class RedListDataApi extends FloraOnServlet {
 
                     System.out.println("Diff:");
                     System.out.println(gs.toJson(cb));
-                    driver.getRedListData().updateRedListDataEntities(getParameterAsString("territory"), ids, cb);
-                    success("Ok");
+                    driver.getRedListData().updateRedListDataEntities(thisRequest.getParameterAsString("territory"), ids, cb);
+                    thisRequest.success("Ok");
                 }
                 break;
 
             case "addtag":
-                System.out.println(getParameterAsString("territory"));
-                System.out.println(getParameterAsString("tag"));
-                System.out.println(getParameterAsString("taxEntID"));
-                success("Updated " + driver.getRedListData().addTagToRedListDataEntities(getParameterAsString("territory")
-                        , request.getParameterValues("taxEntID"), getParameterAsString("tag")) + " taxa");
+                System.out.println(thisRequest.getParameterAsString("territory"));
+                System.out.println(thisRequest.getParameterAsString("tag"));
+                System.out.println(thisRequest.getParameterAsString("taxEntID"));
+                thisRequest.success("Updated " + driver.getRedListData().addTagToRedListDataEntities(thisRequest.getParameterAsString("territory")
+                        , thisRequest.request.getParameterValues("taxEntID"), thisRequest.getParameterAsString("tag")) + " taxa");
                 break;
         }
     }
 
     @Override
-    public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-        ListIterator<String> path = getPathIteratorAfter("api");
+    public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        ListIterator<String> path = thisRequest.getPathIteratorAfter("api");
         String territory;
         RedListDataEntity rlde;
         Gson gs;
@@ -209,14 +209,14 @@ public class RedListDataApi extends FloraOnServlet {
              *  col 2: JSON string with fields to update in the RedListDataEntity
              */
             case "updatefromcsv":
-                territory = getParameterAsString("territory");
-                getUser().resetEffectivePrivileges();
-                if(!getUser().isAdministrator()) throw new FloraOnException(FieldValues.getString("Error.2"));
+                territory = thisRequest.getParameterAsString("territory");
+                thisRequest.getUser().resetEffectivePrivileges();
+                if(!thisRequest.getUser().isAdministrator()) throw new FloraOnException(FieldValues.getString("Error.2"));
                 Part filePart;
                 InputStream fileContent = null;
 
                 try {
-                    filePart = request.getPart("updateTable");
+                    filePart = thisRequest.request.getPart("updateTable");
                     System.out.println(filePart.getSize());
 
                     if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
@@ -250,13 +250,13 @@ public class RedListDataApi extends FloraOnServlet {
                     }
 
                     fileContent.close();
-                    success(errors.size() + " errors: " + Arrays.toString(errors.toArray(new String[errors.size()])), true);
+                    thisRequest.success(errors.size() + " errors: " + Arrays.toString(errors.toArray(new String[errors.size()])), true);
                 } else
-                    error("Could not update.");
+                    thisRequest.error("Could not update.");
                 break;
 
             default:
-                doFloraOnGet();
+                doFloraOnGet(thisRequest);
         }
     }
 }

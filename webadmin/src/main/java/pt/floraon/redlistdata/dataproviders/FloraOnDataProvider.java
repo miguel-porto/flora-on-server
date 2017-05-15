@@ -112,7 +112,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                     FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
                     occurrenceList.add(new SimpleOccurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
                             , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent
-                            , o.precisao == 0 ? 1 : (o.precisao == 1 ? 100 : (o.precisao == 2 ? 1000 : 10000))
+                            , o.precisao == 0 ? "1" : (o.precisao == 1 ? "100" : (o.precisao == 2 ? "1000x1000" : "10000x10000"))
                             , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
                             , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER));
                 }

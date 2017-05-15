@@ -10,8 +10,8 @@ import java.io.IOException;
  */
 public class MainPage extends FloraOnServlet {
     @Override
-    public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-        request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
-        request.getRequestDispatcher("/main.jsp").forward(request, response);
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        thisRequest.request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
+        thisRequest.request.getRequestDispatcher("/main.jsp").forward(thisRequest.request, thisRequest.response);
     }
 }

@@ -18,16 +18,16 @@ public class NodeReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		ListIterator<String> partIt=this.getPathIteratorAfter("read");
-		
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("read");
+
 		switch(partIt.next()) {
 		case "getallcharacters":
-			success(driver.getListDriver().getAllCharacters().toJsonObject());
+			thisRequest.success(driver.getListDriver().getAllCharacters().toJsonObject());
 			break;
 
 		case "getallterritories":
-			success(driver.getListDriver().getAllTerritoriesGraph(null).toJsonObject());
+			thisRequest.success(driver.getListDriver().getAllTerritoriesGraph(null).toJsonObject());
 			break;
 			
 		case "taxoninfo":
@@ -35,20 +35,20 @@ public class NodeReader extends FloraOnServlet {
 			String name;
 			Integer oldid;
 			errorIfAllNull(
-				key = getParameterAsKey("key")
-				, name = getParameterAsString("name")
-				, oldid = getParameterAsInteger("oldid", null)
+				key = thisRequest.getParameterAsKey("key")
+				, name = thisRequest.getParameterAsString("name")
+				, oldid = thisRequest.getParameterAsInteger("oldid", null)
 			);
 			if(key != null)
-				success(driver.getListDriver().getTaxonInfo(key));
+				thisRequest.success(driver.getListDriver().getTaxonInfo(key));
 			else if(name != null)
-				success(driver.getListDriver().getTaxonInfo(name, getParameterAsBooleanNoNull("current")));
+				thisRequest.success(driver.getListDriver().getTaxonInfo(name, thisRequest.getParameterAsBooleanNoNull("current")));
 			else
-				success(driver.getListDriver().getTaxonInfo(oldid));
+				thisRequest.success(driver.getListDriver().getTaxonInfo(oldid));
 			break;
 			
 		default:
-			error("Path not found.");
+			thisRequest.error("Path not found.");
 		}
 	}
 }

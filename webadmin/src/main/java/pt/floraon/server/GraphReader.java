@@ -26,16 +26,16 @@ public class GraphReader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
 		String id,query;
 		StringBuilder rk=new StringBuilder();
-		ListIterator<String> partIt=this.getPathIteratorAfter("graph");
+		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("graph");
 		PrintWriter pw;
 
 		switch(partIt.next()) {
 		case "reference":
 			if(!partIt.hasNext()) {
-				error("Choose one of: all, ranks, territorytypes");
+				thisRequest.error("Choose one of: all, ranks, territorytypes");
 				return;
 			}
 			
@@ -53,7 +53,7 @@ public class GraphReader extends FloraOnServlet {
 					ranks.addProperty(art.toString(), art.getFacet().toString());
 				}
 				jobj.add("facets", ranks);
-				success(jobj);
+				thisRequest.success(jobj);
 				break;
 
 			case "ranks":
@@ -62,10 +62,10 @@ public class GraphReader extends FloraOnServlet {
 					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
 				}
 				rk.append("</select>");
-				pw = response.getWriter();
+				pw = thisRequest.response.getWriter();
 				pw.print(rk.toString());
-				pw.close();
-				break;
+				pw.flush();
+ 				break;
 				
 			case "territorytypes":
 				rk.append("<select name=\"territorytype\"><option value=\"NOT_SET\">undefined</option>");
@@ -73,22 +73,22 @@ public class GraphReader extends FloraOnServlet {
 					rk.append("<option value=\""+e.toString()+"\">"+e.toString()+"</option>");
 				}
 				rk.append("</select>");
-				pw = response.getWriter();
+				pw = thisRequest.response.getWriter();
 				pw.print(rk.toString());
-				pw.close();
+				pw.flush();
 				break;
 			}
 			break;
 
 		case "getneighbors":
-			Integer depth=getParameterAsInteger("d",1);
+			Integer depth=thisRequest.getParameterAsInteger("d",1);
 			errorIfAllNull(
-				response,
-				id = getParameterAsString("id"),
-				query = getParameterAsString("q"));
+					thisRequest.response,
+				id = thisRequest.getParameterAsString("id"),
+				query = thisRequest.getParameterAsString("q"));
 
 			String infacets[];
-			String facets=getParameterAsString("f");
+			String facets=thisRequest.getParameterAsString("f");
 			// get the facets we want to show
 			if(facets==null || facets.equals(""))
 				infacets=new String[]{"taxonomy"};
@@ -101,15 +101,15 @@ public class GraphReader extends FloraOnServlet {
 			if(id==null) {
 				TaxEnt te=driver.getNodeWorkerDriver().getTaxEntByName(query);
 				if(te==null)
-					success(driver.getNodeWorkerDriver().getNeighbors(null,fac,depth).toJsonObject());
+					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(null,fac,depth).toJsonObject());
 				else
-					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(te.getID()),fac,depth).toJsonObject());
+					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(te.getID()),fac,depth).toJsonObject());
 			} else {
 				String[] ids=id.split(",");
 				if(ids.length==1)
-					success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(ids[0]),fac,depth).toJsonObject());
+					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(ids[0]),fac,depth).toJsonObject());
 				else
-					success(driver.getNodeWorkerDriver().getRelationshipsBetween(ids,fac).toJsonObject());
+					thisRequest.success(driver.getNodeWorkerDriver().getRelationshipsBetween(ids,fac).toJsonObject());
 			}
 			break;
 		}

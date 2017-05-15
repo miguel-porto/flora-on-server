@@ -3,6 +3,7 @@ package pt.floraon.taxonomy;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -16,8 +17,9 @@ public class TaxDetails extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		INodeKey id=getParameterAsKey("id");
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		final HttpServletRequest request = thisRequest.request;
+		INodeKey id = thisRequest.getParameterAsKey("id");
 		TaxEnt taxent = driver.getNodeWorkerDriver().getTaxEntById(id);
 		
 		request.setAttribute("taxent", taxent);
@@ -35,9 +37,9 @@ public class TaxDetails extends FloraOnServlet {
 		request.setAttribute("nativeStatus", Constants.NativeStatus.values());
 		request.setAttribute("introducedStatus", Constants.PlantIntroducedStatus.values());
 		request.setAttribute("naturalizationDegree", Constants.PlantNaturalizationDegree.values());
-		
-		response.setContentType("text/html");
-		request.getRequestDispatcher("/taxdetails.jsp").include(request, response);
+
+		thisRequest.response.setContentType("text/html");
+		request.getRequestDispatcher("/taxdetails.jsp").include(request, thisRequest.response);
 	}
 
 }

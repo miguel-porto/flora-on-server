@@ -30,8 +30,8 @@ public class FileUploader extends FloraOnServlet {
 	 * The GET method is for processing files stored in the local server. We don't need this!
 	 */
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("upload");
 
 		switch(partIt.next()) {
 		case "authors":
@@ -43,11 +43,11 @@ public class FileUploader extends FloraOnServlet {
 			break;
 		
 		case "occurrences":
-			File file = new File(getParameterAsString("file"));
-			if(!file.canRead()) throw new IOException("Cannot read file "+getParameterAsString("file"));
-			String type = getParameterAsString("type");
-			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, getUser(), type, true, false), driver);
-			success(job.getID());
+			File file = new File(thisRequest.getParameterAsString("file"));
+			if(!file.canRead()) throw new IOException("Cannot read file "+thisRequest.getParameterAsString("file"));
+			String type = thisRequest.getParameterAsString("type");
+			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, thisRequest.getUser(), type, true, false), driver);
+			thisRequest.success(job.getID());
 /*
 			success(
 				new Gson().toJsonTree(driver.getCSVFileProcessor().getOccurrenceImporter().uploadRecordsFromFile(getParameterAsString("file")))
@@ -61,19 +61,19 @@ public class FileUploader extends FloraOnServlet {
 	 * Upload a file, call the processing routine and store it locally in /tmp
 	 */
 	@Override
-	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-		String type = getParameterAsString("type");
+	public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		String type = thisRequest.getParameterAsString("type");
 		Part filePart;
 		InputStream fileContent = null;
 
-		ListIterator<String> partIt=this.getPathIteratorAfter("upload");
+		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("upload");
 		switch(partIt.next()) {
 		case "occurrences":
-			boolean main = getParameterAsBoolean("mainobserver", false);
-			Boolean create = getParameterAsBoolean("createUsers", false);
+			boolean main = thisRequest.getParameterAsBoolean("mainobserver", false);
+			Boolean create = thisRequest.getParameterAsBoolean("createUsers", false);
 
 			try {
-				filePart = request.getPart("occurrenceTable");
+				filePart = thisRequest.request.getPart("occurrenceTable");
 //				System.out.println(filePart.getSize());
 
 				if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
@@ -84,15 +84,15 @@ public class FileUploader extends FloraOnServlet {
 
 			if(fileContent != null) {
 				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(
-						fileContent, driver, getUser(), type, main, create), driver);
-				success(job.getID());
+						fileContent, driver, thisRequest.getUser(), type, main, create), driver);
+				thisRequest.success(job.getID());
 			}
 			break;
 
 		case "toponyms":
-			filePart = request.getPart("toponymTable");
+			filePart = thisRequest.request.getPart("toponymTable");
 			System.out.println(filePart.getSize());
-			success(filePart.getName());
+			thisRequest.success(filePart.getName());
 			break;
 		}
 

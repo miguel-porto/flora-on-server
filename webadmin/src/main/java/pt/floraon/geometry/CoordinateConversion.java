@@ -1,5 +1,12 @@
 package pt.floraon.geometry;
 
+
+import pt.floraon.geometry.mgrs.MGRSCoordConverter;
+import pt.floraon.geometry.mgrs.UTMCoord;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This code was adapted from the great C++ code taken originally from
  * http://www.koders.com/cpp/fid56D52408FAC344874E65BF9A1C54F3731C96A39B.aspx
@@ -59,7 +66,227 @@ public final class CoordinateConversion {
 		return((ap * sphi) - (bp * Math.sin(2.0 * sphi)) + (cp * Math.sin(4.0 * sphi)) - (dp * Math.sin(6.0 * sphi)) + (ep * Math.sin(8.0 * sphi)));
 	}
 
-/**
+	private static class LatZones {
+		private static char[] letters = { 'A', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
+				'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Z' };
+
+		private static int[] degrees = { -90, -84, -72, -64, -56, -48, -40, -32, -24, -16,
+				-8, 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 84 };
+
+		private static char[] negLetters = { 'A', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
+				'L', 'M' };
+
+		private static int[] negDegrees = { -90, -84, -72, -64, -56, -48, -40, -32, -24,
+				-16, -8 };
+
+		private static char[] posLetters = { 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
+				'X', 'Z' };
+
+		private static int[] posDegrees = { 0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 84 };
+
+		private static int arrayLength = 22;
+
+		public static int getLatZoneDegree(String letter) {
+			char ltr = letter.charAt(0);
+			for (int i = 0; i < arrayLength; i++)
+			{
+				if (letters[i] == ltr)
+				{
+					return degrees[i];
+				}
+			}
+			return -100;
+		}
+
+		public static String getLatZone(double latitude) {
+			int latIndex = -2;
+			int lat = (int) latitude;
+
+			if (lat >= 0)
+			{
+				int len = posLetters.length;
+				for (int i = 0; i < len; i++)
+				{
+					if (lat == posDegrees[i])
+					{
+						latIndex = i;
+						break;
+					}
+
+					if (lat > posDegrees[i])
+					{
+						continue;
+					}
+					else
+					{
+						latIndex = i - 1;
+						break;
+					}
+				}
+			}
+			else
+			{
+				int len = negLetters.length;
+				for (int i = 0; i < len; i++)
+				{
+					if (lat == negDegrees[i])
+					{
+						latIndex = i;
+						break;
+					}
+
+					if (lat < negDegrees[i])
+					{
+						latIndex = i - 1;
+						break;
+					}
+					else
+					{
+						continue;
+					}
+
+				}
+
+			}
+
+			if (latIndex == -1)
+			{
+				latIndex = 0;
+			}
+			if (lat >= 0)
+			{
+				if (latIndex == -2)
+				{
+					latIndex = posLetters.length - 1;
+				}
+				return String.valueOf(posLetters[latIndex]);
+			}
+			else
+			{
+				if (latIndex == -2)
+				{
+					latIndex = negLetters.length - 1;
+				}
+				return String.valueOf(negLetters[latIndex]);
+
+			}
+		}
+
+	}
+
+	private static class Digraphs {
+		private static final Map<Integer, String> digraph1 = new HashMap<>();
+		private static final Map<Integer, String> digraph2 = new HashMap<>();
+
+		private static final String[] digraph1Array = { "A", "B", "C", "D", "E", "F", "G", "H",
+				"J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V", "W", "X",
+				"Y", "Z" };
+
+		private static final String[] digraph2Array = { "V", "A", "B", "C", "D", "E", "F", "G",
+				"H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "U", "V" };
+
+		static {
+			digraph1.put(1, "A");
+			digraph1.put(2, "B");
+			digraph1.put(3, "C");
+			digraph1.put(4, "D");
+			digraph1.put(5, "E");
+			digraph1.put(6, "F");
+			digraph1.put(7, "G");
+			digraph1.put(8, "H");
+			digraph1.put(9, "J");
+			digraph1.put(10, "K");
+			digraph1.put(11, "L");
+			digraph1.put(12, "M");
+			digraph1.put(13, "N");
+			digraph1.put(14, "P");
+			digraph1.put(15, "Q");
+			digraph1.put(16, "R");
+			digraph1.put(17, "S");
+			digraph1.put(18, "T");
+			digraph1.put(19, "U");
+			digraph1.put(20, "V");
+			digraph1.put(21, "W");
+			digraph1.put(22, "X");
+			digraph1.put(23, "Y");
+			digraph1.put(24, "Z");
+
+			digraph2.put(0, "V");
+			digraph2.put(1, "A");
+			digraph2.put(2, "B");
+			digraph2.put(3, "C");
+			digraph2.put(4, "D");
+			digraph2.put(5, "E");
+			digraph2.put(6, "F");
+			digraph2.put(7, "G");
+			digraph2.put(8, "H");
+			digraph2.put(9, "J");
+			digraph2.put(10, "K");
+			digraph2.put(11, "L");
+			digraph2.put(12, "M");
+			digraph2.put(13, "N");
+			digraph2.put(14, "P");
+			digraph2.put(15, "Q");
+			digraph2.put(16, "R");
+			digraph2.put(17, "S");
+			digraph2.put(18, "T");
+			digraph2.put(19, "U");
+			digraph2.put(20, "V");
+
+		}
+
+		public static int getDigraph1Index(String letter)
+		{
+			for (int i = 0; i < digraph1Array.length; i++)
+			{
+				if (digraph1Array[i].equals(letter))
+				{
+					return i + 1;
+				}
+			}
+
+			return -1;
+		}
+
+		public static int getDigraph2Index(String letter)
+		{
+			for (int i = 0; i < digraph2Array.length; i++)
+			{
+				if (digraph2Array[i].equals(letter))
+				{
+					return i;
+				}
+			}
+
+			return -1;
+		}
+
+		public static String getDigraph1(int longZone, double easting)
+		{
+			double a2 = 8 * ((longZone - 1) % 3) + 1;
+			double a4 = a2 + ((int) (easting / 100000)) - 1;
+			return (String) digraph1.get((int) Math.floor(a4));
+		}
+
+		public static String getDigraph2(int longZone, double northing)
+		{
+			int a1 = longZone;
+			double a2 = 1 + 5 * ((a1 - 1) % 2);
+			double a3 = northing;
+			double a4;
+			a4 = (a2 + ((int) (a3 / 100000.0))) % 20;
+			a4 = Math.floor(a4);
+			if (a4 < 0)
+			{
+				a4 = a4 + 19;
+			}
+			return digraph2.get((int) Math.floor(a4));
+
+		}
+
+	}
+
+	/**
  * pass utmXZone if you want to force conversion within a given zone, leave null for correct conversion.
  * @param a
  * @param f
@@ -182,4 +409,17 @@ public final class CoordinateConversion {
 		return(UtmToLatLon(6378137.0, 1 / 298.257223563, utmXZone, utmYZone,easting,northing));
 	}
 
+	/**
+	 * Converts a MGRS string to the center point UTM coordinates and respective precision.
+	 * @param mgrutm
+	 * @return
+	 */
+	public static UTMCoordinate MGRSToUTM(String mgrutm) {
+		MGRSCoordConverter cnv = new MGRSCoordConverter();
+		UTMCoord utm = cnv.convertMGRSToUTM(mgrutm);
+		int half = (int) Math.pow(10, (5 - utm.getMGRS().precision)) / 2;
+		Precision prec = new Precision();
+		prec.setSquare(half * 2);
+		return new UTMCoordinate(utm.getZone(), utm.getMGRS().getLatitudeBand(), (long) utm.getEasting() + half, (long) utm.getNorthing() + half, prec);
+	}
 }

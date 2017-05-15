@@ -37,10 +37,6 @@ public class IntegerParser implements FieldParser {
                 occurrence.setElevation(v.floatValue());
                 break;
 
-            case "gridprecision":
-                occurrence.setGridPrecision(v);
-                break;
-
             case "hasspecimen":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));

@@ -17,6 +17,8 @@ import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -34,12 +36,13 @@ import static pt.floraon.driver.utils.StringUtils.sanitizeHtmlId;
 @WebServlet("/redlist/*")
 public class RedListAdminPages extends FloraOnServlet {
     @Override
-    public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-        doFloraOnGet();
+    public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        doFloraOnGet(thisRequest);
     }
 
     @Override
-    public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        final HttpServletRequest request = thisRequest.request;
         String what;
         TaxEnt te;
         long sizeOfSquare = 2000;
@@ -50,23 +53,23 @@ System.out.println(gs.toJson(getUser()));
 
         ListIterator<String> path;
         try {
-            path = getPathIteratorAfter("redlist");
+            path = thisRequest.getPathIteratorAfter("redlist");
         } catch (FloraOnException e) {
-            if(!getUser().canCREATE_REDLIST_DATASETS()) {
-                response.sendRedirect("/floraon");
+            if(!thisRequest.getUser().canCREATE_REDLIST_DATASETS()) {
+                thisRequest.response.sendRedirect("/floraon");
                 return;
             }
             // no territory specified
             request.setAttribute("what", "addterritory");
             request.setAttribute("territories", driver.getListDriver().getAllTerritories(null));
-            request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
+            request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, thisRequest.response);
             return;
         }
 
         String territory = path.next();
         request.setAttribute("territory", territory);
 
-        request.setAttribute("what", what = getParameterAsString("w", "main"));
+        request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
         // make a map of user IDs and names
         List<User> allUsers = driver.getAdministration().getAllUsers();
@@ -88,7 +91,7 @@ System.out.println(gs.toJson(getUser()));
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
 //                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, getUser().canMANAGE_REDLIST_USERS());
-                getUser().resetEffectivePrivileges();
+                thisRequest.getUser().resetEffectivePrivileges();
                 List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true);
                 int count1 = 0, count2 = 0, count3 = 0;
                 for(RedListDataEntity rlde1 : taxEntList) {
@@ -159,15 +162,15 @@ System.out.println(gs.toJson(getUser()));
                     break;
                 }
                 if(ids.length == 1) {       // only one taxon requested
-                    RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, getParameterAsKey("id"));
+                    RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
                     if (rlde == null) return;
                     // set privileges for this taxon
-                    getUser().setEffectivePrivilegesFor(driver, getParameterAsKey("id"));
+                    thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"));
 
                     request.setAttribute("taxon", rlde.getTaxEnt());
-                    request.setAttribute("synonyms", driver.wrapTaxEnt(getParameterAsKey("id")).getSynonyms());
-                    request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(getParameterAsKey("id")).getFormerlyIncludedIn());
-                    request.setAttribute("includedTaxa", driver.wrapTaxEnt(getParameterAsKey("id")).getIncludedTaxa());
+                    request.setAttribute("synonyms", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getSynonyms());
+                    request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getFormerlyIncludedIn());
+                    request.setAttribute("includedTaxa", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getIncludedTaxa());
                     for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders()) {
                         edp.executeOccurrenceQuery(rlde.getTaxEnt());
 //                            edp.executeOccurrenceQuery(null);
@@ -236,12 +239,12 @@ System.out.println(gs.toJson(getUser()));
     */
 
                         StringWriter sw = new StringWriter();
-                        occurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
+                        occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET());
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
-                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), getUser().canVIEW_FULL_SHEET());
+                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET());
                             request.setAttribute("historicalsvgmap", sw.toString());
                             sw.close();
                         }
@@ -310,7 +313,7 @@ System.out.println(gs.toJson(getUser()));
                     Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
                     for (Revision r : rlde.getRevisions()) {
                         c1a = r.getDayWiseRevision();
-                        if (edits.get(c1a) == null)
+                        if (!edits.containsKey(c1a))
                             edits.put(c1a, 1);
                         else
                             edits.put(c1a, edits.get(c1a) + 1);
@@ -322,14 +325,14 @@ System.out.println(gs.toJson(getUser()));
 
                     if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
                         // if it's published, block editing all fields
-                        boolean canEdit9 = getUser().canEDIT_9_9_4();
-                        getUser().revokePrivileges(EDIT_ALL_FIELDS);
-                        if (canEdit9) getUser().setEDIT_9_9_4(true);
+                        boolean canEdit9 = thisRequest.getUser().canEDIT_9_9_4();
+                        thisRequest.getUser().revokePrivileges(EDIT_ALL_FIELDS);
+                        if (canEdit9) thisRequest.getUser().setEDIT_9_9_4(true);
                     }
 
                     warnings.addAll(rlde.validateCriteria());
                 } else {    // multiple IDs provided, batch update
-                    getUser().resetEffectivePrivileges();
+                    thisRequest.getUser().resetEffectivePrivileges();
                     warnings.add("DataSheet.msg.warning.1");
                     request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                     request.setAttribute("multipletaxa", true);
@@ -345,8 +348,8 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "taxonrecords":
-                if (!getUser().canVIEW_OCCURRENCES()) break;
-                te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+                if (!thisRequest.getUser().canVIEW_OCCURRENCES()) break;
+                te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
 
                 for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
@@ -357,21 +360,21 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "downloadtaxonrecords":
-                if (!getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
-                te = driver.getNodeWorkerDriver().getTaxEntById(getParameterAsKey("id"));
+                if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
+                te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
                     edp.executeOccurrenceQuery(te);
 
-                response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
-                response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
-                PrintWriter wr = response.getWriter();
+                thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
+                PrintWriter wr = thisRequest.response.getWriter();
                 OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()).exportKML(wr);
-                wr.close();
+                wr.flush();
                 return;
 
             case "downloadtargetrecords":
-                if(!getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
-                PolygonTheme clip = getUser()._getUserPolygonsAsTheme();
+//                if(!getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
+                PolygonTheme clip = thisRequest.getUser()._getUserPolygonsAsTheme();
                 if(clip == null || clip.size() == 0) break;
                 List<TaxEnt> lt = new ArrayList<>();
                 Iterator<TaxEnt> it = driver.getRedListData().getAllRedListTaxa(territory, "Prospecção");
@@ -382,13 +385,13 @@ System.out.println(gs.toJson(getUser()));
                 for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
                     edp.executeOccurrenceQuery(lt.iterator());
 
-                response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
-                response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
-                PrintWriter wr1 = response.getWriter();
+                thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
+                PrintWriter wr1 = thisRequest.response.getWriter();
 //                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()).exportKML(wr1);
                 OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
                         , clip, null, null).exportKML(wr1);
-                wr1.close();
+                wr1.flush();
                 return;
 
             case "users":
@@ -440,12 +443,12 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("responsibleAssessmentCounter", responsibleAssessmentCounter);
                 request.setAttribute("responsibleRevisionCounter", responsibleRevisionCounter);
                 request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
-                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
+                        thisRequest.getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , null));
                 break;
 
             case "edituser":
-                User tmp = driver.getAdministration().getUser(getParameterAsKey("user"));
+                User tmp = driver.getAdministration().getUser(thisRequest.getParameterAsKey("user"));
                 List<TaxEnt> applTax = new ArrayList<>();
 /*
                 for(String i : tmp.getApplicableTaxa()) {
@@ -470,15 +473,15 @@ System.out.println(gs.toJson(getUser()));
 */
                 }
                 request.setAttribute("redlistprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
-                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
+                        thisRequest.getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , null));
                 request.setAttribute("redlisttaxonprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
-                        getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
+                        thisRequest.getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , Privileges.PrivilegeScope.PER_SPECIES));
                 break;
 
             case "jobs":
-                if (!getUser().canMANAGE_REDLIST_USERS()) break;
+                if (!thisRequest.getUser().canMANAGE_REDLIST_USERS()) break;
                 String[] allt = driver.getRedListData().getRedListTags(territory).toArray(new String[0]);
 
                 List<JobRunner> jobs = new ArrayList<>();
@@ -491,6 +494,6 @@ System.out.println(gs.toJson(getUser()));
         }
 
         request.setAttribute("warning", warnings);
-        request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
+        request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, thisRequest.response);
     }
 }

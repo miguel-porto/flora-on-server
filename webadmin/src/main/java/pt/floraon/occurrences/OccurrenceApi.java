@@ -19,6 +19,7 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -33,22 +34,22 @@ import java.util.regex.Pattern;
 @WebServlet("/occurrences/api/*")
 public class OccurrenceApi extends FloraOnServlet {
     @Override
-    public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-        ListIterator<String> path = getPathIteratorAfter("api");
+    public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        ListIterator<String> path = thisRequest.getPathIteratorAfter("api");
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
         String fileName;
-        User user = getUser();
+        User user = thisRequest.getUser();
         if(user.isGuest()) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
         String option = path.next();
 
         switch (option) {
             case "savetable":
-                fileName = getParameterAsString("file");
+                fileName = thisRequest.getParameterAsString("file");
                 errorIfAnyNull(fileName);
-                user = refreshUser();
+                user = thisRequest.refreshUser();
                 if(!user.getUploadedTables().contains(fileName)) throw new FloraOnException("File not found.");
 
                 Log.info("Reading " + fileName);
@@ -56,20 +57,21 @@ public class OccurrenceApi extends FloraOnServlet {
                 try {
                     invList = Common.readInventoryListFromFile(fileName);
                 } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                     throw new FloraOnException(e.getMessage());
                 }
 
                 for(Inventory inv : invList)
                     driver.getOccurrenceDriver().createInventory(inv);
 
-                driver.getOccurrenceDriver().discardUploadedTable(driver.asNodeKey(getUser().getID()), fileName);
-                success("Ok");
+                driver.getOccurrenceDriver().discardUploadedTable(driver.asNodeKey(thisRequest.getUser().getID()), fileName);
+                thisRequest.success("Ok");
                 break;
 
             case "discardtable":
-                fileName = getParameterAsString("file");
+                fileName = thisRequest.getParameterAsString("file");
                 errorIfAnyNull(fileName);
-                success(driver.getOccurrenceDriver().discardUploadedTable(driver.asNodeKey(getUser().getID()), fileName) ? "Ok" : "Nothing deleted.");
+                thisRequest.success(driver.getOccurrenceDriver().discardUploadedTable(driver.asNodeKey(thisRequest.getUser().getID()), fileName) ? "Ok" : "Nothing deleted.");
                 break;
 
             case "addoccurrences":
@@ -79,7 +81,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 // First form is for inventories - 6 uid digits for grouping, other 6 for table rows
                 // Second form for occurrences
                 Pattern ids = Pattern.compile("^(?<id1>[a-zA-Z0-9]{6})_((?<id2>[a-zA-Z0-9]{6})_)?(?<name>[a-zA-Z0-9]+)$");
-                Enumeration<String> en = request.getParameterNames();
+                Enumeration<String> en = thisRequest.request.getParameterNames();
                 Multimap<String, String> grp = ArrayListMultimap.create();
                 Multimap<String, String> map = ArrayListMultimap.create();
                 Multimap<String, String> invfields = ArrayListMultimap.create();
@@ -107,7 +109,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 Inventory inv;
                 OccurrenceParser op = new OccurrenceParser(driver);
 
-                if(getParameterAsBoolean("createUsers", false)) {
+                if(thisRequest.getParameterAsBoolean("createUsers", false)) {
                     op.registerParser("observers", new UserListParser(op.getUserMap(), driver, true));
                     op.registerParser("collectors", new UserListParser(op.getUserMap(), driver, true));
                     op.registerParser("determiners", new UserListParser(op.getUserMap(), driver, true));
@@ -121,8 +123,8 @@ public class OccurrenceApi extends FloraOnServlet {
 
                     for(String name : invfields.get(invid)) {   // set the inventory fields
                         String field = name.substring(7);
-                        System.out.println(name + ": "+getParameterAsString(name));
-                        keyValues.put(field, getParameterAsString(name));
+                        System.out.println(name + ": "+thisRequest.getParameterAsString(name));
+                        keyValues.put(field, thisRequest.getParameterAsString(name));
                     }
                     op.parseFields(keyValues, inv);     // feed in inventory fields
 
@@ -132,8 +134,8 @@ public class OccurrenceApi extends FloraOnServlet {
                         keyValues = new HashMap<>();
                         for(String name : map.get(id2)) {   // this is one occurrence (one table row)
                             String field = name.substring(14);
-                            System.out.println(name + ": "+getParameterAsString(name));
-                            keyValues.put(field, getParameterAsString(name));
+                            System.out.println(name + ": "+thisRequest.getParameterAsString(name));
+                            keyValues.put(field, thisRequest.getParameterAsString(name));
                         }
 
                         op.parseFields(keyValues, tmp);
@@ -150,25 +152,25 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 if(option.equals("addoccurrences")) {
                     int count = 0;
-                    boolean main1 = getParameterAsBoolean("mainobserver", false);
+                    boolean main1 = thisRequest.getParameterAsBoolean("mainobserver", false);
                     if(inventories.size() == 0)
-                        error("Empty inventories, none saved.");
+                        thisRequest.error("Empty inventories, none saved.");
                     else {
                         for (Inventory inv1 : inventories) {
                             if(main1) {
                                 Set<String> obs = new LinkedHashSet<>();
-                                obs.add(getUser().getID());
+                                obs.add(thisRequest.getUser().getID());
                                 obs.addAll(Arrays.asList(inv1.getObservers()));
                                 inv1.setObservers(obs.toArray(new String[obs.size()]));
                             }/* else {
                                 if (StringUtils.isArrayEmpty(inv1.getObservers()))
                                     inv1.setObservers(new String[]{getUser().getID()});
                             }*/
-                            inv1.setMaintainer(getUser().getID());
+                            inv1.setMaintainer(thisRequest.getUser().getID());
                             driver.getOccurrenceDriver().createInventory(inv1);
                             count++;
                         }
-                        success(count + " inventories saved.", true);
+                        thisRequest.success(count + " inventories saved.", true);
                     }
                 }
 // FIXME update empty fields
@@ -177,25 +179,25 @@ public class OccurrenceApi extends FloraOnServlet {
 //                        Log.warn(inv1.getID());
                         driver.getOccurrenceDriver().updateInventory(inv1);
                     }
-                    success("ok");
+                    thisRequest.success("ok");
                 }
                 break;
 
             case "deleteoccurrences":
-                driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(request.getParameterValues("inventoryId")
-                        , request.getParameterValues("occurrenceUuid"));
-                success("Ok");
+                driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(thisRequest.request.getParameterValues("inventoryId")
+                        , thisRequest.request.getParameterValues("occurrenceUuid"));
+                thisRequest.success("Ok");
                 break;
 
             case "mergeoccurrences":
                 // merges occurrences into one inventory. this discards the coordinates of the merged inventory and assigns coordinates
                 // to each observation separately
-                Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesByUuid(driver.asNodeKey(getUser().getID())
-                        , request.getParameterValues("occurrenceUuid"));
+                Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesByUuid(driver.asNodeKey(thisRequest.getUser().getID())
+                        , thisRequest.request.getParameterValues("occurrenceUuid"));
 
                 List<Inventory> tmp = Lists.newArrayList(it);
                 if(tmp.size() == 0) {
-                    success("Ok");
+                    thisRequest.success("Ok");
                     break;
                 }
 
@@ -254,7 +256,7 @@ public class OccurrenceApi extends FloraOnServlet {
                     driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(td));
 */
 
-                success("Ok");
+                thisRequest.success("Ok");
                 break;
 
         }

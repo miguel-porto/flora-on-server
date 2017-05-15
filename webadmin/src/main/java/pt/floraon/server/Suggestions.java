@@ -20,15 +20,15 @@ public class Suggestions extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
-		String query = getParameterAsString("q");
+	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		String query = thisRequest.getParameterAsString("q");
 		if(query == null) return;
-		Integer limit = getParameterAsInteger("limit", null);
-		response.setContentType("text/html");
-		PrintWriter pw = response.getWriter();
+		Integer limit = thisRequest.getParameterAsInteger("limit", null);
+		thisRequest.response.setContentType("text/html");
+		PrintWriter pw = thisRequest.response.getWriter();
 		if(pw == null) return;
 
-		switch(getParameterAsString("what", "taxon")) {
+		switch(thisRequest.getParameterAsString("what", "taxon")) {
 			case "taxon":
 				Iterator<TaxEnt> ite = driver.getQueryDriver().findTaxonSuggestions(query, limit);
 				TaxEnt te;
@@ -74,7 +74,7 @@ public class Suggestions extends FloraOnServlet {
 				pw.print("</ul>");
 				break;
 		}
-		pw.close();
+		pw.flush();
 	}
 
 }

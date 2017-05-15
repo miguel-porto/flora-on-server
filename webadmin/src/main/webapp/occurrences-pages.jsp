@@ -37,32 +37,78 @@
 
     <t:inventorymodel />
 
+    <form id="addnewinventories" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
+        <div class="heading2">
+            <h2><fmt:message key="inventory.add"/></h2>
+            <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
+            <div class="button" id="deleteselectednew">Delete selected</div>
+            <input type="submit" class="textbutton" value="Save"/>
+        </div>
+    </form>
+
     <div class="heading2">
         <h2>Your inventories</h2>
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
+        <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="inventorysummary" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>
     </div>
-        <table id="inventorysummary" class="occurrencetable verysmalltext sortable">
-            <tr><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
-            <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2"/></th><th>Species</th></tr>
-            <c:forEach var="inv" items="${inventories}">
-            <tr class="geoelement">
-                <td>${inv.getCode()}</td>
-                <td>${inv.getLocality()}</td>
-                <td>${inv._getDate()}</td>
-                <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
-                <td><a href="?w=openinventory&id=${inv._getIDURLEncoded()}">${inv._getSampleTaxa(10)}</a></td>
-            </tr>
-        </c:forEach>
-        </table>
+    <table id="inventorysummary" class="occurrencetable verysmalltext sortable">
+        <tr><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
+        <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2"/></th><th>Species</th></tr>
+        <c:forEach var="inv" items="${inventories}">
+        <tr class="geoelement">
+            <td data-name="code">${inv.getCode()}</td>
+            <td data-name="locality">${inv.getLocality()}</td>
+            <td sorttable_customkey="${inv._getDateYMD()}" data-name="date">${inv._getDate()}</td>
+            <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
+            <td class="taxon"><a href="?w=openinventory&id=${inv._getIDURLEncoded()}">${inv._getSampleTaxa(100)}</a></td>
+        </tr>
+    </c:forEach>
+    </table>
 </c:when>
+
 <c:when test="${param.w == 'openinventory'}">
     <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
     <div class="button anchorbutton"><a href="?w=main">Back to inventory list</a></div>
 
+    <div id="deleteoccurrences" class="hidden">
+        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
+            <div class="heading2">
+                <h2>Confirm deletion of occurrences</h2>
+                <input type="submit" class="textbutton" value="Delete"/>
+            </div>
+            <table id="deleteoccurrencetable" class="verysmalltext sortable">
+                <thead><tr>
+                    <th class="sorttable_nosort selectcol"></th>
+                    <th class="smallcol">GPS</th>
+                    <th class="bigcol">Taxon</th>
+                    <th class="smallcol">Conf</th>
+                    <th class="smallcol">Fen</th>
+                    <th class="smallcol">Nº</th>
+                    <th class="smallcol">Met</th>
+                    <th class="smallcol">Fot</th>
+                    <th class="smallcol">Colh</th>
+                    <th class="smallcol">Comment</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </form>
+    </div>
+
     <t:inventorymodel />
 
+    <form id="addnewinventories" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
+        <div class="heading2">
+            <h2><fmt:message key="inventory.add"/></h2>
+            <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
+            <div class="button" id="deleteselectednew">Delete selected</div>
+            <input type="submit" class="textbutton" value="Save"/>
+        </div>
+    </form>
+
     <div id="allinventories">
+        <c:if test="${param.id == null}">
         <h2>Your inventories</h2>
+        </c:if>
         <c:forEach var="inv" items="${inventories}">
         <c:if test="${inv.getLatitude() == null}"><div class="inventory"></c:if>
         <c:if test="${inv.getLatitude() != null}"><div class="inventory geoelement"></c:if>
@@ -84,10 +130,10 @@
                     </tr>
                     <tr>
                         <td class="field editable coordinates" data-name="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
-                        <td class="field editable" data-name="gridPrecision">${inv.getGridPrecision()}</td>
+                        <td class="field editable" data-name="precision">${inv.getPrecision().toString()}</td>
                         <td class="field editable" data-name="code">${inv.getCode()}</td>
                         <td class="field editable" data-name="locality">${inv.getLocality()}</td>
-                        <td class="field editable" data-name="date">${inv._getDate()}</td>
+                        <td class="field editable" data-name="date" sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
                         <td class="field editable authors" data-name="observers"><t:usernames idarray="${inv.getObservers()}" usermap="${userMap}"/></td>
                     </tr>
                 </table>
@@ -103,7 +149,7 @@
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
                     <thead>
                         <tr>
-                            <th class="hidden"></th>
+                            <th class="sorttable_nosort selectcol"></th>
                             <th class="smallcol">GPS</th>
                             <th class="bigcol">Taxon</th>
                             <th class="smallcol">Conf</th>
@@ -117,8 +163,11 @@
                     </thead>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
-                        <tr class="id2holder">
-                            <td class="hidden"><input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/></td>
+                        <tr class="id2holder geoelement">
+                            <td class="select clickable"><div class="selectbutton"></div>
+                                <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
+                                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
+                            </td>
                             <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
                             <c:if test="${tax.getTaxEnt() == null}">
                             <td class="taxon editable" data-name="taxa">${tax.getVerbTaxon()}</td>
@@ -137,7 +186,7 @@
                         </c:forEach>
 
                         <tr class="dummy id2holder geoelement">
-                            <td class="hidden"><input type="hidden" name="occurrenceUuid" value=""/></td>
+                            <td class="select clickable"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td>
                             <td class="editable" data-name="gpsCode"></td>
                             <td class="taxon editable" data-name="taxa"></td>
                             <td class="editable" data-name="confidence"></td>
@@ -150,7 +199,8 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="button newtaxon hidden">Add taxon</div>
+                <div class="button" id="deleteselectedinv">Delete selected taxa</div>
+                <div class="button newtaxon">Add taxon</div>
             </form>
         </div>
         </c:forEach>
@@ -211,11 +261,12 @@
                 <input type="submit" class="textbutton" value="<fmt:message key="discard"/>"/>
             </form>
         </div>
-        <table class="occurrencetable">
-            <tr><th>Date</th><th>Coord</th><th>Species</th></tr>
+        <table class="occurrencetable sortable">
+            <tr><th>GPS code</th><th>Date</th><th>Coord</th><th>Species</th></tr>
             <c:forEach var="inv" items="${file}">
             <tr class="geoelement">
-                <td>${inv._getDate()}</td>
+                <td>${inv.getCode()}</td>
+                <td sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
                 <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
                 <td>${inv._getSampleTaxa(5)}</td>
             </tr>
@@ -278,7 +329,7 @@
                     <td class="taxon editable" data-name="taxa"></td>
                     <td class="editable" data-name="confidence"></td>
                     <td class="editable coordinates" data-name="coordinates"></td>
-                    <td class="editable" data-name="gridPrecision"></td>
+                    <td class="editable" data-name="precision"></td>
                     <td class="editable" data-name="comment"></td>
                     <td class="editable" data-name="privateNote"></td>
                     <td class="editable" data-name="date"></td>
@@ -290,7 +341,7 @@
                     <td class="editable" data-name="date"></td>
                     <td class="editable authors" data-name="observers"></td>
                     <td class="editable coordinates" data-name="coordinates"></td>
-                    <td class="editable" data-name="gridPrecision"></td>
+                    <td class="editable" data-name="precision"></td>
                     <td class="editable" data-name="gpsCode"></td>
                     <td class="taxon editable" data-name="taxa"></td>
                     <td class="editable" data-name="confidence"></td>
@@ -331,11 +382,12 @@
 
     <div id="alloccurrences">
         <div class="heading2">
-            <h2>Your occurrences</h2>
-            <div class="button" id="newoccurrence">New</div>
-            <div class="button" id="deleteselected">Delete selected</div>
-            <div class="button" id="mergeocc">Re-group selected</div>
+            <h2><fmt:message key="occurrences.1"/></h2>
+            <div class="button" id="newoccurrence"><fmt:message key="occurrences.1a"/></div>
+            <div class="button" id="deleteselected"><fmt:message key="occurrences.1b"/></div>
+            <div class="button" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
             <div class="button" id="updatemodified"><fmt:message key="inventory.upd"/></div>
+            <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="alloccurrencetable" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>
         </div>
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
             <t:occurrenceheader flavour="${param.flavour}"/>
@@ -362,19 +414,19 @@
                     </c:if>
                     <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
                     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
-                    <td class="editable" data-name="gridPrecision">${occ.getGridPrecision()}</td>
+                    <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
                     <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
                     <td class="editable" data-name="privateNote">${occ._getTaxa()[0].getPrivateComment()}</td>
-                    <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
                     <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
                     <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
                     </c:when>
 
                     <c:when test="${param.flavour == 'redlist'}">
-                    <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
                     <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
                     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
-                    <td class="editable" data-name="gridPrecision"></td>
+                    <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
                     <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
@@ -402,7 +454,7 @@
                     <td class="editable" data-name="verbLocality">${occ.getVerbLocality()}</td>
                     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
                     <td class="editable" data-name="labelData">${occ._getTaxa()[0].getLabelData()}</td>
-                    <td class="editable" data-name="date">${occ._getDate()}</td>
+                    <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
                     <td class="editable authors" data-name="collectors"><t:usernames idarray="${occ.getCollectors()}" usermap="${userMap}"/></td>
                     <td class="editable authors" data-name="determiners"><t:usernames idarray="${occ.getDets()}" usermap="${userMap}"/></td>
                     </c:when>

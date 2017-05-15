@@ -21,42 +21,42 @@ public class Territories extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public void doFloraOnPost() throws ServletException, IOException, FloraOnException {
-		if(!getUser().canMODIFY_TAXA_TERRITORIES()) {
-			error("You must login to do this operation!");
+	public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {
+			thisRequest.error("You must login to do this operation!");
 			return;
 		}
 
-		ListIterator<String> part=this.getPathIteratorAfter("territories");
+		ListIterator<String> part=thisRequest.getPathIteratorAfter("territories");
 		String to;
 
 		if(!part.hasNext()) {
-			error("Choose one of: set");
+			thisRequest.error("Choose one of: set");
 			return;
 		}
 		switch(part.next()) {
 		case "set":
 			INodeKey from;
-			errorIfAnyNull(response,
-				from = getParameterAsKey("taxon"),		// the taxon id
-				to = getParameterAsString("territory"));
+			errorIfAnyNull(thisRequest.response,
+				from = thisRequest.getParameterAsKey("taxon"),		// the taxon id
+				to = thisRequest.getParameterAsString("territory"));
 
 			Territory terr=NWD.getTerritoryFromShortName(to);
 			if(terr == null) throw new FloraOnException("Territory not found");
 			int res = driver.wrapTaxEnt(from).setNativeStatus(
 				driver.asNodeKey(terr.getID())
-				, getParameterAsEnum("nativeStatus", NativeStatus.class)
-				, getParameterAsEnum("occurrenceStatus", OccurrenceStatus.class)
-				, getParameterAsEnum("abundanceLevel", AbundanceLevel.class)
-				, getParameterAsEnum("introducedStatus", PlantIntroducedStatus.class)
-				, getParameterAsEnum("naturalizationDegree", PlantNaturalizationDegree.class)
-				, getParameterAsBooleanNoNull("uncertain")
+				, thisRequest.getParameterAsEnum("nativeStatus", NativeStatus.class)
+				, thisRequest.getParameterAsEnum("occurrenceStatus", OccurrenceStatus.class)
+				, thisRequest.getParameterAsEnum("abundanceLevel", AbundanceLevel.class)
+				, thisRequest.getParameterAsEnum("introducedStatus", PlantIntroducedStatus.class)
+				, thisRequest.getParameterAsEnum("naturalizationDegree", PlantNaturalizationDegree.class)
+				, thisRequest.getParameterAsBooleanNoNull("uncertain")
 			);
-			success( res==0 ? "Nothing changed" : "Set ok!");
+			thisRequest.success( res==0 ? "Nothing changed" : "Set ok!");
 			break;
 			
 		default:
-			error("Command not found");
+			thisRequest.error("Command not found");
 			break;
 		}
 

@@ -9,6 +9,7 @@ import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
@@ -19,11 +20,12 @@ import java.util.*;
 @WebServlet("/occurrences/*")
 public class OccurrencesMainPage extends FloraOnServlet {
     @Override
-    public void doFloraOnGet() throws ServletException, IOException, FloraOnException {
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        final HttpServletRequest request = thisRequest.request;
         List<InventoryList> filesList = new ArrayList<>();
-        User user = getUser();
+        User user = thisRequest.getUser();
         if(user.isGuest()) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN);
+            thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
         request.setAttribute("user", user);
@@ -37,7 +39,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
         request.setAttribute("allUsers", allUsers);
         request.setAttribute("userMap", userMap);
 
-        String what = getParameterAsString("w");
+        String what = thisRequest.getParameterAsString("w");
         if(what == null) what = "main";
 
         switch(what) {
@@ -47,9 +49,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "openinventory":
-                if(getParameterAsString("id") != null) {
+                if(thisRequest.getParameterAsString("id") != null) {
                     request.setAttribute("inventories"
-                            , driver.getOccurrenceDriver().getInventoriesByIds(new String[] {getParameterAsString("id")}));
+                            , driver.getOccurrenceDriver().getInventoriesByIds(new String[] {thisRequest.getParameterAsString("id")}));
                 } else
                     request.setAttribute("inventories"
                             , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
@@ -64,7 +66,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "uploads":
-                user = refreshUser();
+                user = thisRequest.refreshUser();
                 List<String> uts = new ArrayList<>();
                 uts.addAll(user.getUploadedTables());   // clone
                 for(String ut : uts) {
@@ -83,6 +85,6 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 request.setAttribute("filesList", filesList);
                 break;
         }
-        request.getRequestDispatcher("/main-occurrences.jsp").forward(request, response);
+        request.getRequestDispatcher("/main-occurrences.jsp").forward(request, thisRequest.response);
     }
 }
