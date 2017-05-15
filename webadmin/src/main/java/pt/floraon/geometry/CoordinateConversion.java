@@ -38,7 +38,48 @@ public final class CoordinateConversion {
 	private static double rad2deg=180/PI;
 	private static double fe=500000;
 	private static double ok=0.9996;
-	
+	private static Map<String, String> defaultUTMZones = new HashMap<>();
+
+	static {	// TODO: default zones should be user-defined
+		defaultUTMZones.put("MJ", "29T");
+		defaultUTMZones.put("MH", "29T");
+		defaultUTMZones.put("MG", "29T");
+		defaultUTMZones.put("MF", "29T");
+		defaultUTMZones.put("ME", "29T");
+		defaultUTMZones.put("NJ", "29T");
+		defaultUTMZones.put("NH", "29T");
+		defaultUTMZones.put("NG", "29T");
+		defaultUTMZones.put("NF", "29T");
+		defaultUTMZones.put("NE", "29T");
+		defaultUTMZones.put("PJ", "29T");
+		defaultUTMZones.put("PH", "29T");
+		defaultUTMZones.put("PG", "29T");
+		defaultUTMZones.put("PF", "29T");
+		defaultUTMZones.put("PE", "29T");
+		defaultUTMZones.put("QJ", "29T");
+		defaultUTMZones.put("QH", "29T");
+		defaultUTMZones.put("QG", "29T");
+		defaultUTMZones.put("QF", "29T");
+		defaultUTMZones.put("QE", "29T");
+
+		defaultUTMZones.put("MD", "29S");
+		defaultUTMZones.put("MC", "29S");
+		defaultUTMZones.put("MB", "29S");
+		defaultUTMZones.put("MA", "29S");
+		defaultUTMZones.put("ND", "29S");
+		defaultUTMZones.put("NC", "29S");
+		defaultUTMZones.put("NB", "29S");
+		defaultUTMZones.put("NA", "29S");
+		defaultUTMZones.put("PD", "29S");
+		defaultUTMZones.put("PC", "29S");
+		defaultUTMZones.put("PB", "29S");
+		defaultUTMZones.put("PA", "29S");
+		defaultUTMZones.put("QD", "29S");
+		defaultUTMZones.put("QC", "29S");
+		defaultUTMZones.put("QB", "29S");
+		defaultUTMZones.put("QA", "29S");
+	}
+
 	private static double CalculateESquared(double a,double b) {
 		return(((a * a) - (b * b)) / (a * a));
 	}
@@ -416,7 +457,7 @@ public final class CoordinateConversion {
 	 */
 	public static UTMCoordinate MGRSToUTM(String mgrutm) {
 		MGRSCoordConverter cnv = new MGRSCoordConverter();
-		UTMCoord utm = cnv.convertMGRSToUTM(mgrutm);
+		UTMCoord utm = cnv.convertMGRSToUTM(mgrutm, defaultUTMZones);
 		int half = (int) Math.pow(10, (5 - utm.getMGRS().precision)) / 2;
 		Precision prec = new Precision();
 		prec.setSquare(half * 2);

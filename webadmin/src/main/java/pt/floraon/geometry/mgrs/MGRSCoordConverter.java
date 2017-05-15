@@ -16,6 +16,9 @@ package pt.floraon.geometry.mgrs;
  * @see MGRSCoord
  */
 
+import org.jfree.util.Log;
+
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +30,7 @@ import java.util.regex.Pattern;
  */
 public class MGRSCoordConverter
 {
-    static final Pattern mgrs = Pattern.compile("^ *(?<zone>[0-9]{1,2}) *(?<band>[C-HJ-NP-X]) *(?<quadx>[A-HJ-NP-Z])(?<quady>[A-HJ-NP-V]) *" +
+    static final Pattern mgrs = Pattern.compile("^ *(?<zone>[0-9]{1,2})? *(?<band>[C-HJ-NP-X])? *(?<quadx>[A-HJ-NP-Z])(?<quady>[A-HJ-NP-V]) *" +
             "(?<coords>([0-9] *[0-9])|([0-9]{2} *[0-9]{2})|([0-9]{3} *[0-9]{3})" +
             "|([0-9]{4} *[0-9]{4})|([0-9]{5} *[0-9]{5})) *$", Pattern.CASE_INSENSITIVE);
     public static final int MGRS_NO_ERROR = 0;
@@ -256,7 +259,7 @@ public class MGRSCoordConverter
         long error_code = checkZone(MGRSString);
         if (error_code == MGRS_NO_ERROR)
         {
-            UTMCoord UTM = convertMGRSToUTM(MGRSString);
+            UTMCoord UTM = convertMGRSToUTM(MGRSString, null);
             if (UTM != null)
             {
                 latitude = UTM.getLatitude().radians;
@@ -294,14 +297,28 @@ public class MGRSCoordConverter
      * @param MGRSString
      * @return
      */
-    private MGRSComponents parseMGRSString(String MGRSString) {
+    private MGRSComponents parseMGRSString(String MGRSString, Map<String, String> defaultZones) {
         long easting;
         long northing;
         int precision;
         double multiplier;
+        int zone;
+        int band;
 
         Matcher m = mgrs.matcher(MGRSString);
         if(!m.find()) throw new IllegalArgumentException(String.format("MGRS string '%s' not understood", MGRSString));
+
+        if(m.group("zone") == null || m.group("band") == null) {
+            if(defaultZones == null) throw new IllegalArgumentException("UTM zone missing and default zones not provided");
+            String dz = defaultZones.get(m.group("quadx").toUpperCase() + m.group("quady").toUpperCase());
+            if(dz == null) throw new IllegalArgumentException("UTM zone missing and not given in the default zones");
+
+            zone = Integer.parseInt(dz.substring(0, dz.length() - 1));
+            band = alphabet.indexOf(dz.substring(dz.length() - 1).toUpperCase());
+        } else {
+            zone = Integer.parseInt(m.group("zone"));
+            band = alphabet.indexOf(m.group("band").toUpperCase());
+        }
 
         String coords = m.group("coords");
         coords = coords.replaceAll(" ", "");
@@ -313,8 +330,8 @@ public class MGRSCoordConverter
         easting *= multiplier;
         northing *= multiplier;
 
-        return new MGRSComponents(Integer.parseInt(m.group("zone"))
-                , alphabet.indexOf(m.group("band").toUpperCase())
+        return new MGRSComponents(zone
+                , band
                 , alphabet.indexOf(m.group("quadx").toUpperCase())
                 , alphabet.indexOf(m.group("quady").toUpperCase()), easting, northing, precision);
     }
@@ -529,7 +546,7 @@ public class MGRSCoordConverter
      *
      * @return the corresponding <code>UTMComponents</code> or <code>null</code>.
      */
-    public UTMCoord convertMGRSToUTM(String MGRSString)
+    public UTMCoord convertMGRSToUTM(String MGRSString, Map<String, String> defaultZones)
     {
         double grid_easting;        /* Easting for 100,000 meter grid square      */
         double grid_northing;       /* Northing for 100,000 meter grid square     */
@@ -542,87 +559,79 @@ public class MGRSCoordConverter
         double northing = 0;
         UTMCoord UTM = null;
 
-        MGRSComponents MGRS = parseMGRSString(MGRSString);
+        MGRSComponents MGRS = parseMGRSString(MGRSString, defaultZones);
 
-        if (MGRS == null)
+        if ((MGRS.latitudeBand == LETTER_X) && ((MGRS.zone == 32) || (MGRS.zone == 34) || (MGRS.zone == 36)))
             error_code |= MGRS_STRING_ERROR;
         else
         {
+            if (MGRS.latitudeBand < LETTER_N)
+                hemisphere = AVKey.SOUTH;
+            else
+                hemisphere = AVKey.NORTH;
+
+            getGridValues(MGRS.zone);
+
+            // Check that the second letter of the MGRS string is within
+            // the range of valid second letter values
+            // Also check that the third letter is valid
+            if ((MGRS.squareLetter1 < ltr2_low_value) || (MGRS.squareLetter1 > ltr2_high_value) ||
+                (MGRS.squareLetter2 > LETTER_V))
+                error_code |= MGRS_STRING_ERROR;
+
             if (error_code == MGRS_NO_ERROR)
             {
-                if ((MGRS.latitudeBand == LETTER_X) && ((MGRS.zone == 32) || (MGRS.zone == 34) || (MGRS.zone == 36)))
-                    error_code |= MGRS_STRING_ERROR;
-                else
+                grid_northing =
+                    (double) (MGRS.squareLetter2) * ONEHT;  //   smithjl  commented out + false_northing;
+                grid_easting = (double) ((MGRS.squareLetter1) - ltr2_low_value + 1) * ONEHT;
+                if ((ltr2_low_value == LETTER_J) && (MGRS.squareLetter1 > LETTER_O))
+                    grid_easting = grid_easting - ONEHT;
+
+                if (MGRS.squareLetter2 > LETTER_O)
+                    grid_northing = grid_northing - ONEHT;
+
+                if (MGRS.squareLetter2 > LETTER_I)
+                    grid_northing = grid_northing - ONEHT;
+
+                if (grid_northing >= TWOMIL)
+                    grid_northing = grid_northing - TWOMIL;
+
+                error_code = getLatitudeBandMinNorthing(MGRS.latitudeBand);
+                if (error_code == MGRS_NO_ERROR)
                 {
-                    if (MGRS.latitudeBand < LETTER_N)
-                        hemisphere = AVKey.SOUTH;
-                    else
-                        hemisphere = AVKey.NORTH;
+                    /*smithjl Deleted code here and added this*/
+                    grid_northing = grid_northing - false_northing;
 
-                    getGridValues(MGRS.zone);
+                    if (grid_northing < 0.0)
+                        grid_northing += TWOMIL;
 
-                    // Check that the second letter of the MGRS string is within
-                    // the range of valid second letter values
-                    // Also check that the third letter is valid
-                    if ((MGRS.squareLetter1 < ltr2_low_value) || (MGRS.squareLetter1 > ltr2_high_value) ||
-                        (MGRS.squareLetter2 > LETTER_V))
-                        error_code |= MGRS_STRING_ERROR;
+                    grid_northing += northing_offset;
 
-                    if (error_code == MGRS_NO_ERROR)
+                    if (grid_northing < min_northing)
+                        grid_northing += TWOMIL;
+
+                    /* smithjl End of added code */
+
+                    easting = grid_easting + MGRS.easting;
+                    northing = grid_northing + MGRS.northing;
+
+                    try
                     {
-                        grid_northing =
-                            (double) (MGRS.squareLetter2) * ONEHT;  //   smithjl  commented out + false_northing;
-                        grid_easting = (double) ((MGRS.squareLetter1) - ltr2_low_value + 1) * ONEHT;
-                        if ((ltr2_low_value == LETTER_J) && (MGRS.squareLetter1 > LETTER_O))
-                            grid_easting = grid_easting - ONEHT;
-
-                        if (MGRS.squareLetter2 > LETTER_O)
-                            grid_northing = grid_northing - ONEHT;
-
-                        if (MGRS.squareLetter2 > LETTER_I)
-                            grid_northing = grid_northing - ONEHT;
-
-                        if (grid_northing >= TWOMIL)
-                            grid_northing = grid_northing - TWOMIL;
-
-                        error_code = getLatitudeBandMinNorthing(MGRS.latitudeBand);
+                        UTM = UTMCoord.fromUTM(MGRS.zone, hemisphere, easting, northing);
+                        UTM.setMGRS(MGRS);
+                        latitude = UTM.getLatitude().radians;
+                        divisor = Math.pow(10.0, MGRS.precision);
+                        error_code = getLatitudeRange(MGRS.latitudeBand);
                         if (error_code == MGRS_NO_ERROR)
                         {
-                            /*smithjl Deleted code here and added this*/
-                            grid_northing = grid_northing - false_northing;
-
-                            if (grid_northing < 0.0)
-                                grid_northing += TWOMIL;
-
-                            grid_northing += northing_offset;
-
-                            if (grid_northing < min_northing)
-                                grid_northing += TWOMIL;
-
-                            /* smithjl End of added code */
-
-                            easting = grid_easting + MGRS.easting;
-                            northing = grid_northing + MGRS.northing;
-
-                            try
-                            {
-                                UTM = UTMCoord.fromUTM(MGRS.zone, hemisphere, easting, northing);
-                                UTM.setMGRS(MGRS);
-                                latitude = UTM.getLatitude().radians;
-                                divisor = Math.pow(10.0, MGRS.precision);
-                                error_code = getLatitudeRange(MGRS.latitudeBand);
-                                if (error_code == MGRS_NO_ERROR)
-                                {
-                                    if (!(((south - DEG_TO_RAD / divisor) <= latitude)
-                                        && (latitude <= (north + DEG_TO_RAD / divisor))))
-                                        error_code |= MGRS_LAT_WARNING;
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                error_code = MGRS_UTM_ERROR;
-                            }
+                            if (!(((south - DEG_TO_RAD / divisor) <= latitude)
+                                && (latitude <= (north + DEG_TO_RAD / divisor))))
+                                error_code |= MGRS_LAT_WARNING;
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        error_code = MGRS_UTM_ERROR;
                     }
                 }
             }
@@ -1096,7 +1105,7 @@ public class MGRSCoordConverter
         String hemisphere;
         double easting, northing;
 
-        MGRSComponents mgrs = parseMGRSString(MGRS);
+        MGRSComponents mgrs = parseMGRSString(MGRS, null);
 /*
         if (mgrs == null)
             error_code = this.last_error;
