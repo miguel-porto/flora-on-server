@@ -32,7 +32,7 @@ import pt.floraon.driver.results.ResultItem;
 public class TaxEnt extends NamedDBNode implements ResultItem {
 	/**
 	 * Matches a taxon name of the form:
-	 * Genus species rank infrataxon Author [annotation] sensu somework
+	 * Genus species rank infrataxa Author [annotation] sensu somework
 	 */
 	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?" +
 			//"(?: +(?:(?<rank>subsp|var|f)\\.? +)?(?<infra>[a-z-]+))?" +
@@ -131,7 +131,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 
 	/**
 	 * Creates a TaxEnt from a compound string of the form
-	 * Genus species rank infrataxon Author [annotation] sensu somework
+	 * Genus species rank infrataxa Author [annotation] sensu somework
 	 * @param name
 	 * @return
 	 * @throws TaxonomyException
@@ -139,9 +139,9 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	public static TaxEnt parse(String name) throws FloraOnException {
 		if(name == null) throw new DatabaseException(Messages.getString("error.3"));
 		name = name.replaceAll(" +", " ").trim();
-		if(name.equals("")) {
+		if(name.equals(""))
 			throw new DatabaseException(Messages.getString("error.3"));
-		}
+
 		Matcher m = taxonName.matcher(name);
 		TaxEnt out = new TaxEnt();
 
@@ -165,7 +165,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 			if(m.group("infra") != null) sb.append(" ").append(m.group("infra"));
 */
 			out.setName(cn.toString());
-			TaxonRanks tr = TaxonRanks.getRankFromShortname(r);
+			TaxonRanks tr = cn.getTaxonRank();
 			if(tr != null) out.setRank(tr.getValue());
 			out.setAuthor(m.group("author"));
 			out.setAnnotation((m.group("annot1") == null ? m.group("annot2") : m.group("annot1")));
@@ -233,7 +233,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 * @return
 	 */
 	public String getFullName(boolean htmlFormatted) {
-		if(htmlFormatted && rank >= TaxonRanks.GENUS.getValue())
+		if(htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())
 			return "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
 				+ (this.getSensu() != null ? " <i>sensu</i> "+this.getSensu() : "")
 				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
@@ -286,7 +286,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	public Integer getRankValue() {
-		return rank;
+		return rank == null ? TaxonRanks.NORANK.getValue() : rank;
 	}
 	
 	public Boolean getCurrent() {

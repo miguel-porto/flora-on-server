@@ -25,7 +25,7 @@ p.error {color:red;font-weight:bold;}
 
 label input {vertical-align:middle;}
 
-.outer {background-color: #eed; padding:50px; width:480px; margin:0 auto 200px auto;}
+.outer {background-color: transparent; padding:10px; width:480px; margin:0 auto 200px auto;}
 .bigbutton {
     margin:30px;
     padding:8px;
@@ -34,7 +34,7 @@ label input {vertical-align:middle;}
     box-shadow:0 0 12px #777;
     color:white;
     opacity:0.9;
-    min-height:140px;
+    /*min-height:140px;*/
 }
 .bigbutton:hover {opacity:1}
 

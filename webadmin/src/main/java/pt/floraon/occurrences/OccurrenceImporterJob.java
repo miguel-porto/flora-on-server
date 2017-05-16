@@ -15,6 +15,7 @@ import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.INodeWorker;
 import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.driver.utils.BeanUtils;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
@@ -33,6 +34,7 @@ public class OccurrenceImporterJob implements JobTask {
     private InputStream stream;
     private User user;
     private boolean mainObserver;
+    private boolean createTaxa;
     private long nrecs=0;
     private long newsplist=0;
     private long counter=0;
@@ -40,11 +42,12 @@ public class OccurrenceImporterJob implements JobTask {
     private String format;
 
 
-    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user, String format, boolean mainObserver, Boolean createUsers) {
+    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user, String format, boolean mainObserver, Boolean createUsers, boolean createTaxa) {
         this.stream = stream;
         this.user = user;
         this.format = format == null ? "csv" : format;
         this.mainObserver = mainObserver;
+        this.createTaxa = createTaxa;
         occurrenceParser = new OccurrenceParser(driver);
 
         occurrenceParser.registerParser("observers", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
@@ -208,7 +211,7 @@ public class OccurrenceImporterJob implements JobTask {
                 break;
         }
         Log.info("Matching taxon names");
-        driver.getOccurrenceDriver().matchTaxEntNames(invList);
+        driver.getOccurrenceDriver().matchTaxEntNames(invList, createTaxa);
 
         File temp = File.createTempFile("uploadedtable-",".ser", new File("/tmp"));
         ObjectOutputStream oost = new ObjectOutputStream(new FileOutputStream(temp));
@@ -217,6 +220,16 @@ public class OccurrenceImporterJob implements JobTask {
         Set<String> err = invList.getVerboseErrors();
         for(Map.Entry<Long, String> e : lineerrors.entrySet()) {
             err.add(String.format("L%d: %s", e.getKey(), e.getValue()));
+        }
+
+        if(invList.getNoMatches().size() > 0) {
+            String msg = createTaxa ? Messages.getString("error.9") : Messages.getString("error.8");
+            String taxa = "<i>" + StringUtils.implode("</i>, <i>", invList.getNoMatches().toArray(new String[0])) + "</i>";
+
+            if (createTaxa)
+                invList.getVerboseWarnings().add(String.format("%s: %s", msg, taxa));
+            else
+                err.add(String.format("%s: %s", msg, taxa));
         }
 
         oost.writeObject(invList);

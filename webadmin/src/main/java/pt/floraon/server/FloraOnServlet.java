@@ -56,6 +56,7 @@ public class FloraOnServlet extends HttpServlet {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.setLocale(Locale.getDefault());
+//		response.setLocale(request.getLocale());
 
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -66,7 +67,7 @@ public class FloraOnServlet extends HttpServlet {
 		ThisRequest thisRequest = new ThisRequest(request, response);
 
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "sk39");
+		request.setAttribute("uuid", "sk40");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -328,7 +329,6 @@ public class FloraOnServlet extends HttpServlet {
 			resp.addProperty("success", true);
 			resp.addProperty("msg", obj.toString());
 			pw.print(resp.toString());
-//		pw.println("{\"success\":true,\"msg\":\"" + obj.toString() + "\"}");
 			pw.flush();
 		}
 
@@ -344,7 +344,6 @@ public class FloraOnServlet extends HttpServlet {
 			resp.addProperty("success", true);
 			resp.add("msg", obj);
 			pw.print(resp.toString());
-//		pw.println("{\"success\":true,\"msg\":" + obj.toString() + "}");
 			pw.flush();
 		}
 

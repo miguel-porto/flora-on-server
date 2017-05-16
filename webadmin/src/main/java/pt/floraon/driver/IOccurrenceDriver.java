@@ -88,11 +88,22 @@ public interface IOccurrenceDriver {
 
     /**
      * Matches all the taxon names observed in a list of inventories, to the taxonomic database. The IDs of the TaxEnt
-     * are set in the passedobject, and errors are stored.
+     * are set in the passed object, and errors are stored.
      * @param inventories
      * @throws FloraOnException
      */
-    void matchTaxEntNames(InventoryList inventories) throws FloraOnException;
+    void matchTaxEntNames(InventoryList inventories, boolean createNew) throws FloraOnException;
+
+    /**
+     * Matches all the taxon names observed in an inventory, to the taxonomic database.
+     * @param inventory
+     * @param createNew
+     * @param inventories
+     * @throws FloraOnException
+     */
+    void matchTaxEntNames(Inventory inventory, boolean createNew, InventoryList inventories) throws FloraOnException;
+
+    InventoryList matchTaxEntNames(Iterator<Inventory> inventories, boolean createNew) throws FloraOnException;
 
     /**
      * Deletes occurrences by their UUID or inventories, if UUIDs are not provided. If UUIDs are provided, the ID of the

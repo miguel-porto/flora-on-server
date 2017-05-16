@@ -10,6 +10,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import pt.floraon.driver.entities.DBEntity;
+import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
@@ -106,4 +108,20 @@ public class BaseFloraOnDriver {
 		return out;
 	}
 
+	/**
+	 * Builds a GraphUpdateResult from an iterator of nodes (in JSON)
+	 * @param nodeIterator
+	 * @return
+	 * @throws FloraOnException
+	 */
+	public GraphUpdateResult toGraphUpdateResult(Iterator<String> nodeIterator) throws FloraOnException {
+		StringBuilder sb = new StringBuilder("[");
+		while(nodeIterator.hasNext()) {
+			sb.append(nodeIterator.next());
+			if(nodeIterator.hasNext())
+				sb.append(",");
+		}
+		sb.append("]");
+		return new GraphUpdateResult(sb.toString(), "[]");
+	}
 }

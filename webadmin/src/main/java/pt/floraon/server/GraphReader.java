@@ -7,6 +7,7 @@ import java.util.ListIterator;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.Constants;

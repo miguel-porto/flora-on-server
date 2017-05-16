@@ -13,8 +13,9 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
     private String fileName;
     private Date uploadDate;
     private List<newOBSERVED_IN> parseErrors = new ArrayList<>();
-    private List<newOBSERVED_IN> noMatches = new ArrayList<>();
+    private Set<String> noMatches = new LinkedHashSet<>();
     private Set<String> verboseErrors = new LinkedHashSet<>();
+    private Set<String> verboseWarnings = new LinkedHashSet<>();
 
     public Set<String> getVerboseErrors() {
         return verboseErrors;
@@ -22,6 +23,14 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
 
     public void setVerboseErrors(Set<String> verboseErrors) {
         this.verboseErrors = verboseErrors;
+    }
+
+    public Set<String> getVerboseWarnings() {
+        return verboseWarnings;
+    }
+
+    public void setVerboseWarnings(Set<String> verboseWarnings) {
+        this.verboseWarnings = verboseWarnings;
     }
 
     public String getFileName() {
@@ -37,14 +46,14 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
     }
 
     public void addNoMatch(newOBSERVED_IN noMatch) {
-        this.noMatches.add(noMatch);
+        this.noMatches.add(noMatch.getVerbTaxon());
     }
 
     public List<newOBSERVED_IN> getParseErrors() {
         return parseErrors;
     }
 
-    public List<newOBSERVED_IN> getNoMatches() {
+    public Set<String> getNoMatches() {
         return noMatches;
     }
 

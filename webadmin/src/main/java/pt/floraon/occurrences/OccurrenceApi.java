@@ -146,7 +146,7 @@ public class OccurrenceApi extends FloraOnServlet {
                         inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
                 }
 
-                driver.getOccurrenceDriver().matchTaxEntNames(inventories);
+                driver.getOccurrenceDriver().matchTaxEntNames(inventories, false);
                 System.out.println("************ REQUESTED BEANS:");
                 System.out.println(gs.toJson(inventories));
 

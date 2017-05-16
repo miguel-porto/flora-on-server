@@ -29,6 +29,10 @@ public class NodeReader extends FloraOnServlet {
 		case "getallterritories":
 			thisRequest.success(driver.getListDriver().getAllTerritoriesGraph(null).toJsonObject());
 			break;
+
+		case "getorphan":
+			thisRequest.success(driver.getListDriver().getAllOrphanTaxaAsGUR().toJsonObject());
+			break;
 			
 		case "taxoninfo":
 			INodeKey key;

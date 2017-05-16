@@ -268,4 +268,6 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
     public String toJsonString() {
         return this.toJson().toString();
     }
+
+
 }

@@ -31,6 +31,7 @@
 </head>
 <body>
 <input type="hidden" name="territory" value="${territory}"/>
+<!--<img style="height: 90px; position:fixed; left:0; top:0" src="/floraon/images/logo-LV-cor-fundoclaro_800.png" alt="logo"/>-->
 <div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords'}">

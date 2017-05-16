@@ -28,7 +28,7 @@
 		</div>
 		<div class="box">
 			<div id="but-clean" class="button">Clean</div>
-			<!--<div id="but-orphan" class="button">Load orphan</div>-->
+			<div id="but-orphan" class="button">Load orphan</div>
 			<div id="but-characters" class="button">Load characters</div>
 			<div id="but-territories" class="button">Load territories</div>
 		</div>

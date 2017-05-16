@@ -12,6 +12,8 @@ public class MainPage extends FloraOnServlet {
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         thisRequest.request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
+        if(driver.getListDriver().getAllOrphanTaxa().hasNext())
+            thisRequest.request.setAttribute("orphan", true);
         thisRequest.request.getRequestDispatcher("/main.jsp").forward(thisRequest.request, thisRequest.response);
     }
 }

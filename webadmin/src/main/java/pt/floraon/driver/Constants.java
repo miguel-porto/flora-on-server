@@ -96,8 +96,9 @@ public final class Constants {
 		public static TaxonRanks getRankFromShortname(String shortName) {
 			if(shortName == null || shortName.equals("")) return null;
 			for(TaxonRanks tr : values()) {
-				if(Objects.equals(tr.shortName, shortName)) return tr;
+				if(Objects.equals(tr.shortName, shortName) || Objects.equals(tr.shortName, shortName + ".")) return tr;
 			}
+
 			return null;
 		}
 	}

@@ -69,7 +69,16 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		
 		if(what) {
-			if(what=='territories') addNodeBatch('getallterritories');
+		    switch(what) {
+		    case 'territories':
+		        addNodeBatch('getallterritories');
+		        break;
+
+		    case 'orphan':
+		        addNodeBatch('getorphan');
+		        break;
+		    }
+
 		} else
 			loadData({query: query ? decodeURIComponent(query.replace(/\+/g, ' ')) : 'Embryopsidae', ids: ids ? ids.split(',') : null},false,getVisibleFacets(), depth ? depth : 3);
 	});
@@ -618,12 +627,15 @@ function clickToolbar(ev) {
 		break;
 	
 	case 'but-orphan':
+/*
 		fetchAJAX('worker.php?w=orphan',function(rt) {
 			rt=JSON.parse(rt);
 			var onlynew=mergeNodes(rt);
 			gdata.nodes=gdata.nodes.concat(onlynew);
 			onUpdateData();
 		});
+*/
+		addNodeBatch('getorphan');
 		break;
 	case 'but-characters':
 		addNodeBatch('getallcharacters');
@@ -702,7 +714,7 @@ function deleteEntity(d) {
 		rt=JSON.parse(rt);
 		var toremove=[];
 		if(rt.success) {
-			showWindow('<p>Deleted '+rt.msg.length+' entities: '+rt.msg+'</p>',{close:true});
+			showWindow('<p>Deleted entities: '+rt.msg+'</p>',{close:true});
 			for(var i=0;i<gdata.links.length;i++) {
 				if(rt.msg.indexOf(gdata.links[i]._id)>-1) {
 					gdata.links.splice(i,1);

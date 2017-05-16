@@ -425,6 +425,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     	if(q.getName() == null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 		ArangoCursor<TaxEnt> cursor;
     	List<TaxEnt> nodes;
+//    	System.out.println("QUERY "+ q.getName());
 		String query = AQLQueries.getString("NodeWorkerDriver.12", q.getName());
 // FIXME: when no rank is specified!
 		try {

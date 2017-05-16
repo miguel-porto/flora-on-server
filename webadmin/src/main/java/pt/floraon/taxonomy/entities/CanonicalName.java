@@ -1,6 +1,8 @@
 package pt.floraon.taxonomy.entities;
 
 import jline.internal.Log;
+import org.apache.commons.lang.WordUtils;
+import pt.floraon.driver.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +28,7 @@ public class CanonicalName {
         Matcher m = canonicalName.matcher(verbatimName);
         Log.info("    Verb: " + verbatimName);
         if(m.find()) {
-            this.genus = m.group("genus");
+            this.genus = WordUtils.capitalize(m.group("genus"));
             this.specificEpithet = m.group("species");
             if(this.specificEpithet == null) {
                 Log.info("    Canonical: G=" + genus);
@@ -60,6 +62,18 @@ public class CanonicalName {
 
     public List<InfraRank> getInfraRanks() {
         return infraRanks;
+    }
+
+    public Constants.TaxonRanks getTaxonRank() {
+        if(getInfraRanks() == null || getInfraRanks().size() == 0) {
+            if(getSpecificEpithet() == null)
+                return null;
+            else
+                return Constants.TaxonRanks.SPECIES;
+        } else
+            return Constants.TaxonRanks.getRankFromShortname(
+                    getInfraRanks().get(getInfraRanks().size() - 1).getInfraRank()
+            );
     }
 
     public String getInfraRanksAsString() {

@@ -77,6 +77,14 @@ public interface IListDriver {
 	GraphUpdateResult getAllCharacters();
 
 	/**
+	 * Gets all orphan taxa: taxa which have nothing more than inbound PART_OF
+	 * @return
+	 */
+	Iterator<TaxEnt> getAllOrphanTaxa() throws FloraOnException;
+
+	GraphUpdateResult getAllOrphanTaxaAsGUR() throws FloraOnException;
+
+	/**
 	 * Gets information about one given taxon.
 	 * @param key
 	 * @return

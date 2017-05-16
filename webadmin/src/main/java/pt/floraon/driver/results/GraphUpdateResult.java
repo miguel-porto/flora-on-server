@@ -32,6 +32,10 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 		super(json);
 	}
 
+	public GraphUpdateResult(String nodes, String links) {
+		super("{\"nodes\": " + nodes + ", \"links\": " + links + "}");
+	}
+
 	public GraphUpdateResult(IFloraOn graph, String id) throws FloraOnException {
 		super(graph, graph.asNodeKey(id));
 	}

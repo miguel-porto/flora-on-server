@@ -46,7 +46,7 @@ public class FileUploader extends FloraOnServlet {
 			File file = new File(thisRequest.getParameterAsString("file"));
 			if(!file.canRead()) throw new IOException("Cannot read file "+thisRequest.getParameterAsString("file"));
 			String type = thisRequest.getParameterAsString("type");
-			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, thisRequest.getUser(), type, true, false), driver);
+			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, thisRequest.getUser(), type, true, false, false), driver);
 			thisRequest.success(job.getID());
 /*
 			success(
@@ -70,7 +70,8 @@ public class FileUploader extends FloraOnServlet {
 		switch(partIt.next()) {
 		case "occurrences":
 			boolean main = thisRequest.getParameterAsBoolean("mainobserver", false);
-			Boolean create = thisRequest.getParameterAsBoolean("createUsers", false);
+			boolean create = thisRequest.getParameterAsBoolean("createUsers", false);
+			boolean createTaxa = thisRequest.getParameterAsBoolean("createTaxa", false);
 
 			try {
 				filePart = thisRequest.request.getPart("occurrenceTable");
@@ -84,7 +85,7 @@ public class FileUploader extends FloraOnServlet {
 
 			if(fileContent != null) {
 				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(
-						fileContent, driver, thisRequest.getUser(), type, main, create), driver);
+						fileContent, driver, thisRequest.getUser(), type, main, create, createTaxa), driver);
 				thisRequest.success(job.getID());
 			}
 			break;

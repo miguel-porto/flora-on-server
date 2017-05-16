@@ -216,6 +216,7 @@
         <h3>From a tab-delimited text file</h3>
         <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
         <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
+        <label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
@@ -245,6 +246,16 @@
             <p><fmt:message key="error.6"/></p>
             <ul>
             <c:forEach var="errors" items="${file.getVerboseErrors()}">
+                <li>${errors}</li>
+            </c:forEach>
+            </ul>
+        </div>
+        </c:if>
+        <c:if test="${file.getVerboseWarnings().size() > 0}">
+        <div class="warning">
+            <p><fmt:message key="error.7"/></p>
+            <ul>
+            <c:forEach var="errors" items="${file.getVerboseWarnings()}">
                 <li>${errors}</li>
             </c:forEach>
             </ul>

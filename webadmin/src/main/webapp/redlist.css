@@ -297,7 +297,7 @@ table.sheet.help .placeholder {display: none !important;}
 .checkboxes label.UNKNOWN {background-color: #ffecb3}
 .checkboxes label.OTHER {background-color: #d7ccc8}
 
-.legend {font-size: 0.6em; color:#545454;}
+.legend {font-size: 0.65em; color:#545454;}
 
 table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px; font-size:1.2rem;}
 table.small {width: auto;}

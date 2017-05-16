@@ -37,7 +37,16 @@
     </c:choose>
     </div>
     <div class="outer">
-        <p>Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes.
+        <c:if test="${user.isAdministrator()}">
+            <c:if test="${orphan}">
+            <div class="warning">
+            <p>Caro administrador, há táxones não ligados ao grafo principal.</p>
+            <a href="checklist?w=graph&show=orphan">Ver táxones</a>
+            </div>
+            </c:if>
+        </c:if>
+        <img style="width: 400px" src="images/logo-LV-cor-fundoclaro_800.png" alt="logo"/>
+        <p style="font-size:0.7em">Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes.
         Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>
         <div class="bigbutton section2">
             <h1><a href="/floraon/checklist"><fmt:message key="Modules.2"/></a></h1>

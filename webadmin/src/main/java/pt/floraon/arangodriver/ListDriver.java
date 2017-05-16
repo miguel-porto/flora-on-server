@@ -206,14 +206,35 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	
 	@Override
 	public GraphUpdateResult getAllCharacters() {
-			String query = AQLQueries.getString("ListDriver.22", NodeTypes.character.toString());
-			try {
-				return new GraphUpdateResult(database.query(query, null, null, String.class).next());
-			} catch (ArangoDBException e) {
-				System.err.println(e.getMessage());
-				return GraphUpdateResult.emptyResult();
-			}
+		String query = AQLQueries.getString("ListDriver.22", NodeTypes.character.toString());
+		try {
+			return new GraphUpdateResult(database.query(query, null, null, String.class).next());
+		} catch (ArangoDBException e) {
+			System.err.println(e.getMessage());
+			return GraphUpdateResult.emptyResult();
 		}
+	}
+
+	@Override
+	public Iterator<TaxEnt> getAllOrphanTaxa() throws FloraOnException {
+		String query = AQLQueries.getString("ListDriver.23");
+		try {
+			return database.query(query, null, null, TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
+		}
+	}
+
+	@Override
+	public GraphUpdateResult getAllOrphanTaxaAsGUR() throws FloraOnException {
+		String query = AQLQueries.getString("ListDriver.23");
+		try {
+			return toGraphUpdateResult(database.query(query, null, null, String.class));
+		} catch (ArangoDBException e) {
+			System.err.println(e.getMessage());
+			return GraphUpdateResult.emptyResult();
+		}
+	}
 
 	@Override
 	public JsonObject getTaxonInfo(INodeKey key) throws FloraOnException {
