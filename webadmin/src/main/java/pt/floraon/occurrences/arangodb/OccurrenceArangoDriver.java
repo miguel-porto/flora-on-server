@@ -6,14 +6,17 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import jline.internal.Log;
 import org.apache.commons.collections.iterators.EmptyIterator;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
 import pt.floraon.redlistdata.AQLRedListQueries;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -37,10 +40,44 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     @Override
     public Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException {
         // TODO: this should return the OBSERVED_IN graph links, not the unmatched
-        // FIXME must traverse to infrataxa!!!
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.1", taxEntId.getID())
+                    , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> getUnmatchedOccurrences() throws DatabaseException {
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.6")
+                    , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getUnmatchedOccurrencesOfMaintainerCount(INodeKey userId) throws DatabaseException {
+        String query = "occurrencequery.6a.count";
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString(query, userId == null ? null : userId.toString())
+                    , null, null, Integer.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> getUnmatchedOccurrencesOfMaintainer(INodeKey userId) throws DatabaseException {
+        String query = (userId == null ? "occurrencequery.6b" : "occurrencequery.6a");
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString(query, userId == null ? null : userId.toString())
                     , null, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
@@ -89,6 +126,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
+    public int getOccurrencesOfMaintainerCount(INodeKey authorId) throws DatabaseException {
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.4b", authorId.getID())
+                    , null, null, Integer.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
     public Iterator<Inventory> getInventoriesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
@@ -109,6 +157,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.4a", authorId.getID(), offset, count)
                     , null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException {
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.4a.count", authorId.getID())
+                    , null, null, Integer.class).next();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -210,5 +269,36 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             inv.setUnmatchedOccurrences(new ArrayList<>(updMap.values()));
             return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(inv.getID()), inv, false, Inventory.class);
        // }
+    }
+
+    @Override
+    public void replaceTaxEntMatch(Map<String, TaxonomicChange> changes) throws FloraOnException {
+//        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+//        System.out.println(gs.toJson(changes));
+        Map<String, Object> bindVars;
+        String tmp;
+
+        for(Map.Entry<String, TaxonomicChange> change : changes.entrySet()) {
+            bindVars = new HashMap<>();
+            bindVars.put("user", change.getValue().getUserId());
+            bindVars.put("uuids", change.getValue().getUuids());
+            if(change.getValue().getTargetTaxEntId().equals("NM"))
+                tmp = "";
+            else if(change.getValue().getTargetTaxEntId().equals("NA")) {
+                TaxEnt te = driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(TaxEnt.parse(change.getKey()));
+                tmp = te.getID();
+            } else
+                tmp = change.getValue().getTargetTaxEntId();
+            bindVars.put("replace", tmp);
+
+            try {
+                database.query(
+                        AQLOccurrenceQueries.getString(change.getValue().getUserId() == null ? "occurrencequery.7a" : "occurrencequery.7")
+                        , bindVars, null, null);
+            } catch (ArangoDBException e) {
+                e.printStackTrace();
+                throw new DatabaseException(e.getMessage());
+            }
+        }
     }
 }

@@ -1,14 +1,20 @@
 package pt.floraon.driver;
 
+import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by miguel on 24-03-2017.
  */
 public interface IOccurrenceDriver {
+    /**
+     * Inserts a new Inventory in the database.
+     * @param inventory
+     */
     void createInventory(Inventory inventory);
 
     /**
@@ -19,6 +25,31 @@ public interface IOccurrenceDriver {
      * @throws DatabaseException
      */
     Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException;
+
+    /**
+     * Gets all occurrences that don't match any taxon
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getUnmatchedOccurrences() throws DatabaseException;
+
+    /**
+     * Gets all occurrences that have no match in the taxonomy (this includes null matches or matches of taxa that do
+     * not exist). If userId is specified, get occurrences only for this maintainer.
+     * @param userId
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getUnmatchedOccurrencesOfMaintainer(INodeKey userId) throws DatabaseException;
+
+    /**
+     * Gets the number of occurrences of this maintainer that have no match in the taxonomy (this includes null matches
+     * or matches of taxa that do not exist).
+     * @param userId
+     * @return
+     * @throws DatabaseException
+     */
+    int getUnmatchedOccurrencesOfMaintainerCount(INodeKey userId) throws DatabaseException;
 
     /**
      * Gets an array of occurrences by UUID.
@@ -54,6 +85,14 @@ public interface IOccurrenceDriver {
     Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
     /**
+     * Gets the number of occurrences of the maintainer (inventories are disaggregated into single occurrences).
+     * @param authorId
+     * @return
+     * @throws DatabaseException
+     */
+    int getOccurrencesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
+
+    /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
      * observer), aggregated in Inventories.
      * @param authorId
@@ -74,6 +113,8 @@ public interface IOccurrenceDriver {
      */
     Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
+    int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
+
     Iterator<Inventory> getInventoriesByIds(String[] inventoryIds) throws DatabaseException;
 
     /**
@@ -92,18 +133,19 @@ public interface IOccurrenceDriver {
      * @param inventories
      * @throws FloraOnException
      */
-    void matchTaxEntNames(InventoryList inventories, boolean createNew) throws FloraOnException;
+    void matchTaxEntNames(InventoryList inventories, boolean createNew, boolean doMatch) throws FloraOnException;
 
     /**
      * Matches all the taxon names observed in an inventory, to the taxonomic database.
      * @param inventory
      * @param createNew
      * @param inventories
+     * @param doMatch True to automatically match taxa that have same name & author, modifying the DB
      * @throws FloraOnException
      */
-    void matchTaxEntNames(Inventory inventory, boolean createNew, InventoryList inventories) throws FloraOnException;
+    void matchTaxEntNames(Inventory inventory, boolean createNew, boolean doMatch, InventoryList inventories) throws FloraOnException;
 
-    InventoryList matchTaxEntNames(Iterator<Inventory> inventories, boolean createNew) throws FloraOnException;
+    InventoryList matchTaxEntNames(Iterator<Inventory> inventories, boolean createNew, boolean doMatch) throws FloraOnException;
 
     /**
      * Deletes occurrences by their UUID or inventories, if UUIDs are not provided. If UUIDs are provided, the ID of the
@@ -123,4 +165,6 @@ public interface IOccurrenceDriver {
      * @throws FloraOnException
      */
     Inventory updateInventory(Inventory inv) throws FloraOnException;
+
+    void replaceTaxEntMatch(Map<String, TaxonomicChange> changes) throws FloraOnException;
 }

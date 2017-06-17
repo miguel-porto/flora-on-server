@@ -15,15 +15,8 @@ import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
 import com.arangodb.velocypack.VPackSlice;
 import com.google.gson.Gson;
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.DatabaseException;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
-import pt.floraon.driver.GNodeWorker;
-import pt.floraon.driver.INodeKey;
-import pt.floraon.driver.INodeWorker;
-import pt.floraon.driver.QueryException;
-import pt.floraon.driver.TaxonomyException;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import pt.floraon.driver.*;
 import pt.floraon.driver.Constants.DocumentType;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
@@ -31,11 +24,11 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.occurrences.entities.Author;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.driver.entities.DBEntity;
-import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.taxonomy.entities.SYNONYM;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -419,25 +412,36 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public TaxEnt getTaxEnt(TaxEnt q) throws FloraOnException {
+	public List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion) throws FloraOnException {
 		// TODO when imported name has not subsp., doesn't work, e.g. cistus ladanifer sulcatus
 		// TODO levenshtein e.g. fetch all taxa starting with the same letter and apply leven in java
     	if(q.getName() == null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 		ArangoCursor<TaxEnt> cursor;
-    	List<TaxEnt> nodes;
-//    	System.out.println("QUERY "+ q.getName());
-		String query = AQLQueries.getString("NodeWorkerDriver.12", q.getName());
+
+		String query = AQLQueries.getString("NodeWorkerDriver.12", q.getName().substring(0, 3));
 // FIXME: when no rank is specified!
 		try {
 			cursor = database.query(query, null, null, TaxEnt.class);
 			if(!cursor.hasNext())	// node does not exist
-				return null;
-			nodes = cursor.asListRemaining();
+				return Collections.emptyList();
     	} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
+		return matchTaxEntToTaxEntList(q, cursor, askQuestion);
+	}
 
-		return matchTaxEntToTaxEntList(q, nodes);
+	@Override
+	public TaxEnt getSingleTaxEntOrNull(TaxEnt q) throws FloraOnException {
+		List<TaxEnt> nodes = getTaxEnt(q, null);
+
+		switch(nodes.size()) {
+			case 0:
+				return null;
+			case 1:
+				return nodes.get(0);
+			default:
+				throw new QueryException(Messages.getString("error.4", q.getName()));
+		}
 	}
 
 	@Override
@@ -493,6 +497,15 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     	String query = AQLQueries.getString("NodeWorkerDriver.11", name);
 		try {
 			return database.query(query, null, null, Character.class).next();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public void createToponym(List<Toponym> toponyms) throws FloraOnException {
+		try {
+			database.collection("toponym").insertDocuments(toponyms);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

@@ -9,7 +9,6 @@ import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.BeanUtils;
-import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.newOBSERVED_IN;
@@ -19,7 +18,6 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -46,6 +44,12 @@ public class OccurrenceApi extends FloraOnServlet {
         String option = path.next();
 
         switch (option) {
+            case "fixtaxonomicissues":
+                driver.getOccurrenceDriver().replaceTaxEntMatch(buildTaxonomicIssues(thisRequest
+                        , thisRequest.getUser().isAdministrator() ? null : thisRequest.getUser()));
+                thisRequest.success("Ok");
+                break;
+
             case "savetable":
                 fileName = thisRequest.getParameterAsString("file");
                 errorIfAnyNull(fileName);
@@ -63,6 +67,10 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 for(Inventory inv : invList)
                     driver.getOccurrenceDriver().createInventory(inv);
+
+                Map<String, TaxonomicChange> rep = buildTaxonomicIssues(thisRequest, user);
+//                System.out.println(gs.toJson(rep));
+                driver.getOccurrenceDriver().replaceTaxEntMatch(rep);
 
                 driver.getOccurrenceDriver().discardUploadedTable(driver.asNodeKey(thisRequest.getUser().getID()), fileName);
                 thisRequest.success("Ok");
@@ -109,6 +117,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 Inventory inv;
                 OccurrenceParser op = new OccurrenceParser(driver);
 
+                boolean createTaxa = thisRequest.getParameterAsBoolean("createTaxa", false);
                 if(thisRequest.getParameterAsBoolean("createUsers", false)) {
                     op.registerParser("observers", new UserListParser(op.getUserMap(), driver, true));
                     op.registerParser("collectors", new UserListParser(op.getUserMap(), driver, true));
@@ -146,7 +155,7 @@ public class OccurrenceApi extends FloraOnServlet {
                         inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
                 }
 
-                driver.getOccurrenceDriver().matchTaxEntNames(inventories, false);
+                driver.getOccurrenceDriver().matchTaxEntNames(inventories, createTaxa, false);
                 System.out.println("************ REQUESTED BEANS:");
                 System.out.println(gs.toJson(inventories));
 
@@ -259,6 +268,43 @@ public class OccurrenceApi extends FloraOnServlet {
                 thisRequest.success("Ok");
                 break;
 
+            case "matchtaxa":
+                driver.getOccurrenceDriver().matchTaxEntNames(driver.getOccurrenceDriver().getUnmatchedOccurrences(), true, true);
+
+                break;
+
         }
+    }
+
+    /**
+     * Convert the HTML fields to taxonomic changes
+     * @param thisRequest
+     * @return
+     */
+    private Map<String, TaxonomicChange> buildTaxonomicIssues(ThisRequest thisRequest, User user) {
+        Map<String, String[]> params = thisRequest.request.getParameterMap();
+        Map<Integer, String[]> answerKeys = new HashMap<>();
+        Map<String, TaxonomicChange> taxEntMatches = new HashMap<>();
+        for(Map.Entry<String, String[]> p : params.entrySet()) {
+            if(p.getKey().startsWith("question_") && p.getKey().endsWith("_key"))
+                answerKeys.put(Integer.parseInt(p.getKey().substring(9, p.getKey().length() - 4)), new String[] {p.getValue()[0], null});
+        }
+        for(Map.Entry<String, String[]> p : params.entrySet()) {
+            if (p.getKey().startsWith("question_") && p.getKey().endsWith("_uuids")) {
+                String[] tmp = answerKeys.get(Integer.parseInt(p.getKey().substring(9, p.getKey().length() - 6)));
+                tmp[1] = p.getValue()[0];
+            }
+//                answerUUIDs.put(Integer.parseInt(p.getKey().substring(9, p.getKey().length() - 6)), p.getValue()[0]);
+        }
+
+        for(Map.Entry<String, String[]> p : params.entrySet()) {
+            if(p.getKey().startsWith("question_") && !p.getKey().endsWith("_key") && !p.getKey().endsWith("_uuids")) {
+                Integer q = Integer.parseInt(p.getKey().substring(9));
+                taxEntMatches.put(answerKeys.get(q)[0], new TaxonomicChange(p.getValue()[0], answerKeys.get(q)[1]
+                        , user == null ? null : user.getID()));
+            }
+        }
+
+        return taxEntMatches;
     }
 }

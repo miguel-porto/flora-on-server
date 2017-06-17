@@ -1,35 +1,90 @@
+@keyframes example {
+    0% {transform: none; box-shadow:none;}
+    44% {transform: none; box-shadow:none;}
+    50% {transform: rotate(360deg) scale(1.5, 1.5); box-shadow: 0 0 16px black;}
+    60% {transform: none; box-shadow:none;}
+    100% {transform: none; box-shadow:none;}
+}
+#hidegeorref {
+    animation-name: example;
+    animation-duration: 8s;
+    animation-iteration-count: infinite;
+}
+
 html.occurrencespage, body.occurrencespage {width:100%; height:100%; overflow:auto;}
 body.occurrencespage {display:flex; height: 100%; align-items: stretch;}
 body.occurrencespage .warning {position: static; width:auto;}
 body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 body.occurrencespage .heading2 {background-color: #1565c0; color: white;}
-
 body.occurrencespage .legend {color:#d5d5d5; margin:4px}
-body.occurrencespage :not(.warning) .legend {color:#393939;}
+body.occurrencespage :not(.warning):not(.heading2) .legend {color:#393939;}
+body.occurrencespage a.returntomain {position:static;}
+body.occurrencespage a.returntomain img {height:70px}
 
-#occurrencetoolbar {
-    background-color: yellow;
-    flex: 0 0 auto;
+#occurrencetable-holder {flex: 2 4 auto; overflow: scroll;}
+#georreferencer {flex: 1 5 auto; overflow: visible; display:flex; flex-direction: column;background-color: #bbdefb; position: relative}
+#occurrencemap {flex: 4 0 35%;}
+#floatingswitches {
+    position: absolute;
+    right:0;
+    top:0;
+    z-index:1001;
+    border-bottom-left-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 8px black;
 }
 
-#occurrencetable-holder {
-    flex: 4 1 30%;
-    overflow: scroll;
+#floatingswitches .button {
+    float:right;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0;
+    border-right: 1px solid #00dbff;
+    padding: 6px;
+    font-weight: bold;
 }
-
-#occurrencemap {
-    flex: 1 0 35%;
-}
-
 #mapcontainer {width:100%; height:100%}
-#hidemap {position: absolute; right:0; top:0; z-index:1001}
 
 .leaflet-marker-icon {border:2px solid transparent; border-radius:50%}
 .leaflet-marker-icon.selected {
-    border:2px solid yellow;
-    border-radius:25%;
-    background-color: yellow;
+    border:4px solid yellow;
+    /*border-radius:25%;
+    background-color: yellow;*/
+    width:10px !important; height:10px !important;
+    margin-left: -7px !important;
+    margin-top: -7px !important;
     z-index: 1000 !important;
+    box-shadow: 0 0 7px 1px yellow;
+}
+
+/* GEORREFERENCER */
+#georreferencer .head {flex: 0 0 auto;}
+#georreferencer #georref-results {flex:1 1 auto; overflow:auto;}
+#georreferencer #georref-results .coordinates {display:none;}
+#georreferencer table {font-size:1rem;}
+#georreferencer h1 {word-break: break-all}
+#georref-query {min-width:200px; width:100%; border:0; border-bottom: 2px solid #00c9ff; padding:2px}
+#georref-helptoggle {
+    background-image: url(images/ic_menu_help.png);
+    background-size: 32px 32px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    padding: 4px;
+    background-position: 4px;
+    position: absolute;
+    bottom:0; right:0;
+}
+.redcircleicon {background-color:red; border:2px solid white; transition: width 0.5s, height 0.5;}
+.greensquareicon {
+    background-color:transparent;
+    border:2px solid #00ff15;
+    border-radius:2px !important;
+    box-shadow: 0 0 6px 2px #00ff15;
+    width: 12px !important;
+    height: 12px !important;
+    margin-left: -6px !important;
+    margin-top: -6px !important;
 }
 
 .bigoption {
@@ -40,14 +95,15 @@ body.occurrencespage :not(.warning) .legend {color:#393939;}
 
 /* occurrence table */
 /*.occurrencetable {table-layout: fixed;}*/
+#topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
 .occurrencetable tbody tr td {cursor: pointer; height:16px; padding:2px}
 .geoelement.selected, .geoelement.selected td {background-color:#ffff76 !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
-.occurrencetable th {background-color: #8bc34a}
+.occurrencetable th {background-color: #8bc34a; word-break: break-all}
 .occurrencetable th.selectcol {width:5%;}
 .occurrencetable th.bigcol {min-width:150px;}
 .occurrencetable th.smallcol {width:10%;}
-tr.unmatched td {background-color: #ffcdd2}
+tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified td {background-color: #ce93d8}
 
 #suggestionstaxon {position:relative; width:0; height:0;}

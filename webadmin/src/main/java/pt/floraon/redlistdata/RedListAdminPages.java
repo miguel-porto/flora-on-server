@@ -239,12 +239,12 @@ System.out.println(gs.toJson(getUser()));
     */
 
                         StringWriter sw = new StringWriter();
-                        occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET());
+                        occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET(), true);
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
-                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET());
+                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET(), true);
                             request.setAttribute("historicalsvgmap", sw.toString());
                             sw.close();
                         }

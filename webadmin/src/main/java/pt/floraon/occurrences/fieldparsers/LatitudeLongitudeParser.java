@@ -16,7 +16,8 @@ import java.util.regex.Pattern;
  * Created by miguel on 08-02-2017.
  */
 public class LatitudeLongitudeParser implements FieldParser {
-    private static Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+.[0-9]+)[ ,;]+(?<lng>[0-9-]+.[0-9]+)$");
+    private static Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+(\\.[0-9]+)?)[ ,;]+(?<lng>[0-9-]+(\\.[0-9]+)?)$");
+    private static Pattern wktParse = Pattern.compile("pointz? *\\( *(?<lng>[0-9-]+(\\.[0-9]+)?) (?<lat>[0-9-]+(\\.[0-9]+)?)( [0-9.-]+)? *\\)", Pattern.CASE_INSENSITIVE);
 
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
@@ -30,8 +31,11 @@ public class LatitudeLongitudeParser implements FieldParser {
             v = Float.parseFloat(inputValue);
         } catch (NumberFormatException e) {
             mat = coordParse.matcher(inputValue);
-            if(!mat.find())
-                throw e;
+            if(!mat.find()) {
+                mat = wktParse.matcher(inputValue);
+                if(!mat.find())
+                    throw e;
+            }
         }
 
         switch(inputFieldName.toLowerCase()) {
@@ -46,6 +50,7 @@ public class LatitudeLongitudeParser implements FieldParser {
                 break;
 
             case "coordinates":
+            case "wkt_geom":
                 if(mat == null) throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
                 occurrence.setLatitude(Float.parseFloat(mat.group("lat")));
                 occurrence.setLongitude(Float.parseFloat(mat.group("lng")));

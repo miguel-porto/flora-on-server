@@ -1,5 +1,6 @@
 package pt.floraon.driver.entities;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -12,7 +13,7 @@ import com.google.gson.JsonObject;
  * @author miguel
  *
  */
-public abstract class DBEntity {
+public abstract class DBEntity implements Serializable {
 	protected String _id = null, _key = null;
 	
 	/**

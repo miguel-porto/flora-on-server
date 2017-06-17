@@ -100,7 +100,7 @@ public class GraphReader extends FloraOnServlet {
 			for(int i=0;i<infacets.length;i++) fac[i]=Facets.valueOf(infacets[i].toUpperCase());
 
 			if(id==null) {
-				TaxEnt te=driver.getNodeWorkerDriver().getTaxEntByName(query);
+				TaxEnt te=driver.getNodeWorkerDriver().getSingleTaxEntOrNull(TaxEnt.parse(query));
 				if(te==null)
 					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(null,fac,depth).toJsonObject());
 				else

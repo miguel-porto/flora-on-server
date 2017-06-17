@@ -4,7 +4,12 @@ import com.google.gson.JsonObject;
 
 import pt.floraon.driver.DatabaseException;
 
-public abstract class NamedDBNode extends GeneralDBNode {
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
+public abstract class NamedDBNode extends GeneralDBNode implements Serializable {
 	protected String name;
 
 	public NamedDBNode(String name) throws DatabaseException {
@@ -35,6 +40,16 @@ public abstract class NamedDBNode extends GeneralDBNode {
 	 */
 	public String getName() {
 		return this.name;
+	}
+
+	public String _getNameURLEncoded() {
+		if(this.name == null) return null;
+		try {
+			return URLEncoder.encode(this.name, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public void setName(String name) throws DatabaseException {

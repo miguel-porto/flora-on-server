@@ -1,6 +1,8 @@
 package pt.floraon.occurrences.entities;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.occurrences.TaxonomicQuestion;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.Serializable;
 import java.util.*;
@@ -16,6 +18,7 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
     private Set<String> noMatches = new LinkedHashSet<>();
     private Set<String> verboseErrors = new LinkedHashSet<>();
     private Set<String> verboseWarnings = new LinkedHashSet<>();
+    private Map<String, TaxonomicQuestion> questions = new HashMap<>();
 
     public Set<String> getVerboseErrors() {
         return verboseErrors;
@@ -47,6 +50,21 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
 
     public void addNoMatch(newOBSERVED_IN noMatch) {
         this.noMatches.add(noMatch.getVerbTaxon());
+    }
+
+    public void addQuestion(String verbTaxon, UUID occurrenceUUID, TaxEnt taxEnt) {
+        TaxonomicQuestion tmp = questions.get(verbTaxon);
+        if(tmp != null) {
+            tmp.addOccurrenceUUID(occurrenceUUID);
+            if(taxEnt != null) tmp.addOption(taxEnt);
+        } else {
+            tmp = new TaxonomicQuestion(taxEnt, verbTaxon, occurrenceUUID);
+            questions.put(verbTaxon, tmp);
+        }
+    }
+
+    public Map<String, TaxonomicQuestion> getQuestions() {
+        return questions;
     }
 
     public List<newOBSERVED_IN> getParseErrors() {

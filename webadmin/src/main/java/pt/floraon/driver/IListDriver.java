@@ -105,4 +105,12 @@ public interface IListDriver {
 	 * @throws FloraOnException
 	 */
 	JsonObject getTaxonInfo(int oldId) throws FloraOnException;
+
+	/**
+	 * Gets likely taxonomic errors in the graph.
+	 * TODO: parameter to indicate what type of error
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Iterator<TaxEnt> getTaxonomicErrors() throws FloraOnException;
 }

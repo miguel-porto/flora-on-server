@@ -1,11 +1,13 @@
 var myMap = null;
 var filterTimeout = null;
-//var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-5, -5]});
-var redCircle = L.icon({
+var showPointsOnMap;
+var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
+var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
+/*var redCircle = L.icon({
     iconUrl: 'images/redcircle.png',
     iconSize: [12, 12],
     iconAnchor: [6, 6],
-});
+});*/
 
 var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
@@ -25,12 +27,21 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    projectPointsOnMap();
+    showPointsOnMap = projectPointsOnMap();
 
     attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, ',', tabHandler);
     attachSuggestionHandler('authorsearchbox', '/floraon/checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, ',', tabHandler);
     attachSuggestionHandler('threatsearchbox', '/floraon/checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, ',', tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
+
+    addEvent('mouseup', document.body, function(ev) {
+        if(!document.getElementById('georreferencer')) return;
+        if(!document.getElementById('georreferencer').classList.contains('hidden')) {
+            var txt = getSelectedText(ev.target);
+            if(txt && txt.length > 0)
+                document.getElementById('georref-query').value = txt;
+        }
+    });
 
     var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
     for(var i = 0; i < buttons.length; i++) {
@@ -42,6 +53,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // FIXME
         addEvent('click', inventories[i].querySelector('.newtaxon'), addNewTaxon);
         doMouseClick(inventories[i].querySelector('.newtaxon'));
+    }
+
+    var clw = document.querySelectorAll('.warning .closewarning');
+    for(var i = 0; i < clw.length; i++) {
+        addEvent('click', clw[i], function(ev) {
+            var war = getParentbyClass(ev.target, 'warning');
+            if(war)
+                war.parentNode.removeChild(war);
+        });
+    }
+
+    var georq = document.getElementById('georref-query');
+    if(georq) {
+        addEvent('keyup', georq, function(ev) {
+            if(ev.keyCode == 13)
+                doMouseClick(document.getElementById('georref-search'));
+        });
     }
 
     var ft = document.getElementById('filtertable');
@@ -57,8 +85,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(val.trim() == '') {
                     for(var i=0; i<rows.length; i++) {
                         rows[i].classList.remove('hidden');
+                        if(!showPointsOnMap && rows[i].marker) {
+                            rows[i].marker.remove();
+                            rows[i].marker = null;
+                        }
                     }
                 } else {
+                    var count = 0;
+                    var dispall = false;
+                    var dispallasked = false;
                     for(var i=0; i<rows.length; i++) {
                         var gpsc = rows[i].querySelector('td[data-name="gpsCode"]') || rows[i].querySelector('td[data-name="code"]');
                         var loca = rows[i].querySelector('td[data-name="locality"]');
@@ -66,10 +101,27 @@ document.addEventListener('DOMContentLoaded', function() {
                             && rows[i].querySelector('td[data-name="date"]').textContent.toLowerCase().indexOf(val) == -1
                             && (!gpsc || gpsc.textContent.toLowerCase().indexOf(val) == -1)
                             && (!loca || loca.textContent.toLowerCase().indexOf(val) == -1)
-                            )
+                            ) {
                                 rows[i].classList.add('hidden');
-                        else
+                                if(!showPointsOnMap && rows[i].marker) {
+                                    rows[i].marker.remove();
+                                    rows[i].marker = null;
+                                }
+                        } else {
                             rows[i].classList.remove('hidden');
+                            count ++;
+                            if(!rows[i].marker) {
+                                if(count >= 1000 && !dispallasked) {
+                                    dispallasked = true;
+                                    dispall = confirm('There are more than 1000 points. Do you want to display them all?');
+                                }
+                                if(count < 1000 || (count >= 1000 && dispall)) {
+                                    coo = rows[i].querySelector('.coordinates');
+                                    if(!coo.getAttribute('data-lat')) continue;
+                                    addPointMarker(parseFloat(coo.getAttribute('data-lat')), parseFloat(coo.getAttribute('data-lng')), rows[i], true);
+                                }
+                            }
+                        }
                     }
                 }
             }, 500);
@@ -97,7 +149,7 @@ function onConfirmEdit(ev, name, key, parent, dry) {
     var fieldname = parent.getAttribute('data-name');
     if(ev.target) document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
     var original = parent.getAttribute('data-original');
-    console.log(original+':'+name);
+//    console.log(original+':'+name);
     if(original !== null) {
         parent.removeAttribute('data-original');
         var modified = (original.trim() !== name.trim());
@@ -151,6 +203,13 @@ function onConfirmEdit(ev, name, key, parent, dry) {
         if(iid) insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
         id1el.classList.add('modified');
     }
+
+/*
+    if(fieldname == 'coordinates') {
+        var ge = getParentbyClass(parent, 'geoelement');
+        projectPointsOnMap(ge);
+    }
+*/
 }
 
 function tabHandler(ev) {
@@ -178,6 +237,66 @@ function clickButton(ev) {
         case 'hidemap':
             ev.target.classList.toggle('selected');
             document.getElementById('occurrencemap').classList.toggle('hidden');
+            myMap.invalidateSize(false);
+            break;
+
+        case 'georref-helptoggle':
+            ev.target.classList.toggle('selected');
+            document.getElementById('georref-help').classList.toggle('hidden');
+            break;
+
+        case 'georref-clear':
+            var r = document.getElementById('georref-results');
+            removeGeoElements(r.querySelectorAll('.geoelement'));
+            r.innerHTML = '';
+            break;
+
+        case 'hidegeorref':
+            ev.target.classList.toggle('selected');
+            document.getElementById('georreferencer').classList.toggle('hidden');
+            myMap.invalidateSize(false);
+            break;
+
+        case 'hideoccurrences':
+            ev.target.classList.toggle('selected');
+            document.getElementById('occurrencetable-holder').classList.toggle('hidden');
+            myMap.invalidateSize(false);
+            break;
+
+        case 'georref-search':
+            var q = document.getElementById('georref-query').value;
+            var loader = document.getElementById('loader');
+            if(loader) loader.style.display = 'block';
+
+            fetchAJAX('/floraon/checklist/api/suggestions?what=toponym&q=' + encodeURIComponent(q), function(rt) {
+                if(loader) loader.style.display = 'none';
+                var r = document.getElementById('georref-results');
+                removeGeoElements(r.querySelectorAll('.geoelement'));
+                if(r) r.innerHTML = rt;
+                projectPointsOnMap(r.querySelectorAll('.geoelement'), {icon: greenSquare, label: true});
+            });
+            break;
+
+        case 'georref-usecoords':
+            var rows = document.querySelectorAll('#alloccurrencetable tr.selected');
+            if(rows.length == 0) {
+                alert('Select at least one occurrence in the "your occurrences" table.');
+                break;
+            }
+            var geoel = document.querySelector('#georref-results .geoelement.selected');
+            if(!geoel) {
+                alert('Select one place from the toponym table.');
+                break;
+            }
+            var coo = geoel.querySelector('.coordinates');
+            var lat = coo.getAttribute('data-lat');
+            var lng = coo.getAttribute('data-lng');
+            for(var i=0; i<rows.length; i++) {
+                updateCoords(rows[i], lat, lng);
+                projectPointsOnMap(rows[i]);
+                if(rows[i].marker) rows[i].marker.classList.add('selected');
+            }
+            deselectGeoElements(geoel.parentNode);
             break;
 
         case 'selectpoints':
@@ -267,6 +386,13 @@ function clickButton(ev) {
     }
 }
 
+function updateCoords(geoel, lat, lng) {
+    var cooel = geoel.querySelector('.coordinates');
+    cooel.setAttribute('data-lat', lat);
+    cooel.setAttribute('data-lng', lng);
+    onConfirmEdit({}, Math.round(lat * 1000000) / 1000000 + ', ' + Math.round(lng * 1000000) / 1000000, null, cooel, true);
+}
+
 function addNewTaxon(ev) {
     var id = randomString(6);
     var inv = getParentbyClass(ev.target, 'inventory');
@@ -296,8 +422,10 @@ function clickOccurrenceTable(ev) {
          var txt = cell.textContent;
          cell.textContent = '';
          displaySearchbox(cell, txt, 'threatsearchwrapper');
-     } else if(cell.classList.contains('select')) {    // select row
+    } else if(cell.classList.contains('select')) {    // select row
         selectGeoElement(cell);
+    } else if(cell.classList.contains('singleselect')) {    // select row
+        selectGeoElement(cell, true, true);
     } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
         selectGeoElement(cell, true, true);
@@ -307,10 +435,21 @@ function clickOccurrenceTable(ev) {
     }
 }
 
+function deselectGeoElements(par) {
+    var selected = par.querySelectorAll('.geoelement.selected');
+    for(var i=0; i<selected.length; i++) {
+        selected[i].classList.remove('selected');
+        if(selected[i].querySelector('.selectbutton'))
+            selected[i].querySelector('.selectbutton').classList.remove('selected');
+        if(selected[i].marker) selected[i].marker.classList.remove('selected');
+    }
+}
+
 function selectGeoElement(cell, value, clearothers) {
-//    var tr = getParentbyTag(cell, 'tr');
     var geoel = getParentbyTag(cell, 'tr');
-//    var geoel = getParentbyClass(cell, 'geoelement');
+    if(!geoel)
+        geoel = getParentbyClass(cell, 'geoelement');
+
     if(value === undefined) {
         geoel.classList.toggle('selected');
         if(geoel.querySelector('.selectbutton'))
@@ -320,15 +459,9 @@ function selectGeoElement(cell, value, clearothers) {
     }
 
     if(clearothers) {
-        var par = geoel.parentNode;
-        var selected = par.querySelectorAll('.geoelement.selected');
-        for(var i=0; i<selected.length; i++) {
-            selected[i].classList.remove('selected');
-            if(selected[i].querySelector('.selectbutton'))
-                selected[i].querySelector('.selectbutton').classList.remove('selected');
-            if(selected[i].marker) selected[i].marker.classList.remove('selected');
-        }
+        deselectGeoElements(geoel.parentNode);
     }
+
     if(value) {
         geoel.classList.add('selected');
         if(geoel.querySelector('.selectbutton'))
@@ -342,23 +475,70 @@ function selectGeoElement(cell, value, clearothers) {
     }
 }
 
-function projectPointsOnMap(ot) {
-    if(!ot)
+/*function deselectGeoElements(elements) {
+    if(elements.length > 0 || elements.length === 0)
+        var els = elements;
+    else
+        var els = [elements];
+
+    for(var i=0; i<els.length; i++) {
+        if(els[i].marker) {
+            els[i].marker.classList.remove('selected');
+            els[i].classList.remove('selected');
+        }
+    }
+}*/
+
+function removeGeoElements(elements) {
+    if(elements.length > 0 || elements.length === 0)
+        var els = elements;
+    else
+        var els = [elements];
+
+    for(var i=0; i<els.length; i++) {
+        if(els[i].marker) {
+            els[i].marker.remove();
+            els[i].marker = null;
+        }
+    }
+}
+
+function projectPointsOnMap(ota, markerOptions) {
+    markerOptions = Object.assign({icon: redCircle, label: false}, markerOptions);
+    if(!ota)
         var ot = document.querySelectorAll('.geoelement');
-    if(!ot.length) ot = [ot];
+    else {
+        if(ota.length > 0 || ota.length === 0)
+            var ot = ota;
+        else
+            var ot = [ota];
+    }
+
+    if(ot.length > 1000) {
+        document.getElementById('hidemap').classList.remove('selected');
+        document.getElementById('occurrencemap').classList.add('hidden');
+        return false;
+    }
     var coo;
     for(var i=0; i<ot.length; i++) {
         coo = ot[i].querySelectorAll('*:not(.geoelement) .coordinates');
         for(var j=0; j<coo.length; j++) {
             if(!coo[j].getAttribute('data-lat')) continue;
 //            console.log("added "+coo[j].getAttribute('data-lat')+coo[j].getAttribute('data-lng'));
-            addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng')), ot[i], coo[j].classList.contains('editable'));
+            if(markerOptions.label)
+                markerOptions.label = coo[j].getAttribute('data-label');
+            addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng'))
+                , ot[i], coo[j].classList.contains('editable'), markerOptions);
         }
     }
+    return true;
 }
 
-function addPointMarker(lat, lng, bondEl, draggable) {
-    var marker = L.marker([lat, lng], {icon: redCircle, draggable: draggable, keyboard: false});
+function addPointMarker(lat, lng, bondEl, draggable, options) {
+    options = Object.assign({icon: redCircle}, options);
+    var marker = L.marker([lat, lng], {icon: options.icon, draggable: draggable, keyboard: false});
+    if(options.label)
+        marker.bindPopup(options.label);
     if(draggable) marker.on('dragend', markerMove);
     marker.on('click', markerClick).addTo(myMap);
     if(bondEl) {
@@ -366,6 +546,7 @@ function addPointMarker(lat, lng, bondEl, draggable) {
             bondEl.marker.remove();
         marker.tableRow = bondEl;
         bondEl.marker = marker._icon;
+        bondEl.markerObj = marker;
     }
 }
 
@@ -373,10 +554,11 @@ function markerMove(ev) {
     if(ev.target.tableRow) {
         acceptVisibleSearchbox();
         var ll = ev.target.getLatLng();
-        var cooel = ev.target.tableRow.querySelector('.coordinates');
+        updateCoords(ev.target.tableRow, ll.lat, ll.lng);
+/*        var cooel = ev.target.tableRow.querySelector('.coordinates');
         cooel.setAttribute('data-lat', ll.lat);
         cooel.setAttribute('data-lng', ll.lng);
-        onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, cooel, true);
+        onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, cooel, true);*/
     }
 }
 
@@ -418,11 +600,18 @@ function displayEditField(el, text) {
 
 function markerClick(ev) {
     if(ev.target.tableRow) {
+        var ss = ev.target.tableRow.querySelector('.singleselect') ? true : false;
+        selectGeoElement(ev.target.tableRow, ss ? true : undefined, ss);
+/*        var container = getParentbyClass(ev.target.tableRow, 'singleselection');
+        if(container) {
+            deselectGeoElements(container.querySelectorAll('.geoelement'));
+        }
+
         if(ev.target.tableRow.querySelector('.select .selectbutton'))
             ev.target.tableRow.querySelector('.select .selectbutton').classList.toggle('selected');
 
         ev.target._icon.classList.toggle('selected');
-        ev.target.tableRow.classList.toggle('selected');
+        ev.target.tableRow.classList.toggle('selected');*/
     }
 }
 
@@ -435,7 +624,6 @@ function fileUploadCallback(resp, ev) {
 }
 
 function addNewFeature(ev) {
-
     var editboxes = document.querySelectorAll('.editbox');
     for(var i = 0; i < editboxes.length; i++) {
         if(editboxes[i].offsetParent !== null) {
@@ -443,10 +631,11 @@ function addNewFeature(ev) {
             if(par.classList.contains('coordinates')) {
                 acceptVisibleSearchbox();
                 var ll = ev.latlng;
-                par.setAttribute('data-lat', ll.lat);
-                par.setAttribute('data-lng', ll.lng);
-                onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, par, true);
                 var ge = getParentbyClass(par, 'geoelement');
+                updateCoords(ge, ll.lat, ll.lng);
+/*                par.setAttribute('data-lat', ll.lat);
+                par.setAttribute('data-lng', ll.lng);
+                onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, par, true);*/
                 projectPointsOnMap(ge);
                 if(ge.marker) ge.marker.classList.add('selected');
                 return;
@@ -497,7 +686,6 @@ function addNewInventory(ev) {
     addEvent('click', inv.querySelector('.newtaxon'), addNewTaxon);
     doMouseClick(inv.querySelector('.newtaxon'));
 }
-
 
 function addNewOccurrence(ev) {
     var id = randomString(6);

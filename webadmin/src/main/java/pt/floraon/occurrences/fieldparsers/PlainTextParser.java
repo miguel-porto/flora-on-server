@@ -23,10 +23,6 @@ public class PlainTextParser implements FieldParser {
                 occurrence.setCode(inputValue);
                 break;
 
-            case "locality":
-                occurrence.setLocality(inputValue);
-                break;
-
             case "habitat":
                 occurrence.setHabitat(inputValue);
                 break;
@@ -37,14 +33,6 @@ public class PlainTextParser implements FieldParser {
 
             case "inventoryid":
                 occurrence.setID(inputValue);
-                break;
-
-            case "verblocality":
-                occurrence.setVerbLocality(inputValue);
-                break;
-
-            case "precision":
-                occurrence.setPrecision(inputValue);
                 break;
 
             case "abundance":

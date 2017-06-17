@@ -122,7 +122,7 @@ function makeSuggestionBox(el, targetInput, onClick, separator) {
 	el.setAttribute('data-inputel', targetInput);
 
 	var style = window.getComputedStyle(document.getElementById(targetInput), null);
-	el.style.minWidth = style.getPropertyValue('width');
+//	el.style.minWidth = style.getPropertyValue('width');
 
     if(el.querySelector('li:first-child') == null) { // empty list
         el.parentNode.innerHTML = 'no suggestions';

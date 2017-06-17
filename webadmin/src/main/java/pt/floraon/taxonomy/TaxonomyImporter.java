@@ -107,7 +107,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                     parsedName.setAuthor(author);
                     parsedName.setCurrent(true);
 
-                    curTaxEnt=nwd.getTaxEnt(parsedName);
+                    curTaxEnt = nwd.getSingleTaxEntOrNull(parsedName);
 
                     if(curTaxEnt==null) {	// if node does not exist, add it.
                         curTaxEnt=nwd.createTaxEntFromTaxEnt(parsedName);//   TaxEnt.newFromTaxEnt(FloraOnDriver.this,parsedName);

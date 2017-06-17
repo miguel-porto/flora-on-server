@@ -8,10 +8,9 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.occurrences.entities.Author;
+import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
-import pt.floraon.driver.results.SimpleTaxEntResult;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -89,6 +88,8 @@ public interface IQuery {
 	 * @throws FloraOnException
 	 */
 	Iterator<User> findUserSuggestions(String query, Integer limit) throws FloraOnException;
+
+	List<MatchedToponym> findToponymSuggestions(String query) throws FloraOnException;
 
 	/**
 	 * Gets all species found (in all species lists) within a distance from a point. Note that duplicates are removed, no matter how many occurrences each species has.

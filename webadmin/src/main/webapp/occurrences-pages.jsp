@@ -28,12 +28,15 @@
         <input id="editfield" type="text" name="query" autocomplete="off"/>
     </div>
 </div>
-<h1>${user.getFullName()}</h1>
+<div id="topbuttons">
+<a class="returntomain" href="/floraon/"><img src="/floraon/images/cap-cor.png" alt="logo"/></a>
+<!--<h1> ${user.getFullName()}</h1>-->
 <!--<div class="button" id="selectpoints">Select</div>-->
 <c:choose>
 <c:when test="${param.w == null || param.w == 'main'}">
-    <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview">View as occurrences</a></div>
+    <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview"><fmt:message key="button.4"/></a></div>
+    </div>  <!-- top buttons -->
 
     <t:inventorymodel />
 
@@ -41,15 +44,25 @@
         <div class="heading2">
             <h2><fmt:message key="inventory.add"/></h2>
             <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
+            <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
             <div class="button" id="deleteselectednew">Delete selected</div>
             <input type="submit" class="textbutton" value="Save"/>
         </div>
     </form>
 
     <div class="heading2">
-        <h2>Your inventories</h2>
+        <h2>Your inventories - ${nroccurrences}</h2>
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
         <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="inventorysummary" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>
+        <!--
+        <div style="float:right">
+            <c:if test="${param.o != null && param.o > 0}">
+            <div class="button anchorbutton"><a href="?w=main&o=${param.o - 200}&c=200">&lt;</a></div>
+            </c:if>
+            <div class="button anchorbutton"><a href="?w=main&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
+        </div>
+        <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
+        -->
     </div>
     <table id="inventorysummary" class="occurrencetable verysmalltext sortable">
         <tr><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
@@ -64,11 +77,21 @@
         </tr>
     </c:forEach>
     </table>
+    <!--
+    <div style="float:right">
+        <c:if test="${param.o != null && param.o > 0}">
+        <div class="button anchorbutton"><a href="?w=main&o=${param.o - 200}&c=200">&lt;</a></div>
+        </c:if>
+        <div class="button anchorbutton"><a href="?w=main&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
+    </div>
+    <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
+    -->
 </c:when>
 
 <c:when test="${param.w == 'openinventory'}">
-    <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
-    <div class="button anchorbutton"><a href="?w=main">Back to inventory list</a></div>
+    <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.8"/></a></div>
+    </div>  <!-- top buttons -->
 
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
@@ -163,7 +186,12 @@
                     </thead>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
+                        <c:if test="${tax.getTaxEnt() == null}">
+                        <tr class="unmatched id2holder geoelement">
+                        </c:if>
+                        <c:if test="${tax.getTaxEnt() != null}">
                         <tr class="id2holder geoelement">
+                        </c:if>
                             <td class="select clickable"><div class="selectbutton"></div>
                                 <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
                                 <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
@@ -208,20 +236,21 @@
 </c:when>
 
 <c:when test="${param.w == 'uploads'}">
-    <div class="button anchorbutton"><a href="?w=main">View as inventories</a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview">View as occurrences</a></div>
+    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.2"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview"><fmt:message key="button.4"/></a></div>
+    </div>  <!-- top buttons -->
     <h1>Uploads</h1>
     <h2>Upload new table</h2>
     <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster bigoption" data-path="upload/occurrences">
-        <h3>From a tab-delimited text file</h3>
+        <h3><fmt:message key="upload.1"/></h3>
         <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
         <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
-        <label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>
+        <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
     <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster bigoption" data-path="upload/occurrences">
-        <h3>From KML</h3>
+        <h3><fmt:message key="upload.2"/></h3>
         <input type="hidden" name="type" value="kml"/>
         <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
         <input type="file" name="occurrenceTable" />
@@ -265,6 +294,10 @@
             <p><fmt:message key="error.5"/></p>
             <form class="poster inlineblock" data-path="occurrences/api/savetable">
                 <input type="hidden" name="file" value="${file.getFileName()}"/>
+                <c:if test="${file.getQuestions().size() > 0}">
+                    <fmt:message key="error.10a"/>
+                    <t:taxonomicquestions questions="${file.getQuestions()}"/>
+                </c:if>
                 <input type="submit" class="textbutton" value="<fmt:message key="save"/>"/>
             </form>
             <form class="poster inlineblock" data-path="occurrences/api/discardtable" data-refresh="true">
@@ -286,13 +319,49 @@
     </c:forEach>
 </c:when>
 
+<c:when test="${param.w == 'fixissues'}">
+    <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.2"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview"><fmt:message key="button.4"/></a></div>
+    </div>  <!-- top buttons -->
+    <h1><fmt:message key="occurrences.3"/></h1>
+    <c:if test="${nomatchquestions.size() == 0 && matchwarnings.size() == 0 && nomatches.size() == 0 && parseerrors.size() == 0}">
+    <p><fmt:message key="occurrences.4"/></p>
+    </c:if>
+    <c:if test="${nomatchquestions.size() > 0}">
+    <div class="warning">
+        <p><fmt:message key="error.10"/></p>
+        <fmt:message key="error.10a"/>
+        <t:taxonomicquestions questions="${nomatchquestions}" individualforms="true"/>
+        <!--<form class="poster" data-path="/floraon/occurrences/api/fixtaxonomicissues" data-refresh="true">
+        <input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
+        </form>-->
+    </div>
+    </c:if>
+    <c:if test="${matchwarnings.size() > 0}">
+    <div class="warning">
+        <p><fmt:message key="error.7"/></p>
+        <ul><c:forEach var="errors" items="${matchwarnings}"><li>${errors}</li></c:forEach></ul>
+    </div>
+    </c:if>
+    <c:if test="${nomatches.size() > 0 || parseerrors.size() > 0}">
+    <div class="warning">
+        <p><fmt:message key="error.4"/></p>
+        <fmt:message key="error.4b"/>
+        <ul><c:forEach var="errors" items="${nomatches}"><li>${errors}</li></c:forEach></ul>
+        <ul><c:forEach var="errors" items="${parseerrors}"><li>${errors.getVerbTaxon()}</li></c:forEach></ul>
+    </div>
+    </c:if>
+</c:when>
+
 <c:when test="${param.w == 'occurrenceview'}">
-    <div class="button anchorbutton"><a href="?w=uploads">Upload tables</a></div>
-    <div class="button anchorbutton"><a href="?w=main">View as inventories</a></div>
-    <p>Choose your flavour:</p>
-    <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple">Simple occurrences</a></div>
-    <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=redlist">Red List ccurrences</a></div>
-    <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium">Herbarium data</a></div>
+    <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.2"/></a></div>
+    <fmt:message key="button.4a"/>
+    <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple"><fmt:message key="button.5"/></a></div>
+    <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=redlist"><fmt:message key="button.6"/></a></div>
+    <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium"><fmt:message key="button.7"/></a></div>
+    </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
             <div class="heading2">
@@ -311,6 +380,7 @@
             <div class="heading2">
                 <h2>Confirm updating the following occurrences</h2>
                 <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
+                <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
                 <input type="submit" class="textbutton" value="Update"/>
             </div>
             <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
@@ -327,6 +397,7 @@
             <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
             </c:if>
             <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
+            <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
             <div class="button" id="deleteselectednew">Delete selected</div>
             <input type="submit" class="textbutton" value="Save"/>
         </div>
@@ -391,14 +462,31 @@
         </table>
     </form>
 
+    <c:if test="${nproblems > 0}">
+    <div class="warning">
+        <p><fmt:message key="error.7"/></p>
+        <fmt:message key="error.11"/><br/>
+        <div class="button anchorbutton"><a href="?w=fixissues"><fmt:message key="button.3"/></a></div>
+    </div>
+    </c:if>
+
     <div id="alloccurrences">
         <div class="heading2">
-            <h2><fmt:message key="occurrences.1"/></h2>
+            <h2><fmt:message key="occurrences.1"/> - ${nroccurrences}</h2>
             <div class="button" id="newoccurrence"><fmt:message key="occurrences.1a"/></div>
             <div class="button" id="deleteselected"><fmt:message key="occurrences.1b"/></div>
             <div class="button" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
             <div class="button" id="updatemodified"><fmt:message key="inventory.upd"/></div>
             <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="alloccurrencetable" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>
+            <!--
+            <div style="float:right">
+                <c:if test="${param.o != null && param.o > 0}">
+                <div class="button anchorbutton"><a href="?w=occurrenceview&o=${param.o - 200}&c=200">&lt;</a></div>
+                </c:if>
+                <div class="button anchorbutton"><a href="?w=occurrenceview&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
+            </div>
+            <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
+            -->
         </div>
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
             <t:occurrenceheader flavour="${param.flavour}"/>
@@ -421,7 +509,7 @@
                         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
                     </c:if>
                     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
+                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}</td>
                     </c:if>
                     <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
                     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
@@ -474,6 +562,15 @@
             </c:forEach>
             </tbody>
         </table>
+        <!--
+        <div style="float:right">
+            <c:if test="${param.o != null && param.o > 0}">
+            <div class="button anchorbutton"><a href="?w=occurrenceview&o=${param.o - 200}&c=200">&lt;</a></div>
+            </c:if>
+            <div class="button anchorbutton"><a href="?w=occurrenceview&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
+        </div>
+        <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
+        -->
     </div>
 </c:when>
 </c:choose>

@@ -123,7 +123,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 			if(count % 1000==0) {System.out.print(count);System.out.flush();}
 			try {
 				fullname1=TaxEnt.parse(record.get("taxon"));
-				taxnode=NWD.getTaxEnt(fullname1);
+				taxnode = NWD.getSingleTaxEntOrNull(fullname1);
 				if(taxnode==null) throw new QueryException(fullname1.getFullName() +" not found.");
 				for(int i=1;i<record.size();i++) {
 					attrs=record.get(i).split(",");

@@ -278,3 +278,25 @@ function insertOrReplaceHiddenInput(parent, name, value) {
     else
         el.setAttribute(name, value);
 }
+
+function getSelectedText(el) {
+/*
+    if (window.getSelection) {
+        return window.getSelection().toString();
+    } else if (document.selection) {
+        return document.selection.createRange().text;
+    }
+*/
+    var selectedText;
+    // IE version
+    if (document.selection !== undefined) {
+        el.focus();
+        var sel = document.selection.createRange();
+        selectedText = sel.text;
+    } else if (el.selectionStart !== undefined) {
+        var startPos = el.selectionStart;
+        var endPos = el.selectionEnd;
+        selectedText = el.value.substring(startPos, endPos);
+    }
+    return selectedText;
+}

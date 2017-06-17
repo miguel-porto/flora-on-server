@@ -25,6 +25,11 @@
 			<version>0.3.4</version>
 		</dependency>
 		<dependency>
+			<groupId>com.joestelmach</groupId>
+			<artifactId>natty</artifactId>
+			<version>0.11</version>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
@@ -78,7 +83,7 @@
 		<dependency>
 			<groupId>com.arangodb</groupId>
 			<artifactId>arangodb-java-driver</artifactId>
-			<version>4.1.9</version>
+			<version>4.1.12</version>
 <!--			<scope>compile</scope>-->
 		</dependency>
 		<dependency>

@@ -1,6 +1,7 @@
 package pt.floraon.taxonomy.entities;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,7 @@ import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.driver.results.ResultItem;
+import pt.floraon.occurrences.TaxonomicQuestion;
 
 /**
  * Represents a taxonomic entity.
@@ -29,14 +31,14 @@ import pt.floraon.driver.results.ResultItem;
  * @author miguel
  *
  */
-public class TaxEnt extends NamedDBNode implements ResultItem {
+public class TaxEnt extends NamedDBNode implements ResultItem, Serializable {
 	/**
 	 * Matches a taxon name of the form:
 	 * Genus species rank infrataxa Author [annotation] sensu somework
 	 */
-	private transient static Pattern taxonName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?" +
-			//"(?: +(?:(?<rank>subsp|var|f)\\.? +)?(?<infra>[a-z-]+))?" +
-			"(?<infras>[ a-z-.]*?)?" +
+	private transient static Pattern taxonName = Pattern.compile("^ *(?<subrank>subgen.? +)?(?<genus>[a-zçA-Z]+)(?: +(?<species>[a-zç-]+))?" +
+			"((?: +\\{?(?<author1> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?}?)?" +
+			"(?<infras>(?: +((subsp)|(ssp)|(var)|(f)|(forma))\\.? +[a-z-]+)+))?" +
 			"(?: +\\{?(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
 			"(?: +sensu +(?<sensu1>[^\\[\\]]+))?)|(?:(?: +sensu +(?<sensu2>[^\\[\\]]+))?(?: +\\[(?<annot2>[\\w çãõáàâéêíóôú]+)])?)) *$");
 
@@ -147,15 +149,13 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 
 		if(m.find()) {
 			StringBuilder sb = new StringBuilder(m.group("genus"));
-			if(m.group("species") != null) sb.append(" ").append(m.group("species"));
-
+			if (m.group("species") != null) sb.append(" ").append(m.group("species"));
 			String r = m.group("infras");
-			if(r != null) {
+			if (r != null) {
 				sb.append(" ").append(r);
 			}
 			// this strips out any other words than the name itself
 			CanonicalName cn = new CanonicalName(sb.toString());
-
 /*
 			String r = m.group("rank");
 			if(r != null) {
@@ -165,9 +165,20 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 			if(m.group("infra") != null) sb.append(" ").append(m.group("infra"));
 */
 			out.setName(cn.toString());
-			TaxonRanks tr = cn.getTaxonRank();
-			if(tr != null) out.setRank(tr.getValue());
-			out.setAuthor(m.group("author"));
+
+			TaxonRanks tr;
+			if(m.group("subrank") != null) {
+				tr = TaxonRanks.getRankFromShortname(m.group("subrank").trim());
+			} else {
+				tr = cn.getTaxonRank();
+			}
+			if (tr != null)	out.setRank(tr.getValue());
+			if (m.group("author") != null && m.group("author1") == null)
+				out.setAuthor(m.group("author"));
+			else if (m.group("author") == null && m.group("author1") != null)
+				out.setAuthor(m.group("author1"));
+			else if (m.group("author") != null && m.group("author1") != null)
+				out.setAuthor(m.group("author"));
 			out.setAnnotation((m.group("annot1") == null ? m.group("annot2") : m.group("annot1")));
 			out.setSensu((m.group("sensu1") == null ? m.group("sensu2") : m.group("sensu1")));
 		} else throw new FloraOnException(Messages.getString("error.2", name));
@@ -221,9 +232,9 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 */
 	public void canBeChildOf(TaxEnt taxon) throws TaxonomyException {
 		if(taxon==null) return;
-		if(current && rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank, unless it is set as not current");
+		if(getCurrent() && rank <= taxon.getRankValue()) throw new TaxonomyException("Rank must be lower than parent rank, unless it is set as not current");
 		if(this.isSpeciesOrInferior()) {
-			if(current && getName().toLowerCase().indexOf(taxon.getName().toLowerCase()+" ") != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
+			if(getCurrent() && getName().toLowerCase().indexOf(taxon.getName().toLowerCase()+" ") != 0) throw new TaxonomyException("Name must include all superior taxa up to genus");
 			// TODO: more tests for name validity
 		}
 	}
@@ -233,8 +244,9 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	 * @return
 	 */
 	public String getFullName(boolean htmlFormatted) {
-		if(htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())
-			return "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
+		if(htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())	// genus or inferior
+			return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
+				+ "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
 				+ (this.getSensu() != null ? " <i>sensu</i> "+this.getSensu() : "")
 				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 		else
@@ -260,7 +272,8 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 
 	public String getNameWithAnnotationOnly(boolean htmlFormatted) {
-		return this.getName()
+		return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
+			+ this.getName()
 			+ (this.getSensu() != null ? (htmlFormatted ? " <i>sensu</i> " : " sensu ") + this.getSensu() : "")
 			+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 	}
@@ -290,7 +303,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	}
 	
 	public Boolean getCurrent() {
-		return this.current;
+		return this.current == null ? false : this.current;
 	}
 
 	public String getComment() {
@@ -402,5 +415,20 @@ public class TaxEnt extends NamedDBNode implements ResultItem {
 	@Override
 	public String toJsonString() {
 		return this.toJson().toString();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		TaxEnt taxEnt = (TaxEnt) o;
+
+		return this.getID().equals(taxEnt.getID());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.getID().hashCode();
 	}
 }

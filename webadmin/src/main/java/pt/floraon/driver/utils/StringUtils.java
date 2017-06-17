@@ -138,7 +138,7 @@ public class StringUtils {
                 return Integer.valueOf(interval);
             }
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return null;
         }
     }

@@ -1,9 +1,14 @@
 package pt.floraon.driver;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.JsonObject;
 
+import org.apache.commons.lang.mutable.MutableBoolean;
+import pt.floraon.geocoding.entities.Toponym;
+import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.taxonomy.entities.EXISTS_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -100,7 +105,7 @@ public interface INodeWorker {
 	 * @throws QueryException
 	 * @throws TaxonomyException
 	 */
-	TaxEnt getTaxEntByName(String q) throws FloraOnException;
+	List<TaxEnt> getTaxEntByName(String q) throws FloraOnException;
 
 	/**
 	 * Matches a name of the form
@@ -112,7 +117,10 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException if more than one node is found
 	 */
-	TaxEnt getTaxEnt(TaxEnt q) throws FloraOnException;
+	List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion) throws FloraOnException;
+//	boolean getTaxEnt(TaxEnt q, List<TaxEnt> output) throws FloraOnException;
+
+	TaxEnt getSingleTaxEntOrNull(TaxEnt q) throws FloraOnException;
 
 	/**
 	 * Matches a given TaxEnt with the name, annotation, author and sensu, with a List of TaxEnt.
@@ -122,7 +130,8 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException if provided filters are ambiguous
 	 */
-	TaxEnt matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException;
+	List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion) throws FloraOnException;
+//	boolean matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException;
 
 	Attribute getAttributeByName(String name) throws FloraOnException;
 
@@ -242,4 +251,6 @@ public interface INodeWorker {
 	<T extends DBEntity> T getNode(INodeKey id) throws FloraOnException;
 
 	void addUploadedTableToUser(String uploadedTableFilename, INodeKey userId) throws DatabaseException;
+
+	void createToponym(List<Toponym> toponyms) throws FloraOnException;
 }

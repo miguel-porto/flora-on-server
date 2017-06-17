@@ -20,9 +20,9 @@ public class CanonicalName {
      * Matches a taxon name, given as a canonical name: no author, no anything else than
      * Genus species (subsp. infrarank)... (or only one word, for taxa higher than species)
      */
-    private transient static Pattern canonicalName = Pattern.compile("^ *(?<genus>[a-zA-Z]+)(?: +(?<species>[a-z-]+))?(?: +(?<rest>.*))?$");
+    private transient static Pattern canonicalName = Pattern.compile("^ *(?<genus>[a-zçA-Z]+)(?: +(?<species>[a-zç-]+))?(?: +(?<rest>.*))?$");
 
-    private transient static Pattern infraTaxa = Pattern.compile(" *(?:(?<rank>subsp|var|f)\\.? +)?(?<infra>[a-z-]+)");
+    private transient static Pattern infraTaxa = Pattern.compile(" *(?:(?<rank>subsp|var|f|ssp|subvar|forma)\\.? +)?(?<infra>[a-zç-]+)");
 
     public CanonicalName(String verbatimName) {
         Matcher m = canonicalName.matcher(verbatimName);

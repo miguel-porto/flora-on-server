@@ -10,7 +10,9 @@ import pt.floraon.driver.*;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.authentication.entities.User;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by miguel on 26-11-2016.
@@ -57,8 +59,10 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
     public User getUser(String name) throws FloraOnException {
         if(name == null) return null;
         ArangoCursor<User> cur;
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("name", name);
         try {
-            cur = database.query(AQLQueries.getString("Administration.4", name), null
+            cur = database.query(AQLQueries.getString("Administration.4"), bind
                     , new AqlQueryOptions().count(true), User.class);
             if(!cur.hasNext()) return null;
             if(cur.getCount() > 1) throw new FloraOnException(Messages.getString("error.1", name));

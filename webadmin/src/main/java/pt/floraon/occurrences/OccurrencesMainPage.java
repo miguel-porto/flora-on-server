@@ -24,6 +24,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
         final HttpServletRequest request = thisRequest.request;
         List<InventoryList> filesList = new ArrayList<>();
         User user = thisRequest.getUser();
+        Integer offset = thisRequest.getParameterAsInteger("o", null);
+        Integer count = thisRequest.getParameterAsInteger("c", 200000);
+
         if(user.isGuest()) {
             thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
@@ -44,8 +47,21 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
         switch(what) {
             case "main":
+                request.setAttribute("nroccurrences"
+                        , driver.getOccurrenceDriver().getInventoriesOfMaintainerCount(driver.asNodeKey(user.getID())));
                 request.setAttribute("inventories"
-                        , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
+                        , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), offset, count));
+                break;
+
+            case "fixissues":
+                InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
+                        driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(driver.asNodeKey(user.getID()))
+                        , false, true);
+                request.setAttribute("nomatchquestions", il.getQuestions());
+                request.setAttribute("matchwarnings", il.getVerboseWarnings());
+                request.setAttribute("nomatches", il.getVerboseErrors());
+                request.setAttribute("parseerrors", il.getParseErrors());
+
                 break;
 
             case "openinventory":
@@ -61,8 +77,12 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "occurrenceview":
+                request.setAttribute("nroccurrences"
+                        , driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(driver.asNodeKey(user.getID())));
                 request.setAttribute("occurrences"
-                        , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
+                        , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(driver.asNodeKey(user.getID()), offset, count));
+                request.setAttribute("nproblems"
+                        , driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(driver.asNodeKey(user.getID())));
                 break;
 
             case "uploads":
@@ -83,6 +103,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     }
                 }
                 request.setAttribute("filesList", filesList);
+//                filesList.get(0).getQuestions().get("j").getOptions().iterator().next().getID()
                 break;
         }
         request.getRequestDispatcher("/main-occurrences.jsp").forward(request, thisRequest.response);

@@ -12,6 +12,8 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.results.ResultProcessor;
 import pt.floraon.driver.results.SimpleTaxEntResult;
+import pt.floraon.geocoding.entities.MatchedToponym;
+import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.redlistdata.FieldValues;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -36,10 +38,7 @@ public class Suggestions extends FloraOnServlet {
 				while (ite.hasNext()) {
 					te = ite.next();
 					pw.print("<li" + (te.getCurrent() == null ? "" : (te.getCurrent() ? "" : " class=\"notcurrent\""))
-							+ " data-key=\"" + te.getID() + "\"><i>" + te.getName()
-							+ (te.getAnnotation() == null ? "" : " [" + te.getAnnotation() + "]")
-							+ (te.getSensu() == null ? "" : " sensu " + te.getSensu()) + "</i></li>");
-//							+(this.taxent.getAuthor() == null ? "" : " "+this.taxent.getAuthor())+"</li>";
+							+ " data-key=\"" + te.getID() + "\">" + te.getNameWithAnnotationOnly(false) + "</li>");
 				}
 				pw.print("</ul>");
 				pw.flush();
@@ -65,13 +64,32 @@ public class Suggestions extends FloraOnServlet {
 						options.add(FieldValues.getString(tc.getLabel()));
 				}
 				pw.print("<ul class=\"suggestions\">");
-				Iterator<String> it1 = options.iterator();
-				while(it1.hasNext()) {
+				for (String option : options) {
 					pw.print("<li>");
-					pw.print(it1.next());
+					pw.print(option);
 					pw.print("</li>");
 				}
 				pw.print("</ul>");
+				break;
+
+			case "toponym":
+				List<MatchedToponym> topo = driver.getQueryDriver().findToponymSuggestions(query);
+				if(topo.size() == 0) {
+					pw.print("<p>Não foram encontrados resultados para a pesquisa, ou pesquisou menos de 3 letras</p>");
+				} else {
+					pw.print("<table>");
+					for (MatchedToponym t : topo) {
+						pw.print("<tr class=\"geoelement\"><td class=\"singleselect clickable\">");
+						pw.print(t.getLocality() + " (" + t.getToponymType() + ") ");
+						pw.print("</td><td class=\"coordinates\" data-lat=\"" + t.getLatitude() + "\" data-lng=\""
+								+ t.getLongitude() + "\" data-label=\"" + t.getLocality() + "\">");
+						pw.print(t.getLatitude() + ", " + t.getLongitude());
+//					pw.print(" "+t.getLevenDist());
+//					pw.println();
+						pw.print("</td></tr>");
+					}
+					pw.print("</table>");
+				}
 				break;
 		}
 		pw.flush();

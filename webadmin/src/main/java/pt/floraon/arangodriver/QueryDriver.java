@@ -18,6 +18,9 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.geocoding.entities.MatchedToponym;
+import pt.floraon.geocoding.entities.Toponym;
+import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
@@ -324,6 +327,45 @@ FOR final IN FLATTEN(FOR v IN base
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
+	}
+
+	@Override
+	public List<MatchedToponym> findToponymSuggestions(String query) throws FloraOnException {
+		if(query == null || query.trim().length() < 3) return Collections.emptyList();
+		String tQuery = query.trim().toLowerCase();
+		String _queryFull = AQLQueries.getString("QueryDriver.3", tQuery);
+		String _queryLeven = AQLQueries.getString("QueryDriver.3a", tQuery.substring(0, 2));
+		List<MatchedToponym> out = new LinkedList<>();
+		int d;
+
+		try {
+			Iterator<Toponym> it = database.query(_queryFull, null, null, Toponym.class);
+			while(it.hasNext()) {
+				Toponym t = it.next();
+				d = t.getLocality().toLowerCase().equals(tQuery) ? 0 : (t.getLocality().toLowerCase().startsWith(tQuery) ? 1 : 2);
+				out.add(new MatchedToponym(t, d));
+			}
+			it = database.query(_queryLeven, null, null, Toponym.class);
+			while(it.hasNext()) {
+				Toponym t = it.next();
+				if(t.getLocality().toLowerCase().equals(tQuery))
+					d = 0;
+				else if(Math.abs(t.getLocality().length() - tQuery.length()) < 3) {
+					d = Common.levenshteinDistance(t.getLocality().toLowerCase(), tQuery);
+//					System.out.println(t.getLocality().toLowerCase()+": "+t.getLocality().length()+" "+tQuery.length()+" "+d);
+				}
+				else d = 1000;
+				if(d < 3) {
+					MatchedToponym topo = new MatchedToponym(t, d);
+					if(!out.contains(topo))
+						out.add(topo);
+				}
+			}
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+		Collections.sort(out);
+		return out;
 	}
 
 	@Override

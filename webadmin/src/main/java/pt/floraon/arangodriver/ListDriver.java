@@ -277,4 +277,14 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 		}
 		return this.getTaxonInfoAsJson(cursorResult).get(0).getAsJsonObject();
 	}
+
+	@Override
+	public Iterator<TaxEnt> getTaxonomicErrors() throws FloraOnException {
+		String query = AQLQueries.getString("error.1");
+		try {
+			return database.query(query, null, null, TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
+		}
+	}
 }

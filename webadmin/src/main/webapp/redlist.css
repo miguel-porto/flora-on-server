@@ -1,4 +1,6 @@
 body.relative {position:relative}
+a.returntomain { position:absolute; left:4px; top:4px}
+a.returntomain img {height: 90px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 #main {text-align:center;}
@@ -54,7 +56,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 
 .multiplechooser {display:flex; flex-wrap:wrap; justify-content: space-between;}
 .multiplechooser.left {justify-content: flex-start;}
-.multiplechooser input[type=checkbox] {display:none;}
+.multiplechooser input[type=checkbox], .multiplechooser input[type=radio] {display:none;}
 .multiplechooser label {
     flex: 1 1 auto;
     margin:8px;
@@ -76,7 +78,7 @@ div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
     padding: 3px 14px;
     display:inline-block;
     font-size:0.8em;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     font-weight:bold;
     margin: 6px;
     background-color: #64b5f6;
@@ -394,20 +396,6 @@ table.sheet .section6>td:nth-of-type(2) {background-color: rgba(244,  67,  54, 0
 table.sheet .section7>td:nth-of-type(2) {background-color: rgba(139, 195,  74, 0.3);}
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
-
-div.warning {
-    background-color: rgba(0, 0, 0, 0.93);
-    color:yellow;
-    padding:10px;
-    box-shadow: 0 0 22px black;
-    position: fixed;
-    z-index: 2;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    text-align: left;
-}
-div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bold}
 
 #redlistcategories {text-align:center}
 #redlistcategories input[type=radio] {display:none;}

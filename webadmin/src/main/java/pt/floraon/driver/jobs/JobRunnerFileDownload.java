@@ -54,13 +54,13 @@ public class JobRunnerFileDownload implements JobRunner {
 
 	@Override
 	public Boolean isReady() throws FloraOnException {
-		if(hasError) throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
+		if(hasError) return false;//throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
 		return isClosed;
 	}
 
 	@Override
 	public String getState() throws FloraOnException {
-		if(hasError) throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
+		if(hasError) return "Error occurred during processing: " + this.errorMessage;//throw new FloraOnException("Error occurred during processing: "+this.errorMessage);
 		return isClosed ? "Finished" : job.getState();
 	}
 

@@ -332,42 +332,52 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.dets = dets;
     }
 
+    @Override
     public String getVerbLocality() {
         return verbLocality;
     }
 
+    @Override
     public void setVerbLocality(String verbLocality) {
         this.verbLocality = verbLocality;
     }
 
+    @Override
     public String getLocality() {
         return locality;
     }
 
+    @Override
     public void setLocality(String locality) {
         this.locality = locality;
     }
 
+    @Override
     public String getMunicipality() {
         return municipality;
     }
 
+    @Override
     public void setMunicipality(String municipality) {
         this.municipality = municipality;
     }
 
+    @Override
     public String getProvince() {
         return province;
     }
 
+    @Override
     public void setProvince(String province) {
         this.province = province;
     }
 
+    @Override
     public String getCounty() {
         return county;
     }
 
+    @Override
     public void setCounty(String county) {
         this.county = county;
     }
@@ -519,11 +529,16 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         Inventory that = (Inventory) o;
 
         if(code != null) return code.equals(that.code);
+        if ((precision != null && precision._isImprecise()) || (that.precision != null && that.precision._isImprecise())
+            || (precision != null ? !precision.equals(that.precision) : that.precision != null)) return false;
         if (getLatitude() != null ? !getLatitude().equals(that.getLatitude()) : that.getLatitude() != null) return false;
         if (getLongitude() != null ? !getLongitude().equals(that.getLongitude()) : that.getLongitude() != null) return false;
         if (year != null ? !year.equals(that.year) : that.year != null) return false;
         if (month != null ? !month.equals(that.month) : that.month != null) return false;
         if (day != null ? !day.equals(that.day) : that.day != null) return false;
+        if (municipality != null ? !municipality.equals(that.municipality) : that.municipality != null) return false;
+        if (county != null ? !county.equals(that.county) : that.county != null) return false;
+        if (locality != null ? !locality.equals(that.locality) : that.locality != null) return false;
         // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(observers, that.observers)) return false;
         return code != null ? code.equals(that.code) : that.code == null;
@@ -531,18 +546,23 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     /**
      * NOTE that this implementation of hashCode and equals assume that if an inventory is in the same place, same date
-     * and same observers, then it is the same inventory, no matter the other fields.
+     * and same observers, then it is the same inventory, no matter the other fields. If the inventory is imprecise, it
+     * will never be equal to another one.
      * @return
      */
     @Override
     public int hashCode() {
         int result = code != null ? code.hashCode() : 0;    // NOTE: we don't use the getter here cause the getter does some processing to avoid nulls. here we want the real inventory code as is.
         if(code != null && !code.equals("")) return result;     // code rules!
+        result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + (getLatitude() != null ? getLatitude().hashCode() : 0);
         result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);
         result = 31 * result + (year != null ? year.hashCode() : 0);
         result = 31 * result + (month != null ? month.hashCode() : 0);
         result = 31 * result + (day != null ? day.hashCode() : 0);
+        result = 31 * result + (municipality != null ? municipality.hashCode() : 0);
+        result = 31 * result + (county != null ? county.hashCode() : 0);
+        result = 31 * result + (locality != null ? locality.hashCode() : 0);
         result = 31 * result + (observers != null ? Arrays.hashCode(observers) : 0);
         return result;
     }

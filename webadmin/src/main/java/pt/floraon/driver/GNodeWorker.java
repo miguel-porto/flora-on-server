@@ -4,11 +4,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import jline.internal.Log;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.entities.Author;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.Occurrence;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -107,75 +110,79 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 	}
     
 	@Override
-    public TaxEnt getTaxEntByName(String q) throws FloraOnException {
-    	return getTaxEnt(TaxEnt.parse(q));
+    public List<TaxEnt> getTaxEntByName(String q) throws FloraOnException {
+		return getTaxEnt(TaxEnt.parse(q), null);
     }
 
 	@Override
-    public TaxEnt matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException {
-    	Iterator<TaxEnt> it = nodes.iterator();
-    	TaxEnt tmp;
-    	// Genus species rank infrataxon Author [annotation] sensu somework
-    	while(it.hasNext()) {
-    		tmp = it.next();
-			Log.info("    trying: " + tmp.getFullName());
-    		if(q.getRankValue() != null && !q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
-					&& !q.getRankValue().equals(tmp.getRankValue())) {
-    			it.remove();
-    			continue;
-			}
-
-			if(q.getAuthor() != null && !q.getAuthor().equals(tmp.getAuthor())) {
-    			it.remove();
-    			continue;
-			}
-
-			if(q.getAnnotation() != null && !q.getAnnotation().equals(tmp.getAnnotation())
-					|| (q.getAnnotation() == null && tmp.getAnnotation() != null)) {
-    			it.remove();
-    			continue;
-			}
-
-			if((q.getSensu() != null && !q.getSensu().equals(tmp.getSensu()))
-					|| (q.getSensu() == null && tmp.getSensu() != null)) {
-				it.remove();
-			}
-		}
-
-		switch(nodes.size()) {
-			case 0:
-				return null;
-			case 1:
-				return nodes.get(0);
-			default:
-				throw new QueryException(Messages.getString("error.4", q.getName()));
-		}
-
+    public List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion) throws FloraOnException {
+		// TODO: think better about this match. When no Sensu is given, choose by default the accepted name?
+		TaxEnt tmp;
+		List<TaxEnt> out = new ArrayList<>();
+		boolean ask = true;
+		// Genus species rank infrataxon Author [annotation] sensu somework
+		while (nodes.hasNext()) {
+			int levenName;
+			boolean tmpask = false;
+			tmp = nodes.next();
+//			Log.info("    trying: " + tmp.getFullName());
 /*
-		if(nodes.size() > 1) {	// multiple nodes with this name. Search the one of the right rank
-			if(q.getRankValue() == null || q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue()))
-				throw new QueryException("More than one node with name "+q.getName()+". You must disambiguate.");
+			System.out.println(q.getRankValue() + " : " + tmp.getRankValue());
+			System.out.println(q.getAuthor() + " : " + tmp.getAuthor());
+			System.out.println(q.getAnnotation() + " : " + tmp.getAnnotation());
+			System.out.println(q.getSensu() + " : " + tmp.getSensu());
+*/
+			if (!q.getName().equals(tmp.getName())) {
+				if ((levenName = Common.levenshteinDistance(q.getName(), tmp.getName())) >= 3) {
+//					nodes.remove();
+					continue;
+				} else tmpask = true;
+			} else levenName = 0;
 
-			for(TaxEnt n1 : nodes) {
-				if(n1.getRankValue().equals(q.getRankValue()) || n1.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())) {
-					if(out != null)
-						throw new QueryException("More than one node with name "+q.getName()+" and rank "+q.getRank().toString());
-					else
-						out = n1;
-				}
+			if (q.getRankValue() != null && !q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
+					&& !q.getRankValue().equals(tmp.getRankValue())) {
+//				nodes.remove();
+				continue;
 			}
-			return out;
-		} else {
-			if (q.getRankValue() == null || q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
-					|| nodes.get(0).getRankValue() == null )
-				return nodes.get(0);
-			else {
-				if (!nodes.get(0).getRankValue().equals(q.getRankValue())) return null;
-				else return nodes.get(0);
+
+			if (q.getAuthor() != null && !q.getAuthor().equals(tmp.getAuthor()) && levenName < 3) {
+				tmpask = true;
+/*
+				if(Common.levenshteinDistance(q.getAuthor(), tmp.getAuthor()) >= 5)
+					it.remove();
+*/
 			}
-		}
+/*
+			if(q.getAuthor() != null && !q.getAuthor().equals(tmp.getAuthor())) {
+				if(Common.levenshteinDistance(q.getAuthor(), tmp.getAuthor()) >= 5 && !q.getName().equals(tmp.getName())) {
+					it.remove();
+					continue;
+				} else tmpask = true;
+			}
 */
 
+			if (q.getAnnotation() != null && !q.getAnnotation().equals(tmp.getAnnotation())
+					|| (q.getAnnotation() == null && tmp.getAnnotation() != null)) {
+//				nodes.remove();
+				continue;
+			}
 
+			if ((q.getSensu() != null && !q.getSensu().equals(tmp.getSensu()))) {
+//					|| (q.getSensu() == null && tmp.getSensu() != null)) {
+//				nodes.remove();
+				continue;
+			}
+			ask &= tmpask;
+			out.add(tmp);
+		}
+/*
+		int eq = 0;
+		for (TaxEnt te : nodes) {
+			if (te.getName().equals(q.getName())) eq++;
+		}
+*/
+		if(askQuestion != null)
+			askQuestion.setValue(out.size() == 0 || (ask && out.size() > 0) || (!ask && out.size() > 1));
+		return out;
 	}
 }

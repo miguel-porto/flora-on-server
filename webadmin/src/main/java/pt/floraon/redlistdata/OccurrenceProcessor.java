@@ -52,6 +52,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      * @return
      */
     private boolean enter(SimpleOccurrence so) {
+        if(so.getLatitude() == null || so.getLongitude() == null) return false;
         if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
         boolean enter;
         enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
@@ -170,7 +171,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
                     co.getSpecificEpithet() +
                     (co.getInfraRanksAsString() == null ? "" : " " + co.getInfraRanksAsString()) +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
-                    (" (" + o.getPrecision().toString() + ")") +
+                    (o.getPrecision()._isImprecise() ? (" (" + o.getPrecision().toString() + ")") : "") +
                     (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA ? " JÁ CONTADO" : "");
 
             String desc = (o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") +
@@ -297,6 +298,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
         for (SimpleOccurrence so : this) {
+            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL) continue;
             tmp1 = new Point2D(tmp = so._getUTMCoordinates());
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             if(protectedAreas != null) {
@@ -372,11 +374,12 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         this(occurrences, protectedAreas, sizeOfSquare, null, null, null);
     }
 
-    public void exportSVG(PrintWriter out, boolean showOccurrences) {
+    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull) {
         InputStream str = this.getClass().getResourceAsStream("basemap.svg");
         try {
             IOUtils.copy(str, out);
         } catch (IOException e) {
+            e.printStackTrace();
             return;
         }
 /*
@@ -388,19 +391,20 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         }
 */
 
-        // draw protected areas
-        List<UTMCoordinate> tmp;
-        for(Map.Entry<String, pt.floraon.geometry.Polygon> p : protectedAreas) {
-            tmp = p.getValue().getUTMCoordinates();
-            out.print("<path class=\"protectedarea\" d=\"M" + tmp.get(0).getX() + " " + tmp.get(0).getY());
-            for (int i = 1; i < tmp.size(); i++) {
-                out.print("L" + tmp.get(i).getX() + " " + tmp.get(i).getY());
+        if(protectedAreas != null) {
+            // draw protected areas
+            List<UTMCoordinate> tmp;
+            for (Map.Entry<String, pt.floraon.geometry.Polygon> p : protectedAreas) {
+                tmp = p.getValue().getUTMCoordinates();
+                out.print("<path class=\"protectedarea\" d=\"M" + tmp.get(0).getX() + " " + tmp.get(0).getY());
+                for (int i = 1; i < tmp.size(); i++) {
+                    out.print("L" + tmp.get(i).getX() + " " + tmp.get(i).getY());
+                }
+                out.print("\"></path>");
             }
-            out.print("\"></path>");
         }
-
         // draw convex hull
-        if(convexHull != null) {
+        if(showConvexhull && convexHull != null) {
             out.print("<path class=\"convexhull\" d=\"M" + (int) convexHull.get(0).x() + " " + (int) convexHull.get(0).y());
             for (int i = 1; i < convexHull.size(); i++) {
                 out.print("L" + (int) convexHull.get(i).x() + " " + (int) convexHull.get(i).y());

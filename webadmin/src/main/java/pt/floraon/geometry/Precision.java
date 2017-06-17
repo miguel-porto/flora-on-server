@@ -58,6 +58,13 @@ public class Precision implements Serializable {
         this.square = square;
     }
 
+    /**
+     * @return true if the precision is low and should not ever be equal to any other point
+     */
+    public boolean _isImprecise() {
+        return (radius != null && radius > 5) || (square != null && square > 10);
+    }
+
     @Override
     public String toString() {
         if(radius != null)
@@ -71,4 +78,21 @@ public class Precision implements Serializable {
         return "";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Precision precision = (Precision) o;
+
+        if (radius != null ? !radius.equals(precision.radius) : precision.radius != null) return false;
+        return square != null ? square.equals(precision.square) : precision.square == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = radius != null ? radius.hashCode() : 0;
+        result = 31 * result + (square != null ? square.hashCode() : 0);
+        return result;
+    }
 }

@@ -31,7 +31,7 @@
 </head>
 <body>
 <input type="hidden" name="territory" value="${territory}"/>
-<!--<img style="height: 90px; position:fixed; left:0; top:0" src="/floraon/images/logo-LV-cor-fundoclaro_800.png" alt="logo"/>-->
+<a class="returntomain" href="/floraon/"><img src="/floraon/images/cap-cor.png" alt="logo"/></a>
 <div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords'}">
@@ -437,9 +437,13 @@
                                 name="geographicalDistribution_Description"/>
                         </td>
                         <c:if test="${historicalsvgmap != null}">
-                            <td style="width:0; text-align:center;">${historicalsvgmap}<br/><fmt:message key="DataSheet.label.2.1a"/></td>
+                            <td style="width:0; text-align:center;">${historicalsvgmap}</td>
                         </c:if>
-                            <td style="width:0; text-align:center;">${svgmap}<br/><fmt:message key="DataSheet.label.2.1b"/></td>
+                            <td style="width:0; text-align:center;">${svgmap}</td>
+                        </tr>
+                        <tr><td style="width:auto"></td>
+                            <c:if test="${historicalsvgmap != null}"><td style="width:0; text-align:center;"><fmt:message key="DataSheet.label.2.1a"/></td></c:if>
+                            <td style="width:0; text-align:center;"><fmt:message key="DataSheet.label.2.1b"/></td>
                         </tr>
                     </table>
                 </td></tr>

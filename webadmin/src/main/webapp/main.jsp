@@ -10,9 +10,10 @@
 <html>
 <head>
 	<title>Taxonomy &amp; Checklist Manager</title>
+	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 </head>
-<body style="text-align:center">
+<body style="text-align:center" class="enterpage">
     <div id="logindiv">
     <c:choose>
         <c:when test="${user.isGuest()}">
@@ -38,20 +39,33 @@
     </div>
     <div class="outer">
         <c:if test="${user.isAdministrator()}">
-            <c:if test="${orphan}">
+            <c:if test="${orphan || errors.hasNext()}">
             <div class="warning">
-            <p>Caro administrador, há táxones não ligados ao grafo principal.</p>
-            <a href="checklist?w=graph&show=orphan">Ver táxones</a>
+                <c:if test="${orphan}">
+                <p>Caro administrador, há táxones não ligados ao grafo principal.</p>
+                <a href="checklist?w=graph&show=orphan">Ver táxones</a>
+                </c:if>
+                <c:if test="${errors.hasNext()}">
+                <p>Os seguintes taxa estão incorrectamente ligados no grafo:</p>
+                <ul>
+                <c:forEach var="err" items="${errors}">
+                    <li><a href="checklist?w=graph&depth=1&q=${err._getNameURLEncoded()}">${err.getName()}</a></li>
+                </c:forEach>
+                </ul>
+                </c:if>
             </div>
             </c:if>
         </c:if>
-        <img style="width: 400px" src="images/logo-LV-cor-fundoclaro_800.png" alt="logo"/>
-        <p style="font-size:0.7em">Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes.
-        Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>
+        <img src="images/logo-LV-cor-fundoclaro_800.png" alt="logo"/>
+        <div style="width:100%"></div>
+        <p style="font-size:0.7em">
+            Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes.
+            Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.
+        </p>
+        <div style="width:100%"></div>
         <div class="bigbutton section2">
             <h1><a href="/floraon/checklist"><fmt:message key="Modules.2"/></a></h1>
         </div>
-
         <div class="bigbutton section3">
             <h1><fmt:message key="Modules.1"/></h1>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
@@ -65,7 +79,7 @@
         </div>
         <c:if test="${!user.isGuest()}">
         <div class="bigbutton section4">
-            <h1><a href="/floraon/occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></h1><p>under construction</p>
+            <h1><a href="/floraon/occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></h1>
         </div>
         </c:if>
         <c:if test="${user.isAdministrator()}">

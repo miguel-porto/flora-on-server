@@ -31,6 +31,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("latitude", new LatitudeLongitudeParser());
         fieldMappings.put("longitude", new LatitudeLongitudeParser());
         fieldMappings.put("coordinates", new LatitudeLongitudeParser());
+        fieldMappings.put("wkt_geom", new LatitudeLongitudeParser());
         fieldMappings.put("x", new UTMCoordinateParser());
         fieldMappings.put("y", new UTMCoordinateParser());
         fieldMappings.put("mgrs", new UTMCoordinateParser());
@@ -40,11 +41,14 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("month", new IntegerParser());
         fieldMappings.put("date", new DateParser());
         fieldMappings.put("day", new IntegerParser());
-        fieldMappings.put("precision", new PlainTextParser());
+        fieldMappings.put("precision", new LocalityParser());
+        fieldMappings.put("locality", new LocalityParser());
+        fieldMappings.put("municipality", new LocalityParser());
+        fieldMappings.put("province", new LocalityParser());
+        fieldMappings.put("county", new LocalityParser());
         fieldMappings.put("code", new PlainTextParser());
         fieldMappings.put("gpscode", new PlainTextParser());
-        fieldMappings.put("locality", new PlainTextParser());
-        fieldMappings.put("verblocality", new PlainTextParser());
+        fieldMappings.put("verblocality", new LocalityParser());
 
         fieldMappings.put("habitat", new PlainTextParser());
         fieldMappings.put("threats", new PlainTextParser());
@@ -52,9 +56,13 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("código", new AliasFieldParser("code", fieldMappings));
         fieldMappings.put("inventário", new AliasFieldParser("code", fieldMappings));
         fieldMappings.put("data", new AliasFieldParser("date", fieldMappings));
+        fieldMappings.put("time", new AliasFieldParser("date", fieldMappings));
         fieldMappings.put("gps", new AliasFieldParser("gpscode", fieldMappings));
         fieldMappings.put("gps code", new AliasFieldParser("gpscode", fieldMappings));
+        fieldMappings.put("name", new AliasFieldParser("gpscode", fieldMappings));
         fieldMappings.put("z", new AliasFieldParser("elevation", fieldMappings));
+        fieldMappings.put("região", new AliasFieldParser("province", fieldMappings));
+        fieldMappings.put("concelho", new AliasFieldParser("municipality", fieldMappings));
         fieldMappings.put("altitude", new AliasFieldParser("elevation", fieldMappings));
         fieldMappings.put("observers", new UserListParser(userMap, driver, false));
         fieldMappings.put("collectors", new UserListParser(userMap, driver, false));

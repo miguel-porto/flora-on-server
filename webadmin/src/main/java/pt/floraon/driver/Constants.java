@@ -64,7 +64,7 @@ public final class Constants {
 		, SUBFAMILY("Subfamily", 110, null), SUBFORM("Subform", 250, null), SUBKINGDOM("Subkingdom", 20, null)
 		, SUBORDER("Suborder", 90, null), SUBPHYLUM("Subphylum (Subdivision)", 40, null), SUBSECTION("Subsection", 170, "subsect.")
 		, SUBSERIES("Subseries", 190, null), SUBSPECIES("Subspecies", 210, "subsp."), SUBTRIBE("Subtribe", 130, null)
-		, SUBVARIETY("Subvariety", 230, null), SUPERORDER("Superorder", 70, null), TRIBE("Tribe", 120, null)
+		, SUBVARIETY("Subvariety", 230, "subvar."), SUPERORDER("Superorder", 70, null), TRIBE("Tribe", 120, null)
 		, VARIETY("Variety", 220, "var.");
     
 		private final String name;
@@ -96,7 +96,8 @@ public final class Constants {
 		public static TaxonRanks getRankFromShortname(String shortName) {
 			if(shortName == null || shortName.equals("")) return null;
 			for(TaxonRanks tr : values()) {
-				if(Objects.equals(tr.shortName, shortName) || Objects.equals(tr.shortName, shortName + ".")) return tr;
+				if(Objects.equals(tr.shortName, shortName.toLowerCase())
+						|| Objects.equals(tr.shortName, shortName.toLowerCase() + ".")) return tr;
 			}
 
 			return null;

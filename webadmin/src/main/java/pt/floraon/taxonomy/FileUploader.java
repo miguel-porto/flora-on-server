@@ -1,20 +1,27 @@
 package pt.floraon.taxonomy;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ListIterator;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.Part;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import jline.internal.Log;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.geocoding.ToponomyParser;
+import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.OccurrenceImporterJob;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.server.FloraOnServlet;
 
 @MultipartConfig
@@ -93,6 +100,44 @@ public class FileUploader extends FloraOnServlet {
 		case "toponyms":
 			filePart = thisRequest.request.getPart("toponymTable");
 			System.out.println(filePart.getSize());
+			Reader freader;
+			int counter = 0;
+			ToponomyParser topoParser = new ToponomyParser();
+			Gson gs = new GsonBuilder().setPrettyPrinting().create();
+
+			freader = new InputStreamReader(filePart.getInputStream(), StandardCharsets.UTF_8);
+			CSVParser records = CSVFormat.EXCEL.withDelimiter('\t').withHeader().parse(freader);
+			Map<String, Integer> headers = records.getHeaderMap();
+
+			List<Toponym> toponyms = new ArrayList<>();
+			int chunk = 0;
+			for (CSVRecord record : records) {
+				Toponym topo = new Toponym();
+				Map<String, String> recordValues = new HashMap<>();
+				try {
+					for (String col : headers.keySet())
+						recordValues.put(col, record.get(col));
+
+					topoParser.parseFields(recordValues, topo);
+				} catch (FloraOnException | IllegalArgumentException e) {
+					Log.warn(e.getMessage());
+				}
+				counter++;
+				chunk++;
+				toponyms.add(topo);
+
+				if ((counter % 2500) == 0) {
+					System.out.println(counter + " records processed.");
+				}
+
+				if(chunk > 500) {	// flush
+					driver.getNodeWorkerDriver().createToponym(toponyms);
+					toponyms.clear();
+					chunk = 0;
+				}
+			}
+			driver.getNodeWorkerDriver().createToponym(toponyms);
+
 			thisRequest.success(filePart.getName());
 			break;
 		}

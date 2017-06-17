@@ -211,7 +211,7 @@ public class OccurrenceImporterJob implements JobTask {
                 break;
         }
         Log.info("Matching taxon names");
-        driver.getOccurrenceDriver().matchTaxEntNames(invList, createTaxa);
+        driver.getOccurrenceDriver().matchTaxEntNames(invList, createTaxa, false);
 
         File temp = File.createTempFile("uploadedtable-",".ser", new File("/tmp"));
         ObjectOutputStream oost = new ObjectOutputStream(new FileOutputStream(temp));

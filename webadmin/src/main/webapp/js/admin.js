@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    attachFormPosters(fileUploadCallback);
+    attachFormPosters();
 
 });
 
