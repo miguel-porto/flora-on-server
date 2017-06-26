@@ -14,7 +14,7 @@ import java.util.*;
 public class InventoryList extends ArrayList<Inventory> implements Serializable {
     private String fileName;
     private Date uploadDate;
-    private List<newOBSERVED_IN> parseErrors = new ArrayList<>();
+    private Set<String> parseErrors = new HashSet<>();
     private Set<String> noMatches = new LinkedHashSet<>();
     private Set<String> verboseErrors = new LinkedHashSet<>();
     private Set<String> verboseWarnings = new LinkedHashSet<>();
@@ -44,7 +44,7 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
         this.fileName = fileName;
     }
 
-    public void addParseError(newOBSERVED_IN error) {
+    public void addParseError(String error) {
         this.parseErrors.add(error);
     }
 
@@ -67,7 +67,7 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
         return questions;
     }
 
-    public List<newOBSERVED_IN> getParseErrors() {
+    public Set<String> getParseErrors() {
         return parseErrors;
     }
 

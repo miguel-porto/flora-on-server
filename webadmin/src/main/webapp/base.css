@@ -16,6 +16,7 @@ p {margin:3px;}
 .inlineblock {display: inline-block !important}
 .inlineflex {display: inline-flex !important}
 .hidden {display: none !important;}
+.hiddenhard {display: none !important;}
 #loader {position:fixed;width:100%;height:100%;top:0;left:0;text-align:center;font-size:3em;display:none;z-index:5000;background-color:rgba(0,0,0,0.45);}
 #loader #loadermsg {margin:20% 35%;padding:10px 20px;background-color:rgba(255,255,255,0.6);box-shadow:0 0 15px black;border-radius:12px;text-align:center;}
 ::-webkit-input-placeholder {color:#999;font-style:italic;font-size:0.8em}
@@ -101,7 +102,8 @@ div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bol
 .button {
 	cursor:pointer;
 	border-radius:5px;
-	box-shadow:0 0 3px gray;
+	/*box-shadow:0 0 3px gray;*/
+	box-shadow: 0 0 4px #1f4e9e;
 	background-color:#ccc;
 	float:left;
 	min-width:1em;

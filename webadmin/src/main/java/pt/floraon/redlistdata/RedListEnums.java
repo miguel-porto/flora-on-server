@@ -541,6 +541,21 @@ public class RedListEnums {
         }
     }
 
+    public enum HasPhoto implements LabelledEnum {
+        FALSE("No"), TRUE("Yes"), THREAT("Threat"), SPECIMEN_THREAT("Spec+Threat");
+
+        private String label;
+
+        HasPhoto(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String getLabel() {
+            return this.label;
+        }
+    }
+
     public enum RedListCategories implements TriggerEnum {
         EX("Extinct", false, false, "EX")
         , EW("Extinct in the Wild", false, false, "EW")

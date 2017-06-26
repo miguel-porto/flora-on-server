@@ -19,7 +19,7 @@ public class TaxaParser implements FieldParser {
         Inventory occurrence = (Inventory) bean;
 
         String[] spl = inputValue.split("\\+");
-        if(spl.length == 1) spl = inputValue.split(",");
+//        if(spl.length == 1) spl = inputValue.split(",");
 
         String tmp;
         List<newOBSERVED_IN> obs = occurrence.getUnmatchedOccurrences();

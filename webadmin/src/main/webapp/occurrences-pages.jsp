@@ -1,6 +1,6 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page session="false" %>
+<%@ page session="true" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
@@ -28,14 +28,14 @@
         <input id="editfield" type="text" name="query" autocomplete="off"/>
     </div>
 </div>
-<div id="topbuttons">
+<div id="topbuttons" class="hideincompactview">
 <a class="returntomain" href="/floraon/"><img src="/floraon/images/cap-cor.png" alt="logo"/></a>
 <!--<h1> ${user.getFullName()}</h1>-->
 <!--<div class="button" id="selectpoints">Select</div>-->
 <c:choose>
 <c:when test="${param.w == null || param.w == 'main'}">
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview"><fmt:message key="button.4"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
     </div>  <!-- top buttons -->
 
     <t:inventorymodel />
@@ -51,18 +51,24 @@
     </form>
 
     <div class="heading2">
-        <h2>Your inventories - ${nroccurrences}</h2>
+        <h2>Your inventories - ${nrtotaloccurrences}</h2>
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
-        <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="inventorysummary" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>
-        <!--
-        <div style="float:right">
-            <c:if test="${param.o != null && param.o > 0}">
-            <div class="button anchorbutton"><a href="?w=main&o=${param.o - 200}&c=200">&lt;</a></div>
-            </c:if>
-            <div class="button anchorbutton"><a href="?w=main&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
-        </div>
-        <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
-        -->
+<!--        <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="inventorysummary" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>-->
+        <form method="get" action="/floraon/occurrences" class="inlineblock">
+            <input type="hidden" name="w" value="${param.w}" />
+            <input type="hidden" name="p" value="1" />
+            <fmt:message key="occurrences.1d"/>: <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
+            <input type="submit" class="textbutton" value="Filter" />
+        </form>
+        <c:if test="${filter != null && filter != ''}">
+        <form method="get" action="/floraon/occurrences" class="inlineblock">
+            <input type="hidden" name="w" value="${param.w}" />
+            <input type="hidden" name="p" value="1" />
+            <input type="hidden" name="filter" value="" />
+            <input type="submit" class="textbutton" value="Show all" />
+        </form>
+        </c:if>
+        <t:pager />
     </div>
     <table id="inventorysummary" class="occurrencetable verysmalltext sortable">
         <tr><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
@@ -77,31 +83,22 @@
         </tr>
     </c:forEach>
     </table>
-    <!--
-    <div style="float:right">
-        <c:if test="${param.o != null && param.o > 0}">
-        <div class="button anchorbutton"><a href="?w=main&o=${param.o - 200}&c=200">&lt;</a></div>
-        </c:if>
-        <div class="button anchorbutton"><a href="?w=main&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
-    </div>
-    <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
-    -->
 </c:when>
 
 <c:when test="${param.w == 'openinventory'}">
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.8"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
     </div>  <!-- top buttons -->
 
     <div id="deleteoccurrences" class="hidden">
-        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
+        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
             <div class="heading2">
-                <h2>Confirm deletion of occurrences</h2>
+                <h2><fmt:message key="occurrences.5" /></h2>
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
                 <thead><tr>
-                    <th class="sorttable_nosort selectcol"></th>
+                    <th class="sorttable_nosort selectcol hidden"></th>
                     <th class="smallcol">GPS</th>
                     <th class="bigcol">Taxon</th>
                     <th class="smallcol">Conf</th>
@@ -111,6 +108,8 @@
                     <th class="smallcol">Fot</th>
                     <th class="smallcol">Colh</th>
                     <th class="smallcol">Comment</th>
+                    <th class="smallcol">Notas priv</th>
+                    <th class="smallcol">Ameaças</th>
                 </tr></thead>
                 <tbody></tbody>
             </table>
@@ -172,7 +171,7 @@
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
                     <thead>
                         <tr>
-                            <th class="sorttable_nosort selectcol"></th>
+                            <th class="sorttable_nosort selectcol hidden"></th>
                             <th class="smallcol">GPS</th>
                             <th class="bigcol">Taxon</th>
                             <th class="smallcol">Conf</th>
@@ -182,49 +181,15 @@
                             <th class="smallcol">Fot</th>
                             <th class="smallcol">Colh</th>
                             <th class="smallcol">Comment</th>
+                            <th class="smallcol">Notas priv</th>
+                            <th class="smallcol">Ameaças</th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
-                        <c:if test="${tax.getTaxEnt() == null}">
-                        <tr class="unmatched id2holder geoelement">
-                        </c:if>
-                        <c:if test="${tax.getTaxEnt() != null}">
-                        <tr class="id2holder geoelement">
-                        </c:if>
-                            <td class="select clickable"><div class="selectbutton"></div>
-                                <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
-                                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
-                            </td>
-                            <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
-                            <c:if test="${tax.getTaxEnt() == null}">
-                            <td class="taxon editable" data-name="taxa">${tax.getVerbTaxon()}</td>
-                            </c:if>
-                            <c:if test="${tax.getTaxEnt() != null}">
-                            <td class="taxon editable" data-name="taxa">${tax.getTaxEnt().getName()}</td>
-                            </c:if>
-                            <td class="editable" data-name="confidence">${tax.getConfidence()}</td>
-                            <td class="editable" data-name="phenoState">${tax.getPhenoState()}</td>
-                            <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
-                            <td class="editable" data-name="typeOfEstimate">${tax.getTypeOfEstimate()}</td>
-                            <td class="editable" data-name="hasPhoto"><t:yesno test="${tax.getHasPhoto()}"/></td>
-                            <td class="editable" data-name="hasSpecimen">${tax.getHasSpecimen()}</td>
-                            <td class="editable" data-name="comment">${tax.getComment()}</td>
-                        </tr>
+                        <t:inventoryrow tax="${tax}" inv="${inv}" />
                         </c:forEach>
-
-                        <tr class="dummy id2holder geoelement">
-                            <td class="select clickable"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td>
-                            <td class="editable" data-name="gpsCode"></td>
-                            <td class="taxon editable" data-name="taxa"></td>
-                            <td class="editable" data-name="confidence"></td>
-                            <td class="editable" data-name="phenoState"></td>
-                            <td class="editable" data-name="abundance"></td>
-                            <td class="editable" data-name="typeOfEstimate"></td>
-                            <td class="editable" data-name="hasPhoto"></td>
-                            <td class="editable" data-name="hasSpecimen"></td>
-                            <td class="editable" data-name="comment"></td>
-                        </tr>
+                        <t:inventoryrow />
                     </tbody>
                 </table>
                 <div class="button" id="deleteselectedinv">Delete selected taxa</div>
@@ -236,8 +201,8 @@
 </c:when>
 
 <c:when test="${param.w == 'uploads'}">
-    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.2"/></a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview"><fmt:message key="button.4"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
     </div>  <!-- top buttons -->
     <h1>Uploads</h1>
     <h2>Upload new table</h2>
@@ -265,7 +230,7 @@
             <fmt:message key="error.4a"/>
             <ul>
             <c:forEach var="errors" items="${file.getParseErrors()}">
-                <li>${errors.getVerbTaxon()}</li>
+                <li>${errors}</li>
             </c:forEach>
             </ul>
         </div>
@@ -321,8 +286,8 @@
 
 <c:when test="${param.w == 'fixissues'}">
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.2"/></a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview"><fmt:message key="button.4"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
     </div>  <!-- top buttons -->
     <h1><fmt:message key="occurrences.3"/></h1>
     <c:if test="${nomatchquestions.size() == 0 && matchwarnings.size() == 0 && nomatches.size() == 0 && parseerrors.size() == 0}">
@@ -332,10 +297,10 @@
     <div class="warning">
         <p><fmt:message key="error.10"/></p>
         <fmt:message key="error.10a"/>
-        <t:taxonomicquestions questions="${nomatchquestions}" individualforms="true"/>
-        <!--<form class="poster" data-path="/floraon/occurrences/api/fixtaxonomicissues" data-refresh="true">
+        <t:taxonomicquestions questions="${nomatchquestions}" individualforms="false"/>
+        <form class="poster" data-path="/floraon/occurrences/api/fixtaxonomicissues" data-refresh="true">
         <input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
-        </form>-->
+        </form>
     </div>
     </c:if>
     <c:if test="${matchwarnings.size() > 0}">
@@ -349,23 +314,24 @@
         <p><fmt:message key="error.4"/></p>
         <fmt:message key="error.4b"/>
         <ul><c:forEach var="errors" items="${nomatches}"><li>${errors}</li></c:forEach></ul>
-        <ul><c:forEach var="errors" items="${parseerrors}"><li>${errors.getVerbTaxon()}</li></c:forEach></ul>
+        <ul><c:forEach var="errors" items="${parseerrors}"><li>${errors}</li></c:forEach></ul>
     </div>
     </c:if>
 </c:when>
 
 <c:when test="${param.w == 'occurrenceview'}">
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-    <div class="button anchorbutton"><a href="?w=main"><fmt:message key="button.2"/></a></div>
+    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
+    <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
     <fmt:message key="button.4a"/>
     <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple"><fmt:message key="button.5"/></a></div>
     <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=redlist"><fmt:message key="button.6"/></a></div>
     <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium"><fmt:message key="button.7"/></a></div>
     </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
-        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true">
+        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
             <div class="heading2">
-                <h2>Confirm deletion of occurrences</h2>
+                <h2><fmt:message key="occurrences.5" /></h2>
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
@@ -404,49 +370,7 @@
         <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
             <t:occurrenceheader flavour="${param.flavour}"/>
             <tbody>
-                <tr class="geoelement dummy id1holder">
-                    <td class="select clickable"><div class="selectbutton"></div></td>
-                    <c:choose>
-                    <c:when test="${param.flavour == null || param.flavour == 'simple'}">
-                    <td class="taxon editable" data-name="taxa"></td>
-                    <td class="editable" data-name="confidence"></td>
-                    <td class="editable coordinates" data-name="coordinates"></td>
-                    <td class="editable" data-name="precision"></td>
-                    <td class="editable" data-name="comment"></td>
-                    <td class="editable" data-name="privateNote"></td>
-                    <td class="editable" data-name="date"></td>
-                    <td class="editable" data-name="phenoState"></td>
-                    <td class="editable authors" data-name="observers"></td>
-                    </c:when>
-
-                    <c:when test="${param.flavour == 'redlist'}">
-                    <td class="editable" data-name="date"></td>
-                    <td class="editable authors" data-name="observers"></td>
-                    <td class="editable coordinates" data-name="coordinates"></td>
-                    <td class="editable" data-name="precision"></td>
-                    <td class="editable" data-name="gpsCode"></td>
-                    <td class="taxon editable" data-name="taxa"></td>
-                    <td class="editable" data-name="confidence"></td>
-                    <td class="editable" data-name="phenoState"></td>
-                    <td class="editable" data-name="abundance"></td>
-                    <td class="editable" data-name="typeOfEstimate"></td>
-                    <td class="editable" data-name="hasPhoto"></td>
-                    <td class="editable" data-name="hasSpecimen"></td>
-                    <td class="threats editable" data-name="threats"></td>
-                    <td class="editable" data-name="comment"></td>
-                    </c:when>
-
-                    <c:when test="${param.flavour == 'herbarium'}">
-                    <td class="taxon editable" data-name="taxa"></td>
-                    <td class="editable" data-name="verbLocality"></td>
-                    <td class="editable coordinates" data-name="coordinates"></td>
-                    <td class="editable" data-name="labelData"></td>
-                    <td class="editable" data-name="date"></td>
-                    <td class="editable authors" data-name="collectors"></td>
-                    <td class="editable authors" data-name="determiners"></td>
-                    </c:when>
-                    </c:choose>
-                </tr>
+                <t:occurrencerow flavour="${param.flavour}"/>
             </tbody>
         </table>
     </form>
@@ -472,105 +396,43 @@
 
     <div id="alloccurrences">
         <div class="heading2">
-            <h2><fmt:message key="occurrences.1"/> - ${nroccurrences}</h2>
+            <h2 class="hideincompactview"><fmt:message key="${sessionScope['option-allusers'] ? 'occurrences.6' : 'occurrences.1'}"/> - ${nrtotaloccurrences}
+            <c:if test="${filter != null && filter != ''}"> [filtered ${filter}]</c:if>
+            </h2>
             <div class="button" id="newoccurrence"><fmt:message key="occurrences.1a"/></div>
             <div class="button" id="deleteselected"><fmt:message key="occurrences.1b"/></div>
-            <div class="button" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
+            <div class="button hideincompactview" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
             <div class="button" id="updatemodified"><fmt:message key="inventory.upd"/></div>
-            <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="alloccurrencetable" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>
-            <!--
-            <div style="float:right">
-                <c:if test="${param.o != null && param.o > 0}">
-                <div class="button anchorbutton"><a href="?w=occurrenceview&o=${param.o - 200}&c=200">&lt;</a></div>
-                </c:if>
-                <div class="button anchorbutton"><a href="?w=occurrenceview&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
-            </div>
-            <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
-            -->
+            <c:if test="${param.flavour == 'redlist'}">
+            <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
+            </c:if>
+            <!--<p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="alloccurrencetable" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>-->
+            <form method="get" action="/floraon/occurrences" class="inlineblock">
+                <input type="hidden" name="w" value="${param.w}" />
+                <input type="hidden" name="flavour" value="${param.flavour}" />
+                <input type="hidden" name="p" value="1" />
+                <fmt:message key="occurrences.1d"/>: <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
+                <input type="submit" class="textbutton" value="Filter" />
+            </form>
+            <c:if test="${filter != null && filter != ''}">
+            <form method="get" action="/floraon/occurrences" class="inlineblock">
+                <input type="hidden" name="w" value="${param.w}" />
+                <input type="hidden" name="flavour" value="${param.flavour}" />
+                <input type="hidden" name="p" value="1" />
+                <input type="hidden" name="filter" value="" />
+                <input type="submit" class="textbutton" value="Show all" />
+            </form>
+            </c:if>
+            <t:pager />
         </div>
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
             <t:occurrenceheader flavour="${param.flavour}"/>
             <tbody>
             <c:forEach var="occ" items="${occurrences}">
-                <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-                <tr class="unmatched geoelement id1holder">
-                </c:if>
-                <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-                <tr class="geoelement id1holder">
-                </c:if>
-                    <td class="select clickable">
-                        <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
-                        <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
-                        <div class="selectbutton"></div>
-                    </td>
-                    <c:choose>
-                    <c:when test="${param.flavour == null || param.flavour == 'simple'}">
-                    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
-                    </c:if>
-                    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}</td>
-                    </c:if>
-                    <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
-                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
-                    <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
-                    <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
-                    <td class="editable" data-name="privateNote">${occ._getTaxa()[0].getPrivateComment()}</td>
-                    <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
-                    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
-                    <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
-                    </c:when>
-
-                    <c:when test="${param.flavour == 'redlist'}">
-                    <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
-                    <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
-                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
-                    <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
-                    <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
-                    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
-                    </c:if>
-                    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
-                    </c:if>
-                    <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
-                    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
-                    <td class="editable" data-name="abundance">${occ._getTaxa()[0].getAbundance()}</td>
-                    <td class="editable" data-name="typeOfEstimate">${occ._getTaxa()[0].getTypeOfEstimate()}</td>
-                    <td class="editable" data-name="hasPhoto"><t:yesno test="${occ._getTaxa()[0].getHasPhoto()}"/></td>
-                    <td class="editable" data-name="hasSpecimen">${occ._getTaxa()[0].getHasSpecimen()}</td>
-                    <td class="threats editable" data-name="threats">${occ.getThreats()}</td>
-                    <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
-                    </c:when>
-
-                    <c:when test="${param.flavour == 'herbarium'}">
-                    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
-                    </c:if>
-                    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-                        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
-                    </c:if>
-                    <td class="editable" data-name="verbLocality">${occ.getVerbLocality()}</td>
-                    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
-                    <td class="editable" data-name="labelData">${occ._getTaxa()[0].getLabelData()}</td>
-                    <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
-                    <td class="editable authors" data-name="collectors"><t:usernames idarray="${occ.getCollectors()}" usermap="${userMap}"/></td>
-                    <td class="editable authors" data-name="determiners"><t:usernames idarray="${occ.getDets()}" usermap="${userMap}"/></td>
-                    </c:when>
-                    </c:choose>
-                </tr>
+                <t:occurrencerow flavour="${param.flavour}" occ="${occ}" userMap="${userMap}"/>
             </c:forEach>
             </tbody>
         </table>
-        <!--
-        <div style="float:right">
-            <c:if test="${param.o != null && param.o > 0}">
-            <div class="button anchorbutton"><a href="?w=occurrenceview&o=${param.o - 200}&c=200">&lt;</a></div>
-            </c:if>
-            <div class="button anchorbutton"><a href="?w=occurrenceview&o=${(param.o == null ? 0 : param.o) + 200}&c=200">&gt;</a></div>
-        </div>
-        <p style="float:right">showing ${param.o != null ? (param.o + 1) : 1} to ${param.o != null ? (param.o + 200) : 200}</p>
-        -->
     </div>
 </c:when>
 </c:choose>

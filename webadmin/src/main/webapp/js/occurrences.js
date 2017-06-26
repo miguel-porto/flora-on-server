@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     showPointsOnMap = projectPointsOnMap();
 
-    attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, ',', tabHandler);
-    attachSuggestionHandler('authorsearchbox', '/floraon/checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, ',', tabHandler);
-    attachSuggestionHandler('threatsearchbox', '/floraon/checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, ',', tabHandler);
+    attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
+    attachSuggestionHandler('authorsearchbox', '/floraon/checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
+    attachSuggestionHandler('threatsearchbox', '/floraon/checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
 
     addEvent('mouseup', document.body, function(ev) {
@@ -46,6 +46,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
     for(var i = 0; i < buttons.length; i++) {
         addEvent('click', buttons[i], clickButton);
+    }
+
+    var optionbuttons = document.querySelectorAll('.button.option');
+    for(var i = 0; i < optionbuttons.length; i++) {
+        addEvent('click', optionbuttons[i], clickOptionButton);
     }
 
     var inventories = document.querySelectorAll('.inventory:not(.dummy)');
@@ -90,6 +95,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             rows[i].marker = null;
                         }
                     }
+                    if(!showPointsOnMap) {
+/*
+                        document.getElementById('occurrencemap').classList.add('hidden');
+                        myMap.invalidateSize(false);
+*/
+                    }
                 } else {
                     var count = 0;
                     var dispall = false;
@@ -97,10 +108,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     for(var i=0; i<rows.length; i++) {
                         var gpsc = rows[i].querySelector('td[data-name="gpsCode"]') || rows[i].querySelector('td[data-name="code"]');
                         var loca = rows[i].querySelector('td[data-name="locality"]');
+                        var vloca = rows[i].querySelector('td[data-name="verbLocality"]');
                         if(rows[i].querySelector('td.taxon').textContent.toLowerCase().indexOf(val) == -1
                             && rows[i].querySelector('td[data-name="date"]').textContent.toLowerCase().indexOf(val) == -1
                             && (!gpsc || gpsc.textContent.toLowerCase().indexOf(val) == -1)
                             && (!loca || loca.textContent.toLowerCase().indexOf(val) == -1)
+                            && (!vloca || vloca.textContent.toLowerCase().indexOf(val) == -1)
                             ) {
                                 rows[i].classList.add('hidden');
                                 if(!showPointsOnMap && rows[i].marker) {
@@ -111,17 +124,26 @@ document.addEventListener('DOMContentLoaded', function() {
                             rows[i].classList.remove('hidden');
                             count ++;
                             if(!rows[i].marker) {
-                                if(count >= 1000 && !dispallasked) {
+                                if(count > 1100 && !dispallasked) {
                                     dispallasked = true;
-                                    dispall = confirm('There are more than 1000 points. Do you want to display them all?');
+                                    dispall = confirm('There are more than 1100 points. Do you want to display them all?');
                                 }
-                                if(count < 1000 || (count >= 1000 && dispall)) {
+                                if(count <= 1100 || (count > 1100 && dispall)) {
                                     coo = rows[i].querySelector('.coordinates');
                                     if(!coo.getAttribute('data-lat')) continue;
                                     addPointMarker(parseFloat(coo.getAttribute('data-lat')), parseFloat(coo.getAttribute('data-lng')), rows[i], true);
                                 }
                             }
                         }
+                    }
+                    if(!showPointsOnMap) {
+/*
+                        if(count < 1000 || dispall)
+                            document.getElementById('occurrencemap').classList.remove('hidden');
+                        else
+                            document.getElementById('occurrencemap').classList.add('hidden');
+                        myMap.invalidateSize(false);
+*/
                     }
                 }
             }, 500);
@@ -143,6 +165,29 @@ window.addEventListener('beforeunload', function (ev) {
     } else
         return null;
 });
+
+function clickOptionButton(ev) {
+    var name = ev.target.getAttribute('data-option');
+    var value = ev.target.getAttribute('data-value');
+    var elid = ev.target.getAttribute('data-element');
+    var vbool = (value == 'true');
+    var el = document.getElementById(elid);
+    if(el) {
+        if(vbool) {
+            el.classList.remove('hiddenhard');
+            ev.target.classList.add('selected');
+            ev.target.setAttribute('data-value', false);
+        } else {
+            el.classList.add('hiddenhard');
+            ev.target.classList.remove('selected');
+            ev.target.setAttribute('data-value', true);
+        }
+        myMap.invalidateSize(false);
+    }
+    fetchAJAX('/floraon/occurrences?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value), function(rt) {
+        if(!el) window.location.reload();
+    });
+}
 
 function onConfirmEdit(ev, name, key, parent, dry) {
     if(!dry) return;
@@ -234,21 +279,11 @@ function clickButton(ev) {
         }
     } else {
         switch(b.id) {
+/*
         case 'hidemap':
             ev.target.classList.toggle('selected');
             document.getElementById('occurrencemap').classList.toggle('hidden');
             myMap.invalidateSize(false);
-            break;
-
-        case 'georref-helptoggle':
-            ev.target.classList.toggle('selected');
-            document.getElementById('georref-help').classList.toggle('hidden');
-            break;
-
-        case 'georref-clear':
-            var r = document.getElementById('georref-results');
-            removeGeoElements(r.querySelectorAll('.geoelement'));
-            r.innerHTML = '';
             break;
 
         case 'hidegeorref':
@@ -261,6 +296,18 @@ function clickButton(ev) {
             ev.target.classList.toggle('selected');
             document.getElementById('occurrencetable-holder').classList.toggle('hidden');
             myMap.invalidateSize(false);
+            break;
+*/
+
+        case 'georref-helptoggle':
+            ev.target.classList.toggle('selected');
+            document.getElementById('georref-help').classList.toggle('hidden');
+            break;
+
+        case 'georref-clear':
+            var r = document.getElementById('georref-results');
+            removeGeoElements(r.querySelectorAll('.geoelement'));
+            r.innerHTML = '';
             break;
 
         case 'georref-search':
@@ -426,6 +473,15 @@ function clickOccurrenceTable(ev) {
         selectGeoElement(cell);
     } else if(cell.classList.contains('singleselect')) {    // select row
         selectGeoElement(cell, true, true);
+    } else if(cell.classList.contains('selectcol')) {    // select all
+        var tab = getParentbyClass(cell, 'occurrencetable');
+        if(tab) {
+            var vr = tab.querySelectorAll('tr:not(.hidden) .select');
+            for(var i=0; i<vr.length; i++) {
+                selectGeoElement(vr[i]);
+            }
+        }
+
     } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
         selectGeoElement(cell, true, true);
@@ -514,9 +570,10 @@ function projectPointsOnMap(ota, markerOptions) {
             var ot = [ota];
     }
 
-    if(ot.length > 1000) {
-        document.getElementById('hidemap').classList.remove('selected');
-        document.getElementById('occurrencemap').classList.add('hidden');
+    if(ot.length > 1100) {
+//        document.getElementById('hidemap').classList.remove('selected');
+//        document.getElementById('occurrencemap').classList.add('hidden');
+        console.log('# points: ' + ot.length);
         return false;
     }
     var coo;

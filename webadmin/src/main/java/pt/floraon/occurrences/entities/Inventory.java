@@ -33,7 +33,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String code;
     private String threats;
     private String maintainer;
-    private Float area, totalCover, meanHeight;
+    private Float area, meanHeight;
+    private Float totalCover;
     private String aspect;
     private Integer slope;
     /**
@@ -536,6 +537,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         if (year != null ? !year.equals(that.year) : that.year != null) return false;
         if (month != null ? !month.equals(that.month) : that.month != null) return false;
         if (day != null ? !day.equals(that.day) : that.day != null) return false;
+        if ((year == null && month == null && day == null)  // if any of the dates is null, it's never equal
+                || (that.year == null && that.month == null && that.day == null)) return false;
         if (municipality != null ? !municipality.equals(that.municipality) : that.municipality != null) return false;
         if (county != null ? !county.equals(that.county) : that.county != null) return false;
         if (locality != null ? !locality.equals(that.locality) : that.locality != null) return false;

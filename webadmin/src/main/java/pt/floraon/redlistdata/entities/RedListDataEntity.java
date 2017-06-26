@@ -582,6 +582,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.assessment.setJustification(justification);
     }
 
+    public void setAssessment_FinalJustification(String finalJustification) {
+        this.assessment.setFinalJustification(finalJustification);
+    }
+
     public void setAssessment_PreviousAssessmentListYear(Integer[] previousAssessmentListYear) {
         List<PreviousAssessment> out;
         if(this.getAssessment().getPreviousAssessmentList() == null || this.getAssessment().getPreviousAssessmentList().size() == 0) {

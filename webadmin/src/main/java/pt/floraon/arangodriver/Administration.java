@@ -26,8 +26,8 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
     }
 
     @Override
-    public List<User> getAllUsers() throws FloraOnException {
-        String query = AQLQueries.getString("Administration.1");
+    public List<User> getAllUsers(boolean onlyWithPassword) throws FloraOnException {
+        String query = AQLQueries.getString(onlyWithPassword ? "Administration.1a" : "Administration.1");
         try {
             return database.query(query, null, null, User.class).asListRemaining();
         } catch (ArangoDBException e) {

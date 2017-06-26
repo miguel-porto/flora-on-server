@@ -113,6 +113,8 @@ public interface IOccurrenceDriver {
      */
     Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
+    Iterator<Inventory> findInventoriesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+
     int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
 
     Iterator<Inventory> getInventoriesByIds(String[] inventoryIds) throws DatabaseException;
@@ -166,5 +168,23 @@ public interface IOccurrenceDriver {
      */
     Inventory updateInventory(Inventory inv) throws FloraOnException;
 
+    /**
+     * Replaces the taxon match of the given occurrences
+     * @param changes
+     * @throws FloraOnException
+     */
     void replaceTaxEntMatch(Map<String, TaxonomicChange> changes) throws FloraOnException;
+
+    /**
+     * Fetches all occurrences that match the given filter, or only those of a specific maintainer.
+     * @param filter The filter is searched in taxon name, GPS code, Locality and verbLocality
+     * @param userId
+     * @param offset
+     * @param count
+     * @return
+     * @throws FloraOnException
+     */
+    Iterator<Inventory> findOccurrencesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+
+    int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException;
 }

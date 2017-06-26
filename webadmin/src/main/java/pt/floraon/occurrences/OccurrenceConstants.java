@@ -10,7 +10,8 @@ public final class OccurrenceConstants {
      */
     public enum OccurrenceNaturalization {WILD, CULTIVATED}
     public enum ConfidenceInIdentifiction {CERTAIN, ALMOST_SURE, DOUBTFUL}
-    public enum CoverType {PERCENT_AREA, BRAUN_BLANQUET, TEXTUAL, AREA, OTHER_SCALE}
+    public enum CoverType {BRAUN_BLANQUET, TEXTUAL, AREA, OTHER_SCALE}
     public enum ValidationStatus {SPECIMEN_VERIFIED, ASSUMED_CORRECT, DOUBTFUL, PROBABLY_WRONG, WRONG, NOT_VALIDATED}
+    public enum OccurrenceStatus {ASSUMED_PRESENT, DESTROYED, PROBABLY_MISIDENTIFIED}
 
 }

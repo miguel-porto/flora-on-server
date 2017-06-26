@@ -120,6 +120,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 		TaxEnt tmp;
 		List<TaxEnt> out = new ArrayList<>();
 		boolean ask = true;
+
 		// Genus species rank infrataxon Author [annotation] sensu somework
 		while (nodes.hasNext()) {
 			int levenName;
@@ -133,11 +134,12 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			System.out.println(q.getSensu() + " : " + tmp.getSensu());
 */
 			if (!q.getName().equals(tmp.getName())) {
-				if ((levenName = Common.levenshteinDistance(q.getName(), tmp.getName())) >= 3) {
-//					nodes.remove();
+				if ((levenName = Common.levenshteinDistance(q.getName(), tmp.getName())) >= 3)
 					continue;
-				} else tmpask = true;
-			} else levenName = 0;
+				else
+					tmpask = true;
+			} else
+				levenName = 0;
 
 			if (q.getRankValue() != null && !q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
 					&& !q.getRankValue().equals(tmp.getRankValue())) {
@@ -163,8 +165,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 
 			if (q.getAnnotation() != null && !q.getAnnotation().equals(tmp.getAnnotation())
 					|| (q.getAnnotation() == null && tmp.getAnnotation() != null)) {
-//				nodes.remove();
-				continue;
+			 	continue;
 			}
 
 			if ((q.getSensu() != null && !q.getSensu().equals(tmp.getSensu()))) {
@@ -172,8 +173,17 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 //				nodes.remove();
 				continue;
 			}
+
 			ask &= tmpask;
 			out.add(tmp);
+		}
+		int nrExactMatches = 0;
+		TaxEnt exactMatch = null;
+		for(TaxEnt te : out) {
+			if(te.getName().equals(q.getName())) {
+				exactMatch = te;
+				nrExactMatches++;
+			}
 		}
 /*
 		int eq = 0;
@@ -181,8 +191,13 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			if (te.getName().equals(q.getName())) eq++;
 		}
 */
-		if(askQuestion != null)
-			askQuestion.setValue(out.size() == 0 || (ask && out.size() > 0) || (!ask && out.size() > 1));
+		if(askQuestion != null) {
+			askQuestion.setValue(out.size() == 0 || (ask && out.size() > 0 && nrExactMatches != 1) || (!ask && out.size() > 1 && nrExactMatches != 1));
+			if (nrExactMatches == 1 && askQuestion.getValue() != null && !askQuestion.booleanValue()) {
+				out.clear();
+				out.add(exactMatch);
+			}
+		}
 		return out;
 	}
 }

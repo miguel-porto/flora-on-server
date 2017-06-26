@@ -1,10 +1,12 @@
 package pt.floraon.occurrences;
 
+import org.apache.commons.codec.binary.Hex;
 import pt.floraon.driver.parsers.CSVParser;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.Point2D;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.*;
 
@@ -75,13 +77,16 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("privatenote", new PlainTextParser());
         fieldMappingsSecondRound.put("phenostate", new EnumParser());
         fieldMappingsSecondRound.put("confidence", new EnumParser());
-        fieldMappingsSecondRound.put("hasphoto", new BooleanParser());
+        fieldMappingsSecondRound.put("hasphoto", new EnumParser());
         fieldMappingsSecondRound.put("hasspecimen", new IntegerParser());
         fieldMappingsSecondRound.put("occurrenceuuid", new UUIDParser());
         fieldMappingsSecondRound.put("observationlatitude", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("observationlongitude", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("observationcoordinates", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("labeldata", new PlainTextParser());
+        fieldMappingsSecondRound.put("specificthreats", new PlainTextParser());
+        fieldMappingsSecondRound.put("accession", new PlainTextParser());
+        fieldMappingsSecondRound.put("codHerbario", new AliasFieldParser("accession", fieldMappingsSecondRound));
 
     }
 
@@ -122,7 +127,10 @@ public class OccurrenceParser implements CSVParser {
         for(String key : intersection) {
             if (!fieldMappings.containsKey(key.toLowerCase())) continue;
             try {
-                fieldMappings.get(key.toLowerCase()).parseValue(keyValues.get(key), key.toLowerCase(), inv);
+                String tmp = keyValues.get(key);
+                if(tmp != null) tmp = tmp.trim();
+//                if(tmp != null) System.out.println("Col: "+key.toLowerCase()+" value: "+Hex.encodeHexString(tmp.getBytes()));
+                fieldMappings.get(key.toLowerCase()).parseValue(tmp, key.toLowerCase(), inv);
             } catch(IllegalArgumentException | FloraOnException e) {
                 errors.add(e.getMessage());
             }
@@ -134,7 +142,10 @@ public class OccurrenceParser implements CSVParser {
         for(String key : intersection) {
             if (!fieldMappingsSecondRound.containsKey(key.toLowerCase())) continue;
             try {
-                fieldMappingsSecondRound.get(key.toLowerCase()).parseValue(keyValues.get(key), key.toLowerCase(), inv);
+                String tmp = keyValues.get(key);
+                if(tmp != null) tmp = tmp.trim();
+//                if(tmp != null) System.out.println("Col: "+key.toLowerCase()+" value: "+Hex.encodeHexString(tmp.getBytes()));
+                fieldMappingsSecondRound.get(key.toLowerCase()).parseValue(tmp, key.toLowerCase(), inv);
             } catch(IllegalArgumentException | FloraOnException e) {
                 errors.add(e.getMessage());
             }

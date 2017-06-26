@@ -18,6 +18,7 @@ public class Assessment implements DiffableBean {
     private RedListEnums.CRTags subCategory;
     private RedListEnums.AssessmentCriteria[] criteria;
     private String justification;
+    private String finalJustification;
     private String[] authors;
     private String collaborators;
     private String[] evaluator;
@@ -99,6 +100,12 @@ public class Assessment implements DiffableBean {
         return justification == null ? "" : justification;
     }
 
+    public String getFinalJustification() {
+        return finalJustification == null ? (getJustification().equals("") ? getUpDownListingJustification()
+                : (getJustification() + getUpDownListingJustification()))
+                : finalJustification;
+    }
+
     public RedListEnums.UpDownList getUpDownListing() {
         return upDownListing == null ? RedListEnums.UpDownList.NONE : upDownListing;
     }
@@ -170,6 +177,10 @@ public class Assessment implements DiffableBean {
 
     public void setJustification(String justification) {
         this.justification = justification;
+    }
+
+    public void setFinalJustification(String finalJustification) {
+        this.finalJustification = finalJustification;
     }
 
     public void setAuthors(String[] authors) {

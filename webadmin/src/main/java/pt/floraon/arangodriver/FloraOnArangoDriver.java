@@ -56,6 +56,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(RedListEnums.PopulationSizeReduction.class, new SafeEnumDeserializer<>(RedListEnums.PopulationSizeReduction.class))
 				.registerDeserializer(Privileges.class, new SafeEnumDeserializer<>(Privileges.class))
 				.registerDeserializer(RedListEnums.NrMatureIndividuals.class, new SafeEnumDeserializer<>(RedListEnums.NrMatureIndividuals.class))
+				.registerDeserializer(RedListEnums.HasPhoto.class, new SafeEnumDeserializer<>(RedListEnums.HasPhoto.class, RedListEnums.HasPhoto.FALSE))
 				.registerDeserializer(Precision.class, new VPackDeserializer<Precision>() {
 					@Override
 					public Precision deserialize(

@@ -113,6 +113,7 @@ function fetchAJAX(addr,callback) {
 			    callback(this.responseText);
             } else {
 			    if(this.responseText == '') return;
+			    console.log(this.responseText);
 				var rt=JSON.parse(this.responseText);
 				alert('ERROR: '+rt.msg);
 			}

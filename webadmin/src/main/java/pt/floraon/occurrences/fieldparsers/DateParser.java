@@ -4,11 +4,10 @@ import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.parsers.FieldParser;
+import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,7 +17,48 @@ import java.util.regex.Pattern;
  */
 public class DateParser implements FieldParser {
     static final private Pattern datePattern =
-            Pattern.compile("^ *(?<day>[0-9?-]{1,2})(?:-|/)(?<month>[0-9?-]{1,2})(?:-|/)(?<year>([0-9]{4})|([-?]{1,4})) *$");
+            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>([0-9]{1,4})|([-?]{1,4})) *$");
+
+    static final private Map<String, Integer> months = new HashMap<>();
+
+    static {
+        months.put("I", 1);
+        months.put("II", 2);
+        months.put("III", 3);
+        months.put("IV", 4);
+        months.put("V", 5);
+        months.put("VI", 6);
+        months.put("VII", 8);
+        months.put("VIII", 9);
+        months.put("IX", 9);
+        months.put("X", 10);
+        months.put("XI", 11);
+        months.put("XII", 12);
+        months.put("JAN", 1);
+        months.put("FEV", 2);
+        months.put("MAR", 3);
+        months.put("ABR", 4);
+        months.put("MAI", 5);
+        months.put("JUN", 6);
+        months.put("JUL", 7);
+        months.put("AGO", 8);
+        months.put("SET", 9);
+        months.put("OUT", 10);
+        months.put("NOV", 11);
+        months.put("DEZ", 12);
+        months.put("JANEIRO", 1);
+        months.put("FEVEREIRO", 2);
+        months.put("MARÇO", 3);
+        months.put("ABRIL", 4);
+        months.put("MAIO", 5);
+        months.put("JUNHO", 6);
+        months.put("JULHO", 7);
+        months.put("AGOSTO", 8);
+        months.put("SETEMBRO", 9);
+        months.put("OUTUBRO", 10);
+        months.put("NOVEMBRO", 11);
+        months.put("DEZEMBRO", 12);
+    }
 
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
@@ -26,16 +66,16 @@ public class DateParser implements FieldParser {
         Inventory occurrence = (Inventory) bean;
         Integer day = null, month = null, year = null;
 
-        System.out.println("***** INPUT: "+ inputValue);
+//        System.out.println("***** INPUT: "+ inputValue);
         Matcher matcher = datePattern.matcher(inputValue);
         if(!matcher.find()) {
-            System.out.println("NAtty");
+//            System.out.println("NAtty");
             // try natty for loose date specification
             Parser dp = new Parser();
 
             List<DateGroup> grps = dp.parse(inputValue);
             if(grps.size() == 0)
-                throw new IllegalArgumentException("Date format not recognized.");
+                throw new IllegalArgumentException("Date " + inputValue + " not recognized by Natty.");
 
             for(DateGroup grp : grps) {
                 Calendar c1 = new GregorianCalendar();
@@ -46,20 +86,37 @@ public class DateParser implements FieldParser {
                 System.out.println(Constants.dateFormat.format(grp.getDates().get(0)));
             }
         } else {
-            System.out.println("Regex");
-            try {
-                day = Integer.parseInt(matcher.group("day"));
-            } catch (NumberFormatException e) {
-                day = null;
+            String dayS = matcher.group("day");
+            String monthS = matcher.group("month");
+            if(dayS != null && monthS == null) {
+                String tmpS = dayS;
+                dayS = monthS;
+                monthS = tmpS;
+            }
+
+            if(dayS != null) {
+                try {
+                    day = Integer.parseInt(dayS);
+                } catch (NumberFormatException e) {
+                    day = null;
+                }
+            }
+
+            if(monthS != null) {
+                if(months.containsKey(monthS.toUpperCase()))
+                    month = months.get(monthS.toUpperCase());
+                else {
+                    try {
+                        month = Integer.parseInt(monthS);
+                    } catch (NumberFormatException e) {
+                        month = null;
+                    }
+                }
             }
 
             try {
-                month = Integer.parseInt(matcher.group("month"));
-            } catch (NumberFormatException e) {
-                month = null;
-            }
-
-            try {
+                if(matcher.group("year").length() != 4)
+                    throw new IllegalArgumentException(Messages.getString("error.13", inputValue));
                 year = Integer.parseInt(matcher.group("year"));
             } catch (NumberFormatException e) {
                 year = null;

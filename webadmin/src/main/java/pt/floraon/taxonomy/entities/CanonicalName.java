@@ -26,28 +26,28 @@ public class CanonicalName {
 
     public CanonicalName(String verbatimName) {
         Matcher m = canonicalName.matcher(verbatimName);
-        Log.info("    Verb: " + verbatimName);
+//        Log.info("    Verb: " + verbatimName);
         if(m.find()) {
             this.genus = WordUtils.capitalize(m.group("genus"));
             this.specificEpithet = m.group("species");
             if(this.specificEpithet == null) {
-                Log.info("    Canonical: G=" + genus);
+//                Log.info("    Canonical: G=" + genus);
                 return;
             }
             String rest = m.group("rest");
             if(rest != null) {
-                Log.info("    Canonical: G=" + genus, "; S=", specificEpithet, "; rest=", rest);
+//                Log.info("    Canonical: G=" + genus, "; S=", specificEpithet, "; rest=", rest);
                 this.infraRanks = new ArrayList<>();
                 Matcher m1 = infraTaxa.matcher(rest);
                 while (m1.find()) {
                     if(m1.group("infra") != null) {
                         InfraRank tmp = new InfraRank(m1.group("rank"), m1.group("infra"));
                         this.infraRanks.add(tmp);
-                        Log.info("Infra: ", tmp.toString());
+//                        Log.info("Infra: ", tmp.toString());
                     }
                 }
-            } else
-                Log.info("    Canonical: G=" + genus, "; S=", specificEpithet);
+            }// else
+//                Log.info("    Canonical: G=" + genus, "; S=", specificEpithet);
         }
 
     }

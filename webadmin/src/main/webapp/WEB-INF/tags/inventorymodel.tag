@@ -1,6 +1,7 @@
 <%@ tag description="Inventory model" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
@@ -47,21 +48,12 @@
                 <th class="smallcol">Fot</th>
                 <th class="smallcol">Colh</th>
                 <th class="smallcol">Comment</th>
+                <th class="smallcol">Notas priv</th>
+                <th class="smallcol">Ameaças</th>
             </tr>
         </thead>
         <tbody>
-            <tr class="dummy id2holder geoelement">
-                <td class="hidden"><input type="hidden" name="occurrenceUuid" value=""/></td>
-                <td class="editable" data-name="gpsCode"></td>
-                <td class="taxon editable" data-name="taxa"></td>
-                <td class="editable" data-name="confidence"></td>
-                <td class="editable" data-name="phenoState"></td>
-                <td class="editable" data-name="abundance"></td>
-                <td class="editable" data-name="typeOfEstimate"></td>
-                <td class="editable" data-name="hasPhoto"></td>
-                <td class="editable" data-name="hasSpecimen"></td>
-                <td class="editable" data-name="comment"></td>
-            </tr>
+            <t:inventoryrow />
         </tbody>
     </table>
     <div class="button newtaxon">Add taxon</div>

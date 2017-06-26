@@ -54,7 +54,8 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
                 if(sel)
                     eventFire(sel, 'click');
                 else if(allowFreeText) {
-                    var dry = (document.getElementById(suggestionBoxId).innerHTML == '');   // no suggestions being shown
+//                    var dry = (document.getElementById(suggestionBoxId).innerHTML == '');   // no suggestions being shown
+                    var dry = (document.getElementById(suggestionBoxId).querySelector('li.selected') == null);   // no suggestions being shown or none selected
                     document.getElementById(suggestionBoxId).innerHTML = '';
                     if(onClick) {
                         onClick(ev, querybox.value, null, document.getElementById(suggestionBoxId).parentNode.parentNode, dry);

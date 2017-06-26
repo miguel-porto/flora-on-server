@@ -72,7 +72,7 @@ System.out.println(gs.toJson(getUser()));
         request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
         // make a map of user IDs and names
-        List<User> allUsers = driver.getAdministration().getAllUsers();
+        List<User> allUsers = driver.getAdministration().getAllUsers(false);
         Map<String, String> userMap = new HashMap<>();
         for(User u : allUsers) {
             userMap.put(u.getID(), u.getName());
@@ -395,7 +395,7 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "users":
-                List<User> allusers = driver.getAdministration().getAllUsers();
+                List<User> allusers = driver.getAdministration().getAllUsers(true);
                 Map<String, String> taxonMap1 = new HashMap<>();
 
                 Map<String, Integer> responsibleTextCounter = new HashMap<>();

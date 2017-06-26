@@ -17,6 +17,7 @@ package pt.floraon.geometry.mgrs;
  */
 
 import org.jfree.util.Log;
+import pt.floraon.occurrences.Messages;
 
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -306,7 +307,7 @@ public class MGRSCoordConverter
         int band;
 
         Matcher m = mgrs.matcher(MGRSString);
-        if(!m.find()) throw new IllegalArgumentException(String.format("MGRS string '%s' not understood", MGRSString));
+        if(!m.find()) throw new IllegalArgumentException(Messages.getString("error.12", MGRSString));
 
         if(m.group("zone") == null || m.group("band") == null) {
             if(defaultZones == null) throw new IllegalArgumentException("UTM zone missing and default zones not provided");

@@ -119,7 +119,8 @@ public final class Constants {
 		, DISPERSION((short) 3)
 		, FLOWER_DISPERSION((short) 4)
 		, FRUIT((short) 5)
-		, RESTING((short) 6);
+		, RESTING((short) 6)
+		, FLOWER_FRUIT((short) 7);
 
 		private final Short code;
 		PhenologicalStates (Short code) {

@@ -92,7 +92,7 @@ public class OccurrenceImporterJob implements JobTask {
     public void run(IFloraOn driver) throws FloraOnException, IOException {
         INodeWorker nwd = driver.getNodeWorkerDriver();
         Reader freader;
-        Map<Long,String> lineerrors = new HashMap<>();
+        Map<Long,String> lineerrors = new LinkedHashMap<>();
         InventoryList invList = new InventoryList();
         System.out.print("Reading records ");
 

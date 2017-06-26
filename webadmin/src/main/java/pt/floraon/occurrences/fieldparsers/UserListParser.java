@@ -39,7 +39,9 @@ public class UserListParser implements FieldParser {
         if(inputValue == null || inputValue.trim().equals("")) return;
         Inventory occurrence = (Inventory) bean;
 
-        String[] spl = inputValue.split(",");
+        String[] spl = inputValue.split("\\+");
+        if(spl.length == 1) spl = inputValue.split(",");
+
         String tmp;
         List<String> userIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();

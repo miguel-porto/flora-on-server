@@ -702,7 +702,7 @@
                             <tr><td>Category</td><td>${rlde.getPopulation().getSeverelyFragmented().getLabel()}</td></tr>
                             <tr><td>Justification</td><td>${rlde.getPopulation().getSeverelyFragmentedJustification()}</td></tr>
                         </c:if>
-                            <tr><td>Mean area of sites</td><td><fmt:formatNumber value="${meanLocationArea}" maxFractionDigits="1"/> hectares</td></tr>
+<!--                            <tr><td>Mean area of sites</td><td><fmt:formatNumber value="${meanLocationArea}" maxFractionDigits="1"/> hectares</td></tr> -->
                         </table>
                     </td></tr>
                     <tr class="section3"><td class="title">3.7</td><td>Extreme fluctuations in population size</td><td>
@@ -1177,7 +1177,7 @@
                         </c:if>
                     </td></tr>
                 </c:if>
-                <tr class="section9 textual"><td class="title">9.3</td><td>Assessment justification</td><td>
+                <tr class="section9 textual"><td class="title">9.3</td><td><fmt:message key="DataSheet.label.9.3" /></td><td>
                     <t:editabletext
                         privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}"
                         value="${rlde.getAssessment().getJustification()}"
@@ -1279,6 +1279,17 @@
                                         privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}"
                                         value="${rlde.getAssessment().getUpDownListingJustification()}"
                                         name="assessment_UpDownListingJustification"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="title">9.4.6</td>
+                                <td><fmt:message key="DataSheet.label.9.4.6" /></td>
+                                <td>
+                                    ${rlde.getAssessment().getFinalJustification()}
+<!--                                    <t:editabletext
+                                        privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}"
+                                        value="${rlde.getAssessment().getFinalJustification()}"
+                                        name="assessment_FinalJustification"/> -->
                                 </td>
                             </tr>
                         </table>
@@ -1545,7 +1556,7 @@
                         <td>${occ.getThreats()}</td>
                         <td>${occ.getOccurrence().getAbundance()}</td>
                         <td>${occ.getOccurrence().getTypeOfEstimate()}</td>
-                        <td><t:yesno test="${occ.getOccurrence().getHasPhoto()}"/></td>
+                        <td>${occ.getOccurrence().getHasPhoto().getLabel()}</td>
                         <td>${occ.getOccurrence().getHasSpecimen()}</td>
                     </tr>
                 </c:forEach>

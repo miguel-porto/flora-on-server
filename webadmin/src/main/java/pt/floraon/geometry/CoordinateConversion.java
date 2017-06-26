@@ -458,6 +458,7 @@ public final class CoordinateConversion {
 	public static UTMCoordinate MGRSToUTM(String mgrutm) {
 		MGRSCoordConverter cnv = new MGRSCoordConverter();
 		UTMCoord utm = cnv.convertMGRSToUTM(mgrutm, defaultUTMZones);
+		if(utm == null) return null;
 		int half = (int) Math.pow(10, (5 - utm.getMGRS().precision)) / 2;
 		Precision prec = new Precision();
 		prec.setSquare(half * 2);

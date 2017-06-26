@@ -417,6 +417,10 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.MANAGE_REDLIST_USERS);
 	}
 
+	public boolean canMODIFY_OCCURRENCES()  {
+		return hasPrivilege(Privileges.MODIFY_OCCURRENCES);
+	}
+
 	public void addTaxonPrivileges(String[] taxa, String[] privileges) {
 		if(this.taxonPrivileges == null)
 			this.taxonPrivileges = new ArrayList<>();

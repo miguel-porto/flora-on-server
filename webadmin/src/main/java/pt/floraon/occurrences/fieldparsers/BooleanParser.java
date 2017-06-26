@@ -24,12 +24,6 @@ public class BooleanParser implements FieldParser {
         }
 //System.out.println(inputFieldName.toLowerCase()+": "+value);
         switch (inputFieldName.toLowerCase()) {
-            case "hasphoto":
-                if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
-                    obs.setHasPhoto(value);
-                break;
 
             default:
                 throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));

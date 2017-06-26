@@ -50,6 +50,8 @@ public class UTMCoordinateParser implements FieldParser {
                 String utm = cc.latLon2UTM(ll[0], ll[1]);
 */
                 UTMCoordinate utm = CoordinateConversion.MGRSToUTM(inputValue);
+                if(utm == null)
+                    throw new IllegalArgumentException(Messages.getString("error.12", inputValue));
                 LatLongCoordinate ll = CoordinateConversion.UtmToLatLonWGS84(utm.getXZone(), utm.getYZone(), utm.getX(), utm.getY());
                 occurrence.setLatitude(ll.getLatitude());
                 occurrence.setLongitude(ll.getLongitude());

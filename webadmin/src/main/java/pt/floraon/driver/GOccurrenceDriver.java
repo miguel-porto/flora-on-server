@@ -37,10 +37,10 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
 
             try {
                 te = TaxEnt.parse(oi.getVerbTaxon());
-            } catch (FloraOnException e) {
+            } catch (FloraOnException e) {  // could not even parse the name
                 if(inventories != null)
 //                    inventories.addQuestion(oi.getVerbTaxon(), oi.getUuid(), null);
-                    inventories.addParseError(oi);
+                    inventories.addParseError(oi.getVerbTaxon());
                 Log.warn(e.getMessage());
                 oi.setTaxEntMatch("");
                 continue;

@@ -8,7 +8,7 @@ import java.util.List;
  * Created by miguel on 26-11-2016.
  */
 public interface IAdministration {
-    List<User> getAllUsers() throws FloraOnException;
+    List<User> getAllUsers(boolean onlyWithPassword) throws FloraOnException;
     INodeKey createUser(User user) throws FloraOnException;
     User getUser(INodeKey id) throws FloraOnException;
     User getUser(String name) throws FloraOnException;

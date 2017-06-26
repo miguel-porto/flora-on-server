@@ -40,6 +40,8 @@ public class PlainTextParser implements FieldParser {
             case "comment":
             case "privatenote":
             case "labeldata":
+            case "specificthreats":
+            case "accession":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
                 for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
@@ -49,6 +51,8 @@ public class PlainTextParser implements FieldParser {
                         case "comment": obs.setComment(inputValue); break;
                         case "privatenote": obs.setPrivateComment(inputValue); break;
                         case "labeldata": obs.setLabelData(inputValue); break;
+                        case "specificthreats": obs.setSpecificThreats(inputValue); break;
+                        case "accession": obs.setAccession(inputValue); break;
                     }
                 break;
 

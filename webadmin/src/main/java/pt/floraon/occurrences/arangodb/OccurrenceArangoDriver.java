@@ -62,7 +62,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public int getUnmatchedOccurrencesOfMaintainerCount(INodeKey userId) throws DatabaseException {
-        String query = "occurrencequery.6a.count";
+        String query = userId == null ? "occurrencequery.6a.nouser.count" : "occurrencequery.6a.count";
         try {
             return database.query(
                     AQLOccurrenceQueries.getString(query, userId == null ? null : userId.toString())
@@ -78,7 +78,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         try {
             return database.query(
                     AQLOccurrenceQueries.getString(query, userId == null ? null : userId.toString())
-                    , null, null, Inventory.class);
+                    , null, new AqlQueryOptions().ttl(120), Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -116,10 +116,11 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     public Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
+        String query = authorId == null ?
+                AQLOccurrenceQueries.getString("occurrencequery.4.nouser", null, offset, count)
+                : AQLOccurrenceQueries.getString("occurrencequery.4", authorId.getID(), offset, count);
         try {
-            return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.4", authorId.getID(), offset, count)
-                    , null, null, Inventory.class);
+            return database.query(query, null, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -127,10 +128,11 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public int getOccurrencesOfMaintainerCount(INodeKey authorId) throws DatabaseException {
+        String query = authorId == null ?
+                AQLOccurrenceQueries.getString("occurrencequery.4b.nouser")
+                : AQLOccurrenceQueries.getString("occurrencequery.4b", authorId.getID());
         try {
-            return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.4b", authorId.getID())
-                    , null, null, Integer.class).next();
+            return database.query(query, null, null, Integer.class).next();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -153,10 +155,32 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     public Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
+        String query = authorId == null ?
+                AQLOccurrenceQueries.getString("occurrencequery.4a.nouser", null, offset, count)
+                : AQLOccurrenceQueries.getString("occurrencequery.4a", authorId.getID(), offset, count);
+
+        try {
+            return database.query(query, null, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> findInventoriesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
+        Map<String, Object> bindVars = new HashMap<>();
+        if(offset == null) offset = 0;
+        if(count == null) count = 999999;
+        bindVars.put("query", "%" + filter + "%");
+        bindVars.put("offset", offset);
+        bindVars.put("count", count);
+        if(userId != null)
+            bindVars.put("user", userId.toString());
+
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.4a", authorId.getID(), offset, count)
-                    , null, null, Inventory.class);
+                    AQLOccurrenceQueries.getString(userId == null ? "occurrencequery.9a" : "occurrencequery.9")
+                    , bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -164,10 +188,10 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException {
+        String query = authorId == null ? AQLOccurrenceQueries.getString("occurrencequery.4a.nouser.count")
+                : AQLOccurrenceQueries.getString("occurrencequery.4a.count", authorId.getID());
         try {
-            return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.4a.count", authorId.getID())
-                    , null, null, Integer.class).next();
+            return database.query(query, null, null, Integer.class).next();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -299,6 +323,42 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 e.printStackTrace();
                 throw new DatabaseException(e.getMessage());
             }
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> findOccurrencesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
+        Map<String, Object> bindVars = new HashMap<>();
+        if(offset == null) offset = 0;
+        if(count == null) count = 999999;
+        bindVars.put("query", "%" + filter + "%");
+        bindVars.put("offset", offset);
+        bindVars.put("count", count);
+        if(userId != null)
+            bindVars.put("user", userId.toString());
+
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString(userId == null ? "occurrencequery.8a" : "occurrencequery.8")
+                    , bindVars, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException {
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("query", "%" + filter + "%");
+        if(userId != null)
+            bindVars.put("user", userId.toString());
+
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString(userId == null ? "occurrencequery.8a.count" : "occurrencequery.8.count")
+                    , bindVars, null, Integer.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
         }
     }
 }

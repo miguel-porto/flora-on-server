@@ -1,8 +1,9 @@
 package pt.floraon.occurrences;
 
-import pt.floraon.driver.utils.StringUtils;
 
 /**
+ * Represents a change that is to be committed to the database in the form of a series of occurrence UUIDs whose taxon
+ * is to be changed.
  * Created by miguel on 03-06-2017.
  */
 public class TaxonomicChange {

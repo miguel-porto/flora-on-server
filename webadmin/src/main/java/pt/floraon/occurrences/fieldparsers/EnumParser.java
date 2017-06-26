@@ -36,6 +36,7 @@ public class EnumParser implements FieldParser {
         phenologicalStatesMap.put("c", Constants.PhenologicalStates.FRUIT);
         phenologicalStatesMap.put("fruto", Constants.PhenologicalStates.FRUIT);
         phenologicalStatesMap.put("fruit", Constants.PhenologicalStates.FRUIT);
+        phenologicalStatesMap.put("fc", Constants.PhenologicalStates.FLOWER_FRUIT);
 
         confidenceMap.put("c", OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN);
         confidenceMap.put("a", OccurrenceConstants.ConfidenceInIdentifiction.ALMOST_SURE);
@@ -44,48 +45,83 @@ public class EnumParser implements FieldParser {
 
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
-        if (inputValue == null) return;
+        if (inputValue == null || inputValue.equals("")) return;
         Inventory occurrence = (Inventory) bean;
 
         switch (inputFieldName.toLowerCase()) {
             case "typeofestimate":
+            case "hasphoto":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
 
-                RedListEnums.TypeOfPopulationEstimate value;
-                switch(inputValue.toLowerCase()) {
-                    case "e":   // quantitative estimation
-                    case "estimativa":
-                    case "estimate":
-                        value = RedListEnums.TypeOfPopulationEstimate.APPROXIMATE_COUNT;
-                        break;
-
-                    case "c":   // quantitative estimation
-                    case "contagem":
-                    case "count":
-                        value = RedListEnums.TypeOfPopulationEstimate.EXACT_COUNT;
-                        break;
-
-                    case "g":   // quantitative estimation
-                    case "grosseira":
-                    case "rough":
-                        value = RedListEnums.TypeOfPopulationEstimate.ROUGH_ESTIMATE;
-                        break;
-
-                    case "":    // TODO: how to clear field?
-                        value = null;
-                        break;
-
-                    default:
-                        try {
-                            value = RedListEnums.TypeOfPopulationEstimate.valueOf(inputValue);
-                        } catch(IllegalArgumentException e) {
-                            throw new IllegalArgumentException(inputValue + " not understood, use one of 'e', 'c' or 'r'");
-                        }
-                }
-
                 for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
-                    obs.setTypeOfEstimate(value);
+                    switch (inputFieldName.toLowerCase()) {
+                        case "typeofestimate":
+                            RedListEnums.TypeOfPopulationEstimate value;
+                            switch(inputValue.toLowerCase()) {
+                                case "e":   // quantitative estimation
+                                case "estimativa":
+                                case "estimate":
+                                    value = RedListEnums.TypeOfPopulationEstimate.APPROXIMATE_COUNT;
+                                    break;
+
+                                case "c":   // quantitative estimation
+                                case "contagem":
+                                case "count":
+                                    value = RedListEnums.TypeOfPopulationEstimate.EXACT_COUNT;
+                                    break;
+
+                                case "g":   // quantitative estimation
+                                case "grosseira":
+                                case "rough":
+                                    value = RedListEnums.TypeOfPopulationEstimate.ROUGH_ESTIMATE;
+                                    break;
+
+                                case "":    // TODO: how to clear field?
+                                    value = null;
+                                    break;
+
+                                default:
+                                    try {
+                                        value = RedListEnums.TypeOfPopulationEstimate.valueOf(inputValue);
+                                    } catch(IllegalArgumentException e) {
+                                        throw new IllegalArgumentException(inputValue + " not understood, use one of 'e', 'c' or 'r'");
+                                    }
+                            }
+                            obs.setTypeOfEstimate(value);
+                            break;
+
+                        case "hasphoto":
+                            RedListEnums.HasPhoto value1;
+                            switch(inputValue.toLowerCase()) {
+                                case "s":
+                                case "x":
+                                case "y":
+                                case "1":
+                                case "yes":
+                                    value1 = RedListEnums.HasPhoto.TRUE;
+                                    break;
+
+                                case "a":
+                                case "t":
+                                case "threat":
+                                    value1 = RedListEnums.HasPhoto.THREAT;
+                                    break;
+
+                                case "sa":
+                                case "as":
+                                case "ax":
+                                case "xa":
+                                    value1 = RedListEnums.HasPhoto.SPECIMEN_THREAT;
+                                    break;
+
+                                default:
+                                    value1 = RedListEnums.HasPhoto.FALSE;
+                            }
+                            obs.setHasPhoto(value1);
+                            break;
+                    }
+
                 break;
 
             case "phenostate":

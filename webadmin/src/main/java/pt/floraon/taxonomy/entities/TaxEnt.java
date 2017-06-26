@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jline.internal.Log;
 import org.apache.commons.csv.CSVPrinter;
 
 import com.google.gson.JsonObject;

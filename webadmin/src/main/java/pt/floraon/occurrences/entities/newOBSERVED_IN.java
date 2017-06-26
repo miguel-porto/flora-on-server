@@ -33,15 +33,17 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
     private String accession;
     private String abundance;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
-    private String cover;
-    private OccurrenceConstants.CoverType coverScale;
-    private Boolean hasPhoto;
+    private Float cover;   // percentage cover 0-100
+    private String coverIndex;  // custom cover/abundance scale (e.g. Braun-Blanquet, etc.)
+    private OccurrenceConstants.CoverType coverIndexScale;
+    private RedListEnums.HasPhoto hasPhoto;
     private Integer hasSpecimen;
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
     private Date dateInserted;
     private UUID uuid;
     private String gpsCode;
+    private String specificThreats;
     /**
      * Field to hold the matched TaxEnt ID
      */
@@ -134,27 +136,35 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
         this.typeOfEstimate = typeOfEstimate;
     }
 
-    public String getCover() {
+    public Float getCover() {
         return cover;
     }
 
-    public void setCover(String cover) {
+    public void setCover(Float cover) {
         this.cover = cover;
     }
 
-    public OccurrenceConstants.CoverType getCoverScale() {
-        return coverScale;
+    public String getCoverIndex() {
+        return coverIndex;
     }
 
-    public void setCoverScale(OccurrenceConstants.CoverType coverScale) {
-        this.coverScale = coverScale;
+    public void setCoverIndex(String coverIndex) {
+        this.coverIndex = coverIndex;
     }
 
-    public Boolean getHasPhoto() {
+    public OccurrenceConstants.CoverType getCoverIndexScale() {
+        return coverIndexScale;
+    }
+
+    public void setCoverIndexScale(OccurrenceConstants.CoverType coverIndexScale) {
+        this.coverIndexScale = coverIndexScale;
+    }
+
+    public RedListEnums.HasPhoto getHasPhoto() {
         return hasPhoto;
     }
 
-    public void setHasPhoto(Boolean hasPhoto) {
+    public void setHasPhoto(RedListEnums.HasPhoto hasPhoto) {
         this.hasPhoto = hasPhoto;
     }
 
@@ -247,6 +257,14 @@ public class newOBSERVED_IN extends GeneralDBEdge implements Serializable, Diffa
             return "*";
         else
             return String.format(Locale.ROOT, "%.5f, %.5f", this.getObservationLatitude(), this.getObservationLongitude());
+    }
+
+    public String getSpecificThreats() {
+        return specificThreats;
+    }
+
+    public void setSpecificThreats(String specificThreats) {
+        this.specificThreats = specificThreats;
     }
 
     @Override
