@@ -5,7 +5,7 @@ import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.*;
@@ -22,7 +22,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
     public void matchTaxEntNames(Inventory inventory, boolean createNew, boolean doMatch, InventoryList inventories) throws FloraOnException {
         INodeWorker nwd = driver.getNodeWorkerDriver();
         MutableBoolean ask = new MutableBoolean(false);
-        for(newOBSERVED_IN oi : inventory.getUnmatchedOccurrences()) {
+        for(OBSERVED_IN oi : inventory.getUnmatchedOccurrences()) {
             TaxEnt te, te1;
             List<TaxEnt> matched;
             Log.info("Verbose name: "+ oi.getVerbTaxon());

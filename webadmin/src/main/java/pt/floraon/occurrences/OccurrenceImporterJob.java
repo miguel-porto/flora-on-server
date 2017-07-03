@@ -18,9 +18,8 @@ import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.fieldparsers.*;
-import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -79,7 +78,7 @@ public class OccurrenceImporterJob implements JobTask {
                     if (mainObserver)
                         inv.setObservers(new String[] {user.getID()});
                     inv.setMaintainer(user.getID());
-                    inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+                    inv.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
 //                    System.out.println(pm.getName()+": "+ p.getCoordinates().get(0).getObservationLatitude()+", "+p.getCoordinates().get(0).getObservationLongitude());
                     output.add(inv);
                 } else
@@ -127,7 +126,7 @@ public class OccurrenceImporterJob implements JobTask {
                     Map<String, String> recordValues = new HashMap<>();
                     try {
                         for (String col : headers.keySet())
-                            recordValues.put(col, record.get(col));
+                            recordValues.put(col.replaceAll("\t", ""), record.get(col).replaceAll("\t", ""));
 
                         occurrenceParser.parseFields(recordValues, inv);
                     } catch (FloraOnException | IllegalArgumentException e) {
@@ -191,11 +190,11 @@ public class OccurrenceImporterJob implements JobTask {
 //            System.out.println(gs.toJson(merged));
 
                         // assemble all species found in these inventories into the merged one
-                        List<newOBSERVED_IN> occ = new ArrayList<>();
+                        List<OBSERVED_IN> occ = new ArrayList<>();
                         for (Inventory inventory : entr.getValue()) {
                             occ.addAll(inventory.getUnmatchedOccurrences());
                         }
-                        if (occ.size() == 0) occ.add(new newOBSERVED_IN(true));
+                        if (occ.size() == 0) occ.add(new OBSERVED_IN(true));
                         merged.setUnmatchedOccurrences(occ);
 
                         if (mainObserver) {

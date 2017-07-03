@@ -3,8 +3,6 @@ package pt.floraon.redlistdata.dataproviders;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.IFloraOn;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
-import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
@@ -34,14 +32,18 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
         }
 
         occurrenceList = new ArrayList<>();
+//        Gson gs = new GsonBuilder().setPrettyPrinting().create();
 
         it = result.iterator();
         while(it.hasNext()) {
             Inventory inv = it.next();
+/*
             String[] mainObserver = inv._getObserverNames();
             SimpleOccurrence so;
-            newOBSERVED_IN te = inv._getTaxa()[0];
+            OBSERVED_IN te = inv._getTaxa()[0];
             CanonicalName cn = te.getTaxEnt().getCanonicalName();
+*/
+//            System.out.println(gs.toJson(inv));
             this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), inv));
 /*
             this.occurrenceList.add(so = new SimpleOccurrence(this.getDataSource(), inv.getLatitude(), inv.getLongitude(), inv.getYear()

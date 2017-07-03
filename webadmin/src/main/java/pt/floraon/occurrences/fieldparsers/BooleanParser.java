@@ -4,7 +4,6 @@ import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
 
 /**
  * Created by miguel on 31-03-2017.

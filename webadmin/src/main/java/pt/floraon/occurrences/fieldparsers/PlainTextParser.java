@@ -4,7 +4,7 @@ import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 
 /**
  * Created by miguel on 14-02-2017.
@@ -43,8 +43,8 @@ public class PlainTextParser implements FieldParser {
             case "specificthreats":
             case "accession":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
-                for(newOBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
+                    occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
+                for(OBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
                     switch (inputFieldName.toLowerCase()) {
                         case "abundance": obs.setAbundance(inputValue); break;
                         case "gpscode": obs.setGpsCode(inputValue); break;

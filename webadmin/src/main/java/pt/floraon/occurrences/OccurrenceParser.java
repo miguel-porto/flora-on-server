@@ -77,6 +77,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("privatenote", new PlainTextParser());
         fieldMappingsSecondRound.put("phenostate", new EnumParser());
         fieldMappingsSecondRound.put("confidence", new EnumParser());
+        fieldMappingsSecondRound.put("presencestatus", new EnumParser());
         fieldMappingsSecondRound.put("hasphoto", new EnumParser());
         fieldMappingsSecondRound.put("hasspecimen", new IntegerParser());
         fieldMappingsSecondRound.put("occurrenceuuid", new UUIDParser());
@@ -108,6 +109,7 @@ public class OccurrenceParser implements CSVParser {
         List<String> errors = new ArrayList<>();
 
         for(String name : names) {
+            name = name.replaceAll("\t", "");
             if(name.trim().length() == 0) continue;
             if (!fieldMappings.containsKey(name.toLowerCase()) && !fieldMappingsSecondRound.containsKey(name.toLowerCase()))
                 errors.add(Messages.getString("error.1", name));
@@ -125,6 +127,7 @@ public class OccurrenceParser implements CSVParser {
         Set<String> intersection = new HashSet<>(keyValues.keySet());
         intersection.retainAll(fieldMappings.keySet());
         for(String key : intersection) {
+            key = key.replaceAll("\t", "");
             if (!fieldMappings.containsKey(key.toLowerCase())) continue;
             try {
                 String tmp = keyValues.get(key);
@@ -140,6 +143,7 @@ public class OccurrenceParser implements CSVParser {
         intersection = new HashSet<>(keyValues.keySet());
         intersection.retainAll(fieldMappingsSecondRound.keySet());
         for(String key : intersection) {
+            key = key.replaceAll("\t", "");
             if (!fieldMappingsSecondRound.containsKey(key.toLowerCase())) continue;
             try {
                 String tmp = keyValues.get(key);

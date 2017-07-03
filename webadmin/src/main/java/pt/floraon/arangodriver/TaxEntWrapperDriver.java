@@ -21,10 +21,8 @@ import pt.floraon.driver.TaxonomyException;
 import static pt.floraon.driver.Constants.*;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
-import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.taxonomy.entities.EXISTS_IN;
-import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
@@ -122,19 +120,6 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 	public List<TaxEnt> getHybridAncestry() {
 		// TODO get parent nodes
 		return new ArrayList<TaxEnt>();
-	}
-
-	@Override
-	public int setObservedIn(INodeKey slist,Short doubt,Short validated,PhenologicalStates state,String uuid,Integer weight,String pubnotes,String privnotes,NativeStatus nstate,String dateInserted) throws FloraOnException {
-		OBSERVED_IN a=new OBSERVED_IN(doubt,validated,state,uuid,weight,pubnotes,privnotes,nstate,dateInserted,thisNode.toString(),slist.getID());
-		String query=String.format(
-			AQLQueries.getString("TaxEntWrapperDriver.4")
-			,thisNode, slist.getID(), a.toJsonString());
-		try {
-			return database.query(query,null,null,Integer.class).next();
-		} catch (ArangoDBException | NoSuchElementException e) {
-			throw new DatabaseException(e.getMessage());
-		}
 	}
 
 	@Override

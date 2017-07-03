@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ attribute name="inv" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
-<%@ attribute name="tax" required="false" type="pt.floraon.occurrences.entities.newOBSERVED_IN"%>
+<%@ attribute name="tax" required="false" type="pt.floraon.occurrences.entities.OBSERVED_IN"%>
 
 <c:if test="${tax == null}">
 <tr class="dummy id2holder geoelement">
@@ -19,6 +19,7 @@
     <td class="editable" data-name="comment"></td>
     <td class="editable" data-name="privateNote"></td>
     <td class="editable threats" data-name="specificThreats"></td>
+    <td class="editable" data-name="presenceStatus"></td>
 </tr>
 </c:if>
 
@@ -46,14 +47,15 @@
         <c:if test="${tax.getTaxEnt() != null}">
         <td class="taxon editable" data-name="taxa">${tax.getTaxEnt().getName()}</td>
         </c:if>
-        <td class="editable" data-name="confidence">${tax.getConfidence()}</td>
-        <td class="editable" data-name="phenoState">${tax.getPhenoState()}</td>
+        <td class="editable" data-name="confidence">${tax._getConfidenceLabel()}</td>
+        <td class="editable" data-name="phenoState">${tax._getPhenoStateLabel()}</td>
         <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
-        <td class="editable" data-name="typeOfEstimate">${tax.getTypeOfEstimate()}</td>
-        <td class="editable" data-name="hasPhoto">${tax.getHasPhoto().getLabel()}</td>
+        <td class="editable" data-name="typeOfEstimate">${tax._getTypeOfEstimateLabel()}</td>
+        <td class="editable" data-name="hasPhoto">${tax._getHasPhotoLabel()}</td>
         <td class="editable" data-name="hasSpecimen">${tax.getHasSpecimen()}</td>
         <td class="editable" data-name="comment">${tax.getComment()}</td>
         <td class="editable" data-name="privateNote">${tax.getPrivateComment()}</td>
         <td class="editable threats" data-name="specificThreats">${tax.getSpecificThreats()}</td>
+        <td class="editable" data-name="presenceStatus">${tax._getPresenceStatusLabel()}</td>
     </tr>
 </c:if>

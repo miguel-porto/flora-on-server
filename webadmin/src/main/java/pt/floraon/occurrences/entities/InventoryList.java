@@ -48,7 +48,7 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
         this.parseErrors.add(error);
     }
 
-    public void addNoMatch(newOBSERVED_IN noMatch) {
+    public void addNoMatch(OBSERVED_IN noMatch) {
         this.noMatches.add(noMatch.getVerbTaxon());
     }
 

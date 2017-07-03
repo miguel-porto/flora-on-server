@@ -7,8 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.*;
 import pt.floraon.driver.entities.DBEntity;
 import pt.floraon.driver.entities.GeneralDBEdge;
@@ -112,31 +114,63 @@ public final class Constants {
 		,IMAGE
 	}
 
-	public enum PhenologicalStates {
-		UNKNOWN((short) 0)
-		, VEGETATIVE((short) 1)
-		, FLOWER((short) 2)
-		, DISPERSION((short) 3)
-		, FLOWER_DISPERSION((short) 4)
-		, FRUIT((short) 5)
-		, RESTING((short) 6)
-		, FLOWER_FRUIT((short) 7);
+	public enum PhenologicalStates implements RedListEnums.LabelledEnum {
+		NULL("")
+		, VEGETATIVE("Vegetative")
+		, FLOWER("Flower")
+		, DISPERSION("Dispersion")
+		, FLOWER_DISPERSION("Flower+Dispersion")
+		, FRUIT("Immature fruit")
+		, RESTING("Resting")
+		, FLOWER_FRUIT("Flower+Fruit");
 
-		private final Short code;
-		PhenologicalStates (Short code) {
-			this.code=code;
+		private String label;
+		private static Map<String, PhenologicalStates> acronymMap = new HashMap<>();
+		static {
+			acronymMap.put("f", Constants.PhenologicalStates.FLOWER);
+			acronymMap.put("flower", Constants.PhenologicalStates.FLOWER);
+			acronymMap.put("flor", Constants.PhenologicalStates.FLOWER);
+			acronymMap.put("d", Constants.PhenologicalStates.DISPERSION);
+			acronymMap.put("dispersion", Constants.PhenologicalStates.DISPERSION);
+			acronymMap.put("dispersão", Constants.PhenologicalStates.DISPERSION);
+			acronymMap.put("fd", Constants.PhenologicalStates.FLOWER_DISPERSION);
+			acronymMap.put("df", Constants.PhenologicalStates.FLOWER_DISPERSION);
+			acronymMap.put("v", Constants.PhenologicalStates.VEGETATIVE);
+			acronymMap.put("vegetative", Constants.PhenologicalStates.VEGETATIVE);
+			acronymMap.put("r", Constants.PhenologicalStates.RESTING);
+			acronymMap.put("rest", Constants.PhenologicalStates.RESTING);
+			acronymMap.put("dormancy", Constants.PhenologicalStates.RESTING);
+			acronymMap.put("c", Constants.PhenologicalStates.FRUIT);
+			acronymMap.put("fruto", Constants.PhenologicalStates.FRUIT);
+			acronymMap.put("fruit", Constants.PhenologicalStates.FRUIT);
+			acronymMap.put("fc", Constants.PhenologicalStates.FLOWER_FRUIT);
+			acronymMap.put("", Constants.PhenologicalStates.NULL);
 		}
-		
-		public Short getCode() {
-			return code;
+
+		PhenologicalStates(String label) {
+			this.label = label;
 		}
-		
-    	public static PhenologicalStates getStateFromCode(Short code) {
-    		for(PhenologicalStates tr:values()) {
-    			if(Objects.equals(tr.code, code)) return tr;
-    		}
-    		return null;
-    	}
+
+		@Override
+		public String getLabel() {
+			return label;
+		}
+
+		static public PhenologicalStates getValueFromAcronym(String acronym) throws IllegalArgumentException {
+			Constants.PhenologicalStates value1;
+			if(PhenologicalStates.acronymMap.containsKey(acronym.toLowerCase()))
+				value1 = PhenologicalStates.acronymMap.get(acronym.toLowerCase());
+			else {
+				try {
+					value1 = Constants.PhenologicalStates.valueOf(acronym);
+				} catch(IllegalArgumentException e) {
+					throw new IllegalArgumentException(acronym + " not understood, possible options: "
+							+ StringUtils.implode(", ", PhenologicalStates.acronymMap.keySet().toArray(new String[0])));
+				}
+			}
+
+			return value1;
+		}
 	}
 
 	/**************************************************************************

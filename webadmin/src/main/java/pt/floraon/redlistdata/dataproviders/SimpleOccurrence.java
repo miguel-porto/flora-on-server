@@ -2,12 +2,9 @@ package pt.floraon.redlistdata.dataproviders;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.geometry.CoordinateConversion;
-import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
-import pt.floraon.taxonomy.entities.CanonicalName;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 
 /**
  * Created by miguel on 24-03-2017.
@@ -17,7 +14,7 @@ public class SimpleOccurrence extends Inventory {
      * The data dataSource.
      */
     private final String dataSource;
-    private newOBSERVED_IN occurrence;
+    private OBSERVED_IN occurrence;
     private final int id_reg;
     private final Integer id_ent;
 
@@ -33,11 +30,11 @@ public class SimpleOccurrence extends Inventory {
         return id_ent;
     }
 
-    public newOBSERVED_IN getOccurrence() {
+    public OBSERVED_IN getOccurrence() {
         return occurrence;
     }
 
-    public void setOccurrence(newOBSERVED_IN occurrence) {
+    public void setOccurrence(OBSERVED_IN occurrence) {
         this.occurrence = occurrence;
     }
 
@@ -60,7 +57,7 @@ public class SimpleOccurrence extends Inventory {
         this.id_reg = id_reg;
         this.id_ent = id_ent;
 
-        this.occurrence = new newOBSERVED_IN();
+        this.occurrence = new OBSERVED_IN();
 
         this.setLatitude(latitude);
         this.setLongitude(longitude);

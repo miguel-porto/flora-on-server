@@ -464,4 +464,10 @@ public final class CoordinateConversion {
 		prec.setSquare(half * 2);
 		return new UTMCoordinate(utm.getZone(), utm.getMGRS().getLatitudeBand(), (long) utm.getEasting() + half, (long) utm.getNorthing() + half, prec);
 	}
+
+	public static String LatLongToMGRS(float latitude, float longitude) {
+		MGRSCoordConverter cnv = new MGRSCoordConverter();
+		return cnv.convertGeodeticToMGRS((latitude / 180) * PI, (longitude / 180) * PI, 2);
+	}
+
 }

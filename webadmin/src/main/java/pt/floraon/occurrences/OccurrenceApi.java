@@ -6,12 +6,14 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jline.internal.Log;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.fieldparsers.UserListParser;
 import pt.floraon.server.FloraOnServlet;
 
@@ -152,7 +154,7 @@ public class OccurrenceApi extends FloraOnServlet {
                     }
 
                     if(option.equals("addoccurrences") && inv.getUnmatchedOccurrences().size() == 0)
-                        inv.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+                        inv.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
                 }
 
                 driver.getOccurrenceDriver().matchTaxEntNames(inventories, createTaxa, false);
@@ -211,7 +213,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 }
 
                 for(Inventory tmp1 : tmp) {
-                    for(newOBSERVED_IN occ : tmp1._getOccurrences()) {
+                    for(OBSERVED_IN occ : tmp1._getOccurrences()) {
                         if(occ.getObservationLatitude() == null)
                             occ.setObservationLatitude(tmp1.getLatitude());
                         if(occ.getObservationLongitude() == null)
@@ -232,15 +234,15 @@ public class OccurrenceApi extends FloraOnServlet {
                 }
 
                 // assemble all species found in these inventories into the merged one, and set the codes from respective inventories
-                List<newOBSERVED_IN> occ = new ArrayList<>();
-                newOBSERVED_IN tmpo;
+                List<OBSERVED_IN> occ = new ArrayList<>();
+                OBSERVED_IN tmpo;
                 for (Inventory inventory : tmp) {
                     if(inventory._getOccurrences().size() == 0) {
-                        tmpo = new newOBSERVED_IN(true);
+                        tmpo = new OBSERVED_IN(true);
                         tmpo.setGpsCode(inventory.getCode());
                         occ.add(tmpo);
                     } else {
-                        for (newOBSERVED_IN noi : inventory._getOccurrences()) {
+                        for (OBSERVED_IN noi : inventory._getOccurrences()) {
                             if (noi.getGpsCode() == null) noi.setGpsCode(inventory.getCode());
                         }
                         occ.addAll(inventory._getOccurrences());
@@ -272,7 +274,6 @@ public class OccurrenceApi extends FloraOnServlet {
                 driver.getOccurrenceDriver().matchTaxEntNames(driver.getOccurrenceDriver().getUnmatchedOccurrences(), true, true);
 
                 break;
-
         }
     }
 

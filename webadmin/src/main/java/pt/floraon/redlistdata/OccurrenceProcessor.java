@@ -2,6 +2,8 @@ package pt.floraon.redlistdata;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -47,12 +49,17 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private Integer minimumYear, maximumYear;
 
     /**
-     * Tests whether a given occurrence should be included in the iterator.
+     * Tests whether a given occurrence should be included in the iterator. Occurrences without coordinates are not
+     * included.
      * @param so
      * @return
      */
     private boolean enter(SimpleOccurrence so) {
+        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+//        System.out.println(gs.toJson(so));
+//        System.out.println(so.getLatitude()+", "+so.getLongitude());
         if(so.getLatitude() == null || so.getLongitude() == null) return false;
+//        System.out.println("ENTER");
         if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
         boolean enter;
         enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
@@ -98,7 +105,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
             do {
                 while (this.curIterator.hasNext()) {
-                    if (enter(prevElement = this.curIterator.next())) return true;
+                    prevElement = this.curIterator.next();
+                    if (enter(prevElement)) return true; else prevElement = null;
                 }
                 this.curIteratorDataProvider++;
                 if(this.curIteratorDataProvider >= this.providers.size()) break;
@@ -298,8 +306,11 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
         for (SimpleOccurrence so : this) {
-            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL) continue;
-            tmp1 = new Point2D(tmp = so._getUTMCoordinates());
+            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
+                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT)) continue;
+            tmp = so._getUTMCoordinates();
+            if(tmp == null) continue;
+            tmp1 = new Point2D(tmp);
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             if(protectedAreas != null) {
                 for (Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
@@ -321,7 +332,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         this.nQuads = squares.size();
         this.AOO = (this.nQuads * sizeOfSquare * sizeOfSquare) / 1000000d;
 
-        if (this.size() >= 3) {
+//        if (this.size() >= 3) {
+        if(pointsInPolygons.keySet().size() >= 3) {
             // compute convex convexHull
             // TODO use a projection without zones
 /*

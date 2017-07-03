@@ -26,6 +26,7 @@
         <th class="smallcol">Preci</th>
         <th class="smallcol">GPS</th>
         <th class="bigcol">Taxon</th>
+        <th class="smallcol hideincompactview">Excl</th>
         <th class="smallcol hideincompactview">Conf</th>
         <th class="smallcol hideincompactview">Fen</th>
         <th class="smallcol hideincompactview">Nº</th>
@@ -39,14 +40,18 @@
 
         <c:when test="${flavour == 'herbarium'}">
         <th class="smallcol">Cod.Herb.</th>
+        <th class="smallcol">GPS</th>
         <th class="bigcol">Taxon</th>
+        <th class="smallcol">Excl</th>
         <th class="smallcol">Coord</th>
         <th class="smallcol">Preci</th>
         <th class="smallcol">Local</th>
+        <th class="smallcol">verbLocal</th>
         <th class="smallcol">Date</th>
         <th class="smallcol">Collectors</th>
         <th class="smallcol">Label</th>
-        <th class="smallcol">Dets</th>
+        <th class="bigcol">Notas priv</th>
+        <!--<th class="smallcol">Dets</th>-->
         </c:when>
 
         </c:choose>

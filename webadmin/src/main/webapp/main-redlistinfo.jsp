@@ -1523,6 +1523,7 @@
         <c:if test="${!user.canVIEW_OCCURRENCES()}">
             <div class="warning"><b>You&#8217;re not authorized to enter this page</b></div>
         </c:if>
+
         <c:if test="${user.canVIEW_OCCURRENCES()}">
             <h1>${taxon.getFullName(true)}</h1>
             <c:if test="${occurrences == null}">
@@ -1530,15 +1531,50 @@
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
             <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
+                <div class="button anchorbutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}"><fmt:message key="button.1" /></a></div>
             </c:if>
-            <table class="sortable smalltext" id="recordtable">
+            <fmt:message key="button.2" />:
+            <div class="button anchorbutton ${param.group==null ? 'selected' : ''}"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}">não agrupar</a></div>
+            <div class="button anchorbutton ${param.group==500 ? 'selected' : ''}"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}&group=500">&lt; 500m</a></div>
+            <div class="button anchorbutton ${param.group==2500 ? 'selected' : ''}"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}&group=2500">&lt; 2500m</a></div>
+            <c:if test="${param.group == 500}"><p><fmt:message key="button.2a" /></p></c:if>
+            <c:if test="${param.group == 2500}"><p><fmt:message key="button.2b" /></p></c:if>
+
+            <table class="smalltext ${param.group==null ? 'sortable' : ''}" id="recordtable">
                 <thead>
                     <tr><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Date</th>
                     <th>Author</th><th style="width:180px">Notes</th><th>Precision</th><th>Confid</th><th>Pheno</th>
-                    <th>Ameaças</th><th>Nº ind</th><th>Met</th><th>Fot</th><th>Colh</th>
+                    <th>Ameaças</th><th>Nº ind</th><th>Met</th><th>Fot</th><th>Colh</th><th>Destr?</th>
                     </tr>
                 </thead>
+                <c:if test="${param.group > 0}">
+                <c:forEach var="entr" items="${clustoccurrences.iterator()}">
+                    <tr><td class="separator" colspan="15">&nbsp;</td></tr>
+                    <c:forEach var="occ" items="${entr.getValue()}">
+                    <tr>
+                        <!--<td>${occ.getDataSource()}</td>-->
+                        <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
+                        <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
+                        <td><fmt:formatNumber value="${occ.getLatitude()}" maxFractionDigits="4"/></td>
+                        <td><fmt:formatNumber value="${occ.getLongitude()}" maxFractionDigits="4"/></td>
+                        </c:if>
+                        <td sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
+                        <td>${occ._getObserverNames()[0]}</td>
+                        <td style="width:180px">${occ.getOccurrence().getComment()}</td>
+                        <td>${occ.getPrecision()}</td>
+                        <td>${occ.getOccurrence().getConfidence()}</td>
+                        <td>${occ.getOccurrence().getPhenoState()}</td>
+                        <td>${occ.getThreats()} ${occ.getOccurrence().getSpecificThreats()}</td>
+                        <td>${occ.getOccurrence().getAbundance()}</td>
+                        <td>${occ.getOccurrence().getTypeOfEstimate()}</td>
+                        <td>${occ.getOccurrence().getHasPhoto().getLabel()}</td>
+                        <td>${occ.getOccurrence().getHasSpecimen()}</td>
+                        <td>${occ.getOccurrence()._getPresenceStatusLabel()}</td>
+                    </tr>
+                    </c:forEach>
+                </c:forEach>
+                </c:if>
+                <c:if test="${param.group == null}">
                 <c:forEach var="occ" items="${occurrences.iterator()}">
                     <tr>
                         <!--<td>${occ.getDataSource()}</td>-->
@@ -1547,19 +1583,21 @@
                         <td><fmt:formatNumber value="${occ.getLatitude()}" maxFractionDigits="4"/></td>
                         <td><fmt:formatNumber value="${occ.getLongitude()}" maxFractionDigits="4"/></td>
                         </c:if>
-                        <td>${occ._getDate()}</td>
+                        <td sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
                         <td>${occ._getObserverNames()[0]}</td>
                         <td style="width:180px">${occ.getOccurrence().getComment()}</td>
                         <td>${occ.getPrecision()}</td>
                         <td>${occ.getOccurrence().getConfidence()}</td>
                         <td>${occ.getOccurrence().getPhenoState()}</td>
-                        <td>${occ.getThreats()}</td>
+                        <td>${occ.getThreats()} ${occ.getOccurrence().getSpecificThreats()}</td>
                         <td>${occ.getOccurrence().getAbundance()}</td>
                         <td>${occ.getOccurrence().getTypeOfEstimate()}</td>
                         <td>${occ.getOccurrence().getHasPhoto().getLabel()}</td>
                         <td>${occ.getOccurrence().getHasSpecimen()}</td>
+                        <td>${occ.getOccurrence()._getPresenceStatusLabel()}</td>
                     </tr>
                 </c:forEach>
+                </c:if>
             </table>
         </c:if>
     </c:when>

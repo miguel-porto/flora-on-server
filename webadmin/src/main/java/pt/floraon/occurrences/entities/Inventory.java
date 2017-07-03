@@ -29,7 +29,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private Boolean complete;
     private String habitat, pubNotes, privNotes, geology;
     private String[] tags, observers, collectors, dets;
-    private String verbLocality, locality, municipality, province, county;
+    private String verbLocality;
+    private String locality;
+    private String municipality;
+    private String province;
+    private String county;
     private String code;
     private String threats;
     private String maintainer;
@@ -37,18 +41,19 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private Float totalCover;
     private String aspect;
     private Integer slope;
+
     /**
-     * This list holds the occurrencces ({@link newOBSERVED_IN}) that are not yet matched to the taxonomic graph.
+     * This list holds the occurrencces ({@link OBSERVED_IN}) that are not yet matched to the taxonomic graph.
      * Occurrences that are matched are removed from this list and converted into graph links.
      * All new occurrences shall go in here.
      */
-    private List<newOBSERVED_IN> unmatchedOccurrences;
+    private List<OBSERVED_IN> unmatchedOccurrences;
 
     /**
      * This list shall be populated, when needed, with all matched occurrences in this inventory TODO: this is a workaround for now...
      */
     @Expose(serialize = false)
-    private newOBSERVED_IN[] taxa;
+    private OBSERVED_IN[] taxa;
     /**
      * This list shall be populated, when needed, with the observer names.
      * Remember that only the observer IDs are stored in the field "observers"
@@ -258,6 +263,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public UTMCoordinate _getUTMCoordinates() {
+        if(this.getLatitude() == null || this.getLongitude() == null) return null;
         return CoordinateConversion.LatLonToUtmWGS84(this.getLatitude(), this.getLongitude(), 0);
     }
 
@@ -447,11 +453,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.slope = slope;
     }
 
-    public List<newOBSERVED_IN> getUnmatchedOccurrences() {
+    public List<OBSERVED_IN> getUnmatchedOccurrences() {
         return unmatchedOccurrences == null ? (this.unmatchedOccurrences = new ArrayList<>()) : unmatchedOccurrences;
     }
 
-    public void setUnmatchedOccurrences(List<newOBSERVED_IN> unmatchedOccurrences) {
+    public void setUnmatchedOccurrences(List<OBSERVED_IN> unmatchedOccurrences) {
         this.unmatchedOccurrences = unmatchedOccurrences;
     }
 
@@ -467,14 +473,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.observerNames = observerNames;
     }
 
-    public newOBSERVED_IN[] _getTaxa() {
+    public OBSERVED_IN[] _getTaxa() {
         return StringUtils.isArrayEmpty(this.taxa) ?
                 (unmatchedOccurrences == null ?
-                        new newOBSERVED_IN[0] : unmatchedOccurrences.toArray(new newOBSERVED_IN[unmatchedOccurrences.size()]))
+                        new OBSERVED_IN[0] : unmatchedOccurrences.toArray(new OBSERVED_IN[unmatchedOccurrences.size()]))
                 : this.taxa;
     }
 
-    public List<newOBSERVED_IN> _getOccurrences() {
+    public List<OBSERVED_IN> _getOccurrences() {
         // FIXME: this should return the occurrences that are graph links aswell!
         return getUnmatchedOccurrences();
     }
@@ -485,7 +491,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * @return
      */
     public String _getSampleTaxa(int nTaxa) {
-        newOBSERVED_IN[] tmp = _getTaxa();
+        OBSERVED_IN[] tmp = _getTaxa();
         if(tmp.length == 0) return "[sem taxa]";
         List<String> tmp1 = new ArrayList<>();
         int i;

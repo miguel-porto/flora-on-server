@@ -29,6 +29,7 @@
     <td class="editable" data-name="precision"></td>
     <td class="editable" data-name="gpsCode"></td>
     <td class="taxon editable" data-name="taxa"></td>
+    <td class="editable hideincompactview" data-name="presenceStatus"></td>
     <td class="editable hideincompactview" data-name="confidence"></td>
     <td class="editable hideincompactview" data-name="phenoState"></td>
     <td class="editable hideincompactview" data-name="abundance"></td>
@@ -41,13 +42,18 @@
     </c:when>
 
     <c:when test="${param.flavour == 'herbarium'}">
+    <td class="editable" data-name="accession"></td>
+    <td class="editable" data-name="gpsCode"></td>
     <td class="taxon editable" data-name="taxa"></td>
+    <td class="editable" data-name="presenceStatus"></td>
+    <td class="editable" data-name="locality"></td>
     <td class="editable" data-name="verbLocality"></td>
     <td class="editable coordinates" data-name="coordinates"></td>
     <td class="editable" data-name="labelData"></td>
     <td class="editable" data-name="date"></td>
     <td class="editable authors" data-name="collectors"></td>
-    <td class="editable authors" data-name="determiners"></td>
+    <td class="editable" data-name="privateNote"></td>
+    <!--<td class="editable authors" data-name="determiners"></td>-->
     </c:when>
     </c:choose>
 </tr>
@@ -60,6 +66,7 @@
 <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
 <tr class="geoelement id1holder">
 </c:if>
+<c:set var="coordchanged" value="${occ._getTaxa()[0].getCoordinatesChanged() ? 'textemphasis' : ''}" />
     <td class="select clickable">
         <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
         <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
@@ -73,13 +80,13 @@
     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}</td>
     </c:if>
-    <td class="editable" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
+    <td class="editable" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
     <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
     <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
     <td class="editable" data-name="privateNote">${occ._getTaxa()[0].getPrivateComment()}</td>
     <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
-    <td class="editable" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
+    <td class="editable" data-name="phenoState">${occ._getTaxa()[0]._getPhenoStateLabel()}</td>
     <td class="editable authors" data-name="observers"><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/></td>
     </c:when>
 
@@ -96,11 +103,12 @@
     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
     </c:if>
-    <td class="editable hideincompactview" data-name="confidence">${occ._getTaxa()[0].getConfidence()}</td>
-    <td class="editable hideincompactview" data-name="phenoState">${occ._getTaxa()[0].getPhenoState()}</td>
+    <td class="editable hideincompactview" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
+    <td class="editable hideincompactview" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
+    <td class="editable hideincompactview" data-name="phenoState">${occ._getTaxa()[0]._getPhenoStateLabel()}</td>
     <td class="editable hideincompactview" data-name="abundance">${occ._getTaxa()[0].getAbundance()}</td>
-    <td class="editable hideincompactview" data-name="typeOfEstimate">${occ._getTaxa()[0].getTypeOfEstimate()}</td>
-    <td class="editable hideincompactview" data-name="hasPhoto">${occ._getTaxa()[0].getHasPhoto().getLabel()}</td>
+    <td class="editable hideincompactview" data-name="typeOfEstimate">${occ._getTaxa()[0]._getTypeOfEstimateLabel()}</td>
+    <td class="editable hideincompactview" data-name="hasPhoto">${occ._getTaxa()[0]._getHasPhotoLabel()}</td>
     <td class="editable hideincompactview" data-name="hasSpecimen">${occ._getTaxa()[0].getHasSpecimen()}</td>
     <td class="threats editable" data-name="specificThreats">${occ._getTaxa()[0].getSpecificThreats()}</td>
     <td class="editable" data-name="comment">${occ._getTaxa()[0].getComment()}</td>
@@ -109,19 +117,23 @@
 
     <c:when test="${param.flavour == 'herbarium'}">
     <td class="editable" data-name="accession">${occ._getTaxa()[0].getAccession()}</td>
+    <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
     <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
     </c:if>
     <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
         <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
     </c:if>
-    <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
+    <td class="editable" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
+    <td class="editable coordinates ${coordchanged}" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
     <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
+    <td class="editable" data-name="locality">${occ.getLocality()}</td>
     <td class="editable" data-name="verbLocality">${occ.getVerbLocality()}</td>
     <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
     <td class="editable authors" data-name="collectors"><t:usernames idarray="${occ.getCollectors()}" usermap="${userMap}"/></td>
     <td class="editable" data-name="labelData">${occ._getTaxa()[0].getLabelData()}</td>
-    <td class="editable authors" data-name="determiners"><t:usernames idarray="${occ.getDets()}" usermap="${userMap}"/></td>
+    <td class="editable" data-name="privateNote">${occ._getTaxa()[0].getPrivateComment()}</td>
+    <!--<td class="editable authors" data-name="determiners"><t:usernames idarray="${occ.getDets()}" usermap="${userMap}"/></td>-->
     </c:when>
     </c:choose>
 </tr>

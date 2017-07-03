@@ -2,13 +2,11 @@ package pt.floraon.driver;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gson.JsonObject;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.geocoding.entities.Toponym;
-import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.taxonomy.entities.EXISTS_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -22,7 +20,6 @@ import pt.floraon.occurrences.entities.Author;
 import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.driver.results.NativeStatusResult;
-import pt.floraon.driver.results.Occurrence;
 
 public interface INodeWorker {
 	/***********************
@@ -70,8 +67,6 @@ public interface INodeWorker {
 	Attribute createAttributeFromName(String name, String shortName, String description) throws FloraOnException;
 
 	Character createCharacter(Character charNode) throws FloraOnException;
-
-	void createOccurrence(Occurrence occ) throws FloraOnException;
 
 	/***********************
 	 * FETCHING NODES

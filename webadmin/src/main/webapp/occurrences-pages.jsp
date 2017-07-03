@@ -183,6 +183,7 @@
                             <th class="smallcol">Comment</th>
                             <th class="smallcol">Notas priv</th>
                             <th class="smallcol">Ameaças</th>
+                            <th class="smallcol">Pres status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -322,6 +323,7 @@
 <c:when test="${param.w == 'occurrenceview'}">
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
     <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
+    <div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div>
     <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
     <fmt:message key="button.4a"/>
     <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple"><fmt:message key="button.5"/></a></div>

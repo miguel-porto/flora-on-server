@@ -21,7 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
     myMap.on('click', addNewFeature);
 
 //    attachFormPosters(fileUploadCallback);
-    attachFormPosters();
+    attachFormPosters(null, function(ev) {
+        acceptVisibleSearchbox();
+        return true;
+    });
+
     // click on an occurrence table
     var ot = document.querySelectorAll('.occurrencetable');
     for(var i=0; i<ot.length; i++)
@@ -42,6 +46,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('georref-query').value = txt;
         }
     });
+
+/*
+    document.getElementById("occurrencetable-holder").addEventListener("scroll", function(){
+       var translate = "translate(0,"+this.scrollTop+"px)";
+       this.querySelector("#alloccurrencetable thead").style.transform = translate;
+    });
+*/
 
     var buttons = document.querySelectorAll('.button:not(.anchorbutton)');
     for(var i = 0; i < buttons.length; i++) {
@@ -435,6 +446,8 @@ function clickButton(ev) {
 
 function updateCoords(geoel, lat, lng) {
     var cooel = geoel.querySelector('.coordinates');
+    var oldlat = cooel.getAttribute('data-lat');
+    if(oldlat && parseFloat(oldlat) != 0) console.log('CHANGED');
     cooel.setAttribute('data-lat', lat);
     cooel.setAttribute('data-lng', lng);
     onConfirmEdit({}, Math.round(lat * 1000000) / 1000000 + ', ' + Math.round(lng * 1000000) / 1000000, null, cooel, true);

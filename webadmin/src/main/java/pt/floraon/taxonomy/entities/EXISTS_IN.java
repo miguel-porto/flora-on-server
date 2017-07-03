@@ -9,11 +9,10 @@ import pt.floraon.driver.Constants.PlantIntroducedStatus;
 import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.entities.GeneralDBEdge;
-import pt.floraon.occurrences.entities.OBSERVED_IN;
 
 /**
  * Describes the association of one taxon to one {@link Territory}.
- * It is not meant to describe the observation of a taxon in an inventory, for that we use {@link OBSERVED_IN}
+ * It is not meant to describe the observation of a taxon in an inventory.
  * @author miguel
  *
  */
@@ -24,7 +23,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 	protected PlantIntroducedStatus introducedStatus;
 	protected PlantNaturalizationDegree naturalizationDegree;
 	/**
-	 * If true, it is uncertain the identity of the taxon in this territory, but, shall the identification be correct, then it occurs with the reported NativeStatus and OccurrenceStatus.
+	 * If true, it is uncertain the identity of the taxon in this territory, but, shall the identification be correct, then it occurs with the reported NativeStatus and PresenceStatus.
 	 */
 	protected Boolean uncertainOccurrenceStatus;
 
@@ -108,7 +107,7 @@ public class EXISTS_IN extends GeneralDBEdge {
 	}
 
 	/**
-	 * Is the OccurrenceStatus uncetain in terms of taxonomy (i.e. is the taxon possibly misidentified)? 
+	 * Is the PresenceStatus uncetain in terms of taxonomy (i.e. is the taxon possibly misidentified)?
 	 * @return
 	 */
 	public boolean isUncertainOccurrenceStatus() {

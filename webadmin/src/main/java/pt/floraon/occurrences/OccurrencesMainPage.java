@@ -1,12 +1,18 @@
 package pt.floraon.occurrences;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.jfree.util.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.INodeKey;
+import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -180,6 +186,23 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 }
                 thisRequest.success("Set");
                 break;
+
+            case "downloadoccurrencetable":
+                thisRequest.response.setContentType("text/csv; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.csv\"");
+                CSVPrinter csv = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
+                Iterator<Inventory> it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(driver.asNodeKey(user.getID()), null, null);
+                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
+                while(it1.hasNext()) {
+                    Inventory i2 = it1.next();
+                    OBSERVED_IN oi = i2._getTaxa()[0];
+//                    TaxEnt te = oi.getTaxEnt();
+                    csv.printRecord(oi.getGpsCode(), i2.getVerbLocality(), i2.getLatitude(), i2.getLongitude()
+                             , CoordinateConversion.LatLongToMGRS(i2.getLatitude(), i2.getLongitude())
+                             , i2._getDate(), oi.getVerbTaxon(), oi.getComment(), oi.getPrivateComment());
+                }
+                csv.close();
+                return;
         }
         request.getRequestDispatcher("/main-occurrences.jsp").forward(request, thisRequest.response);
 

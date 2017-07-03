@@ -2,8 +2,10 @@ var isFormSubmitting = false;
 /**
 	Forms must have a data-path attribute
 */
-function formPoster(ev, callback) {
+function formPoster(ev, callback, beforePost) {
 	ev.preventDefault();
+	if(beforePost && !beforePost.call(this, ev)) return;
+
 	if(ev.target.getAttribute('data-confirm')) {
 	    if(!confirm('Are you sure? There\'s no way back.')) return;
 	}
@@ -49,12 +51,12 @@ function formPoster(ev, callback) {
 	});
 }
 
-function attachFormPosters(callback) {
+function attachFormPosters(callback, beforePost) {
 	var forms=document.querySelectorAll('form.poster');
 	for(var i=0;i<forms.length;i++) {
-	    if(callback) {
+	    if(callback || beforePost) {
 	        addEvent('submit', forms[i], function(ev) {
-	            formPoster.call(this, ev, callback);
+	            formPoster.call(this, ev, callback, beforePost);
 	        });
 	    } else addEvent('submit', forms[i], formPoster);
 	}

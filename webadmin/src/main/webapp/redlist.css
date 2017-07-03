@@ -29,6 +29,8 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
     content: " \25B4\25BE"
 }
 
+table td.separator {background-color:#2979ff; line-height:0.4em}
+
 td.bignumber {font-size:1.2em; vertical-align:middle; text-align:center; font-weight:bold; padding: 8px 12px;}
 
 /* CONTENTEDITABLE DIVS */

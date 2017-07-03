@@ -65,7 +65,6 @@ public interface ITaxEntWrapper {
 	 * @throws FloraOnException 
 	 */
 	void setSynonymOf(INodeKey tev) throws FloraOnException;
-	int setObservedIn(INodeKey slist, Short doubt, Short validated, PhenologicalStates state, String uuid, Integer weight, String pubnotes, String privnotes, NativeStatus nstate, String dateInserted) throws FloraOnException;
 	/**
 	 * Associates this taxon with an {@link Attribute}.
 	 * @param parent The attribute

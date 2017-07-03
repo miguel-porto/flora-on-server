@@ -4,7 +4,7 @@ import pt.floraon.driver.Constants;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 
 import java.util.Date;
 import java.util.List;
@@ -22,12 +22,12 @@ public class TaxaParser implements FieldParser {
 //        if(spl.length == 1) spl = inputValue.split(",");
 
         String tmp;
-        List<newOBSERVED_IN> obs = occurrence.getUnmatchedOccurrences();
-        newOBSERVED_IN n;
+        List<OBSERVED_IN> obs = occurrence.getUnmatchedOccurrences();
+        OBSERVED_IN n;
 
         for(String taxon : spl) {
             tmp = taxon.trim();
-            n = new newOBSERVED_IN(true);
+            n = new OBSERVED_IN(true);
             if(tmp.contains("?")) n.setConfidence(OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
             if(tmp.contains("#")) n.setPhenoState(Constants.PhenologicalStates.FLOWER);
             tmp = tmp.replace("?", "");

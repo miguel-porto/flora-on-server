@@ -656,7 +656,7 @@ public class MGRSCoordConverter
      *
      * @return error code
      */
-    public long convertGeodeticToMGRS(double latitude, double longitude, int precision)
+    public String convertGeodeticToMGRS(double latitude, double longitude, int precision)
     {
         MGRSString = "";
 
@@ -706,7 +706,7 @@ public class MGRSCoordConverter
             }
         }
 
-        return error_code;
+        return MGRSString;
     }
 
     /** @return converted MGRS string */
@@ -1068,7 +1068,7 @@ public class MGRSCoordConverter
             }
         }
         MGRSString = MGRSString + " " + sNorth;
-
+System.out.println(MGRSString);
         return (error_code);
     }
 

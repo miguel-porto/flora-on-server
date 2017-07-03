@@ -1,5 +1,8 @@
 package pt.floraon.redlistdata;
 
+import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.OccurrenceConstants;
+
 import java.util.*;
 
 /**
@@ -115,7 +118,22 @@ public class RedListEnums {
         NO_DATA("TypeOfEstimate.1", false)
         , EXACT_COUNT("TypeOfEstimate.2", true)
         , APPROXIMATE_COUNT("TypeOfEstimate.3", true)
-        , ROUGH_ESTIMATE("TypeOfEstimate.4", true);
+        , ROUGH_ESTIMATE("TypeOfEstimate.4", true)
+        , NULL("TypeOfEstimate.5", false);
+
+        private static Map<String, TypeOfPopulationEstimate> acronymMap = new HashMap<>();
+        static {
+            acronymMap.put("e", TypeOfPopulationEstimate.APPROXIMATE_COUNT);
+            acronymMap.put("estimativa", TypeOfPopulationEstimate.APPROXIMATE_COUNT);
+            acronymMap.put("estimate", TypeOfPopulationEstimate.APPROXIMATE_COUNT);
+            acronymMap.put("c", TypeOfPopulationEstimate.EXACT_COUNT);
+            acronymMap.put("contagem", TypeOfPopulationEstimate.EXACT_COUNT);
+            acronymMap.put("count", TypeOfPopulationEstimate.EXACT_COUNT);
+            acronymMap.put("g", TypeOfPopulationEstimate.ROUGH_ESTIMATE);
+            acronymMap.put("grosseira", TypeOfPopulationEstimate.ROUGH_ESTIMATE);
+            acronymMap.put("rough", TypeOfPopulationEstimate.ROUGH_ESTIMATE);
+            acronymMap.put("", TypeOfPopulationEstimate.NULL);
+        }
 
         private String label;
         private boolean trigger;
@@ -133,6 +151,22 @@ public class RedListEnums {
         @Override
         public boolean isTrigger() {
             return this.trigger;
+        }
+
+        static public TypeOfPopulationEstimate getValueFromAcronym(String acronym) throws IllegalArgumentException {
+            TypeOfPopulationEstimate value1;
+            if(TypeOfPopulationEstimate.acronymMap.containsKey(acronym.toLowerCase()))
+                value1 = TypeOfPopulationEstimate.acronymMap.get(acronym.toLowerCase());
+            else {
+                try {
+                    value1 = TypeOfPopulationEstimate.valueOf(acronym.toUpperCase());
+                } catch(IllegalArgumentException e) {
+                    throw new IllegalArgumentException(acronym + " not understood, possible options: "
+                            + StringUtils.implode(", ", TypeOfPopulationEstimate.acronymMap.keySet().toArray(new String[0])));
+                }
+            }
+
+            return value1;
         }
     }
 
@@ -542,7 +576,23 @@ public class RedListEnums {
     }
 
     public enum HasPhoto implements LabelledEnum {
-        FALSE("No"), TRUE("Yes"), THREAT("Threat"), SPECIMEN_THREAT("Spec+Threat");
+        FALSE("No"), TRUE("Yes"), THREAT("Threat"), SPECIMEN_THREAT("Spec+Threat"), NULL("");
+        private static Map<String, HasPhoto> acronymMap = new HashMap<>();
+        static {
+            acronymMap.put("s", TRUE);
+            acronymMap.put("x", TRUE);
+            acronymMap.put("y", TRUE);
+            acronymMap.put("1", TRUE);
+            acronymMap.put("yes", TRUE);
+            acronymMap.put("a", THREAT);
+            acronymMap.put("t", THREAT);
+            acronymMap.put("threat", THREAT);
+            acronymMap.put("sa", SPECIMEN_THREAT);
+            acronymMap.put("as", SPECIMEN_THREAT);
+            acronymMap.put("ax", SPECIMEN_THREAT);
+            acronymMap.put("xa", SPECIMEN_THREAT);
+            acronymMap.put("", HasPhoto.NULL);
+        }
 
         private String label;
 
@@ -554,6 +604,23 @@ public class RedListEnums {
         public String getLabel() {
             return this.label;
         }
+
+        static public HasPhoto getValueFromAcronym(String acronym) throws IllegalArgumentException {
+            HasPhoto value1;
+            if(HasPhoto.acronymMap.containsKey(acronym.toLowerCase()))
+                value1 = HasPhoto.acronymMap.get(acronym.toLowerCase());
+            else {
+                try {
+                    value1 = HasPhoto.valueOf(acronym.toUpperCase());
+                } catch(IllegalArgumentException e) {
+                    throw new IllegalArgumentException(acronym + " not understood, possible options: "
+                            + StringUtils.implode(", ", HasPhoto.acronymMap.keySet().toArray(new String[0])));
+                }
+            }
+
+            return value1;
+        }
+
     }
 
     public enum RedListCategories implements TriggerEnum {

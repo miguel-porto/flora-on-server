@@ -357,6 +357,15 @@ System.out.println(gs.toJson(getUser()));
 
                 request.setAttribute("occurrences", OccurrenceProcessor.iterableOf(
                         driver.getRedListData().getSimpleOccurrenceDataProviders()));
+
+                if(thisRequest.getParameterAsInteger("group", 0) > 0) {
+                    SimpleOccurrenceClusterer clusters = new SimpleOccurrenceClusterer(OccurrenceProcessor.iterableOf(
+                            driver.getRedListData().getSimpleOccurrenceDataProviders()).iterator()
+                            , thisRequest.getParameterAsInteger("group", 0));
+
+                    request.setAttribute("clustoccurrences", clusters.getClusteredOccurrences().asMap().entrySet());
+                }
+//                clusters.getClusteredOccurrences().asMap().entrySet().iterator().next().getValue().iterator().next()
                 break;
 
             case "downloadtaxonrecords":

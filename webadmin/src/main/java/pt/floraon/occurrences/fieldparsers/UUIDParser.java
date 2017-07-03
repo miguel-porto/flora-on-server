@@ -4,7 +4,7 @@ import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 
 import java.util.UUID;
 
@@ -21,7 +21,7 @@ public class UUIDParser implements FieldParser {
         switch (inputFieldName.toLowerCase()) {
             case "occurrenceuuid":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new newOBSERVED_IN(true));
+                    occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
 
                 occurrence.getUnmatchedOccurrences().get(0).setUuid(uuid);
                 for (int i = 1; i < occurrence.getUnmatchedOccurrences().size(); i++)

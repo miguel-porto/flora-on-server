@@ -4,18 +4,14 @@ import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import jline.internal.Log;
-import org.apache.commons.collections.iterators.EmptyIterator;
+import com.arangodb.model.DocumentReadOptions;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.newOBSERVED_IN;
-import pt.floraon.redlistdata.AQLRedListQueries;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.lang.reflect.InvocationTargetException;
@@ -248,50 +244,61 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public Inventory updateInventory(Inventory inv) throws FloraOnException {
+    public Inventory updateInventory(Inventory newinv) throws FloraOnException {
 /*
         if(inv._getOccurrences().size() == 0)
             return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(inv.getID()), inv, false, Inventory.class);
         else {
 */
-
-            Inventory tmp = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(inv.getID()), Inventory.class);
-            Map<UUID, newOBSERVED_IN> origMap = new HashMap<>();
+// TODO HERE changed coords
+            Inventory original = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(newinv.getID()), Inventory.class);
+            Map<UUID, OBSERVED_IN> origMap = new HashMap<>();
             Set<UUID> alreadUpdated = new HashSet<>();
-            for(newOBSERVED_IN occ : tmp._getOccurrences())
+            for(OBSERVED_IN occ : original._getOccurrences())
                 origMap.put(occ.getUuid(), occ);
 
-            Map<UUID, newOBSERVED_IN> updMap = new HashMap<>(origMap);
+            Map<UUID, OBSERVED_IN> updMap = new HashMap<>(origMap);
 
-            for(newOBSERVED_IN occ : inv._getOccurrences()) {
-                if(origMap.containsKey(occ.getUuid())) {
-                    if(alreadUpdated.contains(occ.getUuid())) { // this occurrence was already updated, so add new and copy
+            for(OBSERVED_IN eachNewOcc : newinv._getOccurrences()) {
+                if(origMap.containsKey(eachNewOcc.getUuid())) {    // the original inventory contains this occurrence
+                    if(alreadUpdated.contains(eachNewOcc.getUuid())) { // this occurrence was already updated, so add new and copy
                         UUID newUuid = UUID.randomUUID();
-                        newOBSERVED_IN newOcc;
+                        OBSERVED_IN newOcc;
                         try {
-                            newOcc = BeanUtils.updateBean(newOBSERVED_IN.class, null, origMap.get(occ.getUuid()), occ);
+                            newOcc = BeanUtils.updateBean(OBSERVED_IN.class, null, origMap.get(eachNewOcc.getUuid()), eachNewOcc);
                             newOcc.setUuid(newUuid);
                         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                             throw new FloraOnException(e.getMessage());
                         }
                         updMap.put(newUuid, newOcc);
-                    } else {
+                    } else {    // update existing occurrence
                         try {
-                            updMap.put(occ.getUuid()
-                                    , BeanUtils.updateBean(newOBSERVED_IN.class, null, origMap.get(occ.getUuid()), occ));
+                            OBSERVED_IN tmpori = origMap.get(eachNewOcc.getUuid());
+//                            System.out.println(original.getLatitude()+", "+original.getLongitude()+", "+tmpori.getObservationLatitude()+", "+tmpori.getObservationLongitude()+", "+eachNewOcc.getObservationLatitude()+", "+eachNewOcc.getObservationLongitude());
+                            if(tmpori.getObservationLatitude() == null || tmpori.getObservationLongitude() == null) {
+                                if(original.getLatitude() != null && original.getLongitude() != null
+                                        && eachNewOcc.getObservationLatitude() != null && eachNewOcc.getObservationLongitude() != null) {
+                                    eachNewOcc.setCoordinatesChanged(true);
+                                }
+                            } else {
+                                if (eachNewOcc.getObservationLatitude() != null && eachNewOcc.getObservationLongitude() != null)
+                                    eachNewOcc.setCoordinatesChanged(true);
+                            }
+                            updMap.put(eachNewOcc.getUuid()
+                                    , BeanUtils.updateBean(OBSERVED_IN.class, null, tmpori, eachNewOcc));
                         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                             throw new FloraOnException(e.getMessage());
                         }
                     }
-                } else
-                    updMap.put(occ.getUuid(), occ);
-                alreadUpdated.add(occ.getUuid());
+                } else  // this occurrence is new
+                    updMap.put(eachNewOcc.getUuid(), eachNewOcc);
+                alreadUpdated.add(eachNewOcc.getUuid());
             }
 
-            inv.setUnmatchedOccurrences(new ArrayList<>(updMap.values()));
-            return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(inv.getID()), inv, false, Inventory.class);
+            newinv.setUnmatchedOccurrences(new ArrayList<>(updMap.values()));
+            return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(newinv.getID()), newinv, false, Inventory.class);
        // }
     }
 
