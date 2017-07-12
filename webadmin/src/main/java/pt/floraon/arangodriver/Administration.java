@@ -93,6 +93,16 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
     }
 
     @Override
+    public User removeTaxonFromPrivilegeSet(INodeKey userId, INodeKey taxEntId, int indexOfSet) throws FloraOnException {
+        try {
+            return database.query(AQLQueries.getString("Administration.5", userId.getID(), indexOfSet, taxEntId)
+                    , null, null, User.class).next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
     public User authenticateUser(String username, char[] password) throws FloraOnException {
         String query = AQLQueries.getString("Administration.2", username);
         PasswordAuthentication pa = new PasswordAuthentication();

@@ -1,14 +1,17 @@
 package pt.floraon.redlistdata;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.ArrayUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.IOccurrenceReportDriver;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
-import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -18,7 +21,14 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -92,25 +102,16 @@ System.out.println(gs.toJson(getUser()));
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
 //                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, getUser().canMANAGE_REDLIST_USERS());
                 thisRequest.getUser().resetEffectivePrivileges();
-                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true);
-                int count1 = 0, count2 = 0, count3 = 0;
-                for(RedListDataEntity rlde1 : taxEntList) {
-                    if(rlde1.hasResponsibleForTexts()) count1++;
-                    if(rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.PRELIMINARY) count2++;
-                    if(rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY) count3++;
-                }
-
 //                taxEntList.get(0).getAssessment().getAssessmentStatus().isAssessed()
                 Set<String> at = driver.getRedListData().getRedListTags(territory);
                 Map<String, String> ate = new HashMap<>();
                 for(String s : at)
                     ate.put(sanitizeHtmlId(s), s);
 
+                Iterator<RedListDataEntity> taxEntList =
+                        driver.getRedListData().getAllRedListData(territory, true);
                 request.setAttribute("allTags", ate.entrySet());
                 request.setAttribute("specieslist", taxEntList);
-                request.setAttribute("nrsppwithresponsible", count1);
-                request.setAttribute("nrspppreliminaryassessment", count2);
-                request.setAttribute("nrspptextsready", count3);
                 break;
 
             case "taxon":
@@ -183,7 +184,7 @@ System.out.println(gs.toJson(getUser()));
 
                     OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
                             driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null);
-                    if(occurrenceProcessor.size() > 0) {
+                    if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
                         Double EOO = null, AOO = null, hEOO = null, hAOO = null;
@@ -242,6 +243,7 @@ System.out.println(gs.toJson(getUser()));
                         occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET(), true);
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
+
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
                             historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET(), true);
@@ -403,6 +405,78 @@ System.out.println(gs.toJson(getUser()));
                 wr1.flush();
                 return;
 
+            case "contentasxml":
+                PrintWriter wr2 = thisRequest.response.getWriter();
+                DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder docBuilder;
+                try {
+                    docBuilder = docFactory.newDocumentBuilder();
+                } catch (ParserConfigurationException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+
+                // root elements
+                Document doc = docBuilder.newDocument();
+                Element rootElement = doc.createElement("redlistcontent");
+                doc.appendChild(rootElement);
+
+                Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false);
+                while(rldeit.hasNext()) {
+                    RedListDataEntity rlde = rldeit.next();
+                    if(Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))) continue;
+
+                    Element species = doc.createElement("species");
+                    Element name = doc.createElement("name");
+                    name.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName()));
+
+                    Element distr = doc.createElement("distribution");
+                    distr.appendChild(doc.createTextNode(rlde.getGeographicalDistribution().getDescription()));
+
+                    Element threats = doc.createElement("threats");
+                    threats.appendChild(doc.createTextNode(rlde.getThreats().getDescription()));
+
+                    Element assessjust = doc.createElement("assessmentJustification");
+                    assessjust.appendChild(doc.createTextNode(rlde.getAssessment().getFinalJustification()));
+
+                    Element assesscrit = doc.createElement("assessmentCriteria");
+                    assesscrit.appendChild(doc.createTextNode(rlde.getAssessment()._getCriteriaAsString()));
+
+                    Element assesscat = doc.createElement("assessmentCategory");
+                    if(rlde.getAssessment().getAdjustedCategory() != null)
+                        assesscat.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getShortTag()));
+
+                    Element assesssubcat = doc.createElement("assessmentSubcategory");
+                    if(rlde.getAssessment().getCategory() != null
+                            && rlde.getAssessment().getCategory() == RedListEnums.RedListCategories.CR
+                            && rlde.getAssessment().getSubCategory() != null
+                            && rlde.getAssessment().getSubCategory() != RedListEnums.CRTags.NO_TAG)
+                        assesssubcat.appendChild(doc.createTextNode(rlde.getAssessment().getSubCategory().toString()));
+
+                    species.appendChild(name);
+                    species.appendChild(distr);
+                    species.appendChild(threats);
+                    species.appendChild(assessjust);
+                    species.appendChild(assesscat);
+                    species.appendChild(assesssubcat);
+                    species.appendChild(assesscrit);
+                    rootElement.appendChild(species);
+                }
+
+                thisRequest.response.setContentType("application/xml; charset=utf-8");
+                // write the content into xml file
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer;
+                try {
+                    transformer = transformerFactory.newTransformer();
+                    DOMSource source = new DOMSource(doc);
+                    StreamResult result = new StreamResult(wr2);
+                    transformer.transform(source, result);
+                } catch (TransformerException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                wr2.flush();
+                break;
+
             case "users":
                 List<User> allusers = driver.getAdministration().getAllUsers(true);
                 Map<String, String> taxonMap1 = new HashMap<>();
@@ -499,6 +573,29 @@ System.out.println(gs.toJson(getUser()));
                 }
                 request.setAttribute("jobs", jobs);
                 request.setAttribute("allTags", allt);
+                break;
+
+            case "report":
+                Date from = null, to = null;
+                try {
+                    from = DateParser.parseDateAsDate(thisRequest.getParameterAsString("fromdate"));
+                    to = DateParser.parseDateAsDate(thisRequest.getParameterAsString("todate"));
+                } catch(IllegalArgumentException e) {
+                    warnings.add(e.getMessage());
+                    break;
+                }
+                if(from == null || to == null) {
+                    Calendar now = new GregorianCalendar();
+                    now.set(Calendar.DAY_OF_MONTH, 1);
+                    now.add(Calendar.MONTH, -1);
+                    from = now.getTime();
+                    Calendar after = new GregorianCalendar();
+                    after.set(Calendar.DAY_OF_MONTH, 1);
+                    after.add(Calendar.DAY_OF_MONTH, -1);
+                    to = after.getTime();
+                }
+                request.setAttribute("fromDate", Constants.dateFormat.format(from));
+                request.setAttribute("toDate", Constants.dateFormat.format(to));
                 break;
         }
 

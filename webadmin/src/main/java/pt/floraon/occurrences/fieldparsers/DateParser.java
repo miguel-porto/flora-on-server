@@ -64,6 +64,17 @@ public class DateParser implements FieldParser {
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
         if(inputValue == null || inputValue.trim().equals("")) return;
         Inventory occurrence = (Inventory) bean;
+
+        Integer[] date = parseDate(inputValue);
+
+        occurrence.setDay(date[0]);
+        occurrence.setMonth(date[1]);
+        occurrence.setYear(date[2]);
+    }
+
+    static public Integer[] parseDate(String inputValue) {
+        if(inputValue == null) return null;
+        Integer[] outdate = new Integer[3];
         Integer day = null, month = null, year = null;
 
 //        System.out.println("***** INPUT: "+ inputValue);
@@ -139,9 +150,20 @@ public class DateParser implements FieldParser {
             if(day != null && (day < 1 || day > 31)) throw new IllegalArgumentException("Invalid day: " + day);
             if(month != null && (month < 1 || month > 12)) throw new IllegalArgumentException("Invalid month: " + month);
         }
+        outdate[0] = day;
+        outdate[1] = month;
+        outdate[2] = year;
+        return outdate;
+    }
 
-        occurrence.setDay(day);
-        occurrence.setMonth(month);
-        occurrence.setYear(year);
+    static public Date parseDateAsDate(String inputValue) {
+        Integer[] date = parseDate(inputValue);
+        if(date == null) return null;
+        Calendar c = new GregorianCalendar();
+        c.setLenient(false);
+        c.set(Calendar.DAY_OF_MONTH, date[0]);
+        c.set(Calendar.MONTH, date[1] - 1);
+        c.set(Calendar.YEAR, date[2]);
+        return c.getTime();
     }
 }

@@ -17,6 +17,7 @@ public class Precision implements Serializable {
     public Precision() { }
 
     public Precision(String precisionString) throws FloraOnException {
+        if(precisionString == null) return;
         Matcher m = p.matcher(precisionString);
         if(m.find()) {
             Float rad = Float.parseFloat(m.group("radius"));
@@ -38,8 +39,10 @@ public class Precision implements Serializable {
                 this.setSquare(side * mult);
             } else
                 this.setRadius(rad * mult);
-        } else
+        } else {
+            if(precisionString.trim().equals("")) return;
             throw new FloraOnException(String.format("Precision string '%s' not understood", precisionString));
+        }
     }
 
     public Float getRadius() {

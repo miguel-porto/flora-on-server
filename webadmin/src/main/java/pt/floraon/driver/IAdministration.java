@@ -15,4 +15,5 @@ public interface IAdministration {
     User updateUser(INodeKey id, User user) throws FloraOnException;
     User authenticateUser(String username, char[] password) throws FloraOnException;
     User removeTaxonPrivileges(INodeKey id, int index) throws FloraOnException;
+    User removeTaxonFromPrivilegeSet(INodeKey userId, INodeKey taxEntId, int indexOfSet) throws FloraOnException;
 }

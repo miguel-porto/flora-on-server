@@ -2,6 +2,7 @@ package pt.floraon.arangodriver;
 
 import static pt.floraon.driver.Constants.*;
 
+import java.text.ParseException;
 import java.util.*;
 
 import com.arangodb.ArangoDB;
@@ -15,12 +16,14 @@ import com.arangodb.model.*;
 import com.arangodb.velocypack.*;
 import com.arangodb.velocypack.exception.VPackException;
 import com.arangodb.velocypack.exception.VPackParserException;
+import com.arangodb.velocypack.internal.util.DateUtil;
 import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
+import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
@@ -36,6 +39,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	private CSVFileProcessor CSV;
 	private IRedListDataDriver RLD;
 	private IOccurrenceDriver OCD;
+	private IOccurrenceReportDriver OCRD;
 	private IAdministration ADMIN;
 	private List<Territory> checklistTerritories;
 	
@@ -100,6 +104,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		CSV = new CSVFileProcessor(this);
 		RLD = new RedListDataArangoDBDriver(this);
 		OCD = new OccurrenceArangoDriver(this);
+		OCRD = new OccurrenceReportArangoDriver(this);
 		ADMIN = new Administration(this);
 
         try {
@@ -159,6 +164,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 	@Override
 	public IOccurrenceDriver getOccurrenceDriver() {
 		return OCD;
+	}
+
+	@Override
+	public IOccurrenceReportDriver getOccurrenceReportDriver() {
+		return OCRD;
 	}
 
 	@Override

@@ -17,6 +17,7 @@ public interface IFloraOn {
 	CSVFileProcessor getCSVFileProcessor();
 	IRedListDataDriver getRedListData();
 	IOccurrenceDriver getOccurrenceDriver();
+	IOccurrenceReportDriver getOccurrenceReportDriver();
 	IAdministration getAdministration();
 	INodeWrapper wrapNode(INodeKey node) throws FloraOnException;
 	ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException;

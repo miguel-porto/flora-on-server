@@ -9,9 +9,11 @@ var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], icon
     iconAnchor: [6, 6],
 });*/
 
-var Esri_WorldImagery = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+/*
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
+*/
 
 document.addEventListener('DOMContentLoaded', function() {
     myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
@@ -62,6 +64,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var optionbuttons = document.querySelectorAll('.button.option');
     for(var i = 0; i < optionbuttons.length; i++) {
         addEvent('click', optionbuttons[i], clickOptionButton);
+    }
+
+    var togglebuttons = document.querySelectorAll('.togglebutton');
+    for(var i = 0; i < togglebuttons.length; i++) {
+        addEvent('click', togglebuttons[i], function(ev) {ev.target.classList.toggle('selected')});
     }
 
     var inventories = document.querySelectorAll('.inventory:not(.dummy)');
@@ -583,11 +590,9 @@ function projectPointsOnMap(ota, markerOptions) {
             var ot = [ota];
     }
 
-    if(ot.length > 1100) {
-//        document.getElementById('hidemap').classList.remove('selected');
-//        document.getElementById('occurrencemap').classList.add('hidden');
-        console.log('# points: ' + ot.length);
-        return false;
+    if(ot.length > 5000) {
+        var dispall = confirm('There are more than 5000 points. Do you want to display them all?');
+        if(!dispall) return false;
     }
     var coo;
     for(var i=0; i<ot.length; i++) {
@@ -694,6 +699,8 @@ function fileUploadCallback(resp, ev) {
 }
 
 function addNewFeature(ev) {
+    var opt = document.getElementById('addpointstoggle');
+    if(opt && !opt.classList.contains('selected')) return;
     var editboxes = document.querySelectorAll('.editbox');
     for(var i = 0; i < editboxes.length; i++) {
         if(editboxes[i].offsetParent !== null) {

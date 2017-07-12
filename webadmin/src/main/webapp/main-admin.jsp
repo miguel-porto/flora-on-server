@@ -11,7 +11,7 @@
 <html>
 <head>
 	<title>Flora-On Admin</title>
-	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
 	<script type="text/javascript" src="sorttable.js"></script>

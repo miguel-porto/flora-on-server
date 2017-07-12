@@ -20,6 +20,7 @@ public class ChecklistAdmin extends FloraOnServlet {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
 		final HttpServletRequest request = thisRequest.request;
+/*
 		boolean hasTaxonInfoModule = true;
 
 		try {
@@ -29,12 +30,13 @@ public class ChecklistAdmin extends FloraOnServlet {
 		} catch (FileNotFoundException e) {
 			hasTaxonInfoModule = false;
 		}
+*/
 
 		String what=request.getParameter("w");
 		String query=request.getParameter("q");
 		if(what==null) what="main";
 		request.setAttribute("what", what);
-		request.setAttribute("taxoninfomodule", hasTaxonInfoModule);
+//		request.setAttribute("taxoninfomodule", hasTaxonInfoModule);
 		if(query!=null) request.setAttribute("query", query);
 
 		switch(what) {		// the 'w' parameter of the URL querystring

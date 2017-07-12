@@ -7,6 +7,7 @@ var focusedEditableDiv = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
+    attachAJAXContent();
 
     /********************
         DATA SHEET

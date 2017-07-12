@@ -29,7 +29,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
 
     private class FloraOnOccurrence {
         String autor, genero, especie, subespecie, notas;
-        int id_reg, id_ent, ano, mes, dia, precisao;
+        int id_reg, id_ent, ano, mes, dia, precisao, espontanea;
         float latitude, longitude;
         boolean duvida;
         Boolean floracao;
@@ -100,7 +100,6 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             occurrenceList = new ArrayList<>();
             return;
         }
-        JsonElement resp;
 //        occArray = new ArrayList<>();
         occurrenceList = new ArrayList<>();
         jr.beginObject();
@@ -114,7 +113,8 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                             , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent
                             , o.precisao == 0 ? "1" : (o.precisao == 1 ? "100" : (o.precisao == 2 ? "1000x1000" : "10000x10000"))
                             , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
-                            , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER));
+                            , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER
+                            , o.espontanea == 1));
                 }
                 jr.endArray();
             } else jr.skipValue();

@@ -43,15 +43,14 @@
 
     <c:when test="${param.flavour == 'herbarium'}">
     <td class="editable" data-name="accession"></td>
-    <td class="editable" data-name="gpsCode"></td>
     <td class="taxon editable" data-name="taxa"></td>
     <td class="editable" data-name="presenceStatus"></td>
-    <td class="editable" data-name="locality"></td>
-    <td class="editable" data-name="verbLocality"></td>
     <td class="editable coordinates" data-name="coordinates"></td>
-    <td class="editable" data-name="labelData"></td>
+    <td class="editable" data-name="precision"></td>
+    <td class="editable" data-name="verbLocality"></td>
     <td class="editable" data-name="date"></td>
     <td class="editable authors" data-name="collectors"></td>
+    <td class="editable" data-name="labelData"></td>
     <td class="editable" data-name="privateNote"></td>
     <!--<td class="editable authors" data-name="determiners"></td>-->
     </c:when>
@@ -74,12 +73,8 @@
     </td>
     <c:choose>
     <c:when test="${param.flavour == null || param.flavour == '' || param.flavour == 'simple'}">
-    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
-    </c:if>
-    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}</td>
-    </c:if>
+    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}" />
+    <td class="taxon editable" data-name="taxa">${taxa}</td>
     <td class="editable" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
     <td class="editable coordinates" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
     <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
@@ -97,12 +92,8 @@
     <td class="editable" data-name="locality">${occ.getLocality()}</td>
     <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
     <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
-    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
-    </c:if>
-    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
-    </c:if>
+    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getName()}" />
+    <td class="taxon editable" data-name="taxa">${taxa}</td>
     <td class="editable hideincompactview" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
     <td class="editable hideincompactview" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
     <td class="editable hideincompactview" data-name="phenoState">${occ._getTaxa()[0]._getPhenoStateLabel()}</td>
@@ -117,17 +108,11 @@
 
     <c:when test="${param.flavour == 'herbarium'}">
     <td class="editable" data-name="accession">${occ._getTaxa()[0].getAccession()}</td>
-    <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
-    <c:if test="${occ._getTaxa()[0].getTaxEnt() == null}">
-        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getVerbTaxon()}</td>
-    </c:if>
-    <c:if test="${occ._getTaxa()[0].getTaxEnt() != null}">
-        <td class="taxon editable" data-name="taxa">${occ._getTaxa()[0].getTaxEnt().getName()}</td>
-    </c:if>
+    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getName()}" />
+    <td class="taxon editable" data-name="taxa">${taxa}</td>
     <td class="editable" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
     <td class="editable coordinates ${coordchanged}" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
     <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
-    <td class="editable" data-name="locality">${occ.getLocality()}</td>
     <td class="editable" data-name="verbLocality">${occ.getVerbLocality()}</td>
     <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
     <td class="editable authors" data-name="collectors"><t:usernames idarray="${occ.getCollectors()}" usermap="${userMap}"/></td>

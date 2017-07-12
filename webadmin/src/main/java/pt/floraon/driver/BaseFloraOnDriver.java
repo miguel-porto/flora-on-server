@@ -80,31 +80,50 @@ public class BaseFloraOnDriver {
 	}
 
 	/**
-	 * Takes a red list data object and fills in the responsible authors.
+	 * Takes a red list data iterator, fills in the responsible authors, and returns the same (completed) iterator
 	 * @param atomicPrivilegesIt
 	 * @param rldeIt
 	 * @return
 	 */
-	public List<RedListDataEntity> assignResponsibleAuthors(Iterator<AtomicTaxonPrivilege> atomicPrivilegesIt, Iterator<RedListDataEntity> rldeIt) {
-		AtomicTaxonPrivilege atp;
-		Multimap<String, AtomicTaxonPrivilege> atomicPrivileges = ArrayListMultimap.create();
-		while(atomicPrivilegesIt.hasNext()) {
-			atp = atomicPrivilegesIt.next();
-			atomicPrivileges.put(atp.getTaxEntId(), atp);
+	protected Iterator<RedListDataEntity> assignResponsibleAuthors(Iterator<AtomicTaxonPrivilege> atomicPrivilegesIt, Iterator<RedListDataEntity> rldeIt) {
+		return new AssignResponsibleAuthorsIterator(atomicPrivilegesIt, rldeIt);
+	}
+
+	private class AssignResponsibleAuthorsIterator implements Iterator<RedListDataEntity> {
+		final Multimap<String, AtomicTaxonPrivilege> atomicPrivileges;
+		final Iterator<RedListDataEntity> rldeIt;
+
+		AssignResponsibleAuthorsIterator(Iterator<AtomicTaxonPrivilege> atomicPrivilegesIt, Iterator<RedListDataEntity> rldeIt) {
+			this.rldeIt = rldeIt;
+
+			AtomicTaxonPrivilege atp;
+			atomicPrivileges = ArrayListMultimap.create();
+			while(atomicPrivilegesIt.hasNext()) {
+				atp = atomicPrivilegesIt.next();
+				atomicPrivileges.put(atp.getTaxEntId(), atp);
+			}
 		}
 
-		RedListDataEntity rlde;
-		List<RedListDataEntity> out = new ArrayList<>();
-		while(rldeIt.hasNext()) {
-			rlde = rldeIt.next();
+		@Override
+		public boolean hasNext() {
+			return rldeIt.hasNext();
+		}
+
+		@Override
+		public RedListDataEntity next() {
+			RedListDataEntity rlde = rldeIt.next();
 			for(AtomicTaxonPrivilege atp1 : atomicPrivileges.get(rlde.getTaxEntID())) {
 				if(atp1.isResponsibleForTexts()) rlde.addResponsibleForTexts(atp1.getUserId());
 				if(atp1.isResponsibleForAssessment()) rlde.addResponsibleForAssessment(atp1.getUserId());
 				if(atp1.isResponsibleForRevision()) rlde.addResponsibleForRevision(atp1.getUserId());
 			}
-			out.add(rlde);
+			return rlde;
 		}
-		return out;
+
+		@Override
+		public void remove() {
+
+		}
 	}
 
 	/**

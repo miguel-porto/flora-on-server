@@ -13,11 +13,14 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.jfree.util.Log;
+import pt.floraon.driver.Constants;
+import pt.floraon.driver.IOccurrenceReportDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -48,8 +51,9 @@ public class RedListDataApi extends FloraOnServlet {
         RedListDataEntity rlde;
         Gson gs;
         PrintWriter pw;
+        String what;
 
-        switch(path.next()) {
+        switch(what = path.next()) {
             case "newdataset":
                 territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
@@ -191,6 +195,77 @@ public class RedListDataApi extends FloraOnServlet {
                 System.out.println(thisRequest.getParameterAsString("taxEntID"));
                 thisRequest.success("Updated " + driver.getRedListData().addTagToRedListDataEntities(thisRequest.getParameterAsString("territory")
                         , thisRequest.request.getParameterValues("taxEntID"), thisRequest.getParameterAsString("tag")) + " taxa");
+                break;
+
+            case "statistics-table":
+                territory = thisRequest.getParameterAsString("territory");
+                Iterator<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true);
+                if(thisRequest.getUser().canMANAGE_REDLIST_USERS()) {
+                    int count1 = 0, count2 = 0, count3 = 0;
+                    while (taxEntList.hasNext()) {
+                        RedListDataEntity rlde1 = taxEntList.next();
+                        if (rlde1.hasResponsibleForTexts()) count1++;
+                        if (rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.PRELIMINARY)
+                            count2++;
+                        if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY) count3++;
+                    }
+                    thisRequest.request.setAttribute("nrsppwithresponsible", count1);
+                    thisRequest.request.setAttribute("nrspppreliminaryassessment", count2);
+                    thisRequest.request.setAttribute("nrspptextsready", count3);
+                }
+
+                thisRequest.request.getRequestDispatcher("/fragments/frag-statisticstable.jsp").forward(thisRequest.request, thisRequest.response);
+                break;
+
+            case "report-ninv":
+            case "report-ntaxatag":
+            case "report-listtaxatag":
+            case "report-listtaxatagphoto":
+                IOccurrenceReportDriver ord = driver.getOccurrenceReportDriver();
+                Date from = null, to = null;
+                thisRequest.response.setContentType("text/plain");
+                thisRequest.response.setCharacterEncoding("UTF-8");
+                pw = thisRequest.response.getWriter();
+
+                territory = thisRequest.getParameterAsString("territory");
+
+                try {
+                    from = DateParser.parseDateAsDate(thisRequest.getParameterAsString("fromdate"));
+                    to = DateParser.parseDateAsDate(thisRequest.getParameterAsString("todate"));
+                } catch(IllegalArgumentException e) {
+                    pw.println(e.getMessage());
+                    break;
+                }
+                if(from != null && to != null) {
+                    thisRequest.request.setAttribute("fromDate", Constants.dateFormat.format(from));
+                    thisRequest.request.setAttribute("toDate", Constants.dateFormat.format(to));
+                    switch(what) {
+                        case "report-ninv":
+                            pw.print(ord.getNumberOfInventories(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to));
+                            break;
+
+                        case "report-ntaxatag":
+                            pw.print(ord.getNumberOfTaxaWithTag(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
+                                    , thisRequest.getParameterAsString("tag")));
+                            break;
+
+                        case "report-listtaxatag":
+                        case "report-listtaxatagphoto":
+                            pw.print("<ul>");
+                            Iterator<TaxEnt> it = ord.getTaxaWithTag(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
+                                    , thisRequest.getParameterAsString("tag"), what.equals("report-listtaxatagphoto"));
+                            while(it.hasNext()) {
+                                TaxEnt te1 = it.next();
+                                pw.print("<li>" + te1.getFullName(true) + "</li>");
+                            }
+                            pw.print("</ul>");
+                            break;
+                    }
+                }
+                pw.flush();
                 break;
         }
     }

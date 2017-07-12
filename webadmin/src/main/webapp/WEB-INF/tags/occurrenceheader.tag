@@ -40,12 +40,10 @@
 
         <c:when test="${flavour == 'herbarium'}">
         <th class="smallcol">Cod.Herb.</th>
-        <th class="smallcol">GPS</th>
         <th class="bigcol">Taxon</th>
         <th class="smallcol">Excl</th>
         <th class="smallcol">Coord</th>
         <th class="smallcol">Preci</th>
-        <th class="smallcol">Local</th>
         <th class="smallcol">verbLocal</th>
         <th class="smallcol">Date</th>
         <th class="smallcol">Collectors</th>

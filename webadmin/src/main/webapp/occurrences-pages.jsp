@@ -183,7 +183,7 @@
                             <th class="smallcol">Comment</th>
                             <th class="smallcol">Notas priv</th>
                             <th class="smallcol">Ameaças</th>
-                            <th class="smallcol">Pres status</th>
+                            <th class="smallcol">Excl</th>
                         </tr>
                     </thead>
                     <tbody>

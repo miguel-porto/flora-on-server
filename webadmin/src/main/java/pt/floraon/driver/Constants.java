@@ -56,6 +56,7 @@ public final class Constants {
 
 	public static final DateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	public static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	public static final DateFormat dateFormatYMD = new SimpleDateFormat("yyyy-MM-dd");
 	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
 
 	public enum TaxonRanks {

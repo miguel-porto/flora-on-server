@@ -13,12 +13,12 @@
 <head>
 	<title>${taxon.getName()} - <fmt:message key="DataSheet.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
 	<script type="text/javascript" src="/floraon/sorttable.js"></script>
 	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
+	<script type="text/javascript" src="/floraon/ajaxforms.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/redlistadmin.js?nocache=${uuid}"></script>
 	<c:if test="${what=='main'}">
@@ -51,6 +51,9 @@
             </c:if>
             <c:if test="${user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
                 <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
+            </c:if>
+            <c:if test="${!user.isGuest()}">
+                <li><a href="?w=report">Relatório</a></li>
             </c:if>
         </ul>
     </div>
@@ -125,12 +128,7 @@
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-        <table class="small">
-            <thead><tr><th colspan="2">Statistics</th></tr></thead>
-            <tr><td>Nr. taxa with a responsible</td><td class="bignumber">${nrsppwithresponsible}</td></tr>
-            <tr><td>Nr. taxa with preliminary assessment</td><td class="bignumber">${nrspppreliminaryassessment}</td></tr>
-            <tr><td>Nr. taxa with texts ready</td><td class="bignumber">${nrspptextsready}</td></tr>
-        </table>
+        <div><t:ajaxloadhtml url="api/statistics-table?territory=${territory}" width="100px" height="100px" text="carregando estatísticas"/></div>
         </c:if>
         <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <div class="filterpanel">
@@ -205,7 +203,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                <c:forEach var="taxon" items="${specieslist.iterator()}">
+                <c:forEach var="taxon" items="${specieslist}">
                     <c:set var="taxonclasses" value=""/>
                     <c:if test="${taxon.getTaxEnt().isSpecies()}">
                         <c:set var="taxonclasses" value="${taxonclasses} species"/>
@@ -343,7 +341,7 @@
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
                         <c:if test="${user.canVIEW_OCCURRENCES()}">
-                            <div class="wordtag togglebutton"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
+                            <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
                         </c:if>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
                             <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
@@ -355,7 +353,7 @@
                     <tr class="section1"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 1 - <fmt:message key="DataSheet.label.1" /></td></tr>
                     <tr class="section1">
                         <td class="title">1.1</td>
-                        <td>Name</td><td><i>${taxon.getName()}</i>
+                        <td><fmt:message key="DataSheet.label.1.1" /></td><td><i>${taxon.getName()}</i>
                             <div class="floatingtoolbar">
                                 <div tabindex="0" id="removeformatting" class="hidden"></div>
                             <c:if test="${user.canEDIT_ANY_FIELD()}">
@@ -448,7 +446,7 @@
                     </table>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section2"><td class="title">2.2</td><td>Extent Of Occurrence<br/>(EOO)</td><td>
+                    <tr class="section2"><td class="title">2.2</td><td><fmt:message key="DataSheet.label.2.2" /></td><td>
                         <c:if test="${occurrences == null}">
                             No occurrence records
                         </c:if>
@@ -475,7 +473,7 @@
                         </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section2"><td class="title">2.3</td><td>Area Of Occupancy<br/>(AOO)</td><td>
+                    <tr class="section2"><td class="title">2.3</td><td><fmt:message key="DataSheet.label.2.3" /></td><td>
                         <c:if test="${occurrences == null}">
                             No occurrence records
                         </c:if>
@@ -492,7 +490,7 @@
                             </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section2"><td class="title">2.4</td><td>Decline in distribution</td><td>
+                    <tr class="section2"><td class="title">2.4</td><td><fmt:message key="DataSheet.label.2.4" /></td><td>
                         <c:if test="${user.canEDIT_SECTION2()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
@@ -520,7 +518,7 @@
                         </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section2"><td class="title">2.5</td><td>Elevation</td><td>
+                    <tr class="section2"><td class="title">2.5</td><td><fmt:message key="DataSheet.label.2.5" /></td><td>
                         <c:if test="${user.canEDIT_SECTION2()}">
                             <input name="geographicalDistribution_ElevationRange" type="number" min="0" value="${rlde.getGeographicalDistribution().getElevationRange()[0] == null ? '' : rlde.getGeographicalDistribution().getElevationRange()[0]}"/>
                             <input name="geographicalDistribution_ElevationRange" type="number" min="0" value="${rlde.getGeographicalDistribution().getElevationRange()[1] == null ? '' : rlde.getGeographicalDistribution().getElevationRange()[1]}"/>
@@ -529,7 +527,7 @@
                             ${rlde.getGeographicalDistribution().getElevationRange()[0]} - ${rlde.getGeographicalDistribution().getElevationRange()[1]}
                         </c:if>
                     </td></tr>
-                    <tr class="section2"><td class="title">2.6</td><td>Extreme fluctuations</td><td>
+                    <tr class="section2"><td class="title">2.6</td><td><fmt:message key="DataSheet.label.2.6" /></td><td>
                         <c:if test="${user.canEDIT_SECTION2()}">
                             <select name="geographicalDistribution_ExtremeFluctuations">
                                 <c:forEach var="tmp" items="${geographicalDistribution_ExtremeFluctuations}">
@@ -556,7 +554,7 @@
                         name="population_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section3"><td class="title">3.2</td><td>Nº of mature individuals</td><td>
+                    <tr class="section3"><td class="title">3.2</td><td><fmt:message key="DataSheet.label.3.2" /></td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
                             <table>
                                 <tr><td>Category</td><td>
@@ -581,7 +579,7 @@
                             </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.3</td><td>Type of estimate</td><td>
+                    <tr class="section3"><td class="title">3.3</td><td><fmt:message key="DataSheet.label.3.3" /></td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
                         <table class="triggergroup">
                             <tr><td>Type</td><td>
@@ -677,7 +675,7 @@
                         </table>
                         </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.6</td><td>Severely fragmented</td><td>
+                    <tr class="section3"><td class="title">3.6</td><td><fmt:message key="DataSheet.label.3.6" /></td><td>
                         <c:if test="${user.canEDIT_SECTION3()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
@@ -705,7 +703,7 @@
 <!--                            <tr><td>Mean area of sites</td><td><fmt:formatNumber value="${meanLocationArea}" maxFractionDigits="1"/> hectares</td></tr> -->
                         </table>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.7</td><td>Extreme fluctuations in population size</td><td>
+                    <tr class="section3"><td class="title">3.7</td><td><fmt:message key="DataSheet.label.3.7" /></td><td>
                     <c:if test="${user.canEDIT_SECTION3()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
@@ -733,7 +731,7 @@
                         </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.8</td><td>Number of mature individuals in each subpopulation</td><td>
+                    <tr class="section3"><td class="title">3.8</td><td><fmt:message key="DataSheet.label.3.8" /></td><td>
                     <c:if test="${user.canEDIT_SECTION3()}">
                         <select name="population_NrMatureEachSubpop">
                             <c:forEach var="tmp" items="${population_NrMatureEachSubpop}">
@@ -750,7 +748,7 @@
                         ${rlde.getPopulation().getNrMatureEachSubpop().getLabel()}
                     </c:if>
                     </td></tr>
-                    <tr class="section3"><td class="title">3.9</td><td>% of mature individuals in one subpopulation</td><td>
+                    <tr class="section3"><td class="title">3.9</td><td><fmt:message key="DataSheet.label.3.9" /></td><td>
                     <c:if test="${user.canEDIT_SECTION3()}">
                         <select name="population_PercentMatureOneSubpop">
                             <c:forEach var="tmp" items="${population_PercentMatureOneSubpop}">
@@ -769,14 +767,14 @@
                     </td></tr>
                     <tr class="section4"><td class="title" colspan="3"><a name="ecology"></a><fmt:message key="DataSheet.label.section"/> 4 - <fmt:message key="DataSheet.label.4" /></td></tr>
                 </c:if>     <!-- can view full sheet -->
-                <tr class="section4 textual"><td class="title">4.1</td><td>Habitats and ecology information</td><td>
+                <tr class="section4 textual"><td class="title">4.1</td><td><fmt:message key="DataSheet.label.4.1" /></td><td>
                     <t:editabletext
                         privilege="${user.canEDIT_SECTION4() || user.canEDIT_ALL_TEXTUAL()}"
                         value="${ecology}"
                         name="ecology_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section4"><td class="title">4.2</td><td>Habitat types</td><td>
+                    <tr class="section4"><td class="title">4.2</td><td><fmt:message key="DataSheet.label.4.2" /></td><td>
                         <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_4_2()}">
                             <c:forEach var="tmp" items="${ecology_HabitatTypes}">
                                 <c:if test="${habitatTypes.contains(tmp)}">
@@ -793,8 +791,8 @@
                             </c:forEach>
                         </c:if>
                     </td></tr>
-                    <tr class="section4"><td class="title">4.3</td><td>Life form</td><td>(automatico)</td></tr>
-                    <tr class="section4"><td class="title">4.4</td><td>Generation length</td><td>
+                    <tr class="section4"><td class="title">4.3</td><td><fmt:message key="DataSheet.label.4.3" /></td><td>(automatico)</td></tr>
+                    <tr class="section4"><td class="title">4.4</td><td><fmt:message key="DataSheet.label.4.4" /></td><td>
                     <c:if test="${user.canEDIT_SECTION4()}">
                         <table class="triggergroup">
                             <tr><td>Length (exact or interval)</td><td>
@@ -813,7 +811,7 @@
                         </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section4"><td class="title">4.5</td><td>Decline in habitat quality</td><td>
+                    <tr class="section4"><td class="title">4.5</td><td><fmt:message key="DataSheet.label.4.5" /></td><td>
                     <c:if test="${user.canEDIT_SECTION4()}">
                     <table class="triggergroup">
                         <tr><td>Category</td><td>
@@ -929,7 +927,7 @@
                         </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section6"><td class="title">6.4</td><td>Decline in number of locations or subpopulations</td><td>
+                    <tr class="section6"><td class="title">6.4</td><td><fmt:message key="DataSheet.label.6.4" /></td><td>
                     <c:if test="${user.canEDIT_SECTION6()}">
                     <table class="triggergroup">
                         <tr><td>Category</td><td>
@@ -957,7 +955,7 @@
                     </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section6"><td class="title">6.5</td><td>Extreme fluctuations in number of locations or subpopulations</td><td>
+                    <tr class="section6"><td class="title">6.5</td><td><fmt:message key="DataSheet.label.6.5" /></td><td>
                     <c:if test="${user.canEDIT_SECTION6()}">
                     <table class="triggergroup">
                         <tr><td>Category</td><td>
@@ -988,14 +986,14 @@
 
                     <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a><fmt:message key="DataSheet.label.section"/> 7 - <fmt:message key="DataSheet.label.7" /></td></tr>
                 </c:if>
-                <tr class="section7 textual"><td class="title">7.1</td><td>Conservation measures</td><td>
+                <tr class="section7 textual"><td class="title">7.1</td><td><fmt:message key="DataSheet.label.7.1"/></td><td>
                     <t:editabletext
                         privilege="${user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}"
                         value="${rlde.getConservation().getDescription()}"
                         name="conservation_Description"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section7"><td class="title">7.2</td><td>Conservation plans</td><td>
+                    <tr class="section7"><td class="title">7.2</td><td><fmt:message key="DataSheet.label.7.2"/></td><td>
                     <c:if test="${user.canEDIT_SECTION7()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
@@ -1023,7 +1021,7 @@
                         </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section7"><td class="title">7.3</td><td><i>Ex-situ</i> conservation</td><td>
+                    <tr class="section7"><td class="title">7.3</td><td><fmt:message key="DataSheet.label.7.3"/></td><td>
                     <c:if test="${user.canEDIT_SECTION7() || user.canEDIT_7_3()}">
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
@@ -1051,7 +1049,7 @@
                         </table>
                     </c:if>
                     </td></tr>
-                    <tr class="section7"><td class="title">7.4</td><td>Occurrence in protected areas</td><td>
+                    <tr class="section7"><td class="title">7.4</td><td><fmt:message key="DataSheet.label.7.4"/></td><td>
                         <c:if test="${occurrences.size() > 0}">
                             <p><fmt:formatNumber value="${(locationsInPA / nclusters) * 100}" maxFractionDigits="1"/>% sites inside protected areas (${locationsInPA}/${nclusters})</p>
                             <table class="sortable smalltext">
@@ -1069,7 +1067,7 @@
                             <p>No occurrence records</p>
                         </c:if>
                     </td></tr>
-                    <tr class="section7"><td class="title">7.4.1</td><td>Legal protection</td><td>
+                    <tr class="section7"><td class="title">7.4.1</td><td><fmt:message key="DataSheet.label.7.4.1"/></td><td>
                         <ul>
                             <c:forEach var="tmp" items="${legalProtection}">
                             <li>${tmp}</li>
@@ -1095,13 +1093,13 @@
                             idprefix="psm" />
                     </td></tr>
 
-                    <tr class="section8"><td class="title" colspan="3">Section 8 - Bibliographic references</td></tr>
-                    <tr class="section8"><td class="title">8.1</td><td>Reference list</td><td>
+                    <tr class="section8"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 8 - <fmt:message key="DataSheet.label.8" /></td></tr>
+                    <tr class="section8"><td class="title">8.1</td><td><fmt:message key="DataSheet.label.8.1" /></td><td>
                     (a fazer)
                     </td></tr>
 
                     <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a><fmt:message key="DataSheet.label.section"/> 9 - <fmt:message key="DataSheet.label.9" /></td></tr>
-                    <tr class="section9"><td class="title">9.1</td><td>Category</td><td class="triggergroup">
+                    <tr class="section9"><td class="title">9.1</td><td><fmt:message key="DataSheet.label.9.1" /></td><td class="triggergroup">
                         <div id="redlistcategories">
                             <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                 <c:forEach var="tmp" items="${assessment_Category}">
@@ -1143,8 +1141,7 @@
                         </c:if>
                         </div>
                     </td></tr>
-                    <tr class="section9"><td class="title">9.2</td><td>Criteria</td><td>
-                        <p><b>${rlde.getAssessment()._getCriteriaAsString()}</b></p>
+                    <tr class="section9"><td class="title">9.2</td><td><fmt:message key="DataSheet.label.9.2" /></td><td>
                         <c:if test="${user.canEDIT_9_1_2_3_4()}">
                         <input type="hidden" name="assessment_Criteria" value=""/>
                         <table class="subtable">
@@ -1173,7 +1170,7 @@
                             <!--<input name="assessment_Criteria" type="text" class="longbox" value="${rlde.getAssessment().getCriteria()}"/>-->
                         </c:if>
                         <c:if test="${!user.canEDIT_9_1_2_3_4()}">
-                            ${rlde.getAssessment()._getCriteriaAsString()}
+                            <p><b>${rlde.getAssessment()._getCriteriaAsString()}</b></p>
                         </c:if>
                     </td></tr>
                 </c:if>
@@ -1184,11 +1181,11 @@
                         name="assessment_Justification"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
-                    <tr class="section9"><td class="title">9.4</td><td>Regional assessment analysis</td><td>
+                    <tr class="section9"><td class="title">9.4</td><td><fmt:message key="DataSheet.label.9.4" /></td><td>
                         <table class="subtable">
                             <tr>
                                 <td class="title">9.4.1</td>
-                                <td>Does the regional population experience any significant immigration of propagules likely to reproduce in the region?</td>
+                                <td><fmt:message key="DataSheet.label.9.4.1" /></td>
                                 <td>
                                 <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_PropaguleImmigration">
@@ -1209,7 +1206,7 @@
                             </tr>
                             <tr>
                                 <td class="title">9.4.2</td>
-                                <td>Is the immigration expected to decrease?</td>
+                                <td><fmt:message key="DataSheet.label.9.4.2" /></td>
                                 <td>
                                 <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_DecreaseImmigration">
@@ -1230,7 +1227,7 @@
                             </tr>
                             <tr>
                                 <td class="title">9.4.3</td>
-                                <td>Is the regional population a sink?</td>
+                                <td><fmt:message key="DataSheet.label.9.4.3" /></td>
                                 <td>
                                 <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_IsSink">
@@ -1251,7 +1248,7 @@
                             </tr>
                             <tr>
                                 <td class="title" rowspan="2">9.4.4</td>
-                                <td>Uplist or downlist category</td>
+                                <td><fmt:message key="DataSheet.label.9.4.4" /></td>
                                 <td>
                                 <c:if test="${user.canEDIT_9_1_2_3_4()}">
                                     <select name="assessment_UpDownListing">
@@ -1273,7 +1270,7 @@
                             <tr><td style="width:auto">Suggested action</td><td>${assessment_UpDownList}</td></tr>
                             <tr>
                                 <td class="title">9.4.5</td>
-                                <td>Justification</td>
+                                <td><fmt:message key="DataSheet.label.9.4.5" /></td>
                                 <td>
                                     <t:editabletext
                                         privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45()}"
@@ -1295,7 +1292,7 @@
                         </table>
                     </td></tr>
 
-                    <tr class="section9"><td class="title">9.5</td><td>Previous published Red List assessments</td><td>
+                    <tr class="section9"><td class="title">9.5</td><td><fmt:message key="DataSheet.label.9.5" /></td><td>
                         <table><tr><th>Year published</th><th>Category</th></tr>
                         <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <c:forEach var="tmp" items="${previousAssessments}">
@@ -1322,7 +1319,7 @@
                         </c:if>
                         </table>
                     </td></tr>
-                    <tr class="section9"><td class="title">9.6</td><td>Text author(s)</td>
+                    <tr class="section9"><td class="title">9.6</td><td><fmt:message key="DataSheet.label.9.6" /></td>
                     <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <td>
                             <div class="multiplechooser left" id="textauthors">
@@ -1349,7 +1346,7 @@
                         </td>
                     </c:if>
                     </tr>
-                    <tr class="section9"><td class="title">9.6.1</td><td>Collaborators</td><td>
+                    <tr class="section9"><td class="title">9.6.1</td><td><fmt:message key="DataSheet.label.9.6.1" /></td><td>
                     <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                         <input name="assessment_Collaborators" type="text" class="longbox" value="${rlde.getAssessment().getCollaborators()}"/>
                     </c:if>
@@ -1357,7 +1354,7 @@
                         ${rlde.getAssessment().getCollaborators()}
                     </c:if>
                     </td></tr>
-                    <tr class="section9"><td class="title">9.7</td><td>Assessor(s)</td>
+                    <tr class="section9"><td class="title">9.7</td><td><fmt:message key="DataSheet.label.9.7" /></td>
                     <c:if test="${user.canEDIT_9_7_9_92()}">
                         <td>
                             <div class="multiplechooser left" id="assessors">
@@ -1384,7 +1381,7 @@
                         </td>
                     </c:if>
                     </tr>
-                    <tr class="section9"><td class="title">9.8</td><td>Reviewer(s)</td>
+                    <tr class="section9"><td class="title">9.8</td><td><fmt:message key="DataSheet.label.9.8" /></td>
                     <c:if test="${user.canEDIT_9_8_9_93()}">
                         <td>
                             <div class="multiplechooser left" id="reviewers">
@@ -1411,9 +1408,9 @@
                         </td>
                     </c:if>
                     </tr>
-                    <tr class="section9"><td class="title">9.9</td><td>Assessment status</td><td>
+                    <tr class="section9"><td class="title">9.9</td><td><fmt:message key="DataSheet.label.9.9" /></td><td>
                         <table class="subtable">
-                            <tr><td class="title">9.9.1</td><td>Texts</td><td>
+                            <tr><td class="title">9.9.1</td><td><fmt:message key="DataSheet.label.9.9.1" /></td><td>
                             <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91()}">
                                 <select name="assessment_TextStatus">
                                     <c:forEach var="tmp" items="${assessment_TextStatus}">
@@ -1430,7 +1427,7 @@
                                 <fmt:message key="${rlde.getAssessment().getTextStatus().getLabel()}"/>
                             </c:if>
                             </td></tr>
-                            <tr><td class="title">9.9.2</td><td>Assessment status</td><td>
+                            <tr><td class="title">9.9.2</td><td><fmt:message key="DataSheet.label.9.9.2" /></td><td>
                             <c:if test="${user.canEDIT_9_7_9_92()}">
                                 <select name="assessment_AssessmentStatus">
                                     <c:forEach var="tmp" items="${assessment_AssessmentStatus}">
@@ -1447,7 +1444,7 @@
                                 <fmt:message key="${rlde.getAssessment().getAssessmentStatus().getLabel()}"/>
                             </c:if>
                             </td></tr>
-                            <tr><td class="title">9.9.3</td><td>Review status</td><td>
+                            <tr><td class="title">9.9.3</td><td><fmt:message key="DataSheet.label.9.9.3" /></td><td>
                             <c:if test="${user.canEDIT_9_8_9_93()}">
                                 <select name="assessment_ReviewStatus">
                                     <c:forEach var="tmp" items="${assessment_ReviewStatus}">
@@ -1464,7 +1461,7 @@
                                 <fmt:message key="${rlde.getAssessment().getReviewStatus().getLabel()}"/>
                             </c:if>
                             </td></tr>
-                            <tr><td class="title">9.9.4</td><td>Publication status</td><td>
+                            <tr><td class="title">9.9.4</td><td><fmt:message key="DataSheet.label.9.9.4" /></td><td>
                             <c:if test="${user.canEDIT_9_9_4()}">
                                 <select name="assessment_PublicationStatus">
                                     <c:forEach var="tmp" items="${assessment_PublicationStatus}">
@@ -1483,14 +1480,14 @@
                             </td></tr>
                         </table>
                     </td></tr>
-                    <tr class="section9"><td class="title">9.10</td><td>Date assessed</td><td>
+                    <tr class="section9"><td class="title">9.10</td><td><fmt:message key="DataSheet.label.9.10" /></td><td>
                         ${rlde.getDateAssessed()}
                     </td></tr>
-                    <tr class="section9"><td class="title">9.11</td><td>Date published</td><td>
+                    <tr class="section9"><td class="title">9.11</td><td><fmt:message key="DataSheet.label.9.11" /></td><td>
                         ${rlde.getDatePublished()}
                     </td></tr>
                 </c:if>
-                <tr class="section9"><td class="title">9.12</td><td>Citation</td><td>
+                <tr class="section9"><td class="title">9.12</td><td><fmt:message key="DataSheet.label.9.12" /></td><td>
                 <c:if test="${authors.size() > 0}">
                 <c:if test="${authors.size() > 1}">
                     <c:forEach var="i" begin="0" end="${authors.size() - 2}">${userMap.get(authors.get(i))}, </c:forEach>
@@ -1498,16 +1495,19 @@
                 ${userMap.get(authors.get(authors.size() - 1))}. ${rlde.getAssessment().getPublicationStatus().isPublished() ? rlde._getYearPublished() : 'Unpublished'}. <i>${taxon.getName()}</i>. Lista Vermelha da Flora Vascular de Portugal Continental.
                 </c:if>
                 </td></tr>
+                <c:if test="${!multipletaxa}">
+                <tr class="section9"><td class="title">9.13</td><td><fmt:message key="DataSheet.label.9.13" /></td><td>
+                <table class="subtable">
+                    <tr><th>Date saved</th><th>User</th><th>Number of edits</th></tr>
+                <c:forEach var="rev" items="${revisions}">
+                    <tr><td>${rev.getKey().getFormattedDateSaved()}</td><td>${userMap.get(rev.getKey().getUser())}</td><td>${rev.getValue()}</td></tr>
+                </c:forEach>
+                </table>
+                </td></tr>
+                </c:if>
             </table>
         </form>
         <c:if test="${!multipletaxa}">
-        <h1><fmt:message key="DataSheet.msg.revhistory"/></h1>
-        <table class="small">
-            <tr><th>Date saved</th><th>User</th><th>Number of edits</th></tr>
-        <c:forEach var="rev" items="${revisions}">
-            <tr><td>${rev.getKey().getFormattedDateSaved()}</td><td>${userMap.get(rev.getKey().getUser())}</td><td>${rev.getValue()}</td></tr>
-        </c:forEach>
-        </table>
         <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <h1><fmt:message key="TaxonIndex.admin.1"/></h1>
         <form class="poster" data-path="/floraon/redlist/api/removetaxent" data-refresh="false" data-callback="?w=main">
@@ -1539,12 +1539,12 @@
             <div class="button anchorbutton ${param.group==2500 ? 'selected' : ''}"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}&group=2500">&lt; 2500m</a></div>
             <c:if test="${param.group == 500}"><p><fmt:message key="button.2a" /></p></c:if>
             <c:if test="${param.group == 2500}"><p><fmt:message key="button.2b" /></p></c:if>
-
+            <c:if test="${param.group > 0}"><p>${clustoccurrences.size()} grupos.</p></c:if>
             <table class="smalltext ${param.group==null ? 'sortable' : ''}" id="recordtable">
                 <thead>
                     <tr><th>Taxon</th><c:if test="${user.canDOWNLOAD_OCCURRENCES()}"><th>Latitude</th><th>Longitude</th></c:if><th>Date</th>
                     <th>Author</th><th style="width:180px">Notes</th><th>Precision</th><th>Confid</th><th>Pheno</th>
-                    <th>Ameaças</th><th>Nº ind</th><th>Met</th><th>Fot</th><th>Colh</th><th>Destr?</th>
+                    <th>Ameaças</th><th>Nº ind</th><th>Met</th><th>Fot</th><th>Colh</th><th>Excl</th>
                     </tr>
                 </thead>
                 <c:if test="${param.group > 0}">
@@ -1731,7 +1731,15 @@
                             <td style="width:20%; vertical-align:top;">
                                 <ul>
                                 <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
-                                    <li>${taxonMap.get(tax)}</li>
+                                    <li>
+                                        ${taxonMap.get(tax)}
+                                        <form class="poster inlineblock" data-path="/floraon/admin/removetaxonfromset" data-refresh="true">
+                                            <input type="submit" value="Remove" class="textbutton"/>
+                                            <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
+                                            <input type="hidden" name="taxEntId" value="${tax}"/>
+                                            <input type="hidden" name="index" value="${loop.index}"/>
+                                        </form>
+                                    </li>
                                 </c:forEach>
                                 </ul>
                                 <form class="poster" data-path="/floraon/admin/updatetaxonprivileges" data-refresh="true">
@@ -1787,6 +1795,10 @@
                 </form>
             </c:if>
         </c:if>
+    </c:when>
+
+    <c:when test="${what=='report'}">
+        <jsp:include page="technicalreport.jsp"></jsp:include>
     </c:when>
     </c:choose>
     </div>

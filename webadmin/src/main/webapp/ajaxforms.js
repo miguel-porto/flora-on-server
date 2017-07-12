@@ -61,3 +61,18 @@ function attachFormPosters(callback, beforePost) {
 	    } else addEvent('submit', forms[i], formPoster);
 	}
 }
+
+function attachAJAXContent() {
+    var ajaxcontent = document.querySelectorAll('div.ajaxcontent');
+    function createMyFunction(url, el) {
+        return function() {
+            fetchAJAX(url, function(rt) { el.removeAttribute('style'); el.innerHTML = rt; });
+        };
+    }
+
+    for(var i=0; i<ajaxcontent.length; i++) {
+        var url = ajaxcontent[i].getAttribute('data-url');
+        if(url)
+            createMyFunction(url, ajaxcontent[i])();
+    }
+}

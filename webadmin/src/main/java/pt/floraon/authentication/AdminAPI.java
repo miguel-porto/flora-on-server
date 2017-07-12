@@ -153,6 +153,11 @@ public class AdminAPI extends FloraOnServlet {
                         , thisRequest.getParameterAsInt("index")).getID());
                 break;
 
+            case "removetaxonfromset":
+                thisRequest.success(driver.getAdministration().removeTaxonFromPrivilegeSet(thisRequest.getParameterAsKey("userId")
+                        , thisRequest.getParameterAsKey("taxEntId"), thisRequest.getParameterAsInt("index")).getID());
+                break;
+
             case "updatetaxonprivileges":
                 String[] taxa1 = thisRequest.request.getParameterValues("applicableTaxa");
                 if(taxa1 == null || taxa1.length == 0) throw new FloraOnException("You must select at least one taxon.");

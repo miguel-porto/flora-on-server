@@ -84,7 +84,7 @@ public interface IRedListDataDriver {
      * @param withTaxonSpecificPrivileges True to compute who is responsible for texts, assessment, etc. for each taxon
      * @throws FloraOnException
      */
-    List<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException;
+    Iterator<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException;
 
     /**
      * Fetches all taxa included in the red list data for the given territory.

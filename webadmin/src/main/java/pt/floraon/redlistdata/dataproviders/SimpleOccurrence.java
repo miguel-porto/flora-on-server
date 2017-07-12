@@ -52,7 +52,7 @@ public class SimpleOccurrence extends Inventory {
 
     public SimpleOccurrence(String dataSource, float latitude, float longitude, Integer year, Integer month, Integer day, String author
             , String genus, String species, String infrataxon, String pubNotes, int id_reg, Integer id_ent, String precision
-            , OccurrenceConstants.ConfidenceInIdentifiction confidence, Constants.PhenologicalStates flowering) {
+            , OccurrenceConstants.ConfidenceInIdentifiction confidence, Constants.PhenologicalStates flowering, boolean escaped) {
         this.dataSource = dataSource;
         this.id_reg = id_reg;
         this.id_ent = id_ent;
@@ -76,6 +76,7 @@ public class SimpleOccurrence extends Inventory {
         this.occurrence.setComment(pubNotes);
         this.occurrence.setConfidence(confidence);
         this.occurrence.setPhenoState(flowering);
+        this.occurrence.setNaturalization(escaped ? OccurrenceConstants.OccurrenceNaturalization.ESCAPED : null);
 
 /*
         getInventory().getPrecision()

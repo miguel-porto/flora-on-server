@@ -9,6 +9,7 @@ import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,11 +27,11 @@ public class UpdateNativeStatusJob implements JobTask {
     @Override
     public void run(IFloraOn driver) throws FloraOnException, IOException {
         Log.info("Updating red list dataset for " + territory);
-        List<RedListDataEntity> rldel = driver.getRedListData().getAllRedListData(territory, false);
-        total = rldel.size();
+        Iterator<RedListDataEntity> rldel = driver.getRedListData().getAllRedListData(territory, false);
         Map<String, Object> v = new HashMap<>();
 
-        for(RedListDataEntity rlde : rldel) {
+        while(rldel.hasNext()) {
+        RedListDataEntity rlde = rldel.next();
             InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(rlde.getTaxEntID())).getInferredNativeStatus(territory);
 //            rlde.setInferredStatus(is);
 //            INodeKey nk = driver.asNodeKey(rlde.getID());
@@ -45,7 +46,7 @@ public class UpdateNativeStatusJob implements JobTask {
 
     @Override
     public String getState() {
-        return String.format("%d / %d done.", n, total);
+        return String.format("%d done.", n);
     }
 
     @Override

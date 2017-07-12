@@ -117,14 +117,14 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
     }
 
     @Override
-    public List<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException {
+    public Iterator<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException {
         if(withTaxonSpecificPrivileges) {
             Iterator<AtomicTaxonPrivilege> apIt = getTaxonPrivilegesForAllUsers(territory);
 
             Iterator<RedListDataEntity> rldeIt;
             try {
                 rldeIt = database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
-                        , null, RedListDataEntity.class);
+                        , new AqlQueryOptions().ttl(120), RedListDataEntity.class);
             } catch (ArangoDBException e) {
                 throw new DatabaseException(e.getMessage());
             }
@@ -133,7 +133,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
         } else {
             try {
                 return database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
-                        , null, RedListDataEntity.class).asListRemaining();
+                        , new AqlQueryOptions().ttl(120), RedListDataEntity.class);
             } catch (ArangoDBException e) {
                 throw new DatabaseException(e.getMessage());
             }

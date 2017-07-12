@@ -22,7 +22,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     private String territory;
     private PolygonTheme clippingPolygon;
     private Integer minimumYear, sizeOfSquare;
-    private int curSpeciesI = 0, total;
+    private int curSpeciesI = 0;
     private String curSpeciesName = "";
     private Set<String> filterTags;
 
@@ -37,8 +37,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         OccurrenceProcessor op;
-        List<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false);
-        total = it.size();
+        Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false);
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
 
         csvp.print("TaxEnt ID");
@@ -49,7 +48,8 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("Number of sites");
         csvp.println();
 
-        for(RedListDataEntity rlde : it) {
+        while(it.hasNext()) {
+            RedListDataEntity rlde = it.next();
             curSpeciesI++;
             curSpeciesName = rlde.getTaxEnt().getName();
             if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
@@ -82,7 +82,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 
     @Override
     public String getState() {
-        return "Processing species " + curSpeciesI + " of " + total + " (" + curSpeciesName + ")";
+        return "Processing species " + curSpeciesI + " (" + curSpeciesName + ")";
     }
 
     @Override

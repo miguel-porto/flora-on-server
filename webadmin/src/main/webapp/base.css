@@ -30,6 +30,8 @@ ul.menu li {display:inline-block;list-style-type:none;border-radius:5px;box-shad
 ul.menu li.selected {color:#fff;background:linear-gradient(170deg,rgba(255,255,255,0.5),rgba(0,0,0,0.1));box-shadow:0 0 4px #555;}
 .info {font-size:0.7em;color:gray;font-style:italic;font-weight:normal;}
 p.error {color:red;font-weight:bold;}
+div.ajaxcontent p {text-align:center; position:absolute; top:0; left:0}
+img.ajaxloader {width:32px;}
 
 label input {vertical-align:middle;}
 div.warning {

@@ -57,16 +57,18 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private boolean enter(SimpleOccurrence so) {
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
 //        System.out.println(gs.toJson(so));
-//        System.out.println(so.getLatitude()+", "+so.getLongitude());
+System.out.println("Enter? "+ so.getLatitude()+", "+so.getLongitude()+" Y:"+so.getYear());
         if(so.getLatitude() == null || so.getLongitude() == null) return false;
 //        System.out.println("ENTER");
         if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
         boolean enter;
         enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+//System.out.println(enter+"|"+minimumYear +"|"+(minimumYear != null && so.getYear() != null)+"|");
         enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
+//System.out.println(enter);
         // records that do not have a year are excluded from historical datasets. They're only included in the current dataset.
         enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0));
-
+//System.out.println(enter);
         if(clippingPolygon != null) {
             boolean tmp2 = false;
             for(Map.Entry<String, Polygon> po : clippingPolygon) {
@@ -77,6 +79,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             }
             enter &= tmp2;
         }
+System.out.println(enter);
 
         return enter;
     }
@@ -153,17 +156,21 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      */
     public int size() {
         int size = 0;
+        System.out.println("SIZE");
         if (clippingPolygon == null && minimumYear == null && maximumYear == null) {
             for(SimpleOccurrenceDataProvider edp : this.occurrences) {
                 size = size + edp.size();
             }
         } else {
             for(SimpleOccurrenceDataProvider edp : this.occurrences) {
+                System.out.println(edp.size());
                 for (SimpleOccurrence so : edp) {
+                System.out.println(enter(so));
                     if (enter(so)) size++;
                 }
             }
         }
+        System.out.println(size);
         return size;
     }
 
@@ -307,7 +314,9 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
         for (SimpleOccurrence so : this) {
             if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
-                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT)) continue;
+                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT)
+                    || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
+                ) continue;
             tmp = so._getUTMCoordinates();
             if(tmp == null) continue;
             tmp1 = new Point2D(tmp);
@@ -315,12 +324,14 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             if(protectedAreas != null) {
                 for (Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
                     if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                        System.out.println("Protected"+ tmp1.toString());
                         pointsInPolygons.put(tmp1, e.getValue());
                     }
                 }
             }
-            if (!pointsInPolygons.containsKey(tmp1)) // if the point does not fall in any polygon, add the point anyway
+            if (!pointsInPolygons.containsKey(tmp1))  // if the point does not fall in any polygon, add the point anyway
                 pointsInPolygons.put(tmp1, nullPolygon);    // Multimap does not accept null values
+
         }
 
         // now calculate the number of UTM squares occupied
@@ -328,10 +339,9 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         for (Point2D u : pointsInPolygons.keySet()) {
             squares.add(new Square(u));
         }
-
+System.out.println(new Gson().toJson(squares));
         this.nQuads = squares.size();
         this.AOO = (this.nQuads * sizeOfSquare * sizeOfSquare) / 1000000d;
-
 //        if (this.size() >= 3) {
         if(pointsInPolygons.keySet().size() >= 3) {
             // compute convex convexHull
@@ -424,7 +434,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             out.print("\"></path>");
         }
 
-        if(showOccurrences) {
+        if(showOccurrences && this.squares != null) {
             // draw occurrence squares
             for (Square s : this.squares) {
                 Rectangle2D s1 = s.getSquare();

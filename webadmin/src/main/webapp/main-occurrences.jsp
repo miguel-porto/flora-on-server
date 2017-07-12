@@ -13,20 +13,20 @@
 <head>
 	<title><fmt:message key="page.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/occurrences.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet-areaselect.css"/>
-	<!--
+
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
 	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-	-->
-	<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet.css"/>
-	<script src="/floraon/js/leaflet.js"></script>
+
+	<!--<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet.css"/>
+	<script src="/floraon/js/leaflet.js"></script>-->
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
-	<script src="js/leaflet-areaselect.js"></script>
+	<!--<script src="js/leaflet-areaselect.js"></script>-->
 	<script type="text/javascript" src="/floraon/sorttable.js"></script>
 	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
 	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
@@ -62,6 +62,7 @@
     <c:set var="maphidden" value="${sessionScope['option-showmap'] == false ? true : (nroccurrences > 1000 ? true : false)}" />
     <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
         <div id="mapcontainer"></div>
+        <div class="button togglebutton" id="addpointstoggle">Adicionar ocorrências</div>
     </div>
     <div id="floatingswitches">
         <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap"/>
