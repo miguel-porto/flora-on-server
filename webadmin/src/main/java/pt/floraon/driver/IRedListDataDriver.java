@@ -115,4 +115,6 @@ public interface IRedListDataDriver {
      * @return
      */
     Set<String> getRedListTags(String territory) throws DatabaseException;
+
+    String buildRedListSheetCitation(RedListDataEntity rlde, Map<String, String> userMap);
 }

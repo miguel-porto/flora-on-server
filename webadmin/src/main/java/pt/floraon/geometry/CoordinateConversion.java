@@ -465,9 +465,16 @@ public final class CoordinateConversion {
 		return new UTMCoordinate(utm.getZone(), utm.getMGRS().getLatitudeBand(), (long) utm.getEasting() + half, (long) utm.getNorthing() + half, prec);
 	}
 
-	public static String LatLongToMGRS(float latitude, float longitude) {
+	public static String LatLongToMGRS(Float latitude, Float longitude, long sizeOfSquare) {
+		if(latitude == null || longitude == null) return "";
 		MGRSCoordConverter cnv = new MGRSCoordConverter();
-		return cnv.convertGeodeticToMGRS((latitude / 180) * PI, (longitude / 180) * PI, 2);
+		return cnv.convertGeodeticToMGRS((latitude / 180) * PI, (longitude / 180) * PI, sizeOfSquare);
+	}
+
+	public static String UTMToMGRS(UTMCoordinate coord, long sizeOfSquare) {
+		if(coord == null) return "";
+		LatLongCoordinate ll = UtmToLatLonWGS84(coord.getXZone(), coord.getYZone(), coord.getX(), coord.getY());
+		return LatLongToMGRS(ll.getLatitude(), ll.getLongitude(), sizeOfSquare);
 	}
 
 }

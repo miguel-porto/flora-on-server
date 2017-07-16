@@ -18,18 +18,6 @@
          <transport-guarantee>CONFIDENTIAL</transport-guarantee>
       </user-data-constraint>
    </security-constraint>
-
-   <security-constraint>
-      <web-resource-collection>
-         <web-resource-name>HTTPSOrHTTP</web-resource-name>
-         <url-pattern>*.ico</url-pattern>
-         <url-pattern>/images/*</url-pattern>
-         <url-pattern>*.css</url-pattern>
-      </web-resource-collection>
-      <user-data-constraint>
-         <transport-guarantee>NONE</transport-guarantee>
-      </user-data-constraint>
-   </security-constraint>
 -->
    <listener>
        <listener-class>pt.floraon.server.Startup</listener-class>

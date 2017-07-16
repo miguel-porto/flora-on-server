@@ -2,8 +2,6 @@ package pt.floraon.redlistdata;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
@@ -38,6 +36,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private int nQuads = 0;
     private long sizeOfSquare;
     private List<SimpleOccurrenceDataProvider> occurrences;
+    private boolean includeDoubtful = true;
 
     /**
      * A polygon theme to clip occurrences. May have any number of polygons.
@@ -55,20 +54,23 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      * @return
      */
     private boolean enter(SimpleOccurrence so) {
-        Gson gs = new GsonBuilder().setPrettyPrinting().create();
-//        System.out.println(gs.toJson(so));
-System.out.println("Enter? "+ so.getLatitude()+", "+so.getLongitude()+" Y:"+so.getYear());
+//        Gson gs = new GsonBuilder().setPrettyPrinting().create();
+//System.out.println("Enter? "+ so.getLatitude()+", "+so.getLongitude()+" Y:"+so.getYear());
         if(so.getLatitude() == null || so.getLongitude() == null) return false;
-//        System.out.println("ENTER");
         if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
+        if(!includeDoubtful) {
+            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
+                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT)
+                    || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
+                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty())
+                    ) return false;
+        }
         boolean enter;
         enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
-//System.out.println(enter+"|"+minimumYear +"|"+(minimumYear != null && so.getYear() != null)+"|");
         enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear);
-//System.out.println(enter);
         // records that do not have a year are excluded from historical datasets. They're only included in the current dataset.
         enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0));
-//System.out.println(enter);
+
         if(clippingPolygon != null) {
             boolean tmp2 = false;
             for(Map.Entry<String, Polygon> po : clippingPolygon) {
@@ -79,7 +81,6 @@ System.out.println("Enter? "+ so.getLatitude()+", "+so.getLongitude()+" Y:"+so.g
             }
             enter &= tmp2;
         }
-System.out.println(enter);
 
         return enter;
     }
@@ -156,21 +157,11 @@ System.out.println(enter);
      */
     public int size() {
         int size = 0;
-        System.out.println("SIZE");
-        if (clippingPolygon == null && minimumYear == null && maximumYear == null) {
-            for(SimpleOccurrenceDataProvider edp : this.occurrences) {
-                size = size + edp.size();
-            }
-        } else {
-            for(SimpleOccurrenceDataProvider edp : this.occurrences) {
-                System.out.println(edp.size());
-                for (SimpleOccurrence so : edp) {
-                System.out.println(enter(so));
-                    if (enter(so)) size++;
-                }
+        for(SimpleOccurrenceDataProvider edp : this.occurrences) {
+            for (SimpleOccurrence so : edp) {
+                if (enter(so)) size++;
             }
         }
-        System.out.println(size);
         return size;
     }
 
@@ -201,19 +192,13 @@ System.out.println(enter);
         kml.marshal(out);
     }
 
-    private String precisionToString(int prec) {
-        if(prec > 1) {
-            if(prec >= 1000)
-                return (prec / 1000) + "x" + (prec / 1000) + " km";
-            else
-                return (prec) + "x" + (prec) + " m";
-        } else return "";
-    }
-
     private class Square {
         private long qx, qy;
+        private Point2D point;
+        private String MGRS;
 
         public Square(Point2D coordinate) {
+            this.point = coordinate;
             qx = (long) Math.floor(coordinate.x() / sizeOfSquare);
             qy = (long) Math.floor(coordinate.y() / sizeOfSquare);
         }
@@ -229,6 +214,13 @@ System.out.println(enter);
             out.add(new Point2D(qx * sizeOfSquare, (qy + 1) * sizeOfSquare));
             out.add(new Point2D((qx + 1) * sizeOfSquare, (qy + 1) * sizeOfSquare));
             return out;
+        }
+
+        public String getMGRS() {
+            if(MGRS == null) {
+                MGRS = CoordinateConversion.LatLongToMGRS(this.point.getLatitude(), this.point.getLongitude(), sizeOfSquare);
+            }
+            return MGRS;
         }
 
         @Override
@@ -263,6 +255,10 @@ System.out.println(enter);
         return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear);
     }
 
+    public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
+        return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear, includeDoubtful);
+    }
+
     /**
      * This constructor does nothing but providing an Iterator for all data providers merged. No calculations are done.
      * @param occurrences
@@ -282,6 +278,10 @@ System.out.println(enter);
         this.maximumYear = maximumYear;
     }
 
+    private OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
+        this(occurrences, clippingPolygon, minimumYear, maximumYear);
+        this.includeDoubtful = includeDoubtful;
+    }
     /**
      * This constructor readily computes all indices from the data providers, for all records.
      * @param occurrences
@@ -289,10 +289,11 @@ System.out.println(enter);
      * @param sizeOfSquare
      */
     public OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
-            , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
+            , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
         this.clippingPolygon = clippingPolygon;
         this.minimumYear = minimumYear;
         this.maximumYear = maximumYear;
+        this.includeDoubtful = includeDoubtful;
 
         Polygon nullPolygon = new Polygon();
         this.protectedAreas = protectedAreas;
@@ -313,18 +314,14 @@ System.out.println(enter);
 
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
         for (SimpleOccurrence so : this) {
-            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
-                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT)
-                    || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
-                ) continue;
             tmp = so._getUTMCoordinates();
             if(tmp == null) continue;
-            tmp1 = new Point2D(tmp);
+            tmp1 = new Point2D(tmp, new LatLongCoordinate(so.getLatitude(), so.getLongitude()));
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             if(protectedAreas != null) {
                 for (Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
                     if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                        System.out.println("Protected"+ tmp1.toString());
+//                        System.out.println("Protected"+ tmp1.toString());
                         pointsInPolygons.put(tmp1, e.getValue());
                     }
                 }
@@ -339,7 +336,7 @@ System.out.println(enter);
         for (Point2D u : pointsInPolygons.keySet()) {
             squares.add(new Square(u));
         }
-System.out.println(new Gson().toJson(squares));
+//System.out.println(new Gson().toJson(squares));
         this.nQuads = squares.size();
         this.AOO = (this.nQuads * sizeOfSquare * sizeOfSquare) / 1000000d;
 //        if (this.size() >= 3) {
@@ -392,17 +389,18 @@ System.out.println(new Gson().toJson(squares));
         clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
-    public OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare) {
-        this(occurrences, protectedAreas, sizeOfSquare, null, null, null);
-    }
-
-    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull) {
-        InputStream str = this.getClass().getResourceAsStream("basemap.svg");
-        try {
-            IOUtils.copy(str, out);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border) {
+        if(showBaseMap) {
+            InputStream str = this.getClass().getResourceAsStream("basemap.svg");
+            try {
+                IOUtils.copy(str, out);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        } else {
+            out.print("<svg class=\"svgmap\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:lvf=\"http://flora-on.pt\" preserveAspectRatio=\"xMidYMin meet\" viewBox=\"440000 4090000 300000 597000\">" +
+                    "<g transform=\"translate(0,8767000) scale(1,-1)\">");
         }
 /*
         for (int i = 0; i < this.clusters.size(); i++) {
@@ -438,7 +436,13 @@ System.out.println(new Gson().toJson(squares));
             // draw occurrence squares
             for (Square s : this.squares) {
                 Rectangle2D s1 = s.getSquare();
-                out.print("<rect x=\"" + s1.getMinX() + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"/>");
+
+                if(standAlone)
+                    out.print("<rect class=\"utmsquare\" style=\"fill:#f55145; stroke:white; stroke-width:" + border
+                            + "px\" vector-effect=\"non-scaling-stroke\" lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX()
+                            + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"/>");
+                else
+                    out.print("<rect lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX() + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"/>");
             }
         }
 

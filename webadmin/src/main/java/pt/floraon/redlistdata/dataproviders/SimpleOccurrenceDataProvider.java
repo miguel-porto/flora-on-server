@@ -30,6 +30,7 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
 
     /**
      * Executes a query and updates the Iterable list of occurrences with the results.
+     * The query involves all infrataxa.
      * @throws FloraOnException
      * @throws IOException
      */

@@ -142,4 +142,18 @@ public class BaseFloraOnDriver {
 		sb.append("]");
 		return new GraphUpdateResult(sb.toString(), "[]");
 	}
+
+	public String buildRedListSheetCitation(RedListDataEntity rlde, Map<String, String> userMap) {
+		if(StringUtils.isArrayEmpty(rlde.getAssessment().getAuthors())) return "";
+		List<String> authors = new ArrayList<>();
+		for(String aut : rlde.getAssessment().getAuthors())
+			authors.add(userMap.get(aut));
+
+		String tmp = StringUtils.implode(", ", authors.toArray(new String[authors.size()]));
+		String out = (tmp == null ? "" : tmp) + ". " +
+				(rlde.getAssessment().getPublicationStatus().isPublished() ? rlde._getYearPublished() : "Unpublished") +
+				". <i>" + rlde.getTaxEnt().getName() + "</i>" +
+				". Lista Vermelha da Flora Vascular de Portugal Continental.";
+		return out;
+	}
 }

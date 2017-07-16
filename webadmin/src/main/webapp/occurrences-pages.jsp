@@ -53,7 +53,6 @@
     <div class="heading2">
         <h2>Your inventories - ${nrtotaloccurrences}</h2>
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
-<!--        <p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="inventorysummary" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>-->
         <form method="get" action="/floraon/occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />
             <input type="hidden" name="p" value="1" />
@@ -72,7 +71,7 @@
     </div>
     <table id="inventorysummary" class="occurrencetable verysmalltext sortable">
         <tr><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
-        <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2"/></th><th>Species</th></tr>
+        <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2c"/></th><th>Species</th></tr>
         <c:forEach var="inv" items="${inventories}">
         <tr class="geoelement">
             <td data-name="code">${inv.getCode()}</td>
@@ -132,10 +131,11 @@
         <h2>Your inventories</h2>
         </c:if>
         <c:forEach var="inv" items="${inventories}">
-        <c:if test="${inv.getLatitude() == null}"><div class="inventory"></c:if>
-        <c:if test="${inv.getLatitude() != null}"><div class="inventory geoelement"></c:if>
+        <div class="inventory geoelement">
+        <!--<c:if test="${inv._getInventoryLatitude() == null}"><div class="inventory"></c:if>
+        <c:if test="${inv._getInventoryLatitude() != null}"><div class="inventory geoelement"></c:if>-->
             <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
-            <c:if test="${inv.getLatitude() != null}"> ${inv._getCoordinates()}</c:if>
+            <c:if test="${inv._getInventoryLatitude() != null}"> ${inv._getInventoryCoordinates()}</c:if>
             </h3>
             <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-confirm="true" data-callback="?w=main">
                 <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
@@ -151,7 +151,7 @@
                         <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
                     </tr>
                     <tr>
-                        <td class="field editable coordinates" data-name="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
+                        <td class="field editable coordinates" data-name="coordinates" data-lat="${inv._getInventoryLatitude()}" data-lng="${inv._getInventoryLongitude()}">${inv._getInventoryCoordinates()}</td>
                         <td class="field editable" data-name="precision">${inv.getPrecision().toString()}</td>
                         <td class="field editable" data-name="code">${inv.getCode()}</td>
                         <td class="field editable" data-name="locality">${inv.getLocality()}</td>
@@ -408,7 +408,6 @@
             <c:if test="${param.flavour == 'redlist'}">
             <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
             </c:if>
-            <!--<p><fmt:message key="occurrences.1d"/>: <input id="filtertable" data-table="alloccurrencetable" type="text" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>"/></p>-->
             <form method="get" action="/floraon/occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
                 <input type="hidden" name="flavour" value="${param.flavour}" />

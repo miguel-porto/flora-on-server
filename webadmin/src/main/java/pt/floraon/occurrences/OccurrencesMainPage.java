@@ -141,7 +141,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                             , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(tu, (page - 1) * count, count));
                 } else {
                     session.setAttribute("filter", filter);
-                    request.setAttribute("nroccurrences", count);
+                    request.setAttribute("nroccurrences", count);   // TODO this should be the number after filtering, but we don't know it by now
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
                             , driver.getOccurrenceDriver().findOccurrencesByFilter(filter, tu, (page - 1) * count, count));
@@ -198,7 +198,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     OBSERVED_IN oi = i2._getTaxa()[0];
 //                    TaxEnt te = oi.getTaxEnt();
                     csv.printRecord(oi.getGpsCode(), i2.getVerbLocality(), i2.getLatitude(), i2.getLongitude()
-                             , CoordinateConversion.LatLongToMGRS(i2.getLatitude(), i2.getLongitude())
+                             , CoordinateConversion.LatLongToMGRS(i2.getLatitude(), i2.getLongitude(), 1000)
                              , i2._getDate(), oi.getVerbTaxon(), oi.getComment(), oi.getPrivateComment());
                 }
                 csv.close();

@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
     L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
 
-    myMap.on('click', addNewFeature);
+    myMap.on('click', mapClick);
 
 //    attachFormPosters(fileUploadCallback);
     attachFormPosters(null, function(ev) {
@@ -523,8 +523,9 @@ function deselectGeoElements(par) {
 
 function selectGeoElement(cell, value, clearothers) {
     var geoel = getParentbyTag(cell, 'tr');
-    if(!geoel)
-        geoel = getParentbyClass(cell, 'geoelement');
+    if(!geoel && cell.classList.contains('geoelement')) geoel = cell;
+    if(!geoel) geoel = getParentbyClass(cell, 'geoelement');
+    if(!geoel) return;
 
     if(value === undefined) {
         geoel.classList.toggle('selected');
@@ -698,14 +699,14 @@ function fileUploadCallback(resp, ev) {
     }
 }
 
-function addNewFeature(ev) {
+function mapClick(ev) {
     var opt = document.getElementById('addpointstoggle');
-    if(opt && !opt.classList.contains('selected')) return;
+
     var editboxes = document.querySelectorAll('.editbox');
     for(var i = 0; i < editboxes.length; i++) {
         if(editboxes[i].offsetParent !== null) {
             var par = editboxes[i].parentNode;
-            if(par.classList.contains('coordinates')) {
+            if(par.classList.contains('coordinates')) { // there's a coordinate box selected, so update it
                 acceptVisibleSearchbox();
                 var ll = ev.latlng;
                 var ge = getParentbyClass(par, 'geoelement');
@@ -719,6 +720,8 @@ function addNewFeature(ev) {
             }
         }
     }
+
+    if(opt && !opt.classList.contains('selected')) return;
 
     acceptVisibleSearchbox();
     if(document.getElementById('addoccurrencetable'))

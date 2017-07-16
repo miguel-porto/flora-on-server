@@ -3,9 +3,6 @@ package pt.floraon.geometry;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * Taken from
@@ -30,6 +27,9 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
     protected final double x;    // x coordinate
     protected final double y;    // y coordinate
 
+    protected final Float latitude;    // x coordinate in latlong
+    protected final Float longitude;    // y coordinate in latlong
+
     /**
      * Initializes a new point (x, y).
      *
@@ -39,7 +39,7 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
      *                                  is {@code Double.NaN}, {@code Double.POSITIVE_INFINITY} or
      *                                  {@code Double.NEGATIVE_INFINITY}
      */
-    public Point2D(double x, double y) {
+    public Point2D(double x, double y, Float latitude, Float longitude) {
         if (Double.isInfinite(x) || Double.isInfinite(y))
             throw new IllegalArgumentException("Coordinates must be finite");
         if (Double.isNaN(x) || Double.isNaN(y))
@@ -49,10 +49,25 @@ public final class Point2D implements Comparable<Point2D>, Clusterable {
 
         if (y == 0.0) this.y = 0.0;  // convert -0.0 to +0.0
         else this.y = y;
+
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    public Point2D(UTMCoordinate coord) {
-        this(coord.getX(), coord.getY());
+    public Float getLatitude() {
+        return this.latitude;
+    }
+
+    public Float getLongitude() {
+        return this.longitude;
+    }
+
+    public Point2D(double x, double y) {
+        this(x, y, null, null);
+    }
+
+    public Point2D(UTMCoordinate coord, LatLongCoordinate geocoord) {
+        this(coord.getX(), coord.getY(), geocoord.getLatitude(), geocoord.getLongitude());
     }
     /**
      * Returns the x-coordinate.

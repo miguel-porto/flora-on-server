@@ -15,6 +15,7 @@ import java.io.IOException;
 public class MainPage extends FloraOnServlet {
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+/*
         if("map".equals(thisRequest.getParameterAsString("w"))) {
             TaxEnt tmpTe = driver.getNodeWorkerDriver().getNode(thisRequest.getParameterAsKey("id"), TaxEnt.class);
             for (SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
@@ -27,10 +28,11 @@ public class MainPage extends FloraOnServlet {
 
             thisRequest.response.setContentType("image/svg+xml");
             thisRequest.response.setCharacterEncoding("UTF-8");
-            oP.exportSVG(thisRequest.response.getWriter(), true, false);
+            oP.exportSVG(thisRequest.response.getWriter(), true, false, false);
             thisRequest.response.getWriter().flush();
             return;
         }
+*/
 
         thisRequest.request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
         if(driver.getListDriver().getAllOrphanTaxa().hasNext())

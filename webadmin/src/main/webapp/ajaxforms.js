@@ -62,11 +62,23 @@ function attachFormPosters(callback, beforePost) {
 	}
 }
 
-function attachAJAXContent() {
+function attachAJAXContent(callback) {
     var ajaxcontent = document.querySelectorAll('div.ajaxcontent');
     function createMyFunction(url, el) {
         return function() {
-            fetchAJAX(url, function(rt) { el.removeAttribute('style'); el.innerHTML = rt; });
+            fetchAJAX(url, function(rt) {
+                var newel = createHTML(rt);
+                var parent = newel.firstChild;
+                el.classList.remove('ajaxcontent');
+                parent.setAttribute('class', parent.getAttribute('class') + ' ' + el.getAttribute('class'));
+                parent.id = el.id;
+                el.parentNode.replaceChild(newel, el);
+/*
+                el.removeAttribute('style');
+                el.innerHTML = rt;
+*/
+                if(callback) callback(parent);
+            });
         };
     }
 

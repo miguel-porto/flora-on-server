@@ -28,7 +28,7 @@ public class SimpleOccurrenceClusterer {
             UTMCoordinate utm = so._getUTMCoordinates();
             if(utm != null) {
                 if(!so.getPrecision()._isImprecise())
-                    occMap.put(new Point2D(utm), so);
+                    occMap.put(new Point2D(utm.getX(), utm.getY(), null, null), so);
                 else {
                     singletons.put(counter, so);
                     counter++;

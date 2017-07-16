@@ -102,7 +102,7 @@ public class Assessment implements DiffableBean {
 
     public String getFinalJustification() {
         return finalJustification == null ? (getJustification().equals("") ? getUpDownListingJustification()
-                : (getJustification() + getUpDownListingJustification()))
+                : (getJustification() + " " + getUpDownListingJustification()))
                 : finalJustification;
     }
 

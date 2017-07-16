@@ -112,7 +112,18 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
             this.latitude = llc.getLatitude();
             this.longitude = llc.getLongitude();
         }
+
+        if(Constants.isNoData(latitude)) latitude = null;
+        if(Constants.isNoData(longitude)) longitude = null;
     }
+
+    private boolean shouldGetCoordinatesFromObservation() {
+        if(_getTaxa() != null && _getTaxa().length == 1) {
+            if(_getTaxa()[0].getObservationLatitude() == null || _getTaxa()[0].getObservationLongitude() == null) return false;
+            return true;
+        } else return false;
+    }
+
     /**
      * Returns the latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
      * @return
@@ -120,22 +131,52 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @Override
     public Float getLatitude() {
         checkGeographicCoordinates();
-        return (_getTaxa() != null && _getTaxa().length == 1) ? (_getTaxa()[0].getObservationLatitude() == null ?
-                latitude : _getTaxa()[0].getObservationLatitude()) : latitude;
-//        return latitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getObservationLatitude() : null) : latitude;
-    }
-
-    @Override
-    public void setLatitude(Float latitude) {
-        this.latitude = latitude;
+        if(shouldGetCoordinatesFromObservation()) {
+            Float olat = _getTaxa()[0].getObservationLatitude();
+            return (Constants.isNoData(olat) ? null : olat);
+        } else return latitude;
     }
 
     @Override
     public Float getLongitude() {
         checkGeographicCoordinates();
-        return (_getTaxa() != null && _getTaxa().length == 1) ? (_getTaxa()[0].getObservationLongitude() == null ?
-                longitude : _getTaxa()[0].getObservationLongitude()) : longitude;
-//        return longitude == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getObservationLongitude() : null) : longitude;
+        if(shouldGetCoordinatesFromObservation()) {
+            Float olng = _getTaxa()[0].getObservationLongitude();
+            return (Constants.isNoData(olng) ? null : olng);
+        } else return longitude;
+    }
+
+    public String _getCoordinates() {
+        if(this.getLatitude() == null || this.getLongitude() == null)
+            return "*";
+        else
+            return String.format(Locale.ROOT, "%.5f, %.5f", this.getLatitude(), this.getLongitude());
+    }
+
+    public Float _getInventoryLatitude() {
+        checkGeographicCoordinates();
+        return latitude == null ? getLatitude() : latitude;
+    }
+
+    public Float _getInventoryLongitude() {
+        checkGeographicCoordinates();
+        return longitude == null ? getLongitude() : longitude;
+    }
+
+    /**
+     * This gets the coordinates of the Inventory. If they are null, and the inventory has only one observation, returns
+     * the coordinates of that observation in parenthesis.
+     * @return
+     */
+    public String _getInventoryCoordinates() {
+        if(this.latitude == null || this.longitude == null) {
+            if(this.getLatitude() == null || this.getLongitude() == null)
+                return "*";
+            else
+                return "* (" + this._getCoordinates() + ")";
+        } else {
+            return String.format(Locale.ROOT, "%.5f, %.5f", this._getInventoryLatitude(), this._getInventoryLongitude());
+        }
     }
 
     @Override
@@ -156,6 +197,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @Override
     public Float _getsetUTMY() {
         return this.utmY;
+    }
+
+    @Override
+    public void setLatitude(Float latitude) {
+        this.latitude = latitude;
     }
 
     @Override
@@ -247,6 +293,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return sb.toString();
     }
 
+    public boolean _isDateEmpty() {
+        return (day == null || day == 0) && (month == null || month == 0) && (year == null || year == 0);
+    }
+
     public String _getDateYMD() {
         StringBuilder sb = new StringBuilder();
         sb.append(year == null ? "----" : year).append("/")
@@ -255,16 +305,13 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return sb.toString();
     }
 
-    public String _getCoordinates() {
-        if(this.getLatitude() == null || this.getLongitude() == null)
-            return "*";
-        else
-            return String.format(Locale.ROOT, "%.5f, %.5f", this.getLatitude(), this.getLongitude());
-    }
-
     public UTMCoordinate _getUTMCoordinates() {
         if(this.getLatitude() == null || this.getLongitude() == null) return null;
         return CoordinateConversion.LatLonToUtmWGS84(this.getLatitude(), this.getLongitude(), 0);
+    }
+
+    public String _getMGRSString(long sizeOfSquare) {
+        return CoordinateConversion.LatLongToMGRS(this.getLatitude(), this.getLongitude(), sizeOfSquare);
     }
 
     public Boolean getComplete() {

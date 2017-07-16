@@ -73,7 +73,7 @@ public class MGRSCoordConverter
     private double MGRS_f = 1 / 298.257223563;  // Flattening of ellipsoid
     private String MGRS_Ellipsoid_Code = "WE";
 
-    private String MGRSString = "";
+//    private String MGRSString = "";
     private long ltr2_low_value;
     private long ltr2_high_value;       // this is only used for doing MGRS to xxx conversions.
     private double false_northing;
@@ -652,68 +652,38 @@ public class MGRSCoordConverter
      *
      * @param latitude  Latitude in radians
      * @param longitude Longitude in radian
-     * @param precision Precision level of MGRS string
+     * @param sizeOfSquare Precision level of MGRS string
      *
      * @return error code
      */
-    public String convertGeodeticToMGRS(double latitude, double longitude, int precision)
-    {
-        MGRSString = "";
-
-        long error_code = MGRS_NO_ERROR;
+    public String convertGeodeticToMGRS(double latitude, double longitude, long sizeOfSquare) throws IllegalArgumentException {
         if ((latitude < -PI_OVER_2) || (latitude > PI_OVER_2))
-        { /* Latitude out of range */
-            error_code = MGRS_LAT_ERROR;
-        }
+            throw new IllegalArgumentException("Latitude " + latitude + " out of range");
 
         if ((longitude < -PI) || (longitude > (2 * PI)))
-        { /* Longitude out of range */
-            error_code = MGRS_LON_ERROR;
+            throw new IllegalArgumentException("Longitude " + longitude + " out of range");
+
+        if ((sizeOfSquare < 1) || (sizeOfSquare > 10000))
+            throw new IllegalArgumentException("Precision " + sizeOfSquare + " not supported");
+
+        if ((latitude < MIN_UTM_LAT) || (latitude > MAX_UTM_LAT)) {
+            UPSCoord UPS =
+                    UPSCoord.fromLatLon(Angle.fromRadians(latitude), Angle.fromRadians(longitude));
+            return convertUPSToMGRS(UPS.getHemisphere(), UPS.getEasting(),
+                    UPS.getNorthing(), sizeOfSquare);
+        } else {
+            UTMCoord UTM =
+                UTMCoord.fromLatLon(Angle.fromRadians(latitude), Angle.fromRadians(longitude));
+            return convertUTMToMGRS(UTM.getZone(), latitude, UTM.getEasting(),
+                UTM.getNorthing(), sizeOfSquare);
         }
-
-        if ((precision < 0) || (precision > MAX_PRECISION))
-            error_code = MGRS_PRECISION_ERROR;
-
-        if (error_code == MGRS_NO_ERROR)
-        {
-            if ((latitude < MIN_UTM_LAT) || (latitude > MAX_UTM_LAT))
-            {
-                try
-                {
-                    UPSCoord UPS =
-                        UPSCoord.fromLatLon(Angle.fromRadians(latitude), Angle.fromRadians(longitude));
-                    error_code |= convertUPSToMGRS(UPS.getHemisphere(), UPS.getEasting(),
-                        UPS.getNorthing(), precision);
-                }
-                catch (Exception e)
-                {
-                    error_code = MGRS_UPS_ERROR;
-                }
-            }
-            else
-            {
-                try
-                {
-                    UTMCoord UTM =
-                        UTMCoord.fromLatLon(Angle.fromRadians(latitude), Angle.fromRadians(longitude));
-                    error_code |= convertUTMToMGRS(UTM.getZone(), latitude, UTM.getEasting(),
-                        UTM.getNorthing(), precision);
-                }
-                catch (Exception e)
-                {
-                    error_code = MGRS_UTM_ERROR;
-                }
-            }
-        }
-
-        return MGRSString;
     }
 
     /** @return converted MGRS string */
-    public String getMGRSString()
-    {
-        return MGRSString;
-    }
+//    public String getMGRSString()
+//    {
+//        return MGRSString;
+//    }
 
     /**
      * The function Convert_UPS_To_MGRS converts UPS (hemisphere, easting, and northing) coordinates to an MGRS
@@ -724,11 +694,11 @@ public class MGRSCoordConverter
      *                   AVKey#SOUTH}.
      * @param Easting    Easting/X in meters
      * @param Northing   Northing/Y in meters
-     * @param Precision  Precision level of MGRS string
+     * @param sizeOfSquare  Precision level of MGRS string
      *
      * @return error value
      */
-    private long convertUPSToMGRS(String Hemisphere, Double Easting, Double Northing, long Precision)
+    private String convertUPSToMGRS(String Hemisphere, Double Easting, Double Northing, long sizeOfSquare)
     {
         double false_easting;       /* False easting for 2nd letter                 */
         double false_northing;      /* False northing for 3rd letter                */
@@ -736,7 +706,6 @@ public class MGRSCoordConverter
         double grid_northing;       /* Northing used to derive 3rd letter of MGRS   */
         int ltr2_low_value;        /* 2nd letter range - low number                */
         long[] letters = new long[MGRS_LETTERS];  /* Number location of 3 letters in alphabet     */
-        double divisor;
         int index;
         long error_code = MGRS_NO_ERROR;
 
@@ -746,14 +715,14 @@ public class MGRSCoordConverter
             error_code |= MGRS_EASTING_ERROR;
         if ((Northing < MIN_EAST_NORTH) || (Northing > MAX_EAST_NORTH))
             error_code |= MGRS_NORTHING_ERROR;
-        if ((Precision < 0) || (Precision > MAX_PRECISION))
+        if ((sizeOfSquare < 1) || (sizeOfSquare > 10000))
             error_code |= MGRS_PRECISION_ERROR;
 
         if (error_code == MGRS_NO_ERROR)
         {
-            divisor = Math.pow(10.0, (5 - Precision));
-            Easting = roundMGRS(Easting / divisor) * divisor;
-            Northing = roundMGRS(Northing / divisor) * divisor;
+//            divisor = Math.pow(10.0, (5 - sizeOfSquare));
+            Easting = roundMGRS(Easting / sizeOfSquare) * sizeOfSquare;
+            Northing = roundMGRS(Northing / sizeOfSquare) * sizeOfSquare;
 
             if (AVKey.NORTH.equals(Hemisphere))
             {
@@ -819,9 +788,9 @@ public class MGRSCoordConverter
                     letters[1] = letters[1] + 3;
             }
 
-            makeMGRSString(0, letters, Easting, Northing, Precision);
+            return makeMGRSString(0, letters, Easting, Northing, sizeOfSquare);
         }
-        return (error_code);
+        return "";
     }
 
     /**
@@ -831,61 +800,54 @@ public class MGRSCoordConverter
      * @param Latitude  Latitude in radians
      * @param Easting   Easting
      * @param Northing  Northing
-     * @param Precision Precision
+     * @param sizeOfSquare Precision
      *
      * @return error code
      */
-    private long convertUTMToMGRS(long Zone, double Latitude, double Easting, double Northing, long Precision)
-    {
+    private String convertUTMToMGRS(long Zone, double Latitude, double Easting, double Northing, long sizeOfSquare) {
         double grid_easting;        /* Easting used to derive 2nd letter of MGRS   */
         double grid_northing;       /* Northing used to derive 3rd letter of MGRS  */
         long[] letters = new long[MGRS_LETTERS];  /* Number location of 3 letters in alphabet    */
-        double divisor;
-        long error_code;
 
         /* Round easting and northing values */
-        divisor = Math.pow(10.0, (5 - Precision));
-        Easting = roundMGRS(Easting / divisor) * divisor;
-        Northing = roundMGRS(Northing / divisor) * divisor;
+//        divisor = Math.pow(10.0, (5 - sizeOfSquare));
+        Easting = roundMGRS(Easting / sizeOfSquare) * sizeOfSquare;
+        Northing = roundMGRS(Northing / sizeOfSquare) * sizeOfSquare;
 
         getGridValues(Zone);
 
-        error_code = getLatitudeLetter(Latitude);
+        getLatitudeLetter(Latitude);
         letters[0] = getLastLetter();
 
-        if (error_code == MGRS_NO_ERROR)
+        grid_northing = Northing;
+        if (grid_northing == 1.e7)
+            grid_northing = grid_northing - 1.0;
+
+        while (grid_northing >= TWOMIL)
         {
-            grid_northing = Northing;
-            if (grid_northing == 1.e7)
-                grid_northing = grid_northing - 1.0;
-
-            while (grid_northing >= TWOMIL)
-            {
-                grid_northing = grid_northing - TWOMIL;
-            }
-            grid_northing = grid_northing + false_northing;   //smithjl
-
-            if (grid_northing >= TWOMIL)                     //smithjl
-                grid_northing = grid_northing - TWOMIL;        //smithjl
-
-            letters[2] = (long) (grid_northing / ONEHT);
-            if (letters[2] > LETTER_H)
-                letters[2] = letters[2] + 1;
-
-            if (letters[2] > LETTER_N)
-                letters[2] = letters[2] + 1;
-
-            grid_easting = Easting;
-            if (((letters[0] == LETTER_V) && (Zone == 31)) && (grid_easting == 500000.0))
-                grid_easting = grid_easting - 1.0; /* SUBTRACT 1 METER */
-
-            letters[1] = ltr2_low_value + ((long) (grid_easting / ONEHT) - 1);
-            if ((ltr2_low_value == LETTER_J) && (letters[1] > LETTER_N))
-                letters[1] = letters[1] + 1;
-
-            makeMGRSString(Zone, letters, Easting, Northing, Precision);
+            grid_northing = grid_northing - TWOMIL;
         }
-        return error_code;
+        grid_northing = grid_northing + false_northing;   //smithjl
+
+        if (grid_northing >= TWOMIL)                     //smithjl
+            grid_northing = grid_northing - TWOMIL;        //smithjl
+
+        letters[2] = (long) (grid_northing / ONEHT);
+        if (letters[2] > LETTER_H)
+            letters[2] = letters[2] + 1;
+
+        if (letters[2] > LETTER_N)
+            letters[2] = letters[2] + 1;
+
+        grid_easting = Easting;
+        if (((letters[0] == LETTER_V) && (Zone == 31)) && (grid_easting == 500000.0))
+            grid_easting = grid_easting - 1.0; /* SUBTRACT 1 METER */
+
+        letters[1] = ltr2_low_value + ((long) (grid_easting / ONEHT) - 1);
+        if ((ltr2_low_value == LETTER_J) && (letters[1] > LETTER_N))
+            letters[1] = letters[1] + 1;
+
+        return makeMGRSString(Zone, letters, Easting, Northing, sizeOfSquare);
     }
 
     /**
@@ -954,10 +916,8 @@ public class MGRSCoordConverter
      *
      * @return error code
      */
-    private long getLatitudeLetter(double latitude)
-    {
+    private void getLatitudeLetter(double latitude) throws IllegalArgumentException {
         double temp;
-        long error_code = MGRS_NO_ERROR;
         double lat_deg = latitude * RAD_TO_DEG;
 
         if (lat_deg >= 72 && lat_deg < 84.5)
@@ -969,15 +929,13 @@ public class MGRSCoordConverter
             lastLetter = (long) latitudeBandConstants[(int) temp][0];
         }
         else
-            error_code |= MGRS_LAT_ERROR;
-
-        return error_code;
+            throw new IllegalArgumentException("Latitude out of bounds.");
     }
 
     /**
      * The function Round_MGRS rounds the input value to the nearest integer, using the standard engineering rule. The
      * rounded integer value is then returned.
-     *
+     * NOTE: this function was changed to truncate values, cause we assume the code is for the square.
      * @param value Value to be rounded
      *
      * @return rounded double value
@@ -985,6 +943,8 @@ public class MGRSCoordConverter
     private double roundMGRS(double value)
     {
         double ivalue = Math.floor(value);
+        return ivalue;
+/*
         long ival;
         double fraction = value - ivalue;
         // double fraction = modf (value, &ivalue);
@@ -993,6 +953,7 @@ public class MGRSCoordConverter
         if ((fraction > 0.5) || ((fraction == 0.5) && (ival % 2 == 1)))
             ival++;
         return (double) ival;
+*/
     }
 
     /**
@@ -1002,32 +963,49 @@ public class MGRSCoordConverter
      * @param Letters   MGRS coordinate string letters
      * @param Easting   Easting value
      * @param Northing  Northing value
-     * @param Precision Precision level of MGRS string
+     * @param sizeOfSquare Precision level of MGRS string
      *
      * @return error code
      */
-    private long makeMGRSString(long Zone, long[] Letters, double Easting, double Northing, long Precision)
-    {
+    private String makeMGRSString(long Zone, long[] Letters, double Easting, double Northing, long sizeOfSquare) throws IllegalArgumentException {
         int j;
         double divisor;
         long east;
         long north;
-        long error_code = MGRS_NO_ERROR;
+        String MGRSString;
 
         if (Zone != 0)
             MGRSString = String.format("%02d", Zone);
         else
             MGRSString = "  ";
 
-        for (j = 0; j < 3; j++)
-        {
-
+        for (j = 0; j < 3; j++) {
             if (Letters[j] < 0 || Letters[j] > 26)
-                return MGRS_ZONE_ERROR; 
+                throw new IllegalArgumentException("MGRS zone error.");
+
             MGRSString = MGRSString + alphabet.charAt((int) Letters[j]);
+            if(j == 0) MGRSString += " ";
         }
 
-        divisor = Math.pow(10.0, (5 - Precision));
+//        divisor = Math.pow(10.0, (5 - sizeOfSquare));
+        int precision;
+        if(sizeOfSquare >= 10000) {
+            divisor = 10000;
+            precision = 1;
+        } else if(sizeOfSquare >= 1000) {
+            divisor = 1000;
+            precision = 2;
+        } else if(sizeOfSquare >= 100) {
+            divisor = 100;
+            precision = 3;
+        } else if(sizeOfSquare >= 10) {
+            divisor = 100;
+            precision = 4;
+        } else if(sizeOfSquare >= 1) {
+            divisor = 1;
+            precision = 5;
+        } else throw new IllegalArgumentException("Size of square " + sizeOfSquare + " not supported.");
+
         Easting = Easting % 100000.0;
         if (Easting >= 99999.5)
             Easting = 99999.0;
@@ -1036,18 +1014,18 @@ public class MGRSCoordConverter
         // Here we need to only use the number requesting in the precision
         Integer iEast = (int) east;
         String sEast = iEast.toString();
-        if (sEast.length() > Precision)
-            sEast = sEast.substring(0, (int) Precision - 1);
+        if (sEast.length() > precision)
+            sEast = sEast.substring(0, (int) precision - 1);
         else
         {
             int i;
             int length = sEast.length();
-            for (i = 0; i < Precision - length; i++)
+            for (i = 0; i < precision - length; i++)
             {
                 sEast = "0" + sEast;
             }
         }
-        MGRSString = MGRSString + " " + sEast;
+        MGRSString = MGRSString + sEast;
 
         Northing = Northing % 100000.0;
         if (Northing >= 99999.5)
@@ -1056,20 +1034,19 @@ public class MGRSCoordConverter
 
         Integer iNorth = (int) north;
         String sNorth = iNorth.toString();
-        if (sNorth.length() > Precision)
-            sNorth = sNorth.substring(0, (int) Precision - 1);
+        if (sNorth.length() > precision)
+            sNorth = sNorth.substring(0, (int) precision - 1);
         else
         {
             int i;
             int length = sNorth.length();
-            for (i = 0; i < Precision - length; i++)
+            for (i = 0; i < precision - length; i++)
             {
                 sNorth = "0" + sNorth;
             }
         }
-        MGRSString = MGRSString + " " + sNorth;
-System.out.println(MGRSString);
-        return (error_code);
+        MGRSString = MGRSString + sNorth;
+        return MGRSString;
     }
 
     /**

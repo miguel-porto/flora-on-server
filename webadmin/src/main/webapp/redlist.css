@@ -3,7 +3,7 @@ a.returntomain { position:absolute; left:4px; top:4px}
 a.returntomain img {height: 90px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
-#main {text-align:center;}
+#main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {
     background: linear-gradient(135deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px),
@@ -243,6 +243,14 @@ input[type=submit].textbutton {
 .button.anchorbutton a, .button.anchorbutton a:visited {padding:8px 14px; display: inline-block; color:white; line-height:1em;}
 .button.anchorbutton.selected a, .button.anchorbutton.selected a:visited {color:green;}
 
+.button-section {
+    display: inline-block;
+    border: 2px solid #2979ff;
+    border-radius: 6px;
+    padding: 4px;
+    text-align: center;
+}
+
 #main .navigator .button.anchorbutton a {padding: 4px 12px}
 
 /************ MAP ************/
@@ -451,5 +459,27 @@ table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0
 
 /********** RECORD TABLE *******/
 .sortable th {cursor:pointer;}
+#taxonrecordtable td {cursor: pointer;}
+#taxonrecordtable tr.selected td {background-color:#ffff76 !important;}
+/*#taxonrecordtable.filtered tbody tr:not(.selected) {display:none;}*/
+/*#taxonrecordtable tbody td {transition: line-height 1s}*/
+#taxonrecordtable.filtered tbody tr:not(.selected) td {line-height:0.15em; overflow:hidden; opacity: 0.3;}
+#taxonrecords-map {
+    position:fixed;
+    right:0;
+    top:40%;
+    display:inline-block;
+    height:20%;
+    width:auto;
+    cursor: auto;
+    float: none;
+    transition: height 0.4s, opacity 0.4s, top 0.4s;
+    opacity: 0.7;
+}
+
+#taxonrecords-map.selected {height:100%;opacity: 1; top:0; }
+#taxonrecords-map .utmsquare {cursor:pointer}
+#taxonrecords-map .utmsquare:hover {fill: yellow !important;}
+#taxonrecords-map .utmsquare.selected {fill: #0000ff !important; /*stroke-width:3px !important; stroke: #00ff00 !important;*/}
 
 /********** USER MANAGEMENT *******/

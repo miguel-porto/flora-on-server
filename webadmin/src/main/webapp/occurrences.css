@@ -25,13 +25,16 @@ body.occurrencespage.compactview .hideincompactview {display:none !important}
 
 #alloccurrencetable th {position:sticky; top:0px;}
 
-.pager {}
+.pager {display:inline-block; margin-left:20px;}
 .pager a {vertical-align:middle; display:inline-block}
 .pager .button {
     font-size: inherit;
     padding: 3px 5px;
     margin: 3px;
+    vertical-align: middle;
 }
+
+.pager .imagebutton {line-height:0;}
 
 #occurrencetable-holder {flex: 2 4 auto; overflow: scroll;}
 #georreferencer {flex: 1 5 auto; overflow: visible; display:flex; flex-direction: column;background-color: #bbdefb; position: relative}
@@ -142,7 +145,7 @@ td.select {background-color: transparent !important;}
     border-radius: 4px;
 }
 .inventory h3 {background-color: #2196f3; color:white;}
-.inventory.selected {background-color: #ffff76;}
+.inventory.geoelement.selected {background-color: #ffffbf !important;}
 .inventory .editable {background-color:#bbdefb}
 .inventory .occurrencetable th {background-color: transparent}
 .inventory table td {background-color: transparent}

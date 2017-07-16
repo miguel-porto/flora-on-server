@@ -248,6 +248,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 
     public Float getObservationLatitude() {
         return observationLatitude;
+//        return (observationLatitude != null && Math.abs(observationLatitude - Constants.NODATA) < 0.00001) ? null : observationLatitude;
     }
 
     public void setObservationLatitude(Float latitude) {
@@ -256,6 +257,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 
     public Float getObservationLongitude() {
         return observationLongitude;
+//        return (observationLongitude != null && Math.abs(observationLongitude - Constants.NODATA) < 0.00001) ? null : observationLongitude;
     }
 
     public void setObservationLongitude(Float longitude) {

@@ -68,6 +68,10 @@ public class Precision implements Serializable {
         return (radius != null && radius > 5) || (square != null && square > 10);
     }
 
+    public boolean _isPrecisionWorseThan(int value) {
+        return (radius != null && radius > value) || (square != null && square > (value * 2));
+    }
+
     @Override
     public String toString() {
         if(radius != null)

@@ -57,7 +57,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
             }
             op = new OccurrenceProcessor(driver.getRedListData().getSimpleOccurrenceDataProviders(), null
-                    , sizeOfSquare, clippingPolygon, minimumYear, null);
+                    , sizeOfSquare, clippingPolygon, minimumYear, null, false);
 
             if(op.size() == 0) {
                 csvp.print(rlde.getTaxEnt().getID());

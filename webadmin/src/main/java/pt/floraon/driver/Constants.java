@@ -58,6 +58,15 @@ public final class Constants {
 	public static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 	public static final DateFormat dateFormatYMD = new SimpleDateFormat("yyyy-MM-dd");
 	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
+	public static final Float NODATA = -999999999.99999f;
+
+	public static boolean isNoData(Float value) {
+		return value != null && Math.abs(value - NODATA) < 0.000001;
+	}
+
+	public static boolean isNullOrNoData(Float value) {
+		return value == null || Math.abs(value - NODATA) < 0.000001;
+	}
 
 	public enum TaxonRanks {
 		NORANK("non-taxonomic rank", 1000, null), CLASS("Class", 50, null), FAMILY("Family", 100, null)

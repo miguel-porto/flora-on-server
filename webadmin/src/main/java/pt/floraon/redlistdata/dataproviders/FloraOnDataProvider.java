@@ -178,7 +178,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         Type listType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> occArray;
         occArray = new Gson().fromJson(resp.getAsJsonObject("msg"), listType);
-        System.out.println(resp.toString());
+//        System.out.println(resp.toString());
         for (String s : occArray.keySet())
             System.out.println(s);
         return occArray;

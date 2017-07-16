@@ -156,14 +156,10 @@ function getQueryVariable(query,variable) {
 }*/
 
 function getParentbyTag(el,tagname) {
-/*
-console.log(el);
-console.log(tagname);
-*/
 	while(el.tagName && el.tagName.toLowerCase() != tagname) {
-		el=el.parentNode;
+		el = el.parentNode;
 	};
-	return(el);
+	return (!el.tagName || (el.tagName && el.tagName.toLowerCase() != tagname)) ? null : el;
 }
 
 function getParentbyClass(el,classname) {

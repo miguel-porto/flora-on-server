@@ -30,18 +30,18 @@ public class Query extends FloraOnServlet {
 		String format=thisRequest.getParameterAsString("fmt");
 
 		errorIfAnyNull(query = thisRequest.getParameterAsString("q"));
-		
+
 		if(format==null) format="json";
 		Iterator<SimpleTaxonResult> it;
 		ResultProcessor<SimpleTaxonResult> rp;
-		
+
 		YlemParser ylem=new YlemParser(driver,query);
 		long start = System.nanoTime();
 		List<SimpleTaxonResult> res=ylem.execute();
 		long elapsedTime = System.nanoTime() - start;
-		
+
 		if(res==null) res=new ArrayList<SimpleTaxonResult>();
-			
+
 		JsonObject header=new JsonObject();
 		header.addProperty("time", (double)elapsedTime/1000000000);
 		header.addProperty("nresults", res.size());
@@ -54,7 +54,7 @@ public class Query extends FloraOnServlet {
 			rp.toHTMLTable(pw = thisRequest.response.getWriter(), "taxonlist", null);
 			pw.flush();
 			break;
-			
+
 		case "json":
 		default:
 			thisRequest.success(rp.toJSONElement(),header);

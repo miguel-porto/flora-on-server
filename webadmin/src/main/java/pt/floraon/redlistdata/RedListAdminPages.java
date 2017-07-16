@@ -1,17 +1,21 @@
 package pt.floraon.redlistdata;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang.ArrayUtils;
+import org.jsoup.Jsoup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IOccurrenceReportDriver;
+import pt.floraon.driver.*;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.fieldparsers.DateParser;
+import pt.floraon.redlistdata.dataproviders.FloraOnDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -21,6 +25,7 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,9 +34,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 
@@ -180,10 +187,10 @@ System.out.println(gs.toJson(getUser()));
                     // TODO clipping polygon and years must be a user configuration
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
                     OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
-                            driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990);
+                            driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
 
                     OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
-                            driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null);
+                            driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
@@ -240,13 +247,15 @@ System.out.println(gs.toJson(getUser()));
     */
 
                         StringWriter sw = new StringWriter();
-                        occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET(), true);
+                        occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
+                                , true, true, false, 0);
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
 
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
-                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET(), true);
+                            historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
+                                    , true, true, false, 0);
                             request.setAttribute("historicalsvgmap", sw.toString());
                             sw.close();
                         }
@@ -310,6 +319,7 @@ System.out.println(gs.toJson(getUser()));
                     }
                     request.setAttribute("previousAssessments", prev);
                     request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
+                    request.setAttribute("citation", driver.getRedListData().buildRedListSheetCitation(rlde, userMap));
 
                     Revision c1a;
                     Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
@@ -353,21 +363,28 @@ System.out.println(gs.toJson(getUser()));
                 if (!thisRequest.getUser().canVIEW_OCCURRENCES()) break;
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
+                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
                 for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
                     edp.executeOccurrenceQuery(te);
 
-                request.setAttribute("occurrences", OccurrenceProcessor.iterableOf(
-                        driver.getRedListData().getSimpleOccurrenceDataProviders()));
+                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
+                        , clippingPolygon2, thisRequest.getParameterAsString("view", "").equals("all") ? null : 1991
+                        , null, thisRequest.getParameterAsString("view", "").equals("all"));
+
+                request.setAttribute("occurrences", op);
 
                 if(thisRequest.getParameterAsInteger("group", 0) > 0) {
-                    SimpleOccurrenceClusterer clusters = new SimpleOccurrenceClusterer(OccurrenceProcessor.iterableOf(
-                            driver.getRedListData().getSimpleOccurrenceDataProviders()).iterator()
+                    OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
+                            , clippingPolygon2, thisRequest.getParameterAsString("view", "").equals("all") ? null : 1991
+                            , null, thisRequest.getParameterAsString("view", "").equals("all"));
+
+                    SimpleOccurrenceClusterer clusters = new SimpleOccurrenceClusterer(op1.iterator()
                             , thisRequest.getParameterAsInteger("group", 0));
 
                     request.setAttribute("clustoccurrences", clusters.getClusteredOccurrences().asMap().entrySet());
+//                clusters.getClusteredOccurrences().asMap().entrySet().iterator().next().getValue().iterator().next().getLocality()
                 }
-//                clusters.getClusteredOccurrences().asMap().entrySet().iterator().next().getValue().iterator().next()
                 break;
 
             case "downloadtaxonrecords":
@@ -406,6 +423,33 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "contentasxml":
+                File dir = new File(getServletContext().getRealPath("/")).getParentFile();
+                Properties properties = new Properties();
+                InputStream propStream;
+                Locale.setDefault(Locale.forLanguageTag("pt"));
+                try {
+                    propStream = new FileInputStream(new File(dir.getAbsolutePath() + "/floraon.properties"));
+                    properties.load(propStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.err.println("ERROR: "+e.getMessage());
+                    return;
+                }
+
+                URL floraOnURL = null;
+                for(String op1 : BaseFloraOnDriver.getPropertyList(properties, "occurrenceProvider")) {
+                    floraOnURL = new URL(op1);
+                }
+                URI oldUri = null;
+                if(floraOnURL != null) {
+                    try {
+                        oldUri = floraOnURL.toURI();
+                    } catch (URISyntaxException e) {
+                        e.printStackTrace();
+                        throw new FloraOnException(e.getMessage());
+                    }
+                }
+
                 PrintWriter wr2 = thisRequest.response.getWriter();
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder;
@@ -421,44 +465,107 @@ System.out.println(gs.toJson(getUser()));
                 doc.appendChild(rootElement);
 
                 Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false);
+                org.jsoup.nodes.Document toText;
                 while(rldeit.hasNext()) {
                     RedListDataEntity rlde = rldeit.next();
-                    if(Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))) continue;
+                    if(Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))
+                            || rlde.getGeographicalDistribution().getDescription() == null
+                            || rlde.getGeographicalDistribution().getDescription().equals("")) continue;
 
                     Element species = doc.createElement("species");
                     Element name = doc.createElement("name");
-                    name.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName()));
+                    name.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName(true)));
 
                     Element distr = doc.createElement("distribution");
-                    distr.appendChild(doc.createTextNode(rlde.getGeographicalDistribution().getDescription()));
+                    distr.appendChild(doc.createTextNode(Jsoup.parse(rlde.getGeographicalDistribution().getDescription()).text()));
+
+                    Element pop = doc.createElement("population");
+                    pop.appendChild(doc.createTextNode(Jsoup.parse(rlde.getPopulation().getDescription()).text()));
+
+                    Element ecology = doc.createElement("ecology");
+                    ecology.appendChild(doc.createTextNode(Jsoup.parse(rlde.getEcology().getDescription()).text()));
+
+                    Element uses = doc.createElement("uses");
+                    uses.appendChild(doc.createTextNode(Jsoup.parse(rlde.getUsesAndTrade().getDescription()).text()));
 
                     Element threats = doc.createElement("threats");
-                    threats.appendChild(doc.createTextNode(rlde.getThreats().getDescription()));
+                    threats.appendChild(doc.createTextNode(Jsoup.parse(rlde.getThreats().getDescription()).text()));
+
+                    Element conservation = doc.createElement("conservation");
+                    conservation.appendChild(doc.createTextNode(Jsoup.parse(rlde.getConservation().getDescription()).text()));
 
                     Element assessjust = doc.createElement("assessmentJustification");
-                    assessjust.appendChild(doc.createTextNode(rlde.getAssessment().getFinalJustification()));
+                    assessjust.appendChild(doc.createTextNode(Jsoup.parse(rlde.getAssessment().getFinalJustification()).text()));
 
                     Element assesscrit = doc.createElement("assessmentCriteria");
                     assesscrit.appendChild(doc.createTextNode(rlde.getAssessment()._getCriteriaAsString()));
 
-                    Element assesscat = doc.createElement("assessmentCategory");
-                    if(rlde.getAssessment().getAdjustedCategory() != null)
-                        assesscat.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getShortTag()));
-
-                    Element assesssubcat = doc.createElement("assessmentSubcategory");
+                    String subcat = "";
                     if(rlde.getAssessment().getCategory() != null
                             && rlde.getAssessment().getCategory() == RedListEnums.RedListCategories.CR
                             && rlde.getAssessment().getSubCategory() != null
                             && rlde.getAssessment().getSubCategory() != RedListEnums.CRTags.NO_TAG)
-                        assesssubcat.appendChild(doc.createTextNode(rlde.getAssessment().getSubCategory().toString()));
+                        subcat = "<sup>" + rlde.getAssessment().getSubCategory().toString() + "</sup>";
+
+                    Element assesscat = doc.createElement("assessmentCategory");
+                    if(rlde.getAssessment().getAdjustedCategory() != null)
+                        assesscat.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getShortTag() + subcat));
+
+                    Element citation = doc.createElement("citation");
+                    citation.appendChild(doc.createTextNode(driver.getRedListData().buildRedListSheetCitation(rlde, userMap)));
+
+                    Element map = doc.createElement("svgMap");
+
+                    map.appendChild(doc.createTextNode("https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=0&size=10000&taxon=" +
+                        rlde.getTaxEnt()._getIDURLEncoded()));
+
+                    Element photos = doc.createElement("photos");
+                    if(oldUri != null) {
+                        String newQuery = oldUri.getQuery();
+                        if (newQuery == null) {
+                            newQuery = "what=photos&id=" + rlde.getTaxEnt().getOldId();
+                        } else {
+                            newQuery += "&what=photos&id=" + rlde.getTaxEnt().getOldId();
+                        }
+
+                        URI newUri;
+                        URL u;
+                        try {
+                            newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment());
+                            u = newUri.toURL();
+                            InputStreamReader isr = new InputStreamReader(u.openStream());
+                            JsonObject resp = new JsonParser().parse(isr).getAsJsonObject();
+                            if (resp.getAsJsonPrimitive("success").getAsBoolean()) {
+                                Type listType = new TypeToken<List<Map<String, Object>>>() {
+                                }.getType();
+                                List<Map<String, Object>> occArray;
+                                System.out.println(resp.toString());
+                                occArray = new Gson().fromJson(resp.getAsJsonArray("msg"), listType);
+                                for(Map<String, Object> ph : occArray) {
+                                    Element photo = doc.createElement("photo");
+                                    photo.appendChild(doc.createTextNode("http://flora-on.pt/gen-sp_ori_" + ph.get("guid").toString() + ".jpg"));
+                                    photos.appendChild(photo);
+                                }
+                            }
+                        } catch (URISyntaxException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
 
                     species.appendChild(name);
                     species.appendChild(distr);
+                    species.appendChild(pop);
+                    species.appendChild(ecology);
+                    species.appendChild(uses);
                     species.appendChild(threats);
+                    species.appendChild(conservation);
                     species.appendChild(assessjust);
                     species.appendChild(assesscat);
-                    species.appendChild(assesssubcat);
                     species.appendChild(assesscrit);
+                    species.appendChild(citation);
+                    species.appendChild(map);
+                    species.appendChild(photos);
                     rootElement.appendChild(species);
                 }
 
@@ -475,7 +582,7 @@ System.out.println(gs.toJson(getUser()));
                     throw new FloraOnException(e.getMessage());
                 }
                 wr2.flush();
-                break;
+                return;
 
             case "users":
                 List<User> allusers = driver.getAdministration().getAllUsers(true);

@@ -7,7 +7,34 @@ var focusedEditableDiv = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
-    attachAJAXContent();
+    attachAJAXContent(function(el) {
+        addEvent('click', el, function(ev) {
+            // clicked an UTM square in the taxon record table map
+            if(ev.target.classList.contains('utmsquare')) {
+                var mgrs = ev.target.getAttribute('lvf:quad');
+                ev.target.classList.toggle('selected');
+
+                var rows = document.querySelectorAll('#taxonrecordtable tr[data-mgrs="' + mgrs + '"]');
+                for(var i=0; i<rows.length; i++) {
+                    if(ev.target.classList.contains('selected'))
+                        rows[i].classList.add('selected');
+                    else
+                        rows[i].classList.remove('selected');
+                }
+
+                var selquad = document.querySelectorAll('#taxonrecords-map rect.utmsquare.selected');
+                if(selquad.length > 0)
+                    document.getElementById('taxonrecordtable').classList.add('filtered');
+                else
+                    document.getElementById('taxonrecordtable').classList.remove('filtered');
+            }
+            // expand/collapse map
+            if(ev.target.classList.contains('portugal')) {
+                var svg = getParentbyTag(ev.target, 'svg');
+                svg.classList.toggle('selected');
+            }
+        });
+    });
 
     /********************
         DATA SHEET
@@ -311,6 +338,36 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('taxonbox').value = '';
     });
 */
+    /**** record table ***********/
+    addEvent('click', document.getElementById('taxonrecordtable'), function(ev) {
+        var tr = getParentbyTag(ev.target, 'tr');
+        if(tr) {
+            document.getElementById('taxonrecordtable').classList.remove('filtered');
+            var mgrs = tr.getAttribute('data-mgrs');
+            if(mgrs) {
+                var map = document.getElementById('taxonrecords-map');
+                tr.classList.toggle('selected');
+
+                var quads = map.querySelectorAll('rect.utmsquare[lvf\\:quad="' + mgrs + '"]');
+                for(var i=0; i<quads.length; i++) {
+                    if(tr.classList.contains('selected'))
+                        quads[i].classList.add('selected');
+                    else
+                        quads[i].classList.remove('selected');
+                }
+
+                var rows = document.querySelectorAll('#taxonrecordtable tr[data-mgrs="' + mgrs + '"]');
+                for(var i=0; i<rows.length; i++) {
+                    if(tr.classList.contains('selected'))
+                        rows[i].classList.add('selected');
+                    else
+                        rows[i].classList.remove('selected');
+                }
+
+            }
+        }
+    });
+
 });
 
 function contentEditableFocused(ev) {

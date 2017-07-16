@@ -1,11 +1,13 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.GeoBean;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,18 +25,24 @@ public class LatitudeLongitudeParser implements FieldParser {
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
         GeoBean occurrence = (GeoBean) bean;
         Inventory inv;
-        if(inputValue == null || inputValue.trim().equals("")) return;
+        if(inputValue == null) return;
 // TODO parse other lat long formats
         Float v = null;
         Matcher mat = null;
-        try {
-            v = Float.parseFloat(inputValue);
-        } catch (NumberFormatException e) {
-            mat = coordParse.matcher(inputValue);
-            if(!mat.find()) {
-                mat = wktParse.matcher(inputValue);
-                if(!mat.find())
-                    throw e;
+        if(inputValue.trim().equals("") || inputValue.trim().equals("*")) {
+            v = Constants.NODATA;
+            mat = coordParse.matcher(String.format(Locale.ROOT,"%.14f %.14f", Constants.NODATA, Constants.NODATA));
+            mat.find();
+        } else {
+            try {
+                v = Float.parseFloat(inputValue);
+            } catch (NumberFormatException e) {
+                mat = coordParse.matcher(inputValue);
+                if (!mat.find()) {
+                    mat = wktParse.matcher(inputValue);
+                    if (!mat.find())
+                        throw e;
+                }
             }
         }
 
