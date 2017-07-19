@@ -14,8 +14,11 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
+import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DateFormat;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by miguel on 24-03-2017.
@@ -97,12 +100,36 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
-        if(offset == null) offset = 0;
-        if(count == null) count = 999999;
+        if(authorId == null) return getOccurrencesOfMaintainer(null, offset, count);
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("observer", authorId.toString());
+        bindVars.put("off", offset == null ? 0 : offset);
+        bindVars.put("cou", count == null ? 999999 : count);
+
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.2", authorId.getID(), offset, count)
-                    , null, null, Inventory.class);
+                    AQLOccurrenceQueries.getString("occurrencequery.2")
+                    , bindVars, null, Inventory.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<Inventory> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException {
+        if(authorId == null) return getOccurrencesOfMaintainer(null, offset, count);
+        DateFormat df = Constants.dateFormatYMD.get();
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("observer", authorId.toString());
+        bindVars.put("off", offset == null ? 0 : offset);
+        bindVars.put("cou", count == null ? 999999 : count);
+        bindVars.put("from", df.format(from));
+        bindVars.put("to", df.format(to));
+
+        try {
+            return database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.2.date")
+                    , bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

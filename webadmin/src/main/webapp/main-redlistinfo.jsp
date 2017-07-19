@@ -21,6 +21,7 @@
 	<script type="text/javascript" src="/floraon/ajaxforms.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/redlistadmin.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="/floraon/js/svg-pan-zoom.min.js"></script>
 	<c:if test="${what=='main'}">
 	<style>
 	    <c:forEach var="tmp" items="${allTags}">
@@ -128,7 +129,7 @@
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
         <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-        <div><t:ajaxloadhtml url="api/statistics-table?territory=${territory}" width="100px" height="100px" text="carregando estatísticas"/></div>
+        <t:ajaxloadhtml url="api/statistics-table?territory=${territory}" width="100px" height="100px" text="carregando estatísticas"/>
         </c:if>
         <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <div class="filterpanel">
@@ -1534,6 +1535,7 @@
 
             <c:if test="${param.view == 'all'}"><div class="button anchorbutton selected"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}${pgroup}"><fmt:message key="button.4" /></a></div></c:if>
             <c:if test="${param.view == null}"><div class="button anchorbutton"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}${pgroup}&view=all"><fmt:message key="button.4" /></a></div></c:if>
+            <div class="button" id="unselectrecords"><fmt:message key="button.5" /></div>
             <div class="button-section">
                 <fmt:message key="button.2" /><br/>
                 <div class="button anchorbutton ${param.group==null ? 'selected' : ''}"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}${pview}"><fmt:message key="button.3" /></a></div>
@@ -1556,7 +1558,7 @@
                 <c:forEach var="entr" items="${clustoccurrences.iterator()}">
                     <tr><td class="separator" colspan="17">&nbsp;</td></tr>
                     <c:forEach var="occ" items="${entr.getValue()}">
-                    <tr data-mgrs="${occ._getMGRSString(5000)}">
+                    <tr data-mgrs="${occ._getMGRSString(2000)}">
                         <!--<td>${occ.getDataSource()}</td>-->
                         <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
@@ -1583,7 +1585,7 @@
                 </c:if>
                 <c:if test="${param.group == null}">
                 <c:forEach var="occ" items="${occurrences.iterator()}">
-                    <tr data-mgrs="${occ._getMGRSString(5000)}">
+                    <tr data-mgrs="${occ._getMGRSString(2000)}">
                         <!--<td>${occ.getDataSource()}</td>-->
                         <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
@@ -1608,9 +1610,8 @@
                 </c:forEach>
                 </c:if>
             </table>
-            <!--<t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/redlist/lu?w=svgmap&taxon=${taxon._getIDURLEncoded()}&basemap=1" width="100px" height="100px" classes="taxonrecordmap" text="carregando mapa"/>-->
-            <!--<t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=5000&border=0&taxon=${taxon._getIDURLEncoded()}" width="100px" height="100px" text="carregando mapa" id="taxonrecords-map"/>-->
-            <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=5000&border=0&taxon=${taxon._getIDURLEncoded()}" width="100px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
+            <%-- <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/> --%>
+            <t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
         </c:if>
     </c:when>
 

@@ -94,7 +94,7 @@ public class DateParser implements FieldParser {
                 day = c1.get(Calendar.DAY_OF_MONTH);
                 month = c1.get(Calendar.MONTH) + 1;
                 year = c1.get(Calendar.YEAR);
-                System.out.println(Constants.dateFormat.format(grp.getDates().get(0)));
+                System.out.println(Constants.dateFormat.get().format(grp.getDates().get(0)));
             }
         } else {
             String dayS = matcher.group("day");

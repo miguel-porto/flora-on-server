@@ -54,9 +54,24 @@ public final class Constants {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}
 
-	public static final DateFormat dateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-	public static final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	public static final DateFormat dateFormatYMD = new SimpleDateFormat("yyyy-MM-dd");
+	public static final ThreadLocal<DateFormat> dateTimeFormat = new ThreadLocal<DateFormat>(){
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("dd/MM/yyyy HH:mm");
+		}
+	};
+	public static final ThreadLocal<DateFormat> dateFormat = new ThreadLocal<DateFormat>(){
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("dd/MM/yyyy");
+		}
+	};
+	public static final ThreadLocal<DateFormat> dateFormatYMD = new ThreadLocal<DateFormat>(){
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("yyyy-MM-dd");
+		}
+	};
 	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
 	public static final Float NODATA = -999999999.99999f;
 

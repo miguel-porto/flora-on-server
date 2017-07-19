@@ -60,11 +60,11 @@ div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bol
 .outer {
     background-color: transparent;
     padding:10px;
-    margin:0 auto 200px auto;
+    margin:0 auto 0px auto;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width:  1000px;
+    max-width: 1000px;
 }
 
 .bigbutton {
@@ -80,7 +80,9 @@ div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bol
 }
 .bigbutton:hover {opacity:1}
 
-#logindiv {position:fixed; bottom:0; left:0; background-color: #ddd; box-shadow: 0 0 12px #777; text-align:right; padding:12px; z-index:1; border-radius:4px}
+#logindiv {position: absolute; right:0; top:0; background-color: #ddd; box-shadow: 0 0 12px #777; text-align:right; padding:6px; z-index:1; border-radius:4px}
+#logindiv input[type=text], #logindiv input[type=password] {width: 100px;}
+
 .bigbutton.section1 form {margin:10px; display: inline-block;}
 .bigbutton.section2 {background-color: #8bc34a;}
 .bigbutton.section3 {background-color: #f44336;}
@@ -238,3 +240,27 @@ ul.suggestions li.notcurrent {color:gray}
 ul.suggestions li.selected {
 	background-color:rgba(255, 64, 129, 0.75);
 }
+
+#logobar {margin-top: 100px; margin-bottom: 10px; width:100%; display:flex; justify-content: space-around; flex-wrap: wrap;}
+#logobar>div {flex: 1 0 auto; display:flex; flex-wrap: wrap;border-right: 1px solid #c5c5c5; padding: 0 0 0 10px;}
+#logobar>div>p {width:100%; text-align:left; font-weight: bold}
+#logobar div.logos {flex: 1 0 auto; display:flex; justify-content: space-around; align-items:center;}
+#logobar img {max-width:120px; }
+@media only screen and (max-width: 800px) {
+    #logobar img {max-width:70px; }
+    #logobar>div>p {font-size: 0.75em;}
+}
+
+#mainmenu {
+    text-align: left;
+    font-size: 1.8rem;
+}
+#mainmenu,#mainmenu a {color: #1e88e5}
+#mainmenu span {vertical-align:middle}
+#mainmenu li {list-style-type:none;}
+#mainmenu li .bullet {border-radius:50%; width:2.5rem; height:2.5rem; display:inline-block; vertical-align:middle; margin:10px 20px;}
+
+#mainmenu li.section1 .bullet {background-color: #8bc34a;}
+#mainmenu li.section2 .bullet {background-color: #f44336;}
+#mainmenu li.section3 .bullet {background-color: #2196f3;}
+#mainmenu li.section4 .bullet {background-color: black;}

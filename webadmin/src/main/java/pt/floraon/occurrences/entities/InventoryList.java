@@ -80,6 +80,6 @@ public class InventoryList extends ArrayList<Inventory> implements Serializable 
     }
 
     public String getUploadDate() {
-        return Constants.dateFormat.format(this.uploadDate);
+        return Constants.dateFormat.get().format(this.uploadDate);
     }
 }

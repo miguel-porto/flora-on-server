@@ -70,14 +70,18 @@ function attachAJAXContent(callback) {
                 var newel = createHTML(rt);
                 var parent = newel.firstChild;
                 el.classList.remove('ajaxcontent');
-                parent.setAttribute('class', parent.getAttribute('class') + ' ' + el.getAttribute('class'));
-                parent.id = el.id;
+                if(parent.getAttribute) {   // node is not a text node, so add classes
+                    parent.setAttribute('class', parent.getAttribute('class') + ' ' + el.getAttribute('class'));
+                    parent.id = el.id;
+                }
                 el.parentNode.replaceChild(newel, el);
 /*
                 el.removeAttribute('style');
                 el.innerHTML = rt;
 */
                 if(callback) callback(parent);
+            }, function(rt) {
+                el.innerHTML = 'some error occurred';
             });
         };
     }

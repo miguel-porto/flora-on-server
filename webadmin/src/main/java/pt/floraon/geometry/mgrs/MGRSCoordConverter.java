@@ -17,6 +17,8 @@ package pt.floraon.geometry.mgrs;
  */
 
 import org.jfree.util.Log;
+import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.occurrences.Messages;
 
 import java.util.Map;
@@ -77,7 +79,6 @@ public class MGRSCoordConverter
     private long ltr2_low_value;
     private long ltr2_high_value;       // this is only used for doing MGRS to xxx conversions.
     private double false_northing;
-    private long lastLetter;
     private long last_error = MGRS_NO_ERROR;
     private double north, south, min_northing, northing_offset;  //smithjl added north_offset
     private double latitude;
@@ -230,12 +231,6 @@ public class MGRSCoordConverter
     public double getMGRS_a()
     {
         return MGRS_a;
-    }
-
-    /** @return Latitude band letter */
-    private long getLastLetter()
-    {
-        return lastLetter;
     }
 
     /** @return 2-letter code for ellipsoid */
@@ -672,18 +667,16 @@ public class MGRSCoordConverter
             return convertUPSToMGRS(UPS.getHemisphere(), UPS.getEasting(),
                     UPS.getNorthing(), sizeOfSquare);
         } else {
+/*
             UTMCoord UTM =
                 UTMCoord.fromLatLon(Angle.fromRadians(latitude), Angle.fromRadians(longitude));
             return convertUTMToMGRS(UTM.getZone(), latitude, UTM.getEasting(),
-                UTM.getNorthing(), sizeOfSquare);
+                    UTM.getNorthing(), sizeOfSquare);
+*/
+            UTMCoordinate UTM = CoordinateConversion.LatLonToUtmWGS84(Angle.fromRadians(latitude).getDegrees(), Angle.fromRadians(longitude).getDegrees(), 0);
+            return convertUTMToMGRS(UTM.getXZone(), latitude, UTM.getX(), UTM.getY(), sizeOfSquare);
         }
     }
-
-    /** @return converted MGRS string */
-//    public String getMGRSString()
-//    {
-//        return MGRSString;
-//    }
 
     /**
      * The function Convert_UPS_To_MGRS converts UPS (hemisphere, easting, and northing) coordinates to an MGRS
@@ -816,8 +809,7 @@ public class MGRSCoordConverter
 
         getGridValues(Zone);
 
-        getLatitudeLetter(Latitude);
-        letters[0] = getLastLetter();
+        letters[0] = getLatitudeLetter(Latitude);
 
         grid_northing = Northing;
         if (grid_northing == 1.e7)
@@ -916,17 +908,17 @@ public class MGRSCoordConverter
      *
      * @return error code
      */
-    private void getLatitudeLetter(double latitude) throws IllegalArgumentException {
+    private long getLatitudeLetter(double latitude) throws IllegalArgumentException {
         double temp;
         double lat_deg = latitude * RAD_TO_DEG;
 
         if (lat_deg >= 72 && lat_deg < 84.5)
-            lastLetter = (long) LETTER_X;
+            return (long) LETTER_X;
         else if (lat_deg > -80.5 && lat_deg < 72)
         {
             temp = ((latitude + (80.0 * DEG_TO_RAD)) / (8.0 * DEG_TO_RAD)) + 1.0e-12;
             // lastLetter = Latitude_Band_Table.get((int) temp).letter;
-            lastLetter = (long) latitudeBandConstants[(int) temp][0];
+            return (long) latitudeBandConstants[(int) temp][0];
         }
         else
             throw new IllegalArgumentException("Latitude out of bounds.");

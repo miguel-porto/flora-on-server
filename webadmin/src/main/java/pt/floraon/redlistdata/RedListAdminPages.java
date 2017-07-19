@@ -39,6 +39,7 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -369,15 +370,15 @@ System.out.println(gs.toJson(getUser()));
                     edp.executeOccurrenceQuery(te);
 
                 OccurrenceProcessor op = OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
-                        , clippingPolygon2, thisRequest.getParameterAsString("view", "").equals("all") ? null : 1991
-                        , null, thisRequest.getParameterAsString("view", "").equals("all"));
+                        , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : 1991
+                        , null, "all".equals(thisRequest.getParameterAsString("view")));
 
                 request.setAttribute("occurrences", op);
 
                 if(thisRequest.getParameterAsInteger("group", 0) > 0) {
                     OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
-                            , clippingPolygon2, thisRequest.getParameterAsString("view", "").equals("all") ? null : 1991
-                            , null, thisRequest.getParameterAsString("view", "").equals("all"));
+                            , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : 1991
+                            , null, "all".equals(thisRequest.getParameterAsString("view")));
 
                     SimpleOccurrenceClusterer clusters = new SimpleOccurrenceClusterer(op1.iterator()
                             , thisRequest.getParameterAsInteger("group", 0));
@@ -683,6 +684,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "report":
+                DateFormat df = Constants.dateFormat.get();
                 Date from = null, to = null;
                 try {
                     from = DateParser.parseDateAsDate(thisRequest.getParameterAsString("fromdate"));
@@ -701,8 +703,8 @@ System.out.println(gs.toJson(getUser()));
                     after.add(Calendar.DAY_OF_MONTH, -1);
                     to = after.getTime();
                 }
-                request.setAttribute("fromDate", Constants.dateFormat.format(from));
-                request.setAttribute("toDate", Constants.dateFormat.format(to));
+                request.setAttribute("fromDate", df.format(from));
+                request.setAttribute("toDate", df.format(to));
                 break;
         }
 

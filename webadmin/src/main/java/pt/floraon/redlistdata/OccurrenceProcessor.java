@@ -431,7 +431,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             }
             out.print("\"></path>");
         }
-
+System.out.println("********** Process SVG");
         if(showOccurrences && this.squares != null) {
             // draw occurrence squares
             for (Square s : this.squares) {

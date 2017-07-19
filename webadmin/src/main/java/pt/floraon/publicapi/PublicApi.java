@@ -40,13 +40,13 @@ public class PublicApi extends FloraOnServlet {
                 boolean baseMap = thisRequest.getParameterAsBoolean("basemap", false);
                 Integer squareSize = thisRequest.getParameterAsInteger("size", 10000);
                 Integer borderWidth = thisRequest.getParameterAsInteger("border", 2);
+                boolean viewAll = "all".equals(thisRequest.getParameterAsString("view"));
 
-/*
                 if(squareSize < 10000 && !user.canVIEW_OCCURRENCES()) {
-                    thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN, "No public access for this resolution.");
+                    thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN, "No public access for this precision.");
                     return;
                 }
-*/
+
                 if(key == null) return;
                 TaxEnt te2 = driver.getNodeWorkerDriver().getNode(key, TaxEnt.class);
                 for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders()) {
@@ -60,7 +60,7 @@ public class PublicApi extends FloraOnServlet {
                 PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
                 OccurrenceProcessor op1 = new OccurrenceProcessor(
                         driver.getRedListData().getSimpleOccurrenceDataProviders(), null, squareSize
-                        , cP, 1991, null, false);
+                        , cP, viewAll ? null : 1991, null, viewAll);
                 op1.exportSVG(new PrintWriter(wr), true, false, baseMap, true, borderWidth);
                 wr.flush();
                 break;

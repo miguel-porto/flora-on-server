@@ -208,9 +208,10 @@ function clickOptionButton(ev) {
 }
 
 function onConfirmEdit(ev, name, key, parent, dry) {
-    if(!dry) return;
+    if(!dry || !parent.classList.contains('editable')) return;  // that's the bugfix
     var fieldname = parent.getAttribute('data-name');
-    if(ev.target) document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
+    if(ev.target)   // move edit box back to its hidden home
+        document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
     var original = parent.getAttribute('data-original');
 //    console.log(original+':'+name);
     if(original !== null) {
@@ -223,6 +224,7 @@ function onConfirmEdit(ev, name, key, parent, dry) {
         return;
     }
 
+    // the bug was here, in some circumstances this was called in the editbox-home, thus erasing the edit box completely
     parent.innerHTML = name;
 
     var id1el = getParentbyClass(parent, 'id1holder');
@@ -353,6 +355,7 @@ function clickButton(ev) {
                 alert('Select one place from the toponym table.');
                 break;
             }
+            acceptVisibleSearchbox();
             var coo = geoel.querySelector('.coordinates');
             var lat = coo.getAttribute('data-lat');
             var lng = coo.getAttribute('data-lng');
@@ -631,10 +634,6 @@ function markerMove(ev) {
         acceptVisibleSearchbox();
         var ll = ev.target.getLatLng();
         updateCoords(ev.target.tableRow, ll.lat, ll.lng);
-/*        var cooel = ev.target.tableRow.querySelector('.coordinates');
-        cooel.setAttribute('data-lat', ll.lat);
-        cooel.setAttribute('data-lng', ll.lng);
-        onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, cooel, true);*/
     }
 }
 
@@ -642,7 +641,8 @@ function acceptVisibleSearchbox() {
     var editboxes = document.querySelectorAll('.editbox');
     for(var i = 0; i < editboxes.length; i++) {
         var c = 0;
-        while(editboxes[i].offsetParent !== null && c < 4) {
+//        while(editboxes[i].offsetParent !== null && c < 4) {
+        while(getParentbyClass(editboxes[i], 'editbox-home') == null && c < 4) { // keep on clicking Enter until box is in its home
             var event = new KeyboardEvent('keyup', { 'keyCode': 13});
             Object.defineProperty(event, 'keyCode', {get:function(){return this.charCodeVal;}});
             event.charCodeVal = 13;

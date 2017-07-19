@@ -10,7 +10,7 @@
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 
-<div id="taxonsearchwrapper-holder" class="hidden">
+<div id="taxonsearchwrapper-holder" class="editbox-home hidden">
     <div class="withsuggestions editbox" id="taxonsearchwrapper">
         <!--<input id="taxonsearchbox" type="text" name="query" placeholder="taxon" autocomplete="off"/>-->
         <textarea id="taxonsearchbox" name="query" rows="4"></textarea>

@@ -28,11 +28,11 @@ public class Revision {
     }
 
     public String getFormattedDateTimeSaved() {
-        return dateTimeFormat.format(dateSaved);
+        return dateTimeFormat.get().format(dateSaved);
     }
 
     public String getFormattedDateSaved() {
-        return dateFormat.format(dateSaved);
+        return dateFormat.get().format(dateSaved);
     }
 
     public Revision getDayWiseRevision() {

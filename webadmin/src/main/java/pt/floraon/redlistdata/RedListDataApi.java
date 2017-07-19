@@ -8,7 +8,6 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
-import org.apache.commons.beanutils.converters.StringConverter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -20,6 +19,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
@@ -33,6 +33,7 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
 import java.util.*;
 
 import static pt.floraon.driver.utils.BeanUtils.fillBeanDefaults;
@@ -221,10 +222,17 @@ public class RedListDataApi extends FloraOnServlet {
             case "report-ntaxatag":
             case "report-listtaxatag":
             case "report-listtaxatagphoto":
+            case "report-listtaxatagspecimen":
+            case "report-listtaxatagnrrecords":
+            case "report-listutmsquares":
+            case "report-listprotectedareas":
                 IOccurrenceReportDriver ord = driver.getOccurrenceReportDriver();
                 Date from = null, to = null;
                 thisRequest.response.setContentType("text/plain");
                 thisRequest.response.setCharacterEncoding("UTF-8");
+                thisRequest.response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, post-check=0, pre-check=0"); // HTTP 1.1
+                thisRequest.response.setHeader("Pragma", "no-cache");
+                thisRequest.response.setHeader("Expires", "0");
                 pw = thisRequest.response.getWriter();
 
                 territory = thisRequest.getParameterAsString("territory");
@@ -237,8 +245,9 @@ public class RedListDataApi extends FloraOnServlet {
                     break;
                 }
                 if(from != null && to != null) {
-                    thisRequest.request.setAttribute("fromDate", Constants.dateFormat.format(from));
-                    thisRequest.request.setAttribute("toDate", Constants.dateFormat.format(to));
+                    DateFormat df = Constants.dateFormat.get();
+                    thisRequest.request.setAttribute("fromDate", df.format(from));
+                    thisRequest.request.setAttribute("toDate", df.format(to));
                     switch(what) {
                         case "report-ninv":
                             pw.print(ord.getNumberOfInventories(
@@ -256,12 +265,59 @@ public class RedListDataApi extends FloraOnServlet {
                             pw.print("<ul>");
                             Iterator<TaxEnt> it = ord.getTaxaWithTag(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
-                                    , thisRequest.getParameterAsString("tag"), what.equals("report-listtaxatagphoto"));
+                                    , thisRequest.getParameterAsString("tag")
+                                    , what.equals("report-listtaxatagphoto"));
                             while(it.hasNext()) {
-                                TaxEnt te1 = it.next();
-                                pw.print("<li>" + te1.getFullName(true) + "</li>");
+                                    TaxEnt te1 = it.next();
+                                    pw.print("<li>" + te1.getFullName(true) + "</li>");
                             }
                             pw.print("</ul>");
+                            break;
+
+                        case "report-listtaxatagspecimen":
+                            pw.print("<table class=\"subtable\">");
+                            Iterator<StatisticPerTaxon> it1 = ord.getTaxaWithTagCollected(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
+                                    , thisRequest.getParameterAsString("tag"));
+                            while(it1.hasNext()) {
+                                StatisticPerTaxon te1 = it1.next();
+                                pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
+                            }
+                            pw.print("</table>");
+                            break;
+
+                        case "report-listtaxatagnrrecords":
+                            pw.print("<table class=\"subtable\">");
+                            Iterator<StatisticPerTaxon> it2 = ord.getTaxaWithTagNrRecords(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
+                                    , thisRequest.getParameterAsString("tag"));
+                            while(it2.hasNext()) {
+                                StatisticPerTaxon te1 = it2.next();
+                                pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
+                            }
+                            pw.print("</table>");
+                            break;
+
+                        case "report-listutmsquares":
+                            Map<String, Integer> lutm = driver.getOccurrenceReportDriver().getListOfUTMSquaresWithOccurrences(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, 2000);
+                            pw.print("<p>Nº de quadrículas: " + lutm.size() + "</p><table class=\"subtable sortable\"><thead><tr><th>Quadrícula 2x2 km</th><th>Nº de registos</th></tr></thead>");
+                            for(Map.Entry<String, Integer> e : lutm.entrySet()) {
+                                pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
+                            }
+                            pw.print("</table><p class=\"legend\">Nota: no caso de quadrículas 2x2 km, a notação MGRS apresentada corresponde à quadrícula 1x1 km do quadrante SW.</p>");
+                            break;
+
+                        case "report-listprotectedareas":
+                            // TODO this should be a user configuration loaded at startup
+                            PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
+                            Map<String, Integer> lpa = driver.getOccurrenceReportDriver().getListOfPolygonsWithOccurrences(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, protectedAreas);
+                            pw.print("<p>Nº de áreas protegidas: " + lpa.size() + "</p><table class=\"subtable sortable\"><thead><tr><th>Área protegida</th><th>Nº de registos</th></tr></thead>");
+                            for(Map.Entry<String, Integer> e : lpa.entrySet()) {
+                                pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
+                            }
+                            pw.print("</table><p class=\"legend\">Nota: no caso de sobreposição de áreas protegidas, o mesmo registo pode aparecer contabilizado em várias linhas.</p>");
                             break;
                     }
                 }

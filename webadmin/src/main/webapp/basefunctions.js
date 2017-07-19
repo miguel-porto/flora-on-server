@@ -105,17 +105,21 @@ function hideLoader() {
 	if(el) el.style.display='none';
 }
 
-function fetchAJAX(addr,callback) {
+function fetchAJAX(addr, callback, onerror) {
 	//showLoader();
 	return loadXMLDoc(addr,function() {
 		if(this.readyState == 4) {
 			if(this.status == 200) {
 			    callback(this.responseText);
             } else {
-			    if(this.responseText == '') return;
-			    console.log(this.responseText);
-				var rt=JSON.parse(this.responseText);
-				alert('ERROR: '+rt.msg);
+                if(onerror) {
+                    onerror(this.responseText);
+                } else {
+                    if(this.responseText == '') return;
+                    console.log(this.responseText);
+                    var rt=JSON.parse(this.responseText);
+                    alert('ERROR: '+rt.msg);
+                }
 			}
 		}
 	});

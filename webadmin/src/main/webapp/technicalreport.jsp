@@ -45,11 +45,39 @@
   <c:param name="tag" value="Lista Alvo" />
 </c:url>
 
+<c:url value="/redlist/api/report-listtaxatagspecimen" var="url5">
+  <c:param name="territory" value="${territory}" />
+  <c:param name="fromdate" value="${fromDate}" />
+  <c:param name="todate" value="${toDate}" />
+  <c:param name="tag" value="Lista Alvo" />
+</c:url>
+
+<c:url value="/redlist/api/report-listtaxatagnrrecords" var="url6">
+  <c:param name="territory" value="${territory}" />
+  <c:param name="fromdate" value="${fromDate}" />
+  <c:param name="todate" value="${toDate}" />
+  <c:param name="tag" value="Lista Alvo" />
+</c:url>
+
+<c:url value="/redlist/api/report-listutmsquares" var="url7">
+  <c:param name="fromdate" value="${fromDate}" />
+  <c:param name="todate" value="${toDate}" />
+</c:url>
+
+<c:url value="/redlist/api/report-listprotectedareas" var="url8">
+  <c:param name="fromdate" value="${fromDate}" />
+  <c:param name="todate" value="${toDate}" />
+</c:url>
+
 <table class="small">
     <thead><tr><th colspan="2">Indicadores</th></tr></thead>
     <tr><td>Nº de inventários</td><td><t:ajaxloadhtml url="${url1}" /></td></tr>
     <tr><td>Nº de taxa alvo registados</td><td><t:ajaxloadhtml url="${url2}" /></td></tr>
     <tr><td>Taxa alvo registados</td><td><t:ajaxloadhtml url="${url3}" /></td></tr>
     <tr><td>Taxa alvo registados com fotografia</td><td><t:ajaxloadhtml url="${url4}" /></td></tr>
+    <tr><td>Taxa alvo colhidos</td><td><t:ajaxloadhtml url="${url5}" /></td></tr>
+    <tr><td>Nº registos por taxon alvo</td><td><t:ajaxloadhtml url="${url6}" /></td></tr>
+    <tr><td>Quadrículas UTM visitadas</td><td><t:ajaxloadhtml url="${url7}" /></td></tr>
+    <tr><td>Áreas protegidas visitadas</td><td><t:ajaxloadhtml url="${url8}" /></td></tr>
 </table>
 </c:if>

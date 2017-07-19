@@ -76,7 +76,7 @@ public class JobRunnerFileDownload implements JobRunner {
 
 	@Override
 	public String getDateSubmitted() {
-		return dateTimeFormat.format(this.date);
+		return dateTimeFormat.get().format(this.date);
 	}
 
 	/*

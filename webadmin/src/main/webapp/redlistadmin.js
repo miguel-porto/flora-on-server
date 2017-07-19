@@ -4,11 +4,14 @@ var regex_sup = /\+([\w çãõáàâéêíóôú\.,;:!?()ñ&'\"-]+)\+/gi;
 var regex_htmltag = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/i;
 var regex_htmltagreplace = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/gi;
 var focusedEditableDiv = null;
+var panZoom = null;
+var isPanning = false;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
     attachAJAXContent(function(el) {
         addEvent('click', el, function(ev) {
+            if(isPanning) {isPanning = false; return;}
             // clicked an UTM square in the taxon record table map
             if(ev.target.classList.contains('utmsquare')) {
                 var mgrs = ev.target.getAttribute('lvf:quad');
@@ -31,7 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // expand/collapse map
             if(ev.target.classList.contains('portugal')) {
                 var svg = getParentbyTag(ev.target, 'svg');
-                svg.classList.toggle('selected');
+                if(!svg.classList.contains('selected')) {
+                    expandMap(svg);
+                } else {    // destroy and reset SVG to initial state
+                    contractMap(svg);
+                }
             }
         });
     });
@@ -339,7 +346,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 */
     /**** record table ***********/
+    addEvent('click', document.getElementById('unselectrecords'), function(ev) {
+        // unselect all records
+        var rows = document.querySelectorAll('#taxonrecordtable tr.selected');
+        for(var i=0; i<rows.length; i++)
+            rows[i].classList.remove('selected');
+
+        document.getElementById('taxonrecordtable').classList.remove('filtered');
+
+        var quads = document.querySelectorAll('#taxonrecords-map rect.utmsquare.selected');
+        for(var i=0; i<quads.length; i++)
+            quads[i].classList.remove('selected');
+    });
+
     addEvent('click', document.getElementById('taxonrecordtable'), function(ev) {
+    // click record table rows and select map squares
         var tr = getParentbyTag(ev.target, 'tr');
         if(tr) {
             document.getElementById('taxonrecordtable').classList.remove('filtered');
@@ -364,16 +385,49 @@ document.addEventListener('DOMContentLoaded', function() {
                         rows[i].classList.remove('selected');
                 }
 
+                if(rows.length > 0)
+                    expandMap(document.getElementById('taxonrecords-map'));
             }
         }
     });
 
 });
 
+function expandMap(svg) {
+    if(svg.getAttribute('viewBox'))
+        svg.setAttributeNS('http://flora-on.pt', 'vb', svg.getAttribute('viewBox'));
+    addEvent('transitionend', svg, attachSVGZoomPan);
+    svg.classList.add('selected');
+}
+
+function contractMap(svg) {
+    removeEvent('transitionend', svg, attachSVGZoomPan);
+    panZoom.destroy();
+    delete panZoom;
+    svg.removeAttribute('style');
+    if(svg.getAttributeNS('http://flora-on.pt', 'vb'))
+        svg.setAttribute('viewBox', svg.getAttributeNS('http://flora-on.pt', 'vb'));
+    var vp = svg.querySelector('.svg-pan-zoom_viewport');
+    svg.appendChild(vp.querySelector('g'));
+    svg.removeChild(vp);
+    svg.classList.remove('selected');
+}
+
 function contentEditableFocused(ev) {
     focusedEditableDiv = ev.target;
     checkHtmlTags(ev.target.innerHTML);
 }
+
+function attachSVGZoomPan(ev) {
+    if(ev.target) {
+        ev.target.style = 'width:'+ev.target.getBoundingClientRect().width+'px';
+        panZoom = svgPanZoom(ev.target, {
+            onPan: function() {isPanning = true;}
+            , zoomScaleSensitivity: 0.5
+        });
+    }
+}
+
 
 function contentEditableBlurred(ev) {
     setTimeout(function() {

@@ -64,6 +64,7 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
                 return;
             } else {
                 if(onClick) {
+                    // the 4th argument is the parent table cell where the editbox is located now
                     onClick(ev, querybox.value, null, querybox.parentNode.parentNode, true);
                 }
             }

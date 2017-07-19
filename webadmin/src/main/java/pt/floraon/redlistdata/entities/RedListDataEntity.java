@@ -163,7 +163,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         if(datePublished == null) return null;
         try {
             Calendar cal = new GregorianCalendar();
-            cal.setTime(dateTimeFormat.parse(datePublished));
+            cal.setTime(dateTimeFormat.get().parse(datePublished));
             return cal.get(Calendar.YEAR);
         } catch (ParseException e) {
             return null;
@@ -694,14 +694,14 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      * Updates the date assessed with the current date and time
      */
     public void updateDateAssessed() {
-        this.dateAssessed = dateTimeFormat.format(new Date());
+        this.dateAssessed = dateTimeFormat.get().format(new Date());
     }
 
     /**
      * Updates the date published with the current date and time
      */
     public void updateDatePublished() {
-        this.datePublished = dateTimeFormat.format(new Date());
+        this.datePublished = dateTimeFormat.get().format(new Date());
     }
 
     public void addRevision(String user) {
@@ -712,7 +712,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public List<Revision> getRevisions() {
-        return this.revisions == null ? Collections.EMPTY_LIST : this.revisions;
+        return this.revisions == null ? Collections.<Revision>emptyList() : this.revisions;
     }
 
     public void setRevisions(List<Revision> revisions) {

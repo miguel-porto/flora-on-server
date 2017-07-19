@@ -4,6 +4,7 @@ import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -71,6 +72,20 @@ public interface IOccurrenceDriver {
      * @throws DatabaseException
      */
     Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+
+    /**
+     * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
+     * observer), within specified dates. Inventories as disaggregated into individual occurrences. NOTE: in case of
+     * empty inventories, one (empty) occurrence is returned, to allow the user to populate the empty inventory with taxa.
+     * @param authorId
+     * @param from
+     * @param to
+     * @param offset
+     * @param count
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Inventory> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets all or part of the occurrences maintained by the given user. Inventories as disaggregated into individual
