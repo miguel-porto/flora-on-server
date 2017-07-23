@@ -20,7 +20,6 @@ import org.apache.commons.csv.CSVRecord;
 
 import pt.floraon.driver.*;
 import pt.floraon.morphology.entities.Attribute;
-import pt.floraon.occurrences.entities.Author;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.taxonomy.TaxonomyImporter;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -33,6 +32,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 		super(driver);
 	}
 
+/*
 	public Map<String,Integer> uploadAuthorsFromFile(String filename) throws IOException, NumberFormatException, FloraOnException {
     	File file=new File(filename);
     	if(!file.canRead()) throw new IOException("Cannot read file "+filename);
@@ -72,6 +72,7 @@ public class CSVFileProcessor extends BaseFloraOnDriver {
 		out.put("upd", countupd);
 		return out;
     }
+*/
 
     public String uploadMorphologyFromFile(String filename) throws IOException, FloraOnException {
     	File file=new File(filename);

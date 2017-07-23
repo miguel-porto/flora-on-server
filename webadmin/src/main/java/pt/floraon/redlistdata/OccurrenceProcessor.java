@@ -389,9 +389,9 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
-    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border) {
+    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border, boolean showShadow) {
         if(showBaseMap) {
-            InputStream str = this.getClass().getResourceAsStream("basemap.svg");
+            InputStream str = this.getClass().getResourceAsStream(showShadow ? "basemap.svg" : "basemap-noshadow.svg");
             try {
                 IOUtils.copy(str, out);
             } catch (IOException e) {
@@ -431,7 +431,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             }
             out.print("\"></path>");
         }
-System.out.println("********** Process SVG");
+//System.out.println("********** Process SVG");
         if(showOccurrences && this.squares != null) {
             // draw occurrence squares
             for (Square s : this.squares) {

@@ -1,11 +1,7 @@
 package pt.floraon.driver;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.occurrences.Common;
-import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.ArrayList;
@@ -25,34 +21,6 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
     @Override
 	public TaxEnt createTaxEntFromTaxEnt(TaxEnt te) throws TaxonomyException, FloraOnException {
 		return createTaxEntFromName(te.getName(), te.getAuthor(), te.getRank(), te.getSensu(), te.getAnnotation(), te.getCurrent());
-	}
-
-    /**
-	 * Constructs a new species list from a JSON document as documented in the wiki.
-	 * @param sl A {@link JsonObject} as documented <a href="https://github.com/miguel-porto/flora-on-server/wiki/Document-formats-for-uploading-data">here</a>.
-	 * @throws FloraOnException
-	 */
-    @Override
-	@Deprecated
-	public SpeciesList createSpeciesList(JsonObject sl) throws FloraOnException {
-		if(!(sl.has("latitude") && sl.has("longitude") && sl.has("precision") && sl.has("authors") && sl.has("taxa"))) throw new FloraOnException("Species list document must have at least the fields latitude, longitude, precision, authors, taxa.");
-		JsonElement tmp;
-		// FIXME HERE!!!
-		SpeciesList out=new SpeciesList(
-			sl.get("latitude").getAsFloat()
-			, sl.get("longitude").getAsFloat()
-			, (tmp=sl.get("year")) == null ? null : tmp.getAsInt()
-			, (tmp=sl.get("month")) == null ? null : tmp.getAsInt()
-			, (tmp=sl.get("day")).isJsonNull() ? null : tmp.getAsInt()
-			, sl.get("precision").getAsInt()
-			, (tmp=sl.get("area")) == null ? null : tmp.getAsInt()
-			, (tmp=sl.get("pubNotes")) == null ? null : tmp.getAsString()
-			, (tmp=sl.get("complete")) == null ? null : tmp.getAsBoolean()
-			, (tmp=sl.get("privNotes")).isJsonNull() ? null : tmp.getAsString()
-			, (tmp=sl.get("habitat")) == null ? null : tmp.getAsString()
-			);
-	
-		return createSpeciesList(out);
 	}
 
 	@Override

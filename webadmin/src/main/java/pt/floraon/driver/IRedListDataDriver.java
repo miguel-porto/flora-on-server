@@ -29,6 +29,10 @@ public interface IRedListDataDriver {
      */
     void initializeRedListDataForTerritory(String territory) throws FloraOnException;
 
+    /**
+     * Note that this creates new instances of the data providers. It should be used once per thread.
+     * @return
+     */
     List<SimpleOccurrenceDataProvider> getSimpleOccurrenceDataProviders();
 
     /**

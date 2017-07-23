@@ -67,7 +67,7 @@ public class FloraOnServlet extends HttpServlet {
 		ThisRequest thisRequest = new ThisRequest(request, response);
 
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "sk66");
+		request.setAttribute("uuid", "sk67");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -299,6 +299,13 @@ public class FloraOnServlet extends HttpServlet {
 			PrintWriter pw = response.getWriter();
 			pw.println("<html><body>" + obj + "</body></html>");
 			pw.flush();
+		}
+
+		public void setCacheHeaders(int minutes) {
+			Calendar time = Calendar.getInstance();
+			time.add(Calendar.MINUTE, minutes);
+			response.setDateHeader("Expires", time.getTimeInMillis());
+			response.setHeader("Cache-Control", "max-age=" + (minutes * 60));
 		}
 
 		public void success(JsonElement obj, JsonObject header) throws IOException {

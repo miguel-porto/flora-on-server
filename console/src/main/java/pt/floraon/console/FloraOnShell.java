@@ -54,7 +54,7 @@ public class FloraOnShell {
     	
     	System.out.println(Constants.ANSI_GREENBOLD+"\nWelcome to the Flora-On console!\nThis is the query interpreter. Enter a query directly or issue a server command."+Constants.ANSI_RESET+"\nServer commands start with \\\nType \\q to quit, \\sampledata to load some sample data and get it working.");
     	try {
-			System.out.println(Constants.ANSI_WHITE+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.specieslist)+" species inventories."+Constants.ANSI_RESET+"\n");
+			System.out.println(Constants.ANSI_WHITE+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.taxent)+" taxon nodes; "+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.attribute)+" attribute nodes; "+graph.getQueryDriver().getNumberOfNodesInCollection(NodeTypes.inventory)+" species inventories."+Constants.ANSI_RESET+"\n");
 		} catch (FloraOnException e1) {
 			System.out.println("Some fatal error reading database. Aborting.");
 			System.out.println(e1.getMessage());

@@ -7,7 +7,6 @@ import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.occurrences.entities.Author;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -17,7 +16,7 @@ import java.util.*;
 import static pt.floraon.authentication.Privileges.*;
 
 /**
- * Represents a user of the Flora-On Server - not to be confounded with an {@link Author} of observations!
+ * Represents a user of the Flora-On Server, who can be an observer, collector, etc.
  */
 public class User extends NamedDBNode {
 	private String userName, password;

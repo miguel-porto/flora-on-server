@@ -18,6 +18,8 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -25,7 +27,7 @@ import java.util.*;
  */
 public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRedListDataDriver {
     final protected ArangoDatabase database;
-    final private List<SimpleOccurrenceDataProvider> simpleOccurrenceDataProviders = new ArrayList<>();
+    final private List<ThreadLocal<SimpleOccurrenceDataProvider>> simpleOccurrenceDataProviders = new ArrayList<>();
 
     public RedListDataArangoDBDriver(IFloraOn driver) {
         super(driver);
@@ -49,18 +51,33 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
 
     @Override
     public void initializeRedListData(Properties properties) throws FloraOnException {
-        try {
-            for(String op : getPropertyList(properties, "occurrenceProvider")) {
-                simpleOccurrenceDataProviders.add(new FloraOnDataProvider(new URL(op), driver));    // TODO use reflection
+            for(final String op : getPropertyList(properties, "occurrenceProvider")) {
+                simpleOccurrenceDataProviders.add(new ThreadLocal<SimpleOccurrenceDataProvider>(){
+                    @Override
+                    protected SimpleOccurrenceDataProvider initialValue() {
+                        try {
+                            return new FloraOnDataProvider(new URL(op), driver);    // TODO use reflection
+                        } catch (MalformedURLException e) {
+                            return null;
+                        }
+                    }
+                });
             }
-        } catch (MalformedURLException e) {
-            throw new FloraOnException(e.getMessage());
-        }
-        simpleOccurrenceDataProviders.add(new InternalDataProvider(driver));
+//                simpleOccurrenceDataProviders.add(new FloraOnDataProvider(new URL(op), driver));
+
+        simpleOccurrenceDataProviders.add(new ThreadLocal<SimpleOccurrenceDataProvider>(){
+            @Override
+            protected SimpleOccurrenceDataProvider initialValue() {
+                return new InternalDataProvider(driver);
+            }
+        });
     }
 
     public List<SimpleOccurrenceDataProvider> getSimpleOccurrenceDataProviders() {
-        return simpleOccurrenceDataProviders;
+        List<SimpleOccurrenceDataProvider> out = new ArrayList<>();
+        for(ThreadLocal<SimpleOccurrenceDataProvider> sodp : simpleOccurrenceDataProviders)
+            out.add(sodp.get());
+        return out;
     }
 
     @Override

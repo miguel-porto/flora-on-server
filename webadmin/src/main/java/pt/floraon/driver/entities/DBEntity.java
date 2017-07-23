@@ -79,10 +79,6 @@ public abstract class DBEntity implements Serializable {
 		return out;
 	}
 
-	protected String _toJsonString() {
-		return this._toJson().toString();
-	}
-	
 	public abstract JsonObject toJson();
 	public abstract String toJsonString();
 }

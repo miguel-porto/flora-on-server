@@ -250,32 +250,28 @@ public class RedListDataApi extends FloraOnServlet {
                     thisRequest.request.setAttribute("toDate", df.format(to));
                     switch(what) {
                         case "report-ninv":
-                            pw.print(ord.getNumberOfInventories(
-                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to));
-                            break;
-
-                        case "report-ntaxatag":
-                            pw.print(ord.getNumberOfTaxaWithTag(
-                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
-                                    , thisRequest.getParameterAsString("tag")));
+                            pw.print("<p>" + ord.getNumberOfInventories(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to) + "</p>");
                             break;
 
                         case "report-listtaxatag":
                         case "report-listtaxatagphoto":
+                            int count = 0;
                             pw.print("<ul>");
                             Iterator<TaxEnt> it = ord.getTaxaWithTag(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
                                     , thisRequest.getParameterAsString("tag")
                                     , what.equals("report-listtaxatagphoto"));
                             while(it.hasNext()) {
+                                    count++;
                                     TaxEnt te1 = it.next();
                                     pw.print("<li>" + te1.getFullName(true) + "</li>");
                             }
-                            pw.print("</ul>");
+                            pw.print("</ul><p>Nº de taxa: " + count + "</p>");
                             break;
 
                         case "report-listtaxatagspecimen":
-                            pw.print("<table class=\"subtable\">");
+                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de espécimes colhidos</th></tr></thead>");
                             Iterator<StatisticPerTaxon> it1 = ord.getTaxaWithTagCollected(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
                                     , thisRequest.getParameterAsString("tag"));
@@ -287,7 +283,7 @@ public class RedListDataApi extends FloraOnServlet {
                             break;
 
                         case "report-listtaxatagnrrecords":
-                            pw.print("<table class=\"subtable\">");
+                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de registos</th></tr></thead>");
                             Iterator<StatisticPerTaxon> it2 = ord.getTaxaWithTagNrRecords(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
                                     , thisRequest.getParameterAsString("tag"));
@@ -305,7 +301,7 @@ public class RedListDataApi extends FloraOnServlet {
                             for(Map.Entry<String, Integer> e : lutm.entrySet()) {
                                 pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
                             }
-                            pw.print("</table><p class=\"legend\">Nota: no caso de quadrículas 2x2 km, a notação MGRS apresentada corresponde à quadrícula 1x1 km do quadrante SW.</p>");
+                            pw.print("</table>");
                             break;
 
                         case "report-listprotectedareas":
@@ -317,7 +313,7 @@ public class RedListDataApi extends FloraOnServlet {
                             for(Map.Entry<String, Integer> e : lpa.entrySet()) {
                                 pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
                             }
-                            pw.print("</table><p class=\"legend\">Nota: no caso de sobreposição de áreas protegidas, o mesmo registo pode aparecer contabilizado em várias linhas.</p>");
+                            pw.print("</table>");
                             break;
                     }
                 }

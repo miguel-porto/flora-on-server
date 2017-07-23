@@ -2,6 +2,7 @@ package pt.floraon.driver;
 
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.Point2D;
+import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.entities.Inventory;
 
@@ -37,6 +38,7 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
     public Map<String, Integer> getListOfPolygonsWithOccurrences(INodeKey userId, Date from, Date to, PolygonTheme polygonTheme) throws DatabaseException {
         if(polygonTheme == null) return Collections.emptyMap();
         Map<String, Integer> out = new TreeMap<>();
+        Map<Polygon, Integer> tmp = new HashMap<>();
         Inventory i;
         Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesOfObserverWithinDates(
                 userId, from, to, null, null);
@@ -47,10 +49,10 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
             for (Map.Entry<String, pt.floraon.geometry.Polygon> e : polygonTheme) {
                 if (e.getValue().contains(new Point2D(i.getLongitude(), i.getLatitude()))) {
                     isContained = true;
-                    if (out.containsKey(e.getKey()))
-                        out.put(e.getKey(), out.get(e.getKey()) + 1);
+                    if (tmp.containsKey(e.getValue()))
+                        tmp.put(e.getValue(), tmp.get(e.getValue()) + 1);
                     else
-                        out.put(e.getKey(), 1);
+                        tmp.put(e.getValue(), 1);
                 }
             }
             if(!isContained) {
@@ -60,6 +62,15 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
                     out.put("&lt;outside&gt;", 1);
             }
         }
+        for(Map.Entry<Polygon, Integer> e : tmp.entrySet()) {
+            // TODO this MUST be user configuration
+            String key = e.getKey().getProperties().get("SITE_NAME") + " (" + e.getKey().getProperties().get("TIPO") + ")";
+            if (out.containsKey(key))
+                out.put(key, out.get(key) + 1);
+            else
+                out.put(key, 1);
+        }
+
         return out;
     }
 }

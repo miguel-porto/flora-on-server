@@ -12,7 +12,7 @@ public interface INodeWrapper {
 	 * @param parent
 	 * @throws FloraOnException
 	 */
-	public int setPART_OF(INodeKey parent) throws FloraOnException;
+	int setPART_OF(INodeKey parent) throws FloraOnException;
 	/**
 	 * Creates a relationship of any type. NOTE: this uses reflection.
 	 * @param parent
@@ -26,7 +26,7 @@ public interface INodeWrapper {
 	 * @throws IllegalArgumentException
 	 * @throws InvocationTargetException
 	 */
-	public GraphUpdateResult createRelationshipTo(INodeKey parent,RelTypes type) throws FloraOnException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
-	public int createRelationshipTo(INodeKey parent, GeneralDBEdge edge) throws FloraOnException;
+	GraphUpdateResult createRelationshipTo(INodeKey parent,RelTypes type) throws FloraOnException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException;
+	int createRelationshipTo(INodeKey parent, GeneralDBEdge edge) throws FloraOnException;
 
 }

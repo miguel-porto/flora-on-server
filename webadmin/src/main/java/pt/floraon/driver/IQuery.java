@@ -9,7 +9,7 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.geocoding.entities.MatchedToponym;
-import pt.floraon.occurrences.entities.SpeciesList;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -21,16 +21,16 @@ import pt.floraon.taxonomy.entities.TaxEnt;
  */
 public interface IQuery {
     /**
-	 * Gets all species lists within a radius of a given point
+	 * Gets all inventories within a radius of a given point
 	 * @param latitude The point's latitude
 	 * @param longitude The point's longitude
 	 * @param distance The radius
 	 * @return
 	 * @throws FloraOnException
 	 */
-	Iterator<SpeciesList> findSpeciesListsWithin(Float latitude, Float longitude, Float distance) throws FloraOnException;
+	Iterator<Inventory> findInventoriesWithin(Float latitude, Float longitude, Float distance) throws FloraOnException;
 	/**
-	 * Checks whether given species list already exists (same author, same date, coordinates very close) and returns it.
+	 * Checks whether given inventory already exists (same author, same date, coordinates very close) and returns it.
 	 * @param idAuthor
 	 * @param latitude
 	 * @param longitude
@@ -38,10 +38,10 @@ public interface IQuery {
 	 * @param month
 	 * @param day
 	 * @param radius Radius in which to search for the species list
-	 * @return Null if not found, a {@link SpeciesList} if one or more results are found. In the latter case, the returned result is "randomly" selected.
+	 * @return Null if not found, a {@link Inventory} if one or more results are found. In the latter case, the returned result is "randomly" selected.
 	 * @throws FloraOnException
 	 */
-	SpeciesList findExistingSpeciesList(int idAuthor, float latitude, float longitude, Integer year, Integer month, Integer day, float radius) throws FloraOnException;
+	Inventory findExistingInventory(int idAuthor, float latitude, float longitude, Integer year, Integer month, Integer day, float radius) throws FloraOnException;
     /**
      * Returns a list of all possible matches of the given query string, ordered in terms of relevance.
      * @param q

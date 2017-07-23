@@ -53,10 +53,11 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             curSpeciesI++;
             curSpeciesName = rlde.getTaxEnt().getName();
             if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
-            for (SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders()) {
+            List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+            for (SimpleOccurrenceDataProvider edp : sodps) {
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
             }
-            op = new OccurrenceProcessor(driver.getRedListData().getSimpleOccurrenceDataProviders(), null
+            op = new OccurrenceProcessor(sodps, null
                     , sizeOfSquare, clippingPolygon, minimumYear, null, false);
 
             if(op.size() == 0) {

@@ -40,25 +40,6 @@ public class OccurrenceReportArangoDriver extends GOccurrenceReportDriver implem
     }
 
     @Override
-    public int getNumberOfTaxaWithTag(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException {
-        Map<String, Object> bindVars = new HashMap<>();
-        DateFormat df = Constants.dateFormatYMD.get();
-        bindVars.put("user", userId.toString());
-        bindVars.put("from", df.format(from));
-        bindVars.put("to", df.format(to));
-        bindVars.put("tag", tag);
-        bindVars.put("@redlistcollection", "redlist_" + territory);
-        try {
-            Integer o = database.query(AQLOccurrenceQueries.getString("occurrencereportquery.2"), bindVars
-                    , null, Integer.class).next();
-            System.out.printf("Ntax : %d\n",o);
-            return o;
-        } catch (ArangoDBException e) {
-            throw new DatabaseException(e.getMessage());
-        }
-    }
-
-    @Override
     public Iterator<TaxEnt> getTaxaWithTag(INodeKey userId, Date from, Date to, String territory, String tag, boolean withPhoto) throws DatabaseException {
         Map<String, Object> bindVars = new HashMap<>();
         DateFormat df = Constants.dateFormatYMD.get();

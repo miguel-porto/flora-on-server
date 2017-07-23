@@ -43,7 +43,6 @@ public class NodeWrapperDriver extends NodeWorkerDriver implements INodeWrapper 
 		
 		try {
 			Integer nrel=database.query(query, null, null, Integer.class).next();
-			
 			if(nrel==0) {
 				return new GraphUpdateResult(driver, new String[] {
 //					dbDriver.createEdge(type.toString(), type.getEdge(), baseId, parentId, false).getDocumentHandle()

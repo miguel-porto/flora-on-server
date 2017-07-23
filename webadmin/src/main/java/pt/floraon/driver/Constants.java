@@ -17,8 +17,6 @@ import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.morphology.entities.Character;
-import pt.floraon.occurrences.entities.Author;
-import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.authentication.entities.User;
 
 public final class Constants {
@@ -411,7 +409,7 @@ public final class Constants {
 		HYBRID_OF(Facets.TAXONOMY, pt.floraon.taxonomy.entities.HYBRID_OF.class),		// TaxEnt HYBRID_OF TaxEnt
 		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.occurrences.entities.OBSERVED_IN.class),	// TaxEnt OBSERVED_IN SpeciesList
 		//IDENTIFIED_AS(Facets.OCCURRENCE, pt.floraon.driver.entities.IDENTIFIED_AS.class),
-		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.occurrences.entities.OBSERVED_BY.class),	// SpeciesList OBSERVED_BY Author
+		OBSERVED_BY(Facets.OCCURRENCE, pt.floraon.occurrences.entities.OBSERVED_BY.class),	// SpeciesList OBSERVED_BY User
     	HAS_QUALITY(Facets.MORPHOLOGY, pt.floraon.morphology.entities.HAS_QUALITY.class),	// TaxEnt HAS_QUALITY Attribute
     	ATTRIBUTE_OF(Facets.TAXONOMY, pt.floraon.morphology.entities.ATTRIBUTE_OF.class),	// Attribute ATTRIBUTE_OF Character
 		EXISTS_IN(Facets.OCCURRENCE, pt.floraon.taxonomy.entities.EXISTS_IN.class),		// TaxEnt EXISTS_IN Territory
@@ -468,11 +466,9 @@ public final class Constants {
 	}
 
 	public enum NodeTypes {
-    	specieslist(SpeciesList.class),		// DEPRECATED
 		inventory(Inventory.class),		// node representing a species inventory (without the species)
     	taxent(TaxEnt.class),				// taxonomic node of any rank, or eventually without any formal rank (e.g. Anemone palmata (white-flowered form)
     	//entity,				// an instance of any taxonomic rank and optionally of any organ
-    	author(Author.class),				// a data contributor
     	attribute(Attribute.class),			// a morphological attribute (e.g. red flower)
     	character(Character.class),			// a morphological character (e.g. flower color, isLeaf shape...)
     	image(pt.floraon.driver.entities.Image.class),

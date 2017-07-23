@@ -16,8 +16,6 @@ import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.entities.*;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.morphology.entities.Character;
-import pt.floraon.occurrences.entities.Author;
-import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.driver.results.NativeStatusResult;
 
@@ -48,12 +46,6 @@ public interface INodeWorker {
 	 */
 	TaxEnt createTaxEntFromTaxEnt(TaxEnt te) throws TaxonomyException, FloraOnException;
 
-	Author createAuthor(Author author) throws FloraOnException;
-
-	SpeciesList createSpeciesList(SpeciesList sl) throws FloraOnException;
-
-	SpeciesList createSpeciesList(JsonObject sl) throws FloraOnException;
-
 	Territory createTerritory(String name, String shortName, TerritoryTypes type, String theme, boolean showInChecklist, INodeKey parent) throws FloraOnException;
 
 	/**
@@ -73,14 +65,6 @@ public interface INodeWorker {
 	 ***********************/
 
 	//public GeneralDBNode getNode(INodeKey id) throws FloraOnException;
-
-	/**
-	 * Fetches one author with the given idAut
-	 *
-	 * @param idaut
-	 * @return Null if not found, otherwise an {@link Author}
-	 */
-	Author getAuthorById(int idaut);
 
 	Territory getTerritoryFromShortName(String shortName) throws FloraOnException;
 

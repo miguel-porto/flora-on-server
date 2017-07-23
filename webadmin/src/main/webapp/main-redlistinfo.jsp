@@ -53,6 +53,9 @@
             <c:if test="${user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
                 <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
             </c:if>
+            <c:if test="${user.canVIEW_OCCURRENCES()}">
+                <li><a href="?w=allmaps">Todos os mapas</a></li>
+            </c:if>
             <c:if test="${!user.isGuest()}">
                 <li><a href="?w=report">Relatório</a></li>
             </c:if>
@@ -792,7 +795,7 @@
                             </c:forEach>
                         </c:if>
                     </td></tr>
-                    <tr class="section4"><td class="title">4.3</td><td><fmt:message key="DataSheet.label.4.3" /></td><td>(automatico)</td></tr>
+                    <tr class="section4"><td class="title">4.3</td><td><fmt:message key="DataSheet.label.4.3" /></td><td>${lifeform}</td></tr>
                     <tr class="section4"><td class="title">4.4</td><td><fmt:message key="DataSheet.label.4.4" /></td><td>
                     <c:if test="${user.canEDIT_SECTION4()}">
                         <table class="triggergroup">
@@ -1610,8 +1613,8 @@
                 </c:forEach>
                 </c:if>
             </table>
-            <%-- <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/> --%>
-            <t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
+            <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
+            <%-- <t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/> --%>
         </c:if>
     </c:when>
 
@@ -1808,6 +1811,18 @@
                 </form>
             </c:if>
         </c:if>
+    </c:when>
+
+    <c:when test="${what=='allmaps'}">
+    <div id="allmapholder">
+    <c:forEach var="taxon" items="${allTaxa}">
+        <div>
+        <div class="header">${taxon.getName()}</div>
+        <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
+        <%-- <t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
+        </div>
+    </c:forEach>
+    </div>
     </c:when>
 
     <c:when test="${what=='report'}">

@@ -12,6 +12,8 @@ public abstract class GeneralDBEdge extends DBEntity {
 	
 	public GeneralDBEdge(GeneralDBEdge n) {
 		super(n);
+		this._from = n._from;
+		this._to = n._to;
 	}
 
 	public GeneralDBEdge(String from, String to) {

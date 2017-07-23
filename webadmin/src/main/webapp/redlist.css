@@ -499,3 +499,18 @@ table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0
     animation-duration: 12s;
     animation-iteration-count: infinite;
 }
+
+#allmapholder {display: flex; flex-wrap:wrap}
+#allmapholder>div {
+    flex: 1 0 200px;
+    margin: 12px;
+    box-shadow: 0 0 10px #aaa;
+    padding: 8px;
+    border-radius: 4px;
+    text-align:center;
+}
+#allmapholder .svgmap {float:none;}
+#allmapholder .header {height:2.2rem; line-height:1.1rem; font-size:1rem; font-style:italic}
+#allmapholder .svgmap path.portugal {stroke:black; stroke-width: 1000px;}
+
+/*#allmapholder>div p {display}*/

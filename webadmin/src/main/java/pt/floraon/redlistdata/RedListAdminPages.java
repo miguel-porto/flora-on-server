@@ -109,6 +109,7 @@ System.out.println(gs.toJson(getUser()));
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
 //                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, getUser().canMANAGE_REDLIST_USERS());
+                thisRequest.setCacheHeaders(60);
                 thisRequest.getUser().resetEffectivePrivileges();
 //                taxEntList.get(0).getAssessment().getAssessmentStatus().isAssessed()
                 Set<String> at = driver.getRedListData().getRedListTags(territory);
@@ -180,18 +181,17 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("synonyms", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getSynonyms());
                     request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getFormerlyIncludedIn());
                     request.setAttribute("includedTaxa", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getIncludedTaxa());
-                    for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders()) {
+                    List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+                    for(SimpleOccurrenceDataProvider edp : sodps)
                         edp.executeOccurrenceQuery(rlde.getTaxEnt());
-//                            edp.executeOccurrenceQuery(null);
-                    }
 
                     // TODO clipping polygon and years must be a user configuration
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
                     OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
-                            driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
+                            sodps, protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
 
                     OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
-                            driver.getRedListData().getSimpleOccurrenceDataProviders(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
+                            sodps, protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
@@ -249,14 +249,14 @@ System.out.println(gs.toJson(getUser()));
 
                         StringWriter sw = new StringWriter();
                         occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
-                                , true, true, false, 0);
+                                , true, true, false, 0, true);
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
 
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
                             historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
-                                    , true, true, false, 0);
+                                    , true, true, false, 0, true);
                             request.setAttribute("historicalsvgmap", sw.toString());
                             sw.close();
                         }
@@ -270,7 +270,7 @@ System.out.println(gs.toJson(getUser()));
 
                         if(rlde.getTaxEnt().getOldId() != null) {
                             // FIXME!!!! this only for Flora-On...
-                            Map<String, Object> taxonInfo = driver.getRedListData().getSimpleOccurrenceDataProviders().get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
+                            Map<String, Object> taxonInfo = sodps.get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
 
                             if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
                                 if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
@@ -280,11 +280,15 @@ System.out.println(gs.toJson(getUser()));
                                 request.setAttribute("ecology", rlde.getEcology().getDescription());
                             }
 
-                            if (taxonInfo.containsKey("commonName")) {
+                            if (taxonInfo.containsKey("commonName"))
                                 request.setAttribute("commonNames", taxonInfo.get("commonName"));
-                            }
-                        } else
+
+                            if (taxonInfo.containsKey("lifeform"))
+                                request.setAttribute("lifeform", taxonInfo.get("lifeform"));
+                        } else {
                             request.setAttribute("ecology", rlde.getEcology().getDescription());
+                            request.setAttribute("lifeform","<erro>");
+                        }
                         request.setAttribute("occurrences", occurrenceProcessor);
                         request.setAttribute("historicalOccurrences", historicalOccurrenceProcessor);
                     }
@@ -365,18 +369,19 @@ System.out.println(gs.toJson(getUser()));
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
                 PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
 
-                for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
+                for(SimpleOccurrenceDataProvider edp : sodps)
                     edp.executeOccurrenceQuery(te);
 
-                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
+                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps
                         , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : 1991
                         , null, "all".equals(thisRequest.getParameterAsString("view")));
 
                 request.setAttribute("occurrences", op);
 
                 if(thisRequest.getParameterAsInteger("group", 0) > 0) {
-                    OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
+                    OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(sodps
                             , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : 1991
                             , null, "all".equals(thisRequest.getParameterAsString("view")));
 
@@ -391,13 +396,15 @@ System.out.println(gs.toJson(getUser()));
             case "downloadtaxonrecords":
                 if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
-                for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
+                List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
+                for(SimpleOccurrenceDataProvider edp : sodps1)
                     edp.executeOccurrenceQuery(te);
 
                 thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
                 PrintWriter wr = thisRequest.response.getWriter();
-                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()).exportKML(wr);
+                OccurrenceProcessor.iterableOf(sodps1).exportKML(wr);
                 wr.flush();
                 return;
 
@@ -411,15 +418,15 @@ System.out.println(gs.toJson(getUser()));
                 while(it.hasNext())
                     lt.add(it.next());
 
-                for(SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
+                List<SimpleOccurrenceDataProvider> sodps2 = driver.getRedListData().getSimpleOccurrenceDataProviders();
+                for(SimpleOccurrenceDataProvider edp : sodps2)
                     edp.executeOccurrenceQuery(lt.iterator());
 
                 thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
                 PrintWriter wr1 = thisRequest.response.getWriter();
 //                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()).exportKML(wr1);
-                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()
-                        , clip, null, null).exportKML(wr1);
+                OccurrenceProcessor.iterableOf(sodps2, clip, null, null).exportKML(wr1);
                 wr1.flush();
                 return;
 
@@ -681,6 +688,18 @@ System.out.println(gs.toJson(getUser()));
                 }
                 request.setAttribute("jobs", jobs);
                 request.setAttribute("allTags", allt);
+                break;
+
+            case "allmaps":
+                Iterator<TaxEnt> it2 = driver.getRedListData().getAllRedListTaxa(territory, "Lista Alvo");
+/*
+                int count = 0;
+                while(count<600) {
+                    count++;
+                    it2.next();
+                }
+*/
+                request.setAttribute("allTaxa", it2);
                 break;
 
             case "report":

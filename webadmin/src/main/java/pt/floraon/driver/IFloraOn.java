@@ -22,7 +22,6 @@ public interface IFloraOn {
 	INodeWrapper wrapNode(INodeKey node) throws FloraOnException;
 	ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException;
 	IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException;
-	ISpeciesListWrapper wrapSpeciesList(INodeKey node) throws FloraOnException;
 	List<Territory> getChecklistTerritories();
 	INodeKey asNodeKey(String id) throws FloraOnException;
 }

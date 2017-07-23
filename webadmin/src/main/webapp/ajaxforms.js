@@ -72,7 +72,8 @@ function attachAJAXContent(callback) {
                 el.classList.remove('ajaxcontent');
                 if(parent.getAttribute) {   // node is not a text node, so add classes
                     parent.setAttribute('class', parent.getAttribute('class') + ' ' + el.getAttribute('class'));
-                    parent.id = el.id;
+                    parent.setAttribute('data-url', url);
+                    if(el.id) parent.id = el.id;
                 }
                 el.parentNode.replaceChild(newel, el);
 /*

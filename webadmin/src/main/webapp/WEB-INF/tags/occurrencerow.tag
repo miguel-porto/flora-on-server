@@ -92,7 +92,7 @@
     <td class="editable" data-name="locality">${occ.getLocality()}</td>
     <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
     <td class="editable" data-name="gpsCode">${occ.getCode()}</td>
-    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getName()}" />
+    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}" />
     <td class="taxon editable" data-name="taxa">${taxa}</td>
     <td class="editable hideincompactview" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
     <td class="editable hideincompactview" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
@@ -108,7 +108,7 @@
 
     <c:when test="${param.flavour == 'herbarium'}">
     <td class="editable" data-name="accession">${occ._getTaxa()[0].getAccession()}</td>
-    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getName()}" />
+    <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}" />
     <td class="taxon editable" data-name="taxa">${taxa}</td>
     <td class="editable" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
     <td class="editable coordinates ${coordchanged}" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>

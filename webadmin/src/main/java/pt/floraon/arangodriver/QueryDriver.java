@@ -2,7 +2,6 @@ package pt.floraon.arangodriver;
 
 import java.util.*;
 
-import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -21,7 +20,7 @@ import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.Common;
-import pt.floraon.occurrences.entities.SpeciesList;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -37,17 +36,19 @@ public class QueryDriver extends GQuery implements IQuery {
 	}
 
 	@Override
-	public Iterator<SpeciesList> findSpeciesListsWithin(Float latitude,Float longitude,Float distance) throws FloraOnException {
-    	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.specieslist.toString());
+	public Iterator<Inventory> findInventoriesWithin(Float latitude, Float longitude, Float distance) throws FloraOnException {
+    	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.inventory.toString());
 		try {
-			return database.query(query, null, null, SpeciesList.class);
+			return database.query(query, null, null, Inventory.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
 	}
 
 	@Override
-	public SpeciesList findExistingSpeciesList(int idAuthor,float latitude,float longitude,Integer year,Integer month,Integer day,float radius) throws FloraOnException {
+	public Inventory findExistingInventory(int idAuthor, float latitude, float longitude, Integer year, Integer month, Integer day, float radius) throws FloraOnException {
+		return null;
+/*
 		StringBuilder sb=new StringBuilder();
 		sb.append("FOR sl IN WITHIN(%1$s,%2$f,%3$f,%4$f) FILTER sl.year==")
 			.append(year).append(" && sl.month==")
@@ -57,9 +58,9 @@ public class QueryDriver extends GQuery implements IQuery {
 
 		String query=String.format(sb.toString(), NodeTypes.specieslist.toString(),latitude,longitude,radius,idAuthor,Constants.TAXONOMICGRAPHNAME);
 
-		ArangoCursor<SpeciesList> vertexCursor;
+		ArangoCursor<Inventory> vertexCursor;
 		try {
-			vertexCursor = database.query(query, null, null, SpeciesList.class);
+			vertexCursor = database.query(query, null, null, Inventory.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
@@ -67,11 +68,12 @@ public class QueryDriver extends GQuery implements IQuery {
 		if(!vertexCursor.hasNext())
 			return null;
 
-		SpeciesList out = vertexCursor.next();
+		Inventory out = vertexCursor.next();
 		if(vertexCursor.hasNext())
 			System.out.println("\nWarning: more than one species list found on "+latitude+" "+longitude+", selecting one randomly.");
 
 		return out;
+*/
 	}
 	
 	@Override
@@ -374,7 +376,7 @@ FOR final IN FLATTEN(FOR v IN base
 				+ "FOR o IN (FOR n IN NEIGHBORS(specieslist,%5$s,sl,'inbound',{},{includeData:true}) "
 				+ "RETURN {match:sl,name:n.name,_id:n._id}) "
 				+ "COLLECT k=o._id,n=o.name INTO gr LET ma=gr[*].o.match RETURN {name:n,_id:k,match:ma,count:LENGTH(ma),reltypes:['%5$s']}"
-				,NodeTypes.specieslist.toString(),latitude,longitude,distance,RelTypes.OBSERVED_IN.toString());
+				,NodeTypes.inventory.toString(),latitude,longitude,distance,RelTypes.OBSERVED_IN.toString());
 		//System.out.println(query);
     	try {
 			return database.query(query, null, null, SimpleTaxonResult.class).asListRemaining();

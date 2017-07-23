@@ -26,11 +26,9 @@ import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.morphology.entities.Attribute;
-import pt.floraon.occurrences.entities.Author;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.driver.entities.DBEntity;
 import pt.floraon.taxonomy.entities.SYNONYM;
-import pt.floraon.occurrences.entities.SpeciesList;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.GraphUpdateResult;
@@ -99,36 +97,6 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		}
 	}
 
-	@Override
-	public Author getAuthorById(int idaut) {
-		String query = AQLQueries.getString("NodeWorkerDriver.7", idaut);
-		try {
-			return database.query(query, null, null, Author.class).next();
-		} catch (ArangoDBException e) {
-			return null;
-		}
-	}
-
-	@Override
-	public Author createAuthor(Author author) throws FloraOnException {
-		try {
-			return database.collection(NodeTypes.author.toString()).insertDocument(author, new DocumentCreateOptions().returnNew(true)).getNew();
-//			return dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.author.toString(), author, false).getEntity();
-		} catch (ArangoDBException e) {
-			throw new DatabaseException(e.getMessage());
-		}
-	}
-	
-	@Override
-	public SpeciesList createSpeciesList(SpeciesList sl) throws FloraOnException {
-		try {
-			return database.collection(NodeTypes.specieslist.toString()).insertDocument(sl, new DocumentCreateOptions().returnNew(true)).getNew();
-//			return dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.specieslist.toString(), sl, false).getEntity();
-		} catch (ArangoDBException e) {
-			throw new DatabaseException(e.getMessage());
-		}
-	}
-	
 	/**
 	 * Fetches one {@link TaxEnt} with the given idEnt
 	 * @param oldId Legacy ID (when importing from other DB)

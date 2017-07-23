@@ -113,6 +113,7 @@ function fetchAJAX(addr, callback, onerror) {
 			    callback(this.responseText);
             } else {
                 if(onerror) {
+                    console.log(rt);
                     onerror(this.responseText);
                 } else {
                     if(this.responseText == '') return;

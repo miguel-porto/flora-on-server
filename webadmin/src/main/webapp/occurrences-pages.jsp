@@ -298,8 +298,8 @@
     <div class="warning">
         <p><fmt:message key="error.10"/></p>
         <fmt:message key="error.10a"/>
-        <t:taxonomicquestions questions="${nomatchquestions}" individualforms="false"/>
         <form class="poster" data-path="/floraon/occurrences/api/fixtaxonomicissues" data-refresh="true">
+        <t:taxonomicquestions questions="${nomatchquestions}" individualforms="false"/>
         <input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
         </form>
     </div>

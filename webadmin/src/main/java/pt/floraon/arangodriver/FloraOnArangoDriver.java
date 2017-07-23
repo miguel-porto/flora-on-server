@@ -190,12 +190,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	public ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException {
 		return new TaxEntWrapperDriver(this, node);
 	}
-	
-	@Override
-	public ISpeciesListWrapper wrapSpeciesList(INodeKey node) throws FloraOnException {
-		return new SpeciesListWrapperDriver(this, node);
-	}
-	
+
 	@Override
 	public IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException {
 		return new GAttributeWrapper(this, node);
@@ -233,7 +228,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 //		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
 		database.collection(NodeTypes.inventory.toString()).createGeoIndex(Arrays.asList("latitude", "longitude"), new GeoIndexOptions().geoJson(false));
-		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
+//		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
 		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("oldId"), new HashIndexOptions().unique(false).sparse(true));
 		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("rank"), new HashIndexOptions().unique(false).sparse(true));
 		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("isSpeciesOrInf"), new HashIndexOptions().unique(false).sparse(false));
@@ -262,7 +257,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 			try {
 				database.collection(nt.toString()).getInfo();
 			} catch (ArangoDBException e) {
-				System.out.println("Creating collection: "+nt.toString());
+				System.out.println("Creating document collection: "+nt.toString());
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.DOCUMENT));
 				if(nt == NodeTypes.user) {	// create administrator account if creating collection of users
 					try {
@@ -285,7 +280,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 			try {
 				database.collection(nt.toString()).getInfo();
 			} catch (ArangoDBException e) {
-				System.out.println("Creating collection: "+nt.toString());
+				System.out.println("Creating edge collection: "+nt.toString());
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.EDGES));
 			}
 		}
@@ -332,7 +327,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		edgeDefinition = new EdgeDefinition();
 		edgeDefinition.collection(RelTypes.OBSERVED_BY.toString());
 		edgeDefinition.from(NodeTypes.inventory.toString());
-		edgeDefinition.to(NodeTypes.author.toString());
+		edgeDefinition.to(NodeTypes.user.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		// attributes <- taxent
