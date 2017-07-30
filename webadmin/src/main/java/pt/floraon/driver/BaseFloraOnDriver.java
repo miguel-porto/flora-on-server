@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.InferredStatus;

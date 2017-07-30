@@ -9,6 +9,9 @@ import com.arangodb.model.DocumentUpdateOptions;
 import pt.floraon.driver.*;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.interfaces.IAdministration;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 
 import java.util.HashMap;
 import java.util.List;

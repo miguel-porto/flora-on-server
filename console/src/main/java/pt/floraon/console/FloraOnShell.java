@@ -23,7 +23,7 @@ import jline.console.completer.StringsCompleter;
 import pt.floraon.arangodriver.FloraOnArangoDriver;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.queryparser.YlemParser;
 import pt.floraon.driver.results.ResultProcessor;

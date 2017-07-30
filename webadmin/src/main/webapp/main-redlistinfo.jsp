@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>${taxon.getName()} - <fmt:message key="DataSheet.title"/></title>
+	<title>${taxon.getName()} <fmt:message key="DataSheet.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/ajaxforms.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="/floraon/js/treenavigator.js"></script>
 	<script type="text/javascript" src="/floraon/redlistadmin.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="/floraon/js/svg-pan-zoom.min.js"></script>
 	<c:if test="${what=='main'}">
@@ -652,11 +653,11 @@
                                     <c:forEach var="tmp" items="${population_PopulationSizeReduction}">
                                         <c:if test="${rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
                                             <input type="radio" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" checked="checked" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
-                                            <label for="psr_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
+                                            <label for="psr_${tmp}"> <div class="light"></div><span><fmt:message key="${tmp.getLabel()}" /></span></label>
                                         </c:if>
                                         <c:if test="${!rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
                                             <input type="radio" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
-                                            <label for="psr_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></label>
+                                            <label for="psr_${tmp}"> <div class="light"></div><span><fmt:message key="${tmp.getLabel()}" /></span></label>
                                         </c:if>
                                     </c:forEach>
                                     <label class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></label>
@@ -779,21 +780,16 @@
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section4"><td class="title">4.2</td><td><fmt:message key="DataSheet.label.4.2" /></td><td>
-                        <c:if test="${user.canEDIT_SECTION4() || user.canEDIT_4_2()}">
-                            <c:forEach var="tmp" items="${ecology_HabitatTypes}">
-                                <c:if test="${habitatTypes.contains(tmp)}">
-                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}" checked="checked"/> ${tmp.getLabel()}</label>
-                                </c:if>
-                                <c:if test="${!habitatTypes.contains(tmp)}">
-                                    <label><input type="checkbox" name="ecology_HabitatTypes" value="${tmp.toString()}"/> ${tmp.getLabel()}</label>
-                                </c:if>
-                            </c:forEach>
-                        </c:if>
-                        <c:if test="${!user.canEDIT_SECTION4() && !user.canEDIT_4_2()}">
-                            <c:forEach var="tmp" items="${habitatTypes}">
-                                <div class="wordtag">${tmp}</div>
-                            </c:forEach>
-                        </c:if>
+                        <div id="habitat-tree"><jsp:include page="/checklist/api/lists?w=tree&id=&type=habitat&level=1"></jsp:include></div>
+                        <%--<t:multiplechooser
+                            privilege="${user.canEDIT_SECTION4() || user.canEDIT_4_2()}"
+                            values="${habitatTypes}"
+                            allvalues="${ecology_HabitatTypes}"
+                            name="ecology_HabitatTypes"
+                            layout="list"
+                            namedDbNode="true"
+                            idprefix="habt" />--%>
+
                     </td></tr>
                     <tr class="section4"><td class="title">4.3</td><td><fmt:message key="DataSheet.label.4.3" /></td><td>${lifeform}</td></tr>
                     <tr class="section4"><td class="title">4.4</td><td><fmt:message key="DataSheet.label.4.4" /></td><td>

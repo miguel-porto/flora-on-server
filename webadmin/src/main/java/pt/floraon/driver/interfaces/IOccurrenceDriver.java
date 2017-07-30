@@ -1,5 +1,7 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;

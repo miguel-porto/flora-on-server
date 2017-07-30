@@ -1,5 +1,9 @@
 package pt.floraon.driver;
 
+import pt.floraon.driver.interfaces.IAttributeWrapper;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.INodeWrapper;
 import pt.floraon.morphology.entities.ATTRIBUTE_OF;
 import pt.floraon.driver.entities.GeneralDBEdge;
 

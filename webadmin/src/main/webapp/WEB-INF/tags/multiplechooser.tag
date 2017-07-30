@@ -9,6 +9,7 @@
 <%@ attribute name="idprefix" required="true" %>
 <%@ attribute name="layout" required="false" %>
 <%@ attribute name="categorized" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="namedDbNode" required="false" type="java.lang.Boolean" %>
 
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
@@ -18,15 +19,30 @@
 <div class="checkboxes ${layout}" tabindex="0">
     <input type="hidden" name="${name}" value=""/>
     <c:forEach var="tmp" items="${allvalues}">
-        <c:if test="${values != null && values.contains(tmp)}">
-            <input type="checkbox" name="${name}" value="${tmp.toString()}" checked="checked" id="${idprefix}_${tmp}"/>
+        <c:if test="${namedDbNode}">
+            <c:set var="containsTest" value="${tmp.getID()}" />
+            <c:set var="inputvalue" value="${tmp.getID()}" />
+            <c:set var="idvalue" value="${idprefix}_${tmp._getNameURLEncoded()}" />
+            <c:set var="lab" value="${tmp.getName()}" />
+            <c:set var="description" value="${tmp.getDescription()}" />
         </c:if>
-        <c:if test="${values == null || !values.contains(tmp)}">
-            <input type="checkbox" name="${name}" value="${tmp.toString()}" id="${idprefix}_${tmp}"/>
+        <c:if test="${!namedDbNode}">
+            <c:set var="containsTest" value="${tmp}" />
+            <c:set var="inputvalue" value="${tmp.toString()}" />
+            <c:set var="idvalue" value="${idprefix}_${tmp}" />
+            <fmt:message key="${tmp.getLabel()}" var="lab"/>
+            <fmt:message key="${tmp.getDescription()}" var="description"/>
         </c:if>
-        <c:if test="${categorized}"><label for="${idprefix}_${tmp}" class="${tmp.getCategory()}"> <fmt:message key="${tmp.getLabel()}" /></c:if>
-        <c:if test="${!categorized}"><label for="${idprefix}_${tmp}"> <fmt:message key="${tmp.getLabel()}" /></c:if>
-        <div class="legend"><fmt:message key="${tmp.getDescription()}" /></div></label>
+        <c:if test="${values != null && values.contains(containsTest)}">
+            <input type="checkbox" name="${name}" value="${inputvalue}" checked="checked" id="${idvalue}"/>
+        </c:if>
+        <c:if test="${values == null || !values.contains(containsTest)}">
+            <input type="checkbox" name="${name}" value="${inputvalue}" id="${idvalue}"/>
+        </c:if>
+        <c:if test="${categorized}"><label for="${idvalue}" class="${tmp.getCategory()}"> <div class="light"></div><span>${lab}</span></c:if>
+        <c:if test="${!categorized}"><label for="${idvalue}"> <div class="light"></div><span>${lab}</span></c:if>
+        <div class="legend">${description}</div>
+        </label>
     </c:forEach>
     <label class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></label>
 </div>
@@ -34,7 +50,9 @@
 <c:if test="${!privilege}">
     <ul>
     <c:forEach var="tmp" items="${values}">
-        <li><fmt:message key="${tmp.getLabel()}" /></li>
+        <c:if test="${namedDbNode}"><c:set var="lab" value="${tmp.getName()}" /></c:if>
+        <c:if test="${!namedDbNode}"><fmt:message key="${tmp.getLabel()}" var="lab"/></c:if>
+        <li>${lab}</li>
     </c:forEach>
     </ul>
 </c:if>

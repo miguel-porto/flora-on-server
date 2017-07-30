@@ -3,6 +3,8 @@ package pt.floraon.taxonomy;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import pt.floraon.driver.*;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 

@@ -2,6 +2,9 @@ package pt.floraon.driver;
 
 import jline.internal.Log;
 import org.apache.commons.lang.mutable.MutableBoolean;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeWorker;
+import pt.floraon.driver.interfaces.IOccurrenceDriver;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;

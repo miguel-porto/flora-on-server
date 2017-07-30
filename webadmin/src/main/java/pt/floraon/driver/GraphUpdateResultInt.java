@@ -7,6 +7,8 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 
 public abstract class GraphUpdateResultInt {
 	protected transient String jsonRepresentation=null;

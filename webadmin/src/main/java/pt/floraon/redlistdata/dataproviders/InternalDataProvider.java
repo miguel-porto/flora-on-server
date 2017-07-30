@@ -1,7 +1,7 @@
 package pt.floraon.redlistdata.dataproviders;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.TaxEnt;
 

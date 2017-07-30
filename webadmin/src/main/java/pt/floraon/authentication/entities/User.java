@@ -6,6 +6,8 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.authentication.PasswordAuthentication;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
 
 import java.io.ByteArrayInputStream;

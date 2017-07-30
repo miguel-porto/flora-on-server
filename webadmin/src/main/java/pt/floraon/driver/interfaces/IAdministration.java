@@ -1,6 +1,7 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.FloraOnException;
 
 import java.util.List;
 

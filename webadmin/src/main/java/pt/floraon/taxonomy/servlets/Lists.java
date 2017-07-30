@@ -1,10 +1,11 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 
 import static pt.floraon.driver.Constants.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,7 +15,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.ecology.entities.Habitat;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.jobs.ChecklistDownloadJob;
@@ -32,6 +35,7 @@ public class Lists extends FloraOnServlet {
 		String htmlClass=null;
 		Object opt=null;
 		PrintWriter out;
+		String territory = null;
 		String what=thisRequest.getParameterAsString("w");
 		
 		if(what==null) {
@@ -73,21 +77,62 @@ public class Lists extends FloraOnServlet {
 			
 		case "tree":
 			// either specify ID or RANK, not both
-			INodeKey id=thisRequest.getParameterAsKey("id");		// the id of the taxent node of which to get the children
-			String rank=thisRequest.getParameterAsString("rank");	// the rank of which to get all nodes
-			if(id!=null && rank!=null) {
+			INodeKey id;
+			try {
+				id = thisRequest.getParameterAsKey("id");        // the id of the taxent node of which to get the children
+			} catch (FloraOnException e) {
+				id = null;
+			}
+			String rank = thisRequest.getParameterAsString("rank");	// the rank of which to get all nodes
+			String type = thisRequest.getParameterAsString("type");	// taxent or habitat
+			if(id != null && rank != null) {
 				thisRequest.error("You must specify id OR rank, not both.");
 				return;
 			}
-			if(id!=null) {
-				Iterator<TaxEnt> tmp=driver.wrapTaxEnt(id).getChildren();
-				rpchk=(ResultProcessor<TaxEnt>) new ResultProcessor<TaxEnt>(tmp);
+			if(type == null && id != null)
+				type = id.getCollection();
+
+			if(type == null) {
+				thisRequest.error("You must specify id or type.");
+				return;
 			}
 
-			if(rank!=null) {
-				htmlClass=rank.toUpperCase();
-				Iterator<TaxEnt> res1=LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()));
-				rpchk=(ResultProcessor<TaxEnt>) new ResultProcessor<TaxEnt>(res1);
+			switch(type) {
+				case "taxent":
+					Iterator<TaxEnt> ite = null;
+					if(id != null)
+						ite = LD.getChildrenTaxEnt(id);
+
+					if(rank != null)
+						ite = LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()));
+
+					thisRequest.request.setAttribute("taxents", ite);
+					thisRequest.request.getRequestDispatcher("/fragments/frag-taxentli.jsp").include(thisRequest.request,
+							thisRequest.response);
+					return;
+
+				case "habitat":
+					Iterator<Habitat> ith;
+					INodeKey taxEntId = thisRequest.getParameterAsKey("taxent");
+					if(thisRequest.request.getAttribute("territory") == null || thisRequest.request.getAttribute("habitatTypes") == null) {
+						territory = thisRequest.getParameterAsString("territory");
+						RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, taxEntId);
+						if(rlde == null) return;
+						thisRequest.request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+					}
+					if(id == null) {
+						Integer level = thisRequest.getParameterAsInteger("level", null);
+						if(level == null)
+							ith = LD.getAllDocumentsOfCollection(NodeTypes.habitat.toString(), Habitat.class);
+						else
+							ith = LD.getHabitatsOfLevel(level);
+					} else
+						ith = LD.getChildrenHabitats(id);
+
+					thisRequest.request.setAttribute("habitats", ith);
+					thisRequest.request.getRequestDispatcher("/fragments/frag-habitatli.jsp").include(thisRequest.request,
+							thisRequest.response);
+					return;
 			}
 			break;
 		}

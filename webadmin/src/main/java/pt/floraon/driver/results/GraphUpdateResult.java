@@ -2,16 +2,13 @@ package pt.floraon.driver.results;
 
 import java.util.List;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Constants.DocumentType;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.GraphUpdateResultInt;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
 
 /**
  * Represents a response composed of an array of _nodes and an array of _links. It's intended for updating a graph with new or updated _nodes.
@@ -62,7 +59,10 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 			for(String id : this.documentHandles) {
 				try {
 					if(this.driver.asNodeKey(id).getDocumentType() == DocumentType.VERTEX) {
-						this._nodes.add(this.driver.getNodeWorkerDriver().getNode(this.driver.asNodeKey(id)).toJson());
+						this._nodes.add(
+								this.driver.getNodeWorkerDriver().getNode(
+										this.driver.asNodeKey(id)
+								).toJson());
 					} else {
 						this._links.add(this.driver.getNodeWorkerDriver().getNode(this.driver.asNodeKey(id)).toJson());
 					}

@@ -8,10 +8,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.csv.CSVFormat;
@@ -19,6 +17,9 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import pt.floraon.driver.*;
+import pt.floraon.driver.interfaces.IAttributeWrapper;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.taxonomy.TaxonomyImporter;

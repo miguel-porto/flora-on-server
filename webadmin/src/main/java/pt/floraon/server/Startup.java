@@ -9,7 +9,7 @@ import javax.servlet.ServletContextListener;
 
 import pt.floraon.arangodriver.FloraOnArangoDriver;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 
 /**
  * Runs on webapp servlet startup

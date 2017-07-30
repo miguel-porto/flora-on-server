@@ -1,14 +1,17 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
+
+import static pt.floraon.driver.utils.StringUtils.cleanArray;
 
 /**
  * Created by miguel on 18-11-2016.
  */
 public class Ecology implements DiffableBean {
     private String description;
-    private RedListEnums.HabitatTypes[] habitatTypes;
+    private String[] habitatTypes;
     private String generationLength;
     private String generationLengthJustification;
     private RedListEnums.DeclineHabitatQuality declineHabitatQuality;
@@ -26,13 +29,8 @@ public class Ecology implements DiffableBean {
         return description == null ? "" : description;
     }
 
-    public RedListEnums.HabitatTypes[] getHabitatTypes() {
-        return habitatTypes == null
-                || habitatTypes.length == 0
-                || habitatTypes[0] == null
-                ? new RedListEnums.HabitatTypes[]{null}
-                : habitatTypes;
-//        return habitatTypes == null ? new RedListEnums.HabitatTypes[0] : habitatTypes;
+    public String[] getHabitatTypes() {
+        return StringUtils.isArrayEmpty(habitatTypes) ? new String[0] : habitatTypes;
     }
 
     public String getGenerationLength() {
@@ -47,8 +45,8 @@ public class Ecology implements DiffableBean {
         this.description = description;
     }
 
-    public void setHabitatTypes(RedListEnums.HabitatTypes[] habitatTypes) {
-        this.habitatTypes = habitatTypes;
+    public void setHabitatTypes(String[] habitatTypes) {
+        this.habitatTypes = cleanArray(habitatTypes);
     }
 
     public void setGenerationLength(String generationLength) {

@@ -9,7 +9,7 @@ import java.util.List;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.queryparser.QueryObject.QueryPiece;

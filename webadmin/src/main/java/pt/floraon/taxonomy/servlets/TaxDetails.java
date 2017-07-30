@@ -1,4 +1,4 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 
 import java.io.IOException;
 
@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.server.FloraOnServlet;

@@ -1,5 +1,6 @@
 package pt.floraon.arangodriver;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.arangodb.ArangoCursor;
@@ -14,7 +15,6 @@ import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
 import com.arangodb.velocypack.VPackSlice;
-import com.google.gson.Gson;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.*;
 import pt.floraon.driver.Constants.DocumentType;
@@ -23,7 +23,12 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.morphology.entities.Character;
@@ -49,7 +54,8 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null, null, null);
 		try {
 			//VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
-			DocumentCreateEntity<TaxEnt> ve = database.collection(NodeTypes.taxent.toString()).insertDocument(out, new DocumentCreateOptions().returnNew(true));
+			DocumentCreateEntity<TaxEnt> ve = database.collection(NodeTypes.taxent.toString())
+					.insertDocument(out, new DocumentCreateOptions().returnNew(true));
 			out = ve.getNew();
 			out.setID(ve.getId());
 			out.setKey(ve.getKey());
@@ -60,6 +66,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 	
 	@Override
+	@Deprecated
 	public Territory createTerritory(String name, String shortName, TerritoryTypes type, String theme, boolean showInChecklist, INodeKey parent) throws FloraOnException {
 		Territory out = new Territory(name, shortName, type, theme, showInChecklist);
 		try {
@@ -77,10 +84,34 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
+	public <T extends GeneralDBNode> T createNode(Class<T> cls, T node) throws FloraOnException {
+		try {
+			VertexEntity ve = database.graph(Constants.TAXONOMICGRAPHNAME).vertexCollection(node.getTypeAsString())
+					.insertVertex(node);
+			node.setID(ve.getId());
+			node.setKey(ve.getKey());
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+
+		return node;
+	}
+
+	@Override
 	public TaxEnt getTaxEntById(INodeKey id) throws FloraOnException {
 		if(id == null) throw new FloraOnException("No ID provided");
 		try {
 			return database.getDocument(id.toString(), TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Habitat getHabitatById(INodeKey id) throws FloraOnException {
+		if(id == null) throw new FloraOnException("No ID provided");
+		try {
+			return database.getDocument(id.toString(), Habitat.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
@@ -229,17 +260,18 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
 	public <T extends DBEntity> T getNode(INodeKey id) throws FloraOnException {
-		NodeTypes nt = null;
-		RelTypes rt = null;
+		NodeTypes nt;
+		RelTypes rt;
 		if(id.getDocumentType() == DocumentType.VERTEX) {
 			nt = NodeTypes.valueOf(id.getCollection());
-			try {
+			try { // FIXME HERE HERE
 				return (T) database.getDocument(id.toString(), nt.getNodeClass());
 			} catch (ArangoDBException | SecurityException | IllegalArgumentException e) {
 				throw new DatabaseException(e.getMessage());
 			}
 		} else {
 			rt = RelTypes.valueOf(id.getCollection());
+			System.out.println(rt);
 			try {
 				return (T) database.getDocument(id.toString(), rt.getEdgeClass());
 			} catch (ArangoDBException | SecurityException | IllegalArgumentException e) {
@@ -327,13 +359,16 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
 	public GraphUpdateResult getRelationshipsBetween(String[] id, Facets[] facets) {
-		RelTypes[] art=RelTypes.getRelTypesOfFacets(facets);
-    	String rt=Arrays.toString(art);
-    	rt=rt.substring(1, rt.length()-1);
+		RelTypes[] art = RelTypes.getRelTypesOfFacets(facets);
+    	String rt = Arrays.toString(art);
+		rt = rt.substring(1, rt.length()-1);
 
-		String query = AQLQueries.getString("NodeWorkerDriver.9", Constants.TAXONOMICGRAPHNAME, new Gson().toJson(id), rt);
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("nodes", id);
+
+		String query = AQLQueries.getString("NodeWorkerDriver.9", rt);
 		try {
-			return new GraphUpdateResult(database.query(query, null, null, String.class).next());
+			return new GraphUpdateResult(database.query(query, bindVars, null, String.class).next());
 		} catch (ArangoDBException | NoSuchElementException e) {
 			e.printStackTrace();
 			return GraphUpdateResult.emptyResult();

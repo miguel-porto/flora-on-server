@@ -1,7 +1,7 @@
 package pt.floraon.queryparser;
 
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 
 public abstract class TokenParser implements Comparable<TokenParser> {
 	protected IFloraOn graph;

@@ -6,7 +6,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -48,6 +48,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             Set<Integer> oldIds = new HashSet<>();
             while(taxa.hasNext()) {
                 TaxEnt te = taxa.next();
+                if(te == null) return;
                 Iterator<TaxEnt> it1 = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getInfrataxa(1000);
                 while (it1.hasNext()) {
                     TaxEnt t1 = it1.next();

@@ -7,6 +7,10 @@ import java.util.Set;
 
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.INodeWrapper;
+import pt.floraon.driver.interfaces.ITaxEntWrapper;
 import pt.floraon.morphology.entities.HAS_QUALITY;
 import pt.floraon.taxonomy.entities.SYNONYM;
 import pt.floraon.taxonomy.entities.TaxEnt;

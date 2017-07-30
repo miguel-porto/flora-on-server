@@ -1,4 +1,4 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 
 import java.io.IOException;
 import java.util.ListIterator;
@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;

@@ -11,6 +11,7 @@
 	<script type="text/javascript" src="basefunctions.js"></script>
 	<script type="text/javascript" src="suggestions.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>
+	<script type="text/javascript" src="js/treenavigator.js"></script>
 	<script type="text/javascript" src="manager.js"></script>
 </head>
 <body>
@@ -35,6 +36,7 @@
 			<li><a href="?w=families">Family tree</a></li>
 			<li><a href="?w=tree">Whole tree</a></li>
 			<li><a href="?w=graph&show=territories">Territories</a></li>
+			<li><a href="?w=graph&show=habitats">Habitats</a></li>
 			<!--<li><a href="?w=validate">Validate</a></li>-->
 			<li><a href="?w=query">Free query</a></li>
 			<c:if test="${taxoninfomodule==true}"><li><a href="?w=query">Taxon info</a></li></c:if>
@@ -136,7 +138,7 @@
 	</c:when>
 	<c:when test="${what=='families'}">
 		<div id="main" class="taxman-holder"><div id="taxtree" class="taxtree-holder">
-		<jsp:include page="/checklist/api/lists?w=tree&rank=family&fmt=htmllist"></jsp:include>
+		<jsp:include page="/checklist/api/lists?w=tree&rank=family&type=taxent"></jsp:include>
 		</div>
 		<div class="taxdetails"><h2>Click a taxon on the tree to edit</h2></div>
 		</div>
@@ -148,7 +150,7 @@
 	</c:when>
 	<c:when test="${what=='tree'}">
 		<div id="main" class="taxman-holder"><div id="taxtree" class="taxtree-holder">
-		<jsp:include page="/checklist/api/lists?w=tree&rank=class&fmt=htmllist"></jsp:include>
+		<jsp:include page="/checklist/api/lists?w=tree&rank=class&type=taxent"></jsp:include>
 		</div>
 		<div class="taxdetails"><h2>Click a taxon on the tree to edit</h2></div>
 		</div>

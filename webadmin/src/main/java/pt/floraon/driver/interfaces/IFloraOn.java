@@ -1,7 +1,8 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import java.util.List;
 
+import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.taxonomy.entities.Territory;
 

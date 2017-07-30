@@ -3,7 +3,7 @@ package pt.floraon.redlistdata;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;

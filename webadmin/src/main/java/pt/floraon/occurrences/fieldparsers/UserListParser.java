@@ -3,7 +3,7 @@ package pt.floraon.occurrences.fieldparsers;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;

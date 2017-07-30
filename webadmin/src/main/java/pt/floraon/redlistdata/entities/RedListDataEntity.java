@@ -343,18 +343,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setEcology_HabitatTypes(String[] habitatTypes) {
-/*
-        List<RedListEnums.HabitatTypes> tmp = new ArrayList<>();
-        for(String s : habitatTypes) {
-            try {
-                tmp.add(RedListEnums.HabitatTypes.valueOf(s));
-            } catch (IllegalArgumentException e) {
-                Log.warn("Habitat "+s+" not found");
-            }
-        }
-        this.getEcology().setHabitatTypes(tmp.toArray(new RedListEnums.HabitatTypes[0]));
-*/
-        this.ecology.setHabitatTypes(StringUtils.stringArrayToEnumArray(habitatTypes, RedListEnums.HabitatTypes.class));
+        this.ecology.setHabitatTypes(habitatTypes);
     }
 
     public void setEcology_GenerationLength(String generationLength) {

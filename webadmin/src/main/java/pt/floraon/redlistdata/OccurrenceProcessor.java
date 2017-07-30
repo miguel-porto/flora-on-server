@@ -24,9 +24,11 @@ import java.util.List;
  * Created by miguel on 01-12-2016.
  */
 public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
+/*
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
+*/
     private final List<Cluster<Point2D>> clusters;
     private final Multimap<Point2D, Polygon> pointsInPolygons;   // for each occurrence lists the protected area polygons in which it falls
     private Stack<Point2D> convexHull;
@@ -62,6 +64,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
                     || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT)
                     || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
+                    // TODO: abundance string must be parsed!
+                    || (so.getOccurrence().getAbundance() != null && (so.getOccurrence().getAbundance().equals("ND") || so.getOccurrence().getAbundance().equals("0")))
                     || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty())
                     ) return false;
         }

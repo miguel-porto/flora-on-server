@@ -1,17 +1,7 @@
 //var treeNodeToolbar=createHTML('<div class="tools"><div class="button" data-cmd="delete"/>x</div><div class="button" data-cmd="add"/>add</div></div>');
 var TOPBARSIZE=85;
 var nativeStatus=['NULL','NATIVE','EXOTIC','DOUBTFULLY_NATIVE','DOUBTFULLY_EXOTIC'];
-if (typeof MouseEvent !== 'function') {
-	var clickEvent = document.createEvent("MouseEvent");
-	clickEvent.initMouseEvent("click",true,true,window,0,0,0,0,0,false,false,false,false,0,null);
-} else {
-	var clickEvent = new MouseEvent('click', {
-		'view': window,
-		'bubbles': true,
-		'cancelable': true
-	});
-}
-
+var taxontree;
 var timer;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -85,20 +75,10 @@ document.addEventListener('DOMContentLoaded', function() {
 	attachFormPosters();
 	
 // attach the click+expand tree node
-	var lis=document.querySelector('.taxtree-holder>ul');
-	addEvent('click',lis,function(ev) {
-		var el=getParentbyTag(ev.target,'li');
-		var key=el.getAttribute('data-key');
-		if(el.classList.contains('loading')) return;
-		loadTaxDetails(key,document.querySelector('.taxdetails'));
-		if(el.querySelector('ul')) {
-			el.removeChild(el.querySelector('ul'));
-			return;
-		}
-		el.classList.add('loading');
-		loadTreeNode(el,null);
-	});
-	
+    taxontree = new TreeExpander(document.querySelectorAll('.taxtree-holder>ul'), function(ev, key) {
+        loadTaxDetails(key, document.querySelector('.taxdetails'));
+    }, '/floraon/checklist/api/lists?w=tree&fmt=htmllist&id={id}').init();
+
 	var qs=document.getElementById('freequery');
 	if(qs) {
 		addEvent('submit',qs,function(ev) {
@@ -253,7 +233,7 @@ function updateTaxon(obj, replace) {
 			if(par.tagName=='LI') {
 				par.removeChild(par.querySelector('ul'));
 				//par.dispatchEvent(clickEvent);
-				loadTreeNode(par,function() {
+				taxontree.loadTreeNode(par, function() {
 					var li=document.getElementById('taxtree').querySelector('li[data-key="'+obj.id+'"]');
 					li.dispatchEvent(clickEvent);
 				});
@@ -348,18 +328,6 @@ function attachTaxDetailsHandlers(el) {
 		});
 	}
 }
-
-function loadTreeNode(el,callback) {
-	var key=el.getAttribute('data-key');
-	fetchAJAX('/floraon/checklist/api/lists?w=tree&fmt=htmllist&id='+encodeURIComponent(key),function(rt) {
-		el.classList.remove('loading');
-		var html=createHTML(rt);
-		el.appendChild(html);
-		if(callback) callback();
-	});
-	
-}
-
 
 /*
 function hoverTreeNode(ev) {

@@ -13,10 +13,10 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.GTaxEntWrapper;
-import pt.floraon.driver.INodeKey;
-import pt.floraon.driver.ITaxEntWrapper;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.ITaxEntWrapper;
 import pt.floraon.driver.TaxonomyException;
 import static pt.floraon.driver.Constants.*;
 import pt.floraon.driver.Constants.NativeStatus;
@@ -122,18 +122,6 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		return new ArrayList<TaxEnt>();
 	}
 
-	@Override
-	public Iterator<TaxEnt> getChildren() throws FloraOnException {
-		String query=String.format(
-			AQLQueries.getString("TaxEntWrapperDriver.5")
-			,RelTypes.PART_OF.toString(),thisNode,RelTypes.HYBRID_OF.toString());
-	    try {
-			return database.query(query, null, null, TaxEnt.class);
-		} catch (ArangoDBException e) {
-			throw new DatabaseException(e.getMessage());
-		}
-	}
-	
 	@Override
 	public int setNativeStatus(INodeKey territory, NativeStatus status, OccurrenceStatus occurrenceStatus, AbundanceLevel abundanceLevel, PlantIntroducedStatus introducedStatus, PlantNaturalizationDegree naturalizationDegree, Boolean uncertainOccurrenceStatus) throws FloraOnException {
 		String query;

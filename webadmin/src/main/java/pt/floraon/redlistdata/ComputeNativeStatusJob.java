@@ -1,7 +1,7 @@
 package pt.floraon.redlistdata;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.redlistdata.entities.RedListDataEntity;

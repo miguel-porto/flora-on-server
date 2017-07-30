@@ -1,4 +1,4 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import pt.floraon.driver.Constants.DocumentType;
 

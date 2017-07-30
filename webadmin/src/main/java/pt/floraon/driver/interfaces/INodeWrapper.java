@@ -1,8 +1,9 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import java.lang.reflect.InvocationTargetException;
 
 import pt.floraon.driver.Constants.RelTypes;
+import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.driver.results.GraphUpdateResult;
 

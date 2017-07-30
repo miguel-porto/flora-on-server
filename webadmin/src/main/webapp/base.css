@@ -51,7 +51,7 @@ div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bol
 .enterpage div.warning {
     height:100%;
     width:20%;
-    right:0;
+    left:0;
     top:0;
     bottom:auto;
     left:auto;
@@ -120,7 +120,7 @@ div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bol
 }
 
 .button:hover {
-	background-color:#7c7;
+	background-color:#7c7 !important;
 }
 
 .button.remove:hover {
@@ -251,6 +251,15 @@ ul.suggestions li.selected {
     #logobar>div>p {font-size: 0.75em;}
 }
 
+#stamp {
+    display: none;
+    position: absolute;
+    left:0; top:0;
+    font-size:10em;
+    transform: rotate(-90deg);
+    transform-origin: left top 0;
+}
+
 #mainmenu {
     text-align: left;
     font-size: 1.8rem;
@@ -258,7 +267,7 @@ ul.suggestions li.selected {
 #mainmenu,#mainmenu a {color: #1e88e5}
 #mainmenu span {vertical-align:middle}
 #mainmenu li {list-style-type:none;}
-#mainmenu li .bullet {border-radius:50%; width:2.5rem; height:2.5rem; display:inline-block; vertical-align:middle; margin:10px 20px;}
+.bullet {border-radius:50%; width:2.5rem; height:2.5rem; display:inline-block; vertical-align:middle; margin:10px 20px;}
 
 #mainmenu li.section1 .bullet {background-color: #8bc34a;}
 #mainmenu li.section2 .bullet {background-color: #f44336;}

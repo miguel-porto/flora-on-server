@@ -22,7 +22,6 @@ import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.driver.results.ResultItem;
-import pt.floraon.occurrences.TaxonomicQuestion;
 
 /**
  * Represents a taxonomic entity.

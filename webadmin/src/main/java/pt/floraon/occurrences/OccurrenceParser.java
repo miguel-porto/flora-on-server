@@ -1,12 +1,10 @@
 package pt.floraon.occurrences;
 
-import org.apache.commons.codec.binary.Hex;
 import pt.floraon.driver.parsers.CSVParser;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.geometry.Point2D;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.*;
 

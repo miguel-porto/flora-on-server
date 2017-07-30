@@ -6,6 +6,7 @@ var regex_htmltagreplace = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)
 var focusedEditableDiv = null;
 var panZoom = null;
 var isPanning = false;
+var habitatExpander;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
@@ -391,6 +392,42 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    var did = document.querySelector('input[name=taxEntID]').value;
+    var terr = document.querySelector('input[name=territory]').value;
+    habitatExpander = new TreeExpander(document.querySelectorAll('#habitat-tree ul'), function(ev, key) {
+        // tree node was clicked
+        if(ev.target.classList.contains('button')) {
+            ev.preventDefault();
+            return false;
+        } else {
+            var all = this.elements[0].querySelectorAll('li');
+            var cickedel = getParentbyTag(ev.target, 'li').querySelector('input');
+            for(var i=0; i<all.length; i++) {
+                if(all[i].getAttribute('data-key') == key) {
+                    if(cickedel.checked) {
+                        all[i].querySelector('input').setAttribute('checked', 'checked');
+                        all[i].querySelector('input').checked = true;
+                    } else {
+                        all[i].querySelector('input').removeAttribute('checked');
+                        all[i].querySelector('input').checked = false;
+                    }
+                }
+            }
+            changeHandler.call(this, ev);
+        }
+        return true;
+    }, '/floraon/checklist/api/lists?w=tree&territory=' + encodeURIComponent(terr) + '&taxent=' + encodeURIComponent(did) + '&id={id}').init();
+});
+
+window.addEventListener('beforeunload', function (ev) {
+    if(isFormSubmitting) return;
+    var confirmationMessage = 'You have unsaved changes! If you leave you lose them! Are you sure?';
+    if(document.getElementById('mainformsubmitter').classList.contains('hidden')) {
+        return null;
+    } else {
+        (ev || window.event).returnValue = confirmationMessage;
+        return confirmationMessage;
+    }
 });
 
 function expandMap(svg) {

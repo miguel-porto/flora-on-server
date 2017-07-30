@@ -1,5 +1,8 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -121,4 +124,6 @@ public interface IRedListDataDriver {
     Set<String> getRedListTags(String territory) throws DatabaseException;
 
     String buildRedListSheetCitation(RedListDataEntity rlde, Map<String, String> userMap);
+
+    List<Habitat> getAllHabitats() throws DatabaseException;
 }

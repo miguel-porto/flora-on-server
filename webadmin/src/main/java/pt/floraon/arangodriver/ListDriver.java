@@ -1,8 +1,6 @@
 package pt.floraon.arangodriver;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -10,12 +8,17 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jline.internal.Log;
+import org.omg.PortableInterceptor.INACTIVE;
 import pt.floraon.driver.*;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.driver.entities.DBEntity;
+import pt.floraon.driver.interfaces.IListDriver;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.taxonomy.entities.ChecklistEntry;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -41,59 +44,28 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 		}
 
 	}
-/*
-	public List<ChecklistEntry> getCheckList() {
-		// TODO the query is very slow!
-		List<ChecklistEntry> chklst=new ArrayList<ChecklistEntry>();
-        @SuppressWarnings("rawtypes")
-		ArangoCursor<List> vertexCursor;
-    	GraphVerticesOptions gvo=new GraphVerticesOptions();
-    	List<String> vcr=new ArrayList<String>();
-    	vcr.add("taxent"); //$NON-NLS-1$
-    	gvo.setVertexCollectionRestriction(vcr);
-    	String query=String.format(
-			AQLQueries.getString("ListDriver.1")
-   			, OccurrenceConstants.TAXONOMICGRAPHNAME, OccurrenceConstants.RelTypes.PART_OF.toString(),OccurrenceConstants.CHECKLISTFIELDS);
 
-    	try {
-    		// traverse all isLeaf nodes outwards
-    		vertexCursor = database.query(query, null, null, List.class);
-
-			ChecklistEntry chk;
-			while (vertexCursor.hasNext()) {
-				@SuppressWarnings("unchecked")
-				List<LinkedTreeMap<String,Object>> entry1 = vertexCursor.next();
-				chk=new ChecklistEntry();
-				for(LinkedTreeMap<String,Object> tev:entry1) {
-					TaxEnt te=new TaxEnt(tev);
-					if(te.isSpeciesOrInferior()) {
-						if(chk.canonicalName==null) {
-							chk.taxon=te.getFullName();
-							chk.canonicalName=te.getName();
-						}
-					}
-					switch(te.getRank()) {
-					case GENUS:
-						chk.genus=te.getName();
-						break;
-					case FAMILY:
-						chk.family=te.getName();
-						break;
-					case ORDER:
-						chk.order=te.getName();
-						break;
-					default:
-						break;
-					}
-				}
-				chklst.add(chk);
-			}
-		} catch (ArangoDBException | FloraOnException e) {
-			e.printStackTrace();
+	@Override
+	public <T extends DBEntity> Iterator<T> getAllDocumentsOfCollection(String collection, Class<T> cls) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("@nodetype", collection);
+		try {
+			return database.query(AQLQueries.getString("ListDriver.6a"), bindVars, null, cls);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getErrorMessage());
 		}
-    	return chklst;
 	}
-*/
+
+	@Override
+	public <T extends DBEntity> List<T> getAllDocumentsOfCollectionAsList(String collection, Class<T> cls) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("@nodetype", collection);
+		try {
+			return database.query(AQLQueries.getString("ListDriver.6a"), bindVars, null, cls).asListRemaining();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getErrorMessage());
+		}
+	}
 
 	@Override
     public GraphUpdateResult getAllTerritoriesGraph(TerritoryTypes territoryType) throws FloraOnException {
@@ -110,6 +82,20 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 		}
     	return driver.getNodeWorkerDriver().getRelationshipsBetween(ids, new Facets[] {Facets.TAXONOMY});
     }
+
+    @Override
+	public GraphUpdateResult getGraphWholeCollection(NodeTypes nodeType, Facets[] facets) throws FloraOnException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("@nodetype", nodeType.toString());
+
+		String[] ids=new String[0];
+		try {
+			ids = database.query(AQLQueries.getString("ListDriver.3a"), bindVars, null, String.class).asListRemaining().toArray(ids);
+		} catch (ArangoDBException e) {
+			throw new FloraOnException(e.getMessage());
+		}
+		return driver.getNodeWorkerDriver().getRelationshipsBetween(ids, facets);
+	}
 
 	@Override
     public List<Territory> getChecklistTerritories() throws FloraOnException {
@@ -285,6 +271,43 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 			return database.query(query, null, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
 			throw new FloraOnException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Iterator<TaxEnt> getChildrenTaxEnt(INodeKey parentId) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("parent", parentId.toString());
+
+		try {
+			return database.query(AQLQueries.getString("ListDriver.26"), bindVars, null, TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Iterator<Habitat> getChildrenHabitats(INodeKey parentId) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("parent", parentId.toString());
+
+		try {
+			return database.query(AQLQueries.getString("ListDriver.25"), bindVars, null, Habitat.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+
+	}
+
+	@Override
+	public Iterator<Habitat> getHabitatsOfLevel(int level) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("level", level);
+
+		try {
+			return database.query(AQLQueries.getString("ListDriver.27"), bindVars, null, Habitat.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
 		}
 	}
 }

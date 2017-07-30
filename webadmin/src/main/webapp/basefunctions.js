@@ -1,3 +1,14 @@
+if (typeof MouseEvent !== 'function') {
+	var clickEvent = document.createEvent("MouseEvent");
+	clickEvent.initMouseEvent("click",true,true,window,0,0,0,0,0,false,false,false,false,0,null);
+} else {
+	var clickEvent = new MouseEvent('click', {
+		'view': window,
+		'bubbles': true,
+		'cancelable': true
+	});
+}
+
 var $=function(elem) {
   return document.querySelectorAll(elem);
 }

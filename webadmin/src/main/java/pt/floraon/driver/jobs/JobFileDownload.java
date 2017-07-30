@@ -1,7 +1,7 @@
 package pt.floraon.driver.jobs;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 
 import java.io.IOException;
 import java.io.OutputStream;

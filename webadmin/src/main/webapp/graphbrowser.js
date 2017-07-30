@@ -73,7 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		    case 'territories':
 		        addNodeBatch('getallterritories');
 		        break;
-
+		    case 'habitats':
+		        addNodeBatch('getallhabitats');
+		        break;
 		    case 'orphan':
 		        addNodeBatch('getorphan');
 		        break;
@@ -414,6 +416,7 @@ function clickToolbar(ev) {
 					updateTerritoryNode(d,name,shortname,type,theme,checklist);
 				};
 				break;
+
 			case 'attribute':
 				var html='<div class="window float" id="changename"><h1>Edit attribute</h1><table><tr><td>Nome</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
 					+'<tr><td>Descrição</td><td><input type="text" name="desc" value="'+(d.desc ? d.desc : '')+'"/></td></tr>'
@@ -429,6 +432,7 @@ function clickToolbar(ev) {
 					updateAttributeNode(d,name,desc,shortname);
 				};
 				break;
+
 			case 'taxent':
 				var tt=document.getElementById('taxonranks');
 				var html='<div class="window float" id="changename"><h1>Edit node</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
@@ -457,7 +461,28 @@ function clickToolbar(ev) {
 					d.fixed=false;
 					updateTaxNode(d,name,rank,author,sensu,comment,current,oldId);
 				};
+				break;
 
+			case 'habitat':
+				var html='<div class="window float" id="changename"><h1>Edit habitat</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
+					+'<tr><td>Description</td><td><input type="text" name="description" value="'+(d.description ? d.description : '')+'"/></td></tr>'
+					+'<tr><td>Facet</td><td><select name="facet"><option value="STRUCTURAL">Structural</option><option value="SYNTAXONOMICAL">Syntaxonomical</option><option value="ECOLOGICAL">Ecological</option></select></td></tr>'
+					+'<tr><td>Level</td><td><input type="text" name="level" value="'+(d.level ? d.level : '')+'"/></td></tr>'
+					+'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
+				var el=createHTML(html);
+				var r=el.querySelector('option[value="'+d.habitatFacet+'"]');
+				if(r) r.setAttribute('selected','selected');
+				var callback=function(ev) {
+					var wnd=getParentbyClass(ev.target,'float');
+					d.fixed=false;
+                    postJSON('/floraon/checklist/api/update/update/habitat', {
+                        id: d._id
+                        , name: wnd.querySelector('input[name=name]').value
+                        , description: wnd.querySelector('input[name=description]').value
+                        , facet: wnd.querySelector('select[name=facet]').value
+                        , level: wnd.querySelector('input[name=level]').value
+                    }, afterUpdateNode);
+				};
 				break;
 			}
 			
@@ -539,7 +564,7 @@ function clickToolbar(ev) {
 		break;
 
 
-	case 'but-newchar':
+	case 'but-newchar':     // TODO
 		var wnd=showWindow('<h1>Add new character (trait)</h1><p>Character name: <input type="text" name="charactername"/> Short name: <input type="text" name="shortname"/> Description: <input type="text" name="desc"/> <input type="button" value="Add"/></p><p class="info">aaa</p>',{close:true});
 		addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
 			var cname=wnd.querySelector('input[name=charactername]').value;
@@ -553,29 +578,12 @@ function clickToolbar(ev) {
 			hideWindow({target:wnd});
 		});
 		break;
-		
-	case 'but-newterritory':
-		var tt=document.getElementById('territorytypes');
-		var wnd=showWindow('<h1>Add new territory</h1><p>Territory name: <input type="text" name="name"/> Short name (only alphanumeric characters): <input type="text" name="shortname"/> Type: '+tt.innerHTML+' Theme: <input type="text" name="theme"/> <input type="button" value="Add"/></p><p class="info">Theme can be left blank.</p>',{close:true});
-		addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
-			var tname=wnd.querySelector('input[name=name]').value;
-			var tsname=wnd.querySelector('input[name=shortname]').value;
-			var type=wnd.querySelector('select[name=territorytype]').value;
-			var theme=wnd.querySelector('input[name=theme]').value;
-			fetchAJAX('/floraon/checklist/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
-				rt=JSON.parse(rt);
-				if(!rt.success)
-					alert(rt.msg);
-				else
-					updateData(rt.msg.nodes,null);
-			});
-			hideWindow({target:wnd});
-		});
-		break;
-		
+
 	case 'but-newnode':
-		switch(getPage()) {
-		case 'tax':
+	case 'but-newhabitat':
+	case 'but-newterritory':
+		switch(el.getAttribute('data-type')) {
+		case 'taxent':
 			var tt=document.getElementById('taxonranks');
 			var wnd=showWindow('<h1>Add new taxon</h1><p>Taxon name: <input type="text" name="taxonname"/> Authority: <input type="text" name="taxonauth"/> Rank: '+tt.innerHTML+' <input type="button" value="Add"/></p><p class="info">If adding a species or an inferior rank, include the whole name (genus, epithets). Note that you can only connect a species to a genus if the genus part of species name matches the genus.</p>',{close:true});
 			addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
@@ -590,6 +598,48 @@ function clickToolbar(ev) {
 				hideWindow({target:wnd});
 			});
 			break;
+
+        case 'territory':
+            var tt=document.getElementById('territorytypes');
+            var wnd=showWindow('<h1>Add new territory</h1><p>Territory name: <input type="text" name="name"/> Short name (only alphanumeric characters): <input type="text" name="shortname"/> Type: '+tt.innerHTML+' Theme: <input type="text" name="theme"/> <input type="button" value="Add"/></p><p class="info">Theme can be left blank.</p>',{close:true});
+            addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
+                var tname=wnd.querySelector('input[name=name]').value;
+                var tsname=wnd.querySelector('input[name=shortname]').value;
+                var type=wnd.querySelector('select[name=territorytype]').value;
+                var theme=wnd.querySelector('input[name=theme]').value;
+                fetchAJAX('/floraon/checklist/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
+                    rt=JSON.parse(rt);
+                    if(!rt.success)
+                        alert(rt.msg);
+                    else
+                        updateData(rt.msg.nodes,null);
+                });
+                hideWindow({target:wnd});
+            });
+            break;
+
+        case 'habitat':
+            var wnd = showWindow('<h1>Add new habitat</h1><p>Habitat name: <input type="text" name="name"/> Description: <input type="text" name="description"/> Facet: <select name="facet">' +
+                '<option value="STRUCTURAL">Structural</option><option value="SYNTAXONOMICAL">Syntaxonomical</option><option value="ECOLOGICAL">Ecological</option></select>' +
+                ' Level: <input type="text" name="level"/><input type="button" value="Add"/></p>',{close:true});
+            addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
+                postJSON('/floraon/checklist/api/update/add/habitat', {
+                    name: wnd.querySelector('input[name=name]').value
+                    , description: wnd.querySelector('input[name=description]').value
+                    , facet: wnd.querySelector('select[name=facet]').value
+                    , level: wnd.querySelector('input[name=level]').value
+                }, function(rt) {
+                   rt=JSON.parse(rt);
+                   if(!rt.success)
+                       alert(rt.msg);
+                   else
+                       updateData(rt.msg.nodes,null);
+                });
+
+                hideWindow({target:wnd});
+            });
+            break;
+
 /*			
 		case 'chars':	// TODO here!
 			var wnd=showWindow('<h1>Add new attribute</h1><p>Attribute name: <input type="text" name="attributename"/> Short name: <input type="text" name="shortname"/> Description: <input type="text" name="desc"/> <input type="button" value="Add"/></p><p class="info">aaa</p>',{close:true});
@@ -643,8 +693,15 @@ function clickToolbar(ev) {
 	case 'but-territories':
 		addNodeBatch('getallterritories');
 		break;
+	case 'but-allhabitats':
+		addNodeBatch('getallhabitats');
+		break;
 	case 'but-partof':
 		var linktype='PART_OF';
+	case 'but-typeof':
+	    if(!linktype) var linktype='TYPE_OF';
+	case 'but-sameas':
+	    if(!linktype) var linktype='SAME_AS';
 	case 'but-parent':
 		if(!linktype) var linktype='HYBRID_OF';
 	case 'but-belongs':
@@ -748,8 +805,10 @@ function forceTick(e) {
 		switch(d.type) {
 		case 'PART_OF':
 		case 'BELONGS_TO':
+		case 'TYPE_OF':
 			return('M'+(d.target.x+dy/40)+' '+(d.target.y-dx/40)+'l'+(-dy/20)+' '+(dx/20)+'L'+d.source.x+' '+d.source.y+'Z');
 		case 'SYNONYM':
+		case 'SAME_AS':
 			return('M'+(d.target.x+dy/30)+' '+(d.target.y-dx/30)+'L'+(d.source.x+dy/30)+' '+(d.source.y-dx/30)+'L'+(d.source.x-dy/30)+' '+(d.source.y+dx/30)+'L'+(d.target.x-dy/30)+' '+(d.target.y+dx/30)+'Z');
 		case 'HYBRID_OF':
 			return('M'+(d.target.x+dy/40)+' '+(d.target.y-dx/40)+'l'+(-dy/20)+' '+(dx/20)+'L'+d.source.x+' '+d.source.y+'Z');
@@ -854,7 +913,7 @@ function loadData(d,add,facets,depth) {
 //	d3.json('worker.php?w=neigh&f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
 	d3.json('/floraon/graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : '0'), function(error, graph) {
 console.log(graph);
-		if(!graph.success) return;
+		if(!graph || !graph.success) return;
 		if(graph.msg.nodes.length>500) {
 			showRelationships(d);
 			showWindow('<p>Sorry, this would result in '+graph.msg.nodes.length+' nodes. I won\'t do it.</p>',{timer:2000});
@@ -937,6 +996,10 @@ function onUpdateData() {
 			el=document.createElementNS("http://www.w3.org/2000/svg", 'path');
 			el.setAttribute('d','M-7 -7l14 0l0 14l-14 0l0 -14Z');
 			break;
+        default:
+			el=document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+			el.setAttribute('r','7');
+			break;
 		}
 		return el;
 	});//.attr("r",10);
@@ -949,7 +1012,7 @@ function onUpdateData() {
 /*	link.enter().insert("line",'svg g').attr("class", function(d) {
 		return('link '+d.type+(d.current ? ' current' : ''));
 	});*/
-	forceTick();	
+	forceTick();
 }
 
 function clickLink(d) {
@@ -1009,7 +1072,15 @@ function showRelationships(d) {
 
 	case 'territory':
 		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+'</td></tr>'
-			+'<tr><td>short</td><td class="id">' + d.shortName + '</td></tr>';
+			+'<tr><td>short</td><td class="id">' + d.shortName + '</td></tr>'
+			+'<tr><td>ID</td><td class="id">' + d._id + '</td></tr>';
+		break;
+
+	case 'habitat':
+		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+'</td></tr>'
+			+'<tr><td>desc</td><td class="id">' + d.description + '</td></tr>'
+			+'<tr><td>facet</td><td class="id">' + d.habitatFacet + '</td></tr>'
+			+'<tr><td>level</td><td class="id">' + d.level + '</td></tr>'
 			+'<tr><td>ID</td><td class="id">' + d._id + '</td></tr>';
 		break;
 	}

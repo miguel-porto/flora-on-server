@@ -2,7 +2,6 @@ package pt.floraon.arangodriver;
 
 import static pt.floraon.driver.Constants.*;
 
-import java.text.ParseException;
 import java.util.*;
 
 import com.arangodb.ArangoDB;
@@ -16,10 +15,10 @@ import com.arangodb.model.*;
 import com.arangodb.velocypack.*;
 import com.arangodb.velocypack.exception.VPackException;
 import com.arangodb.velocypack.exception.VPackParserException;
-import com.arangodb.velocypack.internal.util.DateUtil;
 import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
+import pt.floraon.driver.interfaces.*;
 import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
@@ -223,7 +222,6 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database = driver.db(dbname);
 
 		checkCollections();
-
 		createTaxonomicGraph();
 
 //		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
@@ -236,17 +234,6 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.taxent.toString()).createFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
 		database.collection(NodeTypes.territory.toString()).createHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
 		database.collection(NodeTypes.user.toString()).createHashIndex(Arrays.asList("userName"), new HashIndexOptions().unique(true).sparse(false));
-
-/*
-		driver.createGeoIndex(NodeTypes.specieslist.toString(), false, "location");
-		driver.createHashIndex("author", true, "idAut");
-		driver.createHashIndex("taxent", true, true, "oldId");
-		driver.createHashIndex("taxent", false, true, "rank");
-		driver.createHashIndex("taxent", false, false, "isSpeciesOrInf");
-		driver.createHashIndex("territory", true, "shortName");
-		driver.createHashIndex("taxent", false, true, "name");
-		driver.createFulltextIndex("taxent", "name");
-*/
 	}
 	
 	private void checkCollections() throws ArangoDBException {
@@ -285,7 +272,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 			}
 		}
 	}
-	
+
 	private void createTaxonomicGraph() throws ArangoDBException {
 		Collection<EdgeDefinition> edgeDefinitions = new ArrayList<>();
 
@@ -349,6 +336,20 @@ public class FloraOnArangoDriver implements IFloraOn {
 		edgeDefinition.collection(RelTypes.EXISTS_IN.toString());
 		edgeDefinition.from(NodeTypes.taxent.toString());
 		edgeDefinition.to(NodeTypes.territory.toString());
+		edgeDefinitions.add(edgeDefinition);
+
+		// habitat <- habitat
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.TYPE_OF.toString());
+		edgeDefinition.from(NodeTypes.habitat.toString());
+		edgeDefinition.to(NodeTypes.habitat.toString());
+		edgeDefinitions.add(edgeDefinition);
+
+		// habitat <-> habitat
+		edgeDefinition = new EdgeDefinition();
+		edgeDefinition.collection(RelTypes.SAME_AS.toString());
+		edgeDefinition.from(NodeTypes.habitat.toString());
+		edgeDefinition.to(NodeTypes.habitat.toString());
 		edgeDefinitions.add(edgeDefinition);
 
 		database.createGraph(Constants.TAXONOMICGRAPHNAME, edgeDefinitions, null);

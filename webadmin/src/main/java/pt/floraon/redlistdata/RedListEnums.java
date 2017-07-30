@@ -306,23 +306,6 @@ public class RedListEnums {
         }
     }
 
-    public enum HabitatTypes implements LabelledEnum {
-        HAB_A("Habitat A")
-        ,HAB_B("Habitat B")
-        ,HAB_C("Habitat C");
-
-        private String label;
-
-        HabitatTypes(String desc) {
-            this.label = desc;
-        }
-
-        @Override
-        public String getLabel() {
-            return label;
-        }
-    }
-
     public enum DeclineHabitatQuality implements TriggerEnum {
         NO_INFORMATION("DeclineHabitatQuality.1", false)
         , STABLE("DeclineHabitatQuality.2", false)
@@ -624,25 +607,25 @@ public class RedListEnums {
     }
 
     public enum RedListCategories implements TriggerEnum {
-        EX("Extinct", false, false, "EX")
-        , EW("Extinct in the Wild", false, false, "EW")
-        , RE("Regionally Extinct", false, false, "RE")
-        , CR("Critically Endangered", true, false, "CR")
-        , EN("Endangered", false, false, "EN")
-        , VU("Vulnerable", false, false, "VU")
-        , NT("Near Threatened", false, false, "NT")
-        , LC("Least Concern", false, false, "LC")
-        , DD("Data Deficient", false, false, "DD")
-        , NA("Not Applicable", false, false, "NA")
-        , NE("Not Evaluated", false, false, "NE")
-        , CR_UP("Critically Endangered", true, true, "CRº")
-        , EN_UP("Endangered", false, true, "ENº")
-        , VU_UP("Vulnerable", false, true, "VUº")
-        , NT_UP("Near Threatened", false, true, "NTº")
-        , LC_DOWN("Least Concern", false, true, "LCº")
-        , NT_DOWN("Near Threatened", false, true, "NTº")
-        , VU_DOWN("Vulnerable", false, true, "VUº")
-        , EN_DOWN("Endangered", false, true, "ENº");
+          EX(FieldValues.getString("category.EX"), false, false, "EX")
+        , EW(FieldValues.getString("category.EW"), false, false, "EW")
+        , RE(FieldValues.getString("category.RE"), false, false, "RE")
+        , CR(FieldValues.getString("category.CR"), true, false, "CR")
+        , EN(FieldValues.getString("category.EN"), false, false, "EN")
+        , VU(FieldValues.getString("category.VU"), false, false, "VU")
+        , NT(FieldValues.getString("category.NT"), false, false, "NT")
+        , LC(FieldValues.getString("category.LC"), false, false, "LC")
+        , DD(FieldValues.getString("category.DD"), false, false, "DD")
+        , NA(FieldValues.getString("category.NA"), false, false, "NA")
+        , NE(FieldValues.getString("category.NE"), false, false, "NE")
+        , CR_UP(FieldValues.getString("category.CR"), true, true, "CRº")
+        , EN_UP(FieldValues.getString("category.EN"), false, true, "ENº")
+        , VU_UP(FieldValues.getString("category.VU"), false, true, "VUº")
+        , NT_UP(FieldValues.getString("category.NT"), false, true, "NTº")
+        , LC_DOWN(FieldValues.getString("category.LC"), false, true, "LCº")
+        , NT_DOWN(FieldValues.getString("category.NT"), false, true, "NTº")
+        , VU_DOWN(FieldValues.getString("category.VU"), false, true, "VUº")
+        , EN_DOWN(FieldValues.getString("category.EN"), false, true, "ENº");
 
         private String label;
         private String shortTag;
@@ -741,10 +724,10 @@ public class RedListEnums {
 
     public enum CRTags implements LabelledEnum {
         NO_TAG("No tag")
-        , PE("Possibly extinct")
-        , PEW("Possibly extinct in the wild")
-        , PRE("Possibly regionally extinct")
-        , PREW("Possibly regionally extinct in the wild");
+        , PE(FieldValues.getString("subcategory.PE"))
+        , PEW(FieldValues.getString("subcategory.PEW"))
+        , PRE(FieldValues.getString("subcategory.PRE"))
+        , PREW(FieldValues.getString("subcategory.PREW"));
 
         private String label;
 

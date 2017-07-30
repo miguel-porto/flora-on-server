@@ -1,4 +1,4 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import java.util.Iterator;
 import java.util.List;
@@ -8,6 +8,8 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.FloraOnException;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.queryparser.Match;

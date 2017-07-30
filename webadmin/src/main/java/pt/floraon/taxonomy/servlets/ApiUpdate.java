@@ -1,4 +1,4 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -9,12 +9,15 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 
 import com.google.gson.Gson;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
+import pt.floraon.driver.utils.BeanUtils;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.GraphUpdateResult;
@@ -37,8 +40,9 @@ public class ApiUpdate extends FloraOnServlet {
 	@Override
 	public void doFloraOnPost(ThisRequest thisRequest)
 			throws ServletException, IOException, FloraOnException {
-		String rank, name, annot, shortName;
+		String rank, name, annot, shortName, description;
 		INodeKey from, to, id;
+		Habitat newHab;
 		int res;
 		
 		if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES() && !thisRequest.getUser().canMODIFY_TAXA()) {
@@ -120,8 +124,7 @@ public class ApiUpdate extends FloraOnServlet {
 				rank=thisRequest.getParameterAsString("rank");
 				annot=thisRequest.getParameterAsString("annot");
 				thisRequest.success(
-					new GraphUpdateResult(
-						driver
+					new GraphUpdateResult(driver
 						, NWD.createTerritory(name, shortName, rank==null ? TerritoryTypes.COUNTRY : TerritoryTypes.valueOf(rank), annot, false, null).getID()
 					).toJsonObject()
 				);
@@ -143,6 +146,19 @@ public class ApiUpdate extends FloraOnServlet {
 				res = driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).setTerritoryWithCompleteDistribution(thisRequest.getParameterAsKey("territory"));
 				thisRequest.success(res == 0 ? "Nothing added" : "Added");
 				return;
+
+			case "habitat":
+				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				newHab = new Habitat(
+						thisRequest.getParameterAsString("name")
+						, thisRequest.getParameterAsString("description")
+						, thisRequest.getParameterAsEnum("facet", Constants.HabitatFacet.class)
+				);
+				newHab.setLevel(thisRequest.getParameterAsInteger("level", null));
+				newHab = NWD.createNode(Habitat.class, newHab);
+				thisRequest.success(new GraphUpdateResult(driver, newHab.getID()).toJsonObject());
+				return;
+
 				
 /*			case "attribute":
 				name=getParameter("name");
@@ -214,6 +230,18 @@ public class ApiUpdate extends FloraOnServlet {
 					).toJsonObject()
 				);
 				return;
+
+			case "habitat":
+				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				newHab = new Habitat(
+					thisRequest.getParameterAsString("name")
+					, thisRequest.getParameterAsString("description")
+					, thisRequest.getParameterAsEnum("facet", Constants.HabitatFacet.class)
+				);
+				newHab.setLevel(thisRequest.getParameterAsInteger("level", null));
+				newHab = NWD.updateDocument(thisRequest.getParameterAsKey("id"), newHab, false, Habitat.class);
+				thisRequest.success(new GraphUpdateResult(driver, newHab.getID()).toJsonObject());
+				break;
 
 			default:
 				thisRequest.error("Invalid node type");

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.Constants.DocumentType;
 
 public class ArangoKey implements INodeKey {

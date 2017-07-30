@@ -1,12 +1,13 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 
 import java.io.IOException;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
 
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.server.FloraOnServlet;
 
 /**
@@ -22,6 +23,11 @@ public class NodeReader extends FloraOnServlet {
 		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("read");
 
 		switch(partIt.next()) {
+		case "getallhabitats":
+			thisRequest.success(driver.getListDriver().getGraphWholeCollection(Constants.NodeTypes.habitat
+					, new Constants.Facets[] {Constants.Facets.TAXONOMY}).toJsonObject());
+			break;
+
 		case "getallcharacters":
 			thisRequest.success(driver.getListDriver().getAllCharacters().toJsonObject());
 			break;

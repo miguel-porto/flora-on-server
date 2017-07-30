@@ -13,13 +13,14 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.IOccurrenceReportDriver;
+import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
+import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
@@ -221,13 +222,20 @@ public class RedListDataApi extends FloraOnServlet {
             case "report-ninv":
             case "report-ntaxatag":
             case "report-listtaxatag":
+            case "report-listtaxatagestimates":
             case "report-listtaxatagphoto":
             case "report-listtaxatagspecimen":
             case "report-listtaxatagnrrecords":
             case "report-listutmsquares":
             case "report-listprotectedareas":
+            case "report-alltaxa":
+            case "report-sheetauthor":
+            case "report-sheetassessor":
+            case "report-sheetreviewer":
+                if(thisRequest.getUser().isGuest()) {thisRequest.forbidden(null); return;}
                 IOccurrenceReportDriver ord = driver.getOccurrenceReportDriver();
                 Date from = null, to = null;
+                OccurrenceReportArangoDriver.TypeOfCollaboration toc = null;
                 thisRequest.response.setContentType("text/plain");
                 thisRequest.response.setCharacterEncoding("UTF-8");
                 thisRequest.response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate, post-check=0, pre-check=0"); // HTTP 1.1
@@ -282,6 +290,18 @@ public class RedListDataApi extends FloraOnServlet {
                             pw.print("</table>");
                             break;
 
+                        case "report-listtaxatagestimates":
+                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de núcleos com estimativa</th></tr></thead>");
+                            Iterator<StatisticPerTaxon> it3 = ord.getTaxaWithTagEstimates(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
+                                    , thisRequest.getParameterAsString("tag"));
+                            while(it3.hasNext()) {
+                                StatisticPerTaxon te1 = it3.next();
+                                pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
+                            }
+                            pw.print("</table>");
+                            break;
+
                         case "report-listtaxatagnrrecords":
                             pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de registos</th></tr></thead>");
                             Iterator<StatisticPerTaxon> it2 = ord.getTaxaWithTagNrRecords(
@@ -295,9 +315,9 @@ public class RedListDataApi extends FloraOnServlet {
                             break;
 
                         case "report-listutmsquares":
-                            Map<String, Integer> lutm = driver.getOccurrenceReportDriver().getListOfUTMSquaresWithOccurrences(
+                            Map<String, Integer> lutm = ord.getListOfUTMSquaresWithOccurrences(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, 2000);
-                            pw.print("<p>Nº de quadrículas: " + lutm.size() + "</p><table class=\"subtable sortable\"><thead><tr><th>Quadrícula 2x2 km</th><th>Nº de registos</th></tr></thead>");
+                            pw.print("<p>Nº de quadrículas: " + lutm.size() + "</p><table class=\"subtable\"><thead><tr><th>Quadrícula 2x2 km</th><th>Nº de registos</th></tr></thead>");
                             for(Map.Entry<String, Integer> e : lutm.entrySet()) {
                                 pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
                             }
@@ -307,13 +327,44 @@ public class RedListDataApi extends FloraOnServlet {
                         case "report-listprotectedareas":
                             // TODO this should be a user configuration loaded at startup
                             PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
-                            Map<String, Integer> lpa = driver.getOccurrenceReportDriver().getListOfPolygonsWithOccurrences(
+                            Map<String, Integer> lpa = ord.getListOfPolygonsWithOccurrences(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, protectedAreas);
-                            pw.print("<p>Nº de áreas protegidas: " + lpa.size() + "</p><table class=\"subtable sortable\"><thead><tr><th>Área protegida</th><th>Nº de registos</th></tr></thead>");
+                            pw.print("<p>Nº de áreas protegidas: " + lpa.size() + "</p><table class=\"subtable\"><thead><tr><th>Área protegida</th><th>Nº de registos</th></tr></thead>");
                             for(Map.Entry<String, Integer> e : lpa.entrySet()) {
                                 pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
                             }
                             pw.print("</table>");
+                            break;
+
+                        case "report-alltaxa":
+                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de registos</th></tr></thead>");
+                            Iterator<StatisticPerTaxon> it4 = ord.getAllTaxa(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to);
+                            while(it4.hasNext()) {
+                                StatisticPerTaxon te1 = it4.next();
+                                pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
+                            }
+                            pw.print("</table>");
+                            break;
+                    }
+                } else {    // dates are null
+                    switch(what) {
+                        case "report-sheetauthor":
+                            toc = OccurrenceReportArangoDriver.TypeOfCollaboration.TEXTAUTHOR;
+                        case "report-sheetassessor":
+                            if(toc == null) toc = OccurrenceReportArangoDriver.TypeOfCollaboration.ASSESSOR;
+                        case "report-sheetreviewer":
+                            if(toc == null) toc = OccurrenceReportArangoDriver.TypeOfCollaboration.REVIEWER;
+                            int count1 = 0;
+                            pw.print("<ul>");
+                            Iterator<TaxEnt> it5 = ord.getRedListSheetsIsCollaborator(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), territory, toc);
+                            while(it5.hasNext()) {
+                                count1++;
+                                TaxEnt te1 = it5.next();
+                                pw.print("<li>" + te1.getFullName(true) + "</li>");
+                            }
+                            pw.print("</ul><p>Nº de taxa: " + count1 + "</p>");
                             break;
                     }
                 }

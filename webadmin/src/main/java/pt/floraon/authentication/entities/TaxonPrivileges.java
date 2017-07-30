@@ -3,10 +3,9 @@ package pt.floraon.authentication.entities;
 import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
-import pt.floraon.driver.INodeKey;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

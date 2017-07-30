@@ -9,6 +9,10 @@ import com.arangodb.model.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import pt.floraon.driver.*;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.IRedListDataDriver;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
@@ -18,8 +22,6 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -237,5 +239,10 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
             throw new DatabaseException(e.getMessage());
         }
         if(key == null) throw new DatabaseException("Some error occurred");
+    }
+
+    @Override
+    public List<Habitat> getAllHabitats() throws DatabaseException {
+        return driver.getListDriver().getAllDocumentsOfCollectionAsList(Constants.NodeTypes.habitat.toString(), Habitat.class);
     }
 }

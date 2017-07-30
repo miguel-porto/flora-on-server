@@ -14,7 +14,7 @@ import java.util.UUID;
 import org.apache.commons.io.FilenameUtils;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 
 import static pt.floraon.driver.Constants.dateTimeFormat;
 

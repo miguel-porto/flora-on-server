@@ -1,11 +1,11 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.gson.JsonObject;
-
 import org.apache.commons.lang.mutable.MutableBoolean;
+import pt.floraon.driver.*;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.taxonomy.entities.EXISTS_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -44,8 +44,9 @@ public interface INodeWorker {
 	 * @return
 	 * @throws TaxonomyException
 	 */
-	TaxEnt createTaxEntFromTaxEnt(TaxEnt te) throws TaxonomyException, FloraOnException;
+	TaxEnt createTaxEntFromTaxEnt(TaxEnt te) throws FloraOnException;
 
+	@Deprecated
 	Territory createTerritory(String name, String shortName, TerritoryTypes type, String theme, boolean showInChecklist, INodeKey parent) throws FloraOnException;
 
 	/**
@@ -70,7 +71,11 @@ public interface INodeWorker {
 
 	Territory getTerritoryFromShortName(INodeKey id) throws FloraOnException;
 
+	<T extends GeneralDBNode> T createNode(Class<T> cls, T node) throws FloraOnException;
+
 	TaxEnt getTaxEntById(INodeKey id) throws FloraOnException;
+
+	Habitat getHabitatById(INodeKey id) throws FloraOnException;
 
 	List<TaxEnt> getTaxEntByIds(String[] id) throws FloraOnException;
 
@@ -179,7 +184,7 @@ public interface INodeWorker {
 	 * Update any document in the DB, with a java bean
 	 * @param id
 	 * @param newEntity
-	 * @param replace
+	 * @param replace If TRUE, fields with null values are deleted from database.
 	 * @param tClass
 	 * @param <T>
 	 * @return

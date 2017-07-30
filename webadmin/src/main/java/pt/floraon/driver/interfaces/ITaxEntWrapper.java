@@ -1,4 +1,4 @@
-package pt.floraon.driver;
+package pt.floraon.driver.interfaces;
 
 import java.util.Iterator;
 import java.util.List;
@@ -8,10 +8,12 @@ import java.util.Set;
 import pt.floraon.driver.Constants.AbundanceLevel;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
-import pt.floraon.driver.Constants.PhenologicalStates;
 import pt.floraon.driver.Constants.PlantIntroducedStatus;
 import pt.floraon.driver.Constants.PlantNaturalizationDegree;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -84,12 +86,7 @@ public interface ITaxEntWrapper {
      * @throws FloraOnException
      */
 	INodeKey createTaxEntChild(String name, String author, TaxonRanks rank, String sensu, String annotation, Boolean current) throws FloraOnException;
-	/**
-	 * Gets the immediate children of the given TaxEnt node
-	 * @return
-	 * @throws FloraOnException
-	 */
-	Iterator<TaxEnt> getChildren() throws FloraOnException;
+
 	/**
 	 * Infers the NativeStatus of this TaxEnt for all territories marked for checklist or for the given territory (as shortName)
 	 * @return
@@ -121,7 +118,7 @@ public interface ITaxEntWrapper {
 	/**
 	 * Gets an array of territory names where the distribution of the TaxEnt is complete.
 	 * @return
-	 * @throws DatabaseException 
+	 * @throws DatabaseException
 	 */
 	List<Territory> getTerritoriesWithCompleteDistribution() throws DatabaseException;
 	

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.queryparser.QueryObject.QueryPiece;
 import pt.floraon.queryparser.QueryObject.QueryPieceIterator;
 import pt.floraon.driver.results.SimpleTaxonResult;

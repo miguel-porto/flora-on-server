@@ -142,4 +142,10 @@ public class StringUtils {
             return null;
         }
     }
+
+    public String randomString(int n) {
+        String uuid = UUID.randomUUID().toString();
+        uuid = uuid.replaceAll("-", "");
+        return uuid.substring(uuid.length() - n);
+    }
 }

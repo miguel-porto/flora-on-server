@@ -13,11 +13,13 @@ import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.FloraOnDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
+import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.server.FloraOnServlet;
@@ -135,7 +137,11 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("population_ExtremeFluctuations", RedListEnums.YesNoNA.values());
                 request.setAttribute("population_NrMatureEachSubpop", RedListEnums.NrMatureEachSubpop.values());
                 request.setAttribute("population_PercentMatureOneSubpop", RedListEnums.PercentMatureOneSubpop.values());
-                request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
+//                request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
+                // FIXME HERE gravar habitats não enum
+                Habitat a;
+//                a._getNameURLEncoded()
+                request.setAttribute("ecology_HabitatTypes", driver.getRedListData().getAllHabitats().toArray(new Habitat[0]));
                 request.setAttribute("ecology_DeclineHabitatQuality", RedListEnums.DeclineHabitatQuality.values());
                 request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
                 request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
@@ -508,24 +514,33 @@ System.out.println(gs.toJson(getUser()));
                     Element assesscrit = doc.createElement("assessmentCriteria");
                     assesscrit.appendChild(doc.createTextNode(rlde.getAssessment()._getCriteriaAsString()));
 
-                    String subcat = "";
+                    String subcat = "", subcatverb = "";
                     if(rlde.getAssessment().getCategory() != null
                             && rlde.getAssessment().getCategory() == RedListEnums.RedListCategories.CR
                             && rlde.getAssessment().getSubCategory() != null
-                            && rlde.getAssessment().getSubCategory() != RedListEnums.CRTags.NO_TAG)
-                        subcat = "<sup>" + rlde.getAssessment().getSubCategory().toString() + "</sup>";
-
+                            && rlde.getAssessment().getSubCategory() != RedListEnums.CRTags.NO_TAG) {
+                        subcat = "<sup>*" + rlde.getAssessment().getSubCategory().toString() + "</sup>";
+                        subcatverb = "<sup>" + rlde.getAssessment().getSubCategory().getLabel() + "</sup>";
+                    }
                     Element assesscat = doc.createElement("assessmentCategory");
-                    if(rlde.getAssessment().getAdjustedCategory() != null)
+                    Element assesscatverb = doc.createElement("assessmentCategoryVerbose");
+                    if(rlde.getAssessment().getAdjustedCategory() != null) {
                         assesscat.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getShortTag() + subcat));
+                        assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getLabel() + subcatverb));
+                    }
 
                     Element citation = doc.createElement("citation");
                     citation.appendChild(doc.createTextNode(driver.getRedListData().buildRedListSheetCitation(rlde, userMap)));
 
                     Element map = doc.createElement("svgMap");
 
+/*
                     map.appendChild(doc.createTextNode("https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=0&size=10000&taxon=" +
                         rlde.getTaxEnt()._getIDURLEncoded()));
+*/
+                    CanonicalName cn = rlde.getTaxEnt().getCanonicalName();
+                    map.appendChild(doc.createTextNode("https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap/" +
+                            cn.getGenus() + "_" + cn.getSpecificEpithet() + "_" + driver.asNodeKey(rlde.getTaxEnt().getID()).getDBKey() + ".svg"));
 
                     Element photos = doc.createElement("photos");
                     if(oldUri != null) {
@@ -547,11 +562,12 @@ System.out.println(gs.toJson(getUser()));
                                 Type listType = new TypeToken<List<Map<String, Object>>>() {
                                 }.getType();
                                 List<Map<String, Object>> occArray;
-                                System.out.println(resp.toString());
+//                                System.out.println(resp.toString());
                                 occArray = new Gson().fromJson(resp.getAsJsonArray("msg"), listType);
                                 for(Map<String, Object> ph : occArray) {
                                     Element photo = doc.createElement("photo");
-                                    photo.appendChild(doc.createTextNode("http://flora-on.pt/gen-sp_ori_" + ph.get("guid").toString() + ".jpg"));
+                                    photo.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
+                                            + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
                                     photos.appendChild(photo);
                                 }
                             }
@@ -570,6 +586,7 @@ System.out.println(gs.toJson(getUser()));
                     species.appendChild(conservation);
                     species.appendChild(assessjust);
                     species.appendChild(assesscat);
+                    species.appendChild(assesscatverb);
                     species.appendChild(assesscrit);
                     species.appendChild(citation);
                     species.appendChild(map);

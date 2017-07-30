@@ -2,11 +2,10 @@ package pt.floraon.driver.jobs;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 
 public final class JobSubmitter {
 	protected static Map<String, JobRunner> jobs=new HashMap<String, JobRunner>();

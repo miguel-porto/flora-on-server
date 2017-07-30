@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.IQuery;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 

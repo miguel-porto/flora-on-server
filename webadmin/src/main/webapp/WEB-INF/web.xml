@@ -29,7 +29,7 @@
 
    <servlet>
       <servlet-name>ChecklistAdmin</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.ChecklistAdmin</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.ChecklistAdmin</servlet-class>
    </servlet>
 
    <servlet>
@@ -51,17 +51,17 @@
 
    <servlet>
       <servlet-name>Query</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.Query</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.Query</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>Lists</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.Lists</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.Lists</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>TaxDetails</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.TaxDetails</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.TaxDetails</servlet-class>
    </servlet>
 
    <servlet>
@@ -71,7 +71,7 @@
 
    <servlet>
       <servlet-name>ApiUpdate</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.ApiUpdate</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.ApiUpdate</servlet-class>
    </servlet>
 
 <!--
@@ -83,17 +83,17 @@
 
    <servlet>
       <servlet-name>NodeReader</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.NodeReader</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.NodeReader</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>Territories</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.Territories</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.Territories</servlet-class>
    </servlet>
 
    <servlet>
       <servlet-name>FileUploader</servlet-name>
-      <servlet-class>pt.floraon.taxonomy.FileUploader</servlet-class>
+      <servlet-class>pt.floraon.taxonomy.servlets.FileUploader</servlet-class>
    </servlet>
 
 

@@ -6,9 +6,11 @@ import java.util.NoSuchElementException;
 import com.arangodb.ArangoDBException;
 
 import pt.floraon.driver.*;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.entities.GeneralDBEdge;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.INodeWrapper;
 import pt.floraon.taxonomy.entities.PART_OF;
 import pt.floraon.driver.results.GraphUpdateResult;
 

@@ -1,4 +1,4 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;

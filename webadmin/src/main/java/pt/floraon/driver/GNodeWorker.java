@@ -1,6 +1,8 @@
 package pt.floraon.driver;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.occurrences.Common;
 import pt.floraon.taxonomy.entities.TaxEnt;
 

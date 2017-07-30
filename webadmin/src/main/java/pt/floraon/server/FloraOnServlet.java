@@ -17,12 +17,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.*;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.interfaces.IListDriver;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.INodeWorker;
 
 public class FloraOnServlet extends HttpServlet {
 	protected static final int PAGESIZE=200;
-	protected String territory=null;
+//	protected String territory=null;
 	protected INodeWorker NWD;
 	protected IListDriver LD;
 	protected IFloraOn driver;
@@ -67,7 +70,7 @@ public class FloraOnServlet extends HttpServlet {
 		ThisRequest thisRequest = new ThisRequest(request, response);
 
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "sk67");
+		request.setAttribute("uuid", "sk71");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -370,6 +373,14 @@ public class FloraOnServlet extends HttpServlet {
 				PrintWriter pw = response.getWriter();
 				pw.println(resp.toString());
 				pw.flush();
+			}
+		}
+
+		public void forbidden(String s) {
+			try {
+				response.sendError(HttpServletResponse.SC_FORBIDDEN, s);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 

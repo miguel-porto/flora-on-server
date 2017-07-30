@@ -1,5 +1,8 @@
 package pt.floraon.driver;
 
+import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;

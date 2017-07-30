@@ -9,10 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.taxonomy.entities.ChecklistEntry;
 import pt.floraon.taxonomy.entities.Territory;
-import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.ResultProcessor;
 
 public class ChecklistDownloadJob implements JobFileDownload {

@@ -1,4 +1,4 @@
-package pt.floraon.taxonomy;
+package pt.floraon.taxonomy.servlets;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ public class ChecklistAdmin extends FloraOnServlet {
 		/*response.setContentType("text/html");
 		PrintWriter out = response.getWriter();*/
 		final HttpServletRequest request = thisRequest.request;
+		String territory = null;
 /*
 		boolean hasTaxonInfoModule = true;
 

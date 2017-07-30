@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.redlistdata.RedListEnums;
@@ -387,7 +388,7 @@ public final class Constants {
 	//public static NativeStatus[] NativeStatuses=NativeStatus.getNatives().toArray(new NativeStatus[0]);	// the NativeStatus which are considered Native.
 	public static Map<Facets,RelTypes[]> FacetRelTypes=new EnumMap<Facets,RelTypes[]>(Facets.class);
 	public static Map<RelTypes,Facets> RelTypesFacet=new HashMap<RelTypes,Facets>();
-	
+
 	public enum TerritoryTypes {
 		COUNTRY
 		,GEOGRAPHIC_BOUNDARY
@@ -398,14 +399,19 @@ public final class Constants {
 	}
 	
 	public enum DocumentType {VERTEX, EDGE, NONE}
+
+	public enum HabitatFacet {STRUCTURAL, SYNTAXONOMICAL, ECOLOGICAL}
+
 	/**
 	 * All types of relationships in the graph. These must correspond exactly to the collection names in the DB!
 	 * @author miguel
 	 *
 	 */
 	public enum RelTypes {
-		PART_OF(Facets.TAXONOMY, PART_OF.class),								// TaxEnt PART_OF TaxEnt
+		PART_OF(Facets.TAXONOMY, PART_OF.class),										// TaxEnt PART_OF TaxEnt
+		TYPE_OF(Facets.TAXONOMY, pt.floraon.ecology.entities.TYPE_OF.class),				// habitat TYPE_OF habitat
 		SYNONYM(Facets.TAXONOMY, pt.floraon.taxonomy.entities.SYNONYM.class),			// TaxEnt SYNONYM TaxEnt
+		SAME_AS(Facets.TAXONOMY, pt.floraon.ecology.entities.SAME_AS.class),				// habitat SAME_AS habitat
 		HYBRID_OF(Facets.TAXONOMY, pt.floraon.taxonomy.entities.HYBRID_OF.class),		// TaxEnt HYBRID_OF TaxEnt
 		OBSERVED_IN(Facets.OCCURRENCE, pt.floraon.occurrences.entities.OBSERVED_IN.class),	// TaxEnt OBSERVED_IN SpeciesList
 		//IDENTIFIED_AS(Facets.OCCURRENCE, pt.floraon.driver.entities.IDENTIFIED_AS.class),
@@ -474,6 +480,7 @@ public final class Constants {
     	image(pt.floraon.driver.entities.Image.class),
 		user(User.class),					// a database user
     	territory(Territory.class),			// a geographic territory (e.g. country)
+		habitat(Habitat.class),				// a species habitat
 		toponym(Toponym.class);				// a name of a place
     	
     	Class<? extends GeneralDBNode> nodeClass;

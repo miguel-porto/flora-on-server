@@ -2,7 +2,7 @@ package pt.floraon.redlistdata;
 
 import jline.internal.Log;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.IFloraOn;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.jobs.JobTask;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -10,7 +10,6 @@ import pt.floraon.redlistdata.entities.RedListDataEntity;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**

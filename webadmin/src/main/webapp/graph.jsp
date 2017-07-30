@@ -31,13 +31,15 @@
 			<div id="but-orphan" class="button">Load orphan</div>
 			<div id="but-characters" class="button">Load characters</div>
 			<div id="but-territories" class="button">Load territories</div>
+			<div id="but-allhabitats" class="button">Load habitats</div>
 		</div>
 		<c:if test="${user.canEDIT_FULL_CHECKLIST()}">
 			<div class="box">
 				<div class="title"><p>Node tools</p></div>
 				<div id="but-delnode" class="button">Delete node/link</div>
-				<div id="but-newnode" class="button">New taxon</div>
-				<div id="but-newterritory" class="button">New territory</div>
+				<div id="but-newnode" class="button" data-type="taxent">New taxon</div>
+				<div id="but-newterritory" class="button" data-type="territory">New territory</div>
+				<div id="but-newhabitat" class="button" data-type="habitat">New habitat</div>
 			</div>
 			<div class="box">
 				<div class="title"><p>Create new link</p></div>
@@ -45,7 +47,9 @@
 				<div id="but-synonym" class="button">SYNONYM</div>
 				<div id="but-parent" class="button">HYBRID_OF</div>
 				<div id="but-belongs" class="button">BELONGS_TO</div>
-				<div id="but-hasquality" class="button">HAS_QUALITY</div>
+				<div id="but-typeof" class="button">TYPE_OF</div>
+				<div id="but-sameas" class="button">SAME_AS</div>
+				<!--<div id="but-hasquality" class="button">HAS_QUALITY</div>-->
 			</div>
 		</c:if>
 		
