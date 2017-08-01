@@ -103,7 +103,7 @@
 			    <tr><th>Canonical name</th><th>Author</th><th>Status in territories</th></tr>
                 <c:forEach var="row" items="${checklist.iterator()}">
                     <tr data-key="${row.getTaxent().getID()}" class="${row.getTaxent().getCurrent() ? '' : 'notcurrent'}">
-                        <td><a href="/floraon/checklist?w=taxdetails&id=${row.getTaxent()._getIDURLEncoded()}"><i>
+                        <td><a href="checklist?w=taxdetails&id=${row.getTaxent()._getIDURLEncoded()}"><i>
                             <c:if test="${row.isLeaf()}">+</c:if>
                             ${row.getTaxent().getNameWithAnnotationOnly(true)}
                         </i></a></td>

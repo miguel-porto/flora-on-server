@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
 			if(nst==-1) nst=1;
 			var tr=getParentbyTag(ev.target,'tr');
 			console.log({taxon:tr.getAttribute('data-key'), territory:terr, status:nativeStatus[nst]});
-			postJSON('/floraon/checklist/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, nativeStatus:nativeStatus[nst]},function(rt) {
+			postJSON('checklist/api/territories/set',{taxon:tr.getAttribute('data-key'), territory:terr, nativeStatus:nativeStatus[nst]},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					if(nst==0)
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // attach the click+expand tree node
     taxontree = new TreeExpander(document.querySelectorAll('.taxtree-holder>ul'), function(ev, key) {
         loadTaxDetails(key, document.querySelector('.taxdetails'));
-    }, '/floraon/checklist/api/lists?w=tree&fmt=htmllist&id={id}').init();
+    }, 'checklist/api/lists?w=tree&fmt=htmllist&id={id}').init();
 
 	var qs=document.getElementById('freequery');
 	if(qs) {
@@ -110,13 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	if(qs) {
 		addEvent('click',qs,function(ev) {
 			if(document.getElementById('checklink') || timer) return;
-			fetchAJAX('/floraon/checklist/api/lists?w=checklist&fmt=csv',function(rt) {
+			fetchAJAX('checklist/api/lists?w=checklist&fmt=csv',function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					var wnd1=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Please wait while we prepare the checklist...</h1><p class="content" style="text-align:center">don\'t navigate away from this page...</p></div>');
 					var link=rt.msg;
 					timer=setInterval(function() {
-						fetchAJAX('/floraon/job/'+rt.msg+'?query=1',function(rt) {
+						fetchAJAX('job/'+rt.msg+'?query=1',function(rt) {
 							rt=JSON.parse(rt);
 							if(rt.success) {
 								if(rt.msg.ready) {
@@ -125,9 +125,9 @@ document.addEventListener('DOMContentLoaded', function() {
 									var wnd1=document.getElementById('checklink');
 									if(wnd1) {
 										wnd1.querySelector('h1').innerHTML='Checklist ready!';
-										wnd1.querySelector('p.content').innerHTML='<a href="/floraon/job/'+link+'" target="_blank">click here to download</a>';
+										wnd1.querySelector('p.content').innerHTML='<a href="job/'+link+'" target="_blank">click here to download</a>';
 									} else {
-										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="/floraon/job/'+link+'" target="_blank">click here to download</a></p></div>');
+										var wnd=showWindow('<div class="window float center" id="checklink"><div class="closebutton"></div><h1>Checklist ready!</h1><p class="content" style="text-align:center"><a href="job/'+link+'" target="_blank">click here to download</a></p></div>');
 									}
 								}
 							} else {
@@ -168,7 +168,7 @@ function actionButtonClick(ev) {
 		if(!document.getElementById('boxsynonym').hasAttribute('data-key')) {alert('You must select a taxon from the drop-down list. Type some initial letters to find taxa.');return;}
 		var key=document.getElementById('boxsynonym').getAttribute('data-key');
 		var to=getCurrentTaxon();
-		postJSON('/floraon/checklist/api/update/setsynonym',{from:key,to:to},function(rt) {
+		postJSON('checklist/api/update/setsynonym',{from:key,to:to},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success)
 				loadTaxDetails(to,el);
@@ -190,7 +190,7 @@ function actionButtonClick(ev) {
 			,current:cb.querySelector('input[name=current]').checked ? 1 : 0
 		}
 
-		postJSON('/floraon/checklist/api/update/add/inferiortaxent',obj,function(rt) {
+		postJSON('checklist/api/update/add/inferiortaxent',obj,function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(rt.msg,el);
@@ -205,7 +205,7 @@ function actionButtonClick(ev) {
 	case 'deletetaxon':
 		if(!confirm('Are you sure you want to delete this taxon? This cannot be undone!')) break;
 		var parent=getCurrentTaxon();
-		postJSON('/floraon/checklist/api/update/deleteleaf',{id:parent},function(rt) {
+		postJSON('checklist/api/update/deleteleaf',{id:parent},function(rt) {
 			rt=JSON.parse(rt);
 			if(rt.success) {
 				loadTaxDetails(null,el);
@@ -221,7 +221,7 @@ function actionButtonClick(ev) {
 function updateTaxon(obj, replace) {
 	obj.replace=replace ? 1 : 0;
 	//console.log(obj);
-	postJSON('/floraon/checklist/api/update/update/taxent',obj,function(rt) {
+	postJSON('checklist/api/update/update/taxent',obj,function(rt) {
 		var el=document.querySelector('.taxdetails');
 		rt=JSON.parse(rt);
 		if(rt.success) {
@@ -245,7 +245,7 @@ function updateTaxon(obj, replace) {
 
 function loadTaxDetails(key,el) {
 	if(!key) {el.innerHTML='';return;}
-	fetchAJAX('/floraon/checklist/api/taxdetails?id='+encodeURIComponent(key),function(rt) {
+	fetchAJAX('checklist/api/taxdetails?id='+encodeURIComponent(key),function(rt) {
 		el.innerHTML=rt;
 		attachTaxDetailsHandlers(el);
 	});
@@ -286,7 +286,7 @@ function multipleSelectionButtonClick(ev) {
 }
 
 function attachTaxDetailsHandlers(el) {
-	attachSuggestionHandler('boxsynonym', '/floraon/checklist/api/suggestions?limit=30&q=', 'suggestions');
+	attachSuggestionHandler('boxsynonym', 'checklist/api/suggestions?limit=30&q=', 'suggestions');
 	attachFormPosters();
 
 	var act=el.querySelectorAll('.actionbutton');
@@ -318,7 +318,7 @@ function attachTaxDetailsHandlers(el) {
 		addEvent('click',els[i],function(ev) {
 			var from=getCurrentTaxon();
 			var to=ev.target.parentNode.getAttribute('data-key');
-			postJSON('/floraon/checklist/api/update/detachsynonym',{from:from,to:to},function(rt) {
+			postJSON('checklist/api/update/detachsynonym',{from:from,to:to},function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success)
 					loadTaxDetails(from,el);

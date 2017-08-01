@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	force.on("tick",forceTick);
 	
-	fetchAJAX('/floraon/graph/reference/all',function(rt) {
+	fetchAJAX('graph/reference/all',function(rt) {
 		rt=JSON.parse(rt);
 		if(!rt.success) {
 			document.getElementById('main-wrap').innerHTML='<p class="error">'+rt.msg+'</p>';
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		if(ev.which==13) {
 			var v=document.getElementById('querytool').value;
 			//fetchAJAX('worker.php?w=query&q='+encodeURIComponent(v),function(rt) {
-			fetchAJAX('/floraon/checklist/api/query?fmt=html&q='+encodeURIComponent(v),function(rt) {
+			fetchAJAX('checklist/api/query?fmt=html&q='+encodeURIComponent(v),function(rt) {
 				var el=document.getElementById('queryresults');
 				if(el) el.parentNode.removeChild(el);
 				var html='<div class="window float center" id="queryresults"><div class="closebutton">close</div><h1>Query results</h1>'+rt
@@ -178,7 +178,7 @@ function removeEl(ev) {
 
 /*
 function updateLink(d,current) {
-	fetchAJAX('/floraon/api/update/update/links?id='+d._id+'&current='+current,function(rt) {
+	fetchAJAX('api/update/update/links?id='+d._id+'&current='+current,function(rt) {
 		rt=JSON.parse(rt);
 		if(rt.success) {
 		console.log(rt.msg);
@@ -200,7 +200,7 @@ function afterUpdateNode(rt) {
 }
 
 function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId) {
-	fetchAJAX('/floraon/checklist/api/update/update/taxent?id='+d._id
+	fetchAJAX('checklist/api/update/update/taxent?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&rank='+encodeURIComponent(rank)
 		+'&current='+current
@@ -213,7 +213,7 @@ function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId) {
 }
 
 function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
-	fetchAJAX('/floraon/checklist/api/update/update/territory?id='+d._id
+	fetchAJAX('checklist/api/update/update/territory?id='+d._id
 		+'&name='+encodeURIComponent(name)
 		+'&shortName='+encodeURIComponent(shortname)
 		+'&type='+encodeURIComponent(type)
@@ -475,7 +475,7 @@ function clickToolbar(ev) {
 				var callback=function(ev) {
 					var wnd=getParentbyClass(ev.target,'float');
 					d.fixed=false;
-                    postJSON('/floraon/checklist/api/update/update/habitat', {
+                    postJSON('checklist/api/update/update/habitat', {
                         id: d._id
                         , name: wnd.querySelector('input[name=name]').value
                         , description: wnd.querySelector('input[name=description]').value
@@ -590,7 +590,7 @@ function clickToolbar(ev) {
 				var tname=wnd.querySelector('input[name=taxonname]').value;
 				var tauth=wnd.querySelector('input[name=taxonauth]').value;
 				var trank=wnd.querySelector('select[name=taxonrank]').value;
-				fetchAJAX('/floraon/checklist/api/update/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {
+				fetchAJAX('checklist/api/update/add/taxent?name='+encodeURIComponent(tname)+'&rank='+encodeURIComponent(trank)+'&author='+encodeURIComponent(tauth),function(rt) {
 					rt=JSON.parse(rt);
 					console.log(rt.msg);
 					updateData(rt.msg.nodes,null);
@@ -607,7 +607,7 @@ function clickToolbar(ev) {
                 var tsname=wnd.querySelector('input[name=shortname]').value;
                 var type=wnd.querySelector('select[name=territorytype]').value;
                 var theme=wnd.querySelector('input[name=theme]').value;
-                fetchAJAX('/floraon/checklist/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
+                fetchAJAX('checklist/api/update/add/territory?name='+encodeURIComponent(tname)+'&shortName='+encodeURIComponent(tsname)+'&theme='+encodeURIComponent(theme)+'&type='+encodeURIComponent(type),function(rt) {
                     rt=JSON.parse(rt);
                     if(!rt.success)
                         alert(rt.msg);
@@ -623,7 +623,7 @@ function clickToolbar(ev) {
                 '<option value="STRUCTURAL">Structural</option><option value="SYNTAXONOMICAL">Syntaxonomical</option><option value="ECOLOGICAL">Ecological</option></select>' +
                 ' Level: <input type="text" name="level"/><input type="button" value="Add"/></p>',{close:true});
             addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
-                postJSON('/floraon/checklist/api/update/add/habitat', {
+                postJSON('checklist/api/update/add/habitat', {
                     name: wnd.querySelector('input[name=name]').value
                     , description: wnd.querySelector('input[name=description]').value
                     , facet: wnd.querySelector('select[name=facet]').value
@@ -729,7 +729,7 @@ function clickToolbar(ev) {
 }
 
 function addNodeBatch(batch) {
-	fetchAJAX('/floraon/checklist/api/read/'+batch,function(rt) {
+	fetchAJAX('checklist/api/read/'+batch,function(rt) {
 		var graph=JSON.parse(rt);
 		if(!graph.success) {
 			alert(graph.msg);
@@ -767,7 +767,7 @@ function collapseNode(n) {
 }
 
 function deleteEntity(d) {
-	fetchAJAX('/floraon/checklist/api/update/delete?id='+d._id,function(rt) {
+	fetchAJAX('checklist/api/update/delete?id='+d._id,function(rt) {
 		rt=JSON.parse(rt);
 		var toremove=[];
 		if(rt.success) {
@@ -911,7 +911,7 @@ function loadData(d,add,facets,depth) {
 	}
 	if(!facets) facets=['TAXONOMY'];
 //	d3.json('worker.php?w=neigh&f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
-	d3.json('/floraon/graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : '0'), function(error, graph) {
+	d3.json('graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : '0'), function(error, graph) {
 console.log(graph);
 		if(!graph || !graph.success) return;
 		if(graph.msg.nodes.length>500) {
@@ -1066,7 +1066,7 @@ function showRelationships(d) {
 		baseTable = '<table id="taxontable"><tr><td class="name" colspan="2">'+d.name+(d.annotation ? ' ['+d.annotation+']' : '')+'</td></tr>'
 			+(d.author ? '<tr><td class="auth" colspan="2">'+d.author+'</td></tr>' : '')
 			+(d.sensu ? '<tr><td><i>sensu</i></td><td>'+d.sensu+'</td></tr>' : '')
-			+'<tr><td>ID</td><td class="id"><a href="/floraon/checklist?w=taxdetails&id='+encodeURIComponent(d._id)+'">'+d._id+'</a>'+(d.oldid ? ' ('+d.oldid+')': '')+'</td></tr>'
+			+'<tr><td>ID</td><td class="id"><a href="checklist?w=taxdetails&id='+encodeURIComponent(d._id)+'">'+d._id+'</a>'+(d.oldid ? ' ('+d.oldid+')': '')+'</td></tr>'
 			+(d.rank ? '<tr><td>Rank</td><td class="rank">'+reference.rankmap[''+d.rank]+'</td></tr>' : '');
 		break;
 
@@ -1153,7 +1153,7 @@ function clickNode(d) {
 			var srcid=document.querySelector('.window input[name=srcid]').value;
 			var tarid=d._id;
 			var linktype=document.querySelector('.window input[name=linktype]').value;
-			fetchAJAX('/floraon/checklist/api/update/add/link?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {
+			fetchAJAX('checklist/api/update/add/link?from='+srcid+'&to='+tarid+'&type='+linktype+'&cur=1',function(rt) {
 				rt=JSON.parse(rt);
 				if(rt.success) {
 					console.log(rt.msg);

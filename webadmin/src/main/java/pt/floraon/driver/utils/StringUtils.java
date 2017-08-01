@@ -2,6 +2,7 @@ package pt.floraon.driver.utils;
 
 import jline.internal.Log;
 import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.entities.NamedDBNode;
@@ -15,6 +16,12 @@ import java.util.regex.Pattern;
  * Created by miguel on 14-02-2017.
  */
 public class StringUtils {
+    private static final Whitelist whiteTagList = Whitelist.none();
+    static {
+        whiteTagList.addTags("br", "span", "i", "sup")
+                .addAttributes("span", "class");
+    }
+
     public static Collection<String> cleanCollection(Collection<String> tmp, boolean returnEmpty) {
         tmp.removeAll(Collections.singleton(""));
         tmp.removeAll(Collections.<String> singleton(null));
@@ -41,13 +48,22 @@ public class StringUtils {
     }
 
     /**
-     * Cleans text from HTML tags and &nbsp
+     * Fully clean text from HTML tags and &nbsp
      * @param text
      * @return
      */
     public static String cleanText(String text) {
         if(text == null) return "";
         return Jsoup.parse(text).text().replace("\u00a0", " ").trim();
+    }
+
+    /**
+     * Keep only tags and attributes used in basic formatting
+     * @param text
+     * @return
+     */
+    public static String safeHtmlTagsOnly(String text) {
+        return Jsoup.clean(text, whiteTagList);
     }
 
     public static String sanitizeHtmlId(String txt) {
@@ -148,4 +164,6 @@ public class StringUtils {
         uuid = uuid.replaceAll("-", "");
         return uuid.substring(uuid.length() - n);
     }
+
+
 }

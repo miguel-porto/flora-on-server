@@ -4,6 +4,7 @@ import com.arangodb.velocypack.annotations.Expose;
 import com.google.gson.JsonObject;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.SafeHTMLString;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
@@ -55,7 +56,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     /**
      * Textual decription of the taxonomic problems
      */
-    private String taxonomicProblemDescription;
+    private SafeHTMLString taxonomicProblemDescription;
     /**
      * The fields pertaining to the geographical distribution
      */
@@ -129,8 +130,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return out.toArray(new String[out.size()]);
     }
 
-    public String getTaxonomicProblemDescription() {
-        return taxonomicProblemDescription == null ? "" : taxonomicProblemDescription;
+    public SafeHTMLString getTaxonomicProblemDescription() {
+        return taxonomicProblemDescription == null ? new SafeHTMLString("") : taxonomicProblemDescription;
     }
 
     public GeographicalDistribution getGeographicalDistribution() {
@@ -178,7 +179,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.tags = StringUtils.cleanArray(tags, false);
     }
 
-    public void setTaxonomicProblemDescription(String taxonomicProblemDescription) {
+    public void setTaxonomicProblemDescription(SafeHTMLString taxonomicProblemDescription) {
         this.taxonomicProblemDescription = taxonomicProblemDescription;
     }
 
@@ -187,7 +188,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      *******/
 
     public void setGeographicalDistribution_Description(String description) {
-        this.geographicalDistribution.setDescription(description);
+        this.geographicalDistribution.setDescription(new SafeHTMLString(description));
     }
 
     public void setGeographicalDistribution_EOO(Double EOO) {
@@ -235,7 +236,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      *******/
 
     public void setPopulation_Description(String description) {
-        this.population.setDescription(description);
+        this.population.setDescription(new SafeHTMLString(description));
     }
 
     public void setPopulation_PopulationTrend(Integer populationTrend) {
@@ -339,7 +340,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      *******/
 
     public void setEcology_Description(String description) {
-        this.ecology.setDescription(description);
+        this.ecology.setDescription(new SafeHTMLString(description));
     }
 
     public void setEcology_HabitatTypes(String[] habitatTypes) {
@@ -371,7 +372,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      *******/
 
     public void setUsesAndTrade_Description(String description) {
-        this.getUsesAndTrade().setDescription(description);
+        this.getUsesAndTrade().setDescription(new SafeHTMLString(description));
     }
 
     public void setUsesAndTrade_Uses(String[] uses) {
@@ -406,7 +407,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      *******/
 
     public void setThreats_Description(String description) {
-        this.getThreats().setDescription(description);
+        this.getThreats().setDescription(new SafeHTMLString(description));
     }
 
     public void setThreats_NumberOfLocations(Integer numberOfLocations) {
@@ -450,7 +451,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      *******/
 
     public void setConservation_Description(String description) {
-        this.conservation.setDescription(description);
+        this.conservation.setDescription(new SafeHTMLString(description));
     }
 
     public void setConservation_LegalProtection(String[] legalProtection) {
@@ -568,11 +569,11 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setAssessment_Justification(String justification) {
-        this.assessment.setJustification(justification);
+        this.assessment.setJustification(new SafeHTMLString(justification));
     }
 
     public void setAssessment_FinalJustification(String finalJustification) {
-        this.assessment.setFinalJustification(finalJustification);
+        this.assessment.setFinalJustification(new SafeHTMLString(finalJustification));
     }
 
     public void setAssessment_PreviousAssessmentListYear(Integer[] previousAssessmentListYear) {

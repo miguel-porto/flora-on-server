@@ -35,9 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     showPointsOnMap = projectPointsOnMap();
 
-    attachSuggestionHandler('taxonsearchbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
-    attachSuggestionHandler('authorsearchbox', '/floraon/checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
-    attachSuggestionHandler('threatsearchbox', '/floraon/checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, '+', tabHandler);
+    attachSuggestionHandler('taxonsearchbox', 'checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
+    attachSuggestionHandler('authorsearchbox', 'checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
+    attachSuggestionHandler('threatsearchbox', 'checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
 
     addEvent('mouseup', document.body, function(ev) {
@@ -202,7 +202,7 @@ function clickOptionButton(ev) {
         }
         myMap.invalidateSize(false);
     }
-    fetchAJAX('/floraon/occurrences?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value), function(rt) {
+    fetchAJAX('occurrences?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value), function(rt) {
         if(!el) window.location.reload();
     });
 }
@@ -335,7 +335,7 @@ function clickButton(ev) {
             var loader = document.getElementById('loader');
             if(loader) loader.style.display = 'block';
 
-            fetchAJAX('/floraon/checklist/api/suggestions?what=toponym&q=' + encodeURIComponent(q), function(rt) {
+            fetchAJAX('checklist/api/suggestions?what=toponym&q=' + encodeURIComponent(q), function(rt) {
                 if(loader) loader.style.display = 'none';
                 var r = document.getElementById('georref-results');
                 removeGeoElements(r.querySelectorAll('.geoelement'));

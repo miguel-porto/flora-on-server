@@ -48,7 +48,7 @@ public final class Constants {
 	public static final String ANSI_BGMAGENTA = "\u001B[45m";
 	public static final String ANSI_BGCYAN = "\u001B[46m";
 	public static final String ANSI_BGWHITE = "\u001B[47m";
-	
+
 	public enum StringMatchTypes {
 		EXACT,PREFIX,PARTIAL		// NOTE: do not change the order here!
 	}

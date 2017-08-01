@@ -148,7 +148,7 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 
 			case "habitat":
-				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				if(!thisRequest.getUser().canMANAGE_HABITATS()) {thisRequest.error("You don't have privileges for this operation!"); return;}
 				newHab = new Habitat(
 						thisRequest.getParameterAsString("name")
 						, thisRequest.getParameterAsString("description")
@@ -232,7 +232,7 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 
 			case "habitat":
-				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+				if(!thisRequest.getUser().canMANAGE_HABITATS()) {thisRequest.error("You don't have privileges for this operation!"); return;}
 				newHab = new Habitat(
 					thisRequest.getParameterAsString("name")
 					, thisRequest.getParameterAsString("description")

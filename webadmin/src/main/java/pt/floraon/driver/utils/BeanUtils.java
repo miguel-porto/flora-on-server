@@ -7,6 +7,7 @@ import org.apache.commons.beanutils.converters.*;
 import org.jfree.util.Log;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.SafeHTMLString;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -87,18 +88,36 @@ public class BeanUtils {
         return bean;
     }
 
-    private static BeanUtilsBean beanUtilsNull = new BeanUtilsBean();
-    static {
-        FloatConverter floatConverter = new FloatConverter(null);
-        DoubleConverter doubleConverter = new DoubleConverter(null);
+    public static BeanUtilsBean createBeanUtilsNull() {
+        BeanUtilsBean out = new BeanUtilsBean();
         IntegerConverter iconverter = new IntegerConverter(null);
         LongConverter longConverter = new LongConverter(null);
+        FloatConverter floatConverter = new FloatConverter(null);
+        DoubleConverter doubleConverter = new DoubleConverter(null);
         //ArrayConverter arrayConverter = new ArrayConverter(String[].class, new StringConverter(null));
-        beanUtilsNull.getConvertUtils().register(iconverter, Integer.class);
-        beanUtilsNull.getConvertUtils().register(longConverter, Long.class);
-        beanUtilsNull.getConvertUtils().register(floatConverter, Float.class);
-        beanUtilsNull.getConvertUtils().register(doubleConverter, Double.class);
+        ArrayConverter arrayConverter = new ArrayConverter(Integer[].class, iconverter);
+        out.getConvertUtils().register(iconverter, Integer.class);
+        out.getConvertUtils().register(longConverter, Long.class);
+        out.getConvertUtils().register(floatConverter, Float.class);
+        out.getConvertUtils().register(doubleConverter, Double.class);
+        out.getConvertUtils().register(arrayConverter, Integer[].class);
         //beanUtilsNull.getConvertUtils().register(arrayConverter, String[].class);
+        return out;
+    }
+
+    public static BeanUtilsBean createBeanUtilsNullSafeHTML() {
+        BeanUtilsBean out = new BeanUtilsBean();
+        IntegerConverter iconverter = new IntegerConverter(null);
+        LongConverter longConverter = new LongConverter(null);
+        ArrayConverter arrayConverter = new ArrayConverter(Integer[].class, iconverter);
+        SafeHTMLStringConverter stringConverter = new SafeHTMLStringConverter(null);
+        out.getConvertUtils().register(iconverter, Integer.class);
+        out.getConvertUtils().register(longConverter, Long.class);
+//        beanUtilsNullSafeHTML.getConvertUtils().register(floatConverter, Float.class);
+//        beanUtilsNullSafeHTML.getConvertUtils().register(doubleConverter, Double.class);
+        out.getConvertUtils().register(arrayConverter, Integer[].class);
+        out.getConvertUtils().register(stringConverter, SafeHTMLString.class);
+        return out;
     }
 
     /**
@@ -123,6 +142,8 @@ public class BeanUtils {
 
         System.out.println("Merging "+beans.length+" beans");
         T out = cls.newInstance();
+
+        BeanUtilsBean bub = createBeanUtilsNull();
 
         for (Object propNameObject : propertyMap.keySet()) {
             String propertyName = (String) propNameObject;
@@ -152,7 +173,7 @@ public class BeanUtils {
                 }
 
             }
-            if(property != null) beanUtilsNull.setProperty(out, propertyName, property);
+            if(property != null) bub.setProperty(out, propertyName, property);
         }
         return out;
     }
@@ -175,6 +196,7 @@ public class BeanUtils {
             , InvocationTargetException, NoSuchMethodException, FloraOnException, InstantiationException {
         BeanMap propertyMap = new BeanMap(oldBean);    // we assume beans are the same class! so we take the first as a model
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
+        BeanUtilsBean bub = createBeanUtilsNull();
 
         T out = cls.newInstance();
 
@@ -187,9 +209,9 @@ public class BeanUtils {
             newProperty = propUtils.getProperty(newBean, propertyName);
 
             if(newProperty == null)
-                beanUtilsNull.setProperty(out, propertyName, propUtils.getProperty(oldBean, propertyName));
+                bub.setProperty(out, propertyName, propUtils.getProperty(oldBean, propertyName));
             else
-                beanUtilsNull.setProperty(out, propertyName, newProperty);
+                bub.setProperty(out, propertyName, newProperty);
             // TODO: nested beans
         }
         return out;

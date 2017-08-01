@@ -1,13 +1,17 @@
 package pt.floraon.redlistdata.entities;
 
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.SafeHTMLString;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
 
 /**
  * Created by miguel on 16-11-2016.
  */
 public class GeographicalDistribution implements DiffableBean {
-    private String description;
+    private SafeHTMLString description;
     private Double EOO, historicalEOO;
     private Double AOO, historicalAOO;
     private RedListEnums.DeclineDistribution declineDistribution;
@@ -15,8 +19,8 @@ public class GeographicalDistribution implements DiffableBean {
     private String declineDistributionJustification;
     private Integer[] elevationRange;
 
-    public String getDescription() {
-        return description == null ? "" : description;
+    public SafeHTMLString getDescription() {
+        return description == null ? new SafeHTMLString("") : description;
     }
 
     public Double getEOO() {
@@ -51,7 +55,7 @@ public class GeographicalDistribution implements DiffableBean {
         return elevationRange == null ? new Integer[] {null, null} : elevationRange;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(SafeHTMLString description) {
         this.description = description;
     }
 

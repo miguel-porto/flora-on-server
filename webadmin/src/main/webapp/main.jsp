@@ -62,44 +62,44 @@
         <p style="font-size:0.7em">Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes. Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>
         <div style="width:100%"></div>
         <ul id="mainmenu">
-            <li class="section1"><div class="bullet"></div><span><a href="/floraon/checklist"><fmt:message key="Modules.2"/></a></span></li>
+            <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>
             <c:if test="${!user.isGuest()}">
-            <li class="section2"><div class="bullet"></div><span><a href="/floraon/redlist/lu"><fmt:message key="Modules.1"/></a>
+            <li class="section2"><div class="bullet"></div><span><a href="redlist/lu"><fmt:message key="Modules.1"/></a>
             <%--
                 <c:if test="${redlistterritories.size() > 0}">
                     <c:forEach var="terr" items="${redlistterritories}">
-                        <a href="/floraon/redlist/${terr}"> | dataset for ${terr}</a>
+                        <a href="redlist/${terr}"> | dataset for ${terr}</a>
                     </c:forEach>
                 </c:if>
             --%>
             </span></li>
-            <li class="section3"><div class="bullet"></div><span><a href="/floraon/occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></span></li>
+            <li class="section3"><div class="bullet"></div><span><a href="occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></span></li>
             </c:if>
-            <c:if test="${user.isAdministrator()}"><li class="section4"><div class="bullet"></div><span><a href="/floraon/adminpage">Administration</a></span></li></c:if>
+            <c:if test="${user.isAdministrator()}"><li class="section4"><div class="bullet"></div><span><a href="adminpage">Administration</a></span></li></c:if>
         </ul>
 <%--
         <div class="bigbutton section2">
-            <h1><a href="/floraon/checklist"><fmt:message key="Modules.2"/></a></h1>
+            <h1><a href="checklist"><fmt:message key="Modules.2"/></a></h1>
         </div>
         <div class="bigbutton section3">
             <h1><fmt:message key="Modules.1"/></h1>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
-                <div class="subbutton"><a href="/floraon/redlist">create new red list dataset</a></div>
+                <div class="subbutton"><a href="redlist">create new red list dataset</a></div>
             </c:if>
             <c:if test="${redlistterritories.size() > 0}">
                 <c:forEach var="terr" items="${redlistterritories}">
-                    <div class="subbutton"><a href="/floraon/redlist/${terr}">dataset for ${terr}</a></div>
+                    <div class="subbutton"><a href="redlist/${terr}">dataset for ${terr}</a></div>
                 </c:forEach>
             </c:if>
         </div>
         <c:if test="${!user.isGuest()}">
         <div class="bigbutton section4">
-            <h1><a href="/floraon/occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></h1>
+            <h1><a href="occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></h1>
         </div>
         </c:if>
         <c:if test="${user.isAdministrator()}">
         <div class="bigbutton section2">
-            <h1><a href="/floraon/adminpage">Administration</a></h1>
+            <h1><a href="adminpage">Administration</a></h1>
         </div>
         </c:if>
 --%>

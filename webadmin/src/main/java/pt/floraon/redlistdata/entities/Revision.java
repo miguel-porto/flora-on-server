@@ -32,6 +32,7 @@ public class Revision {
     }
 
     public String getFormattedDateSaved() {
+//        System.out.println("Ori: "+System.identityHashCode(dateFormat.get()));
         return dateFormat.get().format(dateSaved);
     }
 

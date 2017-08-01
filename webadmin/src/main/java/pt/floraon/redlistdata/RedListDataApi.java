@@ -8,11 +8,13 @@ import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 import org.apache.commons.beanutils.converters.LongConverter;
+import org.apache.commons.beanutils.converters.StringConverter;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.SafeHTMLString;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
@@ -126,17 +128,8 @@ public class RedListDataApi extends FloraOnServlet {
                     map.put(name, thisRequest.request.getParameterValues(name));
                 }
 
-                IntegerConverter iconverter = new IntegerConverter(null);
-                LongConverter longConverter = new LongConverter(null);
-                ArrayConverter arrayConverter = new ArrayConverter(Integer[].class, iconverter);
-                BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
-                beanUtilsBean.getConvertUtils().register(iconverter, Integer.class);
-                beanUtilsBean.getConvertUtils().register(longConverter, Long.class);
-                beanUtilsBean.getConvertUtils().register(arrayConverter, Integer[].class);
-
-
                 try {
-                    beanUtilsBean.populate(rlde, map);
+                    BeanUtils.createBeanUtilsNullSafeHTML().populate(rlde, map);
                 } catch (InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
                     thisRequest.error("Could not populate the java bean");
@@ -370,6 +363,9 @@ public class RedListDataApi extends FloraOnServlet {
                 }
                 pw.flush();
                 break;
+
+            default:
+                thisRequest.error("Path not found.");
         }
     }
 

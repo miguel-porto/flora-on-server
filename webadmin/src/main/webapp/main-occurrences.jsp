@@ -14,24 +14,24 @@
 	<title><fmt:message key="page.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
-	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
-	<link rel="stylesheet" type="text/css" href="/floraon/occurrences.css?nocache=${uuid}"/>
-	<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet-areaselect.css"/>
+	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
+	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
+	<link rel="stylesheet" type="text/css" href="occurrences.css?nocache=${uuid}"/>
+	<link rel="stylesheet" type="text/css" href="js/leaflet-areaselect.css"/>
 
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
 	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
 
-	<!--<link rel="stylesheet" type="text/css" href="/floraon/js/leaflet.css"/>
-	<script src="/floraon/js/leaflet.js"></script>-->
+	<!--<link rel="stylesheet" type="text/css" href="js/leaflet.css"/>
+	<script src="js/leaflet.js"></script>-->
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
 	<!--<script src="js/leaflet-areaselect.js"></script>-->
-	<script type="text/javascript" src="/floraon/sorttable.js"></script>
-	<script type="text/javascript" src="/floraon/ajaxforms.js"></script>
-	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/js/occurrences.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="sorttable.js"></script>
+	<script type="text/javascript" src="ajaxforms.js"></script>
+	<script type="text/javascript" src="basefunctions.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="suggestions.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="js/occurrences.js?nocache=${uuid}"></script>
 </head>
 <body class="occurrencespage ${sessionScope['option-compactview'] ? 'compactview' : ''}">
     <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">

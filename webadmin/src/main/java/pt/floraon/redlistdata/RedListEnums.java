@@ -657,6 +657,12 @@ public class RedListEnums {
             return trigger;
         }
 
+        public boolean isThreatened() {
+            return this.getEffectiveCategory() == CR || this.getEffectiveCategory() == EN
+                    || this.getEffectiveCategory() == EW || this.getEffectiveCategory() == EX
+                    || this.getEffectiveCategory() == RE || this.getEffectiveCategory() == VU;
+        }
+
         public RedListCategories getUplistCategory() {
             switch(this) {
                 case EN: return CR_UP;

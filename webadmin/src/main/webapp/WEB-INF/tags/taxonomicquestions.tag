@@ -13,7 +13,7 @@
     <li style="${individualforms ? '' : 'clear:both'}">
         ${question.getKey()}:
         <c:if test="${individualforms}">
-        <form class="poster" data-path="/floraon/occurrences/api/fixtaxonomicissues" data-refresh="true" style="display:inline">
+        <form class="poster" data-path="occurrences/api/fixtaxonomicissues" data-refresh="true" style="display:inline">
         </c:if>
         <input type="hidden" name="question_${loop.index}_key" value="${question.getKey()}"/>
         <input type="hidden" name="question_${loop.index}_uuids" value="${question.getValue().getOccurrenceUUIDs()}"/>

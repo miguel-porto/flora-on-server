@@ -38,6 +38,7 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     , MODIFY_TAXA(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL, "Modify taxon details")
     , MODIFY_TAXA_TERRITORIES(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL, "Modify territories")
     , EDIT_FULL_CHECKLIST(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL, "Edit full checklist")
+    , MANAGE_HABITATS(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL, "Manage habitats")
     , MANAGE_REDLIST_USERS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL, "Manage RedList users");
 
     public static Privileges[] EDIT_ALL_FIELDS = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4

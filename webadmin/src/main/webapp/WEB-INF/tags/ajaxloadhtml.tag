@@ -9,12 +9,12 @@
 <%@ attribute name="id" required="false" %>
 
 <c:if test="${width == null}">
-<div class="ajaxcontent ${classes}" data-url="${url}" id="${id}"><img src="/floraon/images/loader.svg" class="ajaxloader"/></div>
+<div class="ajaxcontent ${classes}" data-url="${url}" id="${id}"><img src="/images/loader.svg" class="ajaxloader"/></div>
 </c:if>
 
 <c:if test="${width != null}">
 <div class="ajaxcontent ${classes}" style="position:relative; width:${width}; height:${height}" data-url="${url}" <c:if test="${id != null}">id="${id}"</c:if> >
-    <img style="position:absolute; width:100%; height:100%; left:0; top:0" src="/floraon/images/loader.svg" class="ajaxloader"/>
+    <img style="position:absolute; width:100%; height:100%; left:0; top:0" src="/images/loader.svg" class="ajaxloader"/>
     <p>${text}</p>
 </div>
 </c:if>

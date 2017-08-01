@@ -111,7 +111,7 @@ System.out.println(gs.toJson(getUser()));
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
 //                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, getUser().canMANAGE_REDLIST_USERS());
-                thisRequest.setCacheHeaders(60);
+//                thisRequest.setCacheHeaders(60);
                 thisRequest.getUser().resetEffectivePrivileges();
 //                taxEntList.get(0).getAssessment().getAssessmentStatus().isAssessed()
                 Set<String> at = driver.getRedListData().getRedListTags(territory);
@@ -278,7 +278,7 @@ System.out.println(gs.toJson(getUser()));
                             // FIXME!!!! this only for Flora-On...
                             Map<String, Object> taxonInfo = sodps.get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
 
-                            if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().trim().equals("")) {
+                            if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().toString().trim().equals("")) {
                                 if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
                                     request.setAttribute("ecology", taxonInfo.get("ecology").toString());
                                 }
@@ -335,6 +335,7 @@ System.out.println(gs.toJson(getUser()));
                     Revision c1a;
                     Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
                     for (Revision r : rlde.getRevisions()) {
+                        if(r.getUser() == null) continue;
                         c1a = r.getDayWiseRevision();
                         if (!edits.containsKey(c1a))
                             edits.put(c1a, 1);
@@ -437,33 +438,7 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "contentasxml":
-                File dir = new File(getServletContext().getRealPath("/")).getParentFile();
-                Properties properties = new Properties();
-                InputStream propStream;
-                Locale.setDefault(Locale.forLanguageTag("pt"));
-                try {
-                    propStream = new FileInputStream(new File(dir.getAbsolutePath() + "/floraon.properties"));
-                    properties.load(propStream);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    System.err.println("ERROR: "+e.getMessage());
-                    return;
-                }
-
-                URL floraOnURL = null;
-                for(String op1 : BaseFloraOnDriver.getPropertyList(properties, "occurrenceProvider")) {
-                    floraOnURL = new URL(op1);
-                }
-                URI oldUri = null;
-                if(floraOnURL != null) {
-                    try {
-                        oldUri = floraOnURL.toURI();
-                    } catch (URISyntaxException e) {
-                        e.printStackTrace();
-                        throw new FloraOnException(e.getMessage());
-                    }
-                }
-
+                Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false);
                 PrintWriter wr2 = thisRequest.response.getWriter();
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder;
@@ -473,125 +448,187 @@ System.out.println(gs.toJson(getUser()));
                     throw new FloraOnException(e.getMessage());
                 }
 
-                // root elements
                 Document doc = docBuilder.newDocument();
-                Element rootElement = doc.createElement("redlistcontent");
-                doc.appendChild(rootElement);
+                Element rootElement;
 
-                Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false);
-                org.jsoup.nodes.Document toText;
-                while(rldeit.hasNext()) {
-                    RedListDataEntity rlde = rldeit.next();
-                    if(Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))
-                            || rlde.getGeographicalDistribution().getDescription() == null
-                            || rlde.getGeographicalDistribution().getDescription().equals("")) continue;
+                if("counters".equals(thisRequest.getParameterAsString("what"))) {
+                    rootElement = doc.createElement("counters");
+                    doc.appendChild(rootElement);
 
-                    Element species = doc.createElement("species");
-                    Element name = doc.createElement("name");
-                    name.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName(true)));
-
-                    Element distr = doc.createElement("distribution");
-                    distr.appendChild(doc.createTextNode(Jsoup.parse(rlde.getGeographicalDistribution().getDescription()).text()));
-
-                    Element pop = doc.createElement("population");
-                    pop.appendChild(doc.createTextNode(Jsoup.parse(rlde.getPopulation().getDescription()).text()));
-
-                    Element ecology = doc.createElement("ecology");
-                    ecology.appendChild(doc.createTextNode(Jsoup.parse(rlde.getEcology().getDescription()).text()));
-
-                    Element uses = doc.createElement("uses");
-                    uses.appendChild(doc.createTextNode(Jsoup.parse(rlde.getUsesAndTrade().getDescription()).text()));
-
-                    Element threats = doc.createElement("threats");
-                    threats.appendChild(doc.createTextNode(Jsoup.parse(rlde.getThreats().getDescription()).text()));
-
-                    Element conservation = doc.createElement("conservation");
-                    conservation.appendChild(doc.createTextNode(Jsoup.parse(rlde.getConservation().getDescription()).text()));
-
-                    Element assessjust = doc.createElement("assessmentJustification");
-                    assessjust.appendChild(doc.createTextNode(Jsoup.parse(rlde.getAssessment().getFinalJustification()).text()));
-
-                    Element assesscrit = doc.createElement("assessmentCriteria");
-                    assesscrit.appendChild(doc.createTextNode(rlde.getAssessment()._getCriteriaAsString()));
-
-                    String subcat = "", subcatverb = "";
-                    if(rlde.getAssessment().getCategory() != null
-                            && rlde.getAssessment().getCategory() == RedListEnums.RedListCategories.CR
-                            && rlde.getAssessment().getSubCategory() != null
-                            && rlde.getAssessment().getSubCategory() != RedListEnums.CRTags.NO_TAG) {
-                        subcat = "<sup>*" + rlde.getAssessment().getSubCategory().toString() + "</sup>";
-                        subcatverb = "<sup>" + rlde.getAssessment().getSubCategory().getLabel() + "</sup>";
+                    Integer count1 = 0, count2 = 0, count3 = 0, count4 = 0;
+                    while (rldeit.hasNext()) {
+                        RedListDataEntity rlde1 = rldeit.next();
+                        if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
+                        if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;
+                        if (rlde1.getAssessment().getPublicationStatus().isPublished()) count3++;
+                        if (rlde1.getAssessment().getAssessmentStatus().isAssessed()
+                            && rlde1.getAssessment().getCategory() != null && rlde1.getAssessment().getAdjustedCategory().isThreatened())
+                            count4++;
                     }
-                    Element assesscat = doc.createElement("assessmentCategory");
-                    Element assesscatverb = doc.createElement("assessmentCategoryVerbose");
-                    if(rlde.getAssessment().getAdjustedCategory() != null) {
-                        assesscat.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getShortTag() + subcat));
-                        assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getLabel() + subcatverb));
+                    Element nrAssessed = doc.createElement("numberAssessed");
+                    Element nrRevised = doc.createElement("numberRevised");
+                    Element nrPublished = doc.createElement("numberPublished");
+                    Element nrThreatened = doc.createElement("numberThreatened");
+
+                    nrAssessed.appendChild(doc.createTextNode(count1.toString()));
+                    nrRevised.appendChild(doc.createTextNode(count2.toString()));
+                    nrPublished.appendChild(doc.createTextNode(count3.toString()));
+                    nrThreatened.appendChild(doc.createTextNode(count1.equals(0) ? "?" : count4.toString()));
+
+                    rootElement.appendChild(nrAssessed);
+                    rootElement.appendChild(nrRevised);
+                    rootElement.appendChild(nrPublished);
+                    rootElement.appendChild(nrThreatened);
+                } else {
+                    File dir = new File(getServletContext().getRealPath("/")).getParentFile();
+                    Properties properties = new Properties();
+                    InputStream propStream;
+                    Locale.setDefault(Locale.forLanguageTag("pt"));
+                    try {
+                        propStream = new FileInputStream(new File(dir.getAbsolutePath() + "/floraon.properties"));
+                        properties.load(propStream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        System.err.println("ERROR: " + e.getMessage());
+                        return;
                     }
 
-                    Element citation = doc.createElement("citation");
-                    citation.appendChild(doc.createTextNode(driver.getRedListData().buildRedListSheetCitation(rlde, userMap)));
-
-                    Element map = doc.createElement("svgMap");
-
-/*
-                    map.appendChild(doc.createTextNode("https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=0&size=10000&taxon=" +
-                        rlde.getTaxEnt()._getIDURLEncoded()));
-*/
-                    CanonicalName cn = rlde.getTaxEnt().getCanonicalName();
-                    map.appendChild(doc.createTextNode("https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap/" +
-                            cn.getGenus() + "_" + cn.getSpecificEpithet() + "_" + driver.asNodeKey(rlde.getTaxEnt().getID()).getDBKey() + ".svg"));
-
-                    Element photos = doc.createElement("photos");
-                    if(oldUri != null) {
-                        String newQuery = oldUri.getQuery();
-                        if (newQuery == null) {
-                            newQuery = "what=photos&id=" + rlde.getTaxEnt().getOldId();
-                        } else {
-                            newQuery += "&what=photos&id=" + rlde.getTaxEnt().getOldId();
-                        }
-
-                        URI newUri;
-                        URL u;
+                    URL floraOnURL = null;
+                    for (String op1 : BaseFloraOnDriver.getPropertyList(properties, "occurrenceProvider")) {
+                        floraOnURL = new URL(op1);
+                    }
+                    URI oldUri = null;
+                    if (floraOnURL != null) {
                         try {
-                            newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment());
-                            u = newUri.toURL();
-                            InputStreamReader isr = new InputStreamReader(u.openStream());
-                            JsonObject resp = new JsonParser().parse(isr).getAsJsonObject();
-                            if (resp.getAsJsonPrimitive("success").getAsBoolean()) {
-                                Type listType = new TypeToken<List<Map<String, Object>>>() {
-                                }.getType();
-                                List<Map<String, Object>> occArray;
-//                                System.out.println(resp.toString());
-                                occArray = new Gson().fromJson(resp.getAsJsonArray("msg"), listType);
-                                for(Map<String, Object> ph : occArray) {
-                                    Element photo = doc.createElement("photo");
-                                    photo.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
-                                            + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
-                                    photos.appendChild(photo);
-                                }
-                            }
+                            oldUri = floraOnURL.toURI();
                         } catch (URISyntaxException e) {
                             e.printStackTrace();
+                            throw new FloraOnException(e.getMessage());
                         }
-
                     }
 
-                    species.appendChild(name);
-                    species.appendChild(distr);
-                    species.appendChild(pop);
-                    species.appendChild(ecology);
-                    species.appendChild(uses);
-                    species.appendChild(threats);
-                    species.appendChild(conservation);
-                    species.appendChild(assessjust);
-                    species.appendChild(assesscat);
-                    species.appendChild(assesscatverb);
-                    species.appendChild(assesscrit);
-                    species.appendChild(citation);
-                    species.appendChild(map);
-                    species.appendChild(photos);
-                    rootElement.appendChild(species);
+                    rootElement = doc.createElement("redlistcontent");
+                    doc.appendChild(rootElement);
+
+                    while (rldeit.hasNext()) {
+                        RedListDataEntity rlde = rldeit.next();
+                        if (Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))
+                                || rlde.getGeographicalDistribution().getDescription() == null
+                                || rlde.getGeographicalDistribution().getDescription().equals("")) continue;
+
+                        Element species = doc.createElement("species");
+
+                        Element name = doc.createElement("name");
+                        name.appendChild(doc.createTextNode(rlde.getTaxEnt().getName()));
+
+                        Element author = doc.createElement("author");
+                        author.appendChild(doc.createTextNode(rlde.getTaxEnt().getAuthor()));
+
+                        Element fullname = doc.createElement("fullname");
+                        fullname.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName(true)));
+
+                        Element distr = doc.createElement("distribution");
+//                    distr.appendChild(doc.createTextNode(Jsoup.parse(rlde.getGeographicalDistribution().getDescription()).text()));
+                        distr.appendChild(doc.createTextNode(rlde.getGeographicalDistribution().getDescription().toString()));
+
+                        Element pop = doc.createElement("population");
+                        pop.appendChild(doc.createTextNode(rlde.getPopulation().getDescription().toString()));
+
+                        Element ecology = doc.createElement("ecology");
+                        ecology.appendChild(doc.createTextNode(rlde.getEcology().getDescription().toString()));
+
+                        Element uses = doc.createElement("uses");
+                        uses.appendChild(doc.createTextNode(rlde.getUsesAndTrade().getDescription().toString()));
+
+                        Element threats = doc.createElement("threats");
+                        threats.appendChild(doc.createTextNode(rlde.getThreats().getDescription().toString()));
+
+                        Element conservation = doc.createElement("conservation");
+                        conservation.appendChild(doc.createTextNode(rlde.getConservation().getDescription().toString()));
+
+                        Element assessjust = doc.createElement("assessmentJustification");
+                        assessjust.appendChild(doc.createTextNode(rlde.getAssessment().getFinalJustification().toString()));
+
+                        Element assesscrit = doc.createElement("assessmentCriteria");
+                        assesscrit.appendChild(doc.createTextNode(rlde.getAssessment()._getCriteriaAsString()));
+
+                        Element assesscat = doc.createElement("assessmentCategory");
+                        assesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString()));
+
+                        Element assesscatcrit = doc.createElement("assessmentCategoryAndCriteria");
+                        assesscatcrit.appendChild(doc.createTextNode((rlde.getAssessment()._getCategoryAsString()
+                                + " " + rlde.getAssessment()._getCriteriaAsString()).trim()));
+
+                        Element assesscatverb = doc.createElement("assessmentCategoryVerbose");
+                        assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryVerboseAsString()));
+
+                        Element citation = doc.createElement("citation");
+                        citation.appendChild(doc.createTextNode(driver.getRedListData().buildRedListSheetCitation(rlde, userMap)));
+
+                        Element map = doc.createElement("svgMap");
+
+/*
+                    map.appendChild(doc.createTextNode("https://lvf.flora-on.pt/api/svgmap?basemap=0&size=10000&taxon=" +
+                        rlde.getTaxEnt()._getIDURLEncoded()));
+*/
+                        CanonicalName cn = rlde.getTaxEnt().getCanonicalName();
+                        map.appendChild(doc.createTextNode("https://lvf.flora-on.pt/api/svgmap/" +
+                                cn.getGenus() + "_" + cn.getSpecificEpithet() + "_" + driver.asNodeKey(rlde.getTaxEnt().getID()).getDBKey() + ".svg"));
+
+                        Element photos = doc.createElement("photos");
+                        if (oldUri != null) {
+                            String newQuery = oldUri.getQuery();
+                            if (newQuery == null) {
+                                newQuery = "what=photos&id=" + rlde.getTaxEnt().getOldId();
+                            } else {
+                                newQuery += "&what=photos&id=" + rlde.getTaxEnt().getOldId();
+                            }
+
+                            URI newUri;
+                            URL u;
+                            try {
+                                newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment());
+                                u = newUri.toURL();
+                                InputStreamReader isr = new InputStreamReader(u.openStream());
+                                JsonObject resp = new JsonParser().parse(isr).getAsJsonObject();
+                                if (resp.getAsJsonPrimitive("success").getAsBoolean()) {
+                                    Type listType = new TypeToken<List<Map<String, Object>>>() {
+                                    }.getType();
+                                    List<Map<String, Object>> occArray;
+//                                System.out.println(resp.toString());
+                                    occArray = new Gson().fromJson(resp.getAsJsonArray("msg"), listType);
+                                    for (Map<String, Object> ph : occArray) {
+                                        Element photo = doc.createElement("photo");
+                                        photo.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
+                                                + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
+                                        photos.appendChild(photo);
+                                    }
+                                }
+                            } catch (URISyntaxException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        species.appendChild(name);
+                        species.appendChild(author);
+                        species.appendChild(fullname);
+                        species.appendChild(distr);
+                        species.appendChild(pop);
+                        species.appendChild(ecology);
+                        species.appendChild(uses);
+                        species.appendChild(threats);
+                        species.appendChild(conservation);
+                        species.appendChild(assessjust);
+                        species.appendChild(assesscat);
+                        species.appendChild(assesscatverb);
+                        species.appendChild(assesscrit);
+                        species.appendChild(assesscatcrit);
+                        species.appendChild(citation);
+                        species.appendChild(map);
+                        species.appendChild(photos);
+                        rootElement.appendChild(species);
+                    }
                 }
 
                 thisRequest.response.setContentType("application/xml; charset=utf-8");

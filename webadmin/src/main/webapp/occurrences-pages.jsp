@@ -29,7 +29,7 @@
     </div>
 </div>
 <div id="topbuttons" class="hideincompactview">
-<a class="returntomain" href="/floraon/"><img src="/floraon/images/cap-cor.png" alt="logo"/></a>
+<a class="returntomain" href="/"><img src="images/cap-cor.png" alt="logo"/></a>
 <!--<h1> ${user.getFullName()}</h1>-->
 <!--<div class="button" id="selectpoints">Select</div>-->
 <c:choose>
@@ -40,7 +40,7 @@
 
     <t:inventorymodel />
 
-    <form id="addnewinventories" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
+    <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
             <h2><fmt:message key="inventory.add"/></h2>
             <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
@@ -53,14 +53,14 @@
     <div class="heading2">
         <h2>Your inventories - ${nrtotaloccurrences}</h2>
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
-        <form method="get" action="/floraon/occurrences" class="inlineblock">
+        <form method="get" action="occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />
             <input type="hidden" name="p" value="1" />
             <fmt:message key="occurrences.1d"/>: <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
             <input type="submit" class="textbutton" value="Filter" />
         </form>
         <c:if test="${filter != null && filter != ''}">
-        <form method="get" action="/floraon/occurrences" class="inlineblock">
+        <form method="get" action="occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />
             <input type="hidden" name="p" value="1" />
             <input type="hidden" name="filter" value="" />
@@ -90,7 +90,7 @@
     </div>  <!-- top buttons -->
 
     <div id="deleteoccurrences" class="hidden">
-        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
+        <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
             <div class="heading2">
                 <h2><fmt:message key="occurrences.5" /></h2>
                 <input type="submit" class="textbutton" value="Delete"/>
@@ -117,7 +117,7 @@
 
     <t:inventorymodel />
 
-    <form id="addnewinventories" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
+    <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
             <h2><fmt:message key="inventory.add"/></h2>
             <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
@@ -137,11 +137,11 @@
             <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
             <c:if test="${inv._getInventoryLatitude() != null}"> ${inv._getInventoryCoordinates()}</c:if>
             </h3>
-            <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-confirm="true" data-callback="?w=main">
+            <form class="poster" data-path="occurrences/api/deleteoccurrences" data-confirm="true" data-callback="?w=main">
                 <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
                 <input type="submit" class="textbutton" value="Delete inventory" style="float:left"/>
             </form>
-            <form class="poster id1holder" data-path="/floraon/occurrences/api/updateinventory" data-refresh="true">
+            <form class="poster id1holder" data-path="occurrences/api/updateinventory" data-refresh="true">
                 <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
                 <input type="submit" class="textbutton onlywhenmodified" value="<fmt:message key="inventory.upd"/>"/>
                 <table class="verysmalltext occurrencetable">
@@ -298,7 +298,7 @@
     <div class="warning">
         <p><fmt:message key="error.10"/></p>
         <fmt:message key="error.10a"/>
-        <form class="poster" data-path="/floraon/occurrences/api/fixtaxonomicissues" data-refresh="true">
+        <form class="poster" data-path="occurrences/api/fixtaxonomicissues" data-refresh="true">
         <t:taxonomicquestions questions="${nomatchquestions}" individualforms="false"/>
         <input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
         </form>
@@ -331,7 +331,7 @@
     <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium"><fmt:message key="button.7"/></a></div>
     </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
-        <form class="poster" data-path="/floraon/occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
+        <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
             <div class="heading2">
                 <h2><fmt:message key="occurrences.5" /></h2>
                 <input type="submit" class="textbutton" value="Delete"/>
@@ -344,7 +344,7 @@
     </div>
 
     <div id="updateoccurrences" class="hidden">
-        <form class="poster" data-path="/floraon/occurrences/api/updateoccurrences" data-refresh="true">
+        <form class="poster" data-path="occurrences/api/updateoccurrences" data-refresh="true">
             <div class="heading2">
                 <h2>Confirm updating the following occurrences</h2>
                 <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
@@ -358,7 +358,7 @@
         </form>
     </div>
 
-    <form id="addnewoccurrences" class="poster hidden" data-path="/floraon/occurrences/api/addoccurrences" data-refresh="true">
+    <form id="addnewoccurrences" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
             <h2><fmt:message key="inventory.add1"/></h2>
             <c:if test="${param.flavour != 'herbarium'}">
@@ -408,7 +408,7 @@
             <c:if test="${param.flavour == 'redlist'}">
             <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
             </c:if>
-            <form method="get" action="/floraon/occurrences" class="inlineblock">
+            <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
                 <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
@@ -416,7 +416,7 @@
                 <input type="submit" class="textbutton" value="Filter" />
             </form>
             <c:if test="${filter != null && filter != ''}">
-            <form method="get" action="/floraon/occurrences" class="inlineblock">
+            <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
                 <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />

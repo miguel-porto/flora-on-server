@@ -85,7 +85,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		try {
 			sb.append("<tr data-key=\"").append(this.taxent.getID()).append("\"")
 				.append(this.taxent.getCurrent()==null ? "" : (this.taxent.getCurrent() ? "" : " class=\"notcurrent\""))
-				.append("><td><a href=\"/floraon/checklist?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
+				.append("><td><a href=\"checklist?w=taxdetails&id="+URLEncoder.encode(this.taxent.getID(), StandardCharsets.UTF_8.name())+"\"><i>")
 				.append(this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))
 				.append(this.taxent.getNameWithAnnotationOnly(true))
 				.append("</i></a></td><td>")

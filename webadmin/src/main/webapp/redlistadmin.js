@@ -264,21 +264,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // for user privileges
-    attachSuggestionHandler('taxonbox', '/floraon/checklist/api/suggestions?limit=10&q=', 'suggestions', function(ev, name, key) {
+    attachSuggestionHandler('taxonbox', '../checklist/api/suggestions?limit=10&q=', 'suggestions', function(ev, name, key) {
         clickAddTag2(name, key, 'applicableTaxa', 'ta_', 'taxonprivileges');
     });
 
     var i = 0;
     while(document.getElementById('taxonbox_group_' + i)) {
         (function(j) {
-            attachSuggestionHandler('taxonbox_group_' + j, '/floraon/checklist/api/suggestions?limit=10&q=', 'suggestions_group_' + j, function(ev, name, key) {
+            attachSuggestionHandler('taxonbox_group_' + j, '../checklist/api/suggestions?limit=10&q=', 'suggestions_group_' + j, function(ev, name, key) {
                 clickAddTag2(name, key, 'applicableTaxa', 'ta_group_' + j + '_', 'taxa_group_' + j);
             });
         })(i);
         i++;
     }
 
-    attachSuggestionHandler('authorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions', function(ev, name, key) {
+    attachSuggestionHandler('authorbox', '../checklist/api/suggestions?limit=10&what=user&q=', 'authorsuggestions', function(ev, name, key) {
         if(clickAddTag2(name, key, 'assessment_Authors', 'aa_', 'textauthors'))
             changeHandler.call(this, ev);
     });
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 */
 
-    attachSuggestionHandler('assessorbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'assessorsuggestions', function(ev, name, key) {
+    attachSuggestionHandler('assessorbox', '../checklist/api/suggestions?limit=10&what=user&q=', 'assessorsuggestions', function(ev, name, key) {
         if(clickAddTag2(name, key, 'assessment_Evaluator', 'aas_', 'assessors'))
             changeHandler.call(this, ev);
     });
@@ -300,12 +300,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 */
 
-    attachSuggestionHandler('reviewerbox', '/floraon/checklist/api/suggestions?limit=10&what=user&q=', 'reviewersuggestions', function(ev, name, key) {
+    attachSuggestionHandler('reviewerbox', '../checklist/api/suggestions?limit=10&what=user&q=', 'reviewersuggestions', function(ev, name, key) {
         if(clickAddTag2(name, key, 'assessment_Reviewer', 'are_', 'reviewers'))
             changeHandler.call(this, ev);
     });
 
-    attachSuggestionHandler('addtaxonbox', '/floraon/checklist/api/suggestions?limit=20&q=', 'addtaxsuggestions', function(ev, name, key) {
+    attachSuggestionHandler('addtaxonbox', '../checklist/api/suggestions?limit=20&q=', 'addtaxsuggestions', function(ev, name, key) {
         var box = document.getElementById('addtaxonbox');
         box.value = name + ' <' + key + '>';
         box.setAttribute('data-key', key);
@@ -392,41 +392,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    var did = document.querySelector('input[name=taxEntID]').value;
-    var terr = document.querySelector('input[name=territory]').value;
-    habitatExpander = new TreeExpander(document.querySelectorAll('#habitat-tree ul'), function(ev, key) {
-        // tree node was clicked
-        if(ev.target.classList.contains('button')) {
-            ev.preventDefault();
-            return false;
-        } else {
-            var all = this.elements[0].querySelectorAll('li');
-            var cickedel = getParentbyTag(ev.target, 'li').querySelector('input');
-            for(var i=0; i<all.length; i++) {
-                if(all[i].getAttribute('data-key') == key) {
-                    if(cickedel.checked) {
-                        all[i].querySelector('input').setAttribute('checked', 'checked');
-                        all[i].querySelector('input').checked = true;
-                    } else {
-                        all[i].querySelector('input').removeAttribute('checked');
-                        all[i].querySelector('input').checked = false;
+    if(document.querySelector('input[name=taxEntID]')) {
+        var did = document.querySelector('input[name=taxEntID]').value;
+        var terr = document.querySelector('input[name=territory]').value;
+        habitatExpander = new TreeExpander(document.querySelectorAll('#habitat-tree ul'), function(ev, key) {
+            // tree node was clicked
+            if(ev.target.classList.contains('button')) {
+                ev.preventDefault();
+                return false;
+            } else {
+                var all = this.elements[0].querySelectorAll('li');
+                var cickedel = getParentbyTag(ev.target, 'li').querySelector('input');
+                for(var i=0; i<all.length; i++) {
+                    if(all[i].getAttribute('data-key') == key) {
+                        if(cickedel.checked) {
+                            all[i].querySelector('input').setAttribute('checked', 'checked');
+                            all[i].querySelector('input').checked = true;
+                        } else {
+                            all[i].querySelector('input').removeAttribute('checked');
+                            all[i].querySelector('input').checked = false;
+                        }
                     }
                 }
+                changeHandler.call(this, ev);
             }
-            changeHandler.call(this, ev);
-        }
-        return true;
-    }, '/floraon/checklist/api/lists?w=tree&territory=' + encodeURIComponent(terr) + '&taxent=' + encodeURIComponent(did) + '&id={id}').init();
+            return true;
+        }, '../checklist/api/lists?w=tree&territory=' + encodeURIComponent(terr) + '&taxent=' + encodeURIComponent(did) + '&id={id}').init();
+    }
 });
 
 window.addEventListener('beforeunload', function (ev) {
     if(isFormSubmitting) return;
     var confirmationMessage = 'You have unsaved changes! If you leave you lose them! Are you sure?';
-    if(document.getElementById('mainformsubmitter').classList.contains('hidden')) {
-        return null;
-    } else {
+    if(document.getElementById('mainformsubmitter') && !document.getElementById('mainformsubmitter').classList.contains('hidden')) {
         (ev || window.event).returnValue = confirmationMessage;
         return confirmationMessage;
+    } else {
+        return null;
     }
 });
 
@@ -598,7 +600,7 @@ function createNewAuthor(ev) {
 
     var name = prompt("Enter new author's name.\nNote that this user will not have a login account created.");
     if(name != null) {
-        postJSON('/floraon/admin/createuser', {name: name}, function(rt) {
+        postJSON('admin/createuser', {name: name}, function(rt) {
             var rt1=JSON.parse(rt);
             if(rt1.success) {
                 if(rt1.msg && rt1.msg.alert)

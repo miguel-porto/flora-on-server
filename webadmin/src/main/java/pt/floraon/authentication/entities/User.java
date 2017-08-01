@@ -297,6 +297,10 @@ public class User extends NamedDBNode {
 		setPrivilege(MANAGE_REDLIST_USERS, value);
 	}
 
+	public void setMANAGE_HABITATS(boolean value) {
+		setPrivilege(MANAGE_HABITATS, value);
+	}
+
 	/**
 	 * Tests whether the user has given privilege for the current taxon. This should only be used after calling
 	 * {@link User#setEffectivePrivilegesFor(IFloraOn, INodeKey)}
@@ -416,6 +420,10 @@ public class User extends NamedDBNode {
 
 	public boolean canMANAGE_REDLIST_USERS() {
 		return hasPrivilege(Privileges.MANAGE_REDLIST_USERS);
+	}
+
+	public boolean canMANAGE_HABITATS() {
+		return hasPrivilege(Privileges.MANAGE_HABITATS);
 	}
 
 	public boolean canMODIFY_OCCURRENCES()  {

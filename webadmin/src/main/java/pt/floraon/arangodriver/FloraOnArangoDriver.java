@@ -94,6 +94,32 @@ public class FloraOnArangoDriver implements IFloraOn {
 						builder.add(attribute, value.toString());
 //						builder.close();
 					}
+				}).registerDeserializer(SafeHTMLString.class, new VPackDeserializer<SafeHTMLString>() {
+					@Override
+					public SafeHTMLString deserialize(
+							final VPackSlice parent,
+							final VPackSlice vpack,
+							final VPackDeserializationContext context) throws VPackException {
+						final SafeHTMLString obj;
+						String v;
+						if(vpack.getType() == ValueType.INT || vpack.getType() == ValueType.UINT || vpack.getType() == ValueType.SMALLINT)
+							v = ((Integer) vpack.getAsInt()).toString();
+						else if(vpack.getType() == ValueType.DOUBLE)
+							v = ((Double) vpack.getAsDouble()).toString();
+						else
+							v = vpack.getAsString();
+						obj = new SafeHTMLString(v);
+						return obj;
+					}
+				}).registerSerializer(SafeHTMLString.class, new VPackSerializer<SafeHTMLString>() {
+					@Override
+					public void serialize(
+							final VPackBuilder builder,
+							final String attribute,
+							final SafeHTMLString value,
+							final VPackSerializationContext context) throws VPackException {
+						builder.add(attribute, value.toString());
+					}
 				}).build();
 
 		database = driver.db(dbname);

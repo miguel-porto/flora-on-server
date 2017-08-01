@@ -14,15 +14,15 @@
 	<title>${taxon.getName()} <fmt:message key="DataSheet.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
-	<link rel="stylesheet" type="text/css" href="/floraon/base.css?nocache=${uuid}"/>
-	<link rel="stylesheet" type="text/css" href="/floraon/redlist.css?nocache=${uuid}"/>
-	<script type="text/javascript" src="/floraon/sorttable.js"></script>
-	<script type="text/javascript" src="/floraon/basefunctions.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/ajaxforms.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/suggestions.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/js/treenavigator.js"></script>
-	<script type="text/javascript" src="/floraon/redlistadmin.js?nocache=${uuid}"></script>
-	<script type="text/javascript" src="/floraon/js/svg-pan-zoom.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../base.css?nocache=${uuid}"/>
+	<link rel="stylesheet" type="text/css" href="../redlist.css?nocache=${uuid}"/>
+	<script type="text/javascript" src="../sorttable.js"></script>
+	<script type="text/javascript" src="../basefunctions.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="../ajaxforms.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="../suggestions.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="../js/treenavigator.js"></script>
+	<script type="text/javascript" src="../redlistadmin.js?nocache=${uuid}"></script>
+	<script type="text/javascript" src="../js/svg-pan-zoom.min.js"></script>
 	<c:if test="${what=='main'}">
 	<style>
 	    <c:forEach var="tmp" items="${allTags}">
@@ -33,8 +33,8 @@
 </head>
 <body>
 <input type="hidden" name="territory" value="${territory}"/>
-<a class="returntomain" href="/floraon/"><img src="/floraon/images/cap-cor.png" alt="logo"/></a>
-<div id="title"><a href="/floraon/"><fmt:message key="DataSheet.title"/></a></div>
+<a class="returntomain" href="/"><img src="../images/cap-cor.png" alt="logo"/></a>
+<div id="title"><a href="/"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords'}">
     <div id="left-bar" class="buttonmenu">
@@ -79,7 +79,7 @@
     <c:when test="${what=='batch'}">
         <h1><fmt:message key="Separator.5"/></h1>
         <p><fmt:message key="Update.1"/></p>
-        <form class="poster" data-path="/floraon/redlist/api/updatefromcsv" data-refresh="false" method="post" enctype="multipart/form-data">
+        <form class="poster" data-path="api/updatefromcsv" data-refresh="false" method="post" enctype="multipart/form-data">
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="file" name="updateTable" />
             <input type="submit" class="textbutton" value="<fmt:message key='Update.2'/>"/>
@@ -91,7 +91,7 @@
             <h1><fmt:message key="Separator.6"/></h1>
             <h2><fmt:message key="Downloads.1"/></h2>
             <!--<form action="api/downloadtable" target="trash">-->
-            <form class="poster bigbutton" data-path="/floraon/redlist/api/downloadtable" data-refresh="true">
+            <form class="poster bigbutton" data-path="api/downloadtable" data-refresh="true">
                 <h3>Tabela de taxa da Lista Alvo e Lista B com EOO, AOO, etc.</h3>
                 <input type="hidden" name="territory" value="${territory}"/>
                 <div class="multiplechooser left">
@@ -121,7 +121,7 @@
                         <td>${job.getState()}</td>
                         <td>
                             <c:if test="${job.isFileDownload() && job.isReady()}">
-                            <a href="/floraon/job/${job.getID()}">Download file</a>
+                            <a href="job/${job.getID()}">Download file</a>
                             </c:if>
                         </td>
                     </tr>
@@ -138,7 +138,7 @@
         <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <div class="filterpanel">
             <h3><fmt:message key="TaxonIndex.admin.1"/></h3>
-            <form class="poster" data-path="/floraon/redlist/api/addnewtaxent" data-refresh="true" id="addtaxon2redlist">
+            <form class="poster" data-path="api/addnewtaxent" data-refresh="true" id="addtaxon2redlist">
                 <div class="withsuggestions">
                     <input type="text" class="nochangeevent" placeholder="<fmt:message key="DataSheet.msg.typeletters"/>" autocomplete="off" id="addtaxonbox"/>
                     <div id="addtaxsuggestions"></div>
@@ -158,7 +158,7 @@
             <div class="button" id="selecttaxa"><fmt:message key="TaxonIndex.selecting.3"/></div>
             <div class="button" id="addtag"><fmt:message key="TaxonIndex.selecting.5"/></div>
         </div>
-        <form data-path="/floraon/redlist/api/addtag" id="addtagform">
+        <form data-path="api/addtag" id="addtagform">
             <input type="hidden" name="territory" value="${territory}"/>
         </form>
         </c:if>
@@ -179,7 +179,7 @@
             </c:forEach>
         </div>
 
-        <form method="post" action="/floraon/redlist/${territory}">
+        <form method="post" action="../redlist/${territory}">
             <input type="hidden" name="w" value="taxon"/>
             <c:if test="${user.canEDIT_ANY_FIELD()}">
             <div class="floatingtoolbar">
@@ -307,10 +307,10 @@
         </div>
         </c:if>
         <c:if test="${multipletaxa}">
-        <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-callback="?w=main">
+        <form class="poster" data-path="api/updatedata" id="maindataform" data-callback="?w=main">
         </c:if>
         <c:if test="${!multipletaxa}">
-        <form class="poster" data-path="/floraon/redlist/api/updatedata" id="maindataform" data-refresh="true">
+        <form class="poster" data-path="api/updatedata" id="maindataform" data-refresh="true">
         </c:if>
             <input type="hidden" name="territory" value="${territory}"/>
             <c:if test="${!multipletaxa}">
@@ -341,7 +341,7 @@
                         <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p>
                     </div>
                     <div id="header-buttons">
-                        <div class="wordtag togglebutton"><a href="/floraon/checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
+                        <div class="wordtag togglebutton"><a href="checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                         </c:if>
@@ -1503,7 +1503,7 @@
         <c:if test="${!multipletaxa}">
         <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <h1><fmt:message key="TaxonIndex.admin.1"/></h1>
-        <form class="poster" data-path="/floraon/redlist/api/removetaxent" data-refresh="false" data-callback="?w=main">
+        <form class="poster" data-path="api/removetaxent" data-refresh="false" data-callback="?w=main">
             <input type="hidden" name="id" value="${rlde.getTaxEntID()}"/>
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="submit" value="Delete this data sheet and remove taxon from red list" class="textbutton"/>
@@ -1609,8 +1609,8 @@
                 </c:forEach>
                 </c:if>
             </table>
-            <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
-            <%-- <t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/> --%>
+            <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
+            <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/> --%>
         </c:if>
     </c:when>
 
@@ -1652,7 +1652,7 @@
                 </c:forEach>
             </table>
             <h2>Create new user</h2>
-            <form class="poster" data-path="/floraon/admin/createuser">
+            <form class="poster" data-path="../admin/createuser">
                 <table>
                     <tr><td class="title">Username</td><td><input type="text" name="userName"/></td></tr>
                     <tr><td class="title">Person name</td><td><input type="text" name="name"/></td></tr>
@@ -1680,18 +1680,18 @@
             </c:if>
             <c:if test="${requesteduser != null}">
                 <h1>${requesteduser.getFullName()} <span class="info">${requesteduser.getUserType()} ${requesteduser.getID()}</span></h1>
-                <form class="poster" data-path="/floraon/admin/deleteuser" style="float:right" data-callback="?w=users">
+                <form class="poster" data-path="../admin/deleteuser" style="float:right" data-callback="?w=users">
                     <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
                     <input type="submit" value="Delete user" class="textbutton"/>
                 </form>
-                <form class="poster" data-path="/floraon/admin/newpassword" style="float:right" data-callback="?w=users">
+                <form class="poster" data-path="../admin/newpassword" style="float:right" data-callback="?w=users">
                     <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
                     <input type="hidden" name="userName" value="${requesteduser.getUserName()}"/>
                     <input type="hidden" name="userType" value="${requesteduser.getUserType()}"/>
                     <input type="submit" value="Generate new password" class="textbutton"/>
                 </form>
                 <h2>Edit user</h2>
-                <form class="poster" data-path="/floraon/admin/updateuser" data-callback="?w=users">
+                <form class="poster" data-path="../admin/updateuser" data-callback="?w=users">
                     <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
                     <input type="hidden" name="userType" value="${requesteduser.getUserType()}"/>
                     <table>
@@ -1720,14 +1720,14 @@
                         <tr><td>${pol.getValue().getProperties().values().toString()}</td><td>${pol.getValue().size()}</td></tr>
                     </c:forEach>
                 </table>
-                <form class="poster" data-path="/floraon/admin/setuserpolygon" data-callback="?w=users">
+                <form class="poster" data-path="../admin/setuserpolygon" data-callback="?w=users">
                     <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
                     <table>
                         <tr><td class="title">Set/replace user area with a polygon file (GeoJSON)</td>
                         <td><input type="file" name="userarea"/><input type="submit" value="Set area" class="textbutton"/></td>
                     </table>
                 </form>
-                <form class="poster" data-path="/floraon/admin/setuserpolygon" data-callback="?w=users">
+                <form class="poster" data-path="../admin/setuserpolygon" data-callback="?w=users">
                     <input type="hidden" name="databaseId" value="${requesteduser.getID()}"/>
                     <input type="hidden" name="userarea" value=""/>
                     <input type="submit" value="Delete all areas" class="textbutton"/>
@@ -1745,7 +1745,7 @@
                                 <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
                                     <li>
                                         ${taxonMap.get(tax)}
-                                        <form class="poster inlineblock" data-path="/floraon/admin/removetaxonfromset" data-refresh="true">
+                                        <form class="poster inlineblock" data-path="../admin/removetaxonfromset" data-refresh="true">
                                             <input type="submit" value="Remove" class="textbutton"/>
                                             <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                                             <input type="hidden" name="taxEntId" value="${tax}"/>
@@ -1754,7 +1754,7 @@
                                     </li>
                                 </c:forEach>
                                 </ul>
-                                <form class="poster" data-path="/floraon/admin/updatetaxonprivileges" data-refresh="true">
+                                <form class="poster" data-path="../admin/updatetaxonprivileges" data-refresh="true">
                                     <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                                     <input type="hidden" name="privilegeSet" value="${loop.index}"/>
                                     <div class="withsuggestions">
@@ -1770,7 +1770,7 @@
                             </c:forEach>
                             </td>
                             <td style="width:0;">
-                                <form class="poster" data-path="/floraon/admin/removetaxonprivileges" data-refresh="true">
+                                <form class="poster" data-path="../admin/removetaxonprivileges" data-refresh="true">
                                     <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                                     <input type="hidden" name="index" value="${loop.index}"/>
                                     <input type="submit" value="Remove this privilege set" class="textbutton"/>
@@ -1782,7 +1782,7 @@
                 </table>
                 </c:if>
                 <h3>Add a new set of privileges to specific taxa</h3>
-                <form class="poster" data-path="/floraon/admin/addtaxonprivileges" data-refresh="true">
+                <form class="poster" data-path="../admin/addtaxonprivileges" data-refresh="true">
                     <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                     <table>
                         <thead><tr><th>Taxa</th><th>Privileges</th></tr></thead>
@@ -1814,8 +1814,8 @@
     <c:forEach var="taxon" items="${allTaxa}">
         <div>
         <div class="header">${taxon.getName()}</div>
-        <t:ajaxloadhtml url="https://cloud161.ncg.ingrid.pt:8443/floraon/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
-        <%-- <t:ajaxloadhtml url="http://localhost:8080/floraon/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
+        <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
         </div>
     </c:forEach>
     </div>

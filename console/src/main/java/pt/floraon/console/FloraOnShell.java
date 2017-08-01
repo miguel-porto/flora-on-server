@@ -104,7 +104,7 @@ public class FloraOnShell {
 	            	
 	            	if(line.startsWith("\\")) {
 	            		String[] req = line.substring(1).split("\\?");
-	            		URI uri = new URI("http",null,"localhost",8080,"/floraon/"+req[0], req.length > 1 ? req[1] : null, null);	// to escape characters
+	            		URI uri = new URI("http",null,"localhost",8080,"/"+req[0], req.length > 1 ? req[1] : null, null);	// to escape characters
 	            		URL url = uri.toURL();
             		    System.out.println("Fetching "+url.toString());
             		    HttpURLConnection conn = (HttpURLConnection) url.openConnection();

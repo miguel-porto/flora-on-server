@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.SafeHTMLString;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.util.ArrayList;
@@ -17,8 +18,8 @@ public class Assessment implements DiffableBean {
     private RedListEnums.RedListCategories category;
     private RedListEnums.CRTags subCategory;
     private RedListEnums.AssessmentCriteria[] criteria;
-    private String justification;
-    private String finalJustification;
+    private SafeHTMLString justification;
+    private SafeHTMLString finalJustification;
     private String[] authors;
     private String collaborators;
     private String[] evaluator;
@@ -59,6 +60,36 @@ public class Assessment implements DiffableBean {
         return isArrayEmpty(criteria) ? new RedListEnums.AssessmentCriteria[0] : criteria;
     }
 
+    /**
+     * @return The HTML-formatted fully qualified IUCN category and subcategory
+     */
+    public String _getCategoryAsString() {
+        if(this.getAdjustedCategory() == null) return "";
+        String subcat = "";
+        if(this.getCategory() != null
+                && this.getCategory() == RedListEnums.RedListCategories.CR
+                && this.getSubCategory() != null
+                && this.getSubCategory() != RedListEnums.CRTags.NO_TAG) {
+            subcat = "<sup>*" + this.getSubCategory().toString() + "</sup>";
+        }
+        return this.getAdjustedCategory().getShortTag() + subcat;
+    }
+
+    /**
+     * @return The fully qualified IUCN category and subcategory in verbose format
+     */
+    public String _getCategoryVerboseAsString() {
+        if(this.getAdjustedCategory() == null) return "";
+        String subcat = "";
+        if(this.getCategory() != null
+                && this.getCategory() == RedListEnums.RedListCategories.CR
+                && this.getSubCategory() != null
+                && this.getSubCategory() != RedListEnums.CRTags.NO_TAG) {
+            subcat = " (" + this.getSubCategory().getLabel() + ")";
+        }
+        return this.getAdjustedCategory().getLabel() + subcat;
+    }
+
     public String _getCriteriaAsString() {
         if(isArrayEmpty(criteria)) return "";
         StringBuilder sb = new StringBuilder();
@@ -96,13 +127,15 @@ public class Assessment implements DiffableBean {
         return sb.toString();
     }
 
-    public String getJustification() {
-        return justification == null ? "" : justification;
+    public SafeHTMLString getJustification() {
+        return justification == null ? SafeHTMLString.emptyString() : justification;
     }
 
-    public String getFinalJustification() {
-        return finalJustification == null ? (getJustification().equals("") ? getUpDownListingJustification()
-                : (getJustification() + " " + getUpDownListingJustification()))
+    public SafeHTMLString getFinalJustification() {
+        return finalJustification == null ?
+                new SafeHTMLString(getJustification().toString().equals("")
+                        ? getUpDownListingJustification()
+                        : (getJustification().toString() + " " + getUpDownListingJustification()))
                 : finalJustification;
     }
 
@@ -130,8 +163,14 @@ public class Assessment implements DiffableBean {
         return isArrayEmpty(reviewer) ? new String[0] : reviewer;
     }
 
+    /**
+     * Only returns evaluated if the texts are marked as ready.
+     * @return
+     */
     public RedListEnums.AssessmentStatus getAssessmentStatus() {
-        return assessmentStatus == null ? RedListEnums.AssessmentStatus.NOT_EVALUATED : assessmentStatus;
+        return assessmentStatus == null ? RedListEnums.AssessmentStatus.NOT_EVALUATED :
+                (assessmentStatus == RedListEnums.AssessmentStatus.PRELIMINARY && getTextStatus() != RedListEnums.TextStatus.READY
+                ? RedListEnums.AssessmentStatus.NOT_EVALUATED : assessmentStatus);
     }
 
     public RedListEnums.TextStatus getTextStatus() {
@@ -147,7 +186,7 @@ public class Assessment implements DiffableBean {
     }
 
     public List<PreviousAssessment> getPreviousAssessmentList() {
-        return this.previousAssessmentList == null ? Collections.EMPTY_LIST : this.previousAssessmentList;
+        return this.previousAssessmentList == null ? Collections.<PreviousAssessment>emptyList() : this.previousAssessmentList;
     }
 
 
@@ -175,11 +214,11 @@ public class Assessment implements DiffableBean {
         this.criteria = criteria;
     }
 
-    public void setJustification(String justification) {
+    public void setJustification(SafeHTMLString justification) {
         this.justification = justification;
     }
 
-    public void setFinalJustification(String finalJustification) {
+    public void setFinalJustification(SafeHTMLString finalJustification) {
         this.finalJustification = finalJustification;
     }
 
