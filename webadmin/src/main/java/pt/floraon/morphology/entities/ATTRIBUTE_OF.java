@@ -25,13 +25,4 @@ public class ATTRIBUTE_OF extends GeneralDBEdge {
 		return RelTypes.ATTRIBUTE_OF;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
 }

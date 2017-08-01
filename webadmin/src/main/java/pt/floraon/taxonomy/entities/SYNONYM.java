@@ -25,14 +25,4 @@ public class SYNONYM extends GeneralDBEdge {
 		return RelTypes.SYNONYM;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

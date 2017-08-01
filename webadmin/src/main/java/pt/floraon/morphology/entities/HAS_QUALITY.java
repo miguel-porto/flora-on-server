@@ -24,14 +24,4 @@ public class HAS_QUALITY extends GeneralDBEdge {
 		return RelTypes.HAS_QUALITY;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

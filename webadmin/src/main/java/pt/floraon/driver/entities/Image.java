@@ -41,14 +41,4 @@ public class Image extends GeneralDBNode {
 		return NodeTypes.image;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

@@ -25,14 +25,4 @@ public class HYBRID_OF extends GeneralDBEdge {
 		return RelTypes.HYBRID_OF;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

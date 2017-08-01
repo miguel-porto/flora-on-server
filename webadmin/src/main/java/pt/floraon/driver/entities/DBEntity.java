@@ -72,13 +72,11 @@ public abstract class DBEntity implements Serializable {
 	 * Serializes this entity without any processing.
 	 * @return
 	 */
-	protected JsonObject _toJson() {
+	public JsonObject toJson() {
 		Gson gson = new Gson();
 		JsonObject out = gson.toJsonTree(this).getAsJsonObject();
 		out.addProperty("type", this.getTypeAsString());
 		return out;
 	}
 
-	public abstract JsonObject toJson();
-	public abstract String toJsonString();
 }

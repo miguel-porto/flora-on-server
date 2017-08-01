@@ -403,17 +403,6 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable {
 	public NodeTypes getType() {
 		return NodeTypes.taxent;
 	}
-	
-	@Override
-	public JsonObject toJson() {
-		JsonObject out = super._toJson();
-		return out;
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
 
 	@Override
 	public boolean equals(Object o) {

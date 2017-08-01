@@ -31,14 +31,4 @@ public class OBSERVED_BY extends GeneralDBEdge {
 		return RelTypes.OBSERVED_BY;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

@@ -37,15 +37,5 @@ public class Attribute extends NamedDBNode {
 	public NodeTypes getType() {
 		return NodeTypes.attribute;
 	}
-	
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
 
 }

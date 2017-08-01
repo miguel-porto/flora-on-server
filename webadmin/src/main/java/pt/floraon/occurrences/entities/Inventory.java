@@ -566,16 +566,6 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     @Override
-    public JsonObject toJson() {
-        return null;
-    }
-
-    @Override
-    public String toJsonString() {
-        return null;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

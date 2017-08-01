@@ -305,16 +305,6 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         return Constants.RelTypes.OBSERVED_IN;
     }
 
-    @Override
-    public JsonObject toJson() {
-        return super._toJson();
-    }
-
-    @Override
-    public String toJsonString() {
-        return this.toJson().toString();
-    }
-
     public OccurrenceConstants.PresenceStatus getPresenceStatus() {
         return presenceStatus;
     }

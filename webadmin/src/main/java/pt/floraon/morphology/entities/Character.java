@@ -31,15 +31,5 @@ public class Character extends NamedDBNode {
 	public NodeTypes getType() {
 		return NodeTypes.character;
 	}
-	
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
 
 }

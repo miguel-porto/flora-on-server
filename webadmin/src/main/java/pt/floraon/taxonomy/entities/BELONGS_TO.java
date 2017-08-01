@@ -24,15 +24,4 @@ public class BELONGS_TO extends GeneralDBEdge {
 	public String getTypeAsString() {
 		return this.getType().toString();
 	}
-
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

@@ -154,15 +154,5 @@ public class EXISTS_IN extends GeneralDBEdge {
 			}
 		}
 	}
-	
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
 
 }

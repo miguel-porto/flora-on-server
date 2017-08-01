@@ -24,14 +24,4 @@ public class PART_OF extends GeneralDBEdge {
 		return RelTypes.PART_OF;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }

@@ -118,16 +118,6 @@ public class User extends NamedDBNode {
 		return this.getType().toString();
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 	public List<String> getUploadedTables() {
 		return uploadedTables == null ? Collections.<String>emptyList() : uploadedTables;
 	}

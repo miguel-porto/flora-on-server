@@ -26,13 +26,4 @@ public class TYPE_OF extends GeneralDBEdge {
         return this.getType().toString();
     }
 
-    @Override
-    public JsonObject toJson() {
-        return super._toJson();
-    }
-
-    @Override
-    public String toJsonString() {
-        return null;
-    }
 }

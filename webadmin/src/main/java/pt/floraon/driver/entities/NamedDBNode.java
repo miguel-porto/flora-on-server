@@ -66,8 +66,8 @@ public abstract class NamedDBNode extends GeneralDBNode implements Serializable 
 	}
 	
 	@Override
-	protected JsonObject _toJson() {
-		JsonObject out = super._toJson();
+	public JsonObject toJson() {
+		JsonObject out = super.toJson();
 		out.addProperty("fullName", this.getFullName());
 		return out;
 	}

@@ -136,7 +136,7 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 				AQLQueries.getString("TaxEntWrapperDriver.7")
 				,thisNode.toString()
 				,territory.toString()
-				,eIn.toJsonString());
+				,eIn.toJson().toString());
 		}
 
 		try {

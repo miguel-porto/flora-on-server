@@ -61,13 +61,4 @@ public class Habitat extends NamedDBNode {
         return this.getType().toString();
     }
 
-    @Override
-    public JsonObject toJson() {
-        return super._toJson();
-    }
-
-    @Override
-    public String toJsonString() {
-        return null;
-    }
 }

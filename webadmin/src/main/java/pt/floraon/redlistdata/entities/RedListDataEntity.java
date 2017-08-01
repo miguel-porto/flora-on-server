@@ -1062,14 +1062,4 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return null;
     }
 
-    @Override
-    public JsonObject toJson() {
-        return null;
-    }
-
-    @Override
-    public String toJsonString() {
-        return null;
-    }
-
 }

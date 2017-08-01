@@ -147,16 +147,6 @@ public class Toponym extends NamedDBNode implements GeoBean {
     }
 
     @Override
-    public JsonObject toJson() {
-        return null;
-    }
-
-    @Override
-    public String toJsonString() {
-        return null;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

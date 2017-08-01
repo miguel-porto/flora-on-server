@@ -111,14 +111,4 @@ public class Territory extends NamedDBNode {
 		return NodeTypes.territory;
 	}
 
-	@Override
-	public JsonObject toJson() {
-		return super._toJson();
-	}
-
-	@Override
-	public String toJsonString() {
-		return this.toJson().toString();
-	}
-
 }
