@@ -93,8 +93,16 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
-
 		return node;
+	}
+
+	@Override
+	public <T extends GeneralDBNode> T createDocument(T document) throws FloraOnException {
+		try {
+			return database.collection(document.getTypeAsString()).insertDocument(document).getNew();
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
 	}
 
 	@Override
@@ -505,12 +513,13 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public void createToponym(List<Toponym> toponyms) throws FloraOnException {
+	public <T extends GeneralDBNode> void createDocuments(List<T> documents) throws FloraOnException {
+		if(documents.size() == 0) return;
+		String type = documents.get(0).getTypeAsString();
 		try {
-			database.collection("toponym").insertDocuments(toponyms);
+			database.collection(type).insertDocuments(documents);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
 	}
-
 }

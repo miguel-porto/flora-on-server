@@ -19,6 +19,8 @@ public class StringUtils {
     private static final Whitelist whiteTagList = Whitelist.none();
     static {
         whiteTagList.addTags("br", "span", "i", "sup")
+                .addAttributes("span", "data-id")
+                .addAttributes("span", "contenteditable")
                 .addAttributes("span", "class");
     }
 

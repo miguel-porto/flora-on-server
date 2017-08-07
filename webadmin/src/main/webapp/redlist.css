@@ -52,6 +52,7 @@ div[contenteditable=true] .highlight:hover {box-shadow: 0 0 7px #f00;}
 div[contenteditable=true] .highlight.yellow:hover {background-color: #ff6c00;}
 .highlight.yellow {background-color: #ffee00; box-shadow: 0 0 7px #770; border-radius:4px;}
 .highlight.italic {font-style:italic;}
+span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 
 .navigator {position:fixed; bottom:0; z-index:1; left: 0;}
 .navigator .button {font-size: 1em; font-weight:bold;display:block; float:left; clear:left; box-shadow: 0 0 12px #600}
@@ -548,3 +549,21 @@ table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0
 #allmapholder .header {height:2.2rem; line-height:1.1rem; font-size:1rem; font-style:italic}
 #allmapholder .svgmap path.portugal {stroke:black; stroke-width: 1000px;}
 
+#referencelist {
+    position: fixed;
+    top:0;
+    left:0;
+    width: 100%;
+    background-color: rgba(0,0,0,0.85);
+    height: 100%;
+    overflow: auto;
+    box-shadow: 0 0 10px 5px black inset;
+    z-index:10;
+    text-align:center;
+}
+#referencelist input {font-size:3em; width:75%; padding:20px;}
+
+/*#referencelist td {font-size: 0.8rem; cursor:pointer; padding:6px;}
+#referencelist th {font-size: 1.1rem;}*/
+#referencelist table {margin:1%; width:98%;border-radius:18px; overflow:hidden}
+#referencelist p {color:white;}

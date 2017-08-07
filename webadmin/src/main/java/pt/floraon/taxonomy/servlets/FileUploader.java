@@ -15,6 +15,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.FloraOnException;
@@ -72,6 +73,7 @@ public class FileUploader extends FloraOnServlet {
 		String type = thisRequest.getParameterAsString("type");
 		Part filePart;
 		InputStream fileContent = null;
+		Reader freader;
 
 		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("upload");
 		switch(partIt.next()) {
@@ -100,7 +102,7 @@ public class FileUploader extends FloraOnServlet {
 		case "toponyms":
 			filePart = thisRequest.request.getPart("toponymTable");
 			System.out.println(filePart.getSize());
-			Reader freader;
+
 			int counter = 0;
 			ToponomyParser topoParser = new ToponomyParser();
 			Gson gs = new GsonBuilder().setPrettyPrinting().create();
@@ -131,15 +133,56 @@ public class FileUploader extends FloraOnServlet {
 				}
 
 				if(chunk > 500) {	// flush
-					driver.getNodeWorkerDriver().createToponym(toponyms);
+					driver.getNodeWorkerDriver().createDocuments(toponyms);
 					toponyms.clear();
 					chunk = 0;
 				}
 			}
-			driver.getNodeWorkerDriver().createToponym(toponyms);
+			driver.getNodeWorkerDriver().createDocuments(toponyms);
 
 			thisRequest.success(filePart.getName());
 			break;
+
+		case "references":
+			filePart = thisRequest.request.getPart("referenceTable");
+			System.out.println(filePart.getSize());
+
+			freader = new InputStreamReader(filePart.getInputStream(), StandardCharsets.UTF_8);
+			CSVParser records1 = CSVFormat.EXCEL.withDelimiter('\t').withHeader().parse(freader);
+
+			List<Long> errorLines = new ArrayList<>();
+			List<Reference> references = new ArrayList<>();
+			for (CSVRecord record : records1) {
+				Reference tmp = new Reference();
+				try {
+					tmp.setPublicationType(record.get(0));
+					tmp.setAuthors(record.get(1));
+					tmp.setYear(record.get(2));
+					tmp.setTitle(record.get(3));
+					tmp.setPublication(record.get(4));
+					tmp.setCoords(record.get(5));
+					tmp.setVolume(record.get(6));
+					tmp.setEditor(record.get(7));
+					tmp.setCity(record.get(8));
+					tmp.setPages(record.get(9));
+					tmp.setCode(record.get(10));
+					references.add(tmp);
+				} catch (FloraOnException e) {
+					System.out.println(e.getMessage());
+					errorLines.add(record.getRecordNumber());
+				}
+			}
+
+			if(errorLines.size() > 0) {
+				StringBuilder sb = new StringBuilder();
+				for(Long l : errorLines)
+					sb.append(l.toString()).append(" ");
+				thisRequest.error("The following lines have errors: " + sb.toString());
+				return;
+			}
+
+			driver.getNodeWorkerDriver().createDocuments(references);
+			thisRequest.success(filePart.getName());
 		}
 
       // Check that we have a file upload request

@@ -216,7 +216,7 @@ function onConfirmEdit(ev, name, key, parent, dry) {
 //    console.log(original+':'+name);
     if(original !== null) {
         parent.removeAttribute('data-original');
-        var modified = (original.trim() !== name.trim());
+        var modified = (createHTML(original).textContent.trim() !== name.trim());
     } else var modified = true;
 
     if(!modified || ev.keyCode == 27) {
@@ -299,26 +299,6 @@ function clickButton(ev) {
         }
     } else {
         switch(b.id) {
-/*
-        case 'hidemap':
-            ev.target.classList.toggle('selected');
-            document.getElementById('occurrencemap').classList.toggle('hidden');
-            myMap.invalidateSize(false);
-            break;
-
-        case 'hidegeorref':
-            ev.target.classList.toggle('selected');
-            document.getElementById('georreferencer').classList.toggle('hidden');
-            myMap.invalidateSize(false);
-            break;
-
-        case 'hideoccurrences':
-            ev.target.classList.toggle('selected');
-            document.getElementById('occurrencetable-holder').classList.toggle('hidden');
-            myMap.invalidateSize(false);
-            break;
-*/
-
         case 'georref-helptoggle':
             ev.target.classList.toggle('selected');
             document.getElementById('georref-help').classList.toggle('hidden');
@@ -479,17 +459,17 @@ function clickOccurrenceTable(ev) {
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
         selectGeoElement(cell, true, true);
-        var txt = cell.textContent;
+        var txt = cell.innerHTML;
         cell.textContent = '';
         displaySearchbox(cell, txt, 'taxonsearchwrapper');
     } else if(cell.classList.contains('authors')) { // clicked authors cell
         if(cell.querySelector('#authorsearchwrapper')) return;
-        var txt = cell.textContent;
+        var txt = cell.innerHTML;
         cell.textContent = '';
         displaySearchbox(cell, txt, 'authorsearchwrapper');
     } else if(cell.classList.contains('threats')) { // clicked authors cell
          if(cell.querySelector('#threatsearchwrapper')) return;
-         var txt = cell.textContent;
+         var txt = cell.innerHTML;
          cell.textContent = '';
          displaySearchbox(cell, txt, 'threatsearchwrapper');
     } else if(cell.classList.contains('select')) {    // select row
@@ -504,12 +484,13 @@ function clickOccurrenceTable(ev) {
                 selectGeoElement(vr[i]);
             }
         }
-
     } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
         selectGeoElement(cell, true, true);
-        var txt = cell.textContent;
+        var txt = cell.innerHTML;
+        //var inp = cell.querySelectorAll('input[type=hidden]');
         cell.textContent = '';
+//        if(inp) cell.appendChild(inp);
         displayEditField(cell, txt);
     }
 }
@@ -658,7 +639,7 @@ function displaySearchbox(el, text, whichBox) {
     el.appendChild(old);
     el.setAttribute('data-original', text);
     var inp = old.querySelector('textarea');
-    inp.value = text;
+    inp.value = createHTML(text).textContent;
     inp.setSelectionRange(0, inp.value.length);
     inp.focus();
 }
@@ -669,7 +650,7 @@ function displayEditField(el, text) {
     el.appendChild(old);
     el.setAttribute('data-original', text);
     var inp = old.querySelector('input');
-    inp.value = text;
+    inp.value = createHTML(text).textContent;
     inp.setSelectionRange(0, inp.value.length);
     inp.focus();
 }

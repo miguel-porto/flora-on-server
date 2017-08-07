@@ -73,6 +73,8 @@ public interface INodeWorker {
 
 	<T extends GeneralDBNode> T createNode(Class<T> cls, T node) throws FloraOnException;
 
+	<T extends GeneralDBNode> T createDocument(T document) throws FloraOnException;
+
 	TaxEnt getTaxEntById(INodeKey id) throws FloraOnException;
 
 	Habitat getHabitatById(INodeKey id) throws FloraOnException;
@@ -236,5 +238,5 @@ public interface INodeWorker {
 
 	void addUploadedTableToUser(String uploadedTableFilename, INodeKey userId) throws DatabaseException;
 
-	void createToponym(List<Toponym> toponyms) throws FloraOnException;
+	<T extends GeneralDBNode> void createDocuments(List<T> documents) throws FloraOnException;
 }

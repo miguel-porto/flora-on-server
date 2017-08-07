@@ -216,8 +216,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // attach events to all editable divs (which fake textareas with highlights)
     var editabledivs = document.querySelectorAll('#maindataform div[contenteditable=true]');
-    for (var i = 0; i < editabledivs.length; i++) {
+    for (var i = 0; i < editabledivs.length; i++) { // FIXME LASTE LETTER
         addEvent('keyup', editabledivs[i], addHighlightOnType);
+        addEvent('keypress', editabledivs[i], testCitation);
         addEvent('focus', editabledivs[i], contentEditableFocused);
         addEvent('blur', editabledivs[i], contentEditableBlurred);
     }
@@ -418,6 +419,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             return true;
         }, '../checklist/api/lists?w=tree&territory=' + encodeURIComponent(terr) + '&taxent=' + encodeURIComponent(did) + '&id={id}').init();
+    }
+
+    var c = document.querySelector('#referencelist h1 .info');
+    if(c) {
+        addEvent('click', c, function(ev) {
+            document.getElementById('referencelist').classList.add('hidden');
+            document.querySelector('#referencelist .content').innerHTML = '';
+        });
     }
 });
 
@@ -620,8 +629,13 @@ function checkHtmlTags(text) {
     }
 }
 
+function testCitation(ev) {
+    if(ev.charCode == 91)
+        showBibliography(ev.target);
+}
+
 function addHighlightOnType(ev) {
-    if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
+    if(!ev.charCode && ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
     showSaveButton();
     var el = ev.target;
     if(el.nextElementSibling.tagName.toLowerCase() != 'input') {
@@ -645,7 +659,7 @@ function addHighlightOnType(ev) {
     el.innerHTML = ma;
     el.nextElementSibling.value = ma;
 
-    var highs = el.querySelectorAll('.highlight');
+    var highs = el.querySelectorAll('span.highlight');
     for(var i = 0; i < highs.length; i++) {
         removeEvent('click', highs[i], removeHighlight);
         addEvent('click', highs[i], removeHighlight);
@@ -661,6 +675,34 @@ function removeHighlight(ev) {
         showSaveButton();
     } else
         alert("Error! Changes will not be saved. Contact the programmer.");
+}
+
+function showBibliography(el) {
+    setTimeout(function() {
+        insertTextAtCursor('#]');
+    }, 10);
+    fetchAJAX('../references?onlylist=1', function(rt) {
+        var html = createHTML(rt);
+        var rl = document.querySelector('#referencelist .content');
+        rl.innerHTML = '';
+        rl.appendChild(html);
+        rl.parentNode.classList.remove('hidden');
+        sorttable.makeSortable(rl.querySelector('table'));
+        addEvent('mousedown', rl.querySelector('table'), function(ev) {
+            var tr = getParentbyTag(ev.target, 'tr');
+            if(!tr || !tr.getAttribute('data-id')) return;
+            ev.preventDefault();
+            rl.parentNode.classList.add('hidden');
+            rl.innerHTML = '';
+//            el.focus();
+//            insertTextAtCursor(tr.getAttribute('data-id') + ']');
+//            var spanreference = function(a, b) { return '<sup class="highlight reference">[' + b + ']</sup>&nbsp;';};
+            var ma = el.innerHTML.replace(/\[#\]/, '<span data-id="' + tr.getAttribute('data-id')
+                + '" class="reference" contenteditable="false">(' + tr.getAttribute('data-citation') + ')</span>&nbsp;');
+            el.innerHTML = ma;
+            el.nextElementSibling.value = ma;
+        });
+    });
 }
 
 function updateSelectedInfo(n) {

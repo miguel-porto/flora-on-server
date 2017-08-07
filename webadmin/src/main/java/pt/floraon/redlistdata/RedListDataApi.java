@@ -125,6 +125,7 @@ public class RedListDataApi extends FloraOnServlet {
                 Enumeration names = thisRequest.request.getParameterNames();
                 while (names.hasMoreElements()) {
                     String name = (String) names.nextElement();
+                    System.out.println(name +": "+thisRequest.request.getParameterValues(name)[0]);
                     map.put(name, thisRequest.request.getParameterValues(name));
                 }
 
@@ -136,10 +137,12 @@ public class RedListDataApi extends FloraOnServlet {
                     return;
                 }
 
+
 /*
                 System.out.println("BEAN:");
                 System.out.println(gs.toJson(rlde));
 */
+
                 if(ids.length == 1) {
                     // TODO: must check for privileges on save!
                     // if the review status is changed from not ready to ready to publish, update date assessed.

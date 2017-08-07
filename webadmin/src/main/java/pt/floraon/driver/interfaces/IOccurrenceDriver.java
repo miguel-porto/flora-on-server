@@ -93,7 +93,7 @@ public interface IOccurrenceDriver {
      * Gets all or part of the occurrences maintained by the given user. Inventories as disaggregated into individual
      * occurrences. NOTE: in case of empty inventories, one (empty) occurrence is returned, to allow the user to
      * populate the empty inventory with taxa.
-     * @param authorId
+     * @param authorId Set to NULL to return all occurrences
      * @param offset
      * @param count
      * @return

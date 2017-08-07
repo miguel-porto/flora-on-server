@@ -33,8 +33,8 @@
 </head>
 <body>
 <input type="hidden" name="territory" value="${territory}"/>
-<a class="returntomain" href="/"><img src="../images/cap-cor.png" alt="logo"/></a>
-<div id="title"><a href="/"><fmt:message key="DataSheet.title"/></a></div>
+<a class="returntomain" href="../"><img src="../images/cap-cor.png" alt="logo"/></a>
+<div id="title"><a href="../"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords'}">
     <div id="left-bar" class="buttonmenu">
@@ -58,6 +58,7 @@
                 <li><a href="?w=allmaps">Todos os mapas</a></li>
             </c:if>
             <c:if test="${!user.isGuest()}">
+                <li><a href="?w=references">Bibliografia</a></li>
                 <li><a href="?w=report">Relatório</a></li>
             </c:if>
         </ul>
@@ -1824,9 +1825,19 @@
     <c:when test="${what=='report'}">
         <jsp:include page="technicalreport.jsp"></jsp:include>
     </c:when>
+
+    <c:when test="${what=='references'}">
+        <jsp:include page="/references/"></jsp:include>
+    </c:when>
     </c:choose>
     </div>
 </div>
-
+<div id="referencelist" class="hidden">
+    <h1>Search for reference</h1>
+    <span class="info">cancelar</span>
+    <input type="text" placeholder="procure por autor, ano ou título" name="refquery"/>
+    <div class="content"></div>
+    <p>Para adicionar uma nova referência, escolha a opção Bibliografia na barra de menu à esquerda.</p>
+</div>
 </body>
 </html>

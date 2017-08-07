@@ -188,8 +188,14 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "downloadoccurrencetable":
                 thisRequest.response.setContentType("text/csv; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.csv\"");
+                INodeKey u;
+                if(session.getAttribute("option-allusers") != null && (Boolean) session.getAttribute("option-allusers"))
+                    u = null;
+                else
+                    u = driver.asNodeKey(user.getID());
+
                 CSVPrinter csv = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
-                Iterator<Inventory> it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(driver.asNodeKey(user.getID()), null, null);
+                Iterator<Inventory> it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, null, null);
                 csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
                 while(it1.hasNext()) {
                     Inventory i2 = it1.next();

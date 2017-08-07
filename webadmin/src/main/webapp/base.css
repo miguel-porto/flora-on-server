@@ -241,7 +241,7 @@ ul.suggestions li.selected {
 	background-color:rgba(255, 64, 129, 0.75);
 }
 
-#logobar {margin-top: 100px; margin-bottom: 10px; width:100%; display:flex; justify-content: space-around; flex-wrap: wrap;}
+#logobar {margin-bottom: 10px; width:100%; display:flex; justify-content: space-around; flex-wrap: wrap;}
 #logobar>div {flex: 1 0 auto; display:flex; flex-wrap: wrap;border-right: 1px solid #c5c5c5; padding: 0 0 0 10px;}
 #logobar>div>p {width:100%; text-align:left; font-weight: bold}
 #logobar div.logos {flex: 1 0 auto; display:flex; justify-content: space-around; align-items:center;}
