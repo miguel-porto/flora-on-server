@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
@@ -190,4 +191,6 @@ public interface IListDriver {
 	Iterator<Habitat> getChildrenHabitats(INodeKey parentId) throws DatabaseException;
 
 	Iterator<Habitat> getHabitatsOfLevel(int level) throws DatabaseException;
+
+    Iterator<Reference> findReferencesWithText(String query) throws DatabaseException;
 }

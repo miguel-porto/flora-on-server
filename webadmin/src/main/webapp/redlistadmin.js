@@ -3,10 +3,11 @@ var regex_under = /_([\w çãõáàâéêíóôú\.,;:!?()ñ&'\"-]+)_/gi;
 var regex_sup = /\+([\w çãõáàâéêíóôú\.,;:!?()ñ&'\"-]+)\+/gi;
 var regex_htmltag = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/i;
 var regex_htmltagreplace = /<\/?\w+((\s+\w+(\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)\/?>/gi;
-var focusedEditableDiv = null;
+//var focusedEditableDiv = null;
 var panZoom = null;
 var isPanning = false;
 var habitatExpander;
+var referenceSearchTimer = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
@@ -59,12 +60,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('mainformsubmitter').classList.add('hidden');
     });
 
+/*
     addEvent('click', document.getElementById('removeformatting'), function(ev) {
         if(focusedEditableDiv.hasAttribute('contenteditable')) {
             focusedEditableDiv.innerHTML = focusedEditableDiv.innerHTML.replace(regex_htmltagreplace, '');
             document.getElementById('removeformatting').classList.add('hidden');
         }
     });
+*/
 
     // toggle summary / full view
     addEvent('click', document.getElementById('summary_toggle'), function(ev) {
@@ -216,11 +219,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // attach events to all editable divs (which fake textareas with highlights)
     var editabledivs = document.querySelectorAll('#maindataform div[contenteditable=true]');
-    for (var i = 0; i < editabledivs.length; i++) { // FIXME LASTE LETTER
+    for (var i = 0; i < editabledivs.length; i++) {
         addEvent('keyup', editabledivs[i], addHighlightOnType);
         addEvent('keypress', editabledivs[i], testCitation);
-        addEvent('focus', editabledivs[i], contentEditableFocused);
-        addEvent('blur', editabledivs[i], contentEditableBlurred);
+        addEvent('input', editabledivs[i], inputChanged);
+//        addEvent('focus', editabledivs[i], contentEditableFocused);
+//        addEvent('blur', editabledivs[i], contentEditableBlurred);
     }
     // attach remove event to any highlights that the text may have
     var highs = document.querySelectorAll('#maindataform div[contenteditable=true] .highlight');
@@ -401,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if(ev.target.classList.contains('button')) {
                 ev.preventDefault();
                 return false;
-            } else {
+            } else {    // intercept clicking on the checkbox to select (and not expand)
                 var all = this.elements[0].querySelectorAll('li');
                 var cickedel = getParentbyTag(ev.target, 'li').querySelector('input');
                 for(var i=0; i<all.length; i++) {
@@ -427,6 +431,43 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('referencelist').classList.add('hidden');
             document.querySelector('#referencelist .content').innerHTML = '';
         });
+    }
+
+    var rli = document.querySelector('#referencelist input');
+    if(rli) {
+        addEvent('input', rli, function(ev) {
+            if(referenceSearchTimer) clearTimeout(referenceSearchTimer);
+
+            referenceSearchTimer = setTimeout(function() {
+                var q = ev.target.value;
+                if(!q || q.trim() == '') return;
+
+                fetchAJAX('../references?onlylist=1&query=' + encodeURIComponent(q), function(rt) {
+                    var html = createHTML(rt);
+                    var rl = document.querySelector('#referencelist .content');
+                    rl.innerHTML = '';
+                    rl.appendChild(html);
+                    sorttable.makeSortable(rl.querySelector('table'));
+                    addEvent('mousedown', rl.querySelector('table'), function(ev) {
+                        var tr = getParentbyTag(ev.target, 'tr');
+                        if(!tr || !tr.getAttribute('data-id')) return;
+                        ev.preventDefault();
+                        rl.parentNode.classList.add('hidden');
+                        rl.innerHTML = '';
+
+                        var el = document.querySelector('.contenteditable.addingreference');
+                        if(el) {
+                            el.classList.remove('addingreference');
+                            var ma = el.innerHTML.replace(/\[#\]/, '<span data-id="' + tr.getAttribute('data-id')
+                                + '" class="reference" contenteditable="false">(' + tr.getAttribute('data-citation') + ')</span>&nbsp;');
+                            el.innerHTML = ma;
+                            el.nextElementSibling.value = ma;
+                        }
+                    });
+                });
+            }, 600);
+        })
+
     }
 });
 
@@ -461,10 +502,12 @@ function contractMap(svg) {
     svg.classList.remove('selected');
 }
 
+/*
 function contentEditableFocused(ev) {
     focusedEditableDiv = ev.target;
     checkHtmlTags(ev.target.innerHTML);
 }
+*/
 
 function attachSVGZoomPan(ev) {
     if(ev.target) {
@@ -478,12 +521,14 @@ function attachSVGZoomPan(ev) {
 
 
 function contentEditableBlurred(ev) {
+/*
     setTimeout(function() {
         if(document.activeElement.id != 'removeformatting' && !document.activeElement.hasAttribute('contenteditable')) {
             focusedEditableDiv = null;
             document.getElementById('removeformatting').classList.add('hidden');
         }
     }, 10);
+*/
 }
 
 function clickAddTag2(name, key, inputName, prefix, multipleChooserId) {
@@ -622,11 +667,14 @@ function createNewAuthor(ev) {
 }
 
 function checkHtmlTags(text) {
+    return;
+/*
     if(regex_htmltag.test(text)) {
         document.getElementById('removeformatting').classList.remove('hidden');
     } else {
         document.getElementById('removeformatting').classList.add('hidden');
     }
+*/
 }
 
 function testCitation(ev) {
@@ -634,21 +682,23 @@ function testCitation(ev) {
         showBibliography(ev.target);
 }
 
-function addHighlightOnType(ev) {
-    if(!ev.charCode && ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
-    showSaveButton();
+function inputChanged(ev) {
     var el = ev.target;
     if(el.nextElementSibling.tagName.toLowerCase() != 'input') {
         alert("Error! Changes will not be saved. Contact the programmer.");
         return;
     }
+    el.nextElementSibling.value = el.innerHTML;
+    showSaveButton();
+}
+
+function addHighlightOnType(ev) {
+    if(!ev.charCode && ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32) return;
+    var el = ev.target;
 
     checkHtmlTags(el.innerHTML);
+    if(!regex_highlight.test(el.innerHTML) && !regex_under.test(el.innerHTML) && !regex_sup.test(el.innerHTML) ) return;
 
-    if(!regex_highlight.test(el.innerHTML) && !regex_under.test(el.innerHTML) && !regex_sup.test(el.innerHTML) ) {
-        el.nextElementSibling.value = el.innerHTML;
-        return;
-    }
     var spanhighlight = function(a, b) { return '<span class="highlight yellow">' + b + '</span>';};
     var spanitalic = function(a, b) { return '<span class="highlight italic">' + b + '</span>';};
     var spansup = function(a, b) { return '<sup>' + b + '</sup>';};
@@ -657,7 +707,7 @@ function addHighlightOnType(ev) {
     ma = ma.replace(regex_under, spanitalic);
     ma = ma.replace(regex_sup, spansup);
     el.innerHTML = ma;
-    el.nextElementSibling.value = ma;
+    inputChanged(ev);
 
     var highs = el.querySelectorAll('span.highlight');
     for(var i = 0; i < highs.length; i++) {
@@ -680,7 +730,14 @@ function removeHighlight(ev) {
 function showBibliography(el) {
     setTimeout(function() {
         insertTextAtCursor('#]');
+        document.querySelector('#referencelist input[name=refquery]').focus();
     }, 10);
+    el.classList.add('addingreference');
+    document.querySelector('#referencelist .content').innerHTML = '';
+    document.getElementById('referencelist').classList.remove('hidden');
+
+
+/*
     fetchAJAX('../references?onlylist=1', function(rt) {
         var html = createHTML(rt);
         var rl = document.querySelector('#referencelist .content');
@@ -703,6 +760,7 @@ function showBibliography(el) {
             el.nextElementSibling.value = ma;
         });
     });
+*/
 }
 
 function updateSelectedInfo(n) {

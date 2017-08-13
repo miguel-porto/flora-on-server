@@ -10,6 +10,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
+import pt.floraon.bibliography.BibliographyCompiler;
+import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.*;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
@@ -138,9 +140,6 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("population_NrMatureEachSubpop", RedListEnums.NrMatureEachSubpop.values());
                 request.setAttribute("population_PercentMatureOneSubpop", RedListEnums.PercentMatureOneSubpop.values());
 //                request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
-                // FIXME HERE gravar habitats não enum
-                Habitat a;
-//                a._getNameURLEncoded()
                 request.setAttribute("ecology_HabitatTypes", driver.getRedListData().getAllHabitats().toArray(new Habitat[0]));
                 request.setAttribute("ecology_DeclineHabitatQuality", RedListEnums.DeclineHabitatQuality.values());
                 request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
@@ -180,6 +179,10 @@ System.out.println(gs.toJson(getUser()));
                 if(ids.length == 1) {       // only one taxon requested
                     RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
                     if (rlde == null) return;
+                    BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(Collections.singletonList(rlde), SafeHTMLString.class);
+                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
+//                    bc.formatCitations();
+
                     // set privileges for this taxon
                     thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"));
 

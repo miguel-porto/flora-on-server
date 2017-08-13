@@ -113,6 +113,7 @@ public class Lists extends FloraOnServlet {
 
 				case "habitat":
 					Iterator<Habitat> ith;
+					Integer level = null;
 					INodeKey taxEntId = thisRequest.getParameterAsKey("taxent");
 					if(thisRequest.request.getAttribute("territory") == null || thisRequest.request.getAttribute("habitatTypes") == null) {
 						territory = thisRequest.getParameterAsString("territory");
@@ -121,15 +122,15 @@ public class Lists extends FloraOnServlet {
 						thisRequest.request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
 					}
 					if(id == null) {
-						Integer level = thisRequest.getParameterAsInteger("level", null);
+						level = thisRequest.getParameterAsInteger("level", null);
 						if(level == null)
 							ith = LD.getAllDocumentsOfCollection(NodeTypes.habitat.toString(), Habitat.class);
 						else
 							ith = LD.getHabitatsOfLevel(level);
 					} else
 						ith = LD.getChildrenHabitats(id);
-
 					thisRequest.request.setAttribute("habitats", ith);
+					thisRequest.request.setAttribute("minselectablelevel", 2 );
 					thisRequest.request.getRequestDispatcher("/fragments/frag-habitatli.jsp").include(thisRequest.request,
 							thisRequest.response);
 					return;

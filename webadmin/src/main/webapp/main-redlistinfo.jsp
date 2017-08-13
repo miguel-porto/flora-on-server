@@ -1095,10 +1095,15 @@
                     </td></tr>
 
                     <tr class="section8"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 8 - <fmt:message key="DataSheet.label.8" /></td></tr>
+                </c:if>
                     <tr class="section8"><td class="title">8.1</td><td><fmt:message key="DataSheet.label.8.1" /></td><td>
-                    (a fazer)
+                    <ul class="hanging">
+                        <c:forEach var="bib" items="${bibliography}">
+                        <li>${bib._getBibliographyEntry()}</li>
+                        </c:forEach>
+                    </ul>
                     </td></tr>
-
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a><fmt:message key="DataSheet.label.section"/> 9 - <fmt:message key="DataSheet.label.9" /></td></tr>
                     <tr class="section9"><td class="title">9.1</td><td><fmt:message key="DataSheet.label.9.1" /></td><td class="triggergroup">
                         <div id="redlistcategories">
@@ -1833,11 +1838,10 @@
     </div>
 </div>
 <div id="referencelist" class="hidden">
-    <h1>Search for reference</h1>
-    <span class="info">cancelar</span>
+    <h1>Search for reference <span class="info">cancelar</span></h1>
     <input type="text" placeholder="procure por autor, ano ou título" name="refquery"/>
     <div class="content"></div>
-    <p>Para adicionar uma nova referência, escolha a opção Bibliografia na barra de menu à esquerda.</p>
+    <p>Para adicionar uma nova referência não listada, escolha a opção Bibliografia na barra de menu à esquerda.</p>
 </div>
 </body>
 </html>

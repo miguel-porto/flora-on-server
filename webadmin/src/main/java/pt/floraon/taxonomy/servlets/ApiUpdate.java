@@ -16,7 +16,6 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
-import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -100,7 +99,7 @@ public class ApiUpdate extends FloraOnServlet {
 				to = thisRequest.getParameterAsKey("to");
 				String type = thisRequest.getParameterAsString("type");
 				try {
-					//success(n1.createRelationshipTo(n2.getNode(), RelTypes.valueOf(type.toUpperCase())).toJsonObject());
+					//success(n1.createRelationshipTo(n2.getDocument(), RelTypes.valueOf(type.toUpperCase())).toJsonObject());
 					thisRequest.success(driver.wrapNode(from).createRelationshipTo(to, RelTypes.valueOf(type.toUpperCase())).toJsonObject());
 				} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
 						| IllegalArgumentException | InvocationTargetException e1) {
@@ -221,7 +220,7 @@ public class ApiUpdate extends FloraOnServlet {
 			case "territory":
 				if(!thisRequest.getUser().canMODIFY_TAXA_TERRITORIES()) {thisRequest.error("You don't have privileges for this operation!"); return;}
 				thisRequest.success(NWD.updateTerritoryNode(
-					NWD.getNode(thisRequest.getParameterAsKey("id"), Territory.class)
+					NWD.getDocument(thisRequest.getParameterAsKey("id"), Territory.class)
 					, thisRequest.getParameterAsString("name")
 					, thisRequest.getParameterAsString("shortName")
 					, thisRequest.getParameterAsEnum("type", TerritoryTypes.class)

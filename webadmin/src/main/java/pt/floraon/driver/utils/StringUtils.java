@@ -6,6 +6,8 @@ import org.jsoup.safety.Whitelist;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.entities.NamedDBNode;
+import pt.floraon.geocoding.entities.MatchedToponym;
+import pt.floraon.occurrences.Common;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -167,5 +169,41 @@ public class StringUtils {
         return uuid.substring(uuid.length() - n);
     }
 
+    public static int fuzzyWordMatch(String phrase, String query) {
+//        query = query.trim().toLowerCase();
+//        phrase = phrase.trim().toLowerCase();
+        if(phrase.length() < 3) return 1000;
+        if(phrase.equals(query)) return 0;
+        if(phrase.contains(query)) return 1;
+        int d = 1000;
+
+        boolean containsSpace = phrase.contains(" ");
+        boolean containsHifen = phrase.contains("-");
+
+        if(query.contains(" ") || query.contains("-") || (!containsSpace && !containsHifen)) {
+            // multiple word query, so fall back to less intelligent match (for now...)
+            String first = query.substring(0, 3);
+
+            if(Math.abs(phrase.length() - query.length()) < 3) {
+                d = Common.levenshteinDistance(phrase, query) - (phrase.startsWith(first) ? 1 : 0); // give more weight to the first letters
+//                if(d<3) System.out.println(phrase+", "+query+": "+d);
+            }
+
+            return d;
+        }
+
+        String[] words;
+        if(containsSpace)
+            words = phrase.split(" ");
+        else
+            words = phrase.split("-");
+
+        for(String word : words) {
+            d = fuzzyWordMatch(word, query) + 1;    // give more weight to the whole match
+            if(d < 4) break;
+        }
+
+        return d;
+    }
 
 }

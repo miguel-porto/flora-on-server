@@ -2,13 +2,14 @@ package pt.floraon.arangodriver;
 
 import java.util.*;
 
+import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import jline.internal.Log;
-import org.omg.PortableInterceptor.INACTIVE;
+import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.*;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.Constants.Facets;
@@ -58,13 +59,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 	@Override
 	public <T extends DBEntity> List<T> getAllDocumentsOfCollectionAsList(String collection, Class<T> cls) throws DatabaseException {
-		Map<String, Object> bindVars = new HashMap<>();
-		bindVars.put("@nodetype", collection);
-		try {
-			return database.query(AQLQueries.getString("ListDriver.6a"), bindVars, null, cls).asListRemaining();
-		} catch (ArangoDBException e) {
-			throw new DatabaseException(e.getErrorMessage());
-		}
+		return ((ArangoCursor<T>) getAllDocumentsOfCollection(collection, cls)).asListRemaining();
 	}
 
 	@Override
@@ -306,6 +301,18 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 		try {
 			return database.query(AQLQueries.getString("ListDriver.27"), bindVars, null, Habitat.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public Iterator<Reference> findReferencesWithText(String query) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("query", "%" + query + "%");
+
+		try {
+			return database.query(AQLQueries.getString("ListDriver.28"), bindVars, null, Reference.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

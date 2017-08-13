@@ -8,12 +8,14 @@
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
 <c:if test="${param.onlylist == null}">
 <h1><fmt:message key="biblio.1" /></h1>
+<c:if test="${user.canMANAGE_REDLIST_USERS()}">
 <form class="poster" data-path="../upload/references/" data-refresh="true">
     <h2><fmt:message key="biblio.15" /></h2>
     <p><fmt:message key="biblio.16" /></p>
     <input type="file" name="referenceTable" />
     <input type="submit" class="textbutton" value="Upload"/>
 </form>
+</c:if>
 <form class="poster" data-path="../references/" data-refresh="true">
     <h2><fmt:message key="biblio.2" /></h2>
     <input type="hidden" name="what" value="addreference"/>

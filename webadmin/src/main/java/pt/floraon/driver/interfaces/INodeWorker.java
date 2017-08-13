@@ -2,6 +2,7 @@ package pt.floraon.driver.interfaces;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.*;
@@ -65,7 +66,7 @@ public interface INodeWorker {
 	 * FETCHING NODES
 	 ***********************/
 
-	//public GeneralDBNode getNode(INodeKey id) throws FloraOnException;
+	//public GeneralDBNode getDocument(INodeKey id) throws FloraOnException;
 
 	Territory getTerritoryFromShortName(String shortName) throws FloraOnException;
 
@@ -161,7 +162,7 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException
 	 */
-	<T extends DBEntity> T getNode(INodeKey id, Class<T> cls) throws FloraOnException;
+	<T extends DBEntity> T getDocument(INodeKey id, Class<T> cls) throws FloraOnException;
 
 	/**
 	 * Deletes the SYNONYM relationship that is linking 'from' with 'to'. The deleted relationship is the one immediately connected to 'to'. Note that this might have side effects (break other synonym links) in complex chains of synonyms.
@@ -234,7 +235,9 @@ public interface INodeWorker {
 	 */
 	List<NativeStatusResult> getAssignedNativeStatus(INodeKey id) throws FloraOnException;
 
-	<T extends DBEntity> T getNode(INodeKey id) throws FloraOnException;
+	<T extends DBEntity> Iterator<T> getDocuments(Set<String> ids, Class<T> cls) throws FloraOnException;
+
+	<T extends DBEntity> T getDocument(INodeKey id) throws FloraOnException;
 
 	void addUploadedTableToUser(String uploadedTableFilename, INodeKey userId) throws DatabaseException;
 

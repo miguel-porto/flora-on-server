@@ -9,10 +9,20 @@
     <c:set var="randid" value="${rand.randomString(8)}"/>
     <li data-key="${hab.getID()}">
     <c:if test="${habitatTypes != null && habitatTypes.contains(hab.getID())}">
-    <input type="checkbox" name="ecology_HabitatTypes" value="${hab.getID()}" id="${randid}" checked="checked"/>
+        <c:if test="${hab.getLevel() >= minselectablelevel}">
+            <input type="checkbox" name="ecology_HabitatTypes" value="${hab.getID()}" id="${randid}" checked="checked"/>
+        </c:if>
+        <c:if test="${hab.getLevel() < minselectablelevel}">
+            <input type="checkbox" name="ecology_HabitatTypes" value="${hab.getID()}" id="${randid}" checked="checked" disabled="disabled"/>
+        </c:if>
     </c:if>
     <c:if test="${!(habitatTypes != null && habitatTypes.contains(hab.getID()))}">
-    <input type="checkbox" name="ecology_HabitatTypes" value="${hab.getID()}" id="${randid}"/>
+        <c:if test="${hab.getLevel() >= minselectablelevel}">
+            <input type="checkbox" name="ecology_HabitatTypes" value="${hab.getID()}" id="${randid}"/>
+        </c:if>
+        <c:if test="${hab.getLevel() < minselectablelevel}">
+            <input type="checkbox" name="ecology_HabitatTypes" value="${hab.getID()}" id="${randid}" disabled="disabled"/>
+        </c:if>
     </c:if>
     <label for="${randid}"> <div style="flex: 1 1 auto; margin-right:5px"><div class="light"></div><span>${hab.getName()}</span></div><div class="legend">${hab.getDescription()}</div>
     <div class="button smallround">ver subtipos</div>

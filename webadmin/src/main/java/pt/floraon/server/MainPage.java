@@ -17,7 +17,7 @@ public class MainPage extends FloraOnServlet {
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
 /*
         if("map".equals(thisRequest.getParameterAsString("w"))) {
-            TaxEnt tmpTe = driver.getNodeWorkerDriver().getNode(thisRequest.getParameterAsKey("id"), TaxEnt.class);
+            TaxEnt tmpTe = driver.getNodeWorkerDriver().getDocument(thisRequest.getParameterAsKey("id"), TaxEnt.class);
             for (SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
                 edp.executeOccurrenceQuery(tmpTe);
             

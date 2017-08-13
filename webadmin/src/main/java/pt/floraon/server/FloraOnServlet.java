@@ -70,7 +70,7 @@ public class FloraOnServlet extends HttpServlet {
 		ThisRequest thisRequest = new ThisRequest(request, response);
 
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "sk74");
+		request.setAttribute("uuid", "sk76");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -258,7 +258,7 @@ public class FloraOnServlet extends HttpServlet {
 		 */
 		public User refreshUser() {
 			try {
-				User user = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(getUser().getID()), User.class);
+				User user = driver.getNodeWorkerDriver().getDocument(driver.asNodeKey(getUser().getID()), User.class);
 				user.clearPassword();
 				user.resetEffectivePrivileges();
 				request.getSession().setAttribute("user", user);

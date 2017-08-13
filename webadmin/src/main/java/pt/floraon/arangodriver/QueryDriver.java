@@ -1,7 +1,6 @@
 package pt.floraon.arangodriver;
 
 import java.util.*;
-
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -17,9 +16,9 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.geocoding.entities.Toponym;
-import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
@@ -334,19 +333,33 @@ FOR final IN FLATTEN(FOR v IN base
 	@Override
 	public List<MatchedToponym> findToponymSuggestions(String query) throws FloraOnException {
 		if(query == null || query.trim().length() < 3) return Collections.emptyList();
+		Map<String, Object> bindVars = new HashMap<>();
 		String tQuery = query.trim().toLowerCase();
-		String _queryFull = AQLQueries.getString("QueryDriver.3", tQuery);
-		String _queryLeven = AQLQueries.getString("QueryDriver.3a", tQuery.substring(0, 2));
+		bindVars.put("firstletter", "prefix:" + tQuery.substring(0, 1));
+//		bindVars.put("query", "%" + tQuery + "%");
+//		bindVars.put("length",tQuery.length());
+
+		// this query needs a FULLTEXT index with minLength=1
+		String _queryFull = AQLQueries.getString("QueryDriver.3");
+		String first = tQuery.substring(0, 3);
+//		String _queryLeven = AQLQueries.getString("QueryDriver.3a", tQuery.substring(0, 2));
 		List<MatchedToponym> out = new LinkedList<>();
-		int d;
 
 		try {
-			Iterator<Toponym> it = database.query(_queryFull, null, null, Toponym.class);
+			Iterator<Toponym> it = database.query(_queryFull, bindVars, null, Toponym.class);
 			while(it.hasNext()) {
 				Toponym t = it.next();
-				d = t.getLocality().toLowerCase().equals(tQuery) ? 0 : (t.getLocality().toLowerCase().startsWith(tQuery) ? 1 : 2);
-				out.add(new MatchedToponym(t, d));
+				int d = StringUtils.fuzzyWordMatch(t.getLocality().trim().toLowerCase(), tQuery.trim().toLowerCase());
+
+				if(d < 3) {
+					MatchedToponym topo = new MatchedToponym(t, d);
+					if(!out.contains(topo))
+						out.add(topo);
+				}
 			}
+
+
+/*
 			it = database.query(_queryLeven, null, null, Toponym.class);
 			while(it.hasNext()) {
 				Toponym t = it.next();
@@ -363,6 +376,8 @@ FOR final IN FLATTEN(FOR v IN base
 						out.add(topo);
 				}
 			}
+*/
+
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

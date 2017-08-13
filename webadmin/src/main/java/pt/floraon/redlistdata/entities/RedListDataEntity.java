@@ -268,7 +268,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setPopulation_NrMatureIndividualsDescription(String nrMatureIndividualsDescription) {
-        this.population.setNrMatureIndividualsDescription(nrMatureIndividualsDescription);
+        this.population.setNrMatureIndividualsDescription(new SafeHTMLString(nrMatureIndividualsDescription));
     }
 
     public void setPopulation_TypeOfEstimate(String typeOfEstimate) {
@@ -292,7 +292,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setPopulation_PopulationDeclineJustification(String populationDeclineJustification) {
-        this.population.setPopulationDeclineJustification(populationDeclineJustification);
+        this.population.setPopulationDeclineJustification(new SafeHTMLString(populationDeclineJustification));
     }
 
     public void setPopulation_SeverelyFragmented(String severelyFragmented) {
@@ -882,7 +882,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "v":
                                     if(alc.contains("B2bv")) break;
-                                    if(StringUtils.cleanText(pop.getPopulationDeclineJustification()).equals("")
+                                    if(StringUtils.cleanText(pop.getPopulationDeclineJustification().toString()).equals("")
                                             || pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.6");
                                         alc.add("B2bv");
@@ -949,7 +949,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "1":
                             if(alc.contains("C1")) break;
                             if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
-                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification()).equals("")
+                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification().toString()).equals("")
                                     || pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 10) {
                                 warns.add("DataSheet.msg.warning.9.1");
                                 alc.add("C1");
@@ -959,7 +959,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "2":
                             if(alc.contains("C2")) break;
                             if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
-                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification()).equals("")) {
+                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification().toString()).equals("")) {
                                 warns.add("DataSheet.msg.warning.9.2");
                                 alc.add("C2");
                                 break;

@@ -279,7 +279,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         else {
 */
 // TODO HERE changed coords
-            Inventory original = driver.getNodeWorkerDriver().getNode(driver.asNodeKey(newinv.getID()), Inventory.class);
+            Inventory original = driver.getNodeWorkerDriver().getDocument(driver.asNodeKey(newinv.getID()), Inventory.class);
             Map<UUID, OBSERVED_IN> origMap = new HashMap<>();
             Set<UUID> alreadUpdated = new HashSet<>();
             for(OBSERVED_IN occ : original._getOccurrences())

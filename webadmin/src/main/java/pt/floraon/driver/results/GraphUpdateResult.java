@@ -60,11 +60,11 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 				try {
 					if(this.driver.asNodeKey(id).getDocumentType() == DocumentType.VERTEX) {
 						this._nodes.add(
-								this.driver.getNodeWorkerDriver().getNode(
+								this.driver.getNodeWorkerDriver().getDocument(
 										this.driver.asNodeKey(id)
 								).toJson());
 					} else {
-						this._links.add(this.driver.getNodeWorkerDriver().getNode(this.driver.asNodeKey(id)).toJson());
+						this._links.add(this.driver.getNodeWorkerDriver().getDocument(this.driver.asNodeKey(id)).toJson());
 					}
 				} catch(FloraOnException e) {
 					System.out.println("Skipped " + id + e.getMessage());

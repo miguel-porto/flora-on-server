@@ -4,7 +4,6 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.queryparser.Match;
 import pt.floraon.redlistdata.OccurrenceProcessor;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
@@ -66,7 +65,7 @@ public class PublicApi extends FloraOnServlet {
                 }
 
                 if(key == null) return;
-                TaxEnt te2 = driver.getNodeWorkerDriver().getNode(key, TaxEnt.class);
+                TaxEnt te2 = driver.getNodeWorkerDriver().getDocument(key, TaxEnt.class);
                 if(te2 == null) return;
                 List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                 for(SimpleOccurrenceDataProvider edp : sodps)

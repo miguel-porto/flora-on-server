@@ -15,6 +15,8 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -34,13 +36,18 @@ public class ReferenceServlet extends FloraOnServlet {
         }
         if("".equals(what)) what = "main";
 
+        Iterator<Reference> refs;
         switch(what) {
             case "main":
-                Iterator<Reference> refs = driver.getListDriver().getAllDocumentsOfCollection(Constants.NodeTypes.reference.toString(), Reference.class);
+                if(thisRequest.getParameterAsString("query") == null)
+                    refs = driver.getListDriver().getAllDocumentsOfCollection(Constants.NodeTypes.reference.toString(), Reference.class);
+                else
+                    refs = driver.getListDriver().findReferencesWithText(thisRequest.getParameterAsString("query"));
                 thisRequest.request.setAttribute("references", refs);
                 thisRequest.request.setCharacterEncoding(StandardCharsets.UTF_8.toString());
                 break;
         }
+
         thisRequest.request.getRequestDispatcher("references.jsp").include(thisRequest.request, thisRequest.response);
     }
 
@@ -51,7 +58,6 @@ public class ReferenceServlet extends FloraOnServlet {
         switch (what) {
             case "addreference":
                 Reference newRef = new Reference();
-
                 try {
                     BeanUtils.createBeanUtilsNullSafeHTML().populate(newRef, thisRequest.request.getParameterMap());
                 } catch (InvocationTargetException | IllegalAccessException e) {
@@ -59,11 +65,11 @@ public class ReferenceServlet extends FloraOnServlet {
                     thisRequest.error("Could not create reference. Did you format author list properly? e.g. Doe J., Almeida G.T.");
                     return;
                 }
-
 /*
                 Gson gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println(gs.toJson(newRef));
 */
+
                 driver.getNodeWorkerDriver().createDocument(newRef);
 
                 thisRequest.success("Ok");
@@ -75,6 +81,7 @@ public class ReferenceServlet extends FloraOnServlet {
                 driver.getNodeWorkerDriver().deleteDocument(id);
                 thisRequest.success("Ok");
                 break;
+
         }
     }
 }

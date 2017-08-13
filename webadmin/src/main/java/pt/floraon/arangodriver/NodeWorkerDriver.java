@@ -15,6 +15,7 @@ import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
 import com.arangodb.velocypack.VPackSlice;
+import com.google.gson.Gson;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.*;
 import pt.floraon.driver.Constants.DocumentType;
@@ -249,7 +250,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 */
 /*	@Override
-	public GeneralDBNode getNode(INodeKey id) throws FloraOnException {
+	public GeneralDBNode getDocument(INodeKey id) throws FloraOnException {
 		try {
 			return dbDriver.getDocument(id.toString(), GeneralDBNode.class).getEntity();
 		} catch (ArangoDBException e) {
@@ -258,7 +259,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}*/
 
 	@Override
-	public <T extends DBEntity> T getNode(INodeKey id, Class<T> cls) throws FloraOnException {
+	public <T extends DBEntity> T getDocument(INodeKey id, Class<T> cls) throws FloraOnException {
 		try {
 			return database.getDocument(id.getID(), cls);
 		} catch (ArangoDBException e) {
@@ -267,7 +268,19 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public <T extends DBEntity> T getNode(INodeKey id) throws FloraOnException {
+	public <T extends DBEntity> Iterator<T> getDocuments(Set<String> ids, Class<T> cls) throws FloraOnException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("ids", ids);
+		try {
+			return database.query(AQLQueries.getString("NodeWorkerDriver.15"), bindVars, null, cls);
+		} catch (ArangoDBException | NoSuchElementException e) {
+			e.printStackTrace();
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public <T extends DBEntity> T getDocument(INodeKey id) throws FloraOnException {
 		NodeTypes nt;
 		RelTypes rt;
 		if(id.getDocumentType() == DocumentType.VERTEX) {
@@ -342,7 +355,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
     public GraphUpdateResult updateTerritoryNode(Territory node,String name,String shortName, TerritoryTypes type, String theme, boolean showInChecklist) throws FloraOnException {
-		//Territory node = new Territory(FloraOnDriver.this, dbNodeWorker.getNode(id, TerritoryVertex.class));
+		//Territory node = new Territory(FloraOnDriver.this, dbNodeWorker.getDocument(id, TerritoryVertex.class));
     	node.update(name, shortName, type, theme, showInChecklist);
     	try {
 			database.collection(driver.asNodeKey(node.getID()).getCollection()).updateDocument(node.getKey(), node, new DocumentUpdateOptions().keepNull(false));

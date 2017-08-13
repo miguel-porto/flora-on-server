@@ -20,7 +20,6 @@ public class Reference extends GeneralDBNode {
                     "(?:(?<middle> *, *(?:[\\w çãõáàâéêíóôúñÁüöÅ-]+)[, ] *(?:[\\wçãõáàâéêíóôúÁüöÅ]{1,2}\\. *)+)* *" +
                     ",? *&? *(?<last>[\\w çãõáàâéêíóôúñÁüöÅ-]+)[, ] *(?:[\\wçãõáàâéêíóôúÁüöÅ]{1,2}\\. *)+)?\\s*$", Pattern.CASE_INSENSITIVE);
 
-    // Aguiar, C., Monteiro Henriques, T. & Sánchez-Mata, D.
 /*
     private transient static Pattern oneAuthor = Pattern.compile(
             "^(?<surname>[\\w çãõáàâéêíóôú-]+)[, ] *(?:[\\wçãõáàâéêíóôú]+\\. *)+$", Pattern.CASE_INSENSITIVE);
@@ -109,8 +108,8 @@ public class Reference extends GeneralDBNode {
         this.code = code;
     }
 
-    public Constants.PublicationType getPublicationType() {
-        return publicationType;
+    public String getPublicationType() {
+        return publicationType == null ? null : publicationType.toString();
     }
 
     public void setPublicationType(String publicationType) throws FloraOnException {
@@ -138,19 +137,35 @@ public class Reference extends GeneralDBNode {
         Matcher f = oneAuthor.matcher(m.group("first"));
         first = f.find() ? f.group("surname") : m.group("first");
 */
-
-        if(m.group("last") != null) {
-            last = m.group("last");
-/*
-            Matcher l = oneAuthor.matcher(m.group("last"));
-            last = l.find() ? l.group("surname") : m.group("last");
-*/
-        }
+        last = m.group("last");
 
         names = hasMiddle ?
             first + " <i>et al.</i>"
             : (last == null ? first : first + " & " + last);
         return names + " " + this.getYear();
+    }
+
+    public String _getBibliographyEntry() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.getAuthors()).append(" ")
+                .append(this.getYear()).append(". ")
+                .append("<i>" + this.getTitle() + "</i>").append(". ")
+                .append(this.getPublication());
+        if(this.getVolume() != null && !this.getVolume().trim().equals("")) {
+            sb.append(" ");
+            if(this.getPages() != null && !this.getPages().trim().equals(""))
+                sb.append(this.getVolume()).append(": ").append(this.getPages());
+            else
+                sb.append(this.getVolume()).append(". ");
+        } else {
+            if(this.getPages() != null && !this.getPages().trim().equals(""))
+                sb.append(": ").append(this.getPages());
+            else
+                sb.append(". ");
+        }
+
+        sb.append(this.getCode());
+        return sb.toString();
     }
 
     @Override

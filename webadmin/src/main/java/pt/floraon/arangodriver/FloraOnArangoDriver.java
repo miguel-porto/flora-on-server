@@ -260,6 +260,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.taxent.toString()).createFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
 		database.collection(NodeTypes.territory.toString()).createHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
 		database.collection(NodeTypes.user.toString()).createHashIndex(Arrays.asList("userName"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.toponym.toString()).createFulltextIndex(Collections.singleton("locality"), new FulltextIndexOptions().minLength(1));
 	}
 	
 	private void checkCollections() throws ArangoDBException {
