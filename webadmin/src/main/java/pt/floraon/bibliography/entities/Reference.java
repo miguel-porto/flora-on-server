@@ -7,9 +7,10 @@ import pt.floraon.driver.entities.GeneralDBNode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Reference extends GeneralDBNode {
+public class Reference extends GeneralDBNode implements Comparable<Reference> {
     private String authors, year, title, publication, coords, volume, pages, editor, city, code;
     private Constants.PublicationType publicationType;
+    private transient Character suffix;
 
 /*
     private transient static Pattern authorList = Pattern.compile(
@@ -148,7 +149,7 @@ public class Reference extends GeneralDBNode {
     public String _getBibliographyEntry() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getAuthors()).append(" ")
-                .append(this.getYear()).append(". ")
+                .append(this.getYear()).append(this.suffix == null ? "" : this.suffix).append(". ")
                 .append("<i>" + this.getTitle() + "</i>").append(". ")
                 .append(this.getPublication());
         if(this.getVolume() != null && !this.getVolume().trim().equals("")) {
@@ -168,6 +169,15 @@ public class Reference extends GeneralDBNode {
         return sb.toString();
     }
 
+    /**
+     * Sets the suffix to append after the year to avoind citation collisions.
+     * This is done by the {@link pt.floraon.bibliography.BibliographyCompiler}.
+     * @param suffix
+     */
+    public void _setSuffix(char suffix) {
+        this.suffix = suffix;
+    }
+
     @Override
     public Constants.NodeTypes getType() {
         return Constants.NodeTypes.reference;
@@ -178,4 +188,10 @@ public class Reference extends GeneralDBNode {
         return getType().toString();
     }
 
+    @Override
+    public int compareTo(Reference reference) {
+        String cmp1 = this.getAuthors() + this.getYear() + this.suffix;
+        String cmp2 = reference.getAuthors() + reference.getYear() + reference.suffix;
+        return cmp1.compareTo(cmp2);
+    }
 }

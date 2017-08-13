@@ -180,7 +180,8 @@ System.out.println(gs.toJson(getUser()));
                     RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
                     if (rlde == null) return;
                     BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(Collections.singletonList(rlde), SafeHTMLString.class);
-                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
+//                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
+                    request.setAttribute("bibliography", bc.getBibliography(driver));
 //                    bc.formatCitations();
 
                     // set privileges for this taxon
