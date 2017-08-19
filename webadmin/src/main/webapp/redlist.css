@@ -105,7 +105,10 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 #speciesindex td {padding:4px;}
 /*#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}*/
 /*#speciesindex td {transition: background-color 0.3s;}*/
-#speciesindex tr.responsible td {background-color: #b2ff59;}
+#speciesindex tr.responsible td {background-color: #b2ff59 !important;}
+#speciesindex tr.tag_ListaAlvo td {background-color: #f1f8e9;}
+#speciesindex tr.tag_ListaB td {background-color: #e1f5fe;}
+#speciesindex tr.tag_Listapreliminar td {background-color: #fff3e0;}
 #speciesindex tr.selected td {background-color: #64b5f6;}
 #speciesindex tr.validationerror td {background-color: #b71c1c; color:yellow !important;}
 #speciesindex tr.validationerror td a {color:yellow !important;}
@@ -168,6 +171,9 @@ input.selectionbox + label {
     margin:0 auto;
     border-radius:50%;
     cursor: pointer;
+    text-align: center;
+    line-height: 2em;
+    color: grey;
 }
 input.selectionbox:checked + label {background-color: #76ff03; box-shadow: 0 0 7px #888;}
 input.selectionbox:not(:checked) + label {background-color: white;}
@@ -322,6 +328,8 @@ table.sheet.help .checkboxes label {border-radius: 1rem 4px 4px 4px;}
 .checkboxes input:checked + label {background-color: #448aff; opacity:1; box-shadow: 0 0 5px #888;}
 .checkboxes input:checked + label .light {background-color: #76ff03; box-shadow: 0 0 7px #76ff03;}
 .checkboxes.list input:not(:checked) + label {}
+.checkboxes.list input[disabled] + label {border-radius:0; font-weight:bold;box-shadow: none; background-color: transparent;}
+.checkboxes.list input[disabled] + label:hover {color:#448aff}
 table.sheet:not(.help) .checkboxes.list:not(.alwaysvisible):not(:focus) input:not(:checked) + label {max-height: 0px; padding: 0px 10px; margin: 0px 6px;}
 /*table.sheet:not(.help) .checkboxes.list:not(:focus) input:not(:checked) + label {max-height: 0px; max-width: 0; padding: 0; margin: 0}*/
 table.sheet:not(.help) .checkboxes.list:not(.alwaysvisible):not(:focus) input, table.sheet:not(.help) .checkboxes.list:not(.alwaysvisible):not(:focus) label {pointer-events: none;}
@@ -436,13 +444,18 @@ table.sheet .section7>td:nth-of-type(2) {background-color: rgba(139, 195,  74, 0
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 
+#habitat-tree {font-size: 0.9rem}
+#habitat-tree .checkboxes label {padding:0; display:flex; align-items:stretch;}
 #habitat-tree ul li {cursor: pointer; padding: 0; margin: 0; border-left: 0px dotted black;}
 #habitat-tree ul li .legend {flex: 1 2 auto;}
 #habitat-tree ul ul {
     margin-left: 30px;
     border-left: 2px dotted black;
-    padding: 0 0 5px 10px;
+    padding: 0 0 0 10px;
 }
+
+#habitat-tree .checkboxes input[disabled] + label .button {display:none;}
+#habitat-tree .button.smallround {margin:0px; box-shadow: none; border-radius:0; display:flex; align-items: center;}
 
 #redlistcategories {text-align:center}
 #redlistcategories input[type=radio] {display:none;}

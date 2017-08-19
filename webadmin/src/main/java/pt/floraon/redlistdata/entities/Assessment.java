@@ -333,14 +333,32 @@ public class Assessment implements DiffableBean {
      * @return
      */
     public String[] fetchSequentialAssessmentStatus() {
-        if(this.publicationStatus != null && this.publicationStatus == RedListEnums.PublicationStatus.PUBLISHED)
-            return new String[] {this.publicationStatus.getLabel(), "EmptyString"};
-        if(this.textStatus != null && this.textStatus != RedListEnums.TextStatus.READY) return new String[] {this.textStatus.getLabel(), "EmptyString"};
-        if(this.assessmentStatus != null && this.assessmentStatus != RedListEnums.AssessmentStatus.PRELIMINARY)
-            return new String[] {this.textStatus == null ? "EmptyString" : this.textStatus.getLabel(), this.assessmentStatus.getLabel()};
+        if(this.getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED)
+            return new String[] {this.getPublicationStatus().getLabel(), "EmptyString"};
+        // not published
+        if(this.getReviewStatus() != RedListEnums.ReviewStatus.NOT_REVISED)
+            return new String[] {this.getAssessmentStatus().getLabel(), this.getReviewStatus().getLabel()};
+        // not revised
+        if(this.getAssessmentStatus() == RedListEnums.AssessmentStatus.PRELIMINARY)
+            return new String[] {this.getAssessmentStatus().getLabel(), this.getReviewStatus().getLabel()};
+        // not assessed
+        if(this.getTextStatus() == RedListEnums.TextStatus.READY)
+            return new String[] {this.getTextStatus().getLabel(), this.getAssessmentStatus().getLabel()};
+        // texts not ready
+        if(this.textStatus == null)
+            return new String[] {"EmptyString", "EmptyString"};
+        else
+            return new String[] {this.getTextStatus().getLabel(), "EmptyString"};
+
+/*
         if(this.reviewStatus != null && this.reviewStatus != RedListEnums.ReviewStatus.REVISED_PUBLISHING)
             return new String[] {this.assessmentStatus == null ? "EmptyString" : this.assessmentStatus.getLabel(), this.reviewStatus.getLabel()};
+        if(this.textStatus != null && this.textStatus != RedListEnums.TextStatus.READY)
+            return new String[] {this.textStatus.getLabel(), "EmptyString"};
+        if(this.assessmentStatus != null)
+            return new String[] {this.textStatus == null ? "EmptyString" : this.textStatus.getLabel(), this.assessmentStatus.getLabel()};
         return this.publicationStatus == null ? null
             : new String[] {this.reviewStatus == null ? "EmptyString" : this.reviewStatus.getLabel(), this.publicationStatus.getLabel()};
+*/
     }
 }

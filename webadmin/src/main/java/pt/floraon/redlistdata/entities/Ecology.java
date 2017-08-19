@@ -12,7 +12,7 @@ import static pt.floraon.driver.utils.StringUtils.cleanArray;
  */
 public class Ecology implements DiffableBean {
     private SafeHTMLString description;
-    private String[] habitatTypes;
+    private String[] habitatTypes;  // NOTE: this is the database ID of the habitat
     private String generationLength;
     private String generationLengthJustification;
     private RedListEnums.DeclineHabitatQuality declineHabitatQuality;

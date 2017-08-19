@@ -74,6 +74,10 @@ public class StringUtils {
         return txt.replaceAll(Constants.sanitizeHtmlId, "");
     }
 
+    public static boolean isStringEmpty(String s) {
+        return s == null || s.trim().equals("");
+    }
+
     public static <T extends GeneralDBNode> List<String> getIDsList(List<T> nodeList) {
 		Iterator<T> it = nodeList.iterator();
 		List<String> out = new ArrayList<String>();
@@ -169,12 +173,18 @@ public class StringUtils {
         return uuid.substring(uuid.length() - n);
     }
 
+    /**
+     * "Intelligent" fuzzy match of strings, word by word.
+     * @param phrase
+     * @param query
+     * @return The strength of the match
+     */
     public static int fuzzyWordMatch(String phrase, String query) {
 //        query = query.trim().toLowerCase();
 //        phrase = phrase.trim().toLowerCase();
         if(phrase.length() < 3) return 1000;
-        if(phrase.equals(query)) return 0;
-        if(phrase.contains(query)) return 1;
+        if(phrase.equals(query)) return -1;
+        if(phrase.contains(query)) return 0;
         int d = 1000;
 
         boolean containsSpace = phrase.contains(" ");

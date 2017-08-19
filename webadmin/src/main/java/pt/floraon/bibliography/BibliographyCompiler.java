@@ -21,7 +21,8 @@ import java.util.*;
 /**
  * A class to process all citations in the text fields of the given list of JavaBeans, assemble a bibliography and
  * rename citations to avoid collisions.
- * It navigates recursively through {@link DiffableBean}. It only collects references from the C class
+ * It navigates recursively through {@link DiffableBean}. It only collects references from the C class provided
+ * TODO: find missing references; allow changing style (style should be configured in this class, not in Reference)
  * @param <T> The class of the beans to process
  * @param <C> The class of the fields from which to collect citations.
  */
@@ -140,12 +141,14 @@ public class BibliographyCompiler<T, C> {
         INodeWorker nwd = driver.getNodeWorkerDriver();
         for(Map.Entry<String, Collection<String>> e : this.citationMap.asMap().entrySet()) {
             Set<String> tmp = ((Set<String>) e.getValue());
-            if(tmp.size() == 1)
-                out.add(nwd.getDocument(driver.asNodeKey(tmp.iterator().next()), Reference.class));
-            else {
+            if(tmp.size() == 1) {
+                Reference r = nwd.getDocument(driver.asNodeKey(tmp.iterator().next()), Reference.class);
+                if(r != null) out.add(r);
+            } else {
                 int c = 0;
                 for(String s : tmp) {
                     Reference tmpr = nwd.getDocument(driver.asNodeKey(s), Reference.class);
+                    if(tmpr == null) continue;
                     tmpr._setSuffix(chars[c]);
                     out.add(tmpr);
                     c++;

@@ -12,6 +12,7 @@ import pt.floraon.driver.*;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IRedListDataDriver;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
@@ -136,13 +137,23 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
     }
 
     @Override
-    public Iterator<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException {
+    public Iterator<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges, String[] filterByTags) throws FloraOnException {
+        String query;
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("@collection", "redlist_" + territory);
+
+        if(StringUtils.isArrayEmpty(filterByTags))
+            query = "redlistdata.1";
+        else {
+            query = "redlistdata.1a";
+            bindVars.put("tags", filterByTags);
+        }
+
         if(withTaxonSpecificPrivileges) {
             Iterator<AtomicTaxonPrivilege> apIt = getTaxonPrivilegesForAllUsers(territory);
-
             Iterator<RedListDataEntity> rldeIt;
             try {
-                rldeIt = database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
+                rldeIt = database.query(AQLRedListQueries.getString(query), bindVars
                         , new AqlQueryOptions().ttl(120), RedListDataEntity.class);
             } catch (ArangoDBException e) {
                 throw new DatabaseException(e.getMessage());
@@ -151,7 +162,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
             return super.assignResponsibleAuthors(apIt, rldeIt);
         } else {
             try {
-                return database.query(AQLRedListQueries.getString("redlistdata.1", territory), null
+                return database.query(AQLRedListQueries.getString(query), bindVars
                         , new AqlQueryOptions().ttl(120), RedListDataEntity.class);
             } catch (ArangoDBException e) {
                 throw new DatabaseException(e.getMessage());

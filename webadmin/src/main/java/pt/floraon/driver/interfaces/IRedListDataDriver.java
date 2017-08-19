@@ -86,12 +86,14 @@ public interface IRedListDataDriver {
     Iterator<AtomicTaxonPrivilege> getTaxonPrivilegesForAllUsers(String territory) throws DatabaseException;
 
     /**
-     * Fetches all red list data for the given territory. Note this is memory intensive.
-     * @param territory The territory shortName
+     * Fetches all red list data optionally filtered by one of the given tags.
+     * @param territory                   The territory shortName
      * @param withTaxonSpecificPrivileges True to compute who is responsible for texts, assessment, etc. for each taxon
+     * @param filterByTags                NULL if you want all data sheets, a String array if you want to filter by one of the tags.
+     * @return
      * @throws FloraOnException
      */
-    Iterator<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges) throws FloraOnException;
+    Iterator<RedListDataEntity> getAllRedListData(String territory, boolean withTaxonSpecificPrivileges, String[] filterByTags) throws FloraOnException;
 
     /**
      * Fetches all taxa included in the red list data for the given territory.

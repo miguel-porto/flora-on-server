@@ -130,6 +130,18 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return out.toArray(new String[out.size()]);
     }
 
+    public String _getSingleLetterTag() {
+        // TODO: this is not general!! It depends on user tags.
+        if(StringUtils.isArrayEmpty(tags)) return "";
+        for(String t : tags) {
+            if(t == null) break;
+            if (t.toLowerCase().equals("lista alvo")) return "A";
+            if (t.toLowerCase().equals("lista b")) return "B";
+            if (t.toLowerCase().equals("lista preliminar")) return "P";
+        }
+        return "";
+    }
+
     public SafeHTMLString getTaxonomicProblemDescription() {
         return taxonomicProblemDescription == null ? new SafeHTMLString("") : taxonomicProblemDescription;
     }

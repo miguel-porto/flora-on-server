@@ -26,7 +26,7 @@ public class UpdateNativeStatusJob implements JobTask {
     @Override
     public void run(IFloraOn driver) throws FloraOnException, IOException {
         Log.info("Updating red list dataset for " + territory);
-        Iterator<RedListDataEntity> rldel = driver.getRedListData().getAllRedListData(territory, false);
+        Iterator<RedListDataEntity> rldel = driver.getRedListData().getAllRedListData(territory, false, null);
         Map<String, Object> v = new HashMap<>();
 
         while(rldel.hasNext()) {

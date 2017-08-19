@@ -237,7 +237,7 @@
                         <c:if test="${user.canEDIT_ANY_FIELD()}">
                             <td>
                                 <input type="checkbox" name="id" value="${taxon.getTaxEnt().getID()}" class="selectionbox" id="selbox_${taxon.getTaxEnt()._getIDURLEncoded()}"/>
-                                <label for="selbox_${taxon.getTaxEnt()._getIDURLEncoded()}"></label>
+                                <label for="selbox_${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon._getSingleLetterTag()}</label>
                             </td>
                         </c:if>
                         <td><a href="?w=taxon&id=${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
@@ -781,7 +781,23 @@
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section4"><td class="title">4.2</td><td><fmt:message key="DataSheet.label.4.2" /></td><td>
-                        <div id="habitat-tree"><jsp:include page="/checklist/api/lists?w=tree&id=&type=habitat&level=1"></jsp:include></div>
+                        <c:if test="${user.canEDIT_SECTION4()}">
+                        <div id="habitat-tree">
+                        <t:habitattree taxentid="${rlde.getTaxEntID()}"
+                            startlevel="1"
+                            loaduptolevel="5"
+                            minselectablelevel="2"
+                            hideafterlevel="2" />
+                        </div>
+                        </c:if>
+                        <c:if test="${!user.canEDIT_SECTION4()}">
+                        <ul>
+                            <c:forEach var="hab" items="${habitatTypes}">
+                            <li>${hab.getName()}</li>
+                            </c:forEach>
+                        </ul>
+                        </c:if>
+
                         <%--<t:multiplechooser
                             privilege="${user.canEDIT_SECTION4() || user.canEDIT_4_2()}"
                             values="${habitatTypes}"

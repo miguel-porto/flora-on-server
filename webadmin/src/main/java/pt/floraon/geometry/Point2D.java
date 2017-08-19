@@ -8,7 +8,7 @@ import java.util.Comparator;
  * Taken from
  * http://algs4.cs.princeton.edu/99hull/Point2D.java.html
  */
-public final class Point2D implements Comparable<Point2D>, Clusterable {
+public class Point2D implements Comparable<Point2D>, Clusterable {
     /**
      * Compares two points by x-coordinate.
      */

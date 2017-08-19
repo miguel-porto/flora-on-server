@@ -37,7 +37,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         OccurrenceProcessor op;
-        Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false);
+        Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
 
         csvp.print("TaxEnt ID");

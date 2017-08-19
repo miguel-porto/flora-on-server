@@ -3,6 +3,7 @@ package pt.floraon.bibliography.entities;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.driver.utils.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -150,16 +151,19 @@ public class Reference extends GeneralDBNode implements Comparable<Reference> {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getAuthors()).append(" ")
                 .append(this.getYear()).append(this.suffix == null ? "" : this.suffix).append(". ")
-                .append("<i>" + this.getTitle() + "</i>").append(". ")
-                .append(this.getPublication());
-        if(this.getVolume() != null && !this.getVolume().trim().equals("")) {
+                .append("<i>").append(this.getTitle()).append("</i>.");
+
+        if(!StringUtils.isStringEmpty(this.getPublication()))
+            sb.append(this.getPublication()).append(".");
+
+        if(!StringUtils.isStringEmpty(this.getVolume())) {
             sb.append(" ");
-            if(this.getPages() != null && !this.getPages().trim().equals(""))
+            if(!StringUtils.isStringEmpty(this.getPages()))
                 sb.append(this.getVolume()).append(": ").append(this.getPages());
             else
                 sb.append(this.getVolume()).append(". ");
         } else {
-            if(this.getPages() != null && !this.getPages().trim().equals(""))
+            if(!StringUtils.isStringEmpty(this.getPages()))
                 sb.append(": ").append(this.getPages());
             else
                 sb.append(". ");
@@ -170,7 +174,7 @@ public class Reference extends GeneralDBNode implements Comparable<Reference> {
     }
 
     /**
-     * Sets the suffix to append after the year to avoind citation collisions.
+     * Sets the suffix to append after the year to avoid citation collisions.
      * This is done by the {@link pt.floraon.bibliography.BibliographyCompiler}.
      * @param suffix
      */
@@ -192,6 +196,6 @@ public class Reference extends GeneralDBNode implements Comparable<Reference> {
     public int compareTo(Reference reference) {
         String cmp1 = this.getAuthors() + this.getYear() + this.suffix;
         String cmp2 = reference.getAuthors() + reference.getYear() + reference.suffix;
-        return cmp1.compareTo(cmp2);
+        return cmp1.toLowerCase().compareTo(cmp2.toLowerCase());
     }
 }

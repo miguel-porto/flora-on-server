@@ -121,8 +121,9 @@ System.out.println(gs.toJson(getUser()));
                 for(String s : at)
                     ate.put(sanitizeHtmlId(s), s);
 
+
                 Iterator<RedListDataEntity> taxEntList =
-                        driver.getRedListData().getAllRedListData(territory, true);
+                        driver.getRedListData().getAllRedListData(territory, true, null); //new String[] {"Lista preliminar", "Lista Alvo", "Lista B"}
                 request.setAttribute("allTags", ate.entrySet());
                 request.setAttribute("specieslist", taxEntList);
                 break;
@@ -140,7 +141,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("population_NrMatureEachSubpop", RedListEnums.NrMatureEachSubpop.values());
                 request.setAttribute("population_PercentMatureOneSubpop", RedListEnums.PercentMatureOneSubpop.values());
 //                request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
-                request.setAttribute("ecology_HabitatTypes", driver.getRedListData().getAllHabitats().toArray(new Habitat[0]));
+//                request.setAttribute("ecology_HabitatTypes", driver.getRedListData().getAllHabitats().toArray(new Habitat[0]));
                 request.setAttribute("ecology_DeclineHabitatQuality", RedListEnums.DeclineHabitatQuality.values());
                 request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
                 request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
@@ -310,7 +311,8 @@ System.out.println(gs.toJson(getUser()));
 
                     request.setAttribute("rlde", rlde);
                     // multiple selection fields
-                    request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+                    request.setAttribute("habitatTypes", driver.getNodeWorkerDriver().getDocuments(new HashSet<>(Arrays.asList(rlde.getEcology().getHabitatTypes())), Habitat.class));
+                    request.setAttribute("habitatTypesIds", Arrays.asList(rlde.getEcology().getHabitatTypes()));
                     request.setAttribute("uses", Arrays.asList(rlde.getUsesAndTrade().getUses()));
                     request.setAttribute("proposedConservationActions", Arrays.asList(rlde.getConservation().getProposedConservationActions()));
                     request.setAttribute("proposedStudyMeasures", Arrays.asList(rlde.getConservation().getProposedStudyMeasures()));
@@ -442,7 +444,7 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "contentasxml":
-                Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false);
+                Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false, null);
                 PrintWriter wr2 = thisRequest.response.getWriter();
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder;

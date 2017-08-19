@@ -107,7 +107,19 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.response.setContentType("application/json; charset=utf-8");
                 thisRequest.response.setCharacterEncoding("UTF-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
-                gs.toJson(driver.getRedListData().getAllRedListData(thisRequest.getParameterAsString("territory"), false), pw = thisRequest.response.getWriter());
+                Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(thisRequest.getParameterAsString("territory"), false, null);
+                pw = thisRequest.response.getWriter();
+                pw.print("{\"\":[");
+                boolean first = true;
+                while(it.hasNext()) {
+                    rlde = it.next();
+                    if(rlde.getRevisions().size() > 0) {
+                        if(!first) pw.print("],[");
+                        gs.toJson(rlde, pw);
+                        first = false;
+                    }
+                }
+                pw.print("]}");
                 pw.flush();
                 break;
 
@@ -197,7 +209,7 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "statistics-table":
                 territory = thisRequest.getParameterAsString("territory");
-                Iterator<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true);
+                Iterator<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true, null);
                 if(thisRequest.getUser().canMANAGE_REDLIST_USERS()) {
                     int count1 = 0, count2 = 0, count3 = 0;
                     while (taxEntList.hasNext()) {
@@ -262,13 +274,13 @@ public class RedListDataApi extends FloraOnServlet {
                         case "report-listtaxatagphoto":
                             int count = 0;
                             pw.print("<ul>");
-                            Iterator<TaxEnt> it = ord.getTaxaWithTag(
+                            Iterator<TaxEnt> it1 = ord.getTaxaWithTag(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
                                     , thisRequest.getParameterAsString("tag")
                                     , what.equals("report-listtaxatagphoto"));
-                            while(it.hasNext()) {
+                            while(it1.hasNext()) {
                                     count++;
-                                    TaxEnt te1 = it.next();
+                                    TaxEnt te1 = it1.next();
                                     pw.print("<li>" + te1.getFullName(true) + "</li>");
                             }
                             pw.print("</ul><p>Nº de taxa: " + count + "</p>");
@@ -276,11 +288,11 @@ public class RedListDataApi extends FloraOnServlet {
 
                         case "report-listtaxatagspecimen":
                             pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de espécimes colhidos</th></tr></thead>");
-                            Iterator<StatisticPerTaxon> it1 = ord.getTaxaWithTagCollected(
+                            Iterator<StatisticPerTaxon> it2 = ord.getTaxaWithTagCollected(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
                                     , thisRequest.getParameterAsString("tag"));
-                            while(it1.hasNext()) {
-                                StatisticPerTaxon te1 = it1.next();
+                            while(it2.hasNext()) {
+                                StatisticPerTaxon te1 = it2.next();
                                 pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
                             }
                             pw.print("</table>");
@@ -300,11 +312,11 @@ public class RedListDataApi extends FloraOnServlet {
 
                         case "report-listtaxatagnrrecords":
                             pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de registos</th></tr></thead>");
-                            Iterator<StatisticPerTaxon> it2 = ord.getTaxaWithTagNrRecords(
+                            Iterator<StatisticPerTaxon> it4 = ord.getTaxaWithTagNrRecords(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory
                                     , thisRequest.getParameterAsString("tag"));
-                            while(it2.hasNext()) {
-                                StatisticPerTaxon te1 = it2.next();
+                            while(it4.hasNext()) {
+                                StatisticPerTaxon te1 = it4.next();
                                 pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
                             }
                             pw.print("</table>");
@@ -334,10 +346,10 @@ public class RedListDataApi extends FloraOnServlet {
 
                         case "report-alltaxa":
                             pw.print("<table class=\"subtable\"><thead><tr><th>Taxon</th><th>Nº de registos</th></tr></thead>");
-                            Iterator<StatisticPerTaxon> it4 = ord.getAllTaxa(
+                            Iterator<StatisticPerTaxon> it5 = ord.getAllTaxa(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to);
-                            while(it4.hasNext()) {
-                                StatisticPerTaxon te1 = it4.next();
+                            while(it5.hasNext()) {
+                                StatisticPerTaxon te1 = it5.next();
                                 pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
                             }
                             pw.print("</table>");

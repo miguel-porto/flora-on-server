@@ -113,24 +113,30 @@ public class Lists extends FloraOnServlet {
 
 				case "habitat":
 					Iterator<Habitat> ith;
-					Integer level = null;
+					Integer level = thisRequest.getParameterAsInteger("level", null);
+					thisRequest.request.setAttribute("maxlevel", thisRequest.getParameterAsInteger("maxlevel", null));
+					thisRequest.request.setAttribute("hideafterlevel", thisRequest.getParameterAsInteger("hideafterlevel", null));
 					INodeKey taxEntId = thisRequest.getParameterAsKey("taxent");
-					if(thisRequest.request.getAttribute("territory") == null || thisRequest.request.getAttribute("habitatTypes") == null) {
+					if(thisRequest.request.getAttribute("territory") == null || thisRequest.request.getAttribute("habitatTypesIds") == null) {
 						territory = thisRequest.getParameterAsString("territory");
 						RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, taxEntId);
 						if(rlde == null) return;
-						thisRequest.request.setAttribute("habitatTypes", Arrays.asList(rlde.getEcology().getHabitatTypes()));
+						thisRequest.request.setAttribute("habitatTypesIds", Arrays.asList(rlde.getEcology().getHabitatTypes()));
 					}
+
+
+					System.out.printf("Level %d; ID: %s\n", level == null ? 0 : level, id == null ? "NULL" : id);
+
 					if(id == null) {
-						level = thisRequest.getParameterAsInteger("level", null);
 						if(level == null)
 							ith = LD.getAllDocumentsOfCollection(NodeTypes.habitat.toString(), Habitat.class);
 						else
 							ith = LD.getHabitatsOfLevel(level);
 					} else
 						ith = LD.getChildrenHabitats(id);
+
 					thisRequest.request.setAttribute("habitats", ith);
-					thisRequest.request.setAttribute("minselectablelevel", 2 );
+
 					thisRequest.request.getRequestDispatcher("/fragments/frag-habitatli.jsp").include(thisRequest.request,
 							thisRequest.response);
 					return;

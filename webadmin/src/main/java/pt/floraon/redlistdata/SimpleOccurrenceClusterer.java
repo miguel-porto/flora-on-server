@@ -6,6 +6,7 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.geometry.Point2D;
+import pt.floraon.geometry.Point2DAlwaysDifferent;
 import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 
@@ -28,7 +29,7 @@ public class SimpleOccurrenceClusterer {
             UTMCoordinate utm = so._getUTMCoordinates();
             if(utm != null) {
                 if(!so.getPrecision()._isImprecise())
-                    occMap.put(new Point2D(utm.getX(), utm.getY(), null, null), so);
+                    occMap.put(new Point2DAlwaysDifferent(utm.getX(), utm.getY(), null, null), so);
                 else {
                     singletons.put(counter, so);
                     counter++;

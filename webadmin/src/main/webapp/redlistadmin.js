@@ -400,14 +400,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if(document.querySelector('input[name=taxEntID]')) {
         var did = document.querySelector('input[name=taxEntID]').value;
         var terr = document.querySelector('input[name=territory]').value;
-        habitatExpander = new TreeExpander(document.querySelectorAll('#habitat-tree ul'), function(ev, key) {
-            // tree node was clicked
-            if(ev.target.classList.contains('button')) {
+        habitatExpander = new TreeExpander(document.querySelectorAll('#habitat-tree>ul'), function(ev, key) {
+            // tree node was clicked, the default behaviour is to expand, but here we intercept it
+            if(ev.target.classList.contains('button')) {    // only expand if button was clicked
                 ev.preventDefault();
                 return false;
             } else {    // intercept clicking on the checkbox to select (and not expand)
                 var all = this.elements[0].querySelectorAll('li');
-                var cickedel = getParentbyTag(ev.target, 'li').querySelector('input');
+                var cickedel = getParentbyTag(ev.target, 'li').querySelector(':not(ul) input');
+                if(!cickedel || cickedel.hasAttribute('disabled')) {
+                    ev.preventDefault();
+                    return false;
+                }
                 for(var i=0; i<all.length; i++) {
                     if(all[i].getAttribute('data-key') == key) {
                         if(cickedel.checked) {
