@@ -575,7 +575,11 @@
                                         </c:forEach>
                                     </select>
                                 </td></tr>
-                                <tr><td>Exact number</td><td><input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/><span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span></td></tr>
+                                <tr><td>Exact number</td><td>
+                                <input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/>
+                                <c:if test="${rlde.getPopulation().getNrMatureIndividualsExact().getError() != null}"><span class="warning">${rlde.getPopulation().getNrMatureIndividualsExact().getError()}</span></c:if>
+                                <span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span>
+                                </td></tr>
                             </table>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION3()}">
@@ -787,7 +791,7 @@
                             startlevel="1"
                             loaduptolevel="5"
                             minselectablelevel="2"
-                            hideafterlevel="2" />
+                            hideafterlevel="1" />
                         </div>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION4()}">

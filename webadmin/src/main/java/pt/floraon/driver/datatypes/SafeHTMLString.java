@@ -1,4 +1,4 @@
-package pt.floraon.driver;
+package pt.floraon.driver.datatypes;
 
 import pt.floraon.driver.utils.StringUtils;
 

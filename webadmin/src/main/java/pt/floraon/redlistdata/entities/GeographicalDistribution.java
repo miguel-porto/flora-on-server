@@ -1,10 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import pt.floraon.driver.DiffableBean;
-import pt.floraon.driver.SafeHTMLString;
-import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.redlistdata.RedListEnums;
 
 /**

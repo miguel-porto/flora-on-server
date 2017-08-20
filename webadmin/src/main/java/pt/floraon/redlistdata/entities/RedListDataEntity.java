@@ -1,10 +1,10 @@
 package pt.floraon.redlistdata.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import com.google.gson.JsonObject;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.SafeHTMLString;
+import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
@@ -276,7 +276,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setPopulation_NrMatureIndividualsExact(String nrMatureIndividualsExact) {
-        this.population.setNrMatureIndividualsExact(nrMatureIndividualsExact);
+        this.population.setNrMatureIndividualsExact(new NumericInterval(nrMatureIndividualsExact));
     }
 
     public void setPopulation_NrMatureIndividualsDescription(String nrMatureIndividualsDescription) {
@@ -948,7 +948,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                 case "C":
                     if(alc.contains("C")) break;
-                    Integer nr = StringUtils.getMaxOfInterval(pop.getNrMatureIndividualsExact());
+//                    Integer nr = StringUtils.getMaxOfInterval(pop.getNrMatureIndividualsExact());
+                    Integer nr = pop.getNrMatureIndividualsExact().getMaxValue();
                     if(pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.NO_DATA
                             || pop.getNrMatureIndividualsCategory() == RedListEnums.NrMatureIndividuals.GT_10000
                             || (nr != null && nr > 10000)) {
@@ -1022,7 +1023,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         break;
                     }
 
-                    Integer nr1 = StringUtils.getMaxOfInterval(pop.getNrMatureIndividualsExact());
+//                    Integer nr1 = StringUtils.getMaxOfInterval(pop.getNrMatureIndividualsExact());
+                    Integer nr1 = pop.getNrMatureIndividualsExact().getMaxValue();
                     switch(cr.getSubCriteria()) {
                         case "1":
                             if(alc.contains("D1")) break;

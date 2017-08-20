@@ -16,8 +16,11 @@ import com.arangodb.velocypack.*;
 import com.arangodb.velocypack.exception.VPackException;
 import com.arangodb.velocypack.exception.VPackParserException;
 import jline.internal.Log;
+import pt.floraon.arangodriver.serializers.*;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
+import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.interfaces.*;
 import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.CSVFileProcessor;
@@ -60,67 +63,13 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(Privileges.class, new SafeEnumDeserializer<>(Privileges.class))
 				.registerDeserializer(RedListEnums.NrMatureIndividuals.class, new SafeEnumDeserializer<>(RedListEnums.NrMatureIndividuals.class))
 				.registerDeserializer(RedListEnums.HasPhoto.class, new SafeEnumDeserializer<>(RedListEnums.HasPhoto.class, RedListEnums.HasPhoto.FALSE))
-				.registerDeserializer(Precision.class, new VPackDeserializer<Precision>() {
-					@Override
-					public Precision deserialize(
-							final VPackSlice parent,
-							final VPackSlice vpack,
-							final VPackDeserializationContext context) throws VPackException {
-
-						final Precision obj;
-						String v;
-						if(vpack.getType() == ValueType.INT || vpack.getType() == ValueType.UINT || vpack.getType() == ValueType.SMALLINT)
-							v = ((Integer) vpack.getAsInt()).toString();
-						else if(vpack.getType() == ValueType.DOUBLE)
-							v = ((Double) vpack.getAsDouble()).toString();
-						else
-							v = vpack.getAsString();
-
-						try {
-							obj = new Precision(v);
-						} catch (FloraOnException e) {
-							throw new VPackParserException(e);
-						}
-						return obj;
-					}
-				}).registerSerializer(Precision.class, new VPackSerializer<Precision>() {
-					@Override
-					public void serialize(
-							final VPackBuilder builder,
-							final String attribute,
-							final Precision value,
-							final VPackSerializationContext context) throws VPackException {
-//						builder.add(attribute, ValueType.STRING);
-						builder.add(attribute, value.toString());
-//						builder.close();
-					}
-				}).registerDeserializer(SafeHTMLString.class, new VPackDeserializer<SafeHTMLString>() {
-					@Override
-					public SafeHTMLString deserialize(
-							final VPackSlice parent,
-							final VPackSlice vpack,
-							final VPackDeserializationContext context) throws VPackException {
-						final SafeHTMLString obj;
-						String v;
-						if(vpack.getType() == ValueType.INT || vpack.getType() == ValueType.UINT || vpack.getType() == ValueType.SMALLINT)
-							v = ((Integer) vpack.getAsInt()).toString();
-						else if(vpack.getType() == ValueType.DOUBLE)
-							v = ((Double) vpack.getAsDouble()).toString();
-						else
-							v = vpack.getAsString();
-						obj = new SafeHTMLString(v);
-						return obj;
-					}
-				}).registerSerializer(SafeHTMLString.class, new VPackSerializer<SafeHTMLString>() {
-					@Override
-					public void serialize(
-							final VPackBuilder builder,
-							final String attribute,
-							final SafeHTMLString value,
-							final VPackSerializationContext context) throws VPackException {
-						builder.add(attribute, value.toString());
-					}
-				}).build();
+				.registerDeserializer(Precision.class, new PrecisionDeserializer())
+				.registerSerializer(Precision.class, new PrecisionSerializer())
+				.registerDeserializer(SafeHTMLString.class, new SafeHTMLStringDeserializer())
+				.registerSerializer(SafeHTMLString.class, new SafeHTMLStringSerializer())
+				.registerDeserializer(NumericInterval.class, new NumericIntervalDeserializer())
+				.registerSerializer(NumericInterval.class, new NumericIntervalSerializer())
+				.build();
 
 		database = driver.db(dbname);
 		NWD = new NodeWorkerDriver(this);

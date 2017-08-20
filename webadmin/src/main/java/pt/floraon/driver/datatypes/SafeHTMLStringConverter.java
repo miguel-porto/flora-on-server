@@ -1,7 +1,7 @@
-package pt.floraon.driver.utils;
+package pt.floraon.driver.datatypes;
 
 import org.apache.commons.beanutils.converters.AbstractConverter;
-import pt.floraon.driver.SafeHTMLString;
+import pt.floraon.driver.datatypes.SafeHTMLString;
 
 public final class SafeHTMLStringConverter extends AbstractConverter {
     public SafeHTMLStringConverter() {
@@ -16,8 +16,8 @@ public final class SafeHTMLStringConverter extends AbstractConverter {
     }
 
     protected <T> T convertToType(Class<T> type, Object value) throws Throwable {
-        System.out.println(type.toString());
-        System.out.println(value.getClass().toString());
+//        System.out.println(type.toString());
+//        System.out.println(value.getClass().toString());
         if (!SafeHTMLString.class.equals(type) && !Object.class.equals(type)) {
             throw this.conversionException(type, value);
         } else {

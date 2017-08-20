@@ -1,8 +1,8 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
-import pt.floraon.driver.SafeHTMLString;
-import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.redlistdata.RedListEnums;
 
 /**
@@ -11,7 +11,7 @@ import pt.floraon.redlistdata.RedListEnums;
 public class Population implements DiffableBean {
     private SafeHTMLString description;
     private RedListEnums.NrMatureIndividuals nrMatureIndividualsCategory;
-    private String nrMatureIndividualsExact;
+    private NumericInterval nrMatureIndividualsExact;
     private SafeHTMLString nrMatureIndividualsDescription;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private RedListEnums.DeclinePopulation populationDecline;
@@ -39,7 +39,7 @@ public class Population implements DiffableBean {
         return nrMatureIndividualsCategory == null ? RedListEnums.NrMatureIndividuals.NO_DATA : nrMatureIndividualsCategory;
     }
 
-    public String getNrMatureIndividualsExact() {
+    public NumericInterval getNrMatureIndividualsExact() {
         return nrMatureIndividualsExact;
     }
 
@@ -107,7 +107,7 @@ public class Population implements DiffableBean {
         this.nrMatureIndividualsCategory = nrMatureIndividualsCategory;
     }
 
-    public void setNrMatureIndividualsExact(String nrMatureIndividualsExact) {
+    public void setNrMatureIndividualsExact(NumericInterval nrMatureIndividualsExact) {
         this.nrMatureIndividualsExact = nrMatureIndividualsExact;
     }
 

@@ -4,10 +4,10 @@ import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.*;
-import org.jfree.util.Log;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.SafeHTMLString;
+import pt.floraon.driver.datatypes.SafeHTMLString;
+import pt.floraon.driver.datatypes.SafeHTMLStringConverter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
