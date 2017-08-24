@@ -764,6 +764,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         Population pop = getPopulation();
         GeographicalDistribution dist = getGeographicalDistribution();
         Set<String> alc = new HashSet<>();
+        Set<String> critB = new HashSet<>();
 
         for(RedListEnums.AssessmentCriteria cr : getAssessment().getCriteria()) {
             // first check the validity of the 5 major criteria
@@ -843,6 +844,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     switch(cr.getSubsubCriteria()) {
                         case "a":
                             if(alc.contains("B2a")) break;
+                            critB.add("Bxa");
                             if(!(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
                                     && !StringUtils.cleanText(pop.getSeverelyFragmentedJustification().toString()).equals(""))
                                     && !(getThreats().getNumberOfLocations() != null && getThreats().getNumberOfLocations() <= 10
@@ -853,6 +855,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             break;
 
                         case "b":
+                            critB.add("Bxb");
                             switch (cr.getSubsubsubCriteria()) {
                                 case "i":
                                     if(alc.contains("B2bi")) break;
@@ -904,6 +907,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             break;
 
                         case "c":
+                            critB.add("Bxc");
                             switch (cr.getSubsubsubCriteria()) {
                                 case "i":
                                     if(alc.contains("B2ci")) break;
@@ -1063,6 +1067,9 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     break;
             }
         }
+        if(critB.size() == 1)
+            warns.add("DataSheet.msg.warning.B2");
+
         return warns;
     }
 
