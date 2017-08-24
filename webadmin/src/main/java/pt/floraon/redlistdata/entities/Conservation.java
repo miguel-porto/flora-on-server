@@ -11,9 +11,9 @@ import pt.floraon.redlistdata.RedListEnums;
 public class Conservation implements DiffableBean {
     private SafeHTMLString description;
     private RedListEnums.YesNoNA conservationPlans;
-    private String conservationPlansJustification;
+    private SafeHTMLString conservationPlansJustification;
     private RedListEnums.YesNoNA exSituConservation;
-    private String exSituConservationJustification;
+    private SafeHTMLString exSituConservationJustification;
     private RedListEnums.ProposedConservationActions[] proposedConservationActions;
     private RedListEnums.ProposedStudyMeasures[] proposedStudyMeasures;
     private String[] legalProtection;
@@ -26,16 +26,16 @@ public class Conservation implements DiffableBean {
         return conservationPlans == null ? RedListEnums.YesNoNA.NO_DATA : conservationPlans;
     }
 
-    public String getConservationPlansJustification() {
-        return conservationPlansJustification == null ? "" : conservationPlansJustification;
+    public SafeHTMLString getConservationPlansJustification() {
+        return conservationPlansJustification == null ? SafeHTMLString.emptyString() : conservationPlansJustification;
     }
 
     public RedListEnums.YesNoNA getExSituConservation() {
         return exSituConservation == null ? RedListEnums.YesNoNA.NO_DATA : exSituConservation;
     }
 
-    public String getExSituConservationJustification() {
-        return exSituConservationJustification == null ? "" : exSituConservationJustification;
+    public SafeHTMLString getExSituConservationJustification() {
+        return exSituConservationJustification == null ? SafeHTMLString.emptyString() : exSituConservationJustification;
     }
 
     public RedListEnums.ProposedConservationActions[] getProposedConservationActions() {
@@ -76,11 +76,11 @@ public class Conservation implements DiffableBean {
         this.proposedStudyMeasures = proposedStudyMeasures;
     }
 
-    public void setConservationPlansJustification(String conservationPlansJustification) {
+    public void setConservationPlansJustification(SafeHTMLString conservationPlansJustification) {
         this.conservationPlansJustification = conservationPlansJustification;
     }
 
-    public void setExSituConservationJustification(String exSituConservationJustification) {
+    public void setExSituConservationJustification(SafeHTMLString exSituConservationJustification) {
         this.exSituConservationJustification = exSituConservationJustification;
     }
 

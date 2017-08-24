@@ -20,13 +20,13 @@ public class Population implements DiffableBean {
     // population size reduction
     private Integer populationTrend;
     private RedListEnums.PopulationSizeReduction populationSizeReduction;
-    private String populationSizeReductionJustification;
+    private SafeHTMLString populationSizeReductionJustification;
 
     private RedListEnums.SeverelyFragmented severelyFragmented;
-    private String severelyFragmentedJustification;
+    private SafeHTMLString severelyFragmentedJustification;
 
     private RedListEnums.YesNoNA extremeFluctuations;
-    private String extremeFluctuationsJustification;
+    private SafeHTMLString extremeFluctuationsJustification;
 
     private RedListEnums.NrMatureEachSubpop nrMatureEachSubpop;
     private RedListEnums.PercentMatureOneSubpop percentMatureOneSubpop;
@@ -63,24 +63,24 @@ public class Population implements DiffableBean {
         return populationSizeReduction == null ? RedListEnums.PopulationSizeReduction.NO_INFORMATION : populationSizeReduction;
     }
 
-    public String getPopulationSizeReductionJustification() {
-        return populationSizeReductionJustification == null ? "" : populationSizeReductionJustification;
+    public SafeHTMLString getPopulationSizeReductionJustification() {
+        return populationSizeReductionJustification == null ? SafeHTMLString.emptyString() : populationSizeReductionJustification;
     }
 
     public RedListEnums.SeverelyFragmented getSeverelyFragmented() {
         return severelyFragmented == null ? RedListEnums.SeverelyFragmented.NO_INFORMATION : severelyFragmented;
     }
 
-    public String getSeverelyFragmentedJustification() {
-        return severelyFragmentedJustification == null ? "" : severelyFragmentedJustification;
+    public SafeHTMLString getSeverelyFragmentedJustification() {
+        return severelyFragmentedJustification == null ? SafeHTMLString.emptyString() : severelyFragmentedJustification;
     }
 
     public RedListEnums.YesNoNA getExtremeFluctuations() {
         return extremeFluctuations == null ? RedListEnums.YesNoNA.NO_DATA : extremeFluctuations;
     }
 
-    public String getExtremeFluctuationsJustification() {
-        return extremeFluctuationsJustification == null ? "" : extremeFluctuationsJustification;
+    public SafeHTMLString getExtremeFluctuationsJustification() {
+        return extremeFluctuationsJustification == null ? SafeHTMLString.emptyString() : extremeFluctuationsJustification;
     }
 
     public Integer getPopulationDeclinePercent() {
@@ -131,7 +131,7 @@ public class Population implements DiffableBean {
         this.populationSizeReduction = populationSizeReduction;
     }
 
-    public void setPopulationSizeReductionJustification(String populationSizeReductionJustification) {
+    public void setPopulationSizeReductionJustification(SafeHTMLString populationSizeReductionJustification) {
         this.populationSizeReductionJustification = populationSizeReductionJustification;
     }
 
@@ -151,11 +151,11 @@ public class Population implements DiffableBean {
         this.populationDeclineJustification = populationDeclineJustification;
     }
 
-    public void setSeverelyFragmentedJustification(String severelyFragmentedJustification) {
+    public void setSeverelyFragmentedJustification(SafeHTMLString severelyFragmentedJustification) {
         this.severelyFragmentedJustification = severelyFragmentedJustification;
     }
 
-    public void setExtremeFluctuationsJustification(String extremeFluctuationsJustification) {
+    public void setExtremeFluctuationsJustification(SafeHTMLString extremeFluctuationsJustification) {
         this.extremeFluctuationsJustification = extremeFluctuationsJustification;
     }
 

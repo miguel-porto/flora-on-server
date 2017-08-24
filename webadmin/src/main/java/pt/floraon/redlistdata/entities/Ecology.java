@@ -14,12 +14,12 @@ public class Ecology implements DiffableBean {
     private SafeHTMLString description;
     private String[] habitatTypes;  // NOTE: this is the database ID of the habitat
     private String generationLength;
-    private String generationLengthJustification;
+    private SafeHTMLString generationLengthJustification;
     private RedListEnums.DeclineHabitatQuality declineHabitatQuality;
-    private String declineHabitatQualityJustification;
+    private SafeHTMLString declineHabitatQualityJustification;
 
-    public String getDeclineHabitatQualityJustification() {
-        return declineHabitatQualityJustification == null ? "" : declineHabitatQualityJustification;
+    public SafeHTMLString getDeclineHabitatQualityJustification() {
+        return declineHabitatQualityJustification == null ? SafeHTMLString.emptyString() : declineHabitatQualityJustification;
     }
 
     public RedListEnums.DeclineHabitatQuality getDeclineHabitatQuality() {
@@ -38,8 +38,8 @@ public class Ecology implements DiffableBean {
         return generationLength == null ? "" : generationLength;
     }
 
-    public String getGenerationLengthJustification() {
-        return generationLengthJustification == null ? "" : generationLengthJustification;
+    public SafeHTMLString getGenerationLengthJustification() {
+        return generationLengthJustification == null ? SafeHTMLString.emptyString() : generationLengthJustification;
     }
 
     public void setDescription(SafeHTMLString description) {
@@ -54,7 +54,7 @@ public class Ecology implements DiffableBean {
         this.generationLength = generationLength;
     }
 
-    public void setGenerationLengthJustification(String generationLengthJustification) {
+    public void setGenerationLengthJustification(SafeHTMLString generationLengthJustification) {
         this.generationLengthJustification = generationLengthJustification;
     }
 
@@ -62,7 +62,7 @@ public class Ecology implements DiffableBean {
         this.declineHabitatQuality = declineHabitatQuality;
     }
 
-    public void setDeclineHabitatQualityJustification(String declineHabitatQualityJustification) {
+    public void setDeclineHabitatQualityJustification(SafeHTMLString declineHabitatQualityJustification) {
         this.declineHabitatQualityJustification = declineHabitatQualityJustification;
     }
 }

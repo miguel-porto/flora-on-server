@@ -44,6 +44,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+/*
+
+    var editables = document.querySelectorAll('[contenteditable=true]');
+    for(var i=0; i<editables.length; i++) {
+        addEvent('keypress', editables[i], function(ev) {
+            if(ev.keyCode == 13) {
+                ev.preventDefault(); //Prevent default browser behavior
+                if (window.getSelection) {
+                    var selection = window.getSelection(),
+                        range = selection.getRangeAt(0),
+                        br = document.createElement("br"),
+                        textNode = document.createTextNode("\u00a0"); //Passing " " directly will not end up being shown correctly
+                    range.deleteContents();//required or not?
+                    range.insertNode(br);
+                    range.collapse(false);
+                    range.insertNode(textNode);
+                    range.selectNodeContents(textNode);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    return false;
+                }
+            }
+        });
+
+    }
+*/
 
     /********************
         DATA SHEET
@@ -258,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+/*
     var maps = document.querySelectorAll('.svgmap');
     for(var i = 0; i < maps.length; i++) {
         (function(j) {
@@ -267,6 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         })(i);
     }
+*/
 
     // for user privileges
     attachSuggestionHandler('taxonbox', '../checklist/api/suggestions?limit=10&q=', 'suggestions', function(ev, name, key) {

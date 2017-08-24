@@ -11,23 +11,23 @@ import pt.floraon.redlistdata.RedListEnums;
 public class Threats implements DiffableBean {
     private SafeHTMLString description;
     private Integer numberOfLocations;
-    private String numberOfLocationsJustification;
+    private SafeHTMLString numberOfLocationsJustification;
     private RedListEnums.DeclineNrLocations declineNrLocations;
-    private String declineNrLocationsJustification;
+    private SafeHTMLString declineNrLocationsJustification;
     private RedListEnums.YesNoNA extremeFluctuationsNrLocations;
-    private String extremeFluctuationsNrLocationsJustification;
+    private SafeHTMLString extremeFluctuationsNrLocationsJustification;
     private RedListEnums.Threats[] threats;
 
     public RedListEnums.DeclineNrLocations getDeclineNrLocations() {
         return declineNrLocations == null ? RedListEnums.DeclineNrLocations.NO_INFORMATION : declineNrLocations;
     }
 
-    public String getDeclineNrLocationsJustification() {
-        return declineNrLocationsJustification == null ? "" : declineNrLocationsJustification;
+    public SafeHTMLString getDeclineNrLocationsJustification() {
+        return declineNrLocationsJustification == null ? SafeHTMLString.emptyString() : declineNrLocationsJustification;
     }
 
-    public String getNumberOfLocationsJustification() {
-        return numberOfLocationsJustification == null ? "" : numberOfLocationsJustification;
+    public SafeHTMLString getNumberOfLocationsJustification() {
+        return numberOfLocationsJustification == null ? SafeHTMLString.emptyString() : numberOfLocationsJustification;
     }
 
     public SafeHTMLString getDescription() {
@@ -42,8 +42,8 @@ public class Threats implements DiffableBean {
         return extremeFluctuationsNrLocations == null ? RedListEnums.YesNoNA.NO_DATA : extremeFluctuationsNrLocations;
     }
 
-    public String getExtremeFluctuationsNrLocationsJustification() {
-        return extremeFluctuationsNrLocationsJustification == null ? "" : extremeFluctuationsNrLocationsJustification;
+    public SafeHTMLString getExtremeFluctuationsNrLocationsJustification() {
+        return extremeFluctuationsNrLocationsJustification == null ? SafeHTMLString.emptyString() : extremeFluctuationsNrLocationsJustification;
     }
 
     public RedListEnums.Threats[] getThreats() {
@@ -60,7 +60,7 @@ public class Threats implements DiffableBean {
         this.numberOfLocations = numberOfLocations;
     }
 
-    public void setNumberOfLocationsJustification(String numberOfLocationsJustification) {
+    public void setNumberOfLocationsJustification(SafeHTMLString numberOfLocationsJustification) {
         this.numberOfLocationsJustification = numberOfLocationsJustification;
     }
 
@@ -68,7 +68,7 @@ public class Threats implements DiffableBean {
         this.declineNrLocations = declineNrLocations;
     }
 
-    public void setDeclineNrLocationsJustification(String declineNrLocationsJustification) {
+    public void setDeclineNrLocationsJustification(SafeHTMLString declineNrLocationsJustification) {
         this.declineNrLocationsJustification = declineNrLocationsJustification;
     }
 
@@ -76,7 +76,7 @@ public class Threats implements DiffableBean {
         this.extremeFluctuationsNrLocations = extremeFluctuationsNrLocations;
     }
 
-    public void setExtremeFluctuationsNrLocationsJustification(String extremeFluctuationsNrLocationsJustification) {
+    public void setExtremeFluctuationsNrLocationsJustification(SafeHTMLString extremeFluctuationsNrLocationsJustification) {
         this.extremeFluctuationsNrLocationsJustification = extremeFluctuationsNrLocationsJustification;
     }
 

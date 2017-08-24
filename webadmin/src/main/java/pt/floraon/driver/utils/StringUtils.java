@@ -2,6 +2,7 @@ package pt.floraon.driver.utils;
 
 import jline.internal.Log;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
@@ -67,7 +68,7 @@ public class StringUtils {
      * @return
      */
     public static String safeHtmlTagsOnly(String text) {
-        return Jsoup.clean(text, whiteTagList);
+        return Jsoup.clean(text, "", whiteTagList, new Document.OutputSettings().prettyPrint(false));
     }
 
     public static String sanitizeHtmlId(String txt) {
@@ -151,6 +152,7 @@ public class StringUtils {
         return tmp.toArray((T[]) Array.newInstance(clazz, tmp.size()));
     }
 
+/*
     public static Integer getMaxOfInterval(String interval) {
         // FIXME this must process numeric ranges
         Pattern intervalMatch = Pattern.compile("^([0-9]+) *- *([0-9]+)$");
@@ -166,6 +168,7 @@ public class StringUtils {
             return null;
         }
     }
+*/
 
     public String randomString(int n) {
         String uuid = UUID.randomUUID().toString();

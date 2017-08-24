@@ -28,7 +28,7 @@ public class Assessment implements DiffableBean {
     private RedListEnums.YesNoLikelyUnlikely decreaseImmigration;
     private RedListEnums.YesNoLikelyUnlikely isSink;
     private RedListEnums.UpDownList upDownListing;
-    private String upDownListingJustification;
+    private SafeHTMLString upDownListingJustification;
     private RedListEnums.TextStatus textStatus;
     private RedListEnums.AssessmentStatus assessmentStatus;
     private RedListEnums.ReviewStatus reviewStatus;
@@ -134,7 +134,7 @@ public class Assessment implements DiffableBean {
     public SafeHTMLString getFinalJustification() {
         return finalJustification == null ?
                 new SafeHTMLString(getJustification().toString().equals("")
-                        ? getUpDownListingJustification()
+                        ? getUpDownListingJustification().toString()
                         : (getJustification().toString() + " " + getUpDownListingJustification()))
                 : finalJustification;
     }
@@ -143,8 +143,8 @@ public class Assessment implements DiffableBean {
         return upDownListing == null ? RedListEnums.UpDownList.NONE : upDownListing;
     }
 
-    public String getUpDownListingJustification() {
-        return upDownListingJustification == null ? "" : upDownListingJustification;
+    public SafeHTMLString getUpDownListingJustification() {
+        return upDownListingJustification == null ? SafeHTMLString.emptyString() : upDownListingJustification;
     }
 
     public String[] getAuthors() {
@@ -242,7 +242,7 @@ public class Assessment implements DiffableBean {
         this.upDownListing = upDownListing;
     }
 
-    public void setUpDownListingJustification(String upDownListingJustification) {
+    public void setUpDownListingJustification(SafeHTMLString upDownListingJustification) {
         this.upDownListingJustification = upDownListingJustification;
     }
 

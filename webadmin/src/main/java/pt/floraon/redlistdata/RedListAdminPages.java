@@ -440,6 +440,75 @@ System.out.println(gs.toJson(getUser()));
                 wr1.flush();
                 return;
 
+            case "downloadsheet":
+                RedListDataEntity rlde2 = driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
+                if(rlde2 == null) {
+                    thisRequest.error("Sheet not found.");
+                    return;
+                }
+                thisRequest.response.setContentType("text/plain; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"" + rlde2.getTaxEnt()._getNameURLEncoded() + "-sheet.md\"");
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                PrintWriter wr3 = thisRequest.response.getWriter();//new PrintWriter(baos);
+                wr3.println("# " + rlde2.getTaxEnt().getFullName(false));
+                wr3.println("## 1. Information");
+                wr3.println("### 1.4. Notas taxonómicas");
+                wr3.println(rlde2.getTaxonomicProblemDescription().toMarkDownString());
+                wr3.println("## 2. Geographical Distribution");
+                wr3.println("### 2.1. Distribuição");
+                wr3.println(rlde2.getGeographicalDistribution().getDescription().toMarkDownString());
+                wr3.println("### 2.4. Declínio da área de distribuição");
+                wr3.println(rlde2.getGeographicalDistribution().getDeclineDistributionJustification().toMarkDownString());
+                wr3.println("## 3. Population");
+                wr3.println("### 3.1. Estado da população");
+                wr3.println(rlde2.getPopulation().getDescription().toMarkDownString());
+                wr3.println("### 3.3. Tipo de estimativa");
+                wr3.println(rlde2.getPopulation().getNrMatureIndividualsDescription().toMarkDownString());
+                wr3.println("### 3.4. Declínio populacional");
+                wr3.println(rlde2.getPopulation().getPopulationDeclineJustification().toMarkDownString());
+                wr3.println("### 3.5. Redução populacional");
+                wr3.println(rlde2.getPopulation().getPopulationSizeReductionJustification().toMarkDownString());
+                wr3.println("### 3.6. Fragmentação severa");
+                wr3.println(rlde2.getPopulation().getSeverelyFragmentedJustification().toMarkDownString());
+                wr3.println("### 3.7. Flutuações extremas no tamanho da população");
+                wr3.println(rlde2.getPopulation().getExtremeFluctuationsJustification().toMarkDownString());
+                wr3.println("## 4. Ecology");
+                wr3.println("### 4.1. Ecologia e biologia");
+                wr3.println(rlde2.getEcology().getDescription().toMarkDownString());
+                wr3.println("### 4.4. Duração de uma geração");
+                wr3.println(rlde2.getEcology().getGenerationLengthJustification().toMarkDownString());
+                wr3.println("### 4.5. Declínio na qualidade do habitat");
+                wr3.println(rlde2.getEcology().getDeclineHabitatQualityJustification().toMarkDownString());
+                wr3.println("## 5. Uses and trade");
+                wr3.println("### 5.1. Usos e comércio");
+                wr3.println(rlde2.getUsesAndTrade().getDescription().toMarkDownString());
+                wr3.println("## 6. Threats");
+                wr3.println("### 6.1. Descrição de ameaças e pressões");
+                wr3.println(rlde2.getThreats().getDescription().toMarkDownString());
+                wr3.println("### 6.3. Número do localizações");
+                wr3.println(rlde2.getThreats().getNumberOfLocationsJustification().toMarkDownString());
+                wr3.println("### 6.4. Declínio continuado no número de localizações ou de subpopulações");
+                wr3.println(rlde2.getThreats().getDeclineNrLocationsJustification().toMarkDownString());
+                wr3.println("### 6.5. Flutuações extremas no número de localizações ou subpopulações");
+                wr3.println(rlde2.getThreats().getExtremeFluctuationsNrLocationsJustification().toMarkDownString());
+                wr3.println("## 7. Conservation");
+                wr3.println("### 7.1. Medidas de conservação");
+                wr3.println(rlde2.getConservation().getDescription().toMarkDownString());
+                wr3.println("### 7.2. Existência de planos de gestão/conservação");
+                wr3.println(rlde2.getConservation().getConservationPlansJustification().toMarkDownString());
+                wr3.println("### 7.3. Conservação *ex-situ*");
+                wr3.println(rlde2.getConservation().getExSituConservationJustification().toMarkDownString());
+                wr3.println("## 9. Assessment");
+                wr3.println("### 9.3. Justificação");
+                wr3.println(rlde2.getAssessment().getJustification().toMarkDownString());
+                wr3.println("### 9.4.5. Justificação de subida ou descida de categoria");
+                wr3.println(rlde2.getAssessment().getUpDownListingJustification().toMarkDownString());
+                wr3.println("### 9.4.6. Avaliação final");
+                wr3.println(rlde2.getAssessment().getFinalJustification().toMarkDownString());
+                wr3.flush();
+                return;
+
             case "contentasxml":
                 Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false, null);
                 PrintWriter wr2 = thisRequest.response.getWriter();

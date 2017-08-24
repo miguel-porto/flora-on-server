@@ -1,5 +1,9 @@
 package pt.floraon.driver.datatypes;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
 import pt.floraon.driver.utils.StringUtils;
 
 public class SafeHTMLString {
@@ -9,8 +13,11 @@ public class SafeHTMLString {
         if(text != null) {
             if(text.equals(""))
                 this.text = "";
-            else
+            else {
+                text = text.replace("\n", "");
+                text = text.replace("&nbsp;", " ");
                 this.text = StringUtils.safeHtmlTagsOnly(text);
+            }
         }
     }
 
@@ -21,6 +28,25 @@ public class SafeHTMLString {
     @Override
     public String toString() {
         return this.text;
+    }
+
+    public String toMarkDownString() {
+        String out = this.text.replace("<br>", "\n");
+        out = out.replace("&nbsp;", " ");
+        Document d = Jsoup.parse(out);
+        for(Element el : d.select("span.highlight"))
+            el.replaceWith(new TextNode("*"+el.text()+"*", null));
+
+        for(Element el : d.select("i"))
+            el.replaceWith(new TextNode("*"+el.text()+"*", null));
+
+        for(Element el : d.select("span.reference"))
+            el.replaceWith(new TextNode("_"+el.text()+"_", null));
+
+        for(Element el : d.select("span"))
+            el.replaceWith(new TextNode(el.text(), null));
+
+        return d.body().html();
     }
 
     @Override

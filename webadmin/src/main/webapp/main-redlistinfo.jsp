@@ -345,6 +345,17 @@
                         <div class="wordtag togglebutton"><a href="checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
                         <c:if test="${user.canVIEW_FULL_SHEET()}">
                             <div class="wordtag togglebutton" id="summary_toggle">summary</div>
+                            <div class="wordtag togglebutton"><a href="?w=downloadsheet&id=${taxon._getIDURLEncoded()}">download sheet</a></div>
+                            <c:url value="https://lvf.flora-on.pt/redlist/${territory}" var="urlmd">
+                              <c:param name="w" value="downloadsheet" />
+                              <c:param name="id" value="${taxon._getIDURLEncoded()}" />
+                            </c:url>
+                            <%--<div class="wordtag togglebutton"><a href="https://stackedit.io/viewer#!url=${urlmd}">view</a></div>
+                            <c:url value="https://matteobrusa.github.io/md-styler/" var="urlmd2">
+                              <c:param name="url" value="${urlmd}" />
+                            </c:url>
+                            <div class="wordtag togglebutton"><a href="${urlmd2}">view2</a></div>
+                            --%>
                         </c:if>
                         <c:if test="${user.canVIEW_OCCURRENCES()}">
                             <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
@@ -435,15 +446,26 @@
                 <tr class="section2 textual"><td class="title">2.1</td><td><fmt:message key="DataSheet.label.2.1" /></td><td>
                     <table>
                         <tr><td style="width:auto">
+                            <c:if test="${user.canVIEW_OCCURRENCES()}">
+                                <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">clique para ver lista de ocorrências</a></div>
+                            </c:if>
                             <t:editabletext
                                 privilege="${user.canEDIT_SECTION2() || user.canEDIT_ALL_TEXTUAL()}"
                                 value="${rlde.getGeographicalDistribution().getDescription()}"
                                 name="geographicalDistribution_Description"/>
                         </td>
                         <c:if test="${historicalsvgmap != null}">
-                            <td style="width:0; text-align:center;">${historicalsvgmap}</td>
+                            <td style="width:0; text-align:center;">
+                            <c:if test="${user.canVIEW_OCCURRENCES()}"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}"></c:if>
+                            ${historicalsvgmap}
+                            <c:if test="${user.canVIEW_OCCURRENCES()}"></a></c:if>
+                            </td>
                         </c:if>
-                            <td style="width:0; text-align:center;">${svgmap}</td>
+                            <td style="width:0; text-align:center;">
+                            <c:if test="${user.canVIEW_OCCURRENCES()}"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}"></c:if>
+                            ${svgmap}
+                            <c:if test="${user.canVIEW_OCCURRENCES()}"></a></c:if>
+                            </td>
                         </tr>
                         <tr><td style="width:auto"></td>
                             <c:if test="${historicalsvgmap != null}"><td style="width:0; text-align:center;"><fmt:message key="DataSheet.label.2.1a"/></td></c:if>
@@ -492,6 +514,7 @@
                                 <tr><td>Historical AOO</td><td>
                                     <input type="hidden" name="geographicalDistribution_historicalAOO" value="${hAOO}"/>
                                     <fmt:formatNumber value="${hAOO}" maxFractionDigits="0" groupingUsed="false"/> km<sup>2</sup> (${hnquads} ${sizeofsquare}x${sizeofsquare} km squares)
+                                    <span class="legend alwaysvisible">Nota: a AOO histórica deve ser considerada apenas no caso de redução da AOO e após análise crítica da fiabilidade dos dados</span>
                                 </td></tr>
                             </table>
                         </c:if>

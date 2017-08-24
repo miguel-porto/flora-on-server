@@ -1,5 +1,7 @@
 package pt.floraon.driver.datatypes;
 
+import pt.floraon.driver.utils.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +25,7 @@ public class NumericInterval {
 
     private void parseText() {  // lazy parsing
         if(this.matcher == null) {
+            if(StringUtils.isStringEmpty(this.text)) return;
             this.matcher = intervalMatch.matcher(this.text);
             if(!this.matcher.find()) {
                 this.error = "Invalid interval: " + this.text;

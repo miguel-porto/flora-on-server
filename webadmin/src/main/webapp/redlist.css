@@ -47,6 +47,10 @@ div[contenteditable=true] {
     box-shadow: 0 0 6px #bbb;
     padding:4px; border-radius:3px; min-height:26px;
     min-width:300px;
+    /* this is to force Chrome to put <br> on line breaks */
+    display:inline-block;
+    width:100%;
+    box-sizing: border-box;
 }
 div[contenteditable=true] .highlight {cursor:pointer;}
 div[contenteditable=true] .highlight:hover {box-shadow: 0 0 7px #f00;}
@@ -265,7 +269,7 @@ input[type=submit].textbutton {
 #main .navigator .button.anchorbutton a {padding: 4px 12px}
 
 /************ MAP ************/
-.svgmap {width:200px; height:auto; cursor:pointer; float:right;}
+.svgmap {width:200px; height:auto; cursor:pointer; }
 .svgmap.floating {
     width:100%;
     min-height:100%;
