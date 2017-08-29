@@ -10,8 +10,8 @@ ul.hanging li {padding-left: 26px; text-indent: -20px;}
     background: linear-gradient(135deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px),
         linear-gradient(225deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px) 0 16px;
     background-size: 16px 32px;
-
-    background-color:#f44336; color:white; font-weight:bold; border:0
+    flex: 1 1 auto;
+    background-color:#f44336; color:white; font-weight:bold; border:0;
 }
 #left-bar a {color:white}
 .buttonmenu ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}

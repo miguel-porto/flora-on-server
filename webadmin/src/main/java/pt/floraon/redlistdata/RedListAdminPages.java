@@ -302,7 +302,7 @@ System.out.println(gs.toJson(getUser()));
                     }
 
                     if(rlde.getTaxEnt().getOldId() == null) {
-                        warnings.add("DataSheet.msg.warning.1b");
+//                        warnings.add("DataSheet.msg.warning.1b");
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
                     }
 

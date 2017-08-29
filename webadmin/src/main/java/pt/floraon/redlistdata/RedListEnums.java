@@ -171,21 +171,30 @@ public class RedListEnums {
     }
 
     public enum NrMatureIndividuals implements LabelledEnum {
-        NO_DATA("NrMatureIndividuals.1")
-        , GT_15000("NrMatureIndividuals.1b")
-        , GT_10000("NrMatureIndividuals.2")
-        , BET_2500_10000("NrMatureIndividuals.3")
-        , BET_1000_2500("NrMatureIndividuals.4")
-        , BET_250_1000("NrMatureIndividuals.5")
-        , BET_50_250("NrMatureIndividuals.6")
-        , LT_50("NrMatureIndividuals.7")
-        , EXACT_NUMBER("NrMatureIndividuals.8");
+        NO_DATA("NrMatureIndividuals.1", null)
+        , GT_15000("NrMatureIndividuals.1b", 7)
+        , GT_10000("NrMatureIndividuals.2", 6)
+        , BET_2500_10000("NrMatureIndividuals.3", 5)
+        , BET_1000_2500("NrMatureIndividuals.4", 4)
+        , BET_250_1000("NrMatureIndividuals.5", 3)
+        , BET_50_250("NrMatureIndividuals.6", 2)
+        , LT_50("NrMatureIndividuals.7", 1)
+        , EXACT_NUMBER("NrMatureIndividuals.8", null);
 
         private String label;
+        private Integer serial;
 
-        NrMatureIndividuals(String desc) {
+        NrMatureIndividuals(String desc, Integer serial) {
             this.label = desc;
+            this.serial = serial;
         }
+
+        public Boolean isLessThanOrEqual(NrMatureIndividuals cmp) {
+            if(this.serial == null || cmp == null) return null;
+            return this.serial <= cmp.serial;
+        }
+
+        public Integer getSerial() {return this.serial;}
 
         @Override
         public String getLabel() {
