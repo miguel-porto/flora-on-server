@@ -66,7 +66,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
                     || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
                     // TODO: abundance string must be parsed!
                     || (so.getOccurrence().getAbundance() != null && (so.getOccurrence().getAbundance().equals("ND") || so.getOccurrence().getAbundance().equals("0")))
-                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty())
+                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(2000) && so._isDateEmpty())
                     ) return false;
         }
         boolean enter;

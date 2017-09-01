@@ -94,6 +94,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      */
     private List<Revision> revisions;
 
+    private SafeHTMLString reviewerComments;
+
     public RedListDataEntity() {
     }
 
@@ -146,6 +148,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return taxonomicProblemDescription == null ? new SafeHTMLString("") : taxonomicProblemDescription;
     }
 
+    public SafeHTMLString getReviewerComments() {
+        return reviewerComments == null ? new SafeHTMLString("") : reviewerComments;
+    }
+
     public GeographicalDistribution getGeographicalDistribution() {
         return geographicalDistribution;
     }
@@ -193,6 +199,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setTaxonomicProblemDescription(SafeHTMLString taxonomicProblemDescription) {
         this.taxonomicProblemDescription = taxonomicProblemDescription;
+    }
+
+    public void setReviewerComments(SafeHTMLString reviewerComments) {
+        this.reviewerComments = reviewerComments;
     }
 
     /*******
@@ -1076,40 +1086,44 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                 case "A":
                     switch (cr.getSubCriteria()) {
                         case "1":
-                            if(cat == RedListEnums.RedListCategories.CR && pop.getPopulationTrend() < 90 && !alc.contains("A1-CR")) {
-                                warns.add("DataSheet.msg.warning.A1.CR");
-                                alc.add("A1-CR");
-                                break;
-                            }
-                            if(cat == RedListEnums.RedListCategories.EN && pop.getPopulationTrend() < 70 && !alc.contains("A1-EN")) {
-                                warns.add("DataSheet.msg.warning.A1.EN");
-                                alc.add("A1-EN");
-                                break;
-                            }
-                            if(cat == RedListEnums.RedListCategories.VU && pop.getPopulationTrend() < 50 && !alc.contains("A1-VU")) {
-                                warns.add("DataSheet.msg.warning.A1.VU");
-                                alc.add("A1-VU");
-                                break;
+                            if(pop.getPopulationTrend() != null) {
+                                if (cat == RedListEnums.RedListCategories.CR && pop.getPopulationTrend() < 90 && !alc.contains("A1-CR")) {
+                                    warns.add("DataSheet.msg.warning.A1.CR");
+                                    alc.add("A1-CR");
+                                    break;
+                                }
+                                if (cat == RedListEnums.RedListCategories.EN && pop.getPopulationTrend() < 70 && !alc.contains("A1-EN")) {
+                                    warns.add("DataSheet.msg.warning.A1.EN");
+                                    alc.add("A1-EN");
+                                    break;
+                                }
+                                if (cat == RedListEnums.RedListCategories.VU && pop.getPopulationTrend() < 50 && !alc.contains("A1-VU")) {
+                                    warns.add("DataSheet.msg.warning.A1.VU");
+                                    alc.add("A1-VU");
+                                    break;
+                                }
                             }
                             break;
 
                         case "2":
                         case "3":
                         case "4":
-                            if(cat == RedListEnums.RedListCategories.CR && pop.getPopulationTrend() < 80 && !alc.contains("A2-CR")) {
-                                warns.add("DataSheet.msg.warning.A2.CR");
-                                alc.add("A2-CR");
-                                break;
-                            }
-                            if(cat == RedListEnums.RedListCategories.EN && pop.getPopulationTrend() < 50 && !alc.contains("A2-EN")) {
-                                warns.add("DataSheet.msg.warning.A2.EN");
-                                alc.add("A2-EN");
-                                break;
-                            }
-                            if(cat == RedListEnums.RedListCategories.VU && pop.getPopulationTrend() < 30 && !alc.contains("A2-VU")) {
-                                warns.add("DataSheet.msg.warning.A2.VU");
-                                alc.add("A2-VU");
-                                break;
+                            if(pop.getPopulationTrend() != null) {
+                                if (cat == RedListEnums.RedListCategories.CR && pop.getPopulationTrend() < 80 && !alc.contains("A2-CR")) {
+                                    warns.add("DataSheet.msg.warning.A2.CR");
+                                    alc.add("A2-CR");
+                                    break;
+                                }
+                                if (cat == RedListEnums.RedListCategories.EN && pop.getPopulationTrend() < 50 && !alc.contains("A2-EN")) {
+                                    warns.add("DataSheet.msg.warning.A2.EN");
+                                    alc.add("A2-EN");
+                                    break;
+                                }
+                                if (cat == RedListEnums.RedListCategories.VU && pop.getPopulationTrend() < 30 && !alc.contains("A2-VU")) {
+                                    warns.add("DataSheet.msg.warning.A2.VU");
+                                    alc.add("A2-VU");
+                                    break;
+                                }
                             }
                             break;
                     }
@@ -1184,7 +1198,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     }
                     break;
 
-                case "C":   // TODO: finer detail in this creiterion
+                case "C":
 //                    Boolean lt250 = pop.getNrMatureIndividualsCategory().isLessThanOrEqual(RedListEnums.NrMatureIndividuals.BET_50_250);
                     if(cat == RedListEnums.RedListCategories.CR && !isNrMatureIndividualsLessThan(250) && !alc.contains("C-CR")) {
                         warns.add("DataSheet.msg.warning.C.CR");
@@ -1314,7 +1328,6 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     break;
             }
         }
-
         return warns;
     }
 

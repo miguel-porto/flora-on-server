@@ -38,7 +38,7 @@ body.occurrencespage.compactview .hideincompactview {display:none !important}
 
 #occurrencetable-holder {flex: 2 4 auto; overflow: scroll;}
 #georreferencer {flex: 1 5 auto; overflow: visible; display:flex; flex-direction: column;background-color: #bbdefb; position: relative}
-#occurrencemap {flex: 4 0 35%;position:relative}
+#occurrencemap {flex: 4 0 35%;position:relative; height:100%;}
 #floatingswitches {
     position: absolute;
     right:0;

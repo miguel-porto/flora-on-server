@@ -1535,7 +1535,7 @@
                     <tr class="section9"><td class="title">9.11</td><td><fmt:message key="DataSheet.label.9.11" /></td><td>
                         ${rlde.getDatePublished()}
                     </td></tr>
-                </c:if>
+                </c:if> <!-- can view full sheet -->
                 <tr class="section9"><td class="title">9.12</td><td><fmt:message key="DataSheet.label.9.12" /></td><td>${citation}</td></tr>
                 <c:if test="${!multipletaxa}">
                 <tr class="section9"><td class="title">9.13</td><td><fmt:message key="DataSheet.label.9.13" /></td><td>
@@ -1546,6 +1546,13 @@
                 </c:forEach>
                 </table>
                 </td></tr>
+                <tr class="section10"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 10 - <fmt:message key="DataSheet.label.10" /></td></tr>
+                <tr class="section10"><td class="title">10.1</td><td><fmt:message key="DataSheet.label.10.1" /></td><td>
+                    <t:editabletext
+                        privilege="${user.canEDIT_10()}"
+                        value="${rlde.getReviewerComments()}"
+                        name="reviewerComments"/>
+                </td></td>
                 </c:if>
             </table>
         </form>

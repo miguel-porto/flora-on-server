@@ -35,7 +35,7 @@ public class Precision implements Serializable {
 
             if(side != null) {
                 if(rad.intValue() != side.intValue())
-                    throw new FloraOnException(String.format("Precision must be either a number or the side of a square (not rectangle)"));
+                    throw new FloraOnException("Precision must be either a number or the side of a square (not rectangle)");
                 this.setSquare(side * mult);
             } else
                 this.setRadius(rad * mult);

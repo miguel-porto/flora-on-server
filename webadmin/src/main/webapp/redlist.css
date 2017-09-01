@@ -436,6 +436,7 @@ table.sheet .section6 td.title, .button.section6 {background-color: #f44336;}
 table.sheet .section7 td.title, .button.section7 {background-color: #8bc34a;}
 table.sheet .section8 td.title, .button.section8 {background-color: #757575;}
 table.sheet .section9 td.title, .button.section9 {background-color: #c62828;}
+table.sheet .section10 td.title, .button.section10 {background-color: #000000;}
 
 table.sheet .section1>td:nth-of-type(2) {background-color: rgba(033, 150, 243, 0.3);}
 table.sheet .section2>td:nth-of-type(2) {background-color: rgba(156,  39, 176, 0.3);}
@@ -446,6 +447,7 @@ table.sheet .section6>td:nth-of-type(2) {background-color: rgba(244,  67,  54, 0
 table.sheet .section7>td:nth-of-type(2) {background-color: rgba(139, 195,  74, 0.3);}
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
+table.sheet .section10>td:nth-of-type(2) {background-color:rgba(  0,   0,   0, 0.3);}
 
 #habitat-tree {font-size: 0.9rem}
 #habitat-tree ul li {cursor: pointer; padding: 0; margin: 0; border-left: 0px dotted black;}
