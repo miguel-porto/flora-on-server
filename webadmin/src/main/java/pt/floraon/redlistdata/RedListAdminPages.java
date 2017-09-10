@@ -27,6 +27,7 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -110,7 +111,7 @@ System.out.println(gs.toJson(getUser()));
             case "main":
 //                List<TaxEnt> taxEntList = driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, true, territory, null, null);
 //                List<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, getUser().canMANAGE_REDLIST_USERS());
-//                thisRequest.setCacheHeaders(60);
+                thisRequest.setNoCache();
                 thisRequest.getUser().resetEffectivePrivileges();
 //                taxEntList.get(0).getAssessment().getAssessmentStatus().isAssessed()
                 Set<String> at = driver.getRedListData().getRedListTags(territory);
@@ -118,12 +119,31 @@ System.out.println(gs.toJson(getUser()));
                 for(String s : at)
                     ate.put(sanitizeHtmlId(s), s);
 
+                if(thisRequest.request.getSession().getAttribute("option-onlynative") == null)
+                    thisRequest.request.getSession().setAttribute("option-onlynative", true);
 
                 Iterator<RedListDataEntity> taxEntList =
                         driver.getRedListData().getAllRedListData(territory, true, null); //new String[] {"Lista preliminar", "Lista Alvo", "Lista B"}
                 request.setAttribute("allTags", ate.entrySet());
                 request.setAttribute("specieslist", taxEntList);
+//                taxEntList.next().getAssessment().getAuthors()
                 break;
+
+            case "settings":    // settings page
+                request.setAttribute("lockediting", driver.getRedListSettings(territory).isEditionLocked());
+                break;
+
+            case "setoption":
+                String optionName = thisRequest.getParameterAsString("n");
+                HttpSession session = thisRequest.request.getSession(false);
+                if(session != null) {
+//                    System.out.println("SET " + "option-" + optionName + " to "+thisRequest.getParameterAsBooleanNoNull("v"));
+                    session.setAttribute("option-" + optionName
+                            , thisRequest.getParameterAsBooleanNoNull("v"));
+                    thisRequest.success("Set");
+                } else
+                    thisRequest.error("Not logged in");
+                return;
 
             case "taxon":
                 // enums
@@ -183,7 +203,16 @@ System.out.println(gs.toJson(getUser()));
 //                    bc.formatCitations();
 
                     // set privileges for this taxon
-                    thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"));
+                    //rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
+                    RedListSettings rls = driver.getRedListSettings(territory);
+                    Set<Privileges> ignorePrivileges = null;
+                    // So, if text edition is locked, we only lock for the Diretiva tag, and only for those who don't have the secion 9 privilege
+                    // Also, if the reviewer marked as revised, needs working, then don't lock.
+                    if(rls.isEditionLocked() && !thisRequest.getUser().canEDIT_SECTION9() && Arrays.asList(rlde.getTags()).contains("Diretiva")     // TODO user configuration
+                            && rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_WORKING)
+                        ignorePrivileges = Privileges.TextEditingPrivileges;
+
+                    thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"), ignorePrivileges);
 
                     request.setAttribute("taxon", rlde.getTaxEnt());
                     request.setAttribute("synonyms", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getSynonyms());
@@ -275,6 +304,8 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("occurrenceInProtectedAreas"
                                 , occurrenceProcessor.getOccurrenceInProtectedAreas(groupAreasBy).entrySet());
                         request.setAttribute("locationsInPA", occurrenceProcessor.getNumberOfLocationsInsideProtectedAreas());
+                        request.setAttribute("pointsOutsidePA", occurrenceProcessor.getNumberOfPointsOutsideProtectedAreas());
+                        request.setAttribute("totalPoints", occurrenceProcessor.size());
 
                         if(rlde.getTaxEnt().getOldId() != null) {
                             // FIXME!!!! this only for Flora-On...
@@ -458,54 +489,134 @@ System.out.println(gs.toJson(getUser()));
                 wr3.println("## 2. Geographical Distribution");
                 wr3.println("### 2.1. Distribuição");
                 wr3.println(rlde2.getGeographicalDistribution().getDescription().toMarkDownString());
+                wr3.println("### 2.2. EOO");
+                wr3.println(rlde2.getGeographicalDistribution().getEOO());
+                wr3.println("### 2.3. AOO");
+                wr3.println(rlde2.getGeographicalDistribution().getAOO());
                 wr3.println("### 2.4. Declínio da área de distribuição");
-                wr3.println(rlde2.getGeographicalDistribution().getDeclineDistributionJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getGeographicalDistribution().getDeclineDistribution().getLabel());
+                wr3.println(" * " + rlde2.getGeographicalDistribution().getDeclineDistributionJustification().toMarkDownString());
+                wr3.println("### 2.5. Elevação");
+                wr3.println(rlde2.getGeographicalDistribution().getElevationRange()[0] + " - " + rlde2.getGeographicalDistribution().getElevationRange()[1]);
+                wr3.println("### 2.6. Flutuações extremas na distribuição");
+                wr3.println(rlde2.getGeographicalDistribution().getExtremeFluctuations().getLabel());
                 wr3.println("## 3. Population");
                 wr3.println("### 3.1. Estado da população");
                 wr3.println(rlde2.getPopulation().getDescription().toMarkDownString());
+                wr3.println("### 3.2. Número de indivíduos maduros");
+                wr3.println(rlde2.getPopulation().getNrMatureIndividualsCategory().getLabel());
+                wr3.println("Número exacto: " + rlde2.getPopulation().getNrMatureIndividualsExact().toString());
                 wr3.println("### 3.3. Tipo de estimativa");
-                wr3.println(rlde2.getPopulation().getNrMatureIndividualsDescription().toMarkDownString());
+                wr3.println(" * " + rlde2.getPopulation().getTypeOfEstimate().getLabel());
+                wr3.println(" * " + rlde2.getPopulation().getNrMatureIndividualsDescription().toMarkDownString());
                 wr3.println("### 3.4. Declínio populacional");
-                wr3.println(rlde2.getPopulation().getPopulationDeclineJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getPopulation().getPopulationDecline().getLabel());
+                wr3.println(" * " + rlde2.getPopulation().getPopulationDeclinePercent());
+                wr3.println(" * " + rlde2.getPopulation().getPopulationDeclineJustification().toMarkDownString());
                 wr3.println("### 3.5. Redução populacional");
-                wr3.println(rlde2.getPopulation().getPopulationSizeReductionJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getPopulation().getPopulationSizeReduction().getLabel());
+                wr3.println(" * " + rlde2.getPopulation().getPopulationTrend());
+                wr3.println(" * " + rlde2.getPopulation().getPopulationSizeReductionJustification().toMarkDownString());
                 wr3.println("### 3.6. Fragmentação severa");
-                wr3.println(rlde2.getPopulation().getSeverelyFragmentedJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getPopulation().getSeverelyFragmented().getLabel());
+                wr3.println(" * " + rlde2.getPopulation().getSeverelyFragmentedJustification().toMarkDownString());
                 wr3.println("### 3.7. Flutuações extremas no tamanho da população");
-                wr3.println(rlde2.getPopulation().getExtremeFluctuationsJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getPopulation().getExtremeFluctuations().getLabel());
+                wr3.println(" * " + rlde2.getPopulation().getExtremeFluctuationsJustification().toMarkDownString());
+                wr3.println("### 3.8. Número de indivíduos maduros em cada subpopulação");
+                wr3.println(rlde2.getPopulation().getNrMatureEachSubpop().getLabel());
+                wr3.println("### 3.9. Percentagem de indivíduos maduros numa única subpopulação");
+                wr3.println(rlde2.getPopulation().getPercentMatureOneSubpop().getLabel());
                 wr3.println("## 4. Ecology");
                 wr3.println("### 4.1. Ecologia e biologia");
                 wr3.println(rlde2.getEcology().getDescription().toMarkDownString());
+                wr3.println("### 4.2. Tipos de habitat");
+                for(String ht : rlde2.getEcology().getHabitatTypes()) {
+                    wr3.println(" * " + driver.getNodeWorkerDriver().getHabitatById(driver.asNodeKey(ht)).getName());
+                }
                 wr3.println("### 4.4. Duração de uma geração");
-                wr3.println(rlde2.getEcology().getGenerationLengthJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getEcology().getGenerationLength());
+                wr3.println(" * " + rlde2.getEcology().getGenerationLengthJustification().toMarkDownString());
                 wr3.println("### 4.5. Declínio na qualidade do habitat");
-                wr3.println(rlde2.getEcology().getDeclineHabitatQualityJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getEcology().getDeclineHabitatQuality().getLabel());
+                wr3.println(" * " + rlde2.getEcology().getDeclineHabitatQualityJustification().toMarkDownString());
                 wr3.println("## 5. Uses and trade");
                 wr3.println("### 5.1. Usos e comércio");
                 wr3.println(rlde2.getUsesAndTrade().getDescription().toMarkDownString());
+                wr3.println("### 5.2. Usos");
+                for(RedListEnums.Uses u : rlde2.getUsesAndTrade().getUses())
+                    wr3.println(" * " + FieldValues.getString(u.getLabel()));
+                wr3.println("### 5.3. Comércio");
+                wr3.println(rlde2.getUsesAndTrade().isTraded() ? "Traded" : "Not known");
+                wr3.println("### 5.4. Sobre-exploração");
+                wr3.println(rlde2.getUsesAndTrade().getOverexploitation().getLabel());
                 wr3.println("## 6. Threats");
                 wr3.println("### 6.1. Descrição de ameaças e pressões");
                 wr3.println(rlde2.getThreats().getDescription().toMarkDownString());
+                wr3.println("### 6.2. Ameaças");
+                for(RedListEnums.Threats t : rlde2.getThreats().getThreats())
+                    wr3.println(" * " + FieldValues.getString(t.getLabel()));
                 wr3.println("### 6.3. Número do localizações");
-                wr3.println(rlde2.getThreats().getNumberOfLocationsJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getThreats().getNumberOfLocations() + " localizações");
+                wr3.println(" * " + rlde2.getThreats().getNumberOfLocationsJustification().toMarkDownString());
                 wr3.println("### 6.4. Declínio continuado no número de localizações ou de subpopulações");
-                wr3.println(rlde2.getThreats().getDeclineNrLocationsJustification().toMarkDownString());
+                wr3.println(" * " + FieldValues.getString(rlde2.getThreats().getDeclineNrLocations().getLabel()));
+                wr3.println(" * " + rlde2.getThreats().getDeclineNrLocationsJustification().toMarkDownString());
                 wr3.println("### 6.5. Flutuações extremas no número de localizações ou subpopulações");
-                wr3.println(rlde2.getThreats().getExtremeFluctuationsNrLocationsJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getThreats().getExtremeFluctuationsNrLocations().getLabel());
+                wr3.println(" * " + rlde2.getThreats().getExtremeFluctuationsNrLocationsJustification().toMarkDownString());
                 wr3.println("## 7. Conservation");
                 wr3.println("### 7.1. Medidas de conservação");
                 wr3.println(rlde2.getConservation().getDescription().toMarkDownString());
                 wr3.println("### 7.2. Existência de planos de gestão/conservação");
-                wr3.println(rlde2.getConservation().getConservationPlansJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getConservation().getConservationPlans().getLabel());
+                wr3.println(" * " + rlde2.getConservation().getConservationPlansJustification().toMarkDownString());
                 wr3.println("### 7.3. Conservação *ex-situ*");
-                wr3.println(rlde2.getConservation().getExSituConservationJustification().toMarkDownString());
+                wr3.println(" * " + rlde2.getConservation().getExSituConservation().getLabel());
+                wr3.println(" * " + rlde2.getConservation().getExSituConservationJustification().toMarkDownString());
+                wr3.println("### 7.5. Proposta de ações de conservação");
+                for(RedListEnums.ProposedConservationActions pc : rlde2.getConservation().getProposedConservationActions())
+                    wr3.println(" * " + FieldValues.getString(pc.getLabel()));
+                wr3.println("### 7.6. Proposta de estudos");
+                for(RedListEnums.ProposedStudyMeasures pc : rlde2.getConservation().getProposedStudyMeasures())
+                    wr3.println(" * " + FieldValues.getString(pc.getLabel()));
+
                 wr3.println("## 9. Assessment");
+                wr3.println("### 9.1. Categoria");
+                wr3.println(" * " + rlde2.getAssessment().getCategory().getLabel());
+                wr3.println("### 9.2. Critérios");
+                wr3.println(" * " + rlde2.getAssessment()._getCriteriaAsString());
                 wr3.println("### 9.3. Justificação");
                 wr3.println(rlde2.getAssessment().getJustification().toMarkDownString());
-                wr3.println("### 9.4.5. Justificação de subida ou descida de categoria");
+                wr3.println("### 9.4. Análise regional");
+                wr3.println("#### 9.4.1. A população regional beneficia de qualquer imigração significativa de propágulos que se possam reproduzir na região?");
+                wr3.println(rlde2.getAssessment().getPropaguleImmigration().getLabel());
+                wr3.println("#### 9.4.2. É expectável um decréscimo da imigração?");
+                wr3.println(rlde2.getAssessment().getDecreaseImmigration().getLabel());
+                wr3.println("#### 9.4.3. A população regional é um sumidouro?");
+                wr3.println(rlde2.getAssessment().getIsSink().getLabel());
+                wr3.println("#### 9.4.4. Subida ou descida de categoria");
+                wr3.println(rlde2.getAssessment().getUpDownListing().getLabel());
+                wr3.println("#### 9.4.5. Justificação de subida ou descida de categoria");
                 wr3.println(rlde2.getAssessment().getUpDownListingJustification().toMarkDownString());
-                wr3.println("### 9.4.6. Avaliação final");
+                wr3.println("#### 9.4.6. Avaliação final");
                 wr3.println(rlde2.getAssessment().getFinalJustification().toMarkDownString());
+                wr3.println("### 9.5. Avaliações anteriores");
+                for(PreviousAssessment pa : rlde2.getAssessment().getPreviousAssessmentList())
+                    if(pa != null && pa.getCategory() != null) wr3.println(" * " + pa.getYear() + ": " + pa.getCategory().getLabel());
+                wr3.println("### 9.6. Autoria dos textos");
+                for(String id : rlde2.getAssessment().getAuthors())
+                    wr3.println(" - " + userMap.get(id));
+                wr3.println("### 9.6.1. Contribuidores");
+                wr3.println(" * " + rlde2.getAssessment().getCollaborators());
+                wr3.println("### 9.7. Avaliadores");
+                for(String id : rlde2.getAssessment().getEvaluator())
+                    wr3.println(" - " + userMap.get(id));
+                wr3.println("### 9.8. Revisores");
+                for(String id : rlde2.getAssessment().getReviewer())
+                    wr3.println(" - " + userMap.get(id));
+                wr3.println("### 10.1. Comentários do revisor");
+                wr3.println(rlde2.getReviewerComments().toMarkDownString());
                 wr3.flush();
                 return;
 

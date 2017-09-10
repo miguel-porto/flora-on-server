@@ -61,10 +61,13 @@ document.addEventListener('DOMContentLoaded', function() {
         addEvent('click', buttons[i], clickButton);
     }
 
+    attachOptionButtonHandler('occurrences');
+/*
     var optionbuttons = document.querySelectorAll('.button.option');
     for(var i = 0; i < optionbuttons.length; i++) {
         addEvent('click', optionbuttons[i], clickOptionButton);
     }
+*/
 
     var togglebuttons = document.querySelectorAll('.togglebutton');
     for(var i = 0; i < togglebuttons.length; i++) {
@@ -184,6 +187,7 @@ window.addEventListener('beforeunload', function (ev) {
         return null;
 });
 
+/*
 function clickOptionButton(ev) {
     var name = ev.target.getAttribute('data-option');
     var value = ev.target.getAttribute('data-value');
@@ -206,6 +210,7 @@ function clickOptionButton(ev) {
         if(!el) window.location.reload();
     });
 }
+*/
 
 function onConfirmEdit(ev, name, key, parent, dry) {
     if(!dry || !parent.classList.contains('editable')) return;  // that's the bugfix

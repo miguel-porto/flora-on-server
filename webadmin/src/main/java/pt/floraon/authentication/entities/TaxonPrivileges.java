@@ -56,7 +56,7 @@ public class TaxonPrivileges {
         this.privileges = privileges;
     }
 
-    public Set<Privileges> getPrivilegesForTaxon(IFloraOn driver, INodeKey taxonId) throws FloraOnException {
+    Set<Privileges> getPrivilegesForTaxon(IFloraOn driver, INodeKey taxonId) throws FloraOnException {
         for (String taxon : this.applicableTaxa) {
             if (driver.wrapTaxEnt(taxonId).isInfrataxonOf(driver.asNodeKey(taxon))) {    // is the taxon covered by the privileges?
                 return this.privileges;

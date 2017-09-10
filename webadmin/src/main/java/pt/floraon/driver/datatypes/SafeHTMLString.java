@@ -25,6 +25,10 @@ public class SafeHTMLString {
         return new SafeHTMLString("");
     }
 
+    public boolean isEmpty() {
+        return StringUtils.isStringEmpty(this.text);
+    }
+
     @Override
     public String toString() {
         return this.text;

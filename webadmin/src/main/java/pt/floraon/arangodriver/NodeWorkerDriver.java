@@ -100,7 +100,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	@Override
 	public <T extends GeneralDBNode> T createDocument(T document) throws FloraOnException {
 		try {
-			return database.collection(document.getTypeAsString()).insertDocument(document).getNew();
+			return database.collection(document.getTypeAsString()).insertDocument(document, new DocumentCreateOptions().returnNew(true)).getNew();
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

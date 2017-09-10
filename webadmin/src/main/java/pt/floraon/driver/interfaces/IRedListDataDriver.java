@@ -4,6 +4,7 @@ import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
+import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
@@ -19,6 +20,14 @@ public interface IRedListDataDriver {
      * Prepares database for holding red list data and checks for which territories there is data
      */
     void initializeRedListData(Properties properties) throws FloraOnException;
+
+    /**
+     * Gets user options for the red list dataset of the given territory
+     * @param territory
+     * @return
+     * @throws FloraOnException
+     */
+    Map<String, RedListSettings> getRedListSettings(String territory) throws FloraOnException;
 
     /**
      * Gets the territories for which there is red list data

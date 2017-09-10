@@ -35,7 +35,6 @@ public class PlainTextParser implements FieldParser {
                 occurrence.setID(inputValue);
                 break;
 
-            case "abundance":
             case "gpscode":
             case "comment":
             case "privatenote":
@@ -46,7 +45,6 @@ public class PlainTextParser implements FieldParser {
                     occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
                 for(OBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
                     switch (inputFieldName.toLowerCase()) {
-                        case "abundance": obs.setAbundance(inputValue); break;
                         case "gpscode": obs.setGpsCode(inputValue); break;
                         case "comment": obs.setComment(inputValue); break;
                         case "privatenote": obs.setPrivateComment(inputValue); break;

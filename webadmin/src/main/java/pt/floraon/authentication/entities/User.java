@@ -9,6 +9,7 @@ import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.redlistdata.entities.RedListSettings;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -297,7 +298,7 @@ public class User extends NamedDBNode {
 
 	/**
 	 * Tests whether the user has given privilege for the current taxon. This should only be used after calling
-	 * {@link User#setEffectivePrivilegesFor(IFloraOn, INodeKey)}
+	 * {@link User#setEffectivePrivilegesFor(IFloraOn, INodeKey, Set<Privileges>)}
 	 * @param privilege
 	 * @return
 	 */
@@ -380,6 +381,10 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.EDIT_SECTION8) || hasPrivilege(EDIT_ALL_1_8);
 	}
 
+	public boolean canEDIT_SECTION9() {
+		return hasPrivilege(Privileges.EDIT_SECTION9);
+	}
+
 	public boolean canEDIT_9_1_2_3_4() {
 		return hasPrivilege(Privileges.EDIT_9_1_2_3_4) || hasPrivilege(EDIT_SECTION9);
 	}
@@ -448,30 +453,48 @@ public class User extends NamedDBNode {
 		this.taxonPrivileges = taxonPrivileges;
 	}
 
+
 	/**
 	 * Sets the effective privileges for the given taxon
 	 * @param driver
 	 * @param taxonID
 	 */
-	public void setEffectivePrivilegesFor(IFloraOn driver, INodeKey taxonID) throws FloraOnException {
-		if(this.taxonPrivileges == null || this.taxonPrivileges.size() == 0) {	// privileges are the same as for all taxa
+	public void setEffectivePrivilegesFor(IFloraOn driver, INodeKey taxonID, Set<Privileges> ignorePrivileges) throws FloraOnException {
+		if(ignorePrivileges == null && (this.taxonPrivileges == null || this.taxonPrivileges.size() == 0)) {	// privileges are the same as for all taxa
 			this.effectivePrivileges = this.privileges;
 			return;
 		}
 		this.effectivePrivileges = new HashSet<>();
-		if(taxonID != null) {
+		Set<Privileges> tmp;
+		Iterator<Privileges> itp;
+		if(taxonID != null && this.taxonPrivileges != null) {
 			for (TaxonPrivileges taxon : this.taxonPrivileges) {
-				this.effectivePrivileges.addAll(taxon.getPrivilegesForTaxon(driver, taxonID));
+				tmp = taxon.getPrivilegesForTaxon(driver, taxonID);
+				if(ignorePrivileges != null && ignorePrivileges.size() > 0) {
+					itp = tmp.iterator();
+					while (itp.hasNext()) {
+						Privileges p = itp.next();
+						if (!ignorePrivileges.contains(p))
+							this.effectivePrivileges.add(p);
+					}
+				} else
+					this.effectivePrivileges.addAll(tmp);
 			}
 		}
 
 //		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
 
 		// add global privileges (those that are not taxon-wise by construction)
-		for(Privileges p : this.privileges) {
-//			if(p.getPrivilegeScope() == PrivilegeScope.GLOBAL)
-			this.effectivePrivileges.add(p);
-		}
+		//			if(p.getPrivilegeScope() == PrivilegeScope.GLOBAL)
+		if(ignorePrivileges != null && ignorePrivileges.size() > 0) {
+			itp = this.privileges.iterator();
+			while (itp.hasNext()) {
+				Privileges p = itp.next();
+				if (!ignorePrivileges.contains(p))
+					this.effectivePrivileges.add(p);
+			}
+		} else
+			this.effectivePrivileges.addAll(this.privileges);
 
 	}
 
@@ -480,7 +503,7 @@ public class User extends NamedDBNode {
 	 */
 	public void resetEffectivePrivileges() {
 		try {
-			setEffectivePrivilegesFor(null, null);
+			setEffectivePrivilegesFor(null, null,null);
 		} catch (FloraOnException e) {
 			// it'll never be thrown if driver == null
 			e.printStackTrace();

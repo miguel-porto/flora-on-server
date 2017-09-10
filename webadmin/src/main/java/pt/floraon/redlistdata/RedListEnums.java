@@ -42,12 +42,12 @@ public class RedListEnums {
     }
 
     public enum PopulationSizeReduction implements TriggerEnum {
-        NO_INFORMATION("PopulationSizeReduction.1", false)
-        , NO_REDUCTION("PopulationSizeReduction.2", false)
-        , DECREASE_REVERSIBLE("PopulationSizeReduction.3", true)
-        , DECREASE_IRREVERSIBLE("PopulationSizeReduction.4", true)
-        , POSSIBLE_DECREASE_FUTURE("PopulationSizeReduction.5", true)
-        , DECREASE_PAST_FUTURE("PopulationSizeReduction.6", true);
+        NO_INFORMATION(FieldValues.getString("PopulationSizeReduction.1"), false)
+        , NO_REDUCTION(FieldValues.getString("PopulationSizeReduction.2"), false)
+        , DECREASE_REVERSIBLE(FieldValues.getString("PopulationSizeReduction.3"), true)
+        , DECREASE_IRREVERSIBLE(FieldValues.getString("PopulationSizeReduction.4"), true)
+        , POSSIBLE_DECREASE_FUTURE(FieldValues.getString("PopulationSizeReduction.5"), true)
+        , DECREASE_PAST_FUTURE(FieldValues.getString("PopulationSizeReduction.6"), true);
 
         private String label;
         private boolean trigger;
@@ -70,12 +70,12 @@ public class RedListEnums {
     }
 
     public enum DeclineDistribution implements TriggerEnum {
-        NO_INFORMATION("DeclineDistribution.1", false)
-        , NO_DECLINE("DeclineDistribution.2", false)
-        , DECLINE_EOO("DeclineDistribution.3", true)
-        , DECLINE_AOO("DeclineDistribution.4", true)
-        , DECLINE_EOO_AOO("DeclineDistribution.5", true)
-        , REDUCTION_EOO_AOO("DeclineDistribution.6", true);
+        NO_INFORMATION(FieldValues.getString("DeclineDistribution.1"), false)
+        , NO_DECLINE(FieldValues.getString("DeclineDistribution.2"), false)
+        , DECLINE_EOO(FieldValues.getString("DeclineDistribution.3"), true)
+        , DECLINE_AOO(FieldValues.getString("DeclineDistribution.4"), true)
+        , DECLINE_EOO_AOO(FieldValues.getString("DeclineDistribution.5"), true)
+        , REDUCTION_EOO_AOO(FieldValues.getString("DeclineDistribution.6"), true);
 
         private String label;
         private boolean trigger;
@@ -115,11 +115,11 @@ public class RedListEnums {
     }
 
     public enum TypeOfPopulationEstimate implements TriggerEnum {
-        NO_DATA("TypeOfEstimate.1", false)
-        , EXACT_COUNT("TypeOfEstimate.2", true)
-        , APPROXIMATE_COUNT("TypeOfEstimate.3", true)
-        , ROUGH_ESTIMATE("TypeOfEstimate.4", true)
-        , NULL("TypeOfEstimate.5", false);
+        NO_DATA(FieldValues.getString("TypeOfEstimate.1"), false)
+        , EXACT_COUNT(FieldValues.getString("TypeOfEstimate.2"), true)
+        , APPROXIMATE_COUNT(FieldValues.getString("TypeOfEstimate.3"), true)
+        , ROUGH_ESTIMATE(FieldValues.getString("TypeOfEstimate.4"), true)
+        , NULL(FieldValues.getString("TypeOfEstimate.5"), false);
 
         private static Map<String, TypeOfPopulationEstimate> acronymMap = new HashMap<>();
         static {
@@ -171,15 +171,15 @@ public class RedListEnums {
     }
 
     public enum NrMatureIndividuals implements LabelledEnum {
-        NO_DATA("NrMatureIndividuals.1", null)
-        , GT_15000("NrMatureIndividuals.1b", 7)
-        , GT_10000("NrMatureIndividuals.2", 6)
-        , BET_2500_10000("NrMatureIndividuals.3", 5)
-        , BET_1000_2500("NrMatureIndividuals.4", 4)
-        , BET_250_1000("NrMatureIndividuals.5", 3)
-        , BET_50_250("NrMatureIndividuals.6", 2)
-        , LT_50("NrMatureIndividuals.7", 1)
-        , EXACT_NUMBER("NrMatureIndividuals.8", null);
+        NO_DATA(FieldValues.getString("NrMatureIndividuals.1"), null)
+        , GT_15000(FieldValues.getString("NrMatureIndividuals.1b"), 7)
+        , GT_10000(FieldValues.getString("NrMatureIndividuals.2"), 6)
+        , BET_2500_10000(FieldValues.getString("NrMatureIndividuals.3"), 5)
+        , BET_1000_2500(FieldValues.getString("NrMatureIndividuals.4"), 4)
+        , BET_250_1000(FieldValues.getString("NrMatureIndividuals.5"), 3)
+        , BET_50_250(FieldValues.getString("NrMatureIndividuals.6"), 2)
+        , LT_50(FieldValues.getString("NrMatureIndividuals.7"), 1)
+        , EXACT_NUMBER(FieldValues.getString("NrMatureIndividuals.8"), null);
 
         private String label;
         private Integer serial;
@@ -204,11 +204,11 @@ public class RedListEnums {
     }
 
     public enum DeclinePopulation implements TriggerEnum {
-        NO_INFORMATION("DeclinePopulation.1", false)
-        , STABLE("DeclinePopulation.2", false)
-        , INCREASING("DeclinePopulation.3", false)
-        , NON_CONTINUED_DECLINE("DeclinePopulation.4", false)
-        , CONTINUED_DECLINE("DeclinePopulation.5", true);
+        NO_INFORMATION(FieldValues.getString("DeclinePopulation.1"), false)
+        , STABLE(FieldValues.getString("DeclinePopulation.2"), false)
+        , INCREASING(FieldValues.getString("DeclinePopulation.3"), false)
+        , NON_CONTINUED_DECLINE(FieldValues.getString("DeclinePopulation.4"), false)
+        , CONTINUED_DECLINE(FieldValues.getString("DeclinePopulation.5"), true);
 
         private String label;
         private boolean trigger;
@@ -298,10 +298,10 @@ public class RedListEnums {
     }
 
     public enum PercentMatureOneSubpop implements LabelledEnum {
-        NO_DATA("PercentMatureOneSubpop.1")
-        , BT_90_100("PercentMatureOneSubpop.2")
-        , BT_95_100("PercentMatureOneSubpop.3")
-        , LT_1000("PercentMatureOneSubpop.4");
+        NO_DATA(FieldValues.getString("PercentMatureOneSubpop.1"))
+        , BT_90_100(FieldValues.getString("PercentMatureOneSubpop.2"))
+        , BT_95_100(FieldValues.getString("PercentMatureOneSubpop.3"))
+        , LT_1000(FieldValues.getString("PercentMatureOneSubpop.4"));
 
         private String label;
 
@@ -316,11 +316,11 @@ public class RedListEnums {
     }
 
     public enum DeclineHabitatQuality implements TriggerEnum {
-        NO_INFORMATION("DeclineHabitatQuality.1", false)
-        , STABLE("DeclineHabitatQuality.2", false)
-        , INCREASING("DeclineHabitatQuality.3", false)
-        , NON_CONTINUED_DECLINE("DeclineHabitatQuality.4", false)
-        , CONTINUED_DECLINE("DeclineHabitatQuality.5", true);
+        NO_INFORMATION(FieldValues.getString("DeclineHabitatQuality.1"), false)
+        , STABLE(FieldValues.getString("DeclineHabitatQuality.2"), false)
+        , INCREASING(FieldValues.getString("DeclineHabitatQuality.3"), false)
+        , NON_CONTINUED_DECLINE(FieldValues.getString("DeclineHabitatQuality.4"), false)
+        , CONTINUED_DECLINE(FieldValues.getString("DeclineHabitatQuality.5"), true);
 
         private String label;
         private boolean trigger;
@@ -759,7 +759,8 @@ public class RedListEnums {
     public enum TextStatus implements LabelledEnum {
         NO_TEXT("TextStatus.1")
         , IN_PROGRESS("TextStatus.2")
-        , READY("TextStatus.3");
+        , READY("TextStatus.3")
+        , REVISION_READY("TextStatus.4");
         private String label;
 
         TextStatus(String desc) {
@@ -774,7 +775,8 @@ public class RedListEnums {
 
     public enum AssessmentStatus implements LabelledEnum {
         NOT_EVALUATED("AssessmentStatus.1")
-        , PRELIMINARY("AssessmentStatus.2");
+        , PRELIMINARY("AssessmentStatus.2")
+        , READY_REASSESSMENT("AssessmentStatus.3");
 
         private String label;
 
@@ -795,6 +797,7 @@ public class RedListEnums {
     public enum ReviewStatus implements LabelledEnum {
         NOT_REVISED("ReviewStatus.1")
         , REVISED_WORKING("ReviewStatus.2")
+        , REVISED_MAJOR("ReviewStatus.2a")
         , REVISED_PUBLISHING("ReviewStatus.3");
 
         private String label;

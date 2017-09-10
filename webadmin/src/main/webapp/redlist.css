@@ -20,6 +20,7 @@ ul.hanging li {padding-left: 26px; text-indent: -20px;}
 	padding:0.7em;
 	font-size:1.2em;
 }*/
+span.error {color:red !important; font-weight:bold !important;}
 
 h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
@@ -110,18 +111,22 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 /*#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}*/
 /*#speciesindex td {transition: background-color 0.3s;}*/
 #speciesindex tr.responsible td {background-color: #b2ff59 !important;}
+#speciesindex tr.assessor td {background-color: #64ffda !important;}
+#speciesindex tr.reviewer td {background-color: #ffab40 !important;}
 #speciesindex tr.tag_ListaAlvo td {background-color: #f1f8e9;}
 #speciesindex tr.tag_ListaB td {background-color: #e1f5fe;}
 #speciesindex tr.tag_Listapreliminar td {background-color: #fff3e0;}
 #speciesindex tr.selected td {background-color: #64b5f6;}
 #speciesindex tr.validationerror td {background-color: #b71c1c; color:yellow !important;}
 #speciesindex tr.validationerror td a {color:yellow !important;}
-#speciesindex.onlyresponsible tbody tr:not(.responsible) {display: none;}
-#speciesindex.onlynative tbody tr:not(.native) {display: none;}
-#speciesindex.onlypublished tbody tr:not(.published) {display: none;}
-#speciesindex.onlyassessed tbody tr:not(.assessed) {display: none;}
-#speciesindex.onlyvalidationerror tbody tr:not(.validationerror) {display: none;}
-#speciesindex.onlyselected tbody tr:not(.selected) {display: none;}
+#speciesindex.filter_onlyresponsible tbody tr:not(.responsible) {display: none;}
+#speciesindex.filter_onlyassessor tbody tr:not(.assessor) {display: none;}
+#speciesindex.filter_onlyreviewer tbody tr:not(.reviewer) {display: none;}
+#speciesindex.filter_onlynative tbody tr:not(.native) {display: none;}
+#speciesindex.filter_onlypublished tbody tr:not(.published) {display: none;}
+#speciesindex.filter_onlyassessed tbody tr:not(.assessed) {display: none;}
+#speciesindex.filter_onlyvalidationerror tbody tr:not(.validationerror) {display: none;}
+#speciesindex.filter_onlyselected tbody tr:not(.selected) {display: none;}
 
 #speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:1em}
 #speciesindex .redlistcategory {width:50px; height:50px; padding:6px;}
@@ -282,7 +287,7 @@ input[type=submit].textbutton {
 .svgmap path.portugal {fill:white;}
 .svgmap path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff; stroke-linejoin: round;}
 .svgmap.floating path.convexhull {stroke-width:500px;}
-.svgmap path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:500px; stroke: gray} /* stroke-width: 2000px; stroke: #64dd17; */
+.svgmap path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:0px;} /* stroke-width: 2000px; stroke: #64dd17; */
 .svgmap rect {fill:red; stroke-width: 1000px; stroke:red;}
 .svgmap.floating rect {stroke-width: 0px;}
 
@@ -405,7 +410,7 @@ table.sheet:not(.help) .legend {display:none;}
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
-table.sheet {margin-bottom:50px;}
+table.sheet {margin-bottom:150px;}
 table.sheet table {width:100%;}
 table.sheet table td:nth-of-type(1) {width:20%;}
 table.sheet table.subtable td:nth-of-type(1) {white-space: nowrap;}
@@ -545,9 +550,10 @@ table.sheet .section10>td:nth-of-type(2) {background-color:rgba(  0,   0,   0, 0
 #taxonrecords-map:not(.selected) {cursor:pointer;}
 #taxonrecords-map:not(.selected):hover {height: 34%;}
 #taxonrecords-map .portugal {fill:rgba(0, 0, 0, 0.43)}
-#taxonrecords-map .utmsquare {cursor:pointer}
+#taxonrecords-map path.protectedarea {fill: rgba(0, 0, 0, 0.3);}
+#taxonrecords-map .utmsquare {cursor:pointer; fill-opacity: 0.65;stroke: red !important;stroke-width: 1px !important;}
 #taxonrecords-map .utmsquare:hover {fill: yellow !important;}
-#taxonrecords-map .utmsquare.selected {fill: #2979ff !important; /*stroke-width:3px !important; stroke: #00ff00 !important;*/}
+#taxonrecords-map .utmsquare.selected {fill: #2979ff !important; stroke: #2979ff !important; fill-opacity: 1;}
 
 @keyframes example {
     0% {transform: none;}
@@ -594,3 +600,31 @@ table.sheet .section10>td:nth-of-type(2) {background-color:rgba(  0,   0,   0, 0
 #referencelist table {margin:1%; width:98%;border-radius:18px; overflow:hidden}
 #referencelist p {color:white;}
 #referencelist h1 .info {cursor:pointer}
+
+#reviewpanel {
+    position:fixed;
+    bottom:0;
+    left: 0;
+    width:100%;
+    height:30%;
+    min-height:150px;
+    overflow-y:scroll;
+    background-color:black;
+    box-shadow: 0 0 30px 5px black;
+    z-index: 1;
+    color: white;
+}
+
+#reviewpanel div.contenteditable {
+    background: linear-gradient(0deg, black 0px, black 20px, #2c2c2c 20px);
+    background-size: 10px 21px;
+    background-position:0 3px;
+    line-height:21px;
+    color:white;
+    box-shadow: none;
+    min-height:100%;
+}
+
+#reviewpanel .highlight.yellow {color:black}
+
+#reviewpanel h1 {font-size: 1.5rem; margin:0}

@@ -19,6 +19,7 @@ import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.dataproviders.FloraOnDataProvider;
+import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.net.MalformedURLException;
@@ -74,6 +75,31 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
                 return new InternalDataProvider(driver);
             }
         });
+    }
+
+    @Override
+    public Map<String, RedListSettings> getRedListSettings(String territory) throws FloraOnException {
+        Map<String, Object> bindVars;
+        Iterator<RedListSettings> it;
+        Map<String, RedListSettings> out = new HashMap<>();
+        try {
+            if(territory == null) {
+                it = database.query(AQLRedListQueries.getString("redlistdata.9a"), null
+                        , null, RedListSettings.class);
+            } else {
+                bindVars = new HashMap<>();
+                bindVars.put("terr", territory);
+                it = database.query(AQLRedListQueries.getString("redlistdata.9"), bindVars
+                        , null, RedListSettings.class);
+            }
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        while(it.hasNext()) {
+            RedListSettings rls = it.next();
+            out.put(rls.getTerritory(), rls);
+        }
+        return out;
     }
 
     public List<SimpleOccurrenceDataProvider> getSimpleOccurrenceDataProviders() {

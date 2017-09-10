@@ -65,9 +65,9 @@
         <div class="button togglebutton" id="addpointstoggle">Adicionar ocorrências</div>
     </div>
     <div id="floatingswitches">
-        <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap"/>
-        <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer"/>
-        <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder"/>
+        <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />
+        <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" />
+        <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" />
     </div>
     <div id="loader">
         <div id="loadermsg">Um momento...</div>

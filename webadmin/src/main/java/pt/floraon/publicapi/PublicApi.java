@@ -5,6 +5,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.OccurrenceProcessor;
+import pt.floraon.redlistdata.RedListAdminPages;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -76,10 +77,15 @@ public class PublicApi extends FloraOnServlet {
                 thisRequest.setCacheHeaders(60 * 10);
 //                thisRequest.response.addHeader("Access-Control-Allow-Origin", "*");
 
+                PolygonTheme protectedAreas = null;
+
+                if(thisRequest.getParameterAsBoolean("pa", false))
+                    protectedAreas = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("SNAC.geojson"), "SITE_NAME");
+
                 wr = thisRequest.response.getWriter();
                 PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
                 OccurrenceProcessor op1 = new OccurrenceProcessor(
-                        sodps, null, squareSize
+                        sodps, protectedAreas, squareSize
                         , cP, viewAll ? null : 1991, null, viewAll);
                 op1.exportSVG(new PrintWriter(wr), true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)

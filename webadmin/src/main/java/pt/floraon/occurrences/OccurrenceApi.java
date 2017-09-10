@@ -158,8 +158,10 @@ public class OccurrenceApi extends FloraOnServlet {
                 }
 
                 driver.getOccurrenceDriver().matchTaxEntNames(inventories, createTaxa, false);
+/*
                 System.out.println("************ REQUESTED BEANS:");
                 System.out.println(gs.toJson(inventories));
+*/
 
                 if(option.equals("addoccurrences")) {
                     int count = 0;

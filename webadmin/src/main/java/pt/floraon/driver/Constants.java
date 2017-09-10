@@ -13,6 +13,7 @@ import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.*;
 import pt.floraon.driver.entities.DBEntity;
 import pt.floraon.driver.entities.GeneralDBEdge;
@@ -483,6 +484,7 @@ public final class Constants {
     	territory(Territory.class),			// a geographic territory (e.g. country)
 		habitat(Habitat.class),				// a species habitat
 		reference(Reference.class),			// a bibliographic reference
+		redlist_settings(RedListSettings.class),	// the user options for a given red list dataset (i.e. for a territory)
 		toponym(Toponym.class);				// a name of a place
     	
     	Class<? extends GeneralDBNode> nodeClass;

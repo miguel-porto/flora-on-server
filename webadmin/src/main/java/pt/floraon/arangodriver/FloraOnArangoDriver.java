@@ -15,6 +15,7 @@ import com.arangodb.model.*;
 import com.arangodb.velocypack.*;
 import com.arangodb.velocypack.exception.VPackException;
 import com.arangodb.velocypack.exception.VPackParserException;
+import com.google.gson.Gson;
 import jline.internal.Log;
 import pt.floraon.arangodriver.serializers.*;
 import pt.floraon.authentication.Privileges;
@@ -27,6 +28,7 @@ import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.RedListDataArangoDBDriver;
@@ -44,6 +46,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	private IOccurrenceReportDriver OCRD;
 	private IAdministration ADMIN;
 	private List<Territory> checklistTerritories;
+	private Map<String, RedListSettings> redListSettings;
 	
 	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
 		String username = properties.getProperty("arango.user");
@@ -98,6 +101,29 @@ public class FloraOnArangoDriver implements IFloraOn {
 			throw new FloraOnException(e.getMessage());
 		}
         updateVariables();
+
+        // get user options for redlist
+		reloadSettings();
+	}
+
+	@Override
+	public void reloadSettings() {
+		try {
+			this.redListSettings = this.getRedListData().getRedListSettings(null);
+		} catch (FloraOnException e) {
+			e.printStackTrace();
+		}
+//		System.out.println(new Gson().toJson(this.redListSettings));
+	}
+
+	@Override
+	public RedListSettings getRedListSettings(String territory) {
+		RedListSettings out = this.redListSettings.get(territory);
+		if (out == null) {
+			out = new RedListSettings();
+			out.setTerritory(territory);
+		}
+		return out;
 	}
 
 	@Override

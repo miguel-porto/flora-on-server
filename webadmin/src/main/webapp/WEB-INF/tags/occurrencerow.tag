@@ -97,7 +97,7 @@
     <td class="editable hideincompactview" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
     <td class="editable hideincompactview" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
     <td class="editable hideincompactview" data-name="phenoState">${occ._getTaxa()[0]._getPhenoStateLabel()}</td>
-    <td class="editable hideincompactview" data-name="abundance">${occ._getTaxa()[0].getAbundance()}</td>
+    <td class="editable hideincompactview" data-name="abundance"><c:if test="${occ._getTaxa()[0].getAbundance().getError() != null}"><span class="error"></c:if>${occ._getTaxa()[0].getAbundance()}<c:if test="${occ._getTaxa()[0].getAbundance().getError() != null}"></span></c:if></td>
     <td class="editable hideincompactview" data-name="typeOfEstimate">${occ._getTaxa()[0]._getTypeOfEstimateLabel()}</td>
     <td class="editable hideincompactview" data-name="hasPhoto">${occ._getTaxa()[0]._getHasPhotoLabel()}</td>
     <td class="editable hideincompactview" data-name="hasSpecimen">${occ._getTaxa()[0].getHasSpecimen()}</td>

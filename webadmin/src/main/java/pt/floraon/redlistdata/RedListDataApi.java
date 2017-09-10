@@ -19,6 +19,7 @@ import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -143,11 +144,10 @@ public class RedListDataApi extends FloraOnServlet {
                     return;
                 }
 
-
-
+/*
                 System.out.println("BEAN:");
                 System.out.println(gs.toJson(rlde));
-
+*/
 
                 if(ids.length == 1) {
                     // TODO: must check for privileges on save!
@@ -371,6 +371,24 @@ public class RedListDataApi extends FloraOnServlet {
                     }
                 }
                 pw.flush();
+                break;
+
+            case "setoptions":
+                String option = thisRequest.getParameterAsString("option");
+                territory = thisRequest.getParameterAsString("territory");
+                errorIfAnyNull(option, territory);
+                RedListSettings rls = driver.getRedListSettings(territory);
+                if(rls.getID() == null)
+                    rls = driver.getNodeWorkerDriver().createDocument(rls);
+
+                switch(option) {
+                    case "lockediting":
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls.getID()), "editionLocked", thisRequest.getParameterAsBoolean("value", false));
+                        break;
+                }
+
+                driver.reloadSettings();
+                thisRequest.success("Ok");
                 break;
 
             default:

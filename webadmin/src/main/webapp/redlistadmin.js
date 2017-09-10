@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    attachOptionButtonHandler('redlist');
 /*
 
     var editables = document.querySelectorAll('[contenteditable=true]');
@@ -229,8 +231,8 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<filters.length; i++) {
         addEvent('click', filters[i], function(ev) {
             var el = getParentbyClass(ev.target, 'filter');
-            el.classList.toggle('selected');
-            document.getElementById('speciesindex').classList.toggle(el.id);
+//            el.classList.toggle('selected');
+            document.getElementById('speciesindex').classList.toggle('filter_' + el.getAttribute('data-option'));
         });
     }
 

@@ -69,7 +69,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("determiners", new UserListParser(userMap, driver, false));
         fieldMappings.put("inventoryid", new PlainTextParser());
 
-        fieldMappingsSecondRound.put("abundance", new PlainTextParser());
+        fieldMappingsSecondRound.put("abundance", new NumericIntervalParser());
         fieldMappingsSecondRound.put("typeofestimate", new EnumParser());
         fieldMappingsSecondRound.put("comment", new PlainTextParser());
         fieldMappingsSecondRound.put("privatenote", new PlainTextParser());

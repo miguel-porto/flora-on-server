@@ -39,6 +39,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private long sizeOfSquare;
     private List<SimpleOccurrenceDataProvider> occurrences;
     private boolean includeDoubtful = true;
+    private static final Polygon nullPolygon = new Polygon();
 
     /**
      * A polygon theme to clip occurrences. May have any number of polygons.
@@ -66,7 +67,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
                     || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
                     // TODO: abundance string must be parsed!
                     || (so.getOccurrence().getAbundance() != null && (so.getOccurrence().getAbundance().equals("ND") || so.getOccurrence().getAbundance().equals("0")))
-                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(2000) && so._isDateEmpty())
+                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty())
                     ) return false;
         }
         boolean enter;
@@ -299,7 +300,6 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         this.maximumYear = maximumYear;
         this.includeDoubtful = includeDoubtful;
 
-        Polygon nullPolygon = new Polygon();
         this.protectedAreas = protectedAreas;
 //        this.pointsUTM = new ArrayList<>();
         this.sizeOfSquare = sizeOfSquare;
@@ -548,6 +548,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
     /**
      * Gets the total number of locations which fall inside at least one protected area.
+     * If at least one point in the cluster falls inside, then the location is counted.
      * @return
      */
     public int getNumberOfLocationsInsideProtectedAreas() {
@@ -561,6 +562,14 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             }
         }
         return count;
+    }
+
+    public int getNumberOfPointsOutsideProtectedAreas() {
+        int outside = 0;
+        for(Map.Entry<Point2D, Collection<Polygon>> entry : pointsInPolygons.asMap().entrySet()) {
+            if(entry.getValue().size() == 1 && entry.getValue().iterator().next().isNullPolygon()) outside++;
+        }
+        return outside;
     }
 
     /**

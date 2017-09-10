@@ -202,3 +202,34 @@ function setSuggestionInputText(el, separator, text) {
     for(i=0; i<v.length; i++) v[i] = v[i].trim();
     el.value = v.join(separator + ' ');
 }
+
+function attachOptionButtonHandler(url) {
+    var optionbuttons = document.querySelectorAll('.option');
+    for(var i = 0; i < optionbuttons.length; i++) {
+        addEvent('click', optionbuttons[i], function(ev) {
+            var optb = getParentbyClass(ev.target, 'option');
+            var name = optb.getAttribute('data-option');
+            var value = optb.getAttribute('data-value');
+            var elid = optb.getAttribute('data-element');
+            var norefresh = optb.getAttribute('data-norefresh');
+            var vbool = (value == 'true');
+            var el = (elid == '' ? null : document.getElementById(elid));
+            if(norefresh == 'true') {    // TODO this is specific to occurrence manager
+                if(vbool) {
+                    if(el) el.classList.remove('hiddenhard');
+                    optb.classList.add('selected');
+                    optb.setAttribute('data-value', false);
+                } else {
+                    if(el) el.classList.add('hiddenhard');
+                    optb.classList.remove('selected');
+                    optb.setAttribute('data-value', true);
+                }
+                if (typeof myMap !== 'undefined') myMap.invalidateSize(false);
+            }
+            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value), function(rt) {
+                if(norefresh == 'false') window.location.reload();
+//                if(!el)
+            });
+        });
+    }
+}

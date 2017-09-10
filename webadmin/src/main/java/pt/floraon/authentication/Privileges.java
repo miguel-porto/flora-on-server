@@ -33,7 +33,7 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     , EDIT_9_9_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.9.4")
     , EDIT_9_5_9_6_9_61_9_91(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.5, 9.6, 9.6.1, 9.9.1")
     , EDIT_9_3_9_45(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.3, 9.4.5")
-    , EDIT_10(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 10")
+    , EDIT_10(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit section 10 (review)")
 
     , CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL, "Create RedList datasets")
     , MODIFY_TAXA(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL, "Modify taxon details")
@@ -44,7 +44,9 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
 
     public static Privileges[] EDIT_ALL_FIELDS = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
             , EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_SECTION9, EDIT_ALL_TEXTUAL, EDIT_ALL_1_8
-            , EDIT_1_4, EDIT_7_3, EDIT_9_7_9_92, EDIT_9_1_2_3_4, EDIT_9_3_9_45, EDIT_9_5_9_6_9_61_9_91, EDIT_9_8_9_93, EDIT_9_9_4 };
+            , EDIT_1_4, EDIT_7_3, EDIT_9_7_9_92, EDIT_9_1_2_3_4, EDIT_9_3_9_45, EDIT_9_5_9_6_9_61_9_91, EDIT_9_8_9_93, EDIT_9_9_4, EDIT_10 };
+
+    public static final Set<Privileges> TextEditingPrivileges = new HashSet<>();
 
     private PrivilegeType privilegeType;
     private PrivilegeScope privilegeScope;
@@ -66,6 +68,26 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
         responsibleAssessmentPrivileges.add(EDIT_9_1_2_3_4.toString());
 
         responsibleRevisionPrivileges.add(EDIT_9_3_9_45.toString());
+        responsibleRevisionPrivileges.add(EDIT_10.toString());
+
+        TextEditingPrivileges.add(EDIT_SECTION2);
+        TextEditingPrivileges.add(EDIT_SECTION3);
+        TextEditingPrivileges.add(EDIT_SECTION4);
+        TextEditingPrivileges.add(EDIT_SECTION5);
+        TextEditingPrivileges.add(EDIT_SECTION6);
+        TextEditingPrivileges.add(EDIT_SECTION7);
+        TextEditingPrivileges.add(EDIT_SECTION8);
+        TextEditingPrivileges.add(EDIT_SECTION9);
+        TextEditingPrivileges.add(EDIT_ALL_TEXTUAL);
+        TextEditingPrivileges.add(EDIT_ALL_1_8);
+        TextEditingPrivileges.add(EDIT_1_4);
+        TextEditingPrivileges.add(EDIT_7_3);
+        TextEditingPrivileges.add(EDIT_4_2);
+        TextEditingPrivileges.add(EDIT_6_2);
+        TextEditingPrivileges.add(EDIT_9_1_2_3_4);
+        TextEditingPrivileges.add(EDIT_9_7_9_92);
+        TextEditingPrivileges.add(EDIT_9_5_9_6_9_61_9_91);
+        TextEditingPrivileges.add(EDIT_9_3_9_45);
     }
 
     Privileges(PrivilegeType pt, PrivilegeScope ps, String label) {

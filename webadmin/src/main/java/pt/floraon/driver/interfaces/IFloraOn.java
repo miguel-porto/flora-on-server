@@ -4,6 +4,7 @@ import java.util.List;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.CSVFileProcessor;
+import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 
 /**
@@ -25,4 +26,6 @@ public interface IFloraOn {
 	IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException;
 	List<Territory> getChecklistTerritories();
 	INodeKey asNodeKey(String id) throws FloraOnException;
+    void reloadSettings();
+    RedListSettings getRedListSettings(String territory);
 }

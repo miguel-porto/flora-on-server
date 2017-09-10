@@ -6,6 +6,8 @@ import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.converters.*;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.NumericIntervalConverter;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.datatypes.SafeHTMLStringConverter;
 
@@ -94,6 +96,7 @@ public class BeanUtils {
         LongConverter longConverter = new LongConverter(null);
         FloatConverter floatConverter = new FloatConverter(null);
         DoubleConverter doubleConverter = new DoubleConverter(null);
+        NumericIntervalConverter numericIntervalConverter = new NumericIntervalConverter(null);
         //ArrayConverter arrayConverter = new ArrayConverter(String[].class, new StringConverter(null));
         ArrayConverter arrayConverter = new ArrayConverter(Integer[].class, iconverter);
         out.getConvertUtils().register(iconverter, Integer.class);
@@ -101,6 +104,7 @@ public class BeanUtils {
         out.getConvertUtils().register(floatConverter, Float.class);
         out.getConvertUtils().register(doubleConverter, Double.class);
         out.getConvertUtils().register(arrayConverter, Integer[].class);
+        out.getConvertUtils().register(numericIntervalConverter, NumericInterval.class);
         //beanUtilsNull.getConvertUtils().register(arrayConverter, String[].class);
         return out;
     }
@@ -111,12 +115,14 @@ public class BeanUtils {
         LongConverter longConverter = new LongConverter(null);
         ArrayConverter arrayConverter = new ArrayConverter(Integer[].class, iconverter);
         SafeHTMLStringConverter stringConverter = new SafeHTMLStringConverter(null);
+        NumericIntervalConverter numericIntervalConverter = new NumericIntervalConverter(null);
         out.getConvertUtils().register(iconverter, Integer.class);
         out.getConvertUtils().register(longConverter, Long.class);
 //        beanUtilsNullSafeHTML.getConvertUtils().register(floatConverter, Float.class);
 //        beanUtilsNullSafeHTML.getConvertUtils().register(doubleConverter, Double.class);
         out.getConvertUtils().register(arrayConverter, Integer[].class);
         out.getConvertUtils().register(stringConverter, SafeHTMLString.class);
+        out.getConvertUtils().register(numericIntervalConverter, NumericInterval.class);
         return out;
     }
 
