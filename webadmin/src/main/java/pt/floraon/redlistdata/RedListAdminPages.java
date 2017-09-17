@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.bibliography.BibliographyCompiler;
+import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.jobs.JobRunner;
@@ -663,6 +664,7 @@ System.out.println(gs.toJson(getUser()));
                     rootElement.appendChild(nrPublished);
                     rootElement.appendChild(nrThreatened);
                 } else {
+                    thisRequest.setCacheHeaders(60 * 24);
                     File dir = new File(getServletContext().getRealPath("/")).getParentFile();
                     Properties properties = new Properties();
                     InputStream propStream;
@@ -704,6 +706,15 @@ System.out.println(gs.toJson(getUser()));
                         Element name = doc.createElement("name");
                         name.appendChild(doc.createTextNode(rlde.getTaxEnt().getName()));
 
+                        Element commonname = doc.createElement("commonName");
+                        commonname.appendChild(doc.createTextNode(" "));
+
+                        Element genus = doc.createElement("genus");
+                        genus.appendChild(doc.createTextNode(rlde.getTaxEnt().getCanonicalName().getGenus()));
+
+                        Element family = doc.createElement("family");
+                        family.appendChild(doc.createTextNode(driver.wrapTaxEnt(driver.asNodeKey(rlde.getTaxEntID())).getParentOfRank(Constants.TaxonRanks.FAMILY).getName()));
+
                         Element author = doc.createElement("author");
                         author.appendChild(doc.createTextNode(rlde.getTaxEnt().getAuthor()));
 
@@ -711,7 +722,6 @@ System.out.println(gs.toJson(getUser()));
                         fullname.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName(true)));
 
                         Element distr = doc.createElement("distribution");
-//                    distr.appendChild(doc.createTextNode(Jsoup.parse(rlde.getGeographicalDistribution().getDescription()).text()));
                         distr.appendChild(doc.createTextNode(rlde.getGeographicalDistribution().getDescription().toString()));
 
                         Element pop = doc.createElement("population");
@@ -745,6 +755,19 @@ System.out.println(gs.toJson(getUser()));
                         Element assesscatverb = doc.createElement("assessmentCategoryVerbose");
                         assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryVerboseAsString()));
 
+                        Element fullassesscat = doc.createElement("fullAssessmentCategory");
+                        if(rlde.getAssessment().getAdjustedCategory() != null)
+                            fullassesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString() + ", " + rlde.getAssessment()._getCategoryVerboseAsString()));
+
+                        BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc1 = new BibliographyCompiler<>(Collections.singletonList(rlde), SafeHTMLString.class);
+                        Element bibliography = doc.createElement("bibliography");
+                        StringBuilder sb4 = new StringBuilder("<ul>");
+                        for (Reference reference : bc1.getBibliography(driver)) {
+                            sb4.append("<li>").append(reference._getBibliographyEntry()).append("</li>");
+                        }
+                        sb4.append("</ul>");
+                        bibliography.appendChild(doc.createTextNode(sb4.toString()));
+
                         Element citation = doc.createElement("citation");
                         citation.appendChild(doc.createTextNode(driver.getRedListData().buildRedListSheetCitation(rlde, userMap)));
 
@@ -758,6 +781,7 @@ System.out.println(gs.toJson(getUser()));
                         map.appendChild(doc.createTextNode("https://lvf.flora-on.pt/api/svgmap/" +
                                 cn.getGenus() + "_" + cn.getSpecificEpithet() + "_" + driver.asNodeKey(rlde.getTaxEnt().getID()).getDBKey() + ".svg"));
 
+                        Element headerphoto = doc.createElement("headerphoto");
                         Element photos = doc.createElement("photos");
                         if (oldUri != null) {
                             String newQuery = oldUri.getQuery();
@@ -785,6 +809,9 @@ System.out.println(gs.toJson(getUser()));
                                         photo.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
                                                 + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
                                         photos.appendChild(photo);
+
+                                        if(!headerphoto.hasChildNodes()) headerphoto.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
+                                                + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
                                     }
                                 }
                             } catch (URISyntaxException e) {
@@ -794,6 +821,9 @@ System.out.println(gs.toJson(getUser()));
                         }
 
                         species.appendChild(name);
+                        species.appendChild(commonname);
+                        species.appendChild(genus);
+                        species.appendChild(family);
                         species.appendChild(author);
                         species.appendChild(fullname);
                         species.appendChild(distr);
@@ -805,10 +835,13 @@ System.out.println(gs.toJson(getUser()));
                         species.appendChild(assessjust);
                         species.appendChild(assesscat);
                         species.appendChild(assesscatverb);
+                        species.appendChild(fullassesscat);
                         species.appendChild(assesscrit);
                         species.appendChild(assesscatcrit);
                         species.appendChild(citation);
+                        species.appendChild(bibliography);
                         species.appendChild(map);
+                        species.appendChild(headerphoto);
                         species.appendChild(photos);
                         rootElement.appendChild(species);
                     }

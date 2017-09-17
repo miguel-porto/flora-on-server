@@ -153,8 +153,9 @@ public class Reference extends GeneralDBNode implements Comparable<Reference> {
                 .append(this.getYear()).append(this.suffix == null ? "" : this.suffix).append(". ")
                 .append("<i>").append(this.getTitle()).append("</i>.");
 
-        if(!StringUtils.isStringEmpty(this.getPublication()))
-            sb.append(this.getPublication()).append(".");
+        if(!StringUtils.isStringEmpty(this.getPublication())) {
+            sb.append(" ").append(this.getPublication()).append(".");
+        }
 
         if(!StringUtils.isStringEmpty(this.getVolume())) {
             sb.append(" ");

@@ -38,9 +38,9 @@ public class NumericInterval {
                     this.exactValue = Integer.parseInt(this.matcher.group("n1"));
                 else {
                     if(this.matcher.group("modifier").equals("<"))
-                        this.maxValue = Integer.parseInt(this.matcher.group("n1"));
+                        this.maxValue = Integer.parseInt(this.matcher.group("n1")) - 1; // exclusive
                     else
-                        this.minValue = Integer.parseInt(this.matcher.group("n1"));
+                        this.minValue = Integer.parseInt(this.matcher.group("n1")) + 1;
                 }
             } else {
                 if(this.matcher.group("modifier") != null) {
@@ -90,5 +90,9 @@ public class NumericInterval {
     public String getError() {
         parseText();
         return this.error;
+    }
+
+    public static NumericInterval emptyInterval() {
+        return new NumericInterval("");
     }
 }

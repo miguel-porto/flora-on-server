@@ -1,9 +1,6 @@
 package pt.floraon.arangodriver;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
@@ -11,13 +8,11 @@ import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 
 import com.arangodb.model.AqlQueryOptions;
-import pt.floraon.driver.DatabaseException;
-import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.*;
 import pt.floraon.driver.interfaces.IFloraOn;
-import pt.floraon.driver.GTaxEntWrapper;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.ITaxEntWrapper;
-import pt.floraon.driver.TaxonomyException;
+
 import static pt.floraon.driver.Constants.*;
 import pt.floraon.driver.Constants.NativeStatus;
 import pt.floraon.driver.Constants.OccurrenceStatus;
@@ -205,6 +200,19 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 
 		try {
 			return database.query(query,null,null,TaxEnt.class);
+		} catch (ArangoDBException | NoSuchElementException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
+	@Override
+	public TaxEnt getParentOfRank(TaxonRanks rank) throws DatabaseException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("id", thisNode.getID());
+		bindVars.put("rank", rank.getValue());
+
+		try {
+			return database.query(AQLQueries.getString("TaxEntWrapperDriver.15"), bindVars,null, TaxEnt.class).next();
 		} catch (ArangoDBException | NoSuchElementException e) {
 			throw new DatabaseException(e.getMessage());
 		}

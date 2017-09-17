@@ -119,9 +119,13 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 #speciesindex tr.selected td {background-color: #64b5f6;}
 #speciesindex tr.validationerror td {background-color: #b71c1c; color:yellow !important;}
 #speciesindex tr.validationerror td a {color:yellow !important;}
+#speciesindex tr.revised td {background-color: #b388ff; }
+#speciesindex tr.reassessment td {background-color: #80D8FF; }
 #speciesindex.filter_onlyresponsible tbody tr:not(.responsible) {display: none;}
 #speciesindex.filter_onlyassessor tbody tr:not(.assessor) {display: none;}
 #speciesindex.filter_onlyreviewer tbody tr:not(.reviewer) {display: none;}
+#speciesindex.filter_onlyrevised tbody tr:not(.revised) {display: none;}
+#speciesindex.filter_onlyreassessment tbody tr:not(.reassessment) {display: none;}
 #speciesindex.filter_onlynative tbody tr:not(.native) {display: none;}
 #speciesindex.filter_onlypublished tbody tr:not(.published) {display: none;}
 #speciesindex.filter_onlyassessed tbody tr:not(.assessed) {display: none;}
@@ -410,7 +414,7 @@ table.sheet:not(.help) .legend {display:none;}
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
-table.sheet {margin-bottom:150px;}
+table.sheet {margin-bottom:350px;}
 table.sheet table {width:100%;}
 table.sheet table td:nth-of-type(1) {width:20%;}
 table.sheet table.subtable td:nth-of-type(1) {white-space: nowrap;}
@@ -442,6 +446,7 @@ table.sheet .section7 td.title, .button.section7 {background-color: #8bc34a;}
 table.sheet .section8 td.title, .button.section8 {background-color: #757575;}
 table.sheet .section9 td.title, .button.section9 {background-color: #c62828;}
 table.sheet .section10 td.title, .button.section10 {background-color: #000000;}
+table.sheet .section11 td.title, .button.section9 {background-color: #009688;}
 
 table.sheet .section1>td:nth-of-type(2) {background-color: rgba(033, 150, 243, 0.3);}
 table.sheet .section2>td:nth-of-type(2) {background-color: rgba(156,  39, 176, 0.3);}
@@ -453,6 +458,7 @@ table.sheet .section7>td:nth-of-type(2) {background-color: rgba(139, 195,  74, 0
 table.sheet .section8>td:nth-of-type(2) {background-color: rgba(117, 117, 117, 0.3);}
 table.sheet .section9>td:nth-of-type(2) {background-color: rgba(198,  40,  40, 0.3);}
 table.sheet .section10>td:nth-of-type(2) {background-color:rgba(  0,   0,   0, 0.3);}
+table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0.3);}
 
 #habitat-tree {font-size: 0.9rem}
 #habitat-tree ul li {cursor: pointer; padding: 0; margin: 0; border-left: 0px dotted black;}
@@ -613,7 +619,15 @@ table.sheet .section10>td:nth-of-type(2) {background-color:rgba(  0,   0,   0, 0
     box-shadow: 0 0 30px 5px black;
     z-index: 1;
     color: white;
+    transition: bottom 0.6s;
 }
+
+#reviewpanel.hidden {
+    display:block !important;
+    bottom: -30%;
+    overflow-y: visible;
+}
+
 
 #reviewpanel div.contenteditable {
     background: linear-gradient(0deg, black 0px, black 20px, #2c2c2c 20px);
@@ -626,5 +640,19 @@ table.sheet .section10>td:nth-of-type(2) {background-color:rgba(  0,   0,   0, 0
 }
 
 #reviewpanel .highlight.yellow {color:black}
-
-#reviewpanel h1 {font-size: 1.5rem; margin:0}
+#reviewpanel-handle {
+    text-align: left;
+    color: #1e88e5;
+    background-color:black;
+    font-size:1.8rem;
+    padding:0.2em 16px;
+    cursor:pointer;
+    border-radius: 0 15px 0 0;
+    font-weight:bold;
+    box-shadow: 0 0 30px 5px black;
+}
+#reviewpanel.hidden #reviewpanel-handle {
+    position:absolute;
+    left:0;
+    top: -1.6em;
+}

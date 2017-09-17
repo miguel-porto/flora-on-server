@@ -790,7 +790,7 @@ public class RedListEnums {
         }
 
         public boolean isAssessed() {
-            return this == PRELIMINARY;
+            return this == PRELIMINARY || this == READY_REASSESSMENT;
         }
     }
 

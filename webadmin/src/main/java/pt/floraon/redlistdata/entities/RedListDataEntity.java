@@ -94,7 +94,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      */
     private List<Revision> revisions;
 
-    private SafeHTMLString reviewerComments;
+    private SafeHTMLString reviewerComments, replyToReviewer;
 
     public RedListDataEntity() {
     }
@@ -152,6 +152,11 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return reviewerComments == null ? new SafeHTMLString("") : reviewerComments;
     }
 
+    public SafeHTMLString getReplyToReviewer() {
+        return replyToReviewer == null ? new SafeHTMLString("") : replyToReviewer;
+    }
+
+
     public GeographicalDistribution getGeographicalDistribution() {
         return geographicalDistribution;
     }
@@ -203,6 +208,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setReviewerComments(SafeHTMLString reviewerComments) {
         this.reviewerComments = reviewerComments;
+    }
+
+    public void setReplyToReviewer(SafeHTMLString replyToReviewer) {
+        this.replyToReviewer = replyToReviewer;
     }
 
     /*******
@@ -370,7 +379,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     }
 
     public void setEcology_GenerationLength(String generationLength) {
-        this.ecology.setGenerationLength(generationLength);
+        this.ecology.setGenerationLength(new NumericInterval(generationLength));
     }
 
     public void setEcology_GenerationLengthJustification(String generationLengthJustification) {
@@ -432,8 +441,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.getThreats().setDescription(new SafeHTMLString(description));
     }
 
-    public void setThreats_NumberOfLocations(Integer numberOfLocations) {
-        this.getThreats().setNumberOfLocations(numberOfLocations);
+    public void setThreats_NumberOfLocations(String numberOfLocations) {
+        this.getThreats().setNumberOfLocations(new NumericInterval(numberOfLocations));
     }
 
     public void setThreats_NumberOfLocationsJustification(String numberOfLocationsJustification) {
@@ -859,7 +868,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             critB.add("Bxa");
                             if(!(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
                                     && !StringUtils.cleanText(pop.getSeverelyFragmentedJustification().toString()).equals(""))
-                                    && !(thr.getNumberOfLocations() != null && thr.getNumberOfLocations() <= 10
+                                    && !(thr.getNumberOfLocations() != null && thr.getNumberOfLocations().getMaxValue() != null && thr.getNumberOfLocations().getMaxValue() <= 10
                                     && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.8.1");
                                 alc.add("B2a");
@@ -1045,7 +1054,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "2":
                             if (alc.contains("D2")) break;
                             if (!(dist.getAOO() != null && dist.getAOO() <= 20)
-                                    && !(thr.getNumberOfLocations() != null && getThreats().getNumberOfLocations() <= 6
+                                    && !(thr.getNumberOfLocations() != null && getThreats().getNumberOfLocations().getMaxValue() != null && getThreats().getNumberOfLocations().getMaxValue() <= 6
                                     && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.11");
                                 alc.add("D2");
@@ -1182,17 +1191,17 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                                 break;
                             }
 
-                            if(cat == RedListEnums.RedListCategories.CR && !alc.contains("BA-CR") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations() > 1)) {
+                            if(cat == RedListEnums.RedListCategories.CR && !alc.contains("BA-CR") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations().getMaxValue() == null || thr.getNumberOfLocations().getMaxValue() > 1)) {
                                 warns.add("DataSheet.msg.warning.B.a.CR");
                                 alc.add("BA-CR");
                                 break;
                             }
-                            if(cat == RedListEnums.RedListCategories.EN && !alc.contains("BA-EN") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations() > 5)) {
+                            if(cat == RedListEnums.RedListCategories.EN && !alc.contains("BA-EN") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations().getMaxValue() == null || thr.getNumberOfLocations().getMaxValue() > 5)) {
                                 warns.add("DataSheet.msg.warning.B.a.EN");
                                 alc.add("BA-EN");
                                 break;
                             }
-                            if(cat == RedListEnums.RedListCategories.VU && !alc.contains("BA-VU") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations() > 10)) {
+                            if(cat == RedListEnums.RedListCategories.VU && !alc.contains("BA-VU") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations().getMaxValue() == null || thr.getNumberOfLocations().getMaxValue() > 10)) {
                                 warns.add("DataSheet.msg.warning.B.a.VU");
                                 alc.add("BA-VU");
                                 break;

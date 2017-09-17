@@ -160,4 +160,6 @@ public interface ITaxEntWrapper {
 	boolean isInfrataxonOf(INodeKey id) throws DatabaseException;
 
 	Iterator<TaxEnt> getInfrataxa(int level) throws DatabaseException;
+
+	TaxEnt getParentOfRank(TaxonRanks rank) throws DatabaseException;
 }

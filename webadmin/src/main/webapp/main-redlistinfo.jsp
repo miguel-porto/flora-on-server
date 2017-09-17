@@ -173,6 +173,10 @@
             <t:optionbutton optionname="onlyassessor" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.3b" var="tmp"/>
             <t:optionbutton optionname="onlyreviewer" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <fmt:message key="TaxonIndex.filters.3c" var="tmp"/>
+            <t:optionbutton optionname="onlyrevised" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <fmt:message key="TaxonIndex.filters.3d" var="tmp"/>
+            <t:optionbutton optionname="onlyreassessment" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             </c:if>
             <fmt:message key="TaxonIndex.filters.4" var="tmp"/>
             <t:optionbutton optionname="onlynative" title="${tmp}" defaultvalue="true" norefresh="true" style="light"/>
@@ -205,6 +209,8 @@
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyresponsible'] ? (' filter_onlyresponsible') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyassessor'] ? (' filter_onlyassessor') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyreviewer'] ? (' filter_onlyreviewer') : ''}" />
+            <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyrevised'] ? (' filter_onlyrevised') : ''}" />
+            <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyreassessment'] ? (' filter_onlyreassessment') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlynative'] ? (' filter_onlynative') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyassessed'] ? (' filter_onlyassessed') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyvalidationerror'] ? (' filter_onlyvalidationerror') : ''}" />
@@ -258,6 +264,12 @@
                     </c:if>
                     <c:if test="${taxon.validateCriteria().size() > 0}">
                         <c:set var="taxonclasses" value="${taxonclasses} validationerror"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' || taxon.getAssessment().getReviewStatus().toString() == 'REVISED_MAJOR'}">
+                        <c:set var="taxonclasses" value="${taxonclasses} revised"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getAssessmentStatus().toString() == 'READY_REASSESSMENT' && taxon.getAssessment().getTextStatus().toString() == 'REVISION_READY'}">
+                        <c:set var="taxonclasses" value="${taxonclasses} reassessment"/>
                     </c:if>
                     <c:forEach var="tmp" items="${taxon._getHTMLEscapedTags()}">
                         <c:set var="taxonclasses" value="${taxonclasses} tag_${tmp}"/>
@@ -865,10 +877,11 @@
                     <tr class="section4"><td class="title">4.4</td><td><fmt:message key="DataSheet.label.4.4" /></td><td>
                     <c:if test="${user.canEDIT_SECTION4()}">
                         <table class="triggergroup">
-                            <tr><td>Length (exact or interval)</td><td>
+                            <tr><td>Length</td><td>
                                 <input name="ecology_GenerationLength" type="text" class="trigger" value="${rlde.getEcology().getGenerationLength()}"/>
+                                <span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span>
                             </td></tr>
-                            <tr class="triggered ${(rlde.getEcology().getGenerationLength() != null && rlde.getEcology().getGenerationLength().length() > 0) ? '' : 'hidden'}"><td>Justification</td><td>
+                            <tr class="triggered ${(rlde.getEcology().getGenerationLength() != null && rlde.getEcology().getGenerationLength().getMaxValue() != null) ? '' : 'hidden'}"><td>Justification</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getEcology().getGenerationLengthJustification()}</div>
                                 <input type="hidden" name="ecology_GenerationLengthJustification" value="${fn:escapeXml(rlde.getEcology().getGenerationLengthJustification())}"/>
                             </td></tr>
@@ -980,7 +993,8 @@
                     <c:if test="${user.canEDIT_SECTION6()}">
                         <table>
                             <tr><td>Number</td><td>
-                                <input type="number" min="0" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/><br/>
+                                <input type="text" name="threats_NumberOfLocations" value="${rlde.getThreats().getNumberOfLocations()}"/>
+                                <span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span>
                             </td></tr>
                             <tr><td>Justification</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getThreats().getNumberOfLocationsJustification()}</div>
@@ -1575,11 +1589,23 @@
                 </c:forEach>
                 </table>
                 </td></tr>
+
+                <c:if test="${rlde.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' && (authors.contains(user.getID()) || evaluator.contains(user.getID()) || !rlde.getReplyToReviewer().isEmpty())}">
+                <tr class="section11"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 11 - <fmt:message key="DataSheet.label.11" /></td></tr>
+                <tr class="section11"><td class="title">11.1</td><td><fmt:message key="DataSheet.label.11.1" /></td><td>
+                    <t:editabletext
+                        privilege="${authors.contains(user.getID()) || evaluator.contains(user.getID())}"
+                        value="${rlde.getReplyToReviewer()}"
+                        name="replyToReviewer"/>
+                </td></tr>
+                </c:if>
                 </c:if>
             </table>
             <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || user.canEDIT_10())}">
             <div id="reviewpanel">
-                <h1><fmt:message key="DataSheet.label.section"/> 10 - <fmt:message key="DataSheet.label.10" /></h1>
+                <div id="reviewpanel-handle">
+                    <fmt:message key="DataSheet.label.section"/> 10 - <fmt:message key="DataSheet.label.10" />
+                </div>
                 <t:editabletext
                     privilege="${user.canEDIT_10()}"
                     value="${rlde.getReviewerComments()}"

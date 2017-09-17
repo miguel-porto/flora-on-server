@@ -88,6 +88,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('mainformsubmitter').classList.add('hidden');
     });
 
+    // toggle review panel visibility
+    addEvent('click', document.getElementById('reviewpanel-handle'), function(ev) {
+        var el = document.getElementById('reviewpanel');
+        if(el)
+            el.classList.toggle('hidden');
+    })
 /*
     addEvent('click', document.getElementById('removeformatting'), function(ev) {
         if(focusedEditableDiv.hasAttribute('contenteditable')) {

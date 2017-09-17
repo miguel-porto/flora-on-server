@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
@@ -13,7 +14,7 @@ import static pt.floraon.driver.utils.StringUtils.cleanArray;
 public class Ecology implements DiffableBean {
     private SafeHTMLString description;
     private String[] habitatTypes;  // NOTE: this is the database ID of the habitat
-    private String generationLength;
+    private NumericInterval generationLength;
     private SafeHTMLString generationLengthJustification;
     private RedListEnums.DeclineHabitatQuality declineHabitatQuality;
     private SafeHTMLString declineHabitatQualityJustification;
@@ -34,8 +35,8 @@ public class Ecology implements DiffableBean {
         return StringUtils.isArrayEmpty(habitatTypes) ? new String[0] : habitatTypes;
     }
 
-    public String getGenerationLength() {
-        return generationLength == null ? "" : generationLength;
+    public NumericInterval getGenerationLength() {
+        return generationLength;
     }
 
     public SafeHTMLString getGenerationLengthJustification() {
@@ -50,7 +51,7 @@ public class Ecology implements DiffableBean {
         this.habitatTypes = cleanArray(habitatTypes);
     }
 
-    public void setGenerationLength(String generationLength) {
+    public void setGenerationLength(NumericInterval generationLength) {
         this.generationLength = generationLength;
     }
 

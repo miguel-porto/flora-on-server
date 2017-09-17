@@ -464,13 +464,28 @@ public class User extends NamedDBNode {
 			this.effectivePrivileges = this.privileges;
 			return;
 		}
+
 		this.effectivePrivileges = new HashSet<>();
 		Set<Privileges> tmp;
 		Iterator<Privileges> itp;
+		boolean isReviewer = false;
 		if(taxonID != null && this.taxonPrivileges != null) {
+			// first check if the user is reviewer of this taxon
 			for (TaxonPrivileges taxon : this.taxonPrivileges) {
 				tmp = taxon.getPrivilegesForTaxon(driver, taxonID);
-				if(ignorePrivileges != null && ignorePrivileges.size() > 0) {
+				List<String> pl = new ArrayList<>();
+				for(Privileges p : tmp)
+					pl.add(p.toString());
+
+				if(Privileges.isResponsibleForRevision(pl)) {
+					isReviewer = true;
+					break;
+				}
+			}
+
+			for (TaxonPrivileges taxon : this.taxonPrivileges) {
+				tmp = taxon.getPrivilegesForTaxon(driver, taxonID);
+				if(ignorePrivileges != null && ignorePrivileges.size() > 0 && !isReviewer) {	// if the user is reviewer, then don't block edition
 					itp = tmp.iterator();
 					while (itp.hasNext()) {
 						Privileges p = itp.next();

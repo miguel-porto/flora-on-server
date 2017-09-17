@@ -26,7 +26,7 @@ public class SafeHTMLString {
     }
 
     public boolean isEmpty() {
-        return StringUtils.isStringEmpty(this.text);
+        return StringUtils.isStringEmpty(Jsoup.parse(this.text).text());
     }
 
     @Override

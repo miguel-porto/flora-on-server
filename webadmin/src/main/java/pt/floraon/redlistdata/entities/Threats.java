@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
@@ -10,7 +11,7 @@ import pt.floraon.redlistdata.RedListEnums;
  */
 public class Threats implements DiffableBean {
     private SafeHTMLString description;
-    private Integer numberOfLocations;
+    private NumericInterval numberOfLocations;
     private SafeHTMLString numberOfLocationsJustification;
     private RedListEnums.DeclineNrLocations declineNrLocations;
     private SafeHTMLString declineNrLocationsJustification;
@@ -34,7 +35,7 @@ public class Threats implements DiffableBean {
         return description == null ? SafeHTMLString.emptyString() : description;
     }
 
-    public Integer getNumberOfLocations() {
+    public NumericInterval getNumberOfLocations() {
         return numberOfLocations;
     }
 
@@ -56,7 +57,7 @@ public class Threats implements DiffableBean {
         this.description = description;
     }
 
-    public void setNumberOfLocations(Integer numberOfLocations) {
+    public void setNumberOfLocations(NumericInterval numberOfLocations) {
         this.numberOfLocations = numberOfLocations;
     }
 
