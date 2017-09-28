@@ -12,6 +12,7 @@ import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.INodeWorker;
 
 import java.lang.reflect.Constructor;
@@ -139,6 +140,7 @@ public class BibliographyCompiler<T, C> {
     public Set<Reference> getBibliography(IFloraOn driver) throws FloraOnException {
         SortedSet<Reference> out = new TreeSet<>();
         INodeWorker nwd = driver.getNodeWorkerDriver();
+        INodeKey nk;
         for(Map.Entry<String, Collection<String>> e : this.citationMap.asMap().entrySet()) {
             Set<String> tmp = ((Set<String>) e.getValue());
             if(tmp.size() == 1) {
@@ -147,7 +149,13 @@ public class BibliographyCompiler<T, C> {
             } else {
                 int c = 0;
                 for(String s : tmp) {
-                    Reference tmpr = nwd.getDocument(driver.asNodeKey(s), Reference.class);
+                    try {
+                        nk = driver.asNodeKey(s);
+                    } catch(FloraOnException e1) {
+                        System.out.println("Citation error: " + e.getKey());
+                        continue;
+                    }
+                    Reference tmpr = nwd.getDocument(nk, Reference.class);
                     if(tmpr == null) continue;
                     tmpr._setSuffix(chars[c]);
                     out.add(tmpr);
