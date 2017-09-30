@@ -144,10 +144,10 @@ public class RedListDataApi extends FloraOnServlet {
                     return;
                 }
 
-/*
+
                 System.out.println("BEAN:");
                 System.out.println(gs.toJson(rlde));
-*/
+
 
                 if(ids.length == 1) {
                     // TODO: must check for privileges on save!

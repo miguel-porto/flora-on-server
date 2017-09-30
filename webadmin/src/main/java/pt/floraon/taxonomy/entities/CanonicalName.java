@@ -76,13 +76,13 @@ public class CanonicalName {
             );
     }
 
-    public String getInfraRanksAsString() {
+    public String getInfraRanksAsString(boolean htmlFormatted) {
         if(infraRanks == null)
             return "";
         else {
             StringBuilder sb = new StringBuilder();
             for (InfraRank ir : this.infraRanks) {
-                sb.append(" ").append(ir.toString());
+                sb.append(" ").append(ir.toString(htmlFormatted));
             }
             return sb.toString().trim();
         }
@@ -95,7 +95,22 @@ public class CanonicalName {
         sb.append(" ").append(this.specificEpithet);
 
         if(this.infraRanks != null) {
-            sb.append(" ").append(this.getInfraRanksAsString());
+            sb.append(" ").append(this.getInfraRanksAsString(false));
+        }
+        return sb.toString();
+    }
+
+    public String toString(boolean htmlFormatted) {
+        if(!htmlFormatted) return this.toString();
+        StringBuilder sb = new StringBuilder("<i>" + this.genus);
+        if(this.specificEpithet == null) {
+            sb.append("</i>");
+            return sb.toString();
+        }
+        sb.append(" ").append(this.specificEpithet).append("</i>");
+
+        if(this.infraRanks != null) {
+            sb.append(" ").append(this.getInfraRanksAsString(htmlFormatted));
         }
         return sb.toString();
     }
@@ -122,6 +137,14 @@ public class CanonicalName {
                 return this.infraRank + (this.infraRank.endsWith(".") ? "" : ".") + " " + this.infraTaxon;
             else
                 return this.infraTaxon;
+        }
+
+        public String toString(boolean htmlFormatted) {
+            if(!htmlFormatted) return this.toString();
+            if(this.infraRank != null)
+                return this.infraRank + (this.infraRank.endsWith(".") ? "" : ".") + " <i>" + this.infraTaxon + "</i>";
+            else
+                return "<i>" + this.infraTaxon + "</i>";
         }
     }
 }

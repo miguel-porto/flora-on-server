@@ -3,7 +3,11 @@ package pt.floraon.redlistdata.entities;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by miguel on 16-11-2016.
@@ -15,11 +19,11 @@ public class Population implements DiffableBean {
     private SafeHTMLString nrMatureIndividualsDescription;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private RedListEnums.DeclinePopulation populationDecline;
-    private Integer populationDeclinePercent;
+    private NumericInterval populationDeclinePercent;
     private SafeHTMLString populationDeclineJustification;
     // population size reduction
-    private Integer populationTrend;
-    private RedListEnums.PopulationSizeReduction populationSizeReduction;
+    private NumericInterval populationTrend;
+    private RedListEnums.PopulationSizeReduction[] populationSizeReduction;
     private SafeHTMLString populationSizeReductionJustification;
 
     private RedListEnums.SeverelyFragmented severelyFragmented;
@@ -55,12 +59,25 @@ public class Population implements DiffableBean {
         return populationDecline == null ? RedListEnums.DeclinePopulation.NO_INFORMATION : populationDecline;
     }
 
-    public Integer getPopulationTrend() {
+    public NumericInterval getPopulationTrend() {
         return populationTrend;
     }
 
-    public RedListEnums.PopulationSizeReduction getPopulationSizeReduction() {
-        return populationSizeReduction == null ? RedListEnums.PopulationSizeReduction.NO_INFORMATION : populationSizeReduction;
+    public RedListEnums.PopulationSizeReduction[] getPopulationSizeReduction() {
+        return StringUtils.isArrayEmpty(populationSizeReduction)
+                ? new RedListEnums.PopulationSizeReduction[]{RedListEnums.PopulationSizeReduction.NO_INFORMATION}
+                : populationSizeReduction;
+//        return populationSizeReduction == null ? RedListEnums.PopulationSizeReduction.NO_INFORMATION : populationSizeReduction;
+    }
+
+    public List<RedListEnums.PopulationSizeReduction> _getPopulationSizeReductionAsList() {
+        return Arrays.asList(this.getPopulationSizeReduction());
+    }
+
+    public boolean _isAnyPopulationSizeReductionSelected() {
+        for(RedListEnums.PopulationSizeReduction psr : this.getPopulationSizeReduction())
+            if(psr.isTrigger()) return true;
+        return false;
     }
 
     public SafeHTMLString getPopulationSizeReductionJustification() {
@@ -83,7 +100,7 @@ public class Population implements DiffableBean {
         return extremeFluctuationsJustification == null ? SafeHTMLString.emptyString() : extremeFluctuationsJustification;
     }
 
-    public Integer getPopulationDeclinePercent() {
+    public NumericInterval getPopulationDeclinePercent() {
         return populationDeclinePercent;
     }
 
@@ -123,11 +140,11 @@ public class Population implements DiffableBean {
         this.populationDecline = populationDecline;
     }
 
-    public void setPopulationTrend(Integer populationTrend) {
+    public void setPopulationTrend(NumericInterval populationTrend) {
         this.populationTrend = populationTrend;
     }
 
-    public void setPopulationSizeReduction(RedListEnums.PopulationSizeReduction populationSizeReduction) {
+    public void setPopulationSizeReduction(RedListEnums.PopulationSizeReduction[] populationSizeReduction) {
         this.populationSizeReduction = populationSizeReduction;
     }
 
@@ -143,7 +160,7 @@ public class Population implements DiffableBean {
         this.extremeFluctuations = extremeFluctuations;
     }
 
-    public void setPopulationDeclinePercent(Integer populationDeclinePercent) {
+    public void setPopulationDeclinePercent(NumericInterval populationDeclinePercent) {
         this.populationDeclinePercent = populationDeclinePercent;
     }
 

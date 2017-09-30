@@ -125,7 +125,7 @@ public class Lists extends FloraOnServlet {
 					}
 
 
-					System.out.printf("Level %d; ID: %s\n", level == null ? 0 : level, id == null ? "NULL" : id);
+//					System.out.printf("Level %d; ID: %s\n", level == null ? 0 : level, id == null ? "NULL" : id);
 
 					if(id == null) {
 						if(level == null)

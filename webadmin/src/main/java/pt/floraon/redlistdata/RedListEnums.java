@@ -836,6 +836,23 @@ public class RedListEnums {
 
     }
 
+    public enum ValidationStatus implements LabelledEnum {
+        IN_ANALYSIS(FieldValues.getString("ValidationStatus.1"))
+        , VALIDATED(FieldValues.getString("ValidationStatus.2"))
+        , NEEDS_CORRECTIONS(FieldValues.getString("ValidationStatus.3"));
+
+        private String label;
+
+        ValidationStatus(String desc) {
+            this.label = desc;
+        }
+
+        @Override
+        public String getLabel() {
+            return label;
+        }
+    }
+
     public enum YesNoLikelyUnlikely implements LabelledEnum {
         NOT_KNOWN("Not known")
         , YES("Yes")

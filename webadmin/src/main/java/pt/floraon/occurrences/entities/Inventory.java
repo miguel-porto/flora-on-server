@@ -117,6 +117,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         if(Constants.isNoData(longitude)) longitude = null;
     }
 
+    /**
+     * We should get coordinates from observation whenever there's only one taxon and it has coordinantes.
+     * @return
+     */
     private boolean shouldGetCoordinatesFromObservation() {
         if(_getTaxa() != null && _getTaxa().length == 1) {
             if(_getTaxa()[0].getObservationLatitude() == null || _getTaxa()[0].getObservationLongitude() == null) return false;

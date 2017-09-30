@@ -181,7 +181,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
             String name = co.getGenus() + " " +
                     co.getSpecificEpithet() +
-                    (co.getInfraRanksAsString() == null ? "" : " " + co.getInfraRanksAsString()) +
+                    (co.getInfraRanksAsString(false) == null ? "" : " " + co.getInfraRanksAsString(false)) +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
                     (o.getPrecision()._isImprecise() ? (" (" + o.getPrecision().toString() + ")") : "") +
                     (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA ? " JÁ CONTADO" : "");

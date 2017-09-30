@@ -101,7 +101,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
-        if(authorId == null) return getOccurrencesOfMaintainer(null, offset, count);
+        if(authorId == null) return getOccurrencesOfMaintainer(null, false, offset, count);
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("observer", authorId.toString());
         bindVars.put("off", offset == null ? 0 : offset);
@@ -118,7 +118,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public Iterator<Inventory> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException {
-        if(authorId == null) return getOccurrencesOfMaintainer(null, offset, count);
+        if(authorId == null) return getOccurrencesOfMaintainer(null, false, offset, count);
         DateFormat df = Constants.dateFormatYMD.get();
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("observer", authorId.toString());
@@ -137,12 +137,14 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
+    public Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
         String query = authorId == null ?
-                AQLOccurrenceQueries.getString("occurrencequery.4.nouser", null, offset, count)
-                : AQLOccurrenceQueries.getString("occurrencequery.4", authorId.getID(), offset, count);
+                (returnObserverNames ? AQLOccurrenceQueries.getString("occurrencequery.4.nouser.observernames", null, offset, count)
+                    : AQLOccurrenceQueries.getString("occurrencequery.4.nouser", null, offset, count))
+                : (returnObserverNames ? AQLOccurrenceQueries.getString("occurrencequery.4.observernames", authorId.getID(), offset, count)
+                    : AQLOccurrenceQueries.getString("occurrencequery.4", authorId.getID(), offset, count));
         try {
             return database.query(query, null, null, Inventory.class);
         } catch (ArangoDBException e) {

@@ -18,9 +18,9 @@ public class Reference extends GeneralDBNode implements Comparable<Reference> {
             "^\\s*(?<first>[\\w çãõáàâéêíóôú.-]+)(?<middle> *, *[\\w çãõáàâéêíóôú.-]+)* *(?:,|& *(?<last>[\\w çãõáàâéêíóôú.-]+))?$", Pattern.CASE_INSENSITIVE);
 */
     private transient static Pattern authorList = Pattern.compile(
-            "^\\s*(?<first>[\\w çãõáàâéêíóôúñÁüöÅ-]+)[, ]? *(?:[\\wçãõáàâéêíóôúÁüöÅ]{1,2}\\. *)*" +
-                    "(?:(?<middle> *, *(?:[\\w çãõáàâéêíóôúñÁüöÅ-]+)[, ] *(?:[\\wçãõáàâéêíóôúÁüöÅ]{1,2}\\. *)+)* *" +
-                    ",? *&? *(?<last>[\\w çãõáàâéêíóôúñÁüöÅ-]+)[, ] *(?:[\\wçãõáàâéêíóôúÁüöÅ]{1,2}\\. *)+)?\\s*$", Pattern.CASE_INSENSITIVE);
+            "^\\s*(?<first>[\\w çãõáàâéêíóôúñÁüöÅßžČřŠáýëč-]+)[, ]? *(?:[\\wçãõáàâéêíóôúÁüöÅßžČřŠáýëč]{1,2}\\. *)*" +
+                    "(?:(?<middle> *, *(?:[\\w çãõáàâéêíóôúñÁüöÅßžČřŠáýëč-]+)[, ] *(?:[\\wçãõáàâéêíóôúÁüöÅßžČřŠáýëč]{1,2}\\. *)+)* *" +
+                    ",? *&? *(?<last>[\\w çãõáàâéêíóôúñÁüöÅßžČřŠáýëč-]+)[, ] *(?:[\\wçãõáàâéêíóôúÁüöÅßžČřŠáýëč]{1,2}\\. *)+)?\\s*$", Pattern.CASE_INSENSITIVE);
 
 /*
     private transient static Pattern oneAuthor = Pattern.compile(

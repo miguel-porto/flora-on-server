@@ -6,13 +6,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NumericInterval {
-    private String text;
+    protected String text;
     private transient static Pattern intervalMatch =
             Pattern.compile("^\\s*(?<modifier>[<>])? *(?<approx>~)? *(?<n1>[0-9]+)(?: *- *(?<n2>[0-9]+))?\\s*$");
     private transient Matcher matcher;
-    private transient Integer minValue, maxValue, exactValue;
-    private transient boolean approximateValue = false;
-    private transient String error;
+    protected transient Integer minValue, maxValue, exactValue;
+    protected transient boolean approximateValue = false;
+    protected transient String error;
 
     public NumericInterval(String text) {
         this.text = text;
@@ -23,7 +23,7 @@ public class NumericInterval {
         return this.text;
     }
 
-    private void parseText() {  // lazy parsing
+    protected void parseText() {  // lazy parsing
         if(this.matcher == null) {
             if(StringUtils.isStringEmpty(this.text)) return;
             this.matcher = intervalMatch.matcher(this.text);

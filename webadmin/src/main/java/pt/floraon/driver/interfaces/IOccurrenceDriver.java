@@ -99,7 +99,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+    Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets the number of occurrences of the maintainer (inventories are disaggregated into single occurrences).

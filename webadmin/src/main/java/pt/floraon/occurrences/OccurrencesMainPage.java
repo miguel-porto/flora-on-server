@@ -3,6 +3,7 @@ package pt.floraon.occurrences;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.jfree.util.Log;
+import org.jfree.util.StringUtils;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -10,6 +11,7 @@ import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -136,7 +138,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     request.setAttribute("nroccurrences", count > tmp ? tmp : count);
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
-                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(tu, (page - 1) * count, count));
+                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(tu,false,(page - 1) * count, count));
                 } else {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);   // TODO this should be the number after filtering, but we don't know it by now
@@ -195,15 +197,22 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     u = driver.asNodeKey(user.getID());
 
                 CSVPrinter csv = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
-                Iterator<Inventory> it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, null, null);
-                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
+                Iterator<Inventory> it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, true,null, null);
+//                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
+                csv.printRecord("date", "observers", "latitude", "longitude", "mgrs", "verbLocality", "precision"
+                        , "gpsCode", "taxa", "confidence", "phenoState", "abundance", "method", "photo", "collected"
+                        , "specificThreats", "comment", "privateNote", "year", "month", "day");
                 while(it1.hasNext()) {
                     Inventory i2 = it1.next();
                     OBSERVED_IN oi = i2._getTaxa()[0];
 //                    TaxEnt te = oi.getTaxEnt();
-                    csv.printRecord(oi.getGpsCode(), i2.getVerbLocality(), i2.getLatitude(), i2.getLongitude()
-                             , CoordinateConversion.LatLongToMGRS(i2.getLatitude(), i2.getLongitude(), 1000)
-                             , i2._getDate(), oi.getVerbTaxon(), oi.getComment(), oi.getPrivateComment());
+
+                    csv.printRecord(i2._getDateYMD(), pt.floraon.driver.utils.StringUtils.implode(", ", i2._getObserverNames()), i2.getLatitude(), i2.getLongitude()
+                            , CoordinateConversion.LatLongToMGRS(i2.getLatitude(), i2.getLongitude(), 1000)
+                            , i2.getVerbLocality(), i2.getPrecision(), i2.getCode(), oi.getVerbTaxon(), oi.getConfidence()
+                            , oi.getPhenoState(), oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
+                            , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), i2.getYear(), i2.getMonth(), i2.getDay());
+
                 }
                 csv.close();
                 return;

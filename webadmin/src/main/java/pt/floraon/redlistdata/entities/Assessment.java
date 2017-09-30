@@ -33,6 +33,7 @@ public class Assessment implements DiffableBean {
     private RedListEnums.AssessmentStatus assessmentStatus;
     private RedListEnums.ReviewStatus reviewStatus;
     private RedListEnums.PublicationStatus publicationStatus;
+    private RedListEnums.ValidationStatus validationStatus;
     private List<PreviousAssessment> previousAssessmentList;
 
     public RedListEnums.YesNoLikelyUnlikely getPropaguleImmigration() {
@@ -183,6 +184,14 @@ public class Assessment implements DiffableBean {
 
     public RedListEnums.PublicationStatus getPublicationStatus() {
         return publicationStatus == null ? RedListEnums.PublicationStatus.NOT_PUBLISHED : publicationStatus;
+    }
+
+    public RedListEnums.ValidationStatus getValidationStatus() {
+        return validationStatus == null ? RedListEnums.ValidationStatus.IN_ANALYSIS : validationStatus;
+    }
+
+    public void setValidationStatus(RedListEnums.ValidationStatus validationStatus) {
+        this.validationStatus = validationStatus;
     }
 
     public List<PreviousAssessment> getPreviousAssessmentList() {

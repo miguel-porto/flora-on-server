@@ -1,7 +1,7 @@
 package pt.floraon.occurrences.fieldparsers;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
@@ -19,7 +19,7 @@ public class NumericIntervalParser implements FieldParser {
                     occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
                 for(OBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
                     switch (inputFieldName.toLowerCase()) {
-                        case "abundance": obs.setAbundance(new NumericInterval(inputValue)); break;
+                        case "abundance": obs.setAbundance(new Abundance(inputValue)); break;
                     }
                 break;
 

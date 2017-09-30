@@ -645,6 +645,15 @@ function changeHandler(ev) {
             case 'radio':
                 var trigger = parseInt(ev.target.getAttribute('data-trigger')) == 1 ? true : false;
                 break;
+
+            case 'checkbox':
+                var par = getParentbyClass(ev.target, 'triggergroup');
+                var els = par.querySelectorAll('input[type=checkbox]:checked');
+                var trigger = false;
+                for(var i=0; i<els.length; i++) {
+                    if(parseInt(els[i].getAttribute('data-trigger')) == 1) trigger = true;
+                }
+                break;
             }
             break;
         }

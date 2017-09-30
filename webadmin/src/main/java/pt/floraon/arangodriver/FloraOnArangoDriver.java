@@ -12,14 +12,11 @@ import com.arangodb.entity.EdgeDefinition;
 import com.arangodb.entity.UserEntity;
 
 import com.arangodb.model.*;
-import com.arangodb.velocypack.*;
-import com.arangodb.velocypack.exception.VPackException;
-import com.arangodb.velocypack.exception.VPackParserException;
-import com.google.gson.Gson;
 import jline.internal.Log;
 import pt.floraon.arangodriver.serializers.*;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
+import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.interfaces.*;
@@ -72,6 +69,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerSerializer(SafeHTMLString.class, new SafeHTMLStringSerializer())
 				.registerDeserializer(NumericInterval.class, new NumericIntervalDeserializer())
 				.registerSerializer(NumericInterval.class, new NumericIntervalSerializer())
+				.registerDeserializer(Abundance.class, new AbundanceDeserializer())
+				.registerSerializer(Abundance.class, new AbundanceSerializer())
 				.build();
 
 		database = driver.db(dbname);

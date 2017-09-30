@@ -1,10 +1,9 @@
 package pt.floraon.occurrences.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import com.google.gson.JsonObject;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
@@ -32,7 +31,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     private String privateComment;
     private String labelData;
     private String accession;
-    private NumericInterval abundance;
+    private Abundance abundance;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private Float cover;   // percentage cover 0-100
     private String coverIndex;  // custom cover/abundance scale (e.g. Braun-Blanquet, etc.)
@@ -139,11 +138,11 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         this.accession = accession;
     }
 
-    public NumericInterval getAbundance() {
+    public Abundance getAbundance() {
         return abundance;
     }
 
-    public void setAbundance(NumericInterval abundance) {
+    public void setAbundance(Abundance abundance) {
         this.abundance = abundance;
     }
 

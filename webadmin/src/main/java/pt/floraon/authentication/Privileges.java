@@ -29,8 +29,9 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     , EDIT_6_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 6.2")
     , EDIT_9_1_2_3_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.1 - 9.4")
     , EDIT_9_7_9_92(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.7, 9.9.2")
-    , EDIT_9_8_9_93(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.8, 9.9.3")
-    , EDIT_9_9_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.9.4")
+    , EDIT_9_8_9_93(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Review (9.8, 9.9.3)")
+    , EDIT_9_9_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Publish (9.9.4)")
+    , EDIT_9_9_5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Validate (9.9.5)")
     , EDIT_9_5_9_6_9_61_9_91(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.5, 9.6, 9.6.1, 9.9.1")
     , EDIT_9_3_9_45(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.3, 9.4.5")
     , EDIT_10(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit section 10 (review)")
@@ -44,7 +45,7 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
 
     public static Privileges[] EDIT_ALL_FIELDS = new Privileges[] { EDIT_SECTION2, EDIT_SECTION3, EDIT_SECTION4
             , EDIT_SECTION5, EDIT_SECTION6, EDIT_SECTION7, EDIT_SECTION8, EDIT_SECTION9, EDIT_ALL_TEXTUAL, EDIT_ALL_1_8
-            , EDIT_1_4, EDIT_7_3, EDIT_9_7_9_92, EDIT_9_1_2_3_4, EDIT_9_3_9_45, EDIT_9_5_9_6_9_61_9_91, EDIT_9_8_9_93, EDIT_9_9_4, EDIT_10 };
+            , EDIT_1_4, EDIT_7_3, EDIT_9_7_9_92, EDIT_9_1_2_3_4, EDIT_9_3_9_45, EDIT_9_5_9_6_9_61_9_91, EDIT_9_8_9_93, EDIT_9_9_4, EDIT_9_9_5, EDIT_10 };
 
     public static final Set<Privileges> TextEditingPrivileges = new HashSet<>();
 

@@ -185,6 +185,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("assessment_AssessmentStatus", RedListEnums.AssessmentStatus.values());
                 request.setAttribute("assessment_ReviewStatus", RedListEnums.ReviewStatus.values());
                 request.setAttribute("assessment_PublicationStatus", RedListEnums.PublicationStatus.values());
+                request.setAttribute("assessment_ValidationStatus", RedListEnums.ValidationStatus.values());
 
 //                request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
 
@@ -383,7 +384,7 @@ System.out.println(gs.toJson(getUser()));
 
 
                     if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
-                        // if it's published, block editing all fields
+                        // if it's published, block editing all fields except the unpublished
                         boolean canEdit9 = thisRequest.getUser().canEDIT_9_9_4();
                         thisRequest.getUser().revokePrivileges(EDIT_ALL_FIELDS);
                         if (canEdit9) thisRequest.getUser().setEDIT_9_9_4(true);
@@ -515,7 +516,8 @@ System.out.println(gs.toJson(getUser()));
                 wr3.println(" * " + rlde2.getPopulation().getPopulationDeclinePercent());
                 wr3.println(" * " + rlde2.getPopulation().getPopulationDeclineJustification().toMarkDownString());
                 wr3.println("### 3.5. Redução populacional");
-                wr3.println(" * " + rlde2.getPopulation().getPopulationSizeReduction().getLabel());
+                for(RedListEnums.PopulationSizeReduction psr : rlde2.getPopulation().getPopulationSizeReduction())
+                    wr3.println(" - " + psr.getLabel());
                 wr3.println(" * " + rlde2.getPopulation().getPopulationTrend());
                 wr3.println(" * " + rlde2.getPopulation().getPopulationSizeReductionJustification().toMarkDownString());
                 wr3.println("### 3.6. Fragmentação severa");

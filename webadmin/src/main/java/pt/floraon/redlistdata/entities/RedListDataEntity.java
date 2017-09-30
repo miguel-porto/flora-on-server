@@ -270,10 +270,11 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         this.population.setDescription(new SafeHTMLString(description));
     }
 
-    public void setPopulation_PopulationTrend(Integer populationTrend) {
-        this.population.setPopulationTrend(populationTrend);
+    public void setPopulation_PopulationTrend(String populationTrend) {
+        this.population.setPopulationTrend(new NumericInterval(populationTrend));
     }
 
+/*
     public void setPopulation_PopulationSizeReduction(String populationSizeReduction) {
         try {
             this.population.setPopulationSizeReduction(RedListEnums.PopulationSizeReduction.valueOf(populationSizeReduction));
@@ -281,6 +282,12 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
             this.population.setPopulationSizeReduction(RedListEnums.PopulationSizeReduction.NO_INFORMATION);
         }
     }
+*/
+
+    public void setPopulation_PopulationSizeReduction(String[] populationSizeReduction) {
+        this.population.setPopulationSizeReduction(StringUtils.stringArrayToEnumArray(populationSizeReduction, RedListEnums.PopulationSizeReduction.class));
+    }
+
 
     public void setPopulation_PopulationSizeReductionJustification(String populationSizeReductionJustification) {
         this.population.setPopulationSizeReductionJustification(new SafeHTMLString(populationSizeReductionJustification));
@@ -318,8 +325,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
     }
 
-    public void setPopulation_PopulationDeclinePercent(Integer populationDeclinePercent) {
-        this.population.setPopulationDeclinePercent(populationDeclinePercent);
+    public void setPopulation_PopulationDeclinePercent(String populationDeclinePercent) {
+        this.population.setPopulationDeclinePercent(new NumericInterval(populationDeclinePercent));
     }
 
     public void setPopulation_PopulationDeclineJustification(String populationDeclineJustification) {
@@ -703,6 +710,14 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         }
     }
 
+    public void setAssessment_ValidationStatus(String validationStatus) {
+        try {
+            this.assessment.setValidationStatus(RedListEnums.ValidationStatus.valueOf(validationStatus));
+        } catch (IllegalArgumentException e) {
+            this.assessment.setValidationStatus(RedListEnums.ValidationStatus.IN_ANALYSIS);
+        }
+    }
+
     public void setDateAssessed(String dateAssessed) {
         this.dateAssessed = dateAssessed;
     }
@@ -786,15 +801,16 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         Set<String> alc = new HashSet<>();
         Set<String> critB = new HashSet<>();
         RedListEnums.RedListCategories cat = getAssessment().getCategory();
+        List<RedListEnums.PopulationSizeReduction> psr = pop._getPopulationSizeReductionAsList();
 
         for(RedListEnums.AssessmentCriteria cr : getAssessment().getCriteria()) {
             // first check the validity of the 5 major criteria
             switch(cr.getCriteria()) {
                 case "A":
                     if(alc.contains("A")) break;
-                    if(pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_INFORMATION
-                            || pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_REDUCTION
-                            || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30
+                    if(psr.contains(RedListEnums.PopulationSizeReduction.NO_INFORMATION)
+                            || psr.contains(RedListEnums.PopulationSizeReduction.NO_REDUCTION)
+                            || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 30
                             || pop.getPopulationSizeReductionJustification() == null
                             || StringUtils.cleanText(pop.getPopulationSizeReductionJustification().toString()).equals("")) {
                         warns.add("DataSheet.msg.warning.2");
@@ -804,8 +820,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     switch(cr.getSubCriteria()) {
                         case "1":
                             if(alc.contains("A1")) break;
-                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.DECREASE_REVERSIBLE
-                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                            if(!psr.contains(RedListEnums.PopulationSizeReduction.DECREASE_REVERSIBLE)
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 30) {
                                 warns.add("DataSheet.msg.warning.6.1");
                                 alc.add("A1");
                             }
@@ -813,8 +829,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                         case "2":
                             if(alc.contains("A2")) break;
-                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.DECREASE_IRREVERSIBLE
-                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                            if(!psr.contains(RedListEnums.PopulationSizeReduction.DECREASE_IRREVERSIBLE)
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 30) {
                                 warns.add("DataSheet.msg.warning.6.2");
                                 alc.add("A2");
                             }
@@ -822,8 +838,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                         case "3":
                             if(alc.contains("A3")) break;
-                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.POSSIBLE_DECREASE_FUTURE
-                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                            if(!psr.contains(RedListEnums.PopulationSizeReduction.POSSIBLE_DECREASE_FUTURE)
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 30) {
                                 warns.add("DataSheet.msg.warning.6.3");
                                 alc.add("A3");
                             }
@@ -831,8 +847,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                         case "4":
                             if(alc.contains("A4")) break;
-                            if(pop.getPopulationSizeReduction() != RedListEnums.PopulationSizeReduction.DECREASE_PAST_FUTURE
-                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 30) {
+                            if(!psr.contains(RedListEnums.PopulationSizeReduction.DECREASE_PAST_FUTURE)
+                                    || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 30) {
                                 warns.add("DataSheet.msg.warning.6.4");
                                 alc.add("A4");
                             }
@@ -988,7 +1004,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                             if(alc.contains("C1")) break;
                             if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
                                     || StringUtils.cleanText(pop.getPopulationDeclineJustification().toString()).equals("")
-                                    || pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 10) {
+                                    || pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent().getMaxValue() == null || pop.getPopulationDeclinePercent().getMaxValue() < 10) {
                                 warns.add("DataSheet.msg.warning.9.1");
                                 alc.add("C1");
                             }
@@ -1074,9 +1090,9 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                 case "E":
                     if(alc.contains("E")) break;
-                    if(pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_INFORMATION
-                            || pop.getPopulationSizeReduction() == RedListEnums.PopulationSizeReduction.NO_REDUCTION
-                            || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend() < 10
+                    if(pop._getPopulationSizeReductionAsList().contains(RedListEnums.PopulationSizeReduction.NO_INFORMATION)
+                            || pop._getPopulationSizeReductionAsList().contains(RedListEnums.PopulationSizeReduction.NO_REDUCTION)
+                            || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 10
                             || pop.getPopulationSizeReductionJustification() == null
                             || StringUtils.cleanText(pop.getPopulationSizeReductionJustification().toString()).equals("")) {
                         warns.add("DataSheet.msg.warning.5");
@@ -1100,17 +1116,17 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     switch (cr.getSubCriteria()) {
                         case "1":
                             if(pop.getPopulationTrend() != null) {
-                                if (cat == RedListEnums.RedListCategories.CR && !alc.contains("A1-CR") && (pop.getPopulationTrend() == null || pop.getPopulationTrend() < 90)) {
+                                if (cat == RedListEnums.RedListCategories.CR && !alc.contains("A1-CR") && (pop.getPopulationTrend() == null || pop.getPopulationTrend().getMinValue() == null || pop.getPopulationTrend().getMinValue() < 90)) {
                                     warns.add("DataSheet.msg.warning.A1.CR");
                                     alc.add("A1-CR");
                                     break;
                                 }
-                                if (cat == RedListEnums.RedListCategories.EN && !alc.contains("A1-EN") && (pop.getPopulationTrend() == null || pop.getPopulationTrend() < 70)) {
+                                if (cat == RedListEnums.RedListCategories.EN && !alc.contains("A1-EN") && (pop.getPopulationTrend() == null || pop.getPopulationTrend().getMinValue() == null || pop.getPopulationTrend().getMinValue() < 70)) {
                                     warns.add("DataSheet.msg.warning.A1.EN");
                                     alc.add("A1-EN");
                                     break;
                                 }
-                                if (cat == RedListEnums.RedListCategories.VU && !alc.contains("A1-VU") && (pop.getPopulationTrend() == null || pop.getPopulationTrend() < 50)) {
+                                if (cat == RedListEnums.RedListCategories.VU && !alc.contains("A1-VU") && (pop.getPopulationTrend() == null || pop.getPopulationTrend().getMinValue() == null || pop.getPopulationTrend().getMinValue() < 50)) {
                                     warns.add("DataSheet.msg.warning.A1.VU");
                                     alc.add("A1-VU");
                                     break;
@@ -1122,17 +1138,17 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                         case "3":
                         case "4":
                             if(pop.getPopulationTrend() != null) {
-                                if (cat == RedListEnums.RedListCategories.CR && !alc.contains("A2-CR") && (pop.getPopulationTrend() == null || pop.getPopulationTrend() < 80)) {
+                                if (cat == RedListEnums.RedListCategories.CR && !alc.contains("A2-CR") && (pop.getPopulationTrend() == null || pop.getPopulationTrend().getMinValue() == null || pop.getPopulationTrend().getMinValue() < 80)) {
                                     warns.add("DataSheet.msg.warning.A2.CR");
                                     alc.add("A2-CR");
                                     break;
                                 }
-                                if (cat == RedListEnums.RedListCategories.EN && !alc.contains("A2-EN") && (pop.getPopulationTrend() == null || pop.getPopulationTrend() < 50)) {
+                                if (cat == RedListEnums.RedListCategories.EN && !alc.contains("A2-EN") && (pop.getPopulationTrend() == null || pop.getPopulationTrend().getMinValue() == null || pop.getPopulationTrend().getMinValue() < 50)) {
                                     warns.add("DataSheet.msg.warning.A2.EN");
                                     alc.add("A2-EN");
                                     break;
                                 }
-                                if (cat == RedListEnums.RedListCategories.VU && !alc.contains("A2-VU") && (pop.getPopulationTrend() == null || pop.getPopulationTrend() < 30)) {
+                                if (cat == RedListEnums.RedListCategories.VU && !alc.contains("A2-VU") && (pop.getPopulationTrend() == null || pop.getPopulationTrend().getMinValue() == null || pop.getPopulationTrend().getMinValue() < 30)) {
                                     warns.add("DataSheet.msg.warning.A2.VU");
                                     alc.add("A2-VU");
                                     break;
@@ -1229,17 +1245,17 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     }
                     switch(cr.getSubCriteria()) {
                         case "1":
-                            if(cat == RedListEnums.RedListCategories.CR && !alc.contains("C1-CR") && (pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 25)) {
+                            if(cat == RedListEnums.RedListCategories.CR && !alc.contains("C1-CR") && (pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent().getMaxValue() == null || pop.getPopulationDeclinePercent().getMaxValue() < 25)) {
                                 warns.add("DataSheet.msg.warning.C1.CR");
                                 alc.add("C1-CR");
                                 break;
                             }
-                            if(cat == RedListEnums.RedListCategories.EN && !alc.contains("C1-EN") && (pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 20)) {
+                            if(cat == RedListEnums.RedListCategories.EN && !alc.contains("C1-EN") && (pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent().getMaxValue() == null || pop.getPopulationDeclinePercent().getMaxValue() < 20)) {
                                 warns.add("DataSheet.msg.warning.C1.EN");
                                 alc.add("C1-EN");
                                 break;
                             }
-                            if(cat == RedListEnums.RedListCategories.VU && !alc.contains("C1-VU") && (pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent() < 10)) {
+                            if(cat == RedListEnums.RedListCategories.VU && !alc.contains("C1-VU") && (pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent().getMaxValue() == null || pop.getPopulationDeclinePercent().getMaxValue() < 10)) {
                                 warns.add("DataSheet.msg.warning.C1.VU");
                                 alc.add("C1-VU");
                                 break;

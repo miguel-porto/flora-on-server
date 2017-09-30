@@ -173,25 +173,27 @@
             <t:optionbutton optionname="onlyassessor" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.3b" var="tmp"/>
             <t:optionbutton optionname="onlyreviewer" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <br/>
             <fmt:message key="TaxonIndex.filters.3c" var="tmp"/>
             <t:optionbutton optionname="onlyrevised" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.3d" var="tmp"/>
             <t:optionbutton optionname="onlyreassessment" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <fmt:message key="TaxonIndex.filters.3e" var="tmp"/>
+            <t:optionbutton optionname="onlyvalidated" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             </c:if>
-            <fmt:message key="TaxonIndex.filters.4" var="tmp"/>
-            <t:optionbutton optionname="onlynative" title="${tmp}" defaultvalue="true" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.6" var="tmp"/>
             <t:optionbutton optionname="onlyassessed" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
-            <fmt:message key="TaxonIndex.filters.8" var="tmp"/>
-            <t:optionbutton optionname="onlyvalidationerror" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.5" var="tmp"/>
             <t:optionbutton optionname="onlypublished" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
-            <c:if test="${user.canEDIT_ANY_FIELD()}">
-            <div class="filter" id="onlyselected"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.7"/></div></div>
-            </c:if>
+            <fmt:message key="TaxonIndex.filters.8" var="tmp"/>
+            <t:optionbutton optionname="onlyvalidationerror" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <br/>
             <c:forEach var="tmp" items="${allTags}">
             <t:optionbutton optionname="${tmp.getKey()}" title="${tmp.getValue()}" defaultvalue="false" norefresh="true" style="light" classes="tag"/>
             </c:forEach>
+            <fmt:message key="TaxonIndex.filters.4" var="tmp"/>
+            <t:optionbutton optionname="onlynative" title="${tmp}" defaultvalue="true" norefresh="true" style="light"/>
+            <c:if test="${user.canEDIT_ANY_FIELD()}"><div class="filter" id="onlyselected"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.7"/></div></div></c:if>
         </div>
 
         <form method="post" action="../redlist/${territory}">
@@ -211,6 +213,7 @@
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyreviewer'] ? (' filter_onlyreviewer') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyrevised'] ? (' filter_onlyrevised') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyreassessment'] ? (' filter_onlyreassessment') : ''}" />
+            <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyvalidated'] ? (' filter_onlyvalidated') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlynative'] ? (' filter_onlynative') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyassessed'] ? (' filter_onlyassessed') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyvalidationerror'] ? (' filter_onlyvalidationerror') : ''}" />
@@ -265,11 +268,14 @@
                     <c:if test="${taxon.validateCriteria().size() > 0}">
                         <c:set var="taxonclasses" value="${taxonclasses} validationerror"/>
                     </c:if>
-                    <c:if test="${taxon.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' || taxon.getAssessment().getReviewStatus().toString() == 'REVISED_MAJOR'}">
+                    <c:if test="${taxon.getAssessment().getReviewStatus() == 'REVISED_WORKING' || taxon.getAssessment().getReviewStatus() == 'REVISED_MAJOR'}">
                         <c:set var="taxonclasses" value="${taxonclasses} revised"/>
                     </c:if>
-                    <c:if test="${taxon.getAssessment().getAssessmentStatus().toString() == 'READY_REASSESSMENT' && taxon.getAssessment().getTextStatus().toString() == 'REVISION_READY'}">
+                    <c:if test="${taxon.getAssessment().getAssessmentStatus() == 'READY_REASSESSMENT' && taxon.getAssessment().getTextStatus() == 'REVISION_READY'}">
                         <c:set var="taxonclasses" value="${taxonclasses} reassessment"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getValidationStatus() == 'VALIDATED'}">
+                        <c:set var="taxonclasses" value="${taxonclasses} validated"/>
                     </c:if>
                     <c:forEach var="tmp" items="${taxon._getHTMLEscapedTags()}">
                         <c:set var="taxonclasses" value="${taxonclasses} tag_${tmp}"/>
@@ -371,7 +377,7 @@
                     </ul>
                 </c:if>
                 <c:if test="${!multipletaxa}">
-                    <h1><i>${taxon.getName()}</i></h1>
+                    <h1>${taxon.getCanonicalName().toString(true)}</h1>
                     <div class="redlistcategory assess_${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}">
                         <h1>
                             ${rlde.getAssessment().getAdjustedCategory().getShortTag()}
@@ -408,7 +414,7 @@
                     <tr class="section1"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 1 - <fmt:message key="DataSheet.label.1" /></td></tr>
                     <tr class="section1">
                         <td class="title">1.1</td>
-                        <td><fmt:message key="DataSheet.label.1.1" /></td><td><i>${taxon.getName()}</i>
+                        <td><fmt:message key="DataSheet.label.1.1" /></td><td>${taxon.getCanonicalName().toString(true)}
                             <div class="floatingtoolbar">
                                 <div tabindex="0" id="removeformatting" class="hidden"></div>
                             <c:if test="${user.canEDIT_ANY_FIELD()}">
@@ -695,7 +701,9 @@
                                 </select>
                             </td></tr>
                             <tr class="triggered ${rlde.getPopulation().getPopulationDecline().isTrigger() ? '' : 'hidden'}"><td>Percentage</td><td>
-                                <input type="number" name="population_PopulationDeclinePercent" value="${rlde.getPopulation().getPopulationDeclinePercent()}" placeholder="percentage"/> %
+                                <input type="text" name="population_PopulationDeclinePercent" value="${rlde.getPopulation().getPopulationDeclinePercent()}" placeholder="percentage"/> %
+                                <c:if test="${rlde.getPopulation().getPopulationDeclinePercent().getError() != null}"><span class="warning">${rlde.getPopulation().getPopulationDeclinePercent().getError()}</span></c:if>
+                                <span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span>
                             </td></tr>
                             <tr class="triggered ${rlde.getPopulation().getPopulationDecline().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getPopulationDeclineJustification()}</div>
@@ -716,23 +724,27 @@
                         <table class="triggergroup">
                             <tr><td>Category</td><td>
                                 <div class="checkboxes list" tabindex="0">
+                                    <input type="hidden" name="population_PopulationSizeReduction" value=""/>
                                     <c:forEach var="tmp" items="${population_PopulationSizeReduction}">
-                                        <c:if test="${rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
-                                            <input type="radio" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" checked="checked" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
+                                        <c:if test="${rlde.getPopulation()._getPopulationSizeReductionAsList().contains(tmp)}">
+                                            <input type="checkbox" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" checked="checked" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
                                             <label for="psr_${tmp}"> <div class="light"></div><span>${tmp.getLabel()}</span></label>
                                         </c:if>
-                                        <c:if test="${!rlde.getPopulation().getPopulationSizeReduction().toString().equals(tmp.toString())}">
-                                            <input type="radio" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
+                                        <c:if test="${!rlde.getPopulation()._getPopulationSizeReductionAsList().contains(tmp)}">
+                                            <input type="checkbox" class="trigger" name="population_PopulationSizeReduction" value="${tmp.toString()}" id="psr_${tmp}" data-trigger="${tmp.isTrigger() ? 1 : 0}"/>
                                             <label for="psr_${tmp}"> <div class="light"></div><span>${tmp.getLabel()}</span></label>
                                         </c:if>
                                     </c:forEach>
                                     <label class="placeholder"><fmt:message key="DataSheet.msg.clickxpand"/></label>
                                 </div>
                             </td></tr>
-                            <tr class="triggered ${rlde.getPopulation().getPopulationSizeReduction().isTrigger() ? '' : 'hidden'}"><td>Percentage</td><td>
-                                <input type="number" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}" placeholder="percentage"/> %
+
+                            <tr class="triggered ${rlde.getPopulation()._isAnyPopulationSizeReductionSelected() ? '' : 'hidden'}"><td>Percentage</td><td>
+                                <input type="text" name="population_PopulationTrend" value="${rlde.getPopulation().getPopulationTrend()}" placeholder="percentage"/> %
+                                <c:if test="${rlde.getPopulation().getPopulationTrend().getError() != null}"><span class="warning">${rlde.getPopulation().getPopulationTrend().getError()}</span></c:if>
+                                <span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span>
                             </td></tr>
-                            <tr class="triggered ${rlde.getPopulation().getPopulationSizeReduction().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
+                            <tr class="triggered ${rlde.getPopulation()._isAnyPopulationSizeReductionSelected() ? '' : 'hidden'}"><td>Justification</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getPopulationSizeReductionJustification()}</div>
                                 <input type="hidden" name="population_PopulationSizeReductionJustification" value="${fn:escapeXml(rlde.getPopulation().getPopulationSizeReductionJustification())}"/>
                             </td></tr>
@@ -943,14 +955,14 @@
                     <tr class="section5"><td class="title">5.3</td><td><fmt:message key="DataSheet.label.5.3" /></td><td>
                         <c:if test="${user.canEDIT_SECTION5()}">
                             <c:if test="${rlde.getUsesAndTrade().isTraded()}">
-                                <label><input type="checkbox" name="usesAndTrade_Traded" checked="checked"/> is traded</label>
+                                <label><input type="checkbox" name="usesAndTrade_Traded" checked="checked"/> <fmt:message key="DataSheet.label.5.3a" /></label>
                             </c:if>
                             <c:if test="${!rlde.getUsesAndTrade().isTraded()}">
-                                <label><input type="checkbox" name="usesAndTrade_Traded"/> is traded</label>
+                                <label><input type="checkbox" name="usesAndTrade_Traded"/> <fmt:message key="DataSheet.label.5.3a" /></label>
                             </c:if>
                         </c:if>
                         <c:if test="${!user.canEDIT_SECTION5()}">
-                            Is traded: ${rlde.getUsesAndTrade().isTraded() ? "Yes" : "No"}
+                            <fmt:message key="DataSheet.label.5.3a" />: ${rlde.getUsesAndTrade().isTraded() ? "Yes" : "No"}
                         </c:if>
                     </td></tr>
                     <tr class="section5"><td class="title">5.4</td><td><fmt:message key="DataSheet.label.5.4" /></td><td>
@@ -1570,6 +1582,25 @@
                                 <fmt:message key="${rlde.getAssessment().getPublicationStatus().getLabel()}"/>
                             </c:if>
                             </td></tr>
+                            <c:if test="${rlde.getAssessment().getPublicationStatus() == 'APPROVED'}">
+                            <tr><td class="title">9.9.5</td><td><fmt:message key="DataSheet.label.9.9.5" /></td><td>
+                            <c:if test="${user.canEDIT_9_9_5() || user.canEDIT_SECTION9()}">
+                                <select name="assessment_ValidationStatus">
+                                    <c:forEach var="tmp" items="${assessment_ValidationStatus}">
+                                        <c:if test="${rlde.getAssessment().getValidationStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
+                                        </c:if>
+                                        <c:if test="${!rlde.getAssessment().getValidationStatus().toString().equals(tmp.toString())}">
+                                            <option value="${tmp.toString()}">${tmp.getLabel()}</option>
+                                        </c:if>
+                                    </c:forEach>
+                                </select>
+                            </c:if>
+                            <c:if test="${!user.canEDIT_9_9_5() && !user.canEDIT_SECTION9()}">
+                                ${rlde.getAssessment().getValidationStatus().getLabel()}
+                            </c:if>
+                            </td></tr>
+                            </c:if>
                         </table>
                     </td></tr>
                     <tr class="section9"><td class="title">9.10</td><td><fmt:message key="DataSheet.label.9.10" /></td><td>
