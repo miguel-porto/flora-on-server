@@ -170,7 +170,12 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         }
         u = newUri.toURL();
 
-        InputStreamReader isr = new InputStreamReader(u.openStream());
+        InputStreamReader isr;
+        try {
+            isr = new InputStreamReader(u.openStream());
+        } catch(UnknownHostException e) {
+            return Collections.emptyMap();
+        }
         JsonObject resp = new JsonParser().parse(isr).getAsJsonObject();
         if (!resp.getAsJsonPrimitive("success").getAsBoolean()) {
             return Collections.emptyMap();
@@ -180,9 +185,11 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         Type listType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> occArray;
         occArray = new Gson().fromJson(resp.getAsJsonObject("msg"), listType);
-//        System.out.println(resp.toString());
+/*
+        System.out.println(resp.toString());
         for (String s : occArray.keySet())
             System.out.println(s);
+*/
         return occArray;
     }
 

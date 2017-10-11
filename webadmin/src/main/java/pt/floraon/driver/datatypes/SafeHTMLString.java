@@ -15,6 +15,7 @@ public class SafeHTMLString {
                 this.text = "";
             else {
                 text = text.replace("\n", "");
+                text = text.replace("\r", "");
                 text = text.replace("&nbsp;", " ");
                 this.text = StringUtils.safeHtmlTagsOnly(text);
             }

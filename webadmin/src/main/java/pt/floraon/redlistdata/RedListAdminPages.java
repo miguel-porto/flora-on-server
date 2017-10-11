@@ -199,9 +199,10 @@ System.out.println(gs.toJson(getUser()));
                 if(ids.length == 1) {       // only one taxon requested
                     RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
                     if (rlde == null) return;
-                    BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(Collections.singletonList(rlde), SafeHTMLString.class);
+                    BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
 //                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
-                    request.setAttribute("bibliography", bc.getBibliography(driver));
+                    bc.collectAllCitations();
+                    request.setAttribute("bibliography", bc.getBibliography());
 //                    bc.formatCitations();
 
                     // set privileges for this taxon
@@ -586,7 +587,7 @@ System.out.println(gs.toJson(getUser()));
 
                 wr3.println("## 9. Assessment");
                 wr3.println("### 9.1. Categoria");
-                wr3.println(" * " + rlde2.getAssessment().getCategory().getLabel());
+                wr3.println(" * " + (rlde2.getAssessment().getCategory() == null ? "sem categoria atribuída" : rlde2.getAssessment().getCategory().getLabel()));
                 wr3.println("### 9.2. Critérios");
                 wr3.println(" * " + rlde2.getAssessment()._getCriteriaAsString());
                 wr3.println("### 9.3. Justificação");
@@ -761,10 +762,11 @@ System.out.println(gs.toJson(getUser()));
                         if(rlde.getAssessment().getAdjustedCategory() != null)
                             fullassesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString() + ", " + rlde.getAssessment()._getCategoryVerboseAsString()));
 
-                        BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc1 = new BibliographyCompiler<>(Collections.singletonList(rlde), SafeHTMLString.class);
+                        BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc1 = new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
+                        bc1.collectAllCitations();
                         Element bibliography = doc.createElement("bibliography");
                         StringBuilder sb4 = new StringBuilder("<ul>");
-                        for (Reference reference : bc1.getBibliography(driver)) {
+                        for (Reference reference : bc1.getBibliography()) {
                             sb4.append("<li>").append(reference._getBibliographyEntry()).append("</li>");
                         }
                         sb4.append("</ul>");

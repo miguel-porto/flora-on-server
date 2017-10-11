@@ -30,18 +30,38 @@ import java.util.*;
 public class BibliographyCompiler<T, C> {
     private SetMultimap<String, String> citationMap;
     private List<T> beanList;
+    private Iterator<T> beanIterator;
     private Class<C> collectFrom;
     private char[] chars = {'a', 'b', 'c', 'd', 'e', 'f'};
+    private IFloraOn driver;
 
     private interface CitationProcessor {
-        void process(Object bean, String propertyName, Document fieldHTML, Element el);
+        void process(Object bean, String propertyName, Document fieldHTML, Element citationElement);
     }
 
     private class CollectCitations implements CitationProcessor {
         @Override
         public void process(Object bean, String propertyName, Document d, Element el) {
             citationMap.put(el.text(), el.attr("data-id"));
-            System.out.println(el.text()+ ": "+el.attr("data-id"));
+//            System.out.println(el.text()+ ": "+el.attr("data-id"));
+        }
+    }
+
+    private class ReplaceCitations implements CitationProcessor {
+        List<String> idsToReplace;
+        String targetId;
+
+        public ReplaceCitations(String[] idsToReplace, String targetId) {
+            this.idsToReplace = Arrays.asList(idsToReplace);
+            this.targetId = targetId;
+        }
+
+        @Override
+        public void process(Object bean, String propertyName, Document d, Element el) {
+            if(idsToReplace.contains(el.attr("data-id"))) {
+                System.out.println("Replacing " + el.text()+ " ("+el.attr("data-id")+")");
+                setFieldValue(bean, propertyName, ">REPLACED<");
+            }
         }
     }
 
@@ -49,6 +69,10 @@ public class BibliographyCompiler<T, C> {
         @Override
         public void process(Object bean, String propertyName, Document d, Element el) {
             Set<String> refs = citationMap.get(el.text());
+            if(refs == null) {
+                System.out.println("ERROR: citation not found: " + el.text());
+                return;
+            }
             // add suffix to conflicting citations
             if(refs.size() == 1)
                 el.text(el.text());
@@ -61,28 +85,33 @@ public class BibliographyCompiler<T, C> {
                 el.text(el.text() + chars[c]);
             }
 
-            // update the text field with new text
-            PropertyUtilsBean propUtils = new PropertyUtilsBean();
-            try {   // NOTE: this assumes that the class C has a constructor with one String argument.
-                Class<?>[] types = {String.class};
-                Constructor<?> constructor = collectFrom.getConstructor(types);
-                Object[] parameters = {d.body().html()};
-                C c = (C) constructor.newInstance(parameters);
-                propUtils.setProperty(bean, propertyName, c);
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
-                e.printStackTrace();
-                Log.warn("Error setting property " + propertyName);
-                return;
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            }
-/*
-            System.out.println("CI: " +el.html());
-            System.out.println(d.body().html());
-*/
+            setFieldValue(bean, propertyName, d.body().html());
         }
     }
 
+    private void setFieldValue(Object bean, String propertyName, String value) {
+        // update the text field with new text
+        PropertyUtilsBean propUtils = new PropertyUtilsBean();
+        try {   // NOTE: this assumes that the class C has a constructor with one String argument.
+            Class<?>[] types = {String.class};
+            Constructor<?> constructor = collectFrom.getConstructor(types);
+            Object[] parameters = {value};
+            C c = (C) constructor.newInstance(parameters);
+            propUtils.setProperty(bean, propertyName, c);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
+            Log.warn("Error setting property " + propertyName);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * A nested citation visitor that does the given action on each visited citation.
+     * @param bean The root document
+     * @param processor The action to perform
+     */
     private void citationVisitor(Object bean, CitationProcessor processor) {
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
         BeanMap propertyMap = new BeanMap(bean);    // beans are all same class! so we take the first as a model
@@ -110,41 +139,94 @@ public class BibliographyCompiler<T, C> {
         }
     }
 
-    public BibliographyCompiler(List<T> beanList, Class<C> collectFrom) {
+/*
+    public BibliographyCompiler(List<T> beanList, Class<C> collectFrom, IFloraOn driver) {
         if(beanList.size() == 0) return;
         citationMap = LinkedHashMultimap.create();
         this.beanList = beanList;
         this.collectFrom = collectFrom;
+        this.driver = driver;
+    }
+*/
 
+    public BibliographyCompiler(Iterator<T> beanIterator, Class<C> collectFrom, IFloraOn driver) {
+        citationMap = LinkedHashMultimap.create();
+        this.beanIterator = beanIterator;
+        this.collectFrom = collectFrom;
+        this.driver = driver;
+    }
+
+    /**
+     * Iterates over all eligible fields in the provided documents and collects in-text citations to an internal map.
+     */
+    public void collectAllCitations() {
         // iterate all text fields in all beans to collect citations
         CitationProcessor collector = new CollectCitations();
-        for(T bean : beanList)
-            citationVisitor(bean, collector);
+        while(beanIterator.hasNext())
+            citationVisitor(beanIterator.next(), collector);
+    }
+
+    public class BeanIterator implements Iterator<T> {
+        private CitationProcessor processor;
+
+        public BeanIterator(CitationProcessor processor) {
+            this.processor = processor;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return beanIterator.hasNext();
+        }
+
+        @Override
+        public T next() {
+            T el = beanIterator.next();
+            citationVisitor(el, processor);
+            return el;
+        }
+
+        @Override
+        public void remove() {
+        }
     }
 
     /**
      * Appends suffixes to all conflicting in-text citations. This changes the original documents.
      */
-    public void formatCitations() {
-        CitationProcessor collector = new MakeUniqueCitations();
-        for(T bean : beanList)
-            citationVisitor(bean, collector);
+    public BeanIterator formatCitations() {
+        CitationProcessor formatter = new MakeUniqueCitations();
+        return new BeanIterator(formatter);
+    }
+
+    /**
+     * Replaces all the citations of the given ID array by the ID of replaceWith
+     * @param idsToReplace
+     * @param replaceWith
+     */
+    public BeanIterator replaceCitations(String[] idsToReplace, String replaceWith) {
+        CitationProcessor replacer = new ReplaceCitations(idsToReplace, replaceWith);
+        return new BeanIterator(replacer);
     }
 
     /**
      * Gets the full list of bibliography cited in the provided document list.
-     * @param driver The FloraOn driver, as this method needs database access.
      * @return
      * @throws FloraOnException
      */
-    public Set<Reference> getBibliography(IFloraOn driver) throws FloraOnException {
+    public Set<Reference> getBibliography() throws FloraOnException {
         SortedSet<Reference> out = new TreeSet<>();
         INodeWorker nwd = driver.getNodeWorkerDriver();
         INodeKey nk;
         for(Map.Entry<String, Collection<String>> e : this.citationMap.asMap().entrySet()) {
             Set<String> tmp = ((Set<String>) e.getValue());
             if(tmp.size() == 1) {
-                Reference r = nwd.getDocument(driver.asNodeKey(tmp.iterator().next()), Reference.class);
+                try {
+                    nk = driver.asNodeKey(tmp.iterator().next());
+                } catch(FloraOnException e1) {
+                    System.out.println("Citation error: " + e.getKey());
+                    continue;
+                }
+                Reference r = nwd.getDocument(nk, Reference.class);
                 if(r != null) out.add(r);
             } else {
                 int c = 0;

@@ -54,12 +54,20 @@ public class RedListDataApi extends FloraOnServlet {
 
         switch(what = path.next()) {
             case "newdataset":
+                if(thisRequest.getUser().isGuest()) {
+                    thisRequest.error("You're not logged in.");
+                    break;
+                }
                 territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
                 thisRequest.success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(territory), driver).getID());
                 break;
 
             case "updatenativestatus":
+                if(thisRequest.getUser().isGuest()) {
+                    thisRequest.error("You're not logged in.");
+                    break;
+                }
                 territory = thisRequest.getParameterAsString("territory");
                 thisRequest.success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
                 break;
@@ -98,6 +106,11 @@ public class RedListDataApi extends FloraOnServlet {
                 break;
 
             case "downloaddata":
+                if(thisRequest.getUser().isGuest()) {
+                    thisRequest.error("You're not logged in.");
+                    break;
+                }
+
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 thisRequest.response.setContentType("application/json; charset=utf-8");
                 thisRequest.response.setCharacterEncoding("UTF-8");
@@ -127,7 +140,6 @@ public class RedListDataApi extends FloraOnServlet {
                     Log.error("IDs not provided to update");
                     break;
                 }
-
                 HashMap<String, String[]> map = new HashMap<>();
                 Enumeration names = thisRequest.request.getParameterNames();
                 while (names.hasMoreElements()) {
@@ -144,10 +156,14 @@ public class RedListDataApi extends FloraOnServlet {
                     return;
                 }
 
-
-                System.out.println("BEAN:");
+                System.out.println(">> Saving sheet on " + Constants.dateTimeFormat.get().format(new Date()));
                 System.out.println(gs.toJson(rlde));
 
+                if(thisRequest.getUser().isGuest()) {
+                    System.out.println(">> NOTHING WAS SAVED!");
+                    thisRequest.error("Nothing was saved, your session has expired. You must login in another window (without closing this one), then come back to this one and save again");
+                    break;
+                }
 
                 if(ids.length == 1) {
                     // TODO: must check for privileges on save!

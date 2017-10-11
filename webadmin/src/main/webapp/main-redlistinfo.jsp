@@ -178,6 +178,8 @@
             <t:optionbutton optionname="onlyrevised" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.3d" var="tmp"/>
             <t:optionbutton optionname="onlyreassessment" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <fmt:message key="TaxonIndex.filters.3f" var="tmp"/>
+            <t:optionbutton optionname="onlyapproved" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.3e" var="tmp"/>
             <t:optionbutton optionname="onlyvalidated" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             </c:if>
@@ -214,11 +216,12 @@
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyrevised'] ? (' filter_onlyrevised') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyreassessment'] ? (' filter_onlyreassessment') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyvalidated'] ? (' filter_onlyvalidated') : ''}" />
+            <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyapproved'] ? (' filter_onlyapproved') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlynative'] ? (' filter_onlynative') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyassessed'] ? (' filter_onlyassessed') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyvalidationerror'] ? (' filter_onlyvalidationerror') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlypublished'] ? (' filter_onlypublished') : ''}" />
-            <table id="speciesindex" class="sortable smalltext${indexclasses}">
+            <table id="speciesindex" class="sortable selectable smalltext${indexclasses}">
                 <thead>
                     <tr>
                     <c:if test="${user.canEDIT_ANY_FIELD()}">
@@ -273,6 +276,9 @@
                     </c:if>
                     <c:if test="${taxon.getAssessment().getAssessmentStatus() == 'READY_REASSESSMENT' && taxon.getAssessment().getTextStatus() == 'REVISION_READY'}">
                         <c:set var="taxonclasses" value="${taxonclasses} reassessment"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getPublicationStatus() == 'APPROVED'}">
+                        <c:set var="taxonclasses" value="${taxonclasses} approved"/>
                     </c:if>
                     <c:if test="${taxon.getAssessment().getValidationStatus() == 'VALIDATED'}">
                         <c:set var="taxonclasses" value="${taxonclasses} validated"/>
@@ -342,13 +348,20 @@
         </c:if>
         <c:if test="${user.canVIEW_FULL_SHEET()}">
         <div class="navigator">
-            <div class="button anchorbutton section2"><a href="#distribution">2. <fmt:message key="DataSheet.label.2" /></a></div>
-            <div class="button anchorbutton section3"><a href="#population">3. <fmt:message key="DataSheet.label.3" /></a></div>
-            <div class="button anchorbutton section4"><a href="#ecology">4. <fmt:message key="DataSheet.label.4" /></a></div>
-            <div class="button anchorbutton section5"><a href="#uses">5. <fmt:message key="DataSheet.label.5" /></a></div>
-            <div class="button anchorbutton section6"><a href="#threats">6. <fmt:message key="DataSheet.label.6" /></a></div>
-            <div class="button anchorbutton section7"><a href="#conservation">7. <fmt:message key="DataSheet.label.7" /></a></div>
-            <div class="button anchorbutton section9"><a href="#assessment">9. <fmt:message key="DataSheet.label.9" /></a></div>
+            <fmt:message key="DataSheet.label.2" var="NS2"/>
+            <fmt:message key="DataSheet.label.3" var="NS3"/>
+            <fmt:message key="DataSheet.label.4" var="NS4"/>
+            <fmt:message key="DataSheet.label.5" var="NS5"/>
+            <fmt:message key="DataSheet.label.6" var="NS6"/>
+            <fmt:message key="DataSheet.label.7" var="NS7"/>
+            <fmt:message key="DataSheet.label.9" var="NS9"/>
+            <div class="button anchorbutton section2"><a href="#distribution">2. ${fn:substring(NS2, 0, 1)}</a></div>
+            <div class="button anchorbutton section3"><a href="#population">3. ${fn:substring(NS3, 0, 1)}</a></div>
+            <div class="button anchorbutton section4"><a href="#ecology">4. ${fn:substring(NS4, 0, 1)}</a></div>
+            <div class="button anchorbutton section5"><a href="#uses">5. ${fn:substring(NS5, 0, 1)}</a></div>
+            <div class="button anchorbutton section6"><a href="#threats">6. ${fn:substring(NS6, 0, 1)}</a></div>
+            <div class="button anchorbutton section7"><a href="#conservation">7. ${fn:substring(NS7, 0, 1)}</a></div>
+            <div class="button anchorbutton section9"><a href="#assessment">9. ${fn:substring(NS9, 0, 1)}</a></div>
         </div>
         </c:if>
         <c:if test="${multipletaxa}">
@@ -753,7 +766,9 @@
                         <c:if test="${!user.canEDIT_SECTION3()}">
                         <table>
                             <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationTrend()} %</td></tr>
-                            <tr><td>Category</td><td>${rlde.getPopulation().getPopulationSizeReduction().getLabel()}</td></tr>
+                            <tr><td>Categories</td><td><ul>
+                                <c:forEach var="psr" items="${rlde.getPopulation().getPopulationSizeReduction()}"><li>${psr.getLabel()}</li></c:forEach>
+                            </ul></td></tr>
                             <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationSizeReductionJustification()}</td></tr>
                         </table>
                         </c:if>
@@ -1621,15 +1636,13 @@
                 </table>
                 </td></tr>
 
-                <c:if test="${rlde.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' && (authors.contains(user.getID()) || evaluator.contains(user.getID()) || !rlde.getReplyToReviewer().isEmpty())}">
                 <tr class="section11"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 11 - <fmt:message key="DataSheet.label.11" /></td></tr>
                 <tr class="section11"><td class="title">11.1</td><td><fmt:message key="DataSheet.label.11.1" /></td><td>
                     <t:editabletext
-                        privilege="${authors.contains(user.getID()) || evaluator.contains(user.getID())}"
+                        privilege="${rlde.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' && (authors.contains(user.getID()) || evaluator.contains(user.getID()))}"
                         value="${rlde.getReplyToReviewer()}"
                         name="replyToReviewer"/>
                 </td></tr>
-                </c:if>
                 </c:if>
             </table>
             <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || user.canEDIT_10())}">
@@ -2001,7 +2014,10 @@
     </c:when>
 
     <c:when test="${what=='references'}">
-        <jsp:include page="/references/"></jsp:include>
+        <jsp:include page="/references/?w=main"></jsp:include>
+    </c:when>
+    <c:when test="${what=='editreference'}">
+        <jsp:include page="/references/?w=edit"></jsp:include>
     </c:when>
     </c:choose>
     </div>

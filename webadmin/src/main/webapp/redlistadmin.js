@@ -117,22 +117,28 @@ document.addEventListener('DOMContentLoaded', function() {
         SPECIES INDEX
     *********************/
     // click event for taxon list checkboxes
-    addEvent('click', document.getElementById('speciesindex'), function(ev) {
-        if(ev.target.classList.contains('selectionbox')) {
-            var row = getParentbyTag(ev.target, 'tr');
-            if(ev.target.checked)
-                row.classList.add('selected');
-            else
-                row.classList.remove('selected');
+    var selectabletables = document.querySelectorAll('table.selectable');
+    for(var i=0; i<selectabletables.length; i++) {
+        addEvent('click', selectabletables[i], function(ev) {
+            if(ev.target.classList.contains('selectionbox')) {
+                var row = getParentbyTag(ev.target, 'tr');
+                if(ev.target.checked)
+                    row.classList.add('selected');
+                else
+                    row.classList.remove('selected');
 
-            var sel = document.querySelectorAll('#speciesindex tr.selected');
-            updateSelectedInfo(sel.length);
-            if(sel.length == 0)
-                document.getElementById('editselectedtaxa').classList.add('hidden');
-            else
-                document.getElementById('editselectedtaxa').classList.remove('hidden');
-        }
-    });
+                var tab = getParentbyTag(ev.target, 'table');
+                if(tab.id == 'speciesindex') {
+                    var sel = document.querySelectorAll('#speciesindex tr.selected');
+                    updateSelectedInfo(sel.length);
+                    if(sel.length == 0)
+                        document.getElementById('editselectedtaxa').classList.add('hidden');
+                    else
+                        document.getElementById('editselectedtaxa').classList.remove('hidden');
+                }
+            }
+        });
+    }
 
     // select all checked rows
     var sel = document.querySelectorAll('#speciesindex input.selectionbox:checked');
@@ -507,9 +513,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }, 600);
         })
-
     }
+
+    /**** REFERENCE LIST *******/
+    addEvent('click', document.getElementById('mergereferences'), referenceListActions);
+    addEvent('click', document.getElementById('deletereferences'), referenceListActions);
+    addEvent('click', document.getElementById('mergeintothis'), referenceListActions);
+
 });
+
+function referenceListActions(ev) {
+    var selref = document.querySelectorAll('#referencetable tr.selected input.selectionbox[name=id]');
+    var ids = [];
+    for(var i=0; i<selref.length; i++)
+        ids.push(selref[i].value);
+
+    switch(ev.target.id) {
+    case 'deletereferences':
+        if(!confirm('You\'re about to delete ' + selref.length + ' references. Are you sure? All in-text citations of these references will be broken.')) return;
+        postJSON('../references/',{what: 'deletereference', ids: ids},function(rt) {
+            var rt1=JSON.parse(rt);
+            if(rt1.success) {
+                window.location.reload();
+            } else
+                alert(rt1.msg);
+        });
+        break;
+
+    case 'mergereferences':
+        ev.target.classList.toggle('selected');
+        document.getElementById('referencetable').classList.toggle('clicktargetref');
+        if(!ev.target.classList.contains('selected')) break;
+        alert('You\'re about to merge ' + selref.length + ' references into one. Please select which reference will remain by clicking \'Merge into this one\' (after closing this dialog).');
+        var mito = document.querySelectorAll('#referencetable tr.selected .mergeintothis');
+        for(var i=0; i<mito.length; i++) {
+            removeEvent('click', mito[i], mergeReferences);
+            addEvent('click', mito[i], mergeReferences);
+        }
+        break;
+    }
+}
+
+function mergeReferences(ev) {
+    var selref = document.querySelectorAll('#referencetable tr.selected input.selectionbox[name=id]');
+    var ids = [];
+    for(var i=0; i<selref.length; i++)
+        ids.push(selref[i].value);
+
+    postJSON('../references/',{what: 'mergereferences', ids: ids, target: ev.target.getAttribute('data-id')},function(rt) {
+        var rt1=JSON.parse(rt);
+        if(rt1.success) {
+            window.location.reload();
+        } else
+            alert(rt1.msg);
+    });
+}
 
 window.addEventListener('beforeunload', function (ev) {
     if(isFormSubmitting) return;
