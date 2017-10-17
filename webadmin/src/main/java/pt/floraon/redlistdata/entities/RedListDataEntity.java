@@ -94,7 +94,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      */
     private List<Revision> revisions;
 
-    private SafeHTMLString reviewerComments, replyToReviewer;
+    private SafeHTMLString reviewerComments, replyToReviewer, otherInformation;
 
     public RedListDataEntity() {
     }
@@ -156,6 +156,9 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return replyToReviewer == null ? new SafeHTMLString("") : replyToReviewer;
     }
 
+    public SafeHTMLString getOtherInformation() {
+        return otherInformation == null ? new SafeHTMLString("") : otherInformation;
+    }
 
     public GeographicalDistribution getGeographicalDistribution() {
         return geographicalDistribution;
@@ -212,6 +215,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setReplyToReviewer(SafeHTMLString replyToReviewer) {
         this.replyToReviewer = replyToReviewer;
+    }
+
+    public void setOtherInformation(SafeHTMLString otherInformation) {
+        this.otherInformation = otherInformation;
     }
 
     /*******

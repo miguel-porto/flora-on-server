@@ -1216,6 +1216,12 @@
                         </c:forEach>
                     </ul>
                     </td></tr>
+                    <tr class="section8"><td class="title">8.2</td><td><fmt:message key="DataSheet.label.8.2" /><div class="fieldhelp">Informação importante mas que não seja directamente relevante para a avaliação</div></td><td>
+                        <t:editabletext
+                            privilege="${user.canEDIT_SECTION2() || user.canEDIT_SECTION3() || user.canEDIT_SECTION4() || user.canEDIT_SECTION5() || user.canEDIT_SECTION6() || user.canEDIT_SECTION7() || user.canEDIT_ALL_TEXTUAL()}"
+                            value="${rlde.getOtherInformation()}"
+                            name="otherInformation"/>
+                    </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a><fmt:message key="DataSheet.label.section"/> 9 - <fmt:message key="DataSheet.label.9" /></td></tr>
                     <tr class="section9"><td class="title">9.1</td><td><fmt:message key="DataSheet.label.9.1" /></td><td class="triggergroup">

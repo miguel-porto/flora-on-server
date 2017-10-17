@@ -48,6 +48,9 @@ public class Assessment implements DiffableBean {
         return isSink == null ? RedListEnums.YesNoLikelyUnlikely.NOT_KNOWN : isSink;
     }
 
+    /**
+     * @return The base category assigned, i.e., before up/downlisting
+     */
     public RedListEnums.RedListCategories getCategory() {
         return category;
     }

@@ -711,7 +711,8 @@ public class RedListEnums {
         }
 
         /**
-         * Gets the effective category, after correction, without the º, i.e. CR_UP becomes CR, etc.
+         * Gets the effective category after correction, without the º, i.e. CR_UP becomes CR, etc.
+         * This is the "canonical" category that should
          * @return
          */
         public RedListCategories getEffectiveCategory() {

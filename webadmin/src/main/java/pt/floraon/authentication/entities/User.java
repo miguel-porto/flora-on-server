@@ -542,4 +542,19 @@ public class User extends NamedDBNode {
 		this.effectivePrivileges.addAll(this.privileges);
 		this.effectivePrivileges.removeAll(new HashSet<>(Arrays.asList(privileges)));
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		User user = (User) o;
+
+		return this.getID().equals(user.getID());
+	}
+
+	@Override
+	public int hashCode() {
+		return this.getID().hashCode();
+	}
 }

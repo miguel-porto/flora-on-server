@@ -369,6 +369,7 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("assessment_UpDownList", rlde.getAssessment().suggestUpDownList().getLabel());
                     request.setAttribute("citation", driver.getRedListData().buildRedListSheetCitation(rlde, userMap));
 
+                    // compile edition history
                     Revision c1a;
                     Map<Revision, Integer> edits = new TreeMap<>(new Revision.RevisionComparator());
                     for (Revision r : rlde.getRevisions()) {
@@ -751,6 +752,15 @@ System.out.println(gs.toJson(getUser()));
                         Element assesscat = doc.createElement("assessmentCategory");
                         assesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString()));
 
+                        Element effectiveCategory = doc.createElement("effectiveCategory");
+                        if(rlde.getAssessment().getAdjustedCategory() != null)
+                            effectiveCategory.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().getShortTag()
+                                    + ", " + rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().getLabel()));
+
+                        Element isThreatened = doc.createElement("isThreatened");
+                        isThreatened.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory() == null ? ""
+                                        : (rlde.getAssessment().getAdjustedCategory().isThreatened() ? "Ameaçadas (CR, EN e VU)" : "")));
+
                         Element assesscatcrit = doc.createElement("assessmentCategoryAndCriteria");
                         assesscatcrit.appendChild(doc.createTextNode((rlde.getAssessment()._getCategoryAsString()
                                 + " " + rlde.getAssessment()._getCriteriaAsString()).trim()));
@@ -838,6 +848,8 @@ System.out.println(gs.toJson(getUser()));
                         species.appendChild(conservation);
                         species.appendChild(assessjust);
                         species.appendChild(assesscat);
+                        species.appendChild(effectiveCategory);
+                        species.appendChild(isThreatened);
                         species.appendChild(assesscatverb);
                         species.appendChild(fullassesscat);
                         species.appendChild(assesscrit);

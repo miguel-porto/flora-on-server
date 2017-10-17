@@ -681,3 +681,14 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
     left:0;
     top: -1.6em;
 }
+
+div.fieldhelp {
+    color:#FF5722;
+    padding:0;
+    border-radius:10px;
+    padding:4px 8px;
+    background-color:rgba(255,255,255,0.5);
+    margin-top:8px;
+    font-size:1rem;
+    font-weight:normal;
+}

@@ -63,6 +63,7 @@ public final class OccurrenceConstants {
         , DESTROYED("Destroyed")
         , PROBABLY_MISIDENTIFIED("Misidentified?")
         , ESCAPED("Escaped?")
+        , INTRODUCED("Introduced")
         , WRONG_GEORREF("Wrong georref");
 
         private String label;
@@ -73,6 +74,7 @@ public final class OccurrenceConstants {
             acronymMap.put("g", WRONG_GEORREF);
             acronymMap.put("w", WRONG_GEORREF);
             acronymMap.put("e", ESCAPED);
+            acronymMap.put("i", INTRODUCED);
             acronymMap.put("", ASSUMED_PRESENT);
         }
 
