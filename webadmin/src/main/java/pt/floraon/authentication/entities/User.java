@@ -276,6 +276,10 @@ public class User extends NamedDBNode {
 		setPrivilege(EDIT_10, value);
 	}
 
+	public void setEDIT_11(boolean value) {
+		setPrivilege(EDIT_11, value);
+	}
+
 	public void setCREATE_REDLIST_DATASETS(boolean value) {
 		setPrivilege(CREATE_REDLIST_DATASETS, value);
 	}
@@ -419,6 +423,10 @@ public class User extends NamedDBNode {
 
 	public boolean canEDIT_10() {
 		return hasPrivilege(Privileges.EDIT_10);
+	}
+
+	public boolean canEDIT_11() {
+		return hasPrivilege(Privileges.EDIT_11);
 	}
 
 	public boolean canCREATE_REDLIST_DATASETS() {

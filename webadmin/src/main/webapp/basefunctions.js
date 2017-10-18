@@ -51,9 +51,13 @@ function postAJAXForm(addr,formElement,callback) {
 		xmlo=xmlo.target;
 		if(xmlo.readyState == 4) {
 			if(xmlo.status == 200) callback(xmlo.responseText); else {
-			    console.log(xmlo.responseText);
-				var rt=JSON.parse(xmlo.responseText);
-				alert('ERROR: '+rt.msg);
+			    if(!xmlo.responseText || xmlo.responseText == '') {
+			        alert('ERROR! Server not reachable, nothing was saved. Copy your changes to a file and try logging in again.');
+			    } else {
+			        console.log(xmlo.responseText);
+				    var rt=JSON.parse(xmlo.responseText);
+				    alert('ERROR: '+rt.msg);
+                }
 				var loader = document.getElementById('loader');
 				if(loader) loader.style.display = 'none';
 			}

@@ -1643,9 +1643,9 @@
                 </td></tr>
 
                 <tr class="section11"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 11 - <fmt:message key="DataSheet.label.11" /></td></tr>
-                <tr class="section11"><td class="title">11.1</td><td><fmt:message key="DataSheet.label.11.1" /></td><td>
+                <tr class="section11"><td class="title">11.1</td><td><fmt:message key="DataSheet.label.11.1" /><div class="fieldhelp">Detalhar como foi abordada cada uma das questões levantadas pelo revisor</div></td><td>
                     <t:editabletext
-                        privilege="${rlde.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' && (authors.contains(user.getID()) || evaluator.contains(user.getID()))}"
+                        privilege="${(rlde.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' && (authors.contains(user.getID()) || evaluator.contains(user.getID()))) || user.canEDIT_11()}"
                         value="${rlde.getReplyToReviewer()}"
                         name="replyToReviewer"/>
                 </td></tr>

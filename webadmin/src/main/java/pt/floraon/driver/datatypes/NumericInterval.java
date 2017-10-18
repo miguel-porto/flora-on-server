@@ -2,10 +2,11 @@ package pt.floraon.driver.datatypes;
 
 import pt.floraon.driver.utils.StringUtils;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NumericInterval {
+public class NumericInterval implements Serializable {
     protected String text;
     private transient static Pattern intervalMatch =
             Pattern.compile("^\\s*(?<modifier>[<>])? *(?<approx>~)? *(?<n1>[0-9]+)(?: *- *(?<n2>[0-9]+))?\\s*$");
