@@ -82,14 +82,17 @@ public class Assessment implements DiffableBean {
     /**
      * @return The fully qualified IUCN category and subcategory in verbose format
      */
-    public String _getCategoryVerboseAsString() {
+    public String _getCategoryVerboseAsString(boolean htmlFormatted) {
         if(this.getAdjustedCategory() == null) return "";
         String subcat = "";
         if(this.getCategory() != null
                 && this.getCategory() == RedListEnums.RedListCategories.CR
                 && this.getSubCategory() != null
                 && this.getSubCategory() != RedListEnums.CRTags.NO_TAG) {
-            subcat = " (" + this.getSubCategory().getLabel() + ")";
+            if(htmlFormatted)
+                subcat = " <span style=\"font-size:0.75em\">(" + this.getSubCategory().getLabel() + ")</span>";
+            else
+                subcat = " (" + this.getSubCategory().getLabel() + ")";
         }
         return this.getAdjustedCategory().getLabel() + subcat;
     }

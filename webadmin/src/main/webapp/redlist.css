@@ -7,12 +7,14 @@ ul.hanging li {padding-left: 26px; text-indent: -20px;}
 #main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {
-    background: linear-gradient(135deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px),
+/*    background: linear-gradient(135deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px),
         linear-gradient(225deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px) 0 16px;
-    background-size: 16px 32px;
+    background-size: 16px 32px;*/
+    background-color:#f44336;
     flex: 1 1 auto;
-    background-color:#f44336; color:white; font-weight:bold; border:0;
+    color:white; font-weight:bold; border:0;
 }
+
 #left-bar a {color:white}
 .buttonmenu ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}
 /*ul li {
@@ -544,6 +546,7 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 #redlistcategories label[for=assess_DD], .redlistcategory.assess_DD {background-color:#d1d1c6;}
 #redlistcategories label[for=assess_NE], .redlistcategory.assess_NE {background-color:#ffffff; border:2px solid black;}
 #redlistcategories label[for=assess_NA], .redlistcategory.assess_NA {background-color:#d1d1c6;}
+#redlistcategories label[for=assess_NOT_ASSIGNED], .redlistcategory.assess_NOT_ASSIGNED {border:2px dashed black;}
 #redlistcategories label[for=assess_NA] *, .redlistcategory.assess_NA * {color:#333333}
 
 #redlistcategories label h1, .redlistcategory h1 {font-size:3.6rem !important; text-align: center; color:black; padding:0 !important;}
@@ -640,11 +643,13 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
     height:30%;
     min-height:150px;
     overflow-y:scroll;
-    background-color:black;
+    background-color:#ffd79b;
     box-shadow: 0 0 30px 5px black;
     z-index: 1;
-    color: white;
     transition: bottom 0.6s;
+    font-size:1.1rem;
+    padding:10px;
+    box-sizing: border-box;
 }
 
 #reviewpanel.hidden {
@@ -653,34 +658,37 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
     overflow-y: visible;
 }
 
-
 #reviewpanel div.contenteditable {
-    background: linear-gradient(0deg, black 0px, black 20px, #2c2c2c 20px);
+    background: linear-gradient(0deg, #ffd79b 0px, #ffd79b 20px, rgba(137,142,189,0.3) 20px);
     background-size: 10px 21px;
     background-position:0 3px;
     line-height:21px;
-    color:white;
+    color:black;
     box-shadow: none;
     min-height:100%;
 }
 
-#reviewpanel .highlight.yellow {color:black}
+#reviewpanel h1 {font-size:1.8rem; margin:0 0 8px 0; padding:0 0 8px 0; line-height:1.8rem}
+#reviewpanel h2 {font-size:1.4rem; margin:0; padding:0 0 8px 0;}
+
 #reviewpanel-handle {
-    text-align: left;
+    /*text-align: left;
     color: #1e88e5;
-    background-color:black;
     font-size:1.8rem;
-    padding:0.2em 16px;
+    font-weight:bold;*/
+    background-color:#ffd79b;
+    padding:0.2rem 0;
     cursor:pointer;
     border-radius: 0 15px 0 0;
-    font-weight:bold;
-    box-shadow: 0 0 30px 5px black;
 }
 #reviewpanel.hidden #reviewpanel-handle {
     position:absolute;
     left:0;
-    top: -1.6em;
+    top: -2.2rem;
+    box-shadow: 0 0 30px 5px black;
 }
+
+#reviewpanel.hidden #reviewpanel-handle h1 {padding:0 16px 8px 16px; }
 
 div.fieldhelp {
     color:#FF5722;
@@ -689,6 +697,9 @@ div.fieldhelp {
     padding:4px 8px;
     background-color:rgba(255,255,255,0.5);
     margin-top:8px;
-    font-size:1rem;
+    font-size:0.8rem;
     font-weight:normal;
 }
+
+div.fieldhelp ul {list-style-type: initial; padding-left: 10px;}
+div.fieldhelp ul li {border:none;}

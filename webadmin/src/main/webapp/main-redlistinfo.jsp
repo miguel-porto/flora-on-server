@@ -1236,7 +1236,7 @@
                                     </c:if>
                                     <label for="assess_${tmp.toString()}">
                                         <h1>
-                                            ${tmp.toString()}<c:if test="${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().equals(tmp) && rlde.getAssessment().getAdjustedCategory().isUpDownListed()}">º</c:if>
+                                            ${tmp.getShortTag()}<c:if test="${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().equals(tmp) && rlde.getAssessment().getAdjustedCategory().isUpDownListed()}">º</c:if>
                                             <c:if test="${tmp == 'CR' && rlde.getAssessment().getCategory().toString().equals(tmp.toString()) && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
                                         </h1>
                                         <p>${tmp.getLabel()}</p>
@@ -1245,7 +1245,7 @@
                                 </c:forEach>
                             </c:if>
                             <c:if test="${!user.canEDIT_9_1_2_3_4() && !user.canEDIT_SECTION9()}">
-                                <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().toString()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
+                                <div class="redlistcategory assess_${rlde.getAssessment().getCategory().toString()}"><h1>${rlde.getAssessment().getCategory().getShortTag()}</h1><p>${rlde.getAssessment().getCategory().getLabel()}</p></div>
                             </c:if>
                         </div>
                         <div class="triggered ${rlde.getAssessment().getCategory().isTrigger() ? '' : 'hidden'}">
@@ -1299,7 +1299,7 @@
                         </c:if>
                     </td></tr>
                 </c:if>
-                <tr class="section9 textual"><td class="title">9.3</td><td><fmt:message key="DataSheet.label.9.3" /></td><td>
+                <tr class="section9 textual"><td class="title">9.3</td><td><fmt:message key="DataSheet.label.9.3" /><div class="fieldhelp"><fmt:message key="DataSheet.help.9.3" /></div></td><td>
                     <t:editabletext
                         privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45() || user.canEDIT_SECTION9()}"
                         value="${rlde.getAssessment().getJustification()}"
@@ -1643,7 +1643,7 @@
                 </td></tr>
 
                 <tr class="section11"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 11 - <fmt:message key="DataSheet.label.11" /></td></tr>
-                <tr class="section11"><td class="title">11.1</td><td><fmt:message key="DataSheet.label.11.1" /><div class="fieldhelp">Detalhar como foi abordada cada uma das questões levantadas pelo revisor</div></td><td>
+                <tr class="section11"><td class="title">11.1</td><td><fmt:message key="DataSheet.label.11.1" /><div class="fieldhelp"><fmt:message key="DataSheet.help.11.1" /></div></td><td>
                     <t:editabletext
                         privilege="${(rlde.getAssessment().getReviewStatus().toString() == 'REVISED_WORKING' && (authors.contains(user.getID()) || evaluator.contains(user.getID()))) || user.canEDIT_11()}"
                         value="${rlde.getReplyToReviewer()}"
@@ -1651,15 +1651,21 @@
                 </td></tr>
                 </c:if>
             </table>
-            <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || user.canEDIT_10())}">
+            <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || user.canEDIT_10() || user.canVIEW_10_2() || user.canEDIT_9_9_5())}">
             <div id="reviewpanel">
-                <div id="reviewpanel-handle">
-                    <fmt:message key="DataSheet.label.section"/> 10 - <fmt:message key="DataSheet.label.10" />
-                </div>
+                <div id="reviewpanel-handle"><h1><fmt:message key="DataSheet.label.section"/> 10 - <fmt:message key="DataSheet.label.10" /></h1></div>
+                <h2>10.1 <fmt:message key="DataSheet.label.10.1" /></h2>
                 <t:editabletext
                     privilege="${user.canEDIT_10()}"
                     value="${rlde.getReviewerComments()}"
                     name="reviewerComments"/>
+                <c:if test="${user.canVIEW_10_2() || user.canEDIT_9_9_5()}">
+                <h2>10.2 <fmt:message key="DataSheet.label.10.2" /></h2>
+                <t:editabletext
+                    privilege="${user.canEDIT_9_9_5()}"
+                    value="${rlde.getValidationComments()}"
+                    name="validationComments"/>
+                </c:if>
             </div>
             </c:if>
         </form>

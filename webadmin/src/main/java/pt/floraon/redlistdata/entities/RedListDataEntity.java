@@ -94,7 +94,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      */
     private List<Revision> revisions;
 
-    private SafeHTMLString reviewerComments, replyToReviewer, otherInformation;
+    private SafeHTMLString reviewerComments, replyToReviewer, otherInformation, validationComments;
 
     public RedListDataEntity() {
     }
@@ -150,6 +150,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public SafeHTMLString getReviewerComments() {
         return reviewerComments == null ? new SafeHTMLString("") : reviewerComments;
+    }
+
+    public SafeHTMLString getValidationComments() {
+        return validationComments == null ? new SafeHTMLString("") : validationComments;
     }
 
     public SafeHTMLString getReplyToReviewer() {
@@ -211,6 +215,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setReviewerComments(SafeHTMLString reviewerComments) {
         this.reviewerComments = reviewerComments;
+    }
+
+    public void setValidationComments(SafeHTMLString validationComments) {
+        this.validationComments = validationComments;
     }
 
     public void setReplyToReviewer(SafeHTMLString replyToReviewer) {
@@ -973,8 +981,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "iii":
                                     if(alc.contains("B2ciii")) break;
-                                    if(StringUtils.cleanText(pop.getExtremeFluctuationsJustification().toString()).equals("")
-                                            || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
+                                    if(thr.getExtremeFluctuationsNrLocationsJustification().isEmpty()
+                                            || thr.getExtremeFluctuationsNrLocations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.8.9");
                                         alc.add("B2ciii");
                                     }
@@ -982,8 +990,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
                                 case "iv":
                                     if(alc.contains("B2civ")) break;
-                                    if(StringUtils.cleanText(thr.getExtremeFluctuationsNrLocationsJustification().toString()).equals("")
-                                            || thr.getExtremeFluctuationsNrLocations() != RedListEnums.YesNoNA.YES) {
+                                    if(pop.getExtremeFluctuationsJustification().isEmpty()
+                                            || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.8.10");
                                         alc.add("B2civ");
                                     }

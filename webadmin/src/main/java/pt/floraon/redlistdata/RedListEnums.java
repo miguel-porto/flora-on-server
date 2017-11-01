@@ -616,7 +616,7 @@ public class RedListEnums {
     }
 
     public enum RedListCategories implements TriggerEnum {
-          EX(FieldValues.getString("category.EX"), false, false, "EX")
+        EX(FieldValues.getString("category.EX"), false, false, "EX")
         , EW(FieldValues.getString("category.EW"), false, false, "EW")
         , RE(FieldValues.getString("category.RE"), false, false, "RE")
         , CR(FieldValues.getString("category.CR"), true, false, "CR")
@@ -627,6 +627,7 @@ public class RedListEnums {
         , DD(FieldValues.getString("category.DD"), false, false, "DD")
         , NA(FieldValues.getString("category.NA"), false, false, "NA")
         , NE(FieldValues.getString("category.NE"), false, false, "NE")
+        , NOT_ASSIGNED(FieldValues.getString("category.notassigned"), false, false, "?")
         , CR_UP(FieldValues.getString("category.CR"), true, true, "CRº")
         , EN_UP(FieldValues.getString("category.EN"), false, true, "ENº")
         , VU_UP(FieldValues.getString("category.VU"), false, true, "VUº")
@@ -712,7 +713,7 @@ public class RedListEnums {
 
         /**
          * Gets the effective category after correction, without the º, i.e. CR_UP becomes CR, etc.
-         * This is the "canonical" category that should
+         * This is the "canonical" category that should be used for filters & so on.
          * @return
          */
         public RedListCategories getEffectiveCategory() {
@@ -818,6 +819,7 @@ public class RedListEnums {
         NOT_PUBLISHED("PublicationStatus.1")
         , APPROVED("PublicationStatus.2")
         , SELECTED_DISCUSSION("PublicationStatus.3")
+        , PUBLISHED_DRAFT("PublicationStatus.4a")
         , PUBLISHED("PublicationStatus.4");
 
         private String label;
@@ -832,7 +834,7 @@ public class RedListEnums {
         }
 
         public boolean isPublished() {
-            return this == PUBLISHED;
+            return this == PUBLISHED || this == PUBLISHED_DRAFT;
         }
 
     }

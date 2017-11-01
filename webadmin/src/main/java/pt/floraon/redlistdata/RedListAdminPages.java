@@ -385,12 +385,20 @@ System.out.println(gs.toJson(getUser()));
                     //                edits.entrySet().iterator().next().getValue()
 
 
-                    if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                    // TODO: this is a temporary fix
+                    if (rlde.getAssessment().getPublicationStatus().isPublished() && !thisRequest.getUser().canEDIT_9_9_4()) {
+                        // if it's published, block editing all fields except the unpublished
+                        thisRequest.getUser().revokePrivileges(EDIT_ALL_FIELDS);
+                    }
+
+/*
+                    if (rlde.getAssessment().getPublicationStatus().isPublished()) {
                         // if it's published, block editing all fields except the unpublished
                         boolean canEdit9 = thisRequest.getUser().canEDIT_9_9_4();
                         thisRequest.getUser().revokePrivileges(EDIT_ALL_FIELDS);
                         if (canEdit9) thisRequest.getUser().setEDIT_9_9_4(true);
                     }
+*/
 
                     warnings.addAll(rlde.validateCriteria());
                 } else {    // multiple IDs provided, batch update
@@ -644,14 +652,24 @@ System.out.println(gs.toJson(getUser()));
                     doc.appendChild(rootElement);
 
                     Integer count1 = 0, count2 = 0, count3 = 0, count4 = 0;
+                    Integer countCR = 0, countEN = 0, countVU = 0, countNT = 0, countLC = 0, countRE = 0, countEX = 0, countEW = 0, countDD = 0;
                     while (rldeit.hasNext()) {
                         RedListDataEntity rlde1 = rldeit.next();
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
                         if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;
                         if (rlde1.getAssessment().getPublicationStatus().isPublished()) count3++;
-                        if (rlde1.getAssessment().getAssessmentStatus().isAssessed()
-                            && rlde1.getAssessment().getCategory() != null && rlde1.getAssessment().getAdjustedCategory().isThreatened())
-                            count4++;
+                        if (rlde1.getAssessment().getAssessmentStatus().isAssessed() && rlde1.getAssessment().getCategory() != null) {
+                            if(rlde1.getAssessment().getAdjustedCategory().isThreatened()) count4++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.CR) countCR++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.EN) countEN++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.VU) countVU++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.NT) countNT++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.LC) countLC++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.RE) countRE++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.EX) countEX++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.EW) countEW++;
+                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.DD) countDD++;
+                        }
                     }
                     Element nrAssessed = doc.createElement("numberAssessed");
                     Element nrRevised = doc.createElement("numberRevised");
@@ -663,10 +681,42 @@ System.out.println(gs.toJson(getUser()));
                     nrPublished.appendChild(doc.createTextNode(count3.toString()));
                     nrThreatened.appendChild(doc.createTextNode(count1.equals(0) ? "?" : count4.toString()));
 
+                    Element nrPerCategory = doc.createElement("numberPerCategory");
+                    Element nrCR = doc.createElement("CR");
+                    Element nrEN = doc.createElement("EN");
+                    Element nrVU = doc.createElement("VU");
+                    Element nrNT = doc.createElement("NT");
+                    Element nrLC = doc.createElement("LC");
+                    Element nrRE = doc.createElement("RE");
+                    Element nrEX = doc.createElement("EX");
+                    Element nrEW = doc.createElement("EW");
+                    Element nrDD = doc.createElement("DD");
+
+                    nrPerCategory.appendChild(nrCR);
+                    nrPerCategory.appendChild(nrEN);
+                    nrPerCategory.appendChild(nrVU);
+                    nrPerCategory.appendChild(nrNT);
+                    nrPerCategory.appendChild(nrLC);
+                    nrPerCategory.appendChild(nrRE);
+                    nrPerCategory.appendChild(nrEX);
+                    nrPerCategory.appendChild(nrEW);
+                    nrPerCategory.appendChild(nrDD);
+
+                    nrCR.appendChild(doc.createTextNode(countCR.toString()));
+                    nrEN.appendChild(doc.createTextNode(countEN.toString()));
+                    nrVU.appendChild(doc.createTextNode(countVU.toString()));
+                    nrNT.appendChild(doc.createTextNode(countNT.toString()));
+                    nrLC.appendChild(doc.createTextNode(countLC.toString()));
+                    nrRE.appendChild(doc.createTextNode(countRE.toString()));
+                    nrEX.appendChild(doc.createTextNode(countEX.toString()));
+                    nrEW.appendChild(doc.createTextNode(countEW.toString()));
+                    nrDD.appendChild(doc.createTextNode(countDD.toString()));
+
                     rootElement.appendChild(nrAssessed);
                     rootElement.appendChild(nrRevised);
                     rootElement.appendChild(nrPublished);
                     rootElement.appendChild(nrThreatened);
+                    rootElement.appendChild(nrPerCategory);
                 } else {
                     thisRequest.setCacheHeaders(60 * 24);
                     File dir = new File(getServletContext().getRealPath("/")).getParentFile();
@@ -701,20 +751,24 @@ System.out.println(gs.toJson(getUser()));
 
                     while (rldeit.hasNext()) {
                         RedListDataEntity rlde = rldeit.next();
+/*
                         if (Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))
-                                || rlde.getGeographicalDistribution().getDescription() == null
-                                || rlde.getGeographicalDistribution().getDescription().equals("")) continue;
+                                || rlde.getGeographicalDistribution().getDescription().isEmpty()) continue;
+*/
+
+                        if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde.getTags()))
+                                || !rlde.getAssessment().getPublicationStatus().isPublished()) continue;
 
                         Element species = doc.createElement("species");
 
                         Element name = doc.createElement("name");
-                        name.appendChild(doc.createTextNode(rlde.getTaxEnt().getName()));
+                        name.appendChild(doc.createTextNode(rlde.getTaxEnt().getCanonicalName().toString(true)));
 
                         Element commonname = doc.createElement("commonName");
                         commonname.appendChild(doc.createTextNode(" "));
 
                         Element genus = doc.createElement("genus");
-                        genus.appendChild(doc.createTextNode(rlde.getTaxEnt().getCanonicalName().getGenus()));
+                        genus.appendChild(doc.createTextNode("<i>" + rlde.getTaxEnt().getCanonicalName().getGenus() + "</i>"));
 
                         Element family = doc.createElement("family");
                         family.appendChild(doc.createTextNode(driver.wrapTaxEnt(driver.asNodeKey(rlde.getTaxEntID())).getParentOfRank(Constants.TaxonRanks.FAMILY).getName()));
@@ -726,25 +780,28 @@ System.out.println(gs.toJson(getUser()));
                         fullname.appendChild(doc.createTextNode(rlde.getTaxEnt().getFullName(true)));
 
                         Element distr = doc.createElement("distribution");
-                        distr.appendChild(doc.createTextNode(rlde.getGeographicalDistribution().getDescription().toString()));
+                        distr.appendChild(doc.createTextNode(""));//rlde.getGeographicalDistribution().getDescription().toSimpleHTML()));
 
                         Element pop = doc.createElement("population");
-                        pop.appendChild(doc.createTextNode(rlde.getPopulation().getDescription().toString()));
+                        pop.appendChild(doc.createTextNode(""));//rlde.getPopulation().getDescription().toSimpleHTML()));
 
                         Element ecology = doc.createElement("ecology");
-                        ecology.appendChild(doc.createTextNode(rlde.getEcology().getDescription().toString()));
+                        ecology.appendChild(doc.createTextNode(""));//rlde.getEcology().getDescription().toSimpleHTML()));
 
                         Element uses = doc.createElement("uses");
-                        uses.appendChild(doc.createTextNode(rlde.getUsesAndTrade().getDescription().toString()));
+                        uses.appendChild(doc.createTextNode(""));//rlde.getUsesAndTrade().getDescription().toSimpleHTML()));
 
                         Element threats = doc.createElement("threats");
-                        threats.appendChild(doc.createTextNode(rlde.getThreats().getDescription().toString()));
+                        threats.appendChild(doc.createTextNode(""));//rlde.getThreats().getDescription().toSimpleHTML()));
 
                         Element conservation = doc.createElement("conservation");
-                        conservation.appendChild(doc.createTextNode(rlde.getConservation().getDescription().toString()));
+                        conservation.appendChild(doc.createTextNode(""));//rlde.getConservation().getDescription().toSimpleHTML()));
 
                         Element assessjust = doc.createElement("assessmentJustification");
-                        assessjust.appendChild(doc.createTextNode(rlde.getAssessment().getFinalJustification().toString()));
+                        if(rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED_DRAFT)
+                            assessjust.appendChild(doc.createTextNode("(em revisão)"));
+                        else
+                            assessjust.appendChild(doc.createTextNode(rlde.getAssessment().getFinalJustification().toSimpleHTML()));
 
                         Element assesscrit = doc.createElement("assessmentCriteria");
                         assesscrit.appendChild(doc.createTextNode(rlde.getAssessment()._getCriteriaAsString()));
@@ -759,18 +816,18 @@ System.out.println(gs.toJson(getUser()));
 
                         Element isThreatened = doc.createElement("isThreatened");
                         isThreatened.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory() == null ? ""
-                                        : (rlde.getAssessment().getAdjustedCategory().isThreatened() ? "Ameaçadas (CR, EN e VU)" : "")));
+                                        : (rlde.getAssessment().getAdjustedCategory().isThreatened() ? "Ameaçadas" : "")));
 
                         Element assesscatcrit = doc.createElement("assessmentCategoryAndCriteria");
                         assesscatcrit.appendChild(doc.createTextNode((rlde.getAssessment()._getCategoryAsString()
                                 + " " + rlde.getAssessment()._getCriteriaAsString()).trim()));
 
                         Element assesscatverb = doc.createElement("assessmentCategoryVerbose");
-                        assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryVerboseAsString()));
+                        assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryVerboseAsString(true)));
 
                         Element fullassesscat = doc.createElement("fullAssessmentCategory");
                         if(rlde.getAssessment().getAdjustedCategory() != null)
-                            fullassesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString() + ", " + rlde.getAssessment()._getCategoryVerboseAsString()));
+                            fullassesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString() + ", " + rlde.getAssessment()._getCategoryVerboseAsString(true)));
 
                         BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc1 = new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
                         bc1.collectAllCitations();

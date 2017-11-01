@@ -244,7 +244,8 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable {
 	public String getFullName(boolean htmlFormatted) {
 		if(htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())	// genus or inferior
 			return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
-				+ "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
+				+ this.getCanonicalName().toString(true) + (this.getAuthor() != null ? " "+this.getAuthor() : "")
+//				+ "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
 				+ (this.getSensu() != null ? " <i>sensu</i> "+this.getSensu() : "")
 				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
 		else

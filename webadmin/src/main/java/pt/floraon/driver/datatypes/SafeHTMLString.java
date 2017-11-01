@@ -27,7 +27,7 @@ public class SafeHTMLString {
     }
 
     public boolean isEmpty() {
-        return StringUtils.isStringEmpty(Jsoup.parse(this.text).text());
+        return StringUtils.isStringEmpty(Jsoup.parse(this.text).text().replace("\u00a0", " ").trim());
     }
 
     @Override
@@ -47,6 +47,21 @@ public class SafeHTMLString {
 
         for(Element el : d.select("span.reference"))
             el.replaceWith(new TextNode("_"+el.text()+"_", null));
+
+        for(Element el : d.select("span"))
+            el.replaceWith(new TextNode(el.text(), null));
+
+        return d.body().html();
+    }
+
+    public String toSimpleHTML() {
+        String out = this.text;
+        Document d = Jsoup.parse(out);
+        for(Element el : d.select("span.highlight"))
+            el.replaceWith(new Element("i").text(el.text()));
+
+        for(Element el : d.select("span.reference"))
+            el.replaceWith(new Element("cite").text(el.text()));
 
         for(Element el : d.select("span"))
             el.replaceWith(new TextNode(el.text(), null));

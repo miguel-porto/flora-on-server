@@ -31,10 +31,11 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     , EDIT_9_7_9_92(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.7, 9.9.2")
     , EDIT_9_8_9_93(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Review (9.8, 9.9.3)")
     , EDIT_9_9_4(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Publish (9.9.4)")
-    , EDIT_9_9_5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Validate (9.9.5)")
+    , EDIT_9_9_5(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Validate (9.9.5, 10.2)")
     , EDIT_9_5_9_6_9_61_9_91(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.5, 9.6, 9.6.1, 9.9.1")
     , EDIT_9_3_9_45(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit 9.3, 9.4.5")
-    , EDIT_10(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Edit section 10 (review)")
+    , EDIT_10(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Review (10.1)")
+    , VIEW_10_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "View validation comments (10.2)")
     , EDIT_11(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Reply to reviewer (sect. 11)")
 
     , CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL, "Create RedList datasets")

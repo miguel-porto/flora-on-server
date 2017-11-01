@@ -276,6 +276,10 @@ public class User extends NamedDBNode {
 		setPrivilege(EDIT_10, value);
 	}
 
+	public void setVIEW_10_2(boolean value) {
+		setPrivilege(VIEW_10_2, value);
+	}
+
 	public void setEDIT_11(boolean value) {
 		setPrivilege(EDIT_11, value);
 	}
@@ -423,6 +427,10 @@ public class User extends NamedDBNode {
 
 	public boolean canEDIT_10() {
 		return hasPrivilege(Privileges.EDIT_10);
+	}
+
+	public boolean canVIEW_10_2() {
+		return hasPrivilege(Privileges.VIEW_10_2);
 	}
 
 	public boolean canEDIT_11() {
