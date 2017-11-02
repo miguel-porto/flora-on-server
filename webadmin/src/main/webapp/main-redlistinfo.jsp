@@ -277,7 +277,7 @@
                     <c:if test="${taxon.getAssessment().getAssessmentStatus() == 'READY_REASSESSMENT' && taxon.getAssessment().getTextStatus() == 'REVISION_READY'}">
                         <c:set var="taxonclasses" value="${taxonclasses} reassessment"/>
                     </c:if>
-                    <c:if test="${taxon.getAssessment().getPublicationStatus() == 'APPROVED'}">
+                    <c:if test="${taxon.getAssessment().getPublicationStatus().isApproved() && taxon.getAssessment().getValidationStatus() == 'IN_ANALYSIS'}">
                         <c:set var="taxonclasses" value="${taxonclasses} approved"/>
                     </c:if>
                     <c:if test="${taxon.getAssessment().getValidationStatus() == 'VALIDATED'}">
@@ -1603,7 +1603,7 @@
                                 <fmt:message key="${rlde.getAssessment().getPublicationStatus().getLabel()}"/>
                             </c:if>
                             </td></tr>
-                            <c:if test="${rlde.getAssessment().getPublicationStatus() == 'APPROVED'}">
+                            <c:if test="${rlde.getAssessment().getPublicationStatus().isApproved()}">
                             <tr><td class="title">9.9.5</td><td><fmt:message key="DataSheet.label.9.9.5" /></td><td>
                             <c:if test="${user.canEDIT_9_9_5() || user.canEDIT_SECTION9()}">
                                 <select name="assessment_ValidationStatus">

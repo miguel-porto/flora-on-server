@@ -837,6 +837,10 @@ public class RedListEnums {
             return this == PUBLISHED || this == PUBLISHED_DRAFT;
         }
 
+        public boolean isApproved() {
+            return this == APPROVED || this == PUBLISHED;
+        }
+
     }
 
     public enum ValidationStatus implements LabelledEnum {

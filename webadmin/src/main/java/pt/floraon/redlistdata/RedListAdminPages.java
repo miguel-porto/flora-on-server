@@ -655,6 +655,9 @@ System.out.println(gs.toJson(getUser()));
                     Integer countCR = 0, countEN = 0, countVU = 0, countNT = 0, countLC = 0, countRE = 0, countEX = 0, countEW = 0, countDD = 0;
                     while (rldeit.hasNext()) {
                         RedListDataEntity rlde1 = rldeit.next();
+                        // FIXME this just a temporary fix
+                        if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde1.getTags()))) continue;
+
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
                         if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;
                         if (rlde1.getAssessment().getPublicationStatus().isPublished()) count3++;
