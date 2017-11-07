@@ -24,7 +24,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String spatialRS;
     private Float elevation;
     private String geometry;
-    private Integer year, month, day;
+    private Integer year, month, day;   // TODO: these cannot be erased...
     private Precision precision;
     private Boolean complete;
     private String habitat, pubNotes, privNotes, geology;

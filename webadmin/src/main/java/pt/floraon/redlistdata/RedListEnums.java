@@ -838,7 +838,7 @@ public class RedListEnums {
         }
 
         public boolean isApproved() {
-            return this == APPROVED || this == PUBLISHED;
+            return this == APPROVED;
         }
 
     }

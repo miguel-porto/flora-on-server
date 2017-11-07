@@ -182,6 +182,8 @@
             <t:optionbutton optionname="onlyapproved" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             <fmt:message key="TaxonIndex.filters.3e" var="tmp"/>
             <t:optionbutton optionname="onlyvalidated" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
+            <fmt:message key="TaxonIndex.filters.3g" var="tmp"/>
+            <t:optionbutton optionname="onlyneedscorrections" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
             </c:if>
             <fmt:message key="TaxonIndex.filters.6" var="tmp"/>
             <t:optionbutton optionname="onlyassessed" title="${tmp}" defaultvalue="false" norefresh="true" style="light"/>
@@ -216,6 +218,7 @@
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyrevised'] ? (' filter_onlyrevised') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyreassessment'] ? (' filter_onlyreassessment') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyvalidated'] ? (' filter_onlyvalidated') : ''}" />
+            <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyneedscorrections'] ? (' filter_onlyneedscorrections') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyapproved'] ? (' filter_onlyapproved') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlynative'] ? (' filter_onlynative') : ''}" />
             <c:set var="indexclasses" value="${indexclasses}${sessionScope['option-onlyassessed'] ? (' filter_onlyassessed') : ''}" />
@@ -282,6 +285,9 @@
                     </c:if>
                     <c:if test="${taxon.getAssessment().getValidationStatus() == 'VALIDATED'}">
                         <c:set var="taxonclasses" value="${taxonclasses} validated"/>
+                    </c:if>
+                    <c:if test="${taxon.getAssessment().getValidationStatus() == 'NEEDS_CORRECTIONS'}">
+                        <c:set var="taxonclasses" value="${taxonclasses} needscorrections"/>
                     </c:if>
                     <c:forEach var="tmp" items="${taxon._getHTMLEscapedTags()}">
                         <c:set var="taxonclasses" value="${taxonclasses} tag_${tmp}"/>
@@ -1636,9 +1642,9 @@
                 <tr class="section9"><td class="title">9.13</td><td><fmt:message key="DataSheet.label.9.13" /></td><td>
                 <table class="subtable">
                     <tr><th>Date saved</th><th>User</th><th>Number of edits</th></tr>
-                <c:forEach var="rev" items="${revisions}">
+                    <c:forEach var="rev" items="${revisions}">
                     <tr><td>${rev.getKey().getFormattedDateSaved()}</td><td>${userMap.get(rev.getKey().getUser())}</td><td>${rev.getValue()}</td></tr>
-                </c:forEach>
+                    </c:forEach>
                 </table>
                 </td></tr>
 
@@ -1649,6 +1655,14 @@
                         value="${rlde.getReplyToReviewer()}"
                         name="replyToReviewer"/>
                 </td></tr>
+                <c:if test="${user.canVIEW_10_2() || user.canEDIT_9_9_5()}">
+                <tr class="section11"><td class="title">11.2</td><td><fmt:message key="DataSheet.label.11.2" /></td><td>
+                    <t:editabletext
+                        privilege="${rlde.getAssessment().getValidationStatus().toString() == 'NEEDS_CORRECTIONS' && user.canEDIT_11() && user.canVIEW_10_2()}"
+                        value="${rlde.getReplyToValidation()}"
+                        name="replyToValidation"/>
+                </td></tr>
+                </c:if>
                 </c:if>
             </table>
             <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || user.canEDIT_10() || user.canVIEW_10_2() || user.canEDIT_9_9_5())}">

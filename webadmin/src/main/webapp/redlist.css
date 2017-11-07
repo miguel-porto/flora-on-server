@@ -130,6 +130,7 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 #speciesindex.filter_onlyrevised tbody tr:not(.revised) {display: none;}
 #speciesindex.filter_onlyreassessment tbody tr:not(.reassessment) {display: none;}
 #speciesindex.filter_onlyvalidated tbody tr:not(.validated) {display: none;}
+#speciesindex.filter_onlyneedscorrections tbody tr:not(.needscorrections) {display: none;}
 #speciesindex.filter_onlyapproved tbody tr:not(.approved) {display: none;}
 #speciesindex.filter_onlynative tbody tr:not(.native) {display: none;}
 #speciesindex.filter_onlypublished tbody tr:not(.published) {display: none;}

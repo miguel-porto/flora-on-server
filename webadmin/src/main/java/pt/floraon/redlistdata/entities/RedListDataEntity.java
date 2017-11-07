@@ -94,7 +94,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
      */
     private List<Revision> revisions;
 
-    private SafeHTMLString reviewerComments, replyToReviewer, otherInformation, validationComments;
+    private SafeHTMLString reviewerComments, replyToReviewer, otherInformation, validationComments, replyToValidation;
 
     public RedListDataEntity() {
     }
@@ -160,6 +160,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         return replyToReviewer == null ? new SafeHTMLString("") : replyToReviewer;
     }
 
+    public SafeHTMLString getReplyToValidation() {
+        return replyToValidation == null ? new SafeHTMLString("") : replyToValidation;
+    }
+
     public SafeHTMLString getOtherInformation() {
         return otherInformation == null ? new SafeHTMLString("") : otherInformation;
     }
@@ -223,6 +227,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setReplyToReviewer(SafeHTMLString replyToReviewer) {
         this.replyToReviewer = replyToReviewer;
+    }
+
+    public void setReplyToValidation(SafeHTMLString replyToValidation) {
+        this.replyToValidation = replyToValidation;
     }
 
     public void setOtherInformation(SafeHTMLString otherInformation) {

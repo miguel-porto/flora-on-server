@@ -660,7 +660,7 @@ System.out.println(gs.toJson(getUser()));
 
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
                         if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;
-                        if (rlde1.getAssessment().getPublicationStatus().isPublished()) count3++;
+                        if (rlde1.getAssessment().getPublicationStatus().isPublished() || rlde1.getAssessment().getPublicationStatus().isApproved()) count3++;
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed() && rlde1.getAssessment().getCategory() != null) {
                             if(rlde1.getAssessment().getAdjustedCategory().isThreatened()) count4++;
                             if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.CR) countCR++;
@@ -760,7 +760,8 @@ System.out.println(gs.toJson(getUser()));
 */
 
                         if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde.getTags()))
-                                || !rlde.getAssessment().getPublicationStatus().isPublished()) continue;
+                                || (!rlde.getAssessment().getPublicationStatus().isPublished()
+                                && !rlde.getAssessment().getPublicationStatus().isApproved())) continue;
 
                         Element species = doc.createElement("species");
 

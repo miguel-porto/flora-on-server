@@ -12,7 +12,7 @@ public class NumericInterval implements Serializable {
             Pattern.compile("^\\s*(?<modifier>[<>])? *(?<approx>~)? *(?<n1>[0-9]+)(?: *- *(?<n2>[0-9]+))?\\s*$");
     private transient Matcher matcher;
     protected transient Integer minValue, maxValue, exactValue;
-    protected transient boolean approximateValue = false;
+    protected transient boolean approximateValue = false, parsed = false;
     protected transient String error;
 
     public NumericInterval(String text) {
@@ -25,6 +25,8 @@ public class NumericInterval implements Serializable {
     }
 
     protected void parseText() {  // lazy parsing
+        if(this.parsed) return;
+        this.parsed = true;
         if(this.matcher == null) {
             if(StringUtils.isStringEmpty(this.text)) return;
             this.matcher = intervalMatch.matcher(this.text);
@@ -91,6 +93,11 @@ public class NumericInterval implements Serializable {
     public String getError() {
         parseText();
         return this.error;
+    }
+
+    public boolean isEmpty() {
+        parseText();
+        return this.exactValue == null && this.maxValue == null && this.minValue == null;
     }
 
     public static NumericInterval emptyInterval() {
