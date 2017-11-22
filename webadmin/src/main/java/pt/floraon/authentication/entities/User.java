@@ -288,6 +288,10 @@ public class User extends NamedDBNode {
 		setPrivilege(CREATE_REDLIST_DATASETS, value);
 	}
 
+	public void setMANAGE_VERSIONS(boolean value) {
+		setPrivilege(MANAGE_VERSIONS, value);
+	}
+
 	public void setMODIFY_TAXA(boolean value) {
 		setPrivilege(MODIFY_TAXA, value);
 	}
@@ -437,6 +441,10 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.EDIT_11);
 	}
 
+	public boolean canMANAGE_VERSIONS() {
+		return hasPrivilege(Privileges.MANAGE_VERSIONS);
+	}
+
 	public boolean canCREATE_REDLIST_DATASETS() {
 		return hasPrivilege(Privileges.CREATE_REDLIST_DATASETS);
 	}
@@ -554,9 +562,23 @@ public class User extends NamedDBNode {
 	 * @param privileges
 	 */
 	public void revokePrivileges(Privileges[] privileges) {
-		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
-		this.effectivePrivileges.addAll(this.privileges);
+//		revokeAllPrivileges();
+//		this.effectivePrivileges.addAll(this.privileges);
 		this.effectivePrivileges.removeAll(new HashSet<>(Arrays.asList(privileges)));
+	}
+
+	/**
+	 * Temporally remove all privileges
+	 */
+	public void revokeAllPrivileges() {
+		this.effectivePrivileges = new HashSet<>(Arrays.asList(User.DEFAULT_USER_PRIVILEGES));
+	}
+
+	public void revokeAllPrivilegesExcept(Privileges[] privileges) {
+		Set<Privileges> tmp = new HashSet<>(Arrays.asList(privileges));
+		tmp.retainAll(this.effectivePrivileges);
+		revokeAllPrivileges();
+		this.effectivePrivileges.addAll(tmp);
 	}
 
 	@Override

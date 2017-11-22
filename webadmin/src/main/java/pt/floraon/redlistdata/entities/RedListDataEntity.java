@@ -8,6 +8,7 @@ import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
@@ -96,6 +97,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     private SafeHTMLString reviewerComments, replyToReviewer, otherInformation, validationComments, replyToValidation;
 
+    private String coverPhotoUrl;
+
     public RedListDataEntity() {
     }
 
@@ -106,6 +109,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public TaxEnt getTaxEnt() {
         return taxEnt;
+    }
+
+    public void setTaxEnt(TaxEnt taxEnt) {
+        this.taxEnt = taxEnt;
     }
 
     public InferredStatus getInferredStatus() {
@@ -162,6 +169,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public SafeHTMLString getReplyToValidation() {
         return replyToValidation == null ? new SafeHTMLString("") : replyToValidation;
+    }
+
+    public String getCoverPhotoUrl() {
+        return coverPhotoUrl;
     }
 
     public SafeHTMLString getOtherInformation() {
@@ -231,6 +242,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
 
     public void setReplyToValidation(SafeHTMLString replyToValidation) {
         this.replyToValidation = replyToValidation;
+    }
+
+    public void setCoverPhotoUrl(String coverPhotoUrl) {
+        this.coverPhotoUrl = coverPhotoUrl;
     }
 
     public void setOtherInformation(SafeHTMLString otherInformation) {

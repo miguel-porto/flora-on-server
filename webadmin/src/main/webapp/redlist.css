@@ -4,6 +4,8 @@ a.returntomain img {height: 90px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 ul.hanging li {padding-left: 26px; text-indent: -20px;}
+.compact {padding:0}
+.compact * {margin:0 !important}
 #main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {
@@ -102,10 +104,14 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
     background-color: #2979ff;
     cursor:pointer;
     box-shadow: 0 0 3px gray;
+    text-align:center;
 }
-/*.togglebutton.selected {background-color:#b2ff59; color:black;}*/
+
+.togglebutton.selected, .togglebutton.selected * {background-color:yellow; color:green !important;}
 
 .togglebutton, .togglebutton a, .togglebutton a:visited {color:white}
+
+.togglebutton .info {color:white;}
 
 /********** SPECIES INDEX ***********/
 #speciesindex {margin-bottom: 60px;}
@@ -215,6 +221,10 @@ input.selectionbox:not(:checked) + label {background-color: white;}
 #sheet-header {
     position:relative;
     color: black;
+    font-size:1.3em;
+    background-color: #ffcdd2;
+    padding:8px;
+    font-weight:bold;
 }
 
 #sheet-header .redlistcategory {
@@ -227,6 +237,7 @@ input.selectionbox:not(:checked) + label {background-color: white;}
 #sheet-header h1 {padding-left: 130px; color: inherit}
 
 #header-buttons {text-align:right;}
+#versions * {vertical-align:middle;}
 
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 select {max-width: 400px; text-overflow: ellipsis;}
@@ -392,6 +403,7 @@ table tr:hover:not(.separator) td:not(.title) {background-color:#f0fff0;}
 table.simpleform {width:100%;box-sizing: border-box;max-width:1000px;}
 table.simpleform tr>td:nth-of-type(1) {width:0}
 table.simpleform input[type=text] {width:100%;box-sizing: border-box;}
+
 /*table td.title {background-color: #e3f2fd;}*/
 
 .floatingtoolbar {
@@ -435,7 +447,7 @@ table.simpleform input[type=text] {width:100%;box-sizing: border-box;}
 table.sheet.help #toggle_help {background-color:yellow;}
 table.sheet:not(.help) .legend {display:none;}
 .legend.alwaysvisible {display:block !important;}
-table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:20%}
+table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:30%}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
 table.sheet {margin-bottom:350px;}
@@ -471,6 +483,7 @@ table.sheet .section8 td.title, .button.section8 {background-color: #757575;}
 table.sheet .section9 td.title, .button.section9 {background-color: #c62828;}
 table.sheet .section10 td.title, .button.section10 {background-color: #000000;}
 table.sheet .section11 td.title, .button.section11 {background-color: #009688;}
+table.sheet .section12 td.title, .button.section12 {background-color: #000000;}
 
 table.sheet .section1>td:nth-of-type(2) {background-color: rgba(033, 150, 243, 0.3);}
 table.sheet .section2>td:nth-of-type(2) {background-color: rgba(156,  39, 176, 0.3);}

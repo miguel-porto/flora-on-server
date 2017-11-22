@@ -13,8 +13,10 @@ import pt.floraon.bibliography.BibliographyCompiler;
 import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.SafeHTMLString;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.fieldparsers.DateParser;
@@ -46,7 +48,9 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 
+import static pt.floraon.authentication.Privileges.EDIT_9_9_4;
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
+import static pt.floraon.authentication.Privileges.MANAGE_VERSIONS;
 import static pt.floraon.driver.utils.StringUtils.cleanArray;
 import static pt.floraon.driver.utils.StringUtils.sanitizeHtmlId;
 
@@ -64,6 +68,7 @@ public class RedListAdminPages extends FloraOnServlet {
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         final HttpServletRequest request = thisRequest.request;
+        RedListDataEntitySnapshot rldes = null;
         String what;
         TaxEnt te;
         long sizeOfSquare = 2000;
@@ -146,6 +151,10 @@ System.out.println(gs.toJson(getUser()));
                     thisRequest.error("Not logged in");
                 return;
 
+            case "sheet":   // read-only sheet
+                INodeKey idSnap = driver.asNodeKey("redlist_snapshots_" + territory + "/" + thisRequest.getParameterAsString("id"));
+                rldes = driver.getNodeWorkerDriver().getDocument(idSnap, RedListDataEntitySnapshot.class);
+
             case "taxon":
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
@@ -158,8 +167,6 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("population_ExtremeFluctuations", RedListEnums.YesNoNA.values());
                 request.setAttribute("population_NrMatureEachSubpop", RedListEnums.NrMatureEachSubpop.values());
                 request.setAttribute("population_PercentMatureOneSubpop", RedListEnums.PercentMatureOneSubpop.values());
-//                request.setAttribute("ecology_HabitatTypes", RedListEnums.HabitatTypes.values());
-//                request.setAttribute("ecology_HabitatTypes", driver.getRedListData().getAllHabitats().toArray(new Habitat[0]));
                 request.setAttribute("ecology_DeclineHabitatQuality", RedListEnums.DeclineHabitatQuality.values());
                 request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
                 request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
@@ -197,41 +204,72 @@ System.out.println(gs.toJson(getUser()));
                     break;
                 }
                 if(ids.length == 1) {       // only one taxon requested
-                    RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id"));
-                    if (rlde == null) return;
+                    RedListDataEntity rlde;
+                    INodeKey thisId;
+                    if(rldes == null) {
+                        thisId = thisRequest.getParameterAsKey("id");
+                        rlde = driver.getRedListData().getRedListDataEntity(territory, thisId);
+                        if (rlde == null) return;
+                    } else {
+                        request.setAttribute("snapshotid", rldes.getID());
+                        rlde = rldes;
+                        thisId = driver.asNodeKey(rlde.getTaxEntID());
+                        rlde.setTaxEnt(driver.getNodeWorkerDriver().getDocument(thisId, TaxEnt.class));
+                        request.setAttribute("versiondate", rldes._getDateSavedFormatted());
+                    }
+                    request.setAttribute("snapshots", driver.getRedListData().getSnapshots(territory, driver.asNodeKey(rlde.getTaxEntID())));
+                    request.setAttribute("taxon", rlde.getTaxEnt());
+                    request.setAttribute("synonyms", driver.wrapTaxEnt(thisId).getSynonyms());
+                    request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(thisId).getFormerlyIncludedIn());
+                    request.setAttribute("includedTaxa", driver.wrapTaxEnt(thisId).getIncludedTaxa());
+
+                    // compile citations to make bibliography on the fly
                     BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
-//                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
+                    //                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
                     bc.collectAllCitations();
                     request.setAttribute("bibliography", bc.getBibliography());
 //                    bc.formatCitations();
 
-                    // set privileges for this taxon
-                    //rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
-                    RedListSettings rls = driver.getRedListSettings(territory);
-                    Set<Privileges> ignorePrivileges = null;
-                    // So, if text edition is locked, we only lock for the Diretiva tag, and only for those who don't have the secion 9 privilege
-                    // Also, if the reviewer marked as revised, needs working, then don't lock.
-                    if(rls.isEditionLocked() && !thisRequest.getUser().canEDIT_SECTION9() && Arrays.asList(rlde.getTags()).contains("Diretiva")     // TODO user configuration
-                            && rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_WORKING)
-                        ignorePrivileges = Privileges.TextEditingPrivileges;
-
-                    thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"), ignorePrivileges);
-
-                    request.setAttribute("taxon", rlde.getTaxEnt());
-                    request.setAttribute("synonyms", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getSynonyms());
-                    request.setAttribute("formerlyIncluded", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getFormerlyIncludedIn());
-                    request.setAttribute("includedTaxa", driver.wrapTaxEnt(thisRequest.getParameterAsKey("id")).getIncludedTaxa());
-                    List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-                    for(SimpleOccurrenceDataProvider edp : sodps)
-                        edp.executeOccurrenceQuery(rlde.getTaxEnt());
-
+                    List<SimpleOccurrenceDataProvider> sodps = null;
+                    OccurrenceProcessor occurrenceProcessor, historicalOccurrenceProcessor;
                     // TODO clipping polygon and years must be a user configuration
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                    OccurrenceProcessor historicalOccurrenceProcessor = new OccurrenceProcessor(
-                            sodps, protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
 
-                    OccurrenceProcessor occurrenceProcessor = new OccurrenceProcessor(
-                            sodps, protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
+                    if(rldes == null) {
+                        // set privileges for this taxon
+
+                        //rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
+                        RedListSettings rls = driver.getRedListSettings(territory);
+                        Set<Privileges> ignorePrivileges = null;
+                        // So, if text edition is locked, we only lock for the Diretiva tag, and only for those who don't have the secion 9 privilege
+                        // Also, if the reviewer marked as revised, needs working, then don't lock.
+                        if (rls.isEditionLocked() && !thisRequest.getUser().canEDIT_SECTION9() && Arrays.asList(rlde.getTags()).contains("Diretiva")     // TODO user configuration
+                                && rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_WORKING) {
+                            ignorePrivileges = Privileges.TextEditingPrivileges;
+                        }
+
+                        thisRequest.getUser().setEffectivePrivilegesFor(driver, thisId, ignorePrivileges);
+
+                        sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+                        for(SimpleOccurrenceDataProvider edp : sodps)
+                            edp.executeOccurrenceQuery(rlde.getTaxEnt());
+
+
+                        historicalOccurrenceProcessor = new OccurrenceProcessor(
+                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
+
+                        occurrenceProcessor = new OccurrenceProcessor(
+                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
+                    } else { // we want it read-only
+                        thisRequest.getUser().revokeAllPrivilegesExcept(new Privileges[]{MANAGE_VERSIONS});
+
+                        historicalOccurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
+                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
+
+                        occurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
+                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
+                    }
+
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
@@ -310,7 +348,7 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("pointsOutsidePA", occurrenceProcessor.getNumberOfPointsOutsideProtectedAreas());
                         request.setAttribute("totalPoints", occurrenceProcessor.size());
 
-                        if(rlde.getTaxEnt().getOldId() != null) {
+                        if(sodps != null && rlde.getTaxEnt().getOldId() != null) {
                             // FIXME!!!! this only for Flora-On...
                             Map<String, Object> taxonInfo = sodps.get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
 
@@ -335,7 +373,7 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("historicalOccurrences", historicalOccurrenceProcessor);
                     }
 
-                    if(rlde.getTaxEnt().getOldId() == null) {
+                    if(rlde.getTaxEnt() == null || rlde.getTaxEnt().getOldId() == null) {
 //                        warnings.add("DataSheet.msg.warning.1b");
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
                     }
@@ -399,7 +437,7 @@ System.out.println(gs.toJson(getUser()));
                         if (canEdit9) thisRequest.getUser().setEDIT_9_9_4(true);
                     }
 */
-
+                    //System.out.println(new Gson().toJson(rlde));
                     warnings.addAll(rlde.validateCriteria());
                 } else {    // multiple IDs provided, batch update
                     thisRequest.getUser().resetEffectivePrivileges();
@@ -877,7 +915,7 @@ System.out.println(gs.toJson(getUser()));
                                     Type listType = new TypeToken<List<Map<String, Object>>>() {
                                     }.getType();
                                     List<Map<String, Object>> occArray;
-//                                System.out.println(resp.toString());
+
                                     occArray = new Gson().fromJson(resp.getAsJsonArray("msg"), listType);
                                     for (Map<String, Object> ph : occArray) {
                                         Element photo = doc.createElement("photo");
@@ -885,8 +923,13 @@ System.out.println(gs.toJson(getUser()));
                                                 + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
                                         photos.appendChild(photo);
 
-                                        if(!headerphoto.hasChildNodes()) headerphoto.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
-                                                + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
+                                        if(!headerphoto.hasChildNodes()) {
+                                            if(StringUtils.isStringEmpty(rlde.getCoverPhotoUrl()))
+                                                headerphoto.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
+                                                        + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
+                                            else
+                                                headerphoto.appendChild(doc.createTextNode(rlde.getCoverPhotoUrl()));
+                                        }
                                     }
                                 }
                             } catch (URISyntaxException e) {

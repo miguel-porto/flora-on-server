@@ -18,7 +18,10 @@ import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.fieldparsers.DateParser;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.entities.RedListDataEntitySnapshot;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -61,6 +64,40 @@ public class RedListDataApi extends FloraOnServlet {
                 territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
                 thisRequest.success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(territory), driver).getID());
+                break;
+
+            case "snapshot":    // archives a new snapshot of one sheet, including a copy of the occurrence records
+                RedListDataEntitySnapshot rldes;
+                territory = thisRequest.getParameterAsString("territory");
+                // read sheet data
+                rldes = driver.getRedListData().getRedListDataEntityAsSnapshot(territory, thisRequest.getParameterAsKey("id"));
+
+                // query occurrences
+                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
+                for(SimpleOccurrenceDataProvider edp : sodps)
+                    edp.executeOccurrenceQuery(rldes.getTaxEnt());
+
+                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, clippingPolygon2,  null, null, true);
+
+                // populate sheet data with a copy of the occurrences
+                Iterator<SimpleOccurrence> it6 = op.iterator();
+                List<SimpleOccurrence> ol = new ArrayList<>();
+                while(it6.hasNext())
+                    ol.add(it6.next());
+                rldes.setOccurrences(ol);
+
+                rldes.setVersionTag(thisRequest.getParameterAsString("versiontag"));
+                driver.getRedListData().saveRedListDataEntitySnapshot(territory, rldes);
+                thisRequest.success("Ok");
+//                gs = new GsonBuilder().setPrettyPrinting().create();
+//                System.out.println(gs.toJson(rldes));
+                break;
+
+            case "deletesnapshot":
+                driver.getNodeWorkerDriver().deleteDocument(thisRequest.getParameterAsKey("id"));
+                thisRequest.success("Ok");
                 break;
 
             case "updatenativestatus":

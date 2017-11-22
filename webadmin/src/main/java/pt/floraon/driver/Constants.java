@@ -61,6 +61,12 @@ public final class Constants {
 			return new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		}
 	};
+	public static final ThreadLocal<DateFormat> dateTimeFormatTwoLine = new ThreadLocal<DateFormat>(){
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("dd/MM/yyyy'<br/>'HH:mm");
+		}
+	};
 	public static final ThreadLocal<DateFormat> dateFormat = new ThreadLocal<DateFormat>(){
 		@Override
 		protected DateFormat initialValue() {

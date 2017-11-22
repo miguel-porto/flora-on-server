@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata;
 
+import com.arangodb.ArangoCollection;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -19,6 +20,7 @@ import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.dataproviders.FloraOnDataProvider;
+import pt.floraon.redlistdata.entities.RedListDataEntitySnapshot;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -128,6 +130,56 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
+    }
+
+    @Override
+    public RedListDataEntitySnapshot getRedListDataEntityAsSnapshot(String territory, INodeKey taxEntId) throws DatabaseException {
+        try {
+            Iterator<RedListDataEntitySnapshot> it = database.query(AQLRedListQueries.getString("redlistdata.2", territory, taxEntId), null
+                    , null, RedListDataEntitySnapshot.class);
+            if(it.hasNext()) return it.next();
+            return null;
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void saveRedListDataEntitySnapshot(String territory, RedListDataEntitySnapshot rldes) {
+        String cname = "redlist_snapshots_" + territory;
+        try {
+            database.collection(cname).getInfo();
+        } catch (ArangoDBException e) {
+            database.createCollection(cname, new CollectionCreateOptions().type(CollectionType.DOCUMENT));
+        }
+
+        ArangoCollection c = database.collection(cname);
+        rldes.updateDateSaved();
+        rldes.setKey(null);
+        rldes.setID(null);
+        c.insertDocument(rldes);
+    }
+
+    @Override
+    public Iterator<RedListDataEntitySnapshot> getSnapshots(String territory, INodeKey taxEntId) throws DatabaseException {
+        String cname = "redlist_snapshots_" + territory;
+        try {
+            database.collection(cname).getInfo();
+        } catch (ArangoDBException e) {
+            return Collections.emptyIterator();
+        }
+
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("@collection", cname);
+        bindVars.put("id", taxEntId.getID());
+
+        try {
+            return database.query(AQLRedListQueries.getString("redlistdata.10"), bindVars
+                    , null, RedListDataEntitySnapshot.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+
     }
 
     @Override

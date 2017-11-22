@@ -29,7 +29,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
     };
 */
-    private final List<Cluster<Point2D>> clusters;
+    private List<Cluster<Point2D>> clusters;
     private final Multimap<Point2D, Polygon> pointsInPolygons;   // for each occurrence lists the protected area polygons in which it falls
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
@@ -40,6 +40,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private List<SimpleOccurrenceDataProvider> occurrences;
     private boolean includeDoubtful = true;
     private static final Polygon nullPolygon = new Polygon();
+    private List<SimpleOccurrence> occurrenceList;
 
     /**
      * A polygon theme to clip occurrences. May have any number of polygons.
@@ -96,7 +97,55 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
     @Override
     public Iterator<SimpleOccurrence> iterator() {
-        return new ExternalDataProviderIterator(occurrences);
+        // if we've got a static occurrence list, just iterate over it. Otherwise, make new iterator from queries.
+        if(this.occurrenceList == null)
+            return new ExternalDataProviderIterator(occurrences);
+        else
+            return new OccurrenceListIterator(this.occurrenceList);
+    }
+
+    public class OccurrenceListIterator implements Iterator<SimpleOccurrence> {
+        private List<SimpleOccurrence> occurrences;
+        private Iterator<SimpleOccurrence> iterator;
+        private SimpleOccurrence prevElement;
+
+        OccurrenceListIterator(List<SimpleOccurrence> providers) {
+            this.occurrences = providers;
+            this.iterator = this.occurrences.iterator();
+        }
+
+        @Override
+        public boolean hasNext() {
+            if(prevElement != null) return true;
+
+            while (this.iterator.hasNext()) {
+                prevElement = this.iterator.next();
+                if (enter(prevElement)) return true; else prevElement = null;
+            }
+
+            return false;
+        }
+
+        @Override
+        public SimpleOccurrence next() {
+            SimpleOccurrence so;
+            if(this.prevElement != null) {
+                so = this.prevElement;
+                this.prevElement = null;
+                return so;
+            }
+
+            while (this.iterator.hasNext()) {
+                if (enter(so = this.iterator.next())) return so;
+            }
+
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 
     public class ExternalDataProviderIterator implements Iterator<SimpleOccurrence> {
@@ -166,11 +215,14 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      */
     public int size() {
         int size = 0;
-        for(SimpleOccurrenceDataProvider edp : this.occurrences) {
-            for (SimpleOccurrence so : edp) {
-                if (enter(so)) size++;
+        if(this.occurrenceList == null) {
+            for (SimpleOccurrenceDataProvider edp : this.occurrences) {
+                for (SimpleOccurrence so : edp) {
+                    if (enter(so)) size++;
+                }
             }
-        }
+        } else
+            size = this.occurrenceList.size();
         return size;
     }
 
@@ -268,6 +320,29 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear, includeDoubtful);
     }
 
+    public static OccurrenceProcessor createFromOccurrences(List<SimpleOccurrence> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
+            , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
+
+        OccurrenceProcessor out = new OccurrenceProcessor();
+
+        out.clippingPolygon = clippingPolygon;
+        out.minimumYear = minimumYear;
+        out.maximumYear = maximumYear;
+        out.includeDoubtful = includeDoubtful;
+        out.protectedAreas = protectedAreas;
+        out.sizeOfSquare = sizeOfSquare;
+        out.occurrenceList = occurrences;
+
+        out.computeMetrics();
+
+        return out;
+    }
+
+
+    private OccurrenceProcessor() {
+        this.pointsInPolygons = ArrayListMultimap.create();
+    }
+
     /**
      * This constructor does nothing but providing an Iterator for all data providers merged. No calculations are done.
      * @param occurrences
@@ -303,17 +378,18 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         this.minimumYear = minimumYear;
         this.maximumYear = maximumYear;
         this.includeDoubtful = includeDoubtful;
-
         this.protectedAreas = protectedAreas;
-//        this.pointsUTM = new ArrayList<>();
         this.sizeOfSquare = sizeOfSquare;
-        pointsInPolygons = ArrayListMultimap.create();
+        this.pointsInPolygons = ArrayListMultimap.create();
+        this.occurrences = occurrences;
 
+        computeMetrics();
+    }
+
+    private void computeMetrics() {
         UTMCoordinate tmp;
         Point2D tmp1;
         Set<String> utmZones = new HashSet<>();
-
-        this.occurrences = occurrences;
 
         if (this.size() == 0) {
             clusters = new ArrayList<>();

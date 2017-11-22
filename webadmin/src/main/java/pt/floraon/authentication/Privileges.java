@@ -37,6 +37,7 @@ public enum Privileges  implements RedListEnums.LabelledEnum {
     , EDIT_10(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Review (10.1)")
     , VIEW_10_2(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "View validation comments (10.2)")
     , EDIT_11(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Reply to reviewer and/or validator (sect. 11)")
+    , MANAGE_VERSIONS(PrivilegeType.REDLISTDATA, PrivilegeScope.GLOBAL, "Manage versions")
 
     , CREATE_REDLIST_DATASETS(PrivilegeType.GLOBAL, PrivilegeScope.GLOBAL, "Create RedList datasets")
     , MODIFY_TAXA(PrivilegeType.CHECKLIST, PrivilegeScope.GLOBAL, "Modify taxon details")

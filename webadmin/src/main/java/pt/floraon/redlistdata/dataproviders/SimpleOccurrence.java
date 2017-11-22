@@ -13,10 +13,10 @@ public class SimpleOccurrence extends Inventory {
     /**
      * The data dataSource.
      */
-    private final String dataSource;
+    private String dataSource;
     private OBSERVED_IN occurrence;
-    private final int id_reg;
-    private final Integer id_ent;
+    private int id_reg;
+    private Integer id_ent;
 
     public String getDataSource() {
         return dataSource;
@@ -36,6 +36,10 @@ public class SimpleOccurrence extends Inventory {
 
     public void setOccurrence(OBSERVED_IN occurrence) {
         this.occurrence = occurrence;
+    }
+
+    public SimpleOccurrence() {
+        super();
     }
 
     public SimpleOccurrence(String dataSource, Inventory inv) {
