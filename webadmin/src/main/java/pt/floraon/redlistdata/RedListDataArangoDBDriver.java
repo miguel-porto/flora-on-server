@@ -183,6 +183,21 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
     }
 
     @Override
+    public Iterator<RedListDataEntitySnapshot> getSnapshotsByPublicationStatus(String territory, RedListEnums.PublicationStatus status) throws DatabaseException {
+        String cname = "redlist_snapshots_" + territory;
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("@collection", cname);
+        bindVars.put("status", status.toString());
+
+        try {
+            return database.query(AQLRedListQueries.getString("redlistdata.11"), bindVars
+                    , null, RedListDataEntitySnapshot.class);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
+    @Override
     public Set<String> getRedListTags(String territory) throws DatabaseException {
         Set<String> out = new HashSet<>();
         Object tmp;

@@ -4,8 +4,8 @@ a.returntomain img {height: 90px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 ul.hanging li {padding-left: 26px; text-indent: -20px;}
-.compact {padding:0}
-.compact * {margin:0 !important}
+.compactform {padding:0}
+.compactform * {margin:0 !important}
 #main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {
@@ -499,14 +499,14 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 
 #habitat-tree {font-size: 0.9rem}
 #habitat-tree ul li {cursor: pointer; padding: 0; margin: 0; border-left: 0px dotted black;}
-#habitat-tree ul li .legend {flex: 1 2 auto;}
+#habitat-tree ul li .legend {flex: 1 2 auto; margin:0 5px;}
 #habitat-tree ul ul {
     margin-left: 30px;
     border-left: 2px dotted black;
     padding: 0;
 }
 
-#habitat-tree .checkboxes label {padding:0; display:flex; align-items:stretch;}
+#habitat-tree .checkboxes label {padding:0; display:flex;}
 #habitat-tree .checkboxes input:not([disabled]) + label {box-shadow: 0 0 5px 448aff;}
 #habitat-tree .checkboxes input[disabled] + label {
     border-radius:0;
@@ -705,15 +705,21 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 #reviewpanel.hidden #reviewpanel-handle h1 {padding:0 16px 8px 16px; }
 
 div.fieldhelp {
-    color:#FF5722;
+    color:#444;
     padding:0;
-    border-radius:10px;
     padding:4px 8px;
     background-color:rgba(255,255,255,0.5);
     margin-top:8px;
     font-size:0.8rem;
     font-weight:normal;
+    cursor:pointer;
 }
 
 div.fieldhelp ul {list-style-type: initial; padding-left: 10px;}
 div.fieldhelp ul li {border:none;}
+div.fieldhelp.big {font-size:1.1rem;}
+
+div.fieldhelp a {
+    text-decoration: underline;
+    color:red;
+}

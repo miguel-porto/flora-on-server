@@ -136,7 +136,6 @@ public class Lists extends FloraOnServlet {
 						ith = LD.getChildrenHabitats(id);
 
 					thisRequest.request.setAttribute("habitats", ith);
-
 					thisRequest.request.getRequestDispatcher("/fragments/frag-habitatli.jsp").include(thisRequest.request,
 							thisRequest.response);
 					return;

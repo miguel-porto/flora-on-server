@@ -40,6 +40,7 @@
     <div id="left-bar" class="buttonmenu">
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
+            <li><a href="?w=published"><fmt:message key="Separator.9"/></a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
@@ -123,7 +124,7 @@
                         <td>${job.getState()}</td>
                         <td>
                             <c:if test="${job.isFileDownload() && job.isReady()}">
-                            <a href="job/${job.getID()}">Download file</a>
+                            <a href="../job/${job.getID()}">Download file</a>
                             </c:if>
                         </td>
                     </tr>
@@ -131,6 +132,29 @@
                 </table>
             </c:if>
         </c:if>
+    </c:when>
+    <c:when test="${what=='published'}">
+        <h1>Published sheets</h1>
+        <table id="speciesindex" class="sortable">
+            <thead>
+                <tr><th>Taxon</th><th>Category</th></tr>
+            </thead>
+            <tbody>
+            <c:forEach var="snapshot" items="${specieslist}">
+                <tr>
+                    <td><a href="?w=sheet&id=${snapshot.getKey()}">${snapshot.getTaxEnt().getFullName(true)}</a></td>
+                    <td>
+                        <c:if test="${snapshot.getAssessment().getCategory() != null}">
+                            <div class="redlistcategory assess_${snapshot.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
+                                ${snapshot.getAssessment().getAdjustedCategory().getShortTag()}
+                                <c:if test="${snapshot.getAssessment().getCategory().toString().equals('CR') && !snapshot.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${snapshot.getAssessment().getSubCategory().toString()}</sup></c:if>
+                            </h1></div>
+                        </c:if>
+                    </td>
+                </tr>
+            </c:forEach>
+            </tbody>
+        </table>
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
@@ -436,7 +460,7 @@
                     </c:forEach>
                     </c:if>
                     <c:if test="${user.canMANAGE_VERSIONS() && versiondate == null}">
-                        <form class="poster inlineblock compact" data-path="api/snapshot" data-refresh="true">
+                        <form class="poster inlineblock compactform" data-path="api/snapshot" data-refresh="true">
                             <input type="hidden" name="id" value="${taxon.getID()}"/>
                             <input type="hidden" name="territory" value="${territory}"/>
                             <input type="text" name="versiontag" placeholder="type a name" style="width:160px"/><br/>
@@ -501,7 +525,7 @@
                         </c:if>
                         </table>
                     </td></tr>
-                    <tr class="section1 textual"><td class="title">1.4</td><td><fmt:message key="DataSheet.label.1.4" /></td><td>
+                    <tr class="section1 textual"><td class="title">1.4</td><td><fmt:message key="DataSheet.label.1.4" /><div class="fieldhelp"><fmt:message key="DataSheet.help.1.4" /></div></td><td>
                         <t:editabletext
                             privilege="${user.canEDIT_1_4()}"
                             value="${rlde.getTaxonomicProblemDescription()}"
@@ -1065,7 +1089,7 @@
                                 <div contenteditable="true" class="contenteditable">${rlde.getThreats().getNumberOfLocationsJustification()}</div>
                                 <input type="hidden" name="threats_NumberOfLocationsJustification" value="${fn:escapeXml(rlde.getThreats().getNumberOfLocationsJustification())}"/>
                             </td></tr>
-                            <tr><td><fmt:message key="DataSheet.label.6.3b"/></td><td>${nclusters} <fmt:message key="DataSheet.label.6.3a"/></td></tr>
+                            <tr><td><fmt:message key="DataSheet.label.6.3b"/></td><td>${nclusters} <fmt:message key="DataSheet.label.6.3a"/><div class="legend alwaysvisible"><fmt:message key="DataSheet.help.6.3a" /></div></td></tr>
                         </table>
                     </c:if>
                     <c:if test="${!user.canEDIT_SECTION6()}">

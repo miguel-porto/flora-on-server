@@ -368,6 +368,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    var highs = document.querySelectorAll('#maindataform div.fieldhelp');
+    for(var i = 0; i < highs.length; i++) {
+        addEvent('click', highs[i], function(ev) {
+            var par = getParentbyClass(ev.target, 'fieldhelp');
+            par.classList.toggle('big');
+        });
+    }
+
+
 /*
         if(!document.getElementById('taxonbox').hasAttribute('data-key')) {
             alert("Type some letters to find a taxon and select from drop down list.");

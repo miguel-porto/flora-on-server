@@ -111,6 +111,11 @@ System.out.println(gs.toJson(getUser()));
         List<String> warnings = new ArrayList<>();
 
         switch (what) {
+            case "published":
+                Iterator<RedListDataEntitySnapshot> its = driver.getRedListData().getSnapshotsByPublicationStatus(territory, RedListEnums.PublicationStatus.PUBLISHED);
+                request.setAttribute("specieslist", its);
+//                its.next().getTaxEnt().getFullName(true)
+                break;
 /*
  * Shows the taxon list
  */

@@ -3,6 +3,7 @@ package pt.floraon.driver.interfaces;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.ecology.entities.Habitat;
+import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntitySnapshot;
 import pt.floraon.redlistdata.entities.RedListSettings;
@@ -129,11 +130,21 @@ public interface IRedListDataDriver {
      */
     RedListDataEntity getRedListDataEntity(String territory, INodeKey taxonId) throws DatabaseException;
 
+    /**
+     * Gets the {@link RedListDataEntitySnapshot} for the given TaxEnt and territory. It does not fill anything else than
+     * the same fields as RedListDataEntity.
+     * @param territory
+     * @param taxEntId
+     * @return
+     * @throws DatabaseException
+     */
     RedListDataEntitySnapshot getRedListDataEntityAsSnapshot(String territory, INodeKey taxEntId) throws DatabaseException;
 
     void saveRedListDataEntitySnapshot(String territory, RedListDataEntitySnapshot rldes);
 
     Iterator<RedListDataEntitySnapshot> getSnapshots(String territory, INodeKey taxEntId) throws DatabaseException;
+
+    Iterator<RedListDataEntitySnapshot> getSnapshotsByPublicationStatus(String territory, RedListEnums.PublicationStatus status) throws DatabaseException;
 
     /**
      * Gets all tags in use in the red list dataset.
