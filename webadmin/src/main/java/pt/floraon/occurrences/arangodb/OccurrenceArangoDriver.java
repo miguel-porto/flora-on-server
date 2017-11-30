@@ -40,10 +40,13 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     @Override
     public Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException {
         // TODO: this should return the OBSERVED_IN graph links, not the unmatched
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("id", taxEntId.toString());
+
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.1", taxEntId.getID())
-                    , null, null, Inventory.class);
+                    AQLOccurrenceQueries.getString("occurrencequery.1")
+                    , bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
