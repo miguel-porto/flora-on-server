@@ -24,6 +24,21 @@ public class ArangoKey implements INodeKey {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ArangoKey arangoKey = (ArangoKey) o;
+
+		return id.equals(arangoKey.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
+	@Override
 	public String toString() {
 		return this.getID();
 	}

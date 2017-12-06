@@ -4,8 +4,8 @@ a.returntomain img {height: 90px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 ul.hanging li {padding-left: 26px; text-indent: -20px;}
-.compactform {padding:0}
-.compactform * {margin:0 !important}
+/*.compactform {padding:0}
+.compactform * {margin:0 !important}*/
 #main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {
@@ -236,7 +236,22 @@ input.selectionbox:not(:checked) + label {background-color: white;}
 }
 #sheet-header h1 {padding-left: 130px; color: inherit}
 
-#header-buttons {text-align:right;}
+#panels {   /* the tools below sheet header */
+    display:flex;
+    width:100%;
+    flex-wrap: wrap;
+}
+
+#panels>div {
+    flex: 0 1 auto;
+    background-color: rgba(255,255,255,0.4);
+    border-radius: 8px;
+    margin: 5px;
+    padding: 3px 8px;
+}
+#panels>div#header-buttons {flex: 1 0 0px;}
+
+#panels>div h3 {padding:2px}
 #versions * {vertical-align:middle;}
 
 input, textarea, select {font-size: 16px; vertical-align: middle;}

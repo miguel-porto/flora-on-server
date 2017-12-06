@@ -39,7 +39,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException {
-        // TODO: this should return the OBSERVED_IN graph links, not the unmatched
+        // TODO: see occurrencequery.1 for the TODO
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("id", taxEntId.toString());
 

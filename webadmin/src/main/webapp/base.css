@@ -57,10 +57,21 @@ div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bol
     left:auto;
 }
 
-span.warning {  /* inline warnings */
+/*span.warning {
     color:red;
     font-weight:bold;
     vertical-align:middle;
+}*/
+
+span.warning {  /* inline warnings */
+    color: white;
+    font-weight: bold;
+    vertical-align: middle;
+    background: red;
+    border-radius: 5px;
+    text-transform: uppercase;
+    padding: 4px 6px;
+    font-size: 0.8rem;
 }
 
 .outer {

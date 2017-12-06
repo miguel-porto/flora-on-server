@@ -9,6 +9,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
@@ -46,6 +47,31 @@ import static pt.floraon.driver.utils.BeanUtils.fillBeanDefaults;
 @WebServlet("/redlist/api/*")
 public class RedListDataApi extends FloraOnServlet {
 
+    private void saveSnapshot(String territory, INodeKey id, String versionTag) throws FloraOnException, IOException {
+        RedListDataEntitySnapshot rldes;
+        // read sheet data
+        rldes = driver.getRedListData().getRedListDataEntityAsSnapshot(territory, id);
+
+        // query occurrences
+        PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+        List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
+        for(SimpleOccurrenceDataProvider edp : sodps)
+            edp.executeOccurrenceQuery(rldes.getTaxEnt());
+
+        OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, clippingPolygon2,  null, null, true);
+
+        // populate sheet data with a copy of the occurrences
+        Iterator<SimpleOccurrence> it6 = op.iterator();
+        List<SimpleOccurrence> ol = new ArrayList<>();
+        while(it6.hasNext())
+            ol.add(it6.next());
+        rldes.setOccurrences(ol);
+
+        rldes.setVersionTag(versionTag);
+        driver.getRedListData().saveRedListDataEntitySnapshot(territory, rldes);
+    }
+
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         ListIterator<String> path = thisRequest.getPathIteratorAfter("api");
@@ -67,29 +93,9 @@ public class RedListDataApi extends FloraOnServlet {
                 break;
 
             case "snapshot":    // archives a new snapshot of one sheet, including a copy of the occurrence records
-                RedListDataEntitySnapshot rldes;
-                territory = thisRequest.getParameterAsString("territory");
-                // read sheet data
-                rldes = driver.getRedListData().getRedListDataEntityAsSnapshot(territory, thisRequest.getParameterAsKey("id"));
+                saveSnapshot(thisRequest.getParameterAsString("territory"), thisRequest.getParameterAsKey("id")
+                    , thisRequest.getParameterAsString("versiontag"));
 
-                // query occurrences
-                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-
-                for(SimpleOccurrenceDataProvider edp : sodps)
-                    edp.executeOccurrenceQuery(rldes.getTaxEnt());
-
-                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, clippingPolygon2,  null, null, true);
-
-                // populate sheet data with a copy of the occurrences
-                Iterator<SimpleOccurrence> it6 = op.iterator();
-                List<SimpleOccurrence> ol = new ArrayList<>();
-                while(it6.hasNext())
-                    ol.add(it6.next());
-                rldes.setOccurrences(ol);
-
-                rldes.setVersionTag(thisRequest.getParameterAsString("versiontag"));
-                driver.getRedListData().saveRedListDataEntitySnapshot(territory, rldes);
                 thisRequest.success("Ok");
 //                gs = new GsonBuilder().setPrettyPrinting().create();
 //                System.out.println(gs.toJson(rldes));
@@ -114,8 +120,9 @@ public class RedListDataApi extends FloraOnServlet {
                 String[] filter = thisRequest.getParameterAsStringArray("tags");
                 // TODO clipping polygon and years must be a user configuration
                 PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                RedListSettings rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new ComputeAOOEOOJob(territory, clippingPolygon, 1991, 2000
+                        new ComputeAOOEOOJob(territory, clippingPolygon, (rls.getHistoricalThreshold() + 1), 2000
                                 , filter == null ? null : new HashSet<>(Arrays.asList(filter))
                         )
                         , "AOO.csv", driver).getID());
@@ -430,13 +437,29 @@ public class RedListDataApi extends FloraOnServlet {
                 String option = thisRequest.getParameterAsString("option");
                 territory = thisRequest.getParameterAsString("territory");
                 errorIfAnyNull(option, territory);
-                RedListSettings rls = driver.getRedListSettings(territory);
-                if(rls.getID() == null)
-                    rls = driver.getNodeWorkerDriver().createDocument(rls);
+                RedListSettings rls1 = driver.getRedListSettings(territory);
+                if(rls1.getID() == null)
+                    rls1 = driver.getNodeWorkerDriver().createDocument(rls1);
 
                 switch(option) {
                     case "lockediting":
-                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls.getID()), "editionLocked", thisRequest.getParameterAsBoolean("value", false));
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "editionLocked", thisRequest.getParameterAsBoolean("value", false));
+                        break;
+
+                    case "historicalthreshold":
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "historicalThreshold", thisRequest.getParameterAsInteger("value", 1990));
+                        break;
+
+                    case "unlockEdition":
+                        if(!thisRequest.getUser().canMANAGE_VERSIONS()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+                        rls1.unlockEditionForTaxon(thisRequest.getParameterAsString("value"));
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "unlockedSheets", rls1.getUnlockedSheets());
+                        break;
+
+                    case "removeUnlockEdition":
+                        if(!thisRequest.getUser().canMANAGE_VERSIONS()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+                        rls1.removeUnlockEditionException(thisRequest.getParameterAsString("value"));
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "unlockedSheets", rls1.getUnlockedSheets());
                         break;
                 }
 

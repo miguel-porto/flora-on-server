@@ -21,8 +21,9 @@ public interface IOccurrenceDriver {
     void createInventory(Inventory inventory);
 
     /**
-     * Gets all the occurrences of the given taxon and all its subtaxa. Multi-species inventories are decomposed in
-     * single-species, which are output one at a time.
+     * Gets all the occurrences of the given taxon, all its subtaxa and all higher taxa that correspond to this one, e.g.
+     * of a family which has only one species.
+     * Multi-species inventories are decomposed in single-species, which are output one at a time.
      * @param taxEntId
      * @return
      * @throws DatabaseException

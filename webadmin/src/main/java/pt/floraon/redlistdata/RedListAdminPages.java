@@ -142,6 +142,8 @@ System.out.println(gs.toJson(getUser()));
 
             case "settings":    // settings page
                 request.setAttribute("lockediting", driver.getRedListSettings(territory).isEditionLocked());
+                request.setAttribute("historicalthreshold", driver.getRedListSettings(territory).getHistoricalThreshold());
+                request.setAttribute("unlockedSheets", driver.getRedListSettings(territory).getUnlockedSheets());
                 break;
 
             case "setoption":
@@ -240,15 +242,16 @@ System.out.println(gs.toJson(getUser()));
                     // TODO clipping polygon and years must be a user configuration
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
+                    RedListSettings rls = driver.getRedListSettings(territory);
                     if(rldes == null) {
                         // set privileges for this taxon
 
                         //rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
-                        RedListSettings rls = driver.getRedListSettings(territory);
                         Set<Privileges> ignorePrivileges = null;
+                        // FIXME: the tag to lock must be user configuration
                         // So, if text edition is locked, we only lock for the Diretiva tag, and only for those who don't have the secion 9 privilege
                         // Also, if the reviewer marked as revised, needs working, then don't lock.
-                        if (rls.isEditionLocked() && !thisRequest.getUser().canEDIT_SECTION9() && Arrays.asList(rlde.getTags()).contains("Diretiva")     // TODO user configuration
+                        if (rls.isEditionLocked(thisId.getID()) && !thisRequest.getUser().canEDIT_SECTION9() && Arrays.asList(rlde.getTags()).contains("Diretiva")     // TODO user configuration
                                 && rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_WORKING) {
                             ignorePrivileges = Privileges.TextEditingPrivileges;
                         }
@@ -261,18 +264,18 @@ System.out.println(gs.toJson(getUser()));
 
 
                         historicalOccurrenceProcessor = new OccurrenceProcessor(
-                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
+                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, null, rls.getHistoricalThreshold(), false);
 
                         occurrenceProcessor = new OccurrenceProcessor(
-                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
+                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, rls.getHistoricalThreshold() + 1, null, false);
                     } else { // we want it read-only
                         thisRequest.getUser().revokeAllPrivilegesExcept(new Privileges[]{MANAGE_VERSIONS});
 
                         historicalOccurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
-                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, null, 1990, false);
+                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, null, rls.getHistoricalThreshold(), false);
 
                         occurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
-                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, 1991, null, false);
+                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, rls.getHistoricalThreshold() + 1, null, false);
                     }
 
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
@@ -384,6 +387,7 @@ System.out.println(gs.toJson(getUser()));
                     }
 
                     request.setAttribute("rlde", rlde);
+                    request.setAttribute("rls", rls);
                     // multiple selection fields
                     request.setAttribute("habitatTypes", driver.getNodeWorkerDriver().getDocuments(new HashSet<>(Arrays.asList(rlde.getEcology().getHabitatTypes())), Habitat.class));
                     request.setAttribute("habitatTypesIds", Arrays.asList(rlde.getEcology().getHabitatTypes()));
@@ -469,16 +473,17 @@ System.out.println(gs.toJson(getUser()));
 
                 for(SimpleOccurrenceDataProvider edp : sodps)
                     edp.executeOccurrenceQuery(te);
+                RedListSettings rls = driver.getRedListSettings(territory);
 
                 OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps
-                        , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : 1991
+                        , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : (rls.getHistoricalThreshold() + 1)
                         , null, "all".equals(thisRequest.getParameterAsString("view")));
 
                 request.setAttribute("occurrences", op);
 
                 if(thisRequest.getParameterAsInteger("group", 0) > 0) {
                     OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(sodps
-                            , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : 1991
+                            , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : (rls.getHistoricalThreshold() + 1)
                             , null, "all".equals(thisRequest.getParameterAsString("view")));
 
                     SimpleOccurrenceClusterer clusters = new SimpleOccurrenceClusterer(op1.iterator()

@@ -407,7 +407,12 @@
                 </ul>
             </c:if>
             <c:if test="${!multipletaxa}">
-                <h1>${taxon.getCanonicalName().toString(true)}<c:if test="${versiondate != null}"><span style="font-size:0.4em"> [version ${versiondate}]</span></c:if></h1>
+                <h1>${taxon.getCanonicalName().toString(true)}
+                    <c:if test="${versiondate != null}"><span style="font-size:0.4em"> [version ${versiondate}]</span></c:if>
+                    <c:if test="${rls.isEditionLocked() && !rls.isEditionLocked(taxon.getID()) && versiondate == null}">
+                        <span class="warning">Esta ficha está desbloqueada!</span>
+                    </c:if>
+                </h1>
                 <div class="redlistcategory assess_${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}">
                     <h1>
                         ${rlde.getAssessment().getAdjustedCategory().getShortTag()}
@@ -415,61 +420,85 @@
                     </h1>
                     <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p>
                 </div>
-                <div id="header-buttons">
-                    <div class="wordtag togglebutton"><a href="../checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
-                    <c:if test="${user.canVIEW_FULL_SHEET()}">
-                        <div class="wordtag togglebutton" id="summary_toggle">summary</div>
-                        <div class="wordtag togglebutton"><a href="?w=downloadsheet&id=${taxon._getIDURLEncoded()}">download sheet</a></div>
-                        <c:url value="https://lvf.flora-on.pt/redlist/${territory}" var="urlmd">
-                          <c:param name="w" value="downloadsheet" />
-                          <c:param name="id" value="${taxon._getIDURLEncoded()}" />
-                        </c:url>
-                        <%--<div class="wordtag togglebutton"><a href="https://stackedit.io/viewer#!url=${urlmd}">view</a></div>
-                        <c:url value="https://matteobrusa.github.io/md-styler/" var="urlmd2">
-                          <c:param name="url" value="${urlmd}" />
-                        </c:url>
-                        <div class="wordtag togglebutton"><a href="${urlmd2}">view2</a></div>
-                        --%>
-                    </c:if>
-                    <c:if test="${user.canVIEW_OCCURRENCES()}">
-                        <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
-                    </c:if>
-                    <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                        <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
-                    </c:if>
-                </div>
-                <c:if test="${snapshots.hasNext() || (user.canMANAGE_VERSIONS() && versiondate == null)}">
-                <div id="versions">
-                    <h3>Versions</h3>
-                    <c:if test="${snapshots.hasNext()}">
-                    <c:if test="${user.canMANAGE_VERSIONS() && versiondate != null}">
-                        <form class="poster inlineblock" data-path="api/deletesnapshot" data-callback="?w=taxon&id=${taxon._getIDURLEncoded()}" data-confirm="true">
-                            <input type="hidden" name="id" value="${snapshotid}"/>
+                <div id="panels">
+                    <div id="header-buttons">
+                        <h3>Tools</h3>
+                        <div class="wordtag togglebutton"><a href="../checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
+                        <c:if test="${user.canVIEW_FULL_SHEET()}">
+                            <div class="wordtag togglebutton" id="summary_toggle">summary</div>
+                            <div class="wordtag togglebutton"><a href="?w=downloadsheet&id=${taxon._getIDURLEncoded()}">download sheet</a></div>
+                            <c:url value="https://lvf.flora-on.pt/redlist/${territory}" var="urlmd">
+                              <c:param name="w" value="downloadsheet" />
+                              <c:param name="id" value="${taxon._getIDURLEncoded()}" />
+                            </c:url>
+                            <%--<div class="wordtag togglebutton"><a href="https://stackedit.io/viewer#!url=${urlmd}">view</a></div>
+                            <c:url value="https://matteobrusa.github.io/md-styler/" var="urlmd2">
+                              <c:param name="url" value="${urlmd}" />
+                            </c:url>
+                            <div class="wordtag togglebutton"><a href="${urlmd2}">view2</a></div>
+                            --%>
+                        </c:if>
+                        <c:if test="${user.canVIEW_OCCURRENCES()}">
+                            <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
+                        </c:if>
+                        <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
+                            <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
+                        </c:if>
+                    </div>
+                    <c:if test="${user.canMANAGE_VERSIONS() && rls.isEditionLocked() && versiondate == null}">
+                    <div>
+                        <h3>Edition</h3>
+                        <c:if test="${rls.isEditionLocked(taxon.getID())}">
+                        <form class="poster inlineblock" data-path="api/setoptions" data-refresh="true">
                             <input type="hidden" name="territory" value="${territory}"/>
-                            <input type="submit" value="Delete this version" class="textbutton"/>
+                            <input type="hidden" name="option" value="unlockEdition"/>
+                            <input type="hidden" name="value" value="${taxon.getID()}"/>
+                            <input type="submit" value="Unlock edition" class="textbutton"/>
                         </form>
-                    </c:if>
-                    <c:if test="${versiondate != null}"><div class="wordtag togglebutton"><a href="?w=taxon&id=${taxon._getIDURLEncoded()}">Current<br/>version</a></div></c:if>
-                    <c:forEach var="snapshot" items="${snapshots}">
-                        <c:set var="sel" value="${snapshot._getDateSavedFormatted()==versiondate ? ' selected' : ''}" />
-                        <c:set var="title" value="${snapshot.hasVersionTag() ? ' selected' : ''}" />
-                        <div class="wordtag togglebutton${sel}"><a href="?w=sheet&id=${snapshot.getKey()}">
-                            <c:if test="${snapshot.hasVersionTag()}">${snapshot.getVersionTag()}<br/><span class="info">${snapshot._getDateSavedFormatted()}</span></c:if>
-                            <c:if test="${!snapshot.hasVersionTag()}">${snapshot._getDateSavedFormattedTwoLine()}</c:if>
-                        </a></div>
-                    </c:forEach>
-                    </c:if>
-                    <c:if test="${user.canMANAGE_VERSIONS() && versiondate == null}">
-                        <form class="poster inlineblock compactform" data-path="api/snapshot" data-refresh="true">
-                            <input type="hidden" name="id" value="${taxon.getID()}"/>
+                        </c:if>
+                        <c:if test="${!rls.isEditionLocked(taxon.getID())}">
+                        <form class="poster inlineblock" data-path="api/setoptions" data-refresh="true">
                             <input type="hidden" name="territory" value="${territory}"/>
-                            <input type="text" name="versiontag" placeholder="type a name" style="width:160px"/><br/>
-                            <input type="submit" value="Save this version" class="textbutton"/>
+                            <input type="hidden" name="option" value="removeUnlockEdition"/>
+                            <input type="hidden" name="value" value="${taxon.getID()}"/>
+                            <input type="submit" value="Remove unlock exception" class="textbutton"/>
                         </form>
+                        </c:if>
+                    </div>
                     </c:if>
-                </div>
-                </c:if>
-            </c:if>
+                    <c:if test="${snapshots.hasNext() || (user.canMANAGE_VERSIONS() && versiondate == null)}">
+                    <div id="versions">
+                        <h3>Versions</h3>
+                        <c:if test="${snapshots.hasNext()}">
+                        <c:if test="${user.canMANAGE_VERSIONS() && versiondate != null}">
+                            <form class="poster inlineblock" data-path="api/deletesnapshot" data-callback="?w=taxon&id=${taxon._getIDURLEncoded()}" data-confirm="true">
+                                <input type="hidden" name="id" value="${snapshotid}"/>
+                                <input type="hidden" name="territory" value="${territory}"/>
+                                <input type="submit" value="Delete this version" class="textbutton"/>
+                            </form>
+                        </c:if>
+                        <c:if test="${versiondate != null}"><div class="wordtag togglebutton"><a href="?w=taxon&id=${taxon._getIDURLEncoded()}">Current<br/>version</a></div></c:if>
+                        <c:forEach var="snapshot" items="${snapshots}">
+                            <c:set var="sel" value="${snapshot._getDateSavedFormatted()==versiondate ? ' selected' : ''}" />
+                            <c:set var="title" value="${snapshot.hasVersionTag() ? ' selected' : ''}" />
+                            <div class="wordtag togglebutton${sel}"><a href="?w=sheet&id=${snapshot.getKey()}">
+                                <c:if test="${snapshot.hasVersionTag()}">${snapshot.getVersionTag()}<br/><span class="info">${snapshot._getDateSavedFormatted()}</span></c:if>
+                                <c:if test="${!snapshot.hasVersionTag()}">${snapshot._getDateSavedFormattedTwoLine()}</c:if>
+                            </a></div>
+                        </c:forEach>
+                        </c:if>
+                        <c:if test="${user.canMANAGE_VERSIONS() && versiondate == null}">
+                            <form class="poster inlineblock compactform" style="text-align:center;" data-path="api/snapshot" data-refresh="true">
+                                <input type="hidden" name="id" value="${taxon.getID()}"/>
+                                <input type="hidden" name="territory" value="${territory}"/>
+                                <input type="text" name="versiontag" placeholder="type a name" style="width:160px"/><br/>
+                                <input type="submit" value="Save this version" class="textbutton"/>
+                            </form>
+                        </c:if>
+                    </div>
+                    </c:if>
+                </div>  <!-- top panels -->
+            </c:if> <!-- not multiple taxa -->
         </div>  <!-- header -->
         <c:if test="${multipletaxa}">
         <form class="poster" data-path="api/updatedata" id="maindataform" data-callback="?w=main">
@@ -1869,19 +1898,49 @@
             <tr>
                 <td>Bloquear edição das fichas aos autores</td>
                 <td>
+                    <table class="subtable">
+                    <tr><td>Corte geral de edição</td><td>
+                        <form class="poster" data-path="api/setoptions" data-refresh="true">
+                            <input type="hidden" name="territory" value="${territory}"/>
+                            <input type="hidden" name="option" value="lockediting"/>
+                            <c:if test="${lockediting}">
+                            <input type="hidden" name="value" value="false"/>
+                            <input type="submit" value="Desbloquear" class="textbutton"/>
+                            <div class="button inactive">Bloqueado</div>
+                            </c:if>
+                            <c:if test="${!lockediting}">
+                            <input type="hidden" name="value" value="true"/>
+                            <div class="button inactive">Desbloqueado</div>
+                            <input type="submit" value="Bloquear" class="textbutton"/>
+                            </c:if>
+                        </form>
+                    </td></tr>
+                    <c:if test="${lockediting && unlockedSheets.size() > 0}">
+                    <tr><td>Excepções</td><td>Atenção! Os seguintes taxa estão desbloqueados:
+                    <ul>
+                        <c:forEach items="${unlockedSheets}" var="us">
+                        <li>
+                            <c:url value="" var="url">
+                              <c:param name="w" value="taxon" />
+                              <c:param name="id" value="${us}" />
+                            </c:url>
+                            <a href="${url}">${us}</a>
+                        </li>
+                        </c:forEach>
+                    </ul>
+                    </td></tr>
+                    </c:if>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>Ano a partir do qual é considerado registo histórico</td>
+                <td>
                     <form class="poster" data-path="api/setoptions" data-refresh="true">
                         <input type="hidden" name="territory" value="${territory}"/>
-                        <input type="hidden" name="option" value="lockediting"/>
-                        <c:if test="${lockediting}">
-                        <input type="hidden" name="value" value="false"/>
-                        <input type="submit" value="Desbloquear" class="textbutton"/>
-                        <div class="button inactive">Bloqueado</div>
-                        </c:if>
-                        <c:if test="${!lockediting}">
-                        <input type="hidden" name="value" value="true"/>
-                        <div class="button inactive">Desbloqueado</div>
-                        <input type="submit" value="Bloquear" class="textbutton"/>
-                        </c:if>
+                        <input type="hidden" name="option" value="historicalthreshold"/>
+                        <input type="number" name="value" value="${historicalthreshold}"/>
+                        <input type="submit" value="Set" class="textbutton"/>
                     </form>
                 </td>
             </tr>
