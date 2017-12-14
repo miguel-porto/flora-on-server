@@ -55,6 +55,10 @@ public class RedListSettings extends GeneralDBNode {
         return editionLocked && !this.unlockedSheets.contains(taxEntId);
     }
 
+    public boolean isSheetUnlocked(String taxEntId) {
+        return this.unlockedSheets.contains(taxEntId);
+    }
+
     public void setEditionLocked(boolean editionLocked) {
         this.editionLocked = editionLocked;
     }

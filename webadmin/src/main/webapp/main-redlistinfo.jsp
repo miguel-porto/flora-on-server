@@ -324,7 +324,11 @@
                                 <label for="selbox_${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon._getSingleLetterTag()}</label>
                             </td>
                         </c:if>
-                            <td><a href="?w=taxon&id=${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon.getTaxEnt().getFullName(true)}</a></td>
+                            <td class="taxonname">
+                                <c:if test="${taxon.getAssessment().getJustification().getLength() > 1500}"><img class="exclamation" src="../images/exclamation.png"/></c:if>
+                                <c:if test="${rls.isEditionLocked() && !rls.isEditionLocked(taxon.getTaxEnt().getID())}"><img class="exclamation" src="../images/exclamation.png"/></c:if>
+                                <a href="?w=taxon&id=${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon.getTaxEnt().getNameWithAnnotationOnly(true)}</a>
+                            </td>
                             <td>
                             <c:if test="${taxon.getInferredStatus() != null}">
                                 ${taxon.getInferredStatus().getStatusSummary()}
@@ -1394,6 +1398,7 @@
                     <t:editabletext
                         privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45() || user.canEDIT_SECTION9()}"
                         value="${rlde.getAssessment().getJustification()}"
+                        maxlen="1500"
                         name="assessment_Justification"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">

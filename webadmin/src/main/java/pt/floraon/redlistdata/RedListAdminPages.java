@@ -137,6 +137,9 @@ System.out.println(gs.toJson(getUser()));
                         driver.getRedListData().getAllRedListData(territory, true, null); //new String[] {"Lista preliminar", "Lista Alvo", "Lista B"}
                 request.setAttribute("allTags", ate.entrySet());
                 request.setAttribute("specieslist", taxEntList);
+
+                RedListSettings rls2 = driver.getRedListSettings(territory);
+                request.setAttribute("rls", rls2);
 //                taxEntList.next().getAssessment().getAuthors()
                 break;
 
@@ -433,7 +436,8 @@ System.out.println(gs.toJson(getUser()));
 
 
                     // TODO: this is a temporary fix
-                    if (rlde.getAssessment().getPublicationStatus().isPublished() && !thisRequest.getUser().canEDIT_9_9_4()) {
+                    if (rlde.getAssessment().getPublicationStatus().isPublished() && !thisRequest.getUser().canEDIT_9_9_4()
+                            && !rls.isSheetUnlocked(thisId.getID())) {
                         // if it's published, block editing all fields except the unpublished
                         thisRequest.getUser().revokePrivileges(EDIT_ALL_FIELDS);
                     }

@@ -77,7 +77,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         boolean enter;
         enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
         enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear && !wasDestroyed);
-        // records that do not have a year are excluded from historical datasets except if marked as destroyed. They're only included in the current dataset.
+        // Records that do not have a year are excluded from historical datasets except if marked as destroyed.
+        // They're only included in the current dataset.
         enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0) && !wasDestroyed);
         // format: enter &= !(<excluding condition>);
 

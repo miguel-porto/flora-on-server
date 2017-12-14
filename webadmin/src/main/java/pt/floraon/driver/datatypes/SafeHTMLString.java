@@ -69,6 +69,10 @@ public class SafeHTMLString {
         return d.body().html();
     }
 
+    public int getLength() {
+        return StringUtils.cleanText(this.text).length();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

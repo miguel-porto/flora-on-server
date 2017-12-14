@@ -4,6 +4,8 @@ a.returntomain img {height: 90px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 ul.hanging li {padding-left: 26px; text-indent: -20px;}
+img.exclamation {width: 1.5em;vertical-align: middle;}
+img.exclamation+* {vertical-align: middle;}
 /*.compactform {padding:0}
 .compactform * {margin:0 !important}*/
 #main {text-align:left;}
@@ -144,7 +146,8 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 #speciesindex.filter_onlyvalidationerror tbody tr:not(.validationerror) {display: none;}
 #speciesindex.filter_onlyselected tbody tr:not(.selected) {display: none;}
 
-#speciesindex tr:not(.species) td:nth-of-type(2) {padding-left:1em}
+#speciesindex td.taxonname {font-size:1.2em}
+#speciesindex tr:not(.species) td.taxonname {padding-left:1em}
 #speciesindex .redlistcategory {width:50px; height:50px; padding:6px;}
 #speciesindex .redlistcategory h1 {font-size:1.8rem !important; margin:5px 0 0 0!important;}
 #speciesindex .redlistcategory sup {font-size: 0.8rem !important; right:2px !important;}

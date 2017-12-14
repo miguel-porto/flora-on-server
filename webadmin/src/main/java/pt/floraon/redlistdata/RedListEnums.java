@@ -669,8 +669,8 @@ public class RedListEnums {
 
         public boolean isThreatened() {
             return this.getEffectiveCategory() == CR || this.getEffectiveCategory() == EN
-                    || this.getEffectiveCategory() == EW || this.getEffectiveCategory() == EX
-                    || this.getEffectiveCategory() == RE || this.getEffectiveCategory() == VU;
+                     || this.getEffectiveCategory() == VU;
+//|| this.getEffectiveCategory() == EW || this.getEffectiveCategory() == EX || this.getEffectiveCategory() == RE
         }
 
         public RedListCategories getUplistCategory() {
