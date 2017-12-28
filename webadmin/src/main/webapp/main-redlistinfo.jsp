@@ -224,6 +224,12 @@
             <c:if test="${user.canEDIT_ANY_FIELD()}"><div class="filter" id="onlyselected"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.7"/></div></div></c:if>
         </div>
 
+        <c:url value="../redlist/${territory}" var="urldt">
+          <c:param name="w" value="downloadtaxawithtag" />
+          <c:param name="tag" value="Lista Alvo" />
+        </c:url>
+        <div class="button anchorbutton"><a href="${urldt}">Download «Lista Alvo»</a></div>
+
         <form method="post" action="../redlist/${territory}">
             <input type="hidden" name="w" value="taxon"/>
             <c:if test="${user.canEDIT_ANY_FIELD()}">
@@ -325,7 +331,7 @@
                             </td>
                         </c:if>
                             <td class="taxonname">
-                                <c:if test="${taxon.getAssessment().getJustification().getLength() > 1500}"><img class="exclamation" src="../images/exclamation.png"/></c:if>
+                                <c:if test="${taxon.getAssessment().getJustification().getLength() > 1700}"><img class="exclamation" src="../images/exclamation.png"/></c:if>
                                 <c:if test="${rls.isEditionLocked() && !rls.isEditionLocked(taxon.getTaxEnt().getID())}"><img class="exclamation" src="../images/exclamation.png"/></c:if>
                                 <a href="?w=taxon&id=${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon.getTaxEnt().getNameWithAnnotationOnly(true)}</a>
                             </td>
@@ -984,16 +990,6 @@
                             </c:forEach>
                         </ul>
                         </c:if>
-
-                        <%--<t:multiplechooser
-                            privilege="${user.canEDIT_SECTION4() || user.canEDIT_4_2()}"
-                            values="${habitatTypes}"
-                            allvalues="${ecology_HabitatTypes}"
-                            name="ecology_HabitatTypes"
-                            layout="list"
-                            namedDbNode="true"
-                            idprefix="habt" />--%>
-
                     </td></tr>
                     <tr class="section4"><td class="title">4.3</td><td><fmt:message key="DataSheet.label.4.3" /></td><td>${lifeform}</td></tr>
                     <tr class="section4"><td class="title">4.4</td><td><fmt:message key="DataSheet.label.4.4" /></td><td>
@@ -1398,7 +1394,7 @@
                     <t:editabletext
                         privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45() || user.canEDIT_SECTION9()}"
                         value="${rlde.getAssessment().getJustification()}"
-                        maxlen="1500"
+                        maxlen="1700"
                         name="assessment_Justification"/>
                 </td></tr>
                 <c:if test="${user.canVIEW_FULL_SHEET()}">
@@ -1760,7 +1756,7 @@
                 </c:if>
                 </c:if>
             </table>
-            <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || user.canEDIT_10() || user.canVIEW_10_2() || user.canEDIT_9_9_5())}">
+            <c:if test="${!multipletaxa && (!rlde.getReviewerComments().isEmpty() || !rlde.getValidationComments().isEmpty() || user.canEDIT_10() || user.canEDIT_9_9_5() || (user.canVIEW_10_2() && !rlde.getValidationComments().isEmpty()))}">
             <div id="reviewpanel">
                 <div id="reviewpanel-handle"><h1><fmt:message key="DataSheet.label.section"/> 10 - <fmt:message key="DataSheet.label.10" /></h1></div>
                 <h2>10.1 <fmt:message key="DataSheet.label.10.1" /></h2>

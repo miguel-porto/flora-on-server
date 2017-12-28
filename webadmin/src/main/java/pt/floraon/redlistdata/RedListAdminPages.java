@@ -1,9 +1,12 @@
 package pt.floraon.redlistdata;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -71,6 +74,7 @@ public class RedListAdminPages extends FloraOnServlet {
         RedListDataEntitySnapshot rldes = null;
         String what;
         TaxEnt te;
+        Iterator<TaxEnt> iTaxEnt;
         long sizeOfSquare = 2000;
 /*
 Gson gs = new GsonBuilder().setPrettyPrinting().create();
@@ -285,12 +289,14 @@ System.out.println(gs.toJson(getUser()));
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
                         Double EOO = null, AOO = null, hEOO = null, hAOO = null;
+/*  no sense in locking these because the sheets can be frozen at any stage
                         if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
                             EOO = rlde.getGeographicalDistribution().getEOO();
                             AOO = rlde.getGeographicalDistribution().getAOO();
                             hEOO = rlde.getGeographicalDistribution().getHistoricalEOO();
                             hAOO = rlde.getGeographicalDistribution().getHistoricalAOO();
                         }
+*/
                         if (EOO == null) EOO = occurrenceProcessor.getEOO();
                         if (AOO == null) AOO = occurrenceProcessor.getAOO();
                         if (hEOO == null) hEOO = historicalOccurrenceProcessor.getEOO();
@@ -365,7 +371,7 @@ System.out.println(gs.toJson(getUser()));
 
                             if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().toString().trim().equals("")) {
                                 if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
-                                    request.setAttribute("ecology", taxonInfo.get("ecology").toString());
+                                    request.setAttribute("ecology", new SafeHTMLString(taxonInfo.get("ecology").toString()));
                                 }
                             } else {
                                 request.setAttribute("ecology", rlde.getEcology().getDescription());
@@ -498,6 +504,24 @@ System.out.println(gs.toJson(getUser()));
                 }
                 break;
 
+            case "downloadtaxawithtag":
+                String tag = thisRequest.getParameterAsString("tag");
+                iTaxEnt = driver.getRedListData().getAllRedListTaxa(territory, tag);
+                thisRequest.response.setContentType("text/csv; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"taxonlist.csv\"");
+
+                CSVPrinter wr4 = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
+                wr4.printRecord("Family", "Taxon");
+                while(iTaxEnt.hasNext()) {
+                    te = iTaxEnt.next();
+                    TaxEnt family = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getParentOfRank(Constants.TaxonRanks.FAMILY);
+                    wr4.print(family.getFullName());
+                    wr4.print(te.getNameWithAnnotationOnly(false));
+                    wr4.println();
+                }
+                wr4.close();
+                break;
+
             case "downloadtaxonrecords":
                 if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
@@ -518,10 +542,10 @@ System.out.println(gs.toJson(getUser()));
                 PolygonTheme clip = thisRequest.getUser()._getUserPolygonsAsTheme();
                 if(clip == null || clip.size() == 0) break;
                 List<TaxEnt> lt = new ArrayList<>();
-                Iterator<TaxEnt> it = driver.getRedListData().getAllRedListTaxa(territory, "Prospecção");
+                iTaxEnt = driver.getRedListData().getAllRedListTaxa(territory, "Prospecção");
 
-                while(it.hasNext())
-                    lt.add(it.next());
+                while(iTaxEnt.hasNext())
+                    lt.add(iTaxEnt.next());
 
                 List<SimpleOccurrenceDataProvider> sodps2 = driver.getRedListData().getSimpleOccurrenceDataProviders();
                 for(SimpleOccurrenceDataProvider edp : sodps2)
@@ -1095,7 +1119,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "allmaps":
-                Iterator<TaxEnt> it2 = driver.getRedListData().getAllRedListTaxa(territory, "Lista Alvo");
+                iTaxEnt = driver.getRedListData().getAllRedListTaxa(territory, "Lista Alvo");
 /*
                 int count = 0;
                 while(count<600) {
@@ -1103,7 +1127,7 @@ System.out.println(gs.toJson(getUser()));
                     it2.next();
                 }
 */
-                request.setAttribute("allTaxa", it2);
+                request.setAttribute("allTaxa", iTaxEnt);
                 break;
 
             case "report":

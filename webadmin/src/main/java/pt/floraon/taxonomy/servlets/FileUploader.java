@@ -14,7 +14,6 @@ import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import pt.floraon.authentication.entities.User;
 import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
@@ -22,7 +21,6 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.geocoding.ToponomyParser;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.OccurrenceImporterJob;
-import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.server.FloraOnServlet;
 
 @MultipartConfig
