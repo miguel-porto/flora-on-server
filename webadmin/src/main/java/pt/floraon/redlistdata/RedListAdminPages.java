@@ -113,9 +113,9 @@ System.out.println(gs.toJson(getUser()));
         List<String> warnings = new ArrayList<>();
 
         switch (what) {
-            case "alleditions": // displays all editions made in the last days
+            case "alleditions": // displays all editions made in the last days (user setting)
                 RedListDataEntity rldetmp;
-                Set<RevisionWithTaxEnt> editsall = new TreeSet<>(Collections.reverseOrder(new Revision.RevisionComparator()));
+                Set<RevisionWithTaxEnt> editsall = new TreeSet<>(Collections.reverseOrder(new RevisionWithTaxEnt.RevisionWithTaxEntComparator()));
                 RevisionWithTaxEnt daywiserev;
                 Date today = new Date();
                 Calendar cal = Calendar.getInstance();
@@ -143,7 +143,6 @@ System.out.println(gs.toJson(getUser()));
             case "published":
                 Iterator<RedListDataEntitySnapshot> its = driver.getRedListData().getSnapshotsByPublicationStatus(territory, RedListEnums.PublicationStatus.PUBLISHED);
                 request.setAttribute("specieslist", its);
-//                its.next().getTaxEnt().getFullName(true)
                 break;
 /*
  * Shows the taxon list

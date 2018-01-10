@@ -1,9 +1,6 @@
 package pt.floraon.redlistdata.entities;
 
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.*;
 
 import static pt.floraon.driver.Constants.dateFormat;
 import static pt.floraon.driver.Constants.dateTimeFormat;
@@ -68,7 +65,8 @@ public class Revision {
 
     public static class RevisionComparator implements Comparator<Revision> {
         public int compare(Revision o1, Revision o2) {
-            return o1.getDateTimeSaved().compareTo(o2.getDateTimeSaved());
+            int c = o1.getDateTimeSaved().compareTo(o2.getDateTimeSaved());
+            return c == 0 ? o1.getUser().compareTo(o2.getUser()) : c;
         }
     }
 
@@ -76,17 +74,14 @@ public class Revision {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         Revision revision = (Revision) o;
-
-        if (!dateSaved.equals(revision.dateSaved)) return false;
-        return user != null ? user.equals(revision.user) : revision.user == null;
+        return Objects.equals(dateSaved, revision.dateSaved) &&
+                Objects.equals(user, revision.user);
     }
 
     @Override
     public int hashCode() {
-        int result = dateSaved.hashCode();
-        result = 31 * result + (user != null ? user.hashCode() : 0);
-        return result;
+
+        return Objects.hash(dateSaved, user);
     }
 }
