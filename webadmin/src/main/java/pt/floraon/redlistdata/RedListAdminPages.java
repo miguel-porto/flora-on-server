@@ -1,6 +1,5 @@
 package pt.floraon.redlistdata;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -51,7 +50,6 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 
-import static pt.floraon.authentication.Privileges.EDIT_9_9_4;
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
 import static pt.floraon.authentication.Privileges.MANAGE_VERSIONS;
 import static pt.floraon.driver.utils.StringUtils.cleanArray;
@@ -115,6 +113,33 @@ System.out.println(gs.toJson(getUser()));
         List<String> warnings = new ArrayList<>();
 
         switch (what) {
+            case "alleditions": // displays all editions made in the last days
+                RedListDataEntity rldetmp;
+                Set<RevisionWithTaxEnt> editsall = new TreeSet<>(Collections.reverseOrder(new Revision.RevisionComparator()));
+                RevisionWithTaxEnt daywiserev;
+                Date today = new Date();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(today);
+                cal.add(Calendar.DATE, -driver.getRedListSettings(territory).getEditionsLastNDays());
+
+                // compile edition history
+                Iterator<RedListDataEntity> rldeit1 = driver.getRedListData().getAllRedListData(territory, false, null);
+                while(rldeit1.hasNext()) {
+                    rldetmp = rldeit1.next();
+                    for (Revision r : rldetmp.getRevisions()) {
+                        if(r.getUser() == null) continue;
+                        if(r.getDateTimeSaved().before(cal.getTime())) continue;
+                        daywiserev = new RevisionWithTaxEnt(r.getDayWiseRevision());
+                        daywiserev.setTaxEnt(rldetmp.getTaxEnt());
+                        editsall.add(daywiserev);
+                    }
+                }
+
+                request.setAttribute("revisions", editsall);
+                request.setAttribute("ndays", driver.getRedListSettings(territory).getEditionsLastNDays());
+
+                break;
+
             case "published":
                 Iterator<RedListDataEntitySnapshot> its = driver.getRedListData().getSnapshotsByPublicationStatus(territory, RedListEnums.PublicationStatus.PUBLISHED);
                 request.setAttribute("specieslist", its);

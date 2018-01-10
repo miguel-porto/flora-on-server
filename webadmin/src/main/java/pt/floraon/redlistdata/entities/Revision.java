@@ -9,11 +9,12 @@ import static pt.floraon.driver.Constants.dateFormat;
 import static pt.floraon.driver.Constants.dateTimeFormat;
 
 /**
+ * NOTE: this class does not know which red list sheet it belongs to.
  * Created by miguel on 28-12-2016.
  */
 public class Revision {
-    private Date dateSaved;
-    private String user;
+    Date dateSaved;
+    String user;
 // TODO: store the rev field
 
     public Revision() {}

@@ -111,13 +111,12 @@ public interface INodeWorker {
 
 	/**
 	 * Matches a given TaxEnt with the name, annotation, author and sensu, with a List of TaxEnt.
-	 * Returns no more than one TaxEnt.
-	 * @param q
-	 * @param nodes
+	 * @param q Query
+	 * @param nodes The list of taxa to compare to
+	 * @param askQuestion [out] if provided, its value will be set to true in case this query returns more than one possibility
 	 * @return
-	 * @throws FloraOnException if provided filters are ambiguous
 	 */
-	List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion) throws FloraOnException;
+	List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion);
 //	boolean matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException;
 
 	Attribute getAttributeByName(String name) throws FloraOnException;

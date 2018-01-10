@@ -2,15 +2,39 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="edad548e-6840-4311-b195-6bf2d39aa30c" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java" afterPath="$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/console/src/main/resources/taxonomy.csv" afterPath="$PROJECT_DIR$/console/src/main/resources/taxonomy.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js" afterPath="$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_arangodb_velocypack_1_0_12.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RevisionWithTaxEnt.java" />
+      <change beforePath="$PROJECT_DIR$/.classpath" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="$PROJECT_DIR$/.idea/compiler.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_arangodb_arangodb_java_driver_4_1_9.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_arangodb_arangodb_java_driver_4_2_6.xml" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__commons_beanutils_commons_beanutils_1_9_3.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__commons_collections_commons_collections_3_2_2.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_jsoup_jsoup_1_8_3.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/.project" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/console/Flora-On-server-shell.iml" afterPath="$PROJECT_DIR$/console/Flora-On-server-shell.iml" />
+      <change beforePath="$PROJECT_DIR$/webadmin/Flora-On-server-web.iml" afterPath="$PROJECT_DIR$/webadmin/Flora-On-server-web.iml" />
+      <change beforePath="$PROJECT_DIR$/webadmin/pom.xml" afterPath="$PROJECT_DIR$/webadmin/pom.xml" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GNodeWorker.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GNodeWorker.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GraphUpdateResultInt.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GraphUpdateResultInt.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/datatypes/SafeHTMLString.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/datatypes/SafeHTMLString.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/INodeWorker.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/INodeWorker.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/IRedListDataDriver.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/IRedListDataDriver.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/results/GraphUpdateResult.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/results/GraphUpdateResult.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/OccurrenceProcessor.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/OccurrenceProcessor.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListAdminPages.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListAdminPages.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListDataApi.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListDataApi.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RedListSettings.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RedListSettings.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/Revision.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/Revision.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/GraphReader.java" afterPath="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/GraphReader.java" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues.properties" afterPath="$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues.properties" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues_pt.properties" afterPath="$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues_pt.properties" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/webapp/WEB-INF/web.xml" afterPath="$PROJECT_DIR$/webadmin/src/main/webapp/WEB-INF/web.xml" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/webapp/main-admin.jsp" afterPath="$PROJECT_DIR$/webadmin/src/main/webapp/main-admin.jsp" />
+      <change beforePath="$PROJECT_DIR$/webadmin/src/main/webapp/main-redlistinfo.jsp" afterPath="$PROJECT_DIR$/webadmin/src/main/webapp/main-redlistinfo.jsp" />
     </list>
     <ignored path="$PROJECT_DIR$/webadmin/target/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -22,91 +46,134 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="NodeWorkerDriver.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java">
+      <file leaf-file-name="web.xml" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/WEB-INF/web.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7660">
-              <caret line="424" column="17" lean-forward="false" selection-start-line="424" selection-start-column="17" selection-end-line="424" selection-end-column="17" />
+            <state relative-caret-position="342">
+              <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TaxonomyImporter.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java">
+      <file leaf-file-name="main-redlistinfo.jsp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/main-redlistinfo.jsp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1900">
-              <caret line="109" column="41" lean-forward="false" selection-start-line="109" selection-start-column="41" selection-end-line="109" selection-end-column="41" />
+            <state relative-caret-position="36">
+              <caret line="161" column="30" lean-forward="false" selection-start-line="161" selection-start-column="30" selection-end-line="161" selection-end-column="30" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TaxEnt.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java">
+      <file leaf-file-name="RedListDataApi.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListDataApi.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="200">
-              <caret line="31" column="28" lean-forward="false" selection-start-line="31" selection-start-column="28" selection-end-line="31" selection-end-column="28" />
+            <state relative-caret-position="276">
+              <caret line="452" column="45" lean-forward="false" selection-start-line="452" selection-start-column="45" selection-end-line="452" selection-end-column="45" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="occurrences.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js">
+      <file leaf-file-name="AdminPage.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/geocoding/AdminPage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4440">
-              <caret line="222" column="0" lean-forward="false" selection-start-line="222" selection-start-column="0" selection-end-line="222" selection-end-column="0" />
+            <state relative-caret-position="288">
+              <caret line="26" column="56" lean-forward="false" selection-start-line="26" selection-start-column="56" selection-end-line="26" selection-end-column="56" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Startup.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Startup.java">
+      <file leaf-file-name="OccurrenceApi.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/occurrences/OccurrenceApi.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+            <state relative-caret-position="162">
+              <caret line="34" column="13" lean-forward="false" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FloraOnServlet.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java">
+      <file leaf-file-name="main-admin.jsp" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/main-admin.jsp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="210" column="31" lean-forward="true" selection-start-line="210" selection-start-column="31" selection-end-line="210" selection-end-column="31" />
+            <state relative-caret-position="378">
+              <caret line="21" column="7" lean-forward="false" selection-start-line="21" selection-start-column="7" selection-end-line="21" selection-end-column="7" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FloraOnShell.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java">
+      <file leaf-file-name="RedListAdminPages.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListAdminPages.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1340">
-              <caret line="94" column="140" lean-forward="false" selection-start-line="94" selection-start-column="140" selection-end-line="94" selection-end-column="140" />
+            <state relative-caret-position="445">
+              <caret line="136" column="0" lean-forward="false" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RedListSettings.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RedListSettings.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="288">
+              <caret line="23" column="5" lean-forward="false" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
+              <folding>
+                <element signature="e#696#697#0" expanded="true" />
+                <element signature="e#775#776#0" expanded="true" />
+                <element signature="e#820#821#0" expanded="true" />
+                <element signature="e#893#894#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>parsedName</find>
-      <find>corunn</find>
-      <find>accept</find>
-      <find>acceptVisibleSearchbox</find>
-      <find>sk</find>
       <find>sk2</find>
       <find>sk25</find>
       <find>1.8</find>
+      <find>download</find>
+      <find>lista al</find>
+      <find>downloadtax</find>
+      <find>locality</find>
+      <find>taxonrecor</find>
+      <find>getneighbors</find>
+      <find>query</find>
+      <find>ask</find>
+      <find>askQuestion</find>
+      <find>questio</find>
+      <find>contentasxm</find>
+      <find>justifi</find>
+      <find>toSimpleHTML</find>
+      <find>11.2</find>
+      <find>9.12</find>
+      <find>RedListDataEntity</find>
+      <find>revisions</find>
+      <find>published</find>
+      <find>separator.</find>
+      <find>alleditions</find>
+      <find>ano a par</find>
+      <find>historicalthreshold</find>
+      <find>historical</find>
+      <find>editions</find>
+      <find>últim</find>
+      <find>last 10</find>
+      <find>sortable</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -120,7 +187,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/webadmin/pom.xml" />
         <option value="$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java" />
         <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java" />
         <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java" />
@@ -128,6 +194,26 @@
         <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java" />
         <option value="$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js" />
         <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/OccurrenceProcessor.java" />
+        <option value="$PROJECT_DIR$/webadmin/pom.xml" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/results/GraphUpdateResult.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GraphUpdateResultInt.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/GraphReader.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GNodeWorker.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/INodeWorker.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/webapp/main-admin.jsp" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/datatypes/SafeHTMLString.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/IRedListDataDriver.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues_pt.properties" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues.properties" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/Revision.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RevisionWithTaxon.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RevisionWithTaxEnt.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListDataApi.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RedListSettings.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListAdminPages.java" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/webapp/main-redlistinfo.jsp" />
+        <option value="$PROJECT_DIR$/webadmin/src/main/webapp/WEB-INF/web.xml" />
       </list>
     </option>
   </component>
@@ -139,11 +225,17 @@
       </MavenImportingSettings>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="64" />
-    <option name="y" value="-11" />
-    <option name="width" value="1857" />
-    <option name="height" value="1092" />
+  <component name="MavenProjectNavigator">
+    <treeState>
+      <expand />
+      <select />
+    </treeState>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="65" />
+    <option name="y" value="-4" />
+    <option name="width" value="1855" />
+    <option name="height" value="1084" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -164,41 +256,109 @@
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Flora-On-server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="flora-on-server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="Flora-On-server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="flora-on-server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="webadmin" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
+          <expand>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="floraon" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="floraon" type="462c0819:PsiDirectoryNode" />
+              <item name="redlistdata" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="floraon" type="462c0819:PsiDirectoryNode" />
+              <item name="redlistdata" type="462c0819:PsiDirectoryNode" />
+              <item name="entities" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
+              <item name="floraon" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Flora-On-server" type="b2602c69:ProjectViewProjectNode" />
+              <item name="flora-on-server" type="462c0819:PsiDirectoryNode" />
+              <item name="webadmin" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
+              <item name="floraon" type="462c0819:PsiDirectoryNode" />
+              <item name="redlistdata" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
-    <property name="SearchEverywhereHistoryKey" value="start&#9;PSI&#9;JAVA://pt.floraon.server.Startup&#10;fl&#9;PSI&#9;JAVA://pt.floraon.arangodriver.FloraOnArangoDriver&#10;occurr.js&#9;FILE&#9;file:///home/miguel/git/flora-on-server/webadmin/src/main/webapp/js/occurrences.js&#10;taxent&#9;PSI&#9;JAVA://pt.floraon.taxonomy.entities.TaxEnt&#10;nodewordr&#9;PSI&#9;JAVA://pt.floraon.arangodriver.NodeWorkerDriver&#10;getterritshort&#9;PSI&#9;JAVA://pt.floraon.driver.INodeWorker#getTerritoryFromShortName" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues.properties&#10;fieldvalues&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues_pt.properties&#10;fieldva&#9;PSI&#9;JAVA://pt.floraon.redlistdata.FieldValues&#10;redlist.jsp&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/webapp/main-redlistinfo.jsp&#10;web&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/webapp/WEB-INF/web.xml&#10;occurapi&#9;PSI&#9;JAVA://pt.floraon.occurrences.OccurrenceApi&#10;main-ad&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/webapp/main-admin.jsp&#10;suggestio&#9;PSI&#9;JAVA://pt.floraon.server.Suggestions&#10;graph&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/java/pt/floraon/driver/GraphUpdateResultInt.java&#10;web.xm&#9;FILE&#9;file:///home/miguel/workspace/flora-on-server/webadmin/src/main/webapp/WEB-INF/web.xml&#10;inven&#9;PSI&#9;JAVA://pt.floraon.occurrences.entities.Inventory&#10;redlistad&#9;PSI&#9;JAVA://pt.floraon.redlistdata.RedListAdminPages&#10;start&#9;PSI&#9;JAVA://pt.floraon.server.Startup&#10;fl&#9;PSI&#9;JAVA://pt.floraon.arangodriver.FloraOnArangoDriver&#10;occurr.js&#9;FILE&#9;file:///home/miguel/git/flora-on-server/webadmin/src/main/webapp/js/occurrences.js&#10;taxent&#9;PSI&#9;JAVA://pt.floraon.taxonomy.entities.TaxEnt&#10;nodewordr&#9;PSI&#9;JAVA://pt.floraon.arangodriver.NodeWorkerDriver&#10;getterritshort&#9;PSI&#9;JAVA://pt.floraon.driver.INodeWorker#getTerritoryFromShortName" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="File.Encoding" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -217,14 +377,13 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Maven.Unnamed">
+  <component name="RunManager">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="HTML_USED" value="false" />
       <option name="WIDTH" value="400" />
       <option name="HEIGHT" value="300" />
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <module />
-      <method />
     </configuration>
     <configuration default="true" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -239,23 +398,6 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="" />
       <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="GradleRunConfiguration" factoryName="Gradle">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list />
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <method />
     </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -276,12 +418,10 @@
       </option>
       <envs />
       <patterns />
-      <method />
     </configuration>
     <configuration default="true" type="JarApplication" factoryName="JAR Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <envs />
-      <method />
     </configuration>
     <configuration default="true" type="Java Scratch" factoryName="Java Scratch">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -297,7 +437,6 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="" />
       <envs />
-      <method />
     </configuration>
     <configuration default="true" type="JetRunConfigurationType" factoryName="Kotlin">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -310,7 +449,6 @@
       <option name="PASS_PARENT_ENVS" value="true" />
       <module name="Flora-On-server-web" />
       <envs />
-      <method />
     </configuration>
     <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType" factoryName="Kotlin script">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
@@ -322,6 +460,60 @@
       <option name="workingDirectory" />
       <option name="isAlternativeJrePathEnabled" value="false" />
       <envs />
+    </configuration>
+    <configuration name="Unnamed" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="clean" />
+                <option value="package" />
+                <option value="tomcat:undeploy" />
+                <option value="tomcat:deploy" />
+              </list>
+            </option>
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+    </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
+      <module name="" />
+      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
+      <option name="PROGRAM_PARAMETERS" />
+      <predefined_log_file id="idea.log" enabled="true" />
+    </configuration>
+    <configuration default="true" type="GradleRunConfiguration" factoryName="Gradle">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list />
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
       <method />
     </configuration>
     <configuration default="true" type="MavenRunConfiguration" factoryName="Maven">
@@ -344,14 +536,6 @@
           </MavenRunnerParameters>
         </option>
       </MavenSettings>
-      <method />
-    </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
       <method />
     </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
@@ -382,39 +566,6 @@
       <listeners />
       <method />
     </configuration>
-    <configuration default="false" name="Unnamed" type="MavenRunConfiguration" factoryName="Maven">
-      <MavenSettings>
-        <option name="myGeneralSettings" />
-        <option name="myRunnerSettings" />
-        <option name="myRunnerParameters">
-          <MavenRunnerParameters>
-            <option name="profiles">
-              <set />
-            </option>
-            <option name="goals">
-              <list>
-                <option value="clean" />
-                <option value="package" />
-                <option value="tomcat:undeploy" />
-                <option value="tomcat:deploy" />
-              </list>
-            </option>
-            <option name="profilesMap">
-              <map />
-            </option>
-            <option name="resolveToWorkspace" value="false" />
-            <option name="workingDirPath" value="$PROJECT_DIR$" />
-          </MavenRunnerParameters>
-        </option>
-      </MavenSettings>
-      <method />
-    </configuration>
-    <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Maven.Unnamed" />
-    </list>
-    <configuration name="&lt;template&gt;" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" default="true" selected="false">
-      <option name="VM_PARAMETERS" value="-Xmx512m -Xms256m -XX:MaxPermSize=250m -ea" />
-    </configuration>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
@@ -433,29 +584,54 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="64" y="-11" width="1857" height="1092" extended-state="6" />
+    <frame x="65" y="-4" width="1855" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33333334" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32925585" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18221024" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19955777" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32925585" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
+    <layout-to-restore>
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33333334" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19955777" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32879582" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
+    </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -469,171 +645,10 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7660">
-          <caret line="424" column="17" lean-forward="false" selection-start-line="424" selection-start-column="17" selection-end-line="424" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1900">
-          <caret line="109" column="41" lean-forward="false" selection-start-line="109" selection-start-column="41" selection-end-line="109" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="31" column="28" lean-forward="false" selection-start-line="31" selection-start-column="28" selection-end-line="31" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4440">
-          <caret line="222" column="0" lean-forward="false" selection-start-line="222" selection-start-column="0" selection-end-line="222" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Startup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1340">
           <caret line="94" column="140" lean-forward="false" selection-start-line="94" selection-start-column="140" selection-end-line="94" selection-end-column="140" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4020">
-          <caret line="219" column="9" lean-forward="false" selection-start-line="219" selection-start-column="9" selection-end-line="219" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7660">
-          <caret line="424" column="17" lean-forward="false" selection-start-line="424" selection-start-column="17" selection-end-line="424" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1900">
-          <caret line="109" column="41" lean-forward="false" selection-start-line="109" selection-start-column="41" selection-end-line="109" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="31" column="28" lean-forward="false" selection-start-line="31" selection-start-column="28" selection-end-line="31" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4440">
-          <caret line="222" column="0" lean-forward="false" selection-start-line="222" selection-start-column="0" selection-end-line="222" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Startup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1340">
-          <caret line="94" column="140" lean-forward="false" selection-start-line="94" selection-start-column="140" selection-end-line="94" selection-end-column="140" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4020">
-          <caret line="219" column="9" lean-forward="false" selection-start-line="219" selection-start-column="9" selection-end-line="219" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7660">
-          <caret line="424" column="17" lean-forward="false" selection-start-line="424" selection-start-column="17" selection-end-line="424" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1900">
-          <caret line="109" column="41" lean-forward="false" selection-start-line="109" selection-start-column="41" selection-end-line="109" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="31" column="28" lean-forward="false" selection-start-line="31" selection-start-column="28" selection-end-line="31" selection-end-column="28" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4440">
-          <caret line="222" column="0" lean-forward="false" selection-start-line="222" selection-start-column="0" selection-end-line="222" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Startup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4020">
-          <caret line="219" column="9" lean-forward="true" selection-start-line="219" selection-start-column="9" selection-end-line="219" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1340">
-          <caret line="94" column="140" lean-forward="false" selection-start-line="94" selection-start-column="140" selection-end-line="94" selection-end-column="140" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -649,7 +664,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7660">
           <caret line="424" column="17" lean-forward="false" selection-start-line="424" selection-start-column="17" selection-end-line="424" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -657,7 +671,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1900">
           <caret line="109" column="41" lean-forward="false" selection-start-line="109" selection-start-column="41" selection-end-line="109" selection-end-column="41" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -665,7 +678,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1340">
           <caret line="94" column="140" lean-forward="false" selection-start-line="94" selection-start-column="140" selection-end-line="94" selection-end-column="140" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -673,7 +685,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
           <caret line="40" column="8" lean-forward="true" selection-start-line="40" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -685,13 +696,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.project">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/entities/NamedDBNode.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="210">
@@ -699,26 +703,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7660">
-          <caret line="424" column="17" lean-forward="false" selection-start-line="424" selection-start-column="17" selection-end-line="424" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/INodeWorker.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="318">
-          <caret line="114" column="11" lean-forward="false" selection-start-line="114" selection-start-column="11" selection-end-line="114" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/INodeWorker.java" />
     <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/TaxonomyImporter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1900">
+        <state relative-caret-position="1674">
           <caret line="109" column="41" lean-forward="false" selection-start-line="109" selection-start-column="41" selection-end-line="109" selection-end-column="41" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -731,17 +720,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/console/src/main/java/pt/floraon/console/FloraOnShell.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1340">
+        <state relative-caret-position="1206">
           <caret line="94" column="140" lean-forward="false" selection-start-line="94" selection-start-column="140" selection-end-line="94" selection-end-column="140" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="200">
-          <caret line="31" column="28" lean-forward="false" selection-start-line="31" selection-start-column="28" selection-end-line="31" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -754,17 +734,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/js/occurrences.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4440">
+        <state relative-caret-position="3996">
           <caret line="222" column="0" lean-forward="false" selection-start-line="222" selection-start-column="0" selection-end-line="222" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Startup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -776,18 +747,286 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/pom.xml">
+    <entry file="file://$PROJECT_DIR$/.project" />
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="427">
-          <caret line="107" column="21" lean-forward="true" selection-start-line="107" selection-start-column="21" selection-end-line="107" selection-end-column="21" />
+        <state relative-caret-position="96">
+          <caret line="207" column="18" lean-forward="true" selection-start-line="207" selection-start-column="18" selection-end-line="207" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Startup.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="18" column="13" lean-forward="false" selection-start-line="18" selection-start-column="13" selection-end-line="18" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/CanonicalName.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="26" column="11" lean-forward="false" selection-start-line="26" selection-start-column="11" selection-end-line="26" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/occurrences/entities/Inventory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="401" column="0" lean-forward="true" selection-start-line="401" selection-start-column="0" selection-end-line="401" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/OccurrenceProcessor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="253" column="40" lean-forward="false" selection-start-line="253" selection-start-column="40" selection-end-line="253" selection-end-column="40" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/FloraOnServlet.java">
+    <entry file="file://$PROJECT_DIR$/webadmin/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="210" column="31" lean-forward="true" selection-start-line="210" selection-start-column="31" selection-end-line="210" selection-end-column="31" />
+        <state relative-caret-position="1512">
+          <caret line="84" column="26" lean-forward="false" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/arangodriver/aqlqueries.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="315" column="0" lean-forward="false" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/results/GraphUpdateResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="747">
+          <caret line="86" column="66" lean-forward="true" selection-start-line="86" selection-start-column="66" selection-end-line="86" selection-end-column="66" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GraphUpdateResultInt.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="38" column="5" lean-forward="false" selection-start-line="38" selection-start-column="5" selection-end-line="38" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/GraphReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1584">
+          <caret line="107" column="68" lean-forward="false" selection-start-line="107" selection-start-column="68" selection-end-line="107" selection-end-column="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/QueryDriver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="292" column="28" lean-forward="false" selection-start-line="292" selection-start-column="28" selection-end-line="292" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/IQuery.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="83" column="21" lean-forward="false" selection-start-line="83" selection-start-column="21" selection-end-line="83" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/server/Suggestions.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="34" column="75" lean-forward="false" selection-start-line="34" selection-start-column="75" selection-end-line="34" selection-end-column="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/arangodriver/NodeWorkerDriver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="7542">
+          <caret line="457" column="29" lean-forward="false" selection-start-line="457" selection-start-column="29" selection-end-line="457" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GNodeWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="29" column="15" lean-forward="false" selection-start-line="29" selection-start-column="15" selection-end-line="29" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/GOccurrenceDriver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1620">
+          <caret line="103" column="36" lean-forward="false" selection-start-line="103" selection-start-column="36" selection-end-line="103" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/occurrences/OccurrenceApi.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="34" column="13" lean-forward="false" selection-start-line="34" selection-start-column="13" selection-end-line="34" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/geocoding/AdminPage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="26" column="56" lean-forward="false" selection-start-line="26" selection-start-column="56" selection-end-line="26" selection-end-column="56" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/datatypes/SafeHTMLString.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="52" column="0" lean-forward="true" selection-start-line="52" selection-start-column="0" selection-end-line="52" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/main-admin.jsp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="21" column="7" lean-forward="false" selection-start-line="21" selection-start-column="7" selection-end-line="21" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/INodeWorker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="149" column="14" lean-forward="true" selection-start-line="149" selection-start-column="14" selection-end-line="149" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/BaseFloraOnDriver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="301">
+          <caret line="96" column="8" lean-forward="false" selection-start-line="96" selection-start-column="8" selection-end-line="96" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListDataArangoDBDriver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="705">
+          <caret line="254" column="41" lean-forward="false" selection-start-line="254" selection-start-column="41" selection-end-line="254" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/driver/interfaces/IRedListDataDriver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="106" column="32" lean-forward="false" selection-start-line="106" selection-start-column="32" selection-end-line="106" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/FieldValues.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="9" column="13" lean-forward="false" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues_pt.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="464">
+          <caret line="501" column="29" lean-forward="true" selection-start-line="501" selection-start-column="0" selection-end-line="501" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="ResourceBundle">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/resources/pt/floraon/redlistdata/fieldValues.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="461">
+          <caret line="359" column="25" lean-forward="false" selection-start-line="359" selection-start-column="25" selection-end-line="359" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="ResourceBundle">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/taxonomy/entities/TaxEnt.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="781">
+          <caret line="422" column="0" lean-forward="true" selection-start-line="422" selection-start-column="0" selection-end-line="422" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RevisionWithTaxEnt.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="7" column="14" lean-forward="false" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#361#362#0" expanded="false" />
+            <element signature="e#390#391#0" expanded="false" />
+            <element signature="e#434#435#0" expanded="false" />
+            <element signature="e#470#471#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/Revision.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListDataApi.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="452" column="45" lean-forward="false" selection-start-line="452" selection-start-column="45" selection-end-line="452" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/entities/RedListSettings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="23" column="5" lean-forward="false" selection-start-line="23" selection-start-column="5" selection-end-line="23" selection-end-column="5" />
+          <folding>
+            <element signature="e#696#697#0" expanded="true" />
+            <element signature="e#775#776#0" expanded="true" />
+            <element signature="e#820#821#0" expanded="true" />
+            <element signature="e#893#894#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/java/pt/floraon/redlistdata/RedListAdminPages.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="445">
+          <caret line="136" column="0" lean-forward="false" selection-start-line="136" selection-start-column="0" selection-end-line="136" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/main-redlistinfo.jsp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="36">
+          <caret line="161" column="30" lean-forward="false" selection-start-line="161" selection-start-column="30" selection-end-line="161" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/webadmin/src/main/webapp/WEB-INF/web.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="342">
+          <caret line="19" column="0" lean-forward="false" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
           <folding />
         </state>
       </provider>

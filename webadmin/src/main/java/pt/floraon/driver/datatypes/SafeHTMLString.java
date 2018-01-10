@@ -64,9 +64,9 @@ public class SafeHTMLString {
             el.replaceWith(new Element("cite").text(el.text()));
 
         for(Element el : d.select("span"))
-            el.replaceWith(new TextNode(el.text(), null));
+            el.replaceWith(new TextNode(" " + el.text() + " ", null));
 
-        return d.body().html();
+        return d.body().html().replaceAll(" {2,}", " ");
     }
 
     public int getLength() {

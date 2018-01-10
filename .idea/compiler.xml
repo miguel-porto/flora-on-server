@@ -13,7 +13,7 @@
     <bytecodeTargetLevel>
       <module name="Flora-On-server" target="1.5" />
       <module name="Flora-On-server-shell" target="7" />
-      <module name="Flora-On-server-web" target="7" />
+      <module name="Flora-On-server-web" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

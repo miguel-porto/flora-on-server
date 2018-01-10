@@ -1,8 +1,6 @@
 package pt.floraon.driver;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -12,7 +10,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 
 public abstract class GraphUpdateResultInt {
 	protected transient String jsonRepresentation=null;
-	protected transient List<String> documentHandles=null;
+	protected transient Set<String> documentHandles=null;
 	protected transient IFloraOn driver;
 
 	public GraphUpdateResultInt() {
@@ -24,19 +22,20 @@ public abstract class GraphUpdateResultInt {
 	
 	public GraphUpdateResultInt(IFloraOn graph, INodeKey id) {
 		this.driver=graph;
-		this.documentHandles=new ArrayList<String>();
+		this.documentHandles=new HashSet<>();
 		this.documentHandles.add(id.toString());
 	}
 
 	public GraphUpdateResultInt(IFloraOn graph, String[] ids) {
 		this.driver=graph;
-		this.documentHandles=new ArrayList<String>();
+		this.documentHandles=new HashSet<>();
+
 		this.documentHandles.addAll(Arrays.asList(ids));
 	}
 
 	public GraphUpdateResultInt(IFloraOn graph, List<String> ids) {
 		this.driver=graph;
-		this.documentHandles = ids;
+		this.documentHandles = new HashSet<>(ids);
 	}
 
 	protected static JsonObject emptyResultJson() {
@@ -54,7 +53,7 @@ public abstract class GraphUpdateResultInt {
 		return this.toJsonObject().toString();
 	}
 
-	public List<String> getUpdatedHandles() {
+	public Set<String> getUpdatedHandles() {
 		return documentHandles;
 	}
 

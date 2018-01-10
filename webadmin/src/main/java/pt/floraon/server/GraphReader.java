@@ -2,6 +2,8 @@ package pt.floraon.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
 
 import javax.servlet.ServletException;
@@ -16,6 +18,7 @@ import pt.floraon.driver.Constants.Facets;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
+import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
 /**
  * Services for the graph manager
@@ -100,11 +103,19 @@ public class GraphReader extends FloraOnServlet {
 			for(int i=0;i<infacets.length;i++) fac[i]=Facets.valueOf(infacets[i].toUpperCase());
 
 			if(id==null) {
-				TaxEnt te=driver.getNodeWorkerDriver().getSingleTaxEntOrNull(TaxEnt.parse(query));
-				if(te==null)
+//				System.out.println(TaxEnt.parse(query).toJson().toString());
+//				TaxEnt te=driver.getNodeWorkerDriver().getSingleTaxEntOrNull(TaxEnt.parse(query));
+				List<TaxEnt> te = driver.getNodeWorkerDriver().getTaxEnt(TaxEnt.parse(query), null);
+				if(te == null || te.size() == 0)
 					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(null,fac,depth).toJsonObject());
-				else
-					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(te.getID()),fac,depth).toJsonObject());
+				else {
+					Iterator<TaxEnt> itte = te.iterator();
+					GraphUpdateResult out = driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(itte.next().getID()), fac, depth);
+					while(itte.hasNext()) {
+						out.mergeWith(driver.getNodeWorkerDriver().getNeighbors(driver.asNodeKey(itte.next().getID()), fac, depth));
+					}
+					thisRequest.success(out.toJsonObject());
+				}
 			} else {
 				String[] ids=id.split(",");
 				if(ids.length==1)

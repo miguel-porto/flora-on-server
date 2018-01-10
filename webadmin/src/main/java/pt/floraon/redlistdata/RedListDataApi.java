@@ -450,6 +450,10 @@ public class RedListDataApi extends FloraOnServlet {
                         driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "historicalThreshold", thisRequest.getParameterAsInteger("value", 1990));
                         break;
 
+                    case "editionslastndays":
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "editionsLastNDays", thisRequest.getParameterAsInteger("value", 20));
+                        break;
+
                     case "unlockEdition":
                         if(!thisRequest.getUser().canMANAGE_VERSIONS()) {thisRequest.error("You don't have privileges for this operation!"); return;}
                         rls1.unlockEditionForTaxon(thisRequest.getParameterAsString("value"));

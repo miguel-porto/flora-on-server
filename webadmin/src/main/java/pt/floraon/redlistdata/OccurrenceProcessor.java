@@ -233,18 +233,23 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
 
         for(SimpleOccurrence o : this) {
             Placemark pl = folder.createAndAddPlacemark();
-            CanonicalName co = new CanonicalName(o.getOccurrence().getVerbTaxon());
+//            CanonicalName co = new CanonicalName(o.getOccurrence().getVerbTaxon()); // FIXME: this sometimes has authorship but can't
 
+/*
             String name = co.getGenus() + " " +
                     co.getSpecificEpithet() +
                     (co.getInfraRanksAsString(false) == null ? "" : " " + co.getInfraRanksAsString(false)) +
+*/
+            String name = o.getOccurrence().getVerbTaxon() +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
                     (o.getPrecision()._isImprecise() ? (" (" + o.getPrecision().toString() + ")") : "") +
                     (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA ? " JÁ CONTADO" : "");
 
             String desc = (o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") +
-                    " (" + o.getYear() + ")" +
-                    (o.getOccurrence().getComment() != null ? ": " + o.getOccurrence().getComment() : "") +
+                    " (" + (o.getYear() == null ? "<sem ano>" : o.getYear()) + ")" +
+                    (o.getLocality() != null ? "; " + o.getLocality() : "") +
+                    (o.getVerbLocality() != null ? "; " + o.getVerbLocality() : "") +
+                    (o.getOccurrence().getComment() != null ? "; " + o.getOccurrence().getComment() : "") +
                     (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA
                         ? " " + o.getOccurrence().getTypeOfEstimate() + " = " + o.getOccurrence().getAbundance() : "");
 

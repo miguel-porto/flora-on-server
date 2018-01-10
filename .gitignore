@@ -20,4 +20,8 @@ sampledata/
 
 floraon.properties
 
-
+# settings
+.settings/
+.idea/
+.classpath
+.project

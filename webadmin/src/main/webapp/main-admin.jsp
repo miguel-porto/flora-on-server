@@ -36,9 +36,10 @@
     <h2><fmt:message key="error.10"/></h2>
     <p><fmt:message key="error.10a"/></p>
     <!--<form class="poster" data-path="occurrences/api/fixtaxonomicissues" data-refresh="true">-->
-    <t:taxonomicquestions questions="${nomatchquestions}" individualforms="true"/>
-    <!--<input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
-    </form>-->
+    <form method="POST" action="occurrences/api/fixtaxonomicissues">
+    <t:taxonomicquestions questions="${nomatchquestions}" individualforms="false"/>
+    <input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
+    </form>
     </c:if>
 
     <h1>Toponomy</h1>

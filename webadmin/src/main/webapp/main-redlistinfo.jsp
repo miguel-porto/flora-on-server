@@ -41,6 +41,7 @@
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
             <li><a href="?w=published"><fmt:message key="Separator.9"/></a></li>
+            <li><a href="?w=alleditions"><fmt:message key="Separator.10"/></a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
@@ -154,6 +155,15 @@
                 </tr>
             </c:forEach>
             </tbody>
+        </table>
+    </c:when>
+    <c:when test="${what=='alleditions'}">
+        <h1>All editions in the last ${ndays} days</h1>
+        <table class="sortable">
+            <tr><th>Taxon</th><th>Date saved</th><th>User</th></tr>
+            <c:forEach var="rev" items="${revisions}">
+            <tr><td><a href="?w=taxon&id=${rev.getTaxEnt()._getIDURLEncoded()}">${rev.getTaxEnt().getNameWithAnnotationOnly(true)}</a></td><td>${rev.getFormattedDateSaved()}</td><td>${userMap.get(rev.getUser())}</td></tr>
+            </c:forEach>
         </table>
     </c:when>
     <c:when test="${what=='main'}">
@@ -1941,6 +1951,17 @@
                         <input type="hidden" name="territory" value="${territory}"/>
                         <input type="hidden" name="option" value="historicalthreshold"/>
                         <input type="number" name="value" value="${historicalthreshold}"/>
+                        <input type="submit" value="Set" class="textbutton"/>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>Mostrar edições dos últimos</td>
+                <td>
+                    <form class="poster" data-path="api/setoptions" data-refresh="true">
+                        <input type="hidden" name="territory" value="${territory}"/>
+                        <input type="hidden" name="option" value="editionslastndays"/>
+                        <input type="number" name="value" value="${editionslastndays}"/> dias
                         <input type="submit" value="Set" class="textbutton"/>
                     </form>
                 </td>

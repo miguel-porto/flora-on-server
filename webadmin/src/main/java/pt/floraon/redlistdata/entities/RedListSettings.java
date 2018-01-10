@@ -16,15 +16,15 @@ import java.util.Set;
 public class RedListSettings extends GeneralDBNode {
     private String territory;
     private boolean editionLocked = false;
-    private Integer historicalThreshold;
+    private Integer historicalThreshold, editionsLastNDays;
     private Set<String> unlockedSheets = new HashSet<>();
 
     public Integer getHistoricalThreshold() {
         return historicalThreshold == null ? 1990 : historicalThreshold;
     }
 
-    public void setHistoricalThreshold(Integer historicalThreshold) {
-        this.historicalThreshold = historicalThreshold;
+    public Integer getEditionsLastNDays() {
+        return editionsLastNDays == null ? 20 : editionsLastNDays;
     }
 
     public String getTerritory() {

@@ -132,7 +132,7 @@ public interface IRedListDataDriver {
 
     /**
      * Gets the {@link RedListDataEntitySnapshot} for the given TaxEnt and territory. It does not fill anything else than
-     * the same fields as RedListDataEntity.
+     * the same fields as RedListDataEntity - so, occurrences are not filled in.
      * @param territory
      * @param taxEntId
      * @return

@@ -31,7 +31,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
     }
 
 	@Override
-    public List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion) throws FloraOnException {
+    public List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion) {
 		// TODO: think better about this match. When no Sensu is given, choose by default the accepted name?
 		TaxEnt tmp;
 		List<TaxEnt> out = new ArrayList<>();
@@ -110,6 +110,11 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 		if(askQuestion != null) {
 			askQuestion.setValue(out.size() == 0 || (ask && out.size() > 0 && nrExactMatches != 1) || (!ask && out.size() > 1 && nrExactMatches != 1));
 			if (nrExactMatches == 1 && askQuestion.getValue() != null && !askQuestion.booleanValue()) {
+				out.clear();
+				out.add(exactMatch);
+			}
+		} else {
+			if (nrExactMatches == 1) {
 				out.clear();
 				out.add(exactMatch);
 			}

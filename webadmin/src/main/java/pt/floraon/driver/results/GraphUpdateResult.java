@@ -80,6 +80,14 @@ public class GraphUpdateResult extends GraphUpdateResultInt {
 	}
 	
 
+	public void mergeWith(GraphUpdateResult tomerge) throws FloraOnException {
+		if(tomerge.jsonRepresentation != null || this.jsonRepresentation != null)
+			throw new FloraOnException("Operation not supported");
+		if(this.documentHandles == null || tomerge.documentHandles == null)
+			throw new FloraOnException("Operation not supported");
+		this.documentHandles.addAll(tomerge.documentHandles);
+	}
+
 	public static GraphUpdateResult emptyResult() {
 		return new GraphUpdateResult();
 	}
