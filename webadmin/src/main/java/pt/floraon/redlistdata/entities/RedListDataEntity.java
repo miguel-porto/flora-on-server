@@ -849,8 +849,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
                     if(psr.contains(RedListEnums.PopulationSizeReduction.NO_INFORMATION)
                             || psr.contains(RedListEnums.PopulationSizeReduction.NO_REDUCTION)
                             || pop.getPopulationTrend() == null || getPopulation().getPopulationTrend().getMinValue() == null || getPopulation().getPopulationTrend().getMinValue() < 30
-                            || pop.getPopulationSizeReductionJustification() == null
-                            || StringUtils.cleanText(pop.getPopulationSizeReductionJustification().toString()).equals("")) {
+                            || pop.getPopulationSizeReductionJustification().isEmpty()) {
                         warns.add("DataSheet.msg.warning.2");
                         alc.add("A");
                         break;

@@ -140,7 +140,7 @@ public class Assessment implements DiffableBean {
 
     public SafeHTMLString getFinalJustification() {
         return finalJustification == null ?
-                new SafeHTMLString(getJustification().toString().equals("")
+                new SafeHTMLString(getJustification().isEmpty()
                         ? getUpDownListingJustification().toString()
                         : (getJustification().toString() + " " + getUpDownListingJustification()))
                 : finalJustification;

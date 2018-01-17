@@ -185,6 +185,20 @@
             <p></p>
         </div>
         </c:if>
+        <div class="filterpanel">
+            <h3>Tools</h3>
+            <form method="GET">
+                <input type="hidden" name="w" value="search"/>
+                <input type="text" name="s" placeholder="type search text"/>
+                <input type="submit" value="Search all data sheets" class="textbutton"/>
+            </form>
+
+            <c:url value="../redlist/${territory}" var="urldt">
+              <c:param name="w" value="downloadtaxawithtag" />
+              <c:param name="tag" value="Lista Alvo" />
+            </c:url>
+            <div class="button anchorbutton"><a href="${urldt}">Download «Lista Alvo»</a></div>
+        </div>
         <c:if test="${user.canEDIT_ANY_FIELD()}">
         <div class="filterpanel inactive">
             <h3><fmt:message key="TaxonIndex.selecting.1"/></h3>
@@ -233,12 +247,6 @@
             <t:optionbutton optionname="onlynative" title="${tmp}" defaultvalue="true" norefresh="true" style="light"/>
             <c:if test="${user.canEDIT_ANY_FIELD()}"><div class="filter" id="onlyselected"><div class="light"></div><div><fmt:message key="TaxonIndex.filters.7"/></div></div></c:if>
         </div>
-
-        <c:url value="../redlist/${territory}" var="urldt">
-          <c:param name="w" value="downloadtaxawithtag" />
-          <c:param name="tag" value="Lista Alvo" />
-        </c:url>
-        <div class="button anchorbutton"><a href="${urldt}">Download «Lista Alvo»</a></div>
 
         <form method="post" action="../redlist/${territory}">
             <input type="hidden" name="w" value="taxon"/>
@@ -385,6 +393,25 @@
             </table>
         </form>
     </c:when>
+
+    <c:when test="${what=='search'}">
+    <form method="GET">
+        <input type="hidden" name="w" value="search"/>
+        <input type="text" name="s" placeholder="type search text"/>
+        <input type="submit" value="Search all data sheets" class="textbutton"/>
+    </form>
+
+    <table class="sortable">
+        <tr><th>Taxon</th><th>Found match</th></tr>
+        <c:forEach var="res" items="${searchResults}">
+        <tr>
+            <td><a href="?w=taxon&id=${res.getKey().getTaxEnt()._getIDURLEncoded()}">${res.getKey().getTaxEnt().getNameWithAnnotationOnly(true)}</a></td>
+            <td><ul style="margin:0"><c:forEach var="res1" items="${res.getValue()}"><li>${res1}</li></c:forEach></ul></td>
+        </tr>
+        </c:forEach>
+    </table>
+    </c:when>
+
     <c:when test="${what=='taxon' || what == 'sheet'}">
         <c:if test="${warning != null && warning.size() > 0}">
             <div class="warning">

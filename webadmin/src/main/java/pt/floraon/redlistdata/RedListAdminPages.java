@@ -1,9 +1,12 @@
 package pt.floraon.redlistdata;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.collections.MultiMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
@@ -73,6 +76,8 @@ public class RedListAdminPages extends FloraOnServlet {
         String what;
         TaxEnt te;
         Iterator<TaxEnt> iTaxEnt;
+        Iterator<RedListDataEntity> rldeIt;
+        RedListDataEntity rlde;
         long sizeOfSquare = 2000;
 /*
 Gson gs = new GsonBuilder().setPrettyPrinting().create();
@@ -113,6 +118,49 @@ System.out.println(gs.toJson(getUser()));
         List<String> warnings = new ArrayList<>();
 
         switch (what) {
+            case "search":
+                String searchtmp;
+                Multimap<RedListDataEntity, String> searchResults = ArrayListMultimap.create();
+
+                rldeIt = driver.getRedListData().getAllRedListData(territory, false, null);
+                while(rldeIt.hasNext()) {
+                    rlde = rldeIt.next();
+
+                    if(rlde.getTaxEnt().getNameWithAnnotationOnly(false).toLowerCase()
+                            .contains(thisRequest.getParameterAsString("s").toLowerCase()))
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">TAXON NAME</span> " + rlde.getTaxEnt().getNameWithAnnotationOnly(false));
+
+                    searchtmp = rlde.getGeographicalDistribution().getDescription().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">DISTRIBUTION</span> " + searchtmp);
+
+                    searchtmp = rlde.getPopulation().getDescription().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">POPULATION</span> " + searchtmp );
+
+                    searchtmp = rlde.getEcology().getDescription().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">ECOLOGY</span> " + searchtmp);
+
+                    searchtmp = rlde.getUsesAndTrade().getDescription().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">USES</span> " + searchtmp);
+
+                    searchtmp = rlde.getThreats().getDescription().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">THREATS</span> " + searchtmp);
+
+                    searchtmp = rlde.getConservation().getDescription().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">CONSERVATION</span> " + searchtmp);
+
+                    searchtmp = rlde.getAssessment().getFinalJustification().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">JUSTIFICATION</span> " + searchtmp);
+                }
+                request.setAttribute("searchResults", searchResults.asMap().entrySet());
+                break;
+
             case "alleditions": // displays all editions made in the last days (user setting)
                 RedListDataEntity rldetmp;
                 Set<RevisionWithTaxEnt> editsall = new TreeSet<>(Collections.reverseOrder(new RevisionWithTaxEnt.RevisionWithTaxEntComparator()));
@@ -123,9 +171,9 @@ System.out.println(gs.toJson(getUser()));
                 cal.add(Calendar.DATE, -driver.getRedListSettings(territory).getEditionsLastNDays());
 
                 // compile edition history
-                Iterator<RedListDataEntity> rldeit1 = driver.getRedListData().getAllRedListData(territory, false, null);
-                while(rldeit1.hasNext()) {
-                    rldetmp = rldeit1.next();
+                rldeIt = driver.getRedListData().getAllRedListData(territory, false, null);
+                while(rldeIt.hasNext()) {
+                    rldetmp = rldeIt.next();
                     for (Revision r : rldetmp.getRevisions()) {
                         if(r.getUser() == null) continue;
                         if(r.getDateTimeSaved().before(cal.getTime())) continue;
@@ -242,7 +290,6 @@ System.out.println(gs.toJson(getUser()));
                     break;
                 }
                 if(ids.length == 1) {       // only one taxon requested
-                    RedListDataEntity rlde;
                     INodeKey thisId;
                     if(rldes == null) {
                         thisId = thisRequest.getParameterAsKey("id");
@@ -734,7 +781,7 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "contentasxml":
-                Iterator<RedListDataEntity> rldeit = driver.getRedListData().getAllRedListData("lu", false, null);
+                rldeIt = driver.getRedListData().getAllRedListData("lu", false, null);
                 PrintWriter wr2 = thisRequest.response.getWriter();
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder;
@@ -753,8 +800,8 @@ System.out.println(gs.toJson(getUser()));
 
                     Integer count1 = 0, count2 = 0, count3 = 0, count4 = 0;
                     Integer countCR = 0, countEN = 0, countVU = 0, countNT = 0, countLC = 0, countRE = 0, countEX = 0, countEW = 0, countDD = 0;
-                    while (rldeit.hasNext()) {
-                        RedListDataEntity rlde1 = rldeit.next();
+                    while (rldeIt.hasNext()) {
+                        RedListDataEntity rlde1 = rldeIt.next();
                         // FIXME this just a temporary fix
                         if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde1.getTags()))) continue;
 
@@ -852,8 +899,8 @@ System.out.println(gs.toJson(getUser()));
                     rootElement = doc.createElement("redlistcontent");
                     doc.appendChild(rootElement);
 
-                    while (rldeit.hasNext()) {
-                        RedListDataEntity rlde = rldeit.next();
+                    while (rldeIt.hasNext()) {
+                        rlde = rldeIt.next();
 /*
                         if (Collections.disjoint(Collections.singleton("Lista Alvo"), Arrays.asList(rlde.getTags()))
                                 || rlde.getGeographicalDistribution().getDescription().isEmpty()) continue;

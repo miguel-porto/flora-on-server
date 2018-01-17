@@ -64,6 +64,7 @@ public final class OccurrenceConstants {
         , PROBABLY_MISIDENTIFIED("Misidentified?")
         , ESCAPED("Escaped?")
         , INTRODUCED("Introduced")
+        , OTHER_REASON("Other exclusion reason")
         , WRONG_GEORREF("Wrong georref");
 
         private String label;
@@ -75,6 +76,7 @@ public final class OccurrenceConstants {
             acronymMap.put("w", WRONG_GEORREF);
             acronymMap.put("e", ESCAPED);
             acronymMap.put("i", INTRODUCED);
+            acronymMap.put("o", OTHER_REASON);
             acronymMap.put("", ASSUMED_PRESENT);
         }
 

@@ -27,12 +27,20 @@ public class SafeHTMLString {
     }
 
     public boolean isEmpty() {
-        return StringUtils.isStringEmpty(Jsoup.parse(this.text).text().replace("\u00a0", " ").trim());
+        return StringUtils.isStringEmpty(this.toCleanString());
     }
 
     @Override
     public String toString() {
         return this.text;
+    }
+
+    /**
+     * Strips all HTML tags and nbsp
+     * @return
+     */
+    public String toCleanString() {
+        return Jsoup.parse(this.text).text().replace("\u00a0", " ").trim();
     }
 
     public String toMarkDownString() {
@@ -71,6 +79,18 @@ public class SafeHTMLString {
 
     public int getLength() {
         return StringUtils.cleanText(this.text).length();
+    }
+
+    public String searchString(String search) {
+        int retlen = 40, start, end;
+        String plain = this.toCleanString(), prefix = "", suffix = "";
+        int res = plain.toLowerCase().indexOf(search.toLowerCase());
+        if(res > -1) {
+            res += search.length() / 2;
+            if(res - retlen / 2 < 0) start = 0; else {start = res - retlen / 2; prefix = "...";}
+            if(start + retlen >= plain.length()) end = plain.length() - 1; else {end = start + retlen; suffix = "...";}
+            return prefix + plain.substring(start, end) + suffix;
+        } else return null;
     }
 
     @Override

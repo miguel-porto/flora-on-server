@@ -102,6 +102,12 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 
 .wordtag.notransform {text-transform: none;}
 
+.wordtag.compact {
+    margin:0;
+    font-size:0.7em;
+    padding: 3px 10px;
+}
+
 .togglebutton {
     background-color: #2979ff;
     cursor:pointer;
