@@ -4,6 +4,7 @@ var showPointsOnMap;
 var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var redCross = L.divIcon({className: 'redcrossicon', bgPos: [-4, -4], iconSize: [8, 8]});
+var blackCircle = L.divIcon({className: 'blackcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 /*var redCircle = L.icon({
     iconUrl: 'images/redcircle.png',
     iconSize: [12, 12],
@@ -572,6 +573,7 @@ function removeGeoElements(elements) {
 
 function projectPointsOnMap(ota, markerOptions) {
     markerOptions = Object.assign({icon: redCircle, label: false}, markerOptions);
+    var defaults = markerOptions;
     if(!ota)
         var ot = document.querySelectorAll('.geoelement');
     else {
@@ -595,8 +597,10 @@ function projectPointsOnMap(ota, markerOptions) {
                 markerOptions.label = coo[j].getAttribute('data-label');
             if(parseInt(coo[j].getAttribute('data-symbol')) == 2)
                 markerOptions.icon = redCross;
+            else if(parseInt(coo[j].getAttribute('data-symbol')) == 1)
+                markerOptions.icon = blackCircle;
             else
-                markerOptions.icon = redCircle;
+                markerOptions.icon = defaults.icon;
             addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng'))
                 , ot[i], coo[j].classList.contains('editable'), markerOptions);
         }

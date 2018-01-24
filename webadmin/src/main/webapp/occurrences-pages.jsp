@@ -434,7 +434,8 @@
             </c:forEach>
             <c:forEach var="occ" items="${externaloccurrences}">
                 <tr class="geoelement hidden">
-                    <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}" data-symbol="2"></td>
+                    <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}"
+                        data-symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"></td>
                 </tr>
             </c:forEach>
             </tbody>

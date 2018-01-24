@@ -104,6 +104,7 @@ body.occurrencespage.compactview .hideincompactview {display:none !important}
 }
 
 .redcrossicon {background-color:transparent; border:2px solid red; transition: width 0.5s, height 0.5;}
+.blackcircleicon {background-color:black; border:2px solid red;}
 
 .bigoption {
     margin: 30px;
