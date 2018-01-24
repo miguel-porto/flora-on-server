@@ -36,6 +36,17 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
      */
     public abstract void executeOccurrenceQuery(Iterator<TaxEnt> taxon) throws FloraOnException, IOException;
 
+    public abstract boolean canQueryText();
+
+    /**
+     * Executes a query and updates the Iterable list of occurrences with the results.
+     * This query is merely textual.
+     * @param query
+     * @throws FloraOnException
+     * @throws IOException
+     */
+    public abstract void executeOccurrenceTextQuery(String query) throws FloraOnException, IOException;
+
     /**
      * Executes a query and returns arbitrary data about a taxon.
      * TODO: this shouldn't be here, it's just a workaround for fetching info in Flora-On

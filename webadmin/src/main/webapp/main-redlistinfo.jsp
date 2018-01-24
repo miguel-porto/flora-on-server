@@ -2223,5 +2223,6 @@
     <div class="content"></div>
     <p>Para adicionar uma nova referência não listada, escolha a opção Bibliografia na barra de menu à esquerda.</p>
 </div>
+<div id="savingscreen"><div><img src="../images/loader.svg" class="ajaxloader"/>Gravando...</div></div>
 </body>
 </html>

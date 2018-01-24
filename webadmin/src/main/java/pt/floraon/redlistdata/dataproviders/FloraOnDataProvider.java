@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import org.apache.http.client.utils.URIBuilder;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
@@ -11,6 +12,7 @@ import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.URI;
@@ -38,6 +40,35 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     public FloraOnDataProvider(URL url, IFloraOn driver) {
         this.floraOnURL = url;
         this.driver = driver;
+    }
+
+    private void readBigJsonFromStream(InputStream stream) throws IOException {
+        Gson gson = new Gson();
+        JsonReader jr;
+        jr = new JsonReader(new InputStreamReader(stream));
+        //        occArray = new ArrayList<>();
+        occurrenceList = new ArrayList<>();
+        jr.beginObject();
+        while (jr.hasNext()) {
+            if(jr.peek() == JsonToken.BEGIN_ARRAY) {
+                jr.beginArray();
+                while (jr.hasNext()) {
+                    FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
+                    SimpleOccurrence so = new SimpleOccurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
+                            , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent
+                            , o.precisao == 0 ? "1" : (o.precisao == 1 ? "100" : (o.precisao == 2 ? "1000x1000" : "10000x10000"))
+                            , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
+                            , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER
+                            , o.espontanea == 1);
+                    so.getOccurrence().setPresenceStatus(o.validado ? null : OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
+                    occurrenceList.add(so);
+                }
+                jr.endArray();
+            } else jr.skipValue();
+        }
+        jr.endObject();
+        jr.close();
+
     }
 
     @Override
@@ -89,40 +120,13 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         }
         u = newUri.toURL();
 
-        Type listType = new TypeToken<List<FloraOnOccurrence>>() {
-        }.getType();
+        readBigJsonFromStream(u.openStream());
 
-        Gson gson = new Gson();
-        JsonReader jr;
-        try {
-            jr = new JsonReader(new InputStreamReader(u.openStream()));
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            occurrenceList = new ArrayList<>();
-            return;
-        }
-//        occArray = new ArrayList<>();
-        occurrenceList = new ArrayList<>();
-        jr.beginObject();
-        while (jr.hasNext()) {
-            if(jr.peek() == JsonToken.BEGIN_ARRAY) {
-                jr.beginArray();
-                while (jr.hasNext()) {
-                    FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
-                    SimpleOccurrence so = new SimpleOccurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
-                            , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent
-                            , o.precisao == 0 ? "1" : (o.precisao == 1 ? "100" : (o.precisao == 2 ? "1000x1000" : "10000x10000"))
-                            , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
-                            , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER
-                            , o.espontanea == 1);
-                    so.getOccurrence().setPresenceStatus(o.validado ? null : OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
-                    occurrenceList.add(so);
-                }
-                jr.endArray();
-            } else jr.skipValue();
-        }
-        jr.endObject();
-        jr.close();
+/*        Type listType = new TypeToken<List<FloraOnOccurrence>>() {
+        }.getType();
+*/
+
+
 
 /*
         InputStreamReader isr = new InputStreamReader(u.openStream());
@@ -140,6 +144,35 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                         , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));
         }
         */
+    }
+
+    @Override
+    public boolean canQueryText() {
+        return true;
+    }
+
+    @Override
+    public void executeOccurrenceTextQuery(String query) throws FloraOnException, IOException {
+        URI oldUri;
+        try {
+            oldUri = floraOnURL.toURI();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            throw new FloraOnException(e.getMessage());
+        }
+        URIBuilder ub = new URIBuilder(oldUri);
+        ub.addParameter("what", "occurrences");
+        ub.addParameter("query", query);
+
+        URL u;
+        try {
+            u = ub.build().toURL();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+System.out.println(u.toString());
+        readBigJsonFromStream(u.openStream());
     }
 
     @Override

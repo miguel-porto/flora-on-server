@@ -88,7 +88,7 @@ public class SafeHTMLString {
         if(res > -1) {
             res += search.length() / 2;
             if(res - retlen / 2 < 0) start = 0; else {start = res - retlen / 2; prefix = "...";}
-            if(start + retlen >= plain.length()) end = plain.length() - 1; else {end = start + retlen; suffix = "...";}
+            if(start + retlen >= plain.length()) end = plain.length(); else {end = start + retlen; suffix = "...";}
             return prefix + plain.substring(start, end) + suffix;
         } else return null;
     }

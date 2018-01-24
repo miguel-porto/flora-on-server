@@ -10,7 +10,29 @@ var habitatExpander;
 var referenceSearchTimer = null;
 
 document.addEventListener('DOMContentLoaded', function() {
-    attachFormPosters();
+    attachFormPosters(function(rt1, ev) {
+		if(rt1.success) {
+		    if(rt1.msg && rt1.msg.alert)
+		        alert(rt1.msg.text);
+
+		    if(ev.target.getAttribute('data-callback') == null) {
+		        if(ev.target.getAttribute('data-refresh') == 'false') {
+                    alert('Ok');
+                    isFormSubmitting = false;
+		        } else {
+                    window.location.reload();
+                    return;
+                }
+			} else {
+			    window.location = ev.target.getAttribute('data-callback');
+			    return;
+            }
+		} else {
+            showSaveButton();
+            document.getElementById('savingscreen').classList.remove('hiddenfade');
+        }
+    }, null);
+
     attachAJAXContent(function(el) {
         addEvent('click', el, function(ev) {
             if(isPanning) {isPanning = false; return;}
@@ -86,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // save all
     addEvent('submit', document.getElementById('maindataform'), function(ev) {
         document.getElementById('mainformsubmitter').classList.add('hidden');
+        document.getElementById('savingscreen').classList.add('hiddenfade');
     });
 
     // toggle review panel visibility

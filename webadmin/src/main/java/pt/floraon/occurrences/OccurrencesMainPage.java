@@ -12,6 +12,7 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -145,6 +146,17 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
                             , driver.getOccurrenceDriver().findOccurrencesByFilter(filter, tu, (page - 1) * count, count));
+
+                    if(tu == null) {
+                        List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+                        for (SimpleOccurrenceDataProvider edp : sodps) {
+                            if (edp.canQueryText()) {
+                                // TODO: only works for one provider
+                                edp.executeOccurrenceTextQuery(filter);
+                                request.setAttribute("externaloccurrences", edp.iterator());
+                            }
+                        }
+                    }
                 }
                 request.setAttribute("nproblems"
                         , driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));

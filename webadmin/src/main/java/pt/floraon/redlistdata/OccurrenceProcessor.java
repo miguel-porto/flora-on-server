@@ -232,6 +232,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
 
         for(SimpleOccurrence o : this) {
+
             Placemark pl = folder.createAndAddPlacemark();
 //            CanonicalName co = new CanonicalName(o.getOccurrence().getVerbTaxon()); // FIXME: this sometimes has authorship but can't
 

@@ -3,6 +3,7 @@ var filterTimeout = null;
 var showPointsOnMap;
 var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
+var redCross = L.divIcon({className: 'redcrossicon', bgPos: [-4, -4], iconSize: [8, 8]});
 /*var redCircle = L.icon({
     iconUrl: 'images/redcircle.png',
     iconSize: [12, 12],
@@ -592,6 +593,10 @@ function projectPointsOnMap(ota, markerOptions) {
 //            console.log("added "+coo[j].getAttribute('data-lat')+coo[j].getAttribute('data-lng'));
             if(markerOptions.label)
                 markerOptions.label = coo[j].getAttribute('data-label');
+            if(parseInt(coo[j].getAttribute('data-symbol')) == 2)
+                markerOptions.icon = redCross;
+            else
+                markerOptions.icon = redCircle;
             addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng'))
                 , ot[i], coo[j].classList.contains('editable'), markerOptions);
         }

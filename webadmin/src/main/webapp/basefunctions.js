@@ -57,6 +57,7 @@ function postAJAXForm(addr,formElement,callback) {
 			        console.log(xmlo.responseText);
 				    var rt=JSON.parse(xmlo.responseText);
 				    alert('ERROR: '+rt.msg);
+				    callback(xmlo.responseText);
                 }
 				var loader = document.getElementById('loader');
 				if(loader) loader.style.display = 'none';

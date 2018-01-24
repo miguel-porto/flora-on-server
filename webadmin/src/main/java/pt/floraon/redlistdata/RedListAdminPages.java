@@ -436,35 +436,36 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("pointsOutsidePA", occurrenceProcessor.getNumberOfPointsOutsideProtectedAreas());
                         request.setAttribute("totalPoints", occurrenceProcessor.size());
 
-                        if(sodps != null && rlde.getTaxEnt().getOldId() != null) {
-                            // FIXME!!!! this only for Flora-On...
-                            Map<String, Object> taxonInfo = sodps.get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
-
-                            if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().toString().trim().equals("")) {
-                                if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
-                                    request.setAttribute("ecology", new SafeHTMLString(taxonInfo.get("ecology").toString()));
-                                }
-                            } else {
-                                request.setAttribute("ecology", rlde.getEcology().getDescription());
-                            }
-
-                            if (taxonInfo.containsKey("commonName"))
-                                request.setAttribute("commonNames", taxonInfo.get("commonName"));
-
-                            if (taxonInfo.containsKey("lifeform"))
-                                request.setAttribute("lifeform", taxonInfo.get("lifeform"));
-                        } else {
-                            request.setAttribute("ecology", rlde.getEcology().getDescription());
-                            request.setAttribute("lifeform","<erro>");
-                        }
                         request.setAttribute("occurrences", occurrenceProcessor);
                         request.setAttribute("historicalOccurrences", historicalOccurrenceProcessor);
                     }
 
-                    if(rlde.getTaxEnt() == null || rlde.getTaxEnt().getOldId() == null) {
+                    if(sodps != null && rlde.getTaxEnt().getOldId() != null) {
+                        // FIXME!!!! this only for Flora-On...
+                        Map<String, Object> taxonInfo = sodps.get(0).executeInfoQuery(rlde.getTaxEnt().getOldId());
+
+                        if (rlde.getEcology().getDescription() == null || rlde.getEcology().getDescription().isEmpty()) {
+                            if (taxonInfo.containsKey("ecology") && taxonInfo.get("ecology") != null) {
+                                request.setAttribute("ecology", new SafeHTMLString(taxonInfo.get("ecology").toString()));
+                            }
+                        } else {
+                            request.setAttribute("ecology", rlde.getEcology().getDescription());
+                        }
+
+                        if (taxonInfo.containsKey("commonName"))
+                            request.setAttribute("commonNames", taxonInfo.get("commonName"));
+
+                        if (taxonInfo.containsKey("lifeform"))
+                            request.setAttribute("lifeform", taxonInfo.get("lifeform"));
+                    } else {
+                        request.setAttribute("ecology", rlde.getEcology().getDescription());
+                        request.setAttribute("lifeform","<erro>");
+                    }
+
+/*                    if(rlde.getTaxEnt() == null || rlde.getTaxEnt().getOldId() == null) {
 //                        warnings.add("DataSheet.msg.warning.1b");
                         request.setAttribute("ecology", rlde.getEcology().getDescription());
-                    }
+                    }*/
 
                     request.setAttribute("rlde", rlde);
                     request.setAttribute("rls", rls);

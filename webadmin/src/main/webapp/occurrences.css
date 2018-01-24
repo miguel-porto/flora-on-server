@@ -103,6 +103,8 @@ body.occurrencespage.compactview .hideincompactview {display:none !important}
     margin-top: -6px !important;
 }
 
+.redcrossicon {background-color:transparent; border:2px solid red; transition: width 0.5s, height 0.5;}
+
 .bigoption {
     margin: 30px;
     padding-left: 20px;

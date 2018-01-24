@@ -432,6 +432,11 @@
             <c:forEach var="occ" items="${occurrences}">
                 <t:occurrencerow flavour="${param.flavour}" occ="${occ}" userMap="${userMap}"/>
             </c:forEach>
+            <c:forEach var="occ" items="${externaloccurrences}">
+                <tr class="geoelement hidden">
+                    <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}" data-symbol="2"></td>
+                </tr>
+            </c:forEach>
             </tbody>
         </table>
     </div>

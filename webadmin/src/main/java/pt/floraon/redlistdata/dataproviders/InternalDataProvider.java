@@ -56,6 +56,16 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
     }
 
     @Override
+    public boolean canQueryText() {
+        return false;
+    }
+
+    @Override
+    public void executeOccurrenceTextQuery(String query) throws FloraOnException, IOException {
+
+    }
+
+    @Override
     public Map<String, Object> executeInfoQuery(Object query) throws FloraOnException, IOException {
         return null;
     }
