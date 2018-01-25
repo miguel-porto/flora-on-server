@@ -244,7 +244,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             String name = o.getOccurrence().getVerbTaxon() +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
                     (o.getPrecision()._isImprecise() ? (" (" + o.getPrecision().toString() + ")") : "") +
-                    (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA ? " JÁ CONTADO" : "");
+                    (o.getOccurrence().getAbundance() != null || (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA) ? " JÁ CONTADO" : "");
 
             String desc = (o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") +
                     " (" + (o.getYear() == null ? "<sem ano>" : o.getYear()) + ")" +

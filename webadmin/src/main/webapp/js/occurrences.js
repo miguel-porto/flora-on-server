@@ -591,7 +591,7 @@ function projectPointsOnMap(ota, markerOptions) {
     for(var i=0; i<ot.length; i++) {
         coo = ot[i].querySelectorAll('*:not(.geoelement) .coordinates');
         for(var j=0; j<coo.length; j++) {
-            if(!coo[j].getAttribute('data-lat')) continue;
+            if(!coo[j].getAttribute('data-lat') || !coo[j].getAttribute('data-lng')) continue;
 //            console.log("added "+coo[j].getAttribute('data-lat')+coo[j].getAttribute('data-lng'));
             if(markerOptions.label)
                 markerOptions.label = coo[j].getAttribute('data-label');
@@ -609,6 +609,7 @@ function projectPointsOnMap(ota, markerOptions) {
 }
 
 function addPointMarker(lat, lng, bondEl, draggable, options) {
+    if(isNaN(lat) || isNaN(lng)) return;
     options = Object.assign({icon: redCircle}, options);
     var marker = L.marker([lat, lng], {icon: options.icon, draggable: draggable, keyboard: false});
     if(options.label)
