@@ -52,6 +52,26 @@
         <!--<th class="smallcol">Dets</th>-->
         </c:when>
 
+        <c:when test="${flavour == 'management'}">
+        <th class="smallcol">Code</th>
+        <th class="smallcol hideincompactview">Coord</th>
+        <th class="bigcol">Taxon</th>
+        <th class="smallcol">Conf</th>
+        <th class="smallcol">Date</th>
+        <th class="smallcol">Local</th>
+        <th class="smallcol">Preci</th>
+        <th class="smallcol">Excl</th>
+        <th class="smallcol">Auth</th>
+        <th class="bigcol">Notas</th>
+        <th class="bigcol">Notas priv</th>
+        <th class="smallcol hideincompactview">Nº</th>
+        <th class="smallcol hideincompactview">Met</th>
+        <th class="smallcol hideincompactview">Foto</th>
+        <th class="smallcol hideincompactview">Colh</th>
+        <th class="bigcol">Ameaças esp</th>
+        <th class="smallcol hideincompactview">Fen</th>
+        </c:when>
+
         </c:choose>
     </tr>
 </thead>

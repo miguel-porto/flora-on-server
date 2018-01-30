@@ -329,6 +329,7 @@
     <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple"><fmt:message key="button.5"/></a></div>
     <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=redlist"><fmt:message key="button.6"/></a></div>
     <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium"><fmt:message key="button.7"/></a></div>
+    <div class="button anchorbutton ${param.flavour == 'management' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=management"><fmt:message key="button.10"/></a></div>
     </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
