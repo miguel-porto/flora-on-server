@@ -36,9 +36,9 @@ body.occurrencespage.compactview .hideincompactview {display:none !important}
 
 .pager .imagebutton {line-height:0;}
 
-#occurrencetable-holder {flex: 2 4 auto; overflow: scroll;}
+#occurrencetable-holder {flex: 2 4 auto; overflow: scroll; position:relative;}
 #georreferencer {flex: 1 5 auto; overflow: visible; display:flex; flex-direction: column;background-color: #bbdefb; position: relative}
-#occurrencemap {flex: 4 0 35%;position:relative; height:100%;}
+#occurrencemap {flex: 4 0 30%;position:relative; height:100%;}
 #floatingswitches {
     position: absolute;
     right:0;
@@ -127,8 +127,31 @@ tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified td {background-color: #ce93d8}
 
 #suggestionstaxon {position:relative; width:0; height:0;}
-#taxonsearchwrapper {width: 100%;}
-.occurrencetable textarea, .occurrencetable input[type=text] {border: 2px dotted #2979ff; box-sizing: border-box; width: 100%; font-size: 0.9rem; padding: 1px; min-width:100px;}
+/*#taxonsearchwrapper {width: 100%;}*/
+
+.editbox {
+    position: absolute;
+    min-width: 40%;
+    margin-top: 20px;
+    box-shadow: 0 0 20px 3px black;
+    z-index:1;
+    border-radius:6px;
+    left:30%;
+    border:2px solid black;
+}
+
+td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !important}
+
+.occurrencetable textarea, .occurrencetable input[type=text] {
+    border: 0px dotted #2979ff;
+    box-sizing: border-box;
+    width: 100%;
+    /*font-size: 1.1rem;*/
+    padding: 6px 8px;
+    min-width:100px;
+    border-radius:3px;
+    margin:0;
+}
 
 .select .selectbutton, .selectcol .selectbutton {
     width:12px; height:12px; box-shadow: 0 0 3px black; border-radius: 50%;
@@ -147,6 +170,7 @@ td.select {background-color: transparent !important;}
     box-shadow: 0 0 12px #4d4d4d;
     border-radius: 4px;
 }
+
 .inventory h3 {background-color: #2196f3; color:white;}
 .inventory.geoelement.selected {background-color: #ffffbf !important;}
 .inventory .editable {background-color:#bbdefb}

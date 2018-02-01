@@ -106,6 +106,19 @@
                 </div>
                 <input type="submit" value="Descarregar" class="textbutton"/>
             </form>
+
+            <form class="poster bigbutton" data-path="api/downloadalloccurrences" data-refresh="true">
+                <h3>Tabela de todas as ocorrências</h3>
+                <input type="hidden" name="territory" value="${territory}"/>
+                <div class="multiplechooser left">
+                <c:forEach var="tmp" items="${allTags}">
+                    <input type="checkbox" name="tags" value="${tmp}" id="tags1_${tmp}"/>
+                    <label for="tags1_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
+                </c:forEach>
+                </div>
+                <input type="submit" value="Descarregar" class="textbutton"/>
+            </form>
+
             <p><fmt:message key="Downloads.3"/></p>
             <c:if test="${jobs.size() > 0}">
                 <h2><fmt:message key="Downloads.2"/></h2>

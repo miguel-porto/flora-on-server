@@ -11,22 +11,10 @@
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 
 <div id="taxonsearchwrapper-holder" class="editbox-home hidden">
-    <div class="withsuggestions editbox" id="taxonsearchwrapper">
-        <!--<input id="taxonsearchbox" type="text" name="query" placeholder="taxon" autocomplete="off"/>-->
-        <textarea id="taxonsearchbox" name="query" rows="4"></textarea>
-        <div id="suggestionstaxon"></div>
-    </div>
-    <div class="withsuggestions editbox" id="authorsearchwrapper">
-        <textarea id="authorsearchbox" name="query" rows="2"></textarea>
-        <div id="suggestionsauthor"></div>
-    </div>
-    <div class="withsuggestions editbox" id="threatsearchwrapper">
-        <textarea id="threatsearchbox" name="query" rows="2"></textarea>
-        <div id="suggestionsthreat"></div>
-    </div>
-    <div class="withsuggestions editbox" id="editfieldwrapper">
-        <input id="editfield" type="text" name="query" autocomplete="off"/>
-    </div>
+    <div class="withsuggestions editbox" id="taxonsearchwrapper"><textarea id="taxonsearchbox" name="query" rows="4" placeholder="type taxon and Enter, or Esc to cancel | you can use taxon abbreviations like Clad and enter multiple taxa separated by +"></textarea><div id="suggestionstaxon"></div></div>
+    <div class="withsuggestions editbox" id="authorsearchwrapper"><textarea id="authorsearchbox" name="query" rows="2" placeholder="type cell value and Enter, or Esc to cancel"></textarea><div id="suggestionsauthor"></div></div>
+    <div class="withsuggestions editbox" id="threatsearchwrapper"><textarea id="threatsearchbox" name="query" rows="2" placeholder="type cell value and Enter, or Esc to cancel"></textarea><div id="suggestionsthreat"></div></div>
+    <div class="withsuggestions editbox" id="editfieldwrapper"><input id="editfield" type="text" name="query" autocomplete="off" placeholder="type cell value and Enter, or Esc to cancel"/></div>
 </div>
 <div id="topbuttons" class="hideincompactview">
 <a class="returntomain" href="./"><img src="images/cap-cor.png" alt="logo"/></a>

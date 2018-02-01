@@ -55,11 +55,11 @@
         <c:when test="${flavour == 'management'}">
         <th class="smallcol">Code</th>
         <th class="smallcol hideincompactview">Coord</th>
+        <th class="smallcol">Preci</th>
         <th class="bigcol">Taxon</th>
         <th class="smallcol">Conf</th>
         <th class="smallcol">Date</th>
         <th class="smallcol">Local</th>
-        <th class="smallcol">Preci</th>
         <th class="smallcol">Excl</th>
         <th class="smallcol">Auth</th>
         <th class="bigcol">Notas</th>

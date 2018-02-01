@@ -20,7 +20,7 @@
         <div class="multiplechooser left inlineflex" style="${individualforms ? '' : 'float:right'}">
             <c:if test="${question.getValue().getOptions().size() == 0}">
             <input type="radio" name="question_${loop.index}" value="NA" id="question_${loop.index}_na"/>
-            <label for="question_${loop.index}_na" class="wordtag togglebutton"> <fmt:message key="error.10c"/></label>
+            <label for="question_${loop.index}_na" class="wordtag"> <fmt:message key="error.10c"/></label>
             </c:if>
             <c:if test="${question.getValue().getOptions().size() > 0}">
             <c:forEach var="options" items="${question.getValue().getOptions()}" varStatus="loop2">
@@ -30,7 +30,7 @@
                 <c:if test="${!loop2.isFirst()}">
                 <input type="radio" name="question_${loop.index}" value="${options.getID()}" id="question_${loop.index}_${loop2.index}"/>
                 </c:if>
-                <label for="question_${loop.index}_${loop2.index}" class="wordtag togglebutton"> ${options.getFullName(true)}</label>
+                <label for="question_${loop.index}_${loop2.index}" class="wordtag"> ${options.getFullName(true)}</label>
             </c:forEach>
             </c:if>
             <c:if test="${!individualforms}">
@@ -40,7 +40,7 @@
             <c:if test="${question.getValue().getOptions().size() > 0}">
             <input type="radio" name="question_${loop.index}" value="NM" id="question_${loop.index}_nm"/>
             </c:if>
-            <label for="question_${loop.index}_nm" class="wordtag togglebutton"> <fmt:message key="error.10b"/></label>
+            <label for="question_${loop.index}_nm" class="wordtag"> <fmt:message key="error.10b"/></label>
             </c:if>
         </div>
         <c:if test="${individualforms}">

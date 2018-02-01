@@ -58,11 +58,11 @@
     <c:when test="${flavour == 'management'}">
     <td class=""></td>
     <td class="editable coordinates" data-name="coordinates"></td>
+    <td class="editable" data-name="precision"></td>
     <td class="taxon editable" data-name="taxa"></td>
     <td class="editable hideincompactview" data-name="confidence"></td>
     <td class="editable" data-name="date"></td>
     <td class=""></th>
-    <td class="editable" data-name="precision"></td>
     <td class="editable hideincompactview" data-name="presenceStatus"></td>
     <td class=""></th>
     <td class=""></th>
@@ -146,11 +146,11 @@
     <td class="">${occ.getCode()} ${occ._getTaxa()[0].getAccession()}</td>
     <td class="editable coordinates ${coordchanged}" data-name="observationCoordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}">${occ._getCoordinates()}</td>
     <c:set var="taxa" value="${occ._getTaxa()[0].getTaxEnt() == null ? occ._getTaxa()[0].getVerbTaxon() : occ._getTaxa()[0].getTaxEnt().getNameWithAnnotationOnly(false)}" />
+    <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
     <td class="taxon editable" data-name="taxa">${taxa}</td>
     <td class="editable hideincompactview" data-name="confidence">${occ._getTaxa()[0]._getConfidenceLabel()}</td>
     <td class="editable" data-name="date" sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
     <td class="">${occ.getVerbLocality()} ${occ.getLocality()}</td>
-    <td class="editable" data-name="precision">${occ.getPrecision().toString()}</td>
     <td class="editable" data-name="presenceStatus">${occ._getTaxa()[0]._getPresenceStatusLabel()}</td>
     <td class=""><t:usernames idarray="${occ.getObservers()}" usermap="${userMap}"/> <t:usernames idarray="${occ.getCollectors()}" usermap="${userMap}"/></td>
     <td class="">${occ._getTaxa()[0].getComment()} ${occ._getTaxa()[0].getLabelData()}</td>

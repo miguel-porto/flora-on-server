@@ -89,7 +89,7 @@ public class RedListDataApi extends FloraOnServlet {
                 }
                 territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
-                thisRequest.success(JobSubmitter.newJobTask(new ComputeNativeStatusJob(territory), driver).getID());
+                thisRequest.success(JobSubmitter.newJobTask(new CreateRedListSheetsJob(territory), driver).getID());
                 break;
 
             case "snapshot":    // archives a new snapshot of one sheet, including a copy of the occurrence records
@@ -113,6 +113,18 @@ public class RedListDataApi extends FloraOnServlet {
                 }
                 territory = thisRequest.getParameterAsString("territory");
                 thisRequest.success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
+                break;
+
+            case "downloadalloccurrences":
+                territory = thisRequest.getParameterAsString("territory");
+                String[] filter1 = thisRequest.getParameterAsStringArray("tags");
+                // TODO clipping polygon and years must be a user configuration
+                PolygonTheme clippingPolygon1 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                RedListSettings rls2 = driver.getRedListSettings(territory);
+                thisRequest.success(JobSubmitter.newJobFileDownload(
+                        new DownloadOccurrencesJob(territory, clippingPolygon1, (rls2.getHistoricalThreshold() + 1)
+                                , filter1 == null ? null : new HashSet<>(Arrays.asList(filter1)))
+                        , "all-occurrences.csv", driver).getID());
                 break;
 
             case "downloadtable":

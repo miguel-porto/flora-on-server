@@ -219,6 +219,8 @@ function onConfirmEdit(ev, name, key, parent, dry) {
     var fieldname = parent.getAttribute('data-name');
     if(ev.target)   // move edit box back to its hidden home
         document.getElementById('taxonsearchwrapper-holder').appendChild(ev.target.parentNode);
+    parent.classList.remove('beingedited');
+
     var original = parent.getAttribute('data-original');
 //    console.log(original+':'+name);
     if(original !== null) {
@@ -653,6 +655,7 @@ function displaySearchbox(el, text, whichBox) {
     var old = document.getElementById(whichBox);
     el.appendChild(old);
     el.setAttribute('data-original', text);
+    el.classList.add('beingedited');
     var inp = old.querySelector('textarea');
     inp.value = createHTML(text).textContent;
     inp.setSelectionRange(0, inp.value.length);
@@ -664,6 +667,7 @@ function displayEditField(el, text) {
     var old = document.getElementById('editfieldwrapper');
     el.appendChild(old);
     el.setAttribute('data-original', text);
+    el.classList.add('beingedited');
     var inp = old.querySelector('input');
     inp.value = createHTML(text).textContent;
     inp.setSelectionRange(0, inp.value.length);
