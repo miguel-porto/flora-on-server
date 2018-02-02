@@ -41,6 +41,7 @@ public class PlainTextParser implements FieldParser {
             case "labeldata":
             case "specificthreats":
             case "accession":
+            case "coverindex":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
                 for(OBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
@@ -51,6 +52,7 @@ public class PlainTextParser implements FieldParser {
                         case "labeldata": obs.setLabelData(inputValue); break;
                         case "specificthreats": obs.setSpecificThreats(inputValue); break;
                         case "accession": obs.setAccession(inputValue); break;
+                        case "coverindex": obs.setCoverIndex(inputValue); break;
                     }
                 break;
 

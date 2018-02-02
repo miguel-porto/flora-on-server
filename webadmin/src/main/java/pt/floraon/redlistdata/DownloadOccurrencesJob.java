@@ -16,6 +16,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.*;
 
+/**
+ * Downloads all occurrences from all providers of all species (or optionally filtered by tags)
+ */
 public class DownloadOccurrencesJob implements JobFileDownload {
     private String territory;
     private PolygonTheme clippingPolygon;

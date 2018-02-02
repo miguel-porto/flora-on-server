@@ -14,6 +14,7 @@
     <td class="editable" data-name="phenoState"></td>
     <td class="editable" data-name="abundance"></td>
     <td class="editable" data-name="typeOfEstimate"></td>
+    <td class="editable" data-name="coverIndex"></td>
     <td class="editable" data-name="hasPhoto"></td>
     <td class="editable" data-name="hasSpecimen"></td>
     <td class="editable" data-name="comment"></td>
@@ -51,6 +52,7 @@
         <td class="editable" data-name="phenoState">${tax._getPhenoStateLabel()}</td>
         <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
         <td class="editable" data-name="typeOfEstimate">${tax._getTypeOfEstimateLabel()}</td>
+        <td class="editable" data-name="coverIndex">${tax.getCoverIndex()}</td>
         <td class="editable" data-name="hasPhoto">${tax._getHasPhotoLabel()}</td>
         <td class="editable" data-name="hasSpecimen">${tax.getHasSpecimen()}</td>
         <td class="editable" data-name="comment">${tax.getComment()}</td>

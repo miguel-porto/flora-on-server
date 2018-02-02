@@ -84,20 +84,7 @@
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
-                <thead><tr>
-                    <th class="sorttable_nosort selectcol hidden"></th>
-                    <th class="smallcol">GPS</th>
-                    <th class="bigcol">Taxon</th>
-                    <th class="smallcol">Conf</th>
-                    <th class="smallcol">Fen</th>
-                    <th class="smallcol">Nº</th>
-                    <th class="smallcol">Met</th>
-                    <th class="smallcol">Fot</th>
-                    <th class="smallcol">Colh</th>
-                    <th class="smallcol">Comment</th>
-                    <th class="smallcol">Notas priv</th>
-                    <th class="smallcol">Ameaças</th>
-                </tr></thead>
+                <t:inventorytaxonheader />
                 <tbody></tbody>
             </table>
         </form>
@@ -157,23 +144,7 @@
                     </tr></tbody>
                 </table>
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-                    <thead>
-                        <tr>
-                            <th class="sorttable_nosort selectcol hidden"></th>
-                            <th class="smallcol">GPS</th>
-                            <th class="bigcol">Taxon</th>
-                            <th class="smallcol">Conf</th>
-                            <th class="smallcol">Fen</th>
-                            <th class="smallcol">Nº</th>
-                            <th class="smallcol">Met</th>
-                            <th class="smallcol">Fot</th>
-                            <th class="smallcol">Colh</th>
-                            <th class="smallcol">Comment</th>
-                            <th class="smallcol">Notas priv</th>
-                            <th class="smallcol">Ameaças</th>
-                            <th class="smallcol">Excl</th>
-                        </tr>
-                    </thead>
+                    <t:inventorytaxonheader />
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
                         <t:inventoryrow tax="${tax}" inv="${inv}" />

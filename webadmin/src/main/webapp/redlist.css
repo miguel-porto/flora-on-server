@@ -1,6 +1,6 @@
 body.relative {position:relative}
 a.returntomain { position:absolute; left:4px; top:4px}
-a.returntomain img {height: 90px;}
+a.returntomain img {height: 80px;}
 ul {list-style-type: none; padding-left: 3px;}
 ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 ul.hanging li {padding-left: 26px; text-indent: -20px;}
