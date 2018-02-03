@@ -158,7 +158,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         }
                     }
                 }
-                request.setAttribute("nproblems"
+                if(tu != null) request.setAttribute("nproblems"
                         , driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));
                 break;
 
