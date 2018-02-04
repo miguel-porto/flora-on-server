@@ -30,19 +30,21 @@ public class Startup implements ServletContextListener {
 		try {
 			propStream = new FileInputStream(new File(dir.getAbsolutePath() + "/floraon.properties"));
 			properties.load(propStream);
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			System.err.println("ERROR: "+e.getMessage());
+			FloraOnDriver = new FloraOnArangoDriver(e.getMessage());
+			sce.getServletContext().setAttribute("driver", FloraOnDriver);
 			return;
 		}
 
 		try {
 			FloraOnDriver = new FloraOnArangoDriver("flora", properties);
 			FloraOnDriver.getRedListData().initializeRedListData(properties);
-		} catch (FloraOnException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			System.err.println("ERROR: "+e.getMessage());
-			return;
+			FloraOnDriver = new FloraOnArangoDriver(e.getMessage());
 		}
 		sce.getServletContext().setAttribute("driver", FloraOnDriver);
 	}

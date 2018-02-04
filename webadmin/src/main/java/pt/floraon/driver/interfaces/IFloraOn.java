@@ -28,4 +28,6 @@ public interface IFloraOn {
 	INodeKey asNodeKey(String id) throws FloraOnException;
     void reloadSettings();
     RedListSettings getRedListSettings(String territory);
+    boolean hasFailed();
+    String getErrorMessage();
 }

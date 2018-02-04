@@ -44,7 +44,16 @@ public class FloraOnArangoDriver implements IFloraOn {
 	private IAdministration ADMIN;
 	private List<Territory> checklistTerritories;
 	private Map<String, RedListSettings> redListSettings;
-	
+	private String errorMessage;
+
+	/**
+	 * Constructs a dummy driver object to hold error messages
+	 * @param error
+	 */
+	public FloraOnArangoDriver(String error) {
+		this.errorMessage = error;
+	}
+
 	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
 		String username = properties.getProperty("arango.user");
 		String pass = properties.getProperty("arango.password");
@@ -123,6 +132,16 @@ public class FloraOnArangoDriver implements IFloraOn {
 			out.setTerritory(territory);
 		}
 		return out;
+	}
+
+	@Override
+	public boolean hasFailed() {
+		return this.errorMessage != null;
+	}
+
+	@Override
+	public String getErrorMessage() {
+		return this.errorMessage;
 	}
 
 	@Override
@@ -223,18 +242,6 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 		checkCollections();
 		createTaxonomicGraph();
-
-//		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
-		database.collection(NodeTypes.inventory.toString()).createGeoIndex(Arrays.asList("latitude", "longitude"), new GeoIndexOptions().geoJson(false));
-//		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
-		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("oldId"), new HashIndexOptions().unique(false).sparse(true));
-		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("rank"), new HashIndexOptions().unique(false).sparse(true));
-		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("isSpeciesOrInf"), new HashIndexOptions().unique(false).sparse(false));
-		database.collection(NodeTypes.taxent.toString()).createHashIndex(Arrays.asList("name"), new HashIndexOptions().unique(false).sparse(true));
-		database.collection(NodeTypes.taxent.toString()).createFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
-		database.collection(NodeTypes.territory.toString()).createHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
-		database.collection(NodeTypes.user.toString()).createHashIndex(Arrays.asList("userName"), new HashIndexOptions().unique(true).sparse(false));
-		database.collection(NodeTypes.toponym.toString()).createFulltextIndex(Collections.singleton("locality"), new FulltextIndexOptions().minLength(1));
 	}
 	
 	private void checkCollections() throws ArangoDBException {
@@ -242,9 +249,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		
 		// create a collection for each nodetype
 		for(NodeTypes nt:NodeTypes.values()) {
-			try {
-				database.collection(nt.toString()).getInfo();
-			} catch (ArangoDBException e) {
+			if(!database.collection(nt.toString()).exists()) {
 				System.out.println("Creating document collection: "+nt.toString());
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.DOCUMENT));
 				if(nt == NodeTypes.user) {	// create administrator account if creating collection of users
@@ -272,6 +277,22 @@ public class FloraOnArangoDriver implements IFloraOn {
 				database.createCollection(nt.toString(), new CollectionCreateOptions().type(CollectionType.EDGES));
 			}
 		}
+
+		// create indexes
+
+//		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
+		database.collection(NodeTypes.inventory.toString()).ensureGeoIndex(Arrays.asList("latitude", "longitude"), new GeoIndexOptions().geoJson(false));
+//		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("oldId"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("rank"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("isSpeciesOrInf"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("name"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).ensureFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
+		database.collection(NodeTypes.territory.toString()).ensureHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.user.toString()).ensureHashIndex(Arrays.asList("userName"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.toponym.toString()).ensureFulltextIndex(Collections.singleton("locality"), new FulltextIndexOptions().minLength(1));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("maintainer"), new HashIndexOptions().unique(false).sparse(false));
+
 	}
 
 	private void createTaxonomicGraph() throws ArangoDBException {

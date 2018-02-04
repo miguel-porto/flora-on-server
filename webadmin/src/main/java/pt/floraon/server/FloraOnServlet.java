@@ -63,7 +63,15 @@ public class FloraOnServlet extends HttpServlet {
 
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			request.getRequestDispatcher("/error.html").forward(request, response);
+			request.setAttribute("error", "Some unexpected error occurred, check the TomCat logs.");
+			request.getRequestDispatcher("/error.jsp").forward(request, response);
+			return;
+		}
+
+		if(this.driver.hasFailed()) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			request.setAttribute("error", this.driver.getErrorMessage());
+			request.getRequestDispatcher("/error.jsp").forward(request, response);
 			return;
 		}
 
@@ -86,9 +94,18 @@ public class FloraOnServlet extends HttpServlet {
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		if(this.driver == null) {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-			request.getRequestDispatcher("/error.html").forward(request, response);
+			request.setAttribute("error", "Some unexpected error occurred, check the TomCat logs.");
+			request.getRequestDispatcher("/error.jsp").forward(request, response);
 			return;
 		}
+
+		if(this.driver.hasFailed()) {
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			request.setAttribute("error", this.driver.getErrorMessage());
+			request.getRequestDispatcher("/error.jsp").forward(request, response);
+			return;
+		}
+
 		ThisRequest thisRequest = new ThisRequest(request, response);
 		request.setAttribute("user", thisRequest.getUser());
 		try {

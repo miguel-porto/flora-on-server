@@ -158,8 +158,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         }
                     }
                 }
-                if(tu != null) request.setAttribute("nproblems"
-                        , driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));
+
+                if(tu != null)  // if it is all occurrences, we skip this check cause it takes a few seconds
+                    request.setAttribute("nproblems", driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));
                 break;
 
             case "uploads":
