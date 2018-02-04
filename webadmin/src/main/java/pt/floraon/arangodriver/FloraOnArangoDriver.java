@@ -283,15 +283,16 @@ public class FloraOnArangoDriver implements IFloraOn {
 //		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
 		database.collection(NodeTypes.inventory.toString()).ensureGeoIndex(Arrays.asList("latitude", "longitude"), new GeoIndexOptions().geoJson(false));
 //		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
-		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("oldId"), new HashIndexOptions().unique(false).sparse(true));
-		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("rank"), new HashIndexOptions().unique(false).sparse(true));
-		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("isSpeciesOrInf"), new HashIndexOptions().unique(false).sparse(false));
-		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Arrays.asList("name"), new HashIndexOptions().unique(false).sparse(true));
-		database.collection(NodeTypes.taxent.toString()).ensureFulltextIndex(Arrays.asList("name"), new FulltextIndexOptions());
-		database.collection(NodeTypes.territory.toString()).ensureHashIndex(Arrays.asList("shortName"), new HashIndexOptions().unique(true).sparse(false));
-		database.collection(NodeTypes.user.toString()).ensureHashIndex(Arrays.asList("userName"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Collections.singleton("oldId"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Collections.singleton("rank"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Collections.singleton("isSpeciesOrInf"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Collections.singleton("name"), new HashIndexOptions().unique(false).sparse(true));
+		database.collection(NodeTypes.taxent.toString()).ensureFulltextIndex(Collections.singleton("name"), new FulltextIndexOptions());
+		database.collection(NodeTypes.territory.toString()).ensureHashIndex(Collections.singleton("shortName"), new HashIndexOptions().unique(true).sparse(false));
+		database.collection(NodeTypes.user.toString()).ensureHashIndex(Collections.singleton("userName"), new HashIndexOptions().unique(true).sparse(true));
 		database.collection(NodeTypes.toponym.toString()).ensureFulltextIndex(Collections.singleton("locality"), new FulltextIndexOptions().minLength(1));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("maintainer"), new HashIndexOptions().unique(false).sparse(false));
+
 
 	}
 
