@@ -433,8 +433,8 @@ public class RedListDataApi extends FloraOnServlet {
                             PolygonTheme protectedAreas1 = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
                             Map<String, Integer> lpa1;
                             SimpleOccurrence so;
-                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon colhido</th><th>Data de colheita</th>" +
-                                    "<th>Local</th><th>Coordenadas</th><th>Área protegida</th></tr></thead>");
+                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon colhido (<i>sic</i>)</th><th>Data de colheita</th>" +
+                                    "<th>Local</th><th>Latitude</th><th>Longitude</th><th>Nº de espécimes</th><th>Área protegida</th></tr></thead>");
                             Iterator<SimpleOccurrence> it6 = ord.getOccurrencesWithTagCollected(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory, thisRequest.getParameterAsString("tag"));
 
@@ -442,8 +442,9 @@ public class RedListDataApi extends FloraOnServlet {
                                 so = it6.next();
                                 lpa1 = ord.getListOfPolygonsWithOccurrences(
                                         Collections.singleton((Inventory) so).iterator(), protectedAreas1);
-                                pw.printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%f, %f</td><td>%s</td></tr>", so.getOccurrence().getVerbTaxon(), so._getDate()
+                                pw.printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%d</td><td>%s</td></tr>", so.getOccurrence().getVerbTaxon(), so._getDate()
                                     , so.getLocality() == null ? "" : so.getLocality(), so.getLatitude(), so.getLongitude()
+                                    , so.getOccurrence().getHasSpecimen()
                                     , lpa1.size() > 0 ? StringUtils.implode(", ", lpa1.keySet().toArray(new String[0])) : "none");
                             }
                             break;
