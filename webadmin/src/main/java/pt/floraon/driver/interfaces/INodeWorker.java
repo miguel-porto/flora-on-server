@@ -186,13 +186,13 @@ public interface INodeWorker {
 	 * Update any document in the DB, with a java bean
 	 * @param id
 	 * @param newEntity
-	 * @param replace If TRUE, fields with null values are deleted from database.
+	 * @param replaceNull If TRUE, fields with null values are deleted from database.
 	 * @param tClass
 	 * @param <T>
 	 * @return
 	 * @throws FloraOnException
 	 */
-	<T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replace, Class<T> tClass) throws FloraOnException;
+	<T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replaceNull, Class<T> tClass) throws FloraOnException;
 
 	/**
 	 * Updates or replaces a TaxEnt node in the DB.

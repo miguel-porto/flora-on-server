@@ -15,9 +15,11 @@ import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
@@ -306,6 +308,7 @@ public class RedListDataApi extends FloraOnServlet {
             case "report-sheetauthor":
             case "report-sheetassessor":
             case "report-sheetreviewer":
+            case "report-listspecimens":
                 if(thisRequest.getUser().isGuest()) {thisRequest.forbidden(null); return;}
                 IOccurrenceReportDriver ord = driver.getOccurrenceReportDriver();
                 Date from = null, to = null;
@@ -401,8 +404,13 @@ public class RedListDataApi extends FloraOnServlet {
                         case "report-listprotectedareas":
                             // TODO this should be a user configuration loaded at startup
                             PolygonTheme protectedAreas = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
+                            Map<String, Integer> lpa = ord.getListOfPolygonsWithOccurrences(driver.getOccurrenceDriver().getOccurrencesOfObserverWithinDates(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, null, null)
+                            , protectedAreas);
+/*
                             Map<String, Integer> lpa = ord.getListOfPolygonsWithOccurrences(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, protectedAreas);
+*/
                             pw.print("<p>Nº de áreas protegidas: " + lpa.size() + "</p><table class=\"subtable\"><thead><tr><th>Área protegida</th><th>Nº de registos</th></tr></thead>");
                             for(Map.Entry<String, Integer> e : lpa.entrySet()) {
                                 pw.printf("<tr><td>%s</td><td>%d</td></tr>", e.getKey(), e.getValue());
@@ -419,6 +427,25 @@ public class RedListDataApi extends FloraOnServlet {
                                 pw.print("<tr><td>" + te1.getName() + "</td><td>" + te1.getValue() + "</td></tr>");
                             }
                             pw.print("</table>");
+                            break;
+
+                        case "report-listspecimens":
+                            PolygonTheme protectedAreas1 = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
+                            Map<String, Integer> lpa1;
+                            SimpleOccurrence so;
+                            pw.print("<table class=\"subtable\"><thead><tr><th>Taxon colhido</th><th>Data de colheita</th>" +
+                                    "<th>Local</th><th>Coordenadas</th><th>Área protegida</th></tr></thead>");
+                            Iterator<SimpleOccurrence> it6 = ord.getOccurrencesWithTagCollected(
+                                    driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory, thisRequest.getParameterAsString("tag"));
+
+                            while(it6.hasNext()) {
+                                so = it6.next();
+                                lpa1 = ord.getListOfPolygonsWithOccurrences(
+                                        Collections.singleton((Inventory) so).iterator(), protectedAreas1);
+                                pw.printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%f, %f</td><td>%s</td></tr>", so.getOccurrence().getVerbTaxon(), so._getDate()
+                                    , so.getLocality() == null ? "" : so.getLocality(), so.getLatitude(), so.getLongitude()
+                                    , lpa1.size() > 0 ? StringUtils.implode(", ", lpa1.keySet().toArray(new String[0])) : "none");
+                            }
                             break;
                     }
                 } else {    // dates are null

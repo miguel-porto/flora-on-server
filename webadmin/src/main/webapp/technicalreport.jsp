@@ -81,15 +81,23 @@
   <c:param name="todate" value="${toDate}" />
 </c:url>
 
+<c:url value="/redlist/api/report-listspecimens" var="url10">
+  <c:param name="territory" value="${territory}" />
+  <c:param name="fromdate" value="${fromDate}" />
+  <c:param name="todate" value="${toDate}" />
+  <c:param name="tag" value="Lista Alvo" />
+</c:url>
+
 <table class="small">
     <thead><tr><th colspan="2">Indicadores</th></tr></thead>
     <tr><td class="title">Nº de inventários</td><td><t:ajaxloadhtml url="${url1}" /><p class="legend">Este número não tem em conta o nº de taxa observados no inventário, é contabilizado um inventário independentemnte de quantos taxa contém.</p></td></tr>
     <tr><td class="title">Taxa alvo registados</td><td><t:ajaxloadhtml url="${url3}" /></td></tr>
+    <tr><td class="title">Nº registos por taxon alvo</td><td><t:ajaxloadhtml url="${url6}" /></td></tr>
     <tr><td class="title">Outros taxa relevantes registados (Lista B)</td><td><t:ajaxloadhtml url="${url3a}" /></td></tr>
     <tr><td class="title">Taxa alvo com estimativas</td><td><t:ajaxloadhtml url="${url4a}" /></td></tr>
     <tr><td class="title">Taxa alvo registados com fotografia</td><td><t:ajaxloadhtml url="${url4}" /></td></tr>
     <tr><td class="title">Taxa alvo colhidos</td><td><t:ajaxloadhtml url="${url5}" /></td></tr>
-    <tr><td class="title">Nº registos por taxon alvo</td><td><t:ajaxloadhtml url="${url6}" /></td></tr>
+    <tr><td class="title">Colheitas de taxa alvo</td><td><t:ajaxloadhtml url="${url10}" /></td></tr>
     <tr><td class="title">Quadrículas UTM visitadas</td><td><t:ajaxloadhtml url="${url7}" /><p class="legend">Nota: no caso de quadrículas 2x2 km, a notação MGRS apresentada corresponde à quadrícula 1x1 km do quadrante SW.</p></td></tr>
     <tr><td class="title">Áreas protegidas visitadas</td><td><t:ajaxloadhtml url="${url8}" /><p class="legend">Nota: no caso de sobreposição de áreas protegidas, o mesmo registo pode aparecer contabilizado em várias linhas.</p></td></tr>
     <tr><td class="title">Todos os taxa</td><td><t:ajaxloadhtml url="${url9}" /></td></tr>

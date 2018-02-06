@@ -123,7 +123,7 @@ public class Reference extends GeneralDBNode implements Comparable<Reference> {
         }
     }
 
-    public String _getCitation() throws FloraOnException {
+    public String _getCitation() {
         String names, first, last = null;
         Matcher m = authorList.matcher(this.getAuthors());
         if(!m.find()) return "ERROR";

@@ -38,13 +38,11 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
     }
 
     @Override
-    public Map<String, Integer> getListOfPolygonsWithOccurrences(INodeKey userId, Date from, Date to, PolygonTheme polygonTheme) throws DatabaseException {
+    public Map<String, Integer> getListOfPolygonsWithOccurrences(Iterator<Inventory> it, PolygonTheme polygonTheme) throws DatabaseException {
         if(polygonTheme == null) return Collections.emptyMap();
         Map<String, Integer> out = new TreeMap<>();
         Map<Polygon, Integer> tmp = new HashMap<>();
         Inventory i;
-        Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesOfObserverWithinDates(
-                userId, from, to, null, null);
 
         while(it.hasNext()) {
             i = it.next();

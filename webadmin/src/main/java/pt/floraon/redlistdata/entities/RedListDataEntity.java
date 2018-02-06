@@ -6,6 +6,7 @@ import pt.floraon.driver.Constants;
 import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.entities.GeneralDBNode;
+import pt.floraon.driver.interfaces.Flaggable;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
@@ -23,7 +24,7 @@ import static pt.floraon.driver.Constants.*;
  * Thanks to André Carapeto, who carefully designed all the fields needed for this class and its subclasses!
  * Created by Miguel Porto & André Carapeto on 11-11-2016.
  */
-public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
+public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Flaggable {
     /**
      * The full TaxEnt database entity. Note this is not stored in the DB, must be fetched by {@link RedListDataEntity#taxEntID}
      */
@@ -36,6 +37,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
     private transient Set<String> responsibleAuthors_Assessment;
     @Expose(serialize = false, deserialize = false)
     private transient Set<String> responsibleAuthors_Revision;
+    @Expose(serialize = false, deserialize = false)
+    private transient boolean flag = false;
 
     /**
      * The ID of the TaxEnt
@@ -137,6 +140,16 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean {
         for(String s : tags)
             if(s != null) out.add(StringUtils.sanitizeHtmlId(s));
         return out.toArray(new String[out.size()]);
+    }
+
+    @Override
+    public boolean _getFlag() {
+        return this.flag;
+    }
+
+    @Override
+    public void _setFlag(boolean flag) {
+        this.flag = flag;
     }
 
     public String _getSingleLetterTag() {

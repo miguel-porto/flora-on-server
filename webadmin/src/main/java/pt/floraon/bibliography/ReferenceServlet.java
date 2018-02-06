@@ -1,5 +1,8 @@
 package pt.floraon.bibliography;
 
+import com.arangodb.ArangoDB;
+import com.arangodb.ArangoDatabase;
+import com.arangodb.model.DocumentReplaceOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.jfree.util.Log;
@@ -103,9 +106,20 @@ public class ReferenceServlet extends FloraOnServlet {
                         driver.getRedListData().getAllRedListData("lu", false, null), SafeHTMLString.class, driver);
                 // FIXME HERE territory above
                 Iterator<RedListDataEntity> it = bc.replaceCitations(ids, id.toString());
+                RedListDataEntity tmpdoc;
+                Gson gs7 = new GsonBuilder().setPrettyPrinting().create();
                 while(it.hasNext()) {
-                    System.out.println(it.next().getTaxEnt().getFullName());
+                    tmpdoc = it.next();
+                    if(tmpdoc._getFlag()) {
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(tmpdoc.getID()), tmpdoc, false, RedListDataEntity.class);
+                        System.out.println("REPLACED IN: " + tmpdoc.getTaxEnt().getFullName());
+//                        System.out.println(gs7.toJson(tmpdoc));
+                    }
                 }
+                // TODO HERE check here
+                for(String eachId : ids)
+                    driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(eachId));
+
                 thisRequest.success("Ok");
                 break;
 

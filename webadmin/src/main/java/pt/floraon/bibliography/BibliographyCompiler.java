@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.interfaces.Flaggable;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.INodeWorker;
@@ -58,9 +59,28 @@ public class BibliographyCompiler<T, C> {
 
         @Override
         public void process(Object bean, String propertyName, Document d, Element el) {
+            INodeWorker nwd = driver.getNodeWorkerDriver();
+            Reference tmpr;
+
+            try {
+                tmpr = nwd.getDocument(driver.asNodeKey(this.targetId), Reference.class);
+            } catch (FloraOnException e) {
+                e.printStackTrace();
+                return;
+            }
+            if(tmpr == null) {
+                jline.internal.Log.error("Reference " + this.targetId + " not found.");
+                return;
+            }
+
             if(idsToReplace.contains(el.attr("data-id"))) {
-                System.out.println("Replacing " + el.text()+ " ("+el.attr("data-id")+")");
-                setFieldValue(bean, propertyName, ">REPLACED<");
+                jline.internal.Log.info("Replacing " + el.text()+ " ("+el.attr("data-id")+") -> " + this.targetId);
+                el.attr("data-id", this.targetId);
+                el.text("(" + tmpr._getCitation() + ")");
+//                setFieldValue(bean, propertyName, ">REPLACED "+this.targetId+"<");
+                setFieldValue(bean, propertyName, d.body().html());
+                if(Flaggable.class.isAssignableFrom(bean.getClass()))
+                    ((Flaggable) bean)._setFlag(true);
             }
         }
     }

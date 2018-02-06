@@ -367,11 +367,11 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public <T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replace, Class<T> tClass) throws FloraOnException {
+	public <T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replaceNull, Class<T> tClass) throws FloraOnException {
 		DocumentUpdateEntity<T> out;
 		try {
 			out = database.collection(id.getCollection()).updateDocument(id.getDBKey(), newEntity
-					, new DocumentUpdateOptions().serializeNull(replace).keepNull(false).returnNew(true).waitForSync(true));
+					, new DocumentUpdateOptions().serializeNull(replaceNull).keepNull(false).returnNew(true).waitForSync(true));
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

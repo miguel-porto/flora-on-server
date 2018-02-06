@@ -4,6 +4,8 @@ import pt.floraon.driver.DatabaseException;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.Date;
@@ -20,9 +22,21 @@ public interface IOccurrenceReportDriver {
 
     Iterator<TaxEnt> getTaxaWithTag(INodeKey userId, Date from, Date to, String territory, String tag, boolean withPhoto) throws DatabaseException;
     Iterator<StatisticPerTaxon> getTaxaWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
+
+    Iterator<SimpleOccurrence> getOccurrencesWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
+
     Iterator<StatisticPerTaxon> getTaxaWithTagNrRecords(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
+
     Map<String, Integer> getListOfUTMSquaresWithOccurrences(INodeKey userId, Date from, Date to, long sizeOfSquare) throws DatabaseException;
-    Map<String, Integer> getListOfPolygonsWithOccurrences(INodeKey userId, Date from, Date to, PolygonTheme polygonTheme) throws DatabaseException;
+
+    /**
+     * Checks in which polygons do the inventories fall, and returns the polygon names.
+     * @param inventories
+     * @param polygonTheme
+     * @return
+     * @throws DatabaseException
+     */
+    Map<String, Integer> getListOfPolygonsWithOccurrences(Iterator<Inventory> inventories, PolygonTheme polygonTheme) throws DatabaseException;
 
     Iterator<StatisticPerTaxon> getTaxaWithTagEstimates(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
 
