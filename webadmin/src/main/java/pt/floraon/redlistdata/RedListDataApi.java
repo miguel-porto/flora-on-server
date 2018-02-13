@@ -49,7 +49,7 @@ import static pt.floraon.driver.utils.BeanUtils.fillBeanDefaults;
 @WebServlet("/redlist/api/*")
 public class RedListDataApi extends FloraOnServlet {
 
-    private void saveSnapshot(String territory, INodeKey id, String versionTag) throws FloraOnException, IOException {
+    private void saveSnapshot(String territory, INodeKey id, String versionTag, String savedByUser) throws FloraOnException, IOException {
         RedListDataEntitySnapshot rldes;
         // read sheet data
         rldes = driver.getRedListData().getRedListDataEntityAsSnapshot(territory, id);
@@ -71,6 +71,7 @@ public class RedListDataApi extends FloraOnServlet {
         rldes.setOccurrences(ol);
 
         rldes.setVersionTag(versionTag);
+        rldes.setSavedByUser(savedByUser);
         driver.getRedListData().saveRedListDataEntitySnapshot(territory, rldes);
     }
 
@@ -96,7 +97,7 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "snapshot":    // archives a new snapshot of one sheet, including a copy of the occurrence records
                 saveSnapshot(thisRequest.getParameterAsString("territory"), thisRequest.getParameterAsKey("id")
-                    , thisRequest.getParameterAsString("versiontag"));
+                    , thisRequest.getParameterAsString("versiontag"), thisRequest.getUser().getID());
 
                 thisRequest.success("Ok");
 //                gs = new GsonBuilder().setPrettyPrinting().create();

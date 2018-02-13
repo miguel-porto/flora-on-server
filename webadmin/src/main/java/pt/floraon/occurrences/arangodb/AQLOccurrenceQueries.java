@@ -21,12 +21,19 @@ public class AQLOccurrenceQueries {
 
     public static String getString(String key) {
         try {
-            return RESOURCE_BUNDLE.getString(key);
+            String msg = RESOURCE_BUNDLE.getString(key);
+            // replace named AQL fragments
+            Matcher mat = substitutionPattern.matcher(msg);
+            while (mat.find()) {
+                msg = msg.replace("{@" + mat.group(1) + "}", getString(mat.group(1)));
+            }
+            return msg;
         } catch (MissingResourceException e) {
             return '!' + key + '!';
         }
     }
 
+    @Deprecated
     public static String getString(String key, Object... params) {
         String msg = RESOURCE_BUNDLE.getString(key);
         // replace named AQL fragments
@@ -43,7 +50,7 @@ public class AQLOccurrenceQueries {
         return msg;
     }
 
-    // TODO: named params
+    @Deprecated
     public static String getString(String key, Map<String,String> params) {
         String msg;
         try {

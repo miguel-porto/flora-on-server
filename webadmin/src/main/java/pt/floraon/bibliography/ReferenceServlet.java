@@ -104,7 +104,7 @@ public class ReferenceServlet extends FloraOnServlet {
 
                 BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(
                         driver.getRedListData().getAllRedListData("lu", false, null), SafeHTMLString.class, driver);
-                // FIXME HERE territory above
+                // TODO territory above must come from request
                 Iterator<RedListDataEntity> it = bc.replaceCitations(ids, id.toString());
                 RedListDataEntity tmpdoc;
                 Gson gs7 = new GsonBuilder().setPrettyPrinting().create();

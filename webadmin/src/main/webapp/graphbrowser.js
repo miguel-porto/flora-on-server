@@ -1,4 +1,4 @@
-// FIXME change ajax to postJSON!!!
+// TODO change ajax to postJSON!!!
 var force,svg;
 var nodes,links,node,link,gdata={nodes:[],links:[]};
 var colorcircle=['#f33','#f55','#f77','#f99','#fbb','#fdd'];

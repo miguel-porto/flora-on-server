@@ -295,7 +295,7 @@ input.selectionbox:not(:checked) + label {background-color: white;}
 input, textarea, select {font-size: 16px; vertical-align: middle;}
 select {max-width: 400px; text-overflow: ellipsis;}
 
-input[type=submit], .floatingtoolbar>div {
+input[type=submit]:not(.button), .floatingtoolbar>div {
     width:72px;
     height:72px;
     border-radius:50%;

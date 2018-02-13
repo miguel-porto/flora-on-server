@@ -35,7 +35,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
         User user = thisRequest.getUser();
         Integer page = thisRequest.getParameterAsInteger("p", null);
         Integer count = 250;    // how many occurrences or inventories per page
-        String filter;
+        String filter, dateFilter;
         int tmp;
         HttpSession session = request.getSession(false);
 
@@ -59,6 +59,14 @@ public class OccurrencesMainPage extends FloraOnServlet {
         } else if(filter.equals("")) {
             session.removeAttribute("filter");
             filter = null;
+        }
+
+        dateFilter = thisRequest.getParameterAsString("date");
+        if(dateFilter == null) {
+            dateFilter = (String) session.getAttribute("dateFilter");
+        } else if(dateFilter.equals("")) {
+            session.removeAttribute("dateFilter");
+            dateFilter = null;
         }
 
         if(session.getAttribute("option-view250") != null && (Boolean) session.getAttribute("option-view250")) count = 250;
@@ -135,19 +143,20 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 tmp = driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(tu);
 
-                if (filter == null) {
+                if (filter == null && dateFilter == null) {
                     request.setAttribute("nroccurrences", count > tmp ? tmp : count);
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
                             , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(tu,false,(page - 1) * count, count));
                 } else {
                     session.setAttribute("filter", filter);
+                    session.setAttribute("dateFilter", dateFilter);
                     request.setAttribute("nroccurrences", count);   // TODO this should be the number after filtering, but we don't know it by now
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
-                            , driver.getOccurrenceDriver().findOccurrencesByFilter(filter, tu, (page - 1) * count, count));
+                            , driver.getOccurrenceDriver().findOccurrencesByFilter(filter, dateFilter, tu, (page - 1) * count, count));
 
-                    if(tu == null) {
+                    if(tu == null && filter != null) {
                         List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                         for (SimpleOccurrenceDataProvider edp : sodps) {
                             if (edp.canQueryText()) {

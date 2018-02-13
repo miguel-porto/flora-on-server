@@ -368,12 +368,27 @@
             <c:if test="${param.flavour == 'redlist'}">
             <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
             </c:if>
+            <t:pager />
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
                 <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
-                <fmt:message key="occurrences.1d"/>: <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
-                <input type="submit" class="textbutton" value="Filter" />
+                <span style="font-size:1.2em"><fmt:message key="occurrences.1d"/> </span><input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
+                <input type="submit" class="button" value="Filter" />
+            </form>
+            <form method="get" action="occurrences" class="inlineblock">
+                <input type="hidden" name="w" value="${param.w}" />
+                <input type="hidden" name="flavour" value="${param.flavour}" />
+                <input type="hidden" name="p" value="1" />
+                <input type="hidden" name="filter" value="${param.filter}" />
+                <c:if test="${param.date != null && param.date != ''}">
+                <input type="hidden" name="date" value="" />
+                <input type="submit" class="button option selected" value="Sem data" />
+                </c:if>
+                <c:if test="${param.date == null || param.date == ''}">
+                <input type="hidden" name="date" value="NA" />
+                <input type="submit" class="button option" value="Sem data" />
+                </c:if>
             </form>
             <c:if test="${filter != null && filter != ''}">
             <form method="get" action="occurrences" class="inlineblock">
@@ -381,10 +396,9 @@
                 <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
                 <input type="hidden" name="filter" value="" />
-                <input type="submit" class="textbutton" value="Show all" />
+                <input type="submit" class="button" value="Show all" />
             </form>
             </c:if>
-            <t:pager />
         </div>
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
             <t:occurrenceheader flavour="${param.flavour}"/>

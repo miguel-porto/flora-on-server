@@ -136,7 +136,7 @@ public class ListOfTerritoryStatus {
 		return isEndemic == null ? false : isEndemic;
 	}
 
-	public String getSingleSmallestTerritory() {	// FIXME this is not done
+	public String getSingleSmallestTerritory() {	// TODO this is not done
 		List<List<String>> paths = new ArrayList<List<String>>();
 		for(TerritoryStatus ts : this.territoryStatusList)
 			if(ts.existsIn.getNativeStatus().isNative()) paths.add(ts.vertices);
@@ -176,9 +176,9 @@ public class ListOfTerritoryStatus {
 		for(List<String> p : paths) common.addAll(p);
 		// for each vertex, check whether the paths where it appears cover all outbound possibilities (i.e. all territories with direct native status assigned)
 		for(String s : common) {
-			tmp = new HashSet<String>();
+			tmp = new HashSet<>();
 			for(List<String> p : paths) {
-				if(p.contains(s)) tmp.add(p.get(1));	// FIXME FIXME we cannot assume the 1st territory is in index 1!!!
+				if(p.contains(s)) tmp.add(p.get(1));	// FIXME we cannot assume the 1st territory is in index 1!!!
 			}
 			if(tmp.size() == 3) candidates.add(s);	//nº assignments directos 
 		}

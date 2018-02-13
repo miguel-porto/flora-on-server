@@ -66,13 +66,14 @@ public class SimpleTaxonResult extends SimpleTaxEntResult implements ResultItem 
 	}
 
 	@Override
+	@Deprecated
 	public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
 		// TODO obsolete!
 		rec.print(this.count);
 		rec.print(this.taxent.getID());
 		rec.print(Arrays.toString(this.reltypes));
 		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+"))+(this.taxent.getCurrent() ? "" : "-")+this.taxent.getNameWithAnnotationOnly(false)+(this.partim ? " (partim)" : ""));
-		rec.print(Arrays.toString(this.match));		// FIXME handle the array!
+		rec.print(Arrays.toString(this.match));
 	}
 
 	@Override

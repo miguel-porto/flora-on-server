@@ -50,7 +50,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private List<OBSERVED_IN> unmatchedOccurrences;
 
     /**
-     * This list shall be populated, when needed, with all matched occurrences in this inventory TODO: this is a workaround for now...
+     * This list shall be populated, when needed, with all matched occurrences in this inventory
+     * TODO: this is a workaround for now...
      */
     @Expose(serialize = false)
     private OBSERVED_IN[] taxa;
@@ -250,7 +251,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public Integer getYear() {
-        return year;
+        return Constants.isNoData(year) ? null : year;
     }
 
     public void setYear(Integer year) {
@@ -258,11 +259,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public Integer getMonth() {
-        return month;
+        return Constants.isNoData(month) ? null : month;
     }
 
     public void setMonth(Integer month) {
-        if(month != null && (month < 1 || month > 12)) {
+        if(!Constants.isNoData(month) && (month < 1 || month > 12)) {
             Log.warn("Invalid month " + month);
             return;
         }
@@ -270,11 +271,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public Integer getDay() {
-        return day;
+        return Constants.isNoData(day) ? null : day;
     }
 
     public void setDay(Integer day) {
-        if(day != null && (day < 1 || day > 31)) {
+        if(!Constants.isNoData(day) && (day < 1 || day > 31)) {
             Log.warn("Invalid day " + day);
             return;
 //            throw new IllegalArgumentException("Invalid day " + day);
@@ -291,21 +292,22 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return Constants.dateFormat.format(c.getTime());
 */
         StringBuilder sb = new StringBuilder();
-        sb.append(day == null ? "--" : day).append("/")
-                .append(month == null ? "--" : month).append("/")
-                .append(year == null ? "----" : year);
+        sb.append(Constants.isNoData(day) ? "--" : day).append("/")
+                .append(Constants.isNoData(month) ? "--" : month).append("/")
+                .append(Constants.isNoData(year) ? "----" : year);
         return sb.toString();
     }
 
     public boolean _isDateEmpty() {
-        return (day == null || day == 0) && (month == null || month == 0) && (year == null || year == 0);
+        return (Constants.isNoData(day) || day == 0) && (Constants.isNoData(month) || month == 0)
+                && (Constants.isNoData(year) || year == 0);
     }
 
     public String _getDateYMD() {
         StringBuilder sb = new StringBuilder();
-        sb.append(year == null ? "----" : year).append("/")
-                .append(month == null ? "--" : month).append("/")
-                .append(day == null ? "--" : day);
+        sb.append(Constants.isNoData(year) ? "----" : year).append("/")
+                .append(Constants.isNoData(month) ? "--" : month).append("/")
+                .append(Constants.isNoData(day) ? "--" : day);
         return sb.toString();
     }
 
@@ -532,7 +534,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public List<OBSERVED_IN> _getOccurrences() {
-        // FIXME: this should return the occurrences that are graph links aswell!
+        // TODO: this should return the occurrences that are graph links aswell!
         return getUnmatchedOccurrences();
     }
 
@@ -581,11 +583,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
             || (precision != null ? !precision.equals(that.precision) : that.precision != null)) return false;
         if (getLatitude() != null ? !getLatitude().equals(that.getLatitude()) : that.getLatitude() != null) return false;
         if (getLongitude() != null ? !getLongitude().equals(that.getLongitude()) : that.getLongitude() != null) return false;
-        if (year != null ? !year.equals(that.year) : that.year != null) return false;
-        if (month != null ? !month.equals(that.month) : that.month != null) return false;
-        if (day != null ? !day.equals(that.day) : that.day != null) return false;
-        if ((year == null && month == null && day == null)  // if any of the dates is null, it's never equal
-                || (that.year == null && that.month == null && that.day == null)) return false;
+        if (getYear() != null ? !getYear().equals(that.getYear()) : that.getYear() != null) return false;
+        if (getMonth() != null ? !getMonth().equals(that.getMonth()) : that.getMonth() != null) return false;
+        if (getDay() != null ? !getDay().equals(that.getDay()) : that.getDay() != null) return false;
+        if ((getYear() == null && getMonth() == null && getDay() == null)  // if any of the dates is null, it's never equal
+                || (that.getYear() == null && that.getMonth() == null && that.getDay() == null)) return false;
         if (municipality != null ? !municipality.equals(that.municipality) : that.municipality != null) return false;
         if (county != null ? !county.equals(that.county) : that.county != null) return false;
         if (locality != null ? !locality.equals(that.locality) : that.locality != null) return false;
@@ -607,9 +609,9 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + (getLatitude() != null ? getLatitude().hashCode() : 0);
         result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);
-        result = 31 * result + (year != null ? year.hashCode() : 0);
-        result = 31 * result + (month != null ? month.hashCode() : 0);
-        result = 31 * result + (day != null ? day.hashCode() : 0);
+        result = 31 * result + (getYear() != null ? getYear().hashCode() : 0);
+        result = 31 * result + (getMonth() != null ? getMonth().hashCode() : 0);
+        result = 31 * result + (getDay() != null ? getDay().hashCode() : 0);
         result = 31 * result + (municipality != null ? municipality.hashCode() : 0);
         result = 31 * result + (county != null ? county.hashCode() : 0);
         result = 31 * result + (locality != null ? locality.hashCode() : 0);

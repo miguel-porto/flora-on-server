@@ -81,9 +81,14 @@ public final class Constants {
 	};
 	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
 	public static final Float NODATA = -999999999.99999f;
+	public static final Integer NODATA_INT = -999999999;
 
 	public static boolean isNoData(Float value) {
 		return value != null && Math.abs(value - NODATA) < 0.000001;
+	}
+
+	public static boolean isNoData(Integer value) {
+		return value != null && value.equals(NODATA_INT);
 	}
 
 	public static boolean isNullOrNoData(Float value) {

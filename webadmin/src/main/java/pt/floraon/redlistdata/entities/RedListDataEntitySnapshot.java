@@ -10,6 +10,8 @@ import java.util.List;
 public class RedListDataEntitySnapshot extends RedListDataEntity {
     private List<SimpleOccurrence> occurrences;
     private Date dateSaved;
+    private String savedByUser;
+    private String versionTag;
 
     public String getVersionTag() {
         return versionTag;
@@ -23,7 +25,13 @@ public class RedListDataEntitySnapshot extends RedListDataEntity {
         this.versionTag = versionTag;
     }
 
-    private String versionTag;
+    public String getSavedByUser() {
+        return savedByUser;
+    }
+
+    public void setSavedByUser(String savedByUser) {
+        this.savedByUser = savedByUser;
+    }
 
     public List<SimpleOccurrence> getOccurrences() {
         return this.occurrences;

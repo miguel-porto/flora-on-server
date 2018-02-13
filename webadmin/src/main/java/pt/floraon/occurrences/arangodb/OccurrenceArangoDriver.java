@@ -367,11 +367,11 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public Iterator<Inventory> findOccurrencesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
+    public Iterator<Inventory> findOccurrencesByFilter(String textFilter, String dateFilter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
         Map<String, Object> bindVars = new HashMap<>();
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
-        bindVars.put("query", "%" + filter + "%");
+        bindVars.put("query", "%" + textFilter + "%");
         bindVars.put("offset", offset);
         bindVars.put("count", count);
         if(userId != null)
@@ -379,7 +379,9 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString(userId == null ? "occurrencequery.8a" : "occurrencequery.8")
+                    AQLOccurrenceQueries.getString(userId == null ?
+                            (dateFilter == null ? "occurrencequery.8a" : "occurrencequery.8a.date")
+                            : (dateFilter == null ? "occurrencequery.8" : "occurrencequery.8.date"))
                     , bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());

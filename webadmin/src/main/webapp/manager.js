@@ -275,7 +275,7 @@ function multipleSelectionButtonClick(ev) {
 		break;
 	
 	case 'worlddistribution':
-		// TODO: change worlkd distr
+		// TODO: change world distr
 		updateTaxon({
 			id:parent
 			,worldDistributionCompleteness:ev.target.getAttribute('data-value')

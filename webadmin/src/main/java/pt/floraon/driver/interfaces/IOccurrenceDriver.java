@@ -195,14 +195,15 @@ public interface IOccurrenceDriver {
 
     /**
      * Fetches all occurrences that match the given filter, or only those of a specific maintainer.
-     * @param filter The filter is searched in taxon name, GPS code, Locality and verbLocality
+     * @param textFilter The filter is searched in taxon name, GPS code, Locality and verbLocality
+     * @param dateFilter Whether to show only null dates
      * @param userId
      * @param offset
      * @param count
      * @return
      * @throws FloraOnException
      */
-    Iterator<Inventory> findOccurrencesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Inventory> findOccurrencesByFilter(String textFilter, String dateFilter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
     int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException;
 }

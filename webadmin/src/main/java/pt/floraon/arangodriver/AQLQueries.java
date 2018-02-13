@@ -25,6 +25,7 @@ public class AQLQueries {
 		}
 	}
 
+	@Deprecated
 	public static String getString(String key, boolean fragments) {
 		String msg = RESOURCE_BUNDLE.getString(key);
 		if(fragments) {
@@ -37,6 +38,7 @@ public class AQLQueries {
 		} else return msg;
 	}
 
+	@Deprecated
 	public static String getString(String key, Object... params) {
 		String msg = RESOURCE_BUNDLE.getString(key);
 		// replace named AQL fragments
@@ -53,7 +55,7 @@ public class AQLQueries {
 		return msg;
 	}
 
-	// TODO: named params
+	@Deprecated
 	public static String getString(String key, Map<String,String> params) {
 		String msg;
 		try {

@@ -62,10 +62,14 @@ public class DateParser implements FieldParser {
 
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
-        if(inputValue == null || inputValue.trim().equals("")) return;
+        if(inputValue == null) return;
         Inventory occurrence = (Inventory) bean;
+        Integer[] date;
 
-        Integer[] date = parseDate(inputValue);
+        if(inputValue.trim().equals("")) {
+            date = new Integer[] {Constants.NODATA_INT, Constants.NODATA_INT, Constants.NODATA_INT};
+        } else
+            date = parseDate(inputValue);
 
         occurrence.setDay(date[0]);
         occurrence.setMonth(date[1]);
@@ -126,9 +130,9 @@ public class DateParser implements FieldParser {
             }
 
             try {
+                year = Integer.parseInt(matcher.group("year"));
                 if(matcher.group("year").length() != 4)
                     throw new IllegalArgumentException(Messages.getString("error.13", inputValue));
-                year = Integer.parseInt(matcher.group("year"));
             } catch (NumberFormatException e) {
                 year = null;
             }
@@ -149,6 +153,9 @@ public class DateParser implements FieldParser {
         } else {
             if(day != null && (day < 1 || day > 31)) throw new IllegalArgumentException("Invalid day: " + day);
             if(month != null && (month < 1 || month > 12)) throw new IllegalArgumentException("Invalid month: " + month);
+            if(day == null) day = Constants.NODATA_INT;
+            if(month == null) month = Constants.NODATA_INT;
+            if(year == null) year = Constants.NODATA_INT;
         }
         outdate[0] = day;
         outdate[1] = month;
