@@ -4,16 +4,22 @@ import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
+import com.google.gson.Gson;
+import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
+import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.Precision;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.lang.reflect.InvocationTargetException;
@@ -367,21 +373,175 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public Iterator<Inventory> findOccurrencesByFilter(String textFilter, String dateFilter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
+    public Iterator<Inventory> findOccurrencesByFilter(String filterExpression, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
+        Map<String, String> filter = parseFilterExpression(filterExpression);
+        String textFilter = filter.get("NA");
+//        System.out.println(new Gson().toJson(filter));
+
         Map<String, Object> bindVars = new HashMap<>();
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
-        bindVars.put("query", "%" + textFilter + "%");
+        if(!StringUtils.isStringEmpty(textFilter)) bindVars.put("query", "%" + textFilter + "%");
         bindVars.put("offset", offset);
         bindVars.put("count", count);
-        if(userId != null)
-            bindVars.put("user", userId.toString());
 
+        String inventoryFilter = "";
+        String occurrenceFilter = "";
+
+        if(userId != null) {
+            bindVars.put("user", userId.toString());
+            inventoryFilter += AQLOccurrenceQueries.getString("filter.maintainer") + " ";
+        }
+
+        if(filter.containsKey("date")) {
+            if(filter.get("date").toUpperCase().equals("NA"))
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.nulldate") + " ";
+            else {
+                Integer[] date;
+                try {
+                    date = DateParser.parseDate(filter.get("date"));
+                } catch (IllegalArgumentException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                Log.info("DATE: "+ new Gson().toJson(date));
+                if(date.length == 3) {  // single date
+                    if (!Constants.isNullOrNoData(date[0])) {
+                        inventoryFilter += AQLOccurrenceQueries.getString("filter.day") + " ";
+                        bindVars.put("day", date[0]);
+                    }
+
+                    if (!Constants.isNullOrNoData(date[1])) {
+                        inventoryFilter += AQLOccurrenceQueries.getString("filter.month") + " ";
+                        bindVars.put("month", date[1]);
+                    }
+
+                    if (!Constants.isNullOrNoData(date[2])) {
+                        inventoryFilter += AQLOccurrenceQueries.getString("filter.year") + " ";
+                        bindVars.put("year", date[2]);
+                    }
+                }
+
+                if(date.length == 6) {  // date range
+                    if(Constants.isNullOrNoData(date[0]) && Constants.isNullOrNoData(date[2]))
+                        throw new FloraOnException("Date ranges must be defined in relation to a precise day, month or year. Disjoint intervals are not supported.");
+                    if(Constants.isNullOrNoData(date[3]) && Constants.isNullOrNoData(date[5]))
+                        throw new FloraOnException("Date ranges must be defined in relation to a precise day, month or year. Disjoint intervals are not supported.");
+                    String fromDate = Inventory.formatDateYMD(date[0], date[1], date[2], "0");
+                    String toDate = Inventory.formatDateYMD(date[3], date[4], date[5], "9");
+                    inventoryFilter += AQLOccurrenceQueries.getString("filter.daterange") + " ";
+                    bindVars.put("fromDate", fromDate);
+                    bindVars.put("toDate", toDate);
+                }
+
+            }
+        }
+
+        // confidence filter
+        if(filter.containsKey("conf")) {
+            if(filter.get("conf").toUpperCase().equals("NA")) {
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.nullconfidence") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.nullconfidence.2") + " ";
+            } else {
+                try {
+                    bindVars.put("confidence"
+                            , OccurrenceConstants.ConfidenceInIdentifiction.getValueFromAcronym(filter.get("conf")).toString());
+                } catch (IllegalArgumentException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.confidence") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.confidence.2") + " ";
+            }
+        }
+
+        // phenology filter
+        if(filter.containsKey("phen")) {
+            if(filter.get("phen").toUpperCase().equals("NA")) {
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.nullphenology") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.nullphenology.2") + " ";
+            } else {
+                try {
+                    bindVars.put("phenoState"
+                            , Constants.PhenologicalStates.getValueFromAcronym(filter.get("phen")).toString());
+                } catch (IllegalArgumentException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.phenology") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.phenology.2") + " ";
+            }
+        }
+
+        // precision filter
+        if(filter.containsKey("prec")) {
+            if(filter.get("prec").toUpperCase().equals("NA")) {
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.nullprecision") + " ";
+            } else {
+                bindVars.put("precision", new Precision(filter.get("prec")));
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.precision") + " ";
+            }
+        }
+
+        // latitude filter
+        if(filter.containsKey("lat")) {
+            if(filter.get("lat").toUpperCase().equals("NA")) {
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.nulllatitude") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.nulllatitude.2") + " ";
+            } else {
+                NumericInterval range = new NumericInterval(filter.get("lat"));
+                if(range.getValue() == null) {  // is an interval
+                    bindVars.put("minlat", range.getMinValue() == null ? -9999f : range.getMinValue());
+                    bindVars.put("maxlat", range.getMaxValue() == null ? 9999f : range.getMaxValue());
+                } else {    // is an exact number
+                    bindVars.put("minlat", range.getValue() - 0.0001);
+                    bindVars.put("maxlat", range.getValue() + 0.0001);
+                }
+
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.latitude") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.latitude.2") + " ";
+            }
+        }
+
+        // longitude filter
+        if(filter.containsKey("long")) {
+            if(filter.get("long").toUpperCase().equals("NA")) {
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.nulllongitude") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.nulllongitude.2") + " ";
+            } else {
+                NumericInterval range = new NumericInterval(filter.get("long"));
+                if(range.getValue() == null) {  // is an interval
+                    bindVars.put("minlng", range.getMinValue() == null ? -9999f : range.getMinValue());
+                    bindVars.put("maxlng", range.getMaxValue() == null ? 9999f : range.getMaxValue());
+                } else {    // is an exact number
+                    bindVars.put("minlng", range.getValue() - 0.0001);
+                    bindVars.put("maxlng", range.getValue() + 0.0001);
+                }
+
+                inventoryFilter += AQLOccurrenceQueries.getString("filter.longitude") + " ";
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.longitude.2") + " ";
+            }
+        }
+
+        // taxon filter
+        if(filter.containsKey("tax")) {
+            if(filter.get("tax").toUpperCase().equals("NA")) {
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.nulltaxon") + " ";
+            } else {
+                try {
+                    bindVars.put("taxon", "%" + filter.get("tax") + "%");
+                } catch (IllegalArgumentException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                occurrenceFilter += AQLOccurrenceQueries.getString("filter.taxon") + " ";
+            }
+        }
+
+
+        Log.info(AQLOccurrenceQueries.getString(!StringUtils.isStringEmpty(textFilter) ?
+                "occurrencequery.8.withtextfilter" : "occurrencequery.8.withouttextfilter", inventoryFilter, occurrenceFilter));
+        Log.info(new Gson().toJson(bindVars));
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString(userId == null ?
-                            (dateFilter == null ? "occurrencequery.8a" : "occurrencequery.8a.date")
-                            : (dateFilter == null ? "occurrencequery.8" : "occurrencequery.8.date"))
+                    AQLOccurrenceQueries.getString(!StringUtils.isStringEmpty(textFilter) ?
+                            "occurrencequery.8.withtextfilter" : "occurrencequery.8.withouttextfilter", inventoryFilter, occurrenceFilter)
                     , bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());

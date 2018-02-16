@@ -17,7 +17,7 @@ import pt.floraon.arangodriver.serializers.*;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.occurrences.Abundance;
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.interfaces.*;
 import pt.floraon.geometry.Precision;
@@ -76,8 +76,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerSerializer(Precision.class, new PrecisionSerializer())
 				.registerDeserializer(SafeHTMLString.class, new SafeHTMLStringDeserializer())
 				.registerSerializer(SafeHTMLString.class, new SafeHTMLStringSerializer())
-				.registerDeserializer(NumericInterval.class, new NumericIntervalDeserializer())
-				.registerSerializer(NumericInterval.class, new NumericIntervalSerializer())
+				.registerDeserializer(IntegerInterval.class, new NumericIntervalDeserializer())
+				.registerSerializer(IntegerInterval.class, new NumericIntervalSerializer())
 				.registerDeserializer(Abundance.class, new AbundanceDeserializer())
 				.registerSerializer(Abundance.class, new AbundanceSerializer())
 				.build();
@@ -292,8 +292,12 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.user.toString()).ensureHashIndex(Collections.singleton("userName"), new HashIndexOptions().unique(true).sparse(true));
 		database.collection(NodeTypes.toponym.toString()).ensureFulltextIndex(Collections.singleton("locality"), new FulltextIndexOptions().minLength(1));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("maintainer"), new HashIndexOptions().unique(false).sparse(false));
-
-
+		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("year", "month", "day"), new SkiplistIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].confidence"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].phenoState"), new HashIndexOptions().unique(false).sparse(false));
+//		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("latitude", "longitude"), new SkiplistIndexOptions().unique(false).sparse(false));
+//		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Collections.singleton("month"), new SkiplistIndexOptions().unique(false).sparse(false));
+//		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Collections.singleton("day"), new SkiplistIndexOptions().unique(false).sparse(false));
 	}
 
 	private void createTaxonomicGraph() throws ArangoDBException {

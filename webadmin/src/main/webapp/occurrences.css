@@ -13,7 +13,7 @@
 
 html.occurrencespage, body.occurrencespage {width:100%; height:100%; overflow:auto;}
 body.occurrencespage {display:flex; height: 100%; align-items: stretch;}
-body.occurrencespage .warning {position: static; width:auto;}
+body.occurrencespage .warning:not(.floating) {position: static; width:auto;}
 body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 body.occurrencespage .heading2 {background-color: #1565c0; color: white; position:relative}
 body.occurrencespage .legend {color:#d5d5d5; margin:4px}
@@ -25,7 +25,7 @@ body.occurrencespage.compactview .hideincompactview {display:none !important}
 
 #alloccurrencetable th {position:sticky; top:0px;}
 
-.pager {display:inline-block; margin-left:20px;}
+.pager {margin:6px;vertical-align: middle; display: inline-block;}
 .pager a {vertical-align:middle; display:inline-block}
 .pager .button {
     font-size: inherit;
@@ -181,3 +181,5 @@ td.select {background-color: transparent !important;}
 
 .onlywhenmodified {display:none !important;}
 .modified .onlywhenmodified {display:inherit !important;}
+
+#occurrencefilter {display:inline-block; margin: 0 6px;}

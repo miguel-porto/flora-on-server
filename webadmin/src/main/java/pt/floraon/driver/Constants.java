@@ -11,6 +11,7 @@ import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.entities.RedListSettings;
@@ -93,6 +94,10 @@ public final class Constants {
 
 	public static boolean isNullOrNoData(Float value) {
 		return value == null || Math.abs(value - NODATA) < 0.000001;
+	}
+
+	public static boolean isNullOrNoData(Integer value) {
+		return value == null || value.equals(NODATA_INT);
 	}
 
 	public enum TaxonRanks {
@@ -201,6 +206,14 @@ public final class Constants {
 				try {
 					value1 = Constants.PhenologicalStates.valueOf(acronym);
 				} catch(IllegalArgumentException e) {
+					for(Constants.PhenologicalStates ce : Constants.PhenologicalStates.values()) {
+						if(ce.toString().toLowerCase().startsWith(acronym))
+							return ce;
+					}
+					for(String key : acronymMap.keySet()) {
+					    if(key.toLowerCase().startsWith(acronym))
+					        return acronymMap.get(key);
+                    }
 					throw new IllegalArgumentException(acronym + " not understood, possible options: "
 							+ StringUtils.implode(", ", PhenologicalStates.acronymMap.keySet().toArray(new String[0])));
 				}

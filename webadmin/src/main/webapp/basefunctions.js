@@ -332,3 +332,18 @@ function insertTextAtCursor(text) {
         document.selection.createRange().text = text;
     }
 }
+
+function attachHelpButtons() {
+    var hbs = document.querySelectorAll('.button.help');
+    for(var i=0; i<hbs.length; i++) {
+        addEvent('click', hbs[i], function(ev) {
+            var msgid = ev.target.getAttribute('data-msgid');
+            var el = document.getElementById(msgid);
+            if(el) el.classList.toggle('hidden');
+            var close = el.querySelector('.button.close');
+            addEvent('click', close, function(ev) {
+                el.classList.add('hidden');
+            });
+        });
+    }
+}

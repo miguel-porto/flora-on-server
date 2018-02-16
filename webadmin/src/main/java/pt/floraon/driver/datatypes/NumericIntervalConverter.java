@@ -11,17 +11,17 @@ public class NumericIntervalConverter extends AbstractConverter {
     }
 
     protected Class<?> getDefaultType() {
-        return NumericInterval.class;
+        return IntegerInterval.class;
     }
 
     protected <T> T convertToType(Class<T> type, Object value) throws Throwable {
 //        System.out.println(type.toString());
 //        System.out.println(value.getClass().toString());
-        if (!NumericInterval.class.equals(type) && !Object.class.equals(type)) {
+        if (!IntegerInterval.class.equals(type) && !Object.class.equals(type)) {
             throw this.conversionException(type, value);
         } else {
 //            System.out.println(value.toString());
-            return type.cast(new NumericInterval(value.toString()));
+            return type.cast(new IntegerInterval(value.toString()));
 //            return type.cast(value.toString());
         }
     }

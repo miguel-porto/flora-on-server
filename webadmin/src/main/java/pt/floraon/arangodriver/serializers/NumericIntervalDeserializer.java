@@ -5,11 +5,11 @@ import com.arangodb.velocypack.VPackDeserializer;
 import com.arangodb.velocypack.VPackSlice;
 import com.arangodb.velocypack.ValueType;
 import com.arangodb.velocypack.exception.VPackException;
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.IntegerInterval;
 
-public class NumericIntervalDeserializer implements VPackDeserializer<NumericInterval> {
+public class NumericIntervalDeserializer implements VPackDeserializer<IntegerInterval> {
     @Override
-    public NumericInterval deserialize(
+    public IntegerInterval deserialize(
             final VPackSlice parent,
             final VPackSlice vpack,
             final VPackDeserializationContext context) throws VPackException {
@@ -22,6 +22,6 @@ public class NumericIntervalDeserializer implements VPackDeserializer<NumericInt
         else
             v = vpack.getAsString();
 
-        return new NumericInterval(v);
+        return new IntegerInterval(v);
     }
 }

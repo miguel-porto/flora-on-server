@@ -41,12 +41,17 @@ public final class OccurrenceConstants {
 
         static public ConfidenceInIdentifiction getValueFromAcronym(String acronym) throws IllegalArgumentException {
             ConfidenceInIdentifiction value1;
-            if(ConfidenceInIdentifiction.acronymMap.containsKey(acronym.toLowerCase()))
-                value1 = ConfidenceInIdentifiction.acronymMap.get(acronym.toLowerCase());
+            acronym = acronym.toLowerCase();
+            if(ConfidenceInIdentifiction.acronymMap.containsKey(acronym))
+                value1 = ConfidenceInIdentifiction.acronymMap.get(acronym);
             else {
                 try {
                     value1 = ConfidenceInIdentifiction.valueOf(acronym.toUpperCase());
                 } catch(IllegalArgumentException e) {
+                    for(ConfidenceInIdentifiction ce : ConfidenceInIdentifiction.values()) {
+                        if(ce.toString().toLowerCase().startsWith(acronym))
+                            return ce;
+                    }
                     throw new IllegalArgumentException(acronym + " not understood, possible options: "
                             + StringUtils.implode(", ", ConfidenceInIdentifiction.acronymMap.keySet().toArray(new String[0])));
                 }

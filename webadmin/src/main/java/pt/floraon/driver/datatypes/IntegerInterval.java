@@ -6,16 +6,16 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NumericInterval implements Serializable {
+public class IntegerInterval implements Serializable {
     protected String text;
     private transient static Pattern intervalMatch =
-            Pattern.compile("^\\s*(?<modifier>[<>])? *(?<approx>~)? *(?<n1>-?[0-9]+([.,][0-9]+)?)(?: *- *(?<n2>-?[0-9]+([.,][0-9]+)?))?\\s*$");
+            Pattern.compile("^\\s*(?<modifier>[<>])? *(?<approx>~)? *(?<n1>[0-9]+)(?: *- *(?<n2>[0-9]+))?\\s*$");
     private transient Matcher matcher;
-    protected transient Float minValue, maxValue, exactValue;
+    protected transient Integer minValue, maxValue, exactValue;
     protected transient boolean approximateValue = false, parsed = false;
     protected transient String error;
 
-    public NumericInterval(String text) {
+    public IntegerInterval(String text) {
         this.text = text;
     }
 
@@ -38,30 +38,25 @@ public class NumericInterval implements Serializable {
 
             if(this.matcher.group("n2") == null) {
                 if(this.matcher.group("modifier") == null)
-                    this.exactValue = Float.parseFloat(this.matcher.group("n1"));
+                    this.exactValue = Integer.parseInt(this.matcher.group("n1"));
                 else {
                     if(this.matcher.group("modifier").equals("<"))
-                        this.maxValue = Float.parseFloat(this.matcher.group("n1"));
+                        this.maxValue = Integer.parseInt(this.matcher.group("n1")) - 1; // exclusive
                     else
-                        this.minValue = Float.parseFloat(this.matcher.group("n1"));
+                        this.minValue = Integer.parseInt(this.matcher.group("n1")) + 1;
                 }
             } else {
                 if(this.matcher.group("modifier") != null) {
                     this.error = "Invalid interval: " + this.text;
                     return;
                 }
-                this.minValue = Float.parseFloat(this.matcher.group("n1"));
-                this.maxValue = Float.parseFloat(this.matcher.group("n2"));
-                if(this.minValue > this.maxValue) {
-                    Float tmp = this.minValue;
-                    this.minValue = this.maxValue;
-                    this.maxValue = tmp;
-                }
+                this.minValue = Integer.parseInt(this.matcher.group("n1"));
+                this.maxValue = Integer.parseInt(this.matcher.group("n2"));
             }
         }
     }
 
-    public Float getMinValue() {
+    public Integer getMinValue() {
         parseText();
         if(this.minValue != null)
             return this.minValue;
@@ -73,7 +68,7 @@ public class NumericInterval implements Serializable {
         }
     }
 
-    public Float getMaxValue() {
+    public Integer getMaxValue() {
         parseText();
         if(this.maxValue != null)
             return this.maxValue;
@@ -85,7 +80,7 @@ public class NumericInterval implements Serializable {
         }
     }
 
-    public Float getValue() {
+    public Integer getValue() {
         parseText();
         return this.exactValue;
     }
@@ -105,7 +100,7 @@ public class NumericInterval implements Serializable {
         return this.exactValue == null && this.maxValue == null && this.minValue == null;
     }
 
-    public static NumericInterval emptyInterval() {
-        return new NumericInterval("");
+    public static IntegerInterval emptyInterval() {
+        return new IntegerInterval("");
     }
 }

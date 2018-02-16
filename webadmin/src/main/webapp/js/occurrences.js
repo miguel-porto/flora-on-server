@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     var ft = document.getElementById('filtertable');
-    if(ft)
+    if(ft) {
         addEvent('keyup', ft, function(ev) {
             if(ev.keyCode < 65 && ev.keyCode != 8 && ev.keyCode != 32 && !(ev.keyCode >= 48 && ev.keyCode <= 57) ) return;
             var inp = ev.target;
@@ -171,7 +171,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }, 500);
         })
+    }
 
+    attachHelpButtons();
 });
 
 window.addEventListener('beforeunload', function (ev) {

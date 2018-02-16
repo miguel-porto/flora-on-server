@@ -12,7 +12,7 @@ public class AbundanceConverter extends AbstractConverter {
     }
 
     protected Class<?> getDefaultType() {
-        return NumericInterval.class;
+        return IntegerInterval.class;
     }
 
     protected <T> T convertToType(Class<T> type, Object value) throws Throwable {

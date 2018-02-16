@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fieldparsers;
 
+import com.google.gson.Gson;
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 import pt.floraon.driver.Constants;
@@ -16,8 +17,11 @@ import java.util.regex.Pattern;
  * Created by miguel on 29-03-2017.
  */
 public class DateParser implements FieldParser {
-    static final private Pattern datePattern =
+    static final private Pattern singleDatePattern =
             Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>([0-9]{1,4})|([-?]{1,4})) *$");
+    static final private Pattern dateRangePattern =
+            Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{1,4})|([-?]{1,4})) *" +
+                    "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{1,4})|([-?]{1,4})) *$");
 
     static final private Map<String, Integer> months = new HashMap<>();
 
@@ -76,68 +80,61 @@ public class DateParser implements FieldParser {
         occurrence.setYear(date[2]);
     }
 
+    /**
+     * Parses a single date or a date range.
+     * @param inputValue A date string.
+     * @return A 3 Integer array for a single date, a 6 Integer array for a date range.
+     */
     static public Integer[] parseDate(String inputValue) {
         if(inputValue == null) return null;
         Integer[] outdate = new Integer[3];
-        Integer day = null, month = null, year = null;
 
 //        System.out.println("***** INPUT: "+ inputValue);
-        Matcher matcher = datePattern.matcher(inputValue);
-        if(!matcher.find()) {
-//            System.out.println("NAtty");
-            // try natty for loose date specification
-            Parser dp = new Parser();
+        Matcher matcher = singleDatePattern.matcher(inputValue);
+        if(!matcher.find()) {   // not a single date
+            // let's try a date range
+            Matcher matcherRange = dateRangePattern.matcher(inputValue);
+            if(!matcherRange.find()) {   // not a date range either
+                // let's try natty for loose date specification
+                Parser dp = new Parser();
 
-            List<DateGroup> grps = dp.parse(inputValue);
-            if(grps.size() == 0)
-                throw new IllegalArgumentException("Date " + inputValue + " not recognized by Natty.");
+                List<DateGroup> grps = dp.parse(inputValue);
+                if (grps.size() == 0)
+                    throw new IllegalArgumentException("Date " + inputValue + " not recognized by Natty.");
 
-            for(DateGroup grp : grps) {
-                Calendar c1 = new GregorianCalendar();
-                c1.setTime(grp.getDates().get(0));
-                day = c1.get(Calendar.DAY_OF_MONTH);
-                month = c1.get(Calendar.MONTH) + 1;
-                year = c1.get(Calendar.YEAR);
-                System.out.println(Constants.dateFormat.get().format(grp.getDates().get(0)));
+                for (DateGroup grp : grps) {
+                    Calendar c1 = new GregorianCalendar();
+                    c1.setTime(grp.getDates().get(0));
+                    outdate = new Integer[] {
+                            c1.get(Calendar.DAY_OF_MONTH)
+                            , c1.get(Calendar.MONTH) + 1
+                            , c1.get(Calendar.YEAR)};
+                    System.out.println(Constants.dateFormat.get().format(grp.getDates().get(0)));
+                }
+            } else {    // a date range
+                Integer[] startdate = extractDateFromMatcher(matcherRange, "day1", "month1", "year1");
+                Integer[] enddate = extractDateFromMatcher(matcherRange, "day2", "month2", "year2");
+                validateDate(startdate[0], startdate[1], startdate[2]);
+                validateDate(enddate[0], enddate[1], enddate[2]);
+
+                outdate = new Integer[] {
+                        startdate[0], startdate[1], startdate[2]
+                        , enddate[0], enddate[1], enddate[2]
+                };
             }
         } else {
-            String dayS = matcher.group("day");
-            String monthS = matcher.group("month");
-            if(dayS != null && monthS == null) {
-                String tmpS = dayS;
-                dayS = monthS;
-                monthS = tmpS;
-            }
-
-            if(dayS != null) {
-                try {
-                    day = Integer.parseInt(dayS);
-                } catch (NumberFormatException e) {
-                    day = null;
-                }
-            }
-
-            if(monthS != null) {
-                if(months.containsKey(monthS.toUpperCase()))
-                    month = months.get(monthS.toUpperCase());
-                else {
-                    try {
-                        month = Integer.parseInt(monthS);
-                    } catch (NumberFormatException e) {
-                        month = null;
-                    }
-                }
-            }
-
-            try {
-                year = Integer.parseInt(matcher.group("year"));
-                if(matcher.group("year").length() != 4)
-                    throw new IllegalArgumentException(Messages.getString("error.13", inputValue));
-            } catch (NumberFormatException e) {
-                year = null;
-            }
+            outdate = extractDateFromMatcher(matcher, "day", "month", "year");
+            System.out.println(new Gson().toJson(outdate));
+            // make some validity checks
+            validateDate(outdate[0], outdate[1], outdate[2]);
         }
+        for (int i = 0; i < outdate.length; i++) {
+            if(outdate[i] == null) outdate[i] = Constants.NODATA_INT;
+        }
+        return outdate;
+    }
 
+    static private void validateDate(Integer day, Integer month, Integer year) throws IllegalArgumentException {
         if(day != null && month != null && year != null) {
             Calendar c = new GregorianCalendar();
             c.setLenient(false);
@@ -148,19 +145,56 @@ public class DateParser implements FieldParser {
             try {
                 c.getTime();
             } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid date: " + inputValue);
+                throw new IllegalArgumentException("Invalid date: " + day + "/" + month + "/" + year);
             }
         } else {
             if(day != null && (day < 1 || day > 31)) throw new IllegalArgumentException("Invalid day: " + day);
             if(month != null && (month < 1 || month > 12)) throw new IllegalArgumentException("Invalid month: " + month);
-            if(day == null) day = Constants.NODATA_INT;
-            if(month == null) month = Constants.NODATA_INT;
-            if(year == null) year = Constants.NODATA_INT;
         }
-        outdate[0] = day;
-        outdate[1] = month;
-        outdate[2] = year;
-        return outdate;
+    }
+
+    static private Integer[] extractDateFromMatcher(Matcher matcher, String dayGroup, String monthGroup, String yearGroup) {
+        Integer[] out = new Integer[3];
+        Integer day = null, month = null, year = null;
+        String dayS = matcher.group(dayGroup);
+        String monthS = matcher.group(monthGroup);
+        if(dayS != null && monthS == null) {
+            String tmpS = dayS;
+            dayS = monthS;
+            monthS = tmpS;
+        }
+
+        if(dayS != null) {
+            try {
+                day = Integer.parseInt(dayS);
+            } catch (NumberFormatException e) {
+                day = null;
+            }
+        }
+
+        if(monthS != null) {
+            if(months.containsKey(monthS.toUpperCase()))
+                month = months.get(monthS.toUpperCase());
+            else {
+                try {
+                    month = Integer.parseInt(monthS);
+                } catch (NumberFormatException e) {
+                    month = null;
+                }
+            }
+        }
+
+        try {
+            year = Integer.parseInt(matcher.group(yearGroup));
+            if(matcher.group(yearGroup).length() != 4)
+                throw new IllegalArgumentException(Messages.getString("error.13", matcher.group()));
+        } catch (NumberFormatException e) {
+            year = null;
+        }
+        out[0] = day;
+        out[1] = month;
+        out[2] = year;
+        return out;
     }
 
     static public Date parseDateAsDate(String inputValue) {

@@ -103,7 +103,7 @@ public class BeanUtils {
         out.getConvertUtils().register(floatConverter, Float.class);
         out.getConvertUtils().register(doubleConverter, Double.class);
         out.getConvertUtils().register(arrayConverter, Integer[].class);
-        out.getConvertUtils().register(numericIntervalConverter, NumericInterval.class);
+        out.getConvertUtils().register(numericIntervalConverter, IntegerInterval.class);
         out.getConvertUtils().register(abundanceConverter, Abundance.class);
         //beanUtilsNull.getConvertUtils().register(arrayConverter, String[].class);
         return out;
@@ -123,7 +123,7 @@ public class BeanUtils {
 //        beanUtilsNullSafeHTML.getConvertUtils().register(doubleConverter, Double.class);
         out.getConvertUtils().register(arrayConverter, Integer[].class);
         out.getConvertUtils().register(stringConverter, SafeHTMLString.class);
-        out.getConvertUtils().register(numericIntervalConverter, NumericInterval.class);
+        out.getConvertUtils().register(numericIntervalConverter, IntegerInterval.class);
         out.getConvertUtils().register(abundanceConverter, Abundance.class);
         return out;
     }

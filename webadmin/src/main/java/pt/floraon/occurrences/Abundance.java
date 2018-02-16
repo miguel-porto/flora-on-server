@@ -1,11 +1,11 @@
 package pt.floraon.occurrences;
 
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.IntegerInterval;
 
 /**
  * Represents the abundance of a taxon in an obsrevation
  */
-public class Abundance extends NumericInterval {
+public class Abundance extends IntegerInterval {
     public Abundance(String text) {
         super(text);
     }

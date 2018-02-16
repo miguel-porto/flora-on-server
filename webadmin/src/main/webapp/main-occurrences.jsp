@@ -69,6 +69,9 @@
         <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" />
         <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" />
     </div>
+    <c:if test="${warning != null}">
+    <div class="warning floating"><b>${warning}</b></div>
+    </c:if>
     <div id="loader">
         <div id="loadermsg">Um momento...</div>
     </div>

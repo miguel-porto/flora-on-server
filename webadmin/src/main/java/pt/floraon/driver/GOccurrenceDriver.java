@@ -12,11 +12,15 @@ import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by miguel on 26-03-2017.
  */
 public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOccurrenceDriver {
+    private static Pattern filterPattern = Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?.,;<>-]+))");
+
     public GOccurrenceDriver(IFloraOn driver) {
         super(driver);
     }
@@ -108,4 +112,16 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         return inventoryList;
     }
 
+    @Override
+    public Map<String, String> parseFilterExpression(String filterText) {
+        Map<String, String> out = new HashMap<>();
+
+        Matcher mat = filterPattern.matcher(filterText);
+
+        while(mat.find()) {
+            out.put(mat.group("key"), mat.group("value"));
+        }
+        out.put("NA", mat.replaceAll("").trim());
+        return out;
+    }
 }

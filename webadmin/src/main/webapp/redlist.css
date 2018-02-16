@@ -311,6 +311,8 @@ input[type=submit]:not(.button), .floatingtoolbar>div {
     pointer-events: auto;
 }
 
+input[type=submit].button {font-family: 'Lato',sans-serif;}
+
 input[type=submit].hidden, .button.hidden, .floatingtoolbar>div.hidden {
     transform: scale(0.01, 0.01);
     visibility: hidden;

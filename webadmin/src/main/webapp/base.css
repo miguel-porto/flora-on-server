@@ -13,6 +13,13 @@ h1 {text-align:center;margin:8px 0 5px;font-size:1.6em}
 h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}
 h3 {margin:0}
 p {margin:3px;}
+code {
+    background-color: #eee;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 1rem;
+    line-height:1.5rem;
+}
 .inlineblock {display: inline-block !important}
 .inlineflex {display: inline-flex !important}
 .hidden {display: none !important;}
@@ -134,6 +141,7 @@ span.warning {  /* inline warnings */
 	text-align:center;
 	font-size:0.75em;
 	text-transform:none !important;
+	vertical-align:middle;
 }
 
 .button:hover {
@@ -291,3 +299,62 @@ ul.suggestions li.selected {
 #mainmenu li.section2 .bullet {background-color: #f44336;}
 #mainmenu li.section3 .bullet {background-color: #2196f3;}
 #mainmenu li.section4 .bullet {background-color: black;}
+
+.button.help {
+    background-image: url(images/ic_menu_help.png);
+    background-size: 32px 32px;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    vertical-align: middle;
+    padding: 0;
+    background-color: #FFC107;
+}
+
+.floatinghelp {
+    position:fixed;
+    width:74%;
+    height:74%;
+    left:13%;
+    top:13%;
+    background-color: white;
+    box-shadow: 0 0 45px 10px black;
+    z-index: 500;
+    border-radius: 3px 3px 10px 10px;
+    color:black;
+    overflow-y:auto;
+}
+
+.floatinghelp h1 {
+    background-color: #FFC107;
+    margin:0;
+    color:black;
+}
+
+.floatinghelp h2 {
+    font-size:1.2em;
+    background-color: #FFE082 !important;
+    color:black !important;
+}
+
+.floatinghelp p {
+    font-size:1.1em;
+    line-height:1.2em;
+}
+
+.floatinghelp .close {
+    background-image: url(images/close.png);
+    background-size: 32px 32px;
+    background-color: transparent;
+    box-shadow: none;
+    width:32px;
+    height:32px;
+    position:absolute;
+    margin:0;
+    right:3px;
+    top:3px;
+    border-radius:50%;
+    padding: 0;
+}
+
+.floatinghelp .close:hover {background-color: transparent;}

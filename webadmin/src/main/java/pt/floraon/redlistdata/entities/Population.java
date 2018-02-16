@@ -1,7 +1,7 @@
 package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.DiffableBean;
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
@@ -15,14 +15,14 @@ import java.util.List;
 public class Population implements DiffableBean {
     private SafeHTMLString description;
     private RedListEnums.NrMatureIndividuals nrMatureIndividualsCategory;
-    private NumericInterval nrMatureIndividualsExact;
+    private IntegerInterval nrMatureIndividualsExact;
     private SafeHTMLString nrMatureIndividualsDescription;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private RedListEnums.DeclinePopulation populationDecline;
-    private NumericInterval populationDeclinePercent;
+    private IntegerInterval populationDeclinePercent;
     private SafeHTMLString populationDeclineJustification;
     // population size reduction
-    private NumericInterval populationTrend;
+    private IntegerInterval populationTrend;
     private RedListEnums.PopulationSizeReduction[] populationSizeReduction;
     private SafeHTMLString populationSizeReductionJustification;
 
@@ -43,7 +43,7 @@ public class Population implements DiffableBean {
         return nrMatureIndividualsCategory == null ? RedListEnums.NrMatureIndividuals.NO_DATA : nrMatureIndividualsCategory;
     }
 
-    public NumericInterval getNrMatureIndividualsExact() {
+    public IntegerInterval getNrMatureIndividualsExact() {
         return nrMatureIndividualsExact;
     }
 
@@ -59,7 +59,7 @@ public class Population implements DiffableBean {
         return populationDecline == null ? RedListEnums.DeclinePopulation.NO_INFORMATION : populationDecline;
     }
 
-    public NumericInterval getPopulationTrend() {
+    public IntegerInterval getPopulationTrend() {
         return populationTrend;
     }
 
@@ -100,7 +100,7 @@ public class Population implements DiffableBean {
         return extremeFluctuationsJustification == null ? SafeHTMLString.emptyString() : extremeFluctuationsJustification;
     }
 
-    public NumericInterval getPopulationDeclinePercent() {
+    public IntegerInterval getPopulationDeclinePercent() {
         return populationDeclinePercent;
     }
 
@@ -124,7 +124,7 @@ public class Population implements DiffableBean {
         this.nrMatureIndividualsCategory = nrMatureIndividualsCategory;
     }
 
-    public void setNrMatureIndividualsExact(NumericInterval nrMatureIndividualsExact) {
+    public void setNrMatureIndividualsExact(IntegerInterval nrMatureIndividualsExact) {
         this.nrMatureIndividualsExact = nrMatureIndividualsExact;
     }
 
@@ -140,7 +140,7 @@ public class Population implements DiffableBean {
         this.populationDecline = populationDecline;
     }
 
-    public void setPopulationTrend(NumericInterval populationTrend) {
+    public void setPopulationTrend(IntegerInterval populationTrend) {
         this.populationTrend = populationTrend;
     }
 
@@ -160,7 +160,7 @@ public class Population implements DiffableBean {
         this.extremeFluctuations = extremeFluctuations;
     }
 
-    public void setPopulationDeclinePercent(NumericInterval populationDeclinePercent) {
+    public void setPopulationDeclinePercent(IntegerInterval populationDeclinePercent) {
         this.populationDeclinePercent = populationDeclinePercent;
     }
 

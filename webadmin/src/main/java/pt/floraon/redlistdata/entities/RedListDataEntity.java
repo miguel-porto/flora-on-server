@@ -3,13 +3,12 @@ package pt.floraon.redlistdata.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.datatypes.NumericInterval;
+import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.interfaces.Flaggable;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
@@ -322,7 +321,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setPopulation_PopulationTrend(String populationTrend) {
-        this.population.setPopulationTrend(new NumericInterval(populationTrend));
+        this.population.setPopulationTrend(new IntegerInterval(populationTrend));
     }
 
 /*
@@ -353,7 +352,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setPopulation_NrMatureIndividualsExact(String nrMatureIndividualsExact) {
-        this.population.setNrMatureIndividualsExact(new NumericInterval(nrMatureIndividualsExact));
+        this.population.setNrMatureIndividualsExact(new IntegerInterval(nrMatureIndividualsExact));
     }
 
     public void setPopulation_NrMatureIndividualsDescription(String nrMatureIndividualsDescription) {
@@ -377,7 +376,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setPopulation_PopulationDeclinePercent(String populationDeclinePercent) {
-        this.population.setPopulationDeclinePercent(new NumericInterval(populationDeclinePercent));
+        this.population.setPopulationDeclinePercent(new IntegerInterval(populationDeclinePercent));
     }
 
     public void setPopulation_PopulationDeclineJustification(String populationDeclineJustification) {
@@ -437,7 +436,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setEcology_GenerationLength(String generationLength) {
-        this.ecology.setGenerationLength(new NumericInterval(generationLength));
+        this.ecology.setGenerationLength(new IntegerInterval(generationLength));
     }
 
     public void setEcology_GenerationLengthJustification(String generationLengthJustification) {
@@ -500,7 +499,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setThreats_NumberOfLocations(String numberOfLocations) {
-        this.getThreats().setNumberOfLocations(new NumericInterval(numberOfLocations));
+        this.getThreats().setNumberOfLocations(new IntegerInterval(numberOfLocations));
     }
 
     public void setThreats_NumberOfLocationsJustification(String numberOfLocationsJustification) {
