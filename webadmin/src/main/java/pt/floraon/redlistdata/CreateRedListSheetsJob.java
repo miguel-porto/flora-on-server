@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -48,5 +49,10 @@ public class CreateRedListSheetsJob implements JobTask {
     @Override
     public String getDescription() {
         return "Compute native status";
+    }
+
+    @Override
+    public User getOwner() {
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package pt.floraon.redlistdata;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.jobs.JobFileDownload;
@@ -87,5 +88,10 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     @Override
     public String getDescription() {
         return "Occurrence table for all taxa";
+    }
+
+    @Override
+    public User getOwner() {
+        return null;
     }
 }

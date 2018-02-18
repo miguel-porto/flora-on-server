@@ -36,6 +36,7 @@ public class FileUploader extends FloraOnServlet {
 	 * The GET method is for processing files stored in the local server. We don't need this!
 	 */
 	@Override
+	@Deprecated
 	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
 		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("upload");
 
@@ -52,7 +53,7 @@ public class FileUploader extends FloraOnServlet {
 			File file = new File(thisRequest.getParameterAsString("file"));
 			if(!file.canRead()) throw new IOException("Cannot read file "+thisRequest.getParameterAsString("file"));
 			String type = thisRequest.getParameterAsString("type");
-			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, thisRequest.getUser(), type, true, false, false), driver);
+			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, thisRequest.getUser(), type, true, false, false, null), driver);
 			thisRequest.success(job.getID());
 /*
 			success(
@@ -92,7 +93,7 @@ public class FileUploader extends FloraOnServlet {
 
 			if(fileContent != null) {
 				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(
-						fileContent, driver, thisRequest.getUser(), type, main, create, createTaxa), driver);
+						fileContent, driver, thisRequest.getUser(), type, main, create, createTaxa, thisRequest.getUser()), driver);
 				thisRequest.success(job.getID());
 			}
 			break;

@@ -9,8 +9,6 @@ import java.io.OutputStream;
 /**
  * Created by miguel on 10-11-2016.
  */
-public interface JobFileDownload {
+public interface JobFileDownload extends Job {
     void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException;
-    String getState();
-    String getDescription();
 }

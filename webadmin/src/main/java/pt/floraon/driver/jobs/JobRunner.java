@@ -1,5 +1,6 @@
 package pt.floraon.driver.jobs;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 
 import java.util.Date;
@@ -12,6 +13,8 @@ public interface JobRunner extends Runnable {
     Boolean isReady() throws FloraOnException;
     String getState() throws FloraOnException;
     String getDescription();
+    User getOwner();
     boolean isFileDownload();
+    Job getJob();
     String getDateSubmitted();
 }

@@ -7,6 +7,8 @@ import org.jfree.util.StringUtils;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.jobs.JobRunner;
+import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
@@ -187,6 +189,16 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     }
                 }
                 request.setAttribute("filesList", filesList);
+
+                List<JobRunner> pending = new ArrayList<>();
+                for(String job : JobSubmitter.getJobList()) {
+                    jline.internal.Log.info(job + JobSubmitter.getJob(job).getOwner().getName());
+                    if(user.equals(JobSubmitter.getJob(job).getOwner())
+                            && OccurrenceImporterJob.class.isAssignableFrom(JobSubmitter.getJob(job).getJob().getClass()))
+                        pending.add(JobSubmitter.getJob(job));
+                }
+
+                request.setAttribute("pendingFiles", pending);
 //                filesList.get(0).getQuestions().get("j").getOptions().iterator().next().getID()
                 break;
 

@@ -1,6 +1,7 @@
 package pt.floraon.driver;
 
 import jline.internal.Log;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeWorker;
@@ -119,7 +120,8 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         Matcher mat = filterPattern.matcher(filterText);
 
         while(mat.find()) {
-            out.put(mat.group("key"), mat.group("value"));
+            if(!pt.floraon.driver.utils.StringUtils.isStringEmpty(mat.group("value")))
+                out.put(mat.group("key"), mat.group("value"));
         }
         out.put("NA", mat.replaceAll("").trim());
         return out;

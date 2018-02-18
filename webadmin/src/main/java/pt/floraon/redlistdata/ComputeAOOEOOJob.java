@@ -2,6 +2,7 @@ package pt.floraon.redlistdata;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.jobs.JobFileDownload;
@@ -89,5 +90,10 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     @Override
     public String getDescription() {
         return "AOO and EOO table";
+    }
+
+    @Override
+    public User getOwner() {
+        return null;
     }
 }

@@ -181,6 +181,18 @@
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
+
+    <c:if test="${pendingFiles.size() > 0}">
+    <h2>Files being processed</h2>
+    <table>
+        <thead><tr><th>Date uploaded</th><th>Status</th></tr></thead>
+        <tbody>
+            <c:forEach var="pending" items="${pendingFiles}">
+            <tr><td>${pending.getDateSubmitted()}</td><td>${pending.getState()}</td></tr>
+            </c:forEach>
+        </tbody>
+    </table>
+    </c:if>
     <h2>Uploaded tables</h2>
     <c:forEach var="file" items="${filesList}">
         <h3>File uploaded on ${file.getUploadDate()}</h3>
@@ -198,6 +210,7 @@
         <c:if test="${file.getVerboseErrors().size() > 0}">
         <div class="warning">
             <p><fmt:message key="error.6"/></p>
+            <fmt:message key="error.6a"/>
             <ul>
             <c:forEach var="errors" items="${file.getVerboseErrors()}">
                 <li>${errors}</li>

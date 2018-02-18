@@ -34,24 +34,31 @@ public class OccurrenceImporterJob implements JobTask {
     private User user;
     private boolean mainObserver;
     private boolean createTaxa;
-    private long nrecs=0;
-    private long newsplist=0;
-    private long counter=0;
+    private long nrRecordsRead = 0, nrMatchedInventories = 0;
     private OccurrenceParser occurrenceParser;
     private String format;
+    private User owner;
+    private InventoryList invList;
 
-
-    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user, String format, boolean mainObserver, Boolean createUsers, boolean createTaxa) {
+    public OccurrenceImporterJob(InputStream stream, IFloraOn driver, User user, String format, boolean mainObserver, Boolean createUsers, boolean createTaxa, User owner) {
         this.stream = stream;
         this.user = user;
         this.format = format == null ? "csv" : format;
         this.mainObserver = mainObserver;
         this.createTaxa = createTaxa;
+        this.owner = owner;
         occurrenceParser = new OccurrenceParser(driver);
 
         occurrenceParser.registerParser("observers", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
         occurrenceParser.registerParser("collectors", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
         occurrenceParser.registerParser("determiners", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
+    }
+
+    /**
+     * @return Who ordered this job
+     */
+    public User getOwner() {
+        return this.owner;
     }
 
     /**
@@ -92,7 +99,7 @@ public class OccurrenceImporterJob implements JobTask {
         INodeWorker nwd = driver.getNodeWorkerDriver();
         Reader freader;
         Map<Long,String> lineerrors = new LinkedHashMap<>();
-        InventoryList invList = new InventoryList();
+        invList = new InventoryList();
         System.out.print("Reading records ");
 
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
@@ -133,22 +140,18 @@ public class OccurrenceImporterJob implements JobTask {
                         Log.warn(e.getMessage());
                         lineerrors.put(record.getRecordNumber(), e.getMessage());
                     }
-                    nrecs++;
-                    if (nrecs % 100 == 0) {
+                    nrRecordsRead++;
+                    if (nrRecordsRead % 100 == 0) {
                         System.out.print(".");
                         System.out.flush();
                     }
-                    if (nrecs % 1000 == 0) {
-                        System.out.print(nrecs);
+                    if (nrRecordsRead % 1000 == 0) {
+                        System.out.print(nrRecordsRead);
                         System.out.flush();
                     }
 
                     // this groups inventories by coordinates, location and observers
                     invMap.put(inv, inv);
-                    counter++;
-                    if ((counter % 2500) == 0) {
-                        System.out.println(counter + " records processed.");
-                    }
                 }
                 freader.close();
 
@@ -171,7 +174,7 @@ public class OccurrenceImporterJob implements JobTask {
                         e.printStackTrace();
                         throw new FloraOnException(e.getMessage());
                     } catch (FloraOnException e) {
-                        lineerrors.put(0L, e.getMessage());
+                        Log.info(e.getMessage());
                     }
 
                     if(merged == null) {    // could not merge, go on without merging
@@ -210,7 +213,11 @@ public class OccurrenceImporterJob implements JobTask {
                 break;
         }
         Log.info("Matching taxon names");
-        driver.getOccurrenceDriver().matchTaxEntNames(invList, createTaxa, false);
+
+        for(Inventory inv : invList) {
+            driver.getOccurrenceDriver().matchTaxEntNames(inv, createTaxa, false, invList);
+            nrMatchedInventories++;
+        }
 
         File temp = File.createTempFile("uploadedtable-",".ser", new File("/tmp"));
         ObjectOutputStream oost = new ObjectOutputStream(new FileOutputStream(temp));
@@ -238,7 +245,10 @@ public class OccurrenceImporterJob implements JobTask {
 
     @Override
     public String getState() {
-        return "Nº records processed: " + nrecs;
+        if(nrMatchedInventories > 0)
+            return "All records processed. Matching taxon names: " + nrMatchedInventories + " of " + invList.size() + " inventories processed.";
+        else
+            return nrRecordsRead + " records read.";
     }
 
     @Override

@@ -1,6 +1,7 @@
 package pt.floraon.redlistdata;
 
 import jline.internal.Log;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.jobs.JobTask;
@@ -13,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * Updates the native status of all taxa in the red list of the given territory.
  * Created by miguel on 14-12-2016.
  */
 public class UpdateNativeStatusJob implements JobTask {
@@ -51,5 +53,10 @@ public class UpdateNativeStatusJob implements JobTask {
     @Override
     public String getDescription() {
         return "Update native status";
+    }
+
+    @Override
+    public User getOwner() {
+        return null;
     }
 }

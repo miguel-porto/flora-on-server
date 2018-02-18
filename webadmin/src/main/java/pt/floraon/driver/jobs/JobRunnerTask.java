@@ -1,5 +1,6 @@
 package pt.floraon.driver.jobs;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 
@@ -48,8 +49,18 @@ public class JobRunnerTask implements JobRunner {
     }
 
     @Override
+    public User getOwner() {
+        return job.getOwner();
+    }
+
+    @Override
     public boolean isFileDownload() {
         return false;
+    }
+
+    @Override
+    public Job getJob() {
+        return job;
     }
 
     @Override

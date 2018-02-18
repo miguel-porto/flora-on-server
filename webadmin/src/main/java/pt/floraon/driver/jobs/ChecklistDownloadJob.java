@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.taxonomy.entities.ChecklistEntry;
@@ -53,5 +54,10 @@ public class ChecklistDownloadJob implements JobFileDownload {
 	@Override
 	public String getDescription() {
 		return "Checklist";
+	}
+
+	@Override
+	public User getOwner() {
+		return null;
 	}
 }

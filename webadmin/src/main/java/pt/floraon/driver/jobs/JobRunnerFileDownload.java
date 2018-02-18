@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 
@@ -70,8 +71,18 @@ public class JobRunnerFileDownload implements JobRunner {
 	}
 
 	@Override
+	public User getOwner() {
+		return job.getOwner();
+	}
+
+	@Override
 	public boolean isFileDownload() {
 		return true;
+	}
+
+	@Override
+	public Job getJob() {
+		return job;
 	}
 
 	@Override
