@@ -3,6 +3,7 @@ package pt.floraon.occurrences.fieldparsers;
 import com.google.gson.Gson;
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
+import jline.internal.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.Messages;
@@ -18,10 +19,12 @@ import java.util.regex.Pattern;
  */
 public class DateParser implements FieldParser {
     static final private Pattern singleDatePattern =
-            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>([0-9]{1,4})|([-?]{1,4})) *$");
+            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{1,4})) *$");
+    static final private Pattern singleDatePatternInverse =
+            Pattern.compile("^ *(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>(?:[0-9?-]{2})|(?:[a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{2}) *$");
     static final private Pattern dateRangePattern =
-            Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{1,4})|([-?]{1,4})) *" +
-                    "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{1,4})|([-?]{1,4})) *$");
+            Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{4})|([-?]{1,4})) *" +
+                    "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{4})|([-?]{1,4})) *$");
 
     static final private Map<String, Integer> months = new HashMap<>();
 
@@ -90,44 +93,53 @@ public class DateParser implements FieldParser {
         Integer[] outdate = new Integer[3];
 
 //        System.out.println("***** INPUT: "+ inputValue);
+
         Matcher matcher = singleDatePattern.matcher(inputValue);
-        if(!matcher.find()) {   // not a single date
-            // let's try a date range
-            Matcher matcherRange = dateRangePattern.matcher(inputValue);
-            if(!matcherRange.find()) {   // not a date range either
-                // let's try natty for loose date specification
-                Parser dp = new Parser();
+        if(!matcher.find()) {
+            Log.info("INVERSE: "+inputValue);
+            matcher = singleDatePatternInverse.matcher(inputValue);
+            if(!matcher.find()) {   // not a single date
+                // let's try a date range
+                Matcher matcherRange = dateRangePattern.matcher(inputValue);
+                if(!matcherRange.find()) {   // not a date range either
+                    // let's try natty for loose date specification
+                    Parser dp = new Parser();
 
-                List<DateGroup> grps = dp.parse(inputValue);
-                if (grps.size() == 0)
-                    throw new IllegalArgumentException("Date " + inputValue + " not recognized by Natty.");
+                    List<DateGroup> grps = dp.parse(inputValue);
+                    if (grps.size() == 0)
+                        throw new IllegalArgumentException("Date " + inputValue + " not recognized by Natty.");
 
-                for (DateGroup grp : grps) {
-                    Calendar c1 = new GregorianCalendar();
-                    c1.setTime(grp.getDates().get(0));
+                    for (DateGroup grp : grps) {
+                        Calendar c1 = new GregorianCalendar();
+                        c1.setTime(grp.getDates().get(0));
+                        outdate = new Integer[] {
+                                c1.get(Calendar.DAY_OF_MONTH)
+                                , c1.get(Calendar.MONTH) + 1
+                                , c1.get(Calendar.YEAR)};
+                        System.out.println(Constants.dateFormat.get().format(grp.getDates().get(0)));
+                    }
+                } else {    // a date range
+                    Integer[] startdate = extractDateFromMatcher(matcherRange, "day1", "month1", "year1");
+                    Integer[] enddate = extractDateFromMatcher(matcherRange, "day2", "month2", "year2");
+                    validateDate(startdate[0], startdate[1], startdate[2]);
+                    validateDate(enddate[0], enddate[1], enddate[2]);
+
                     outdate = new Integer[] {
-                            c1.get(Calendar.DAY_OF_MONTH)
-                            , c1.get(Calendar.MONTH) + 1
-                            , c1.get(Calendar.YEAR)};
-                    System.out.println(Constants.dateFormat.get().format(grp.getDates().get(0)));
+                            startdate[0], startdate[1], startdate[2]
+                            , enddate[0], enddate[1], enddate[2]
+                    };
                 }
-            } else {    // a date range
-                Integer[] startdate = extractDateFromMatcher(matcherRange, "day1", "month1", "year1");
-                Integer[] enddate = extractDateFromMatcher(matcherRange, "day2", "month2", "year2");
-                validateDate(startdate[0], startdate[1], startdate[2]);
-                validateDate(enddate[0], enddate[1], enddate[2]);
-
-                outdate = new Integer[] {
-                        startdate[0], startdate[1], startdate[2]
-                        , enddate[0], enddate[1], enddate[2]
-                };
+            } else {
+                outdate = extractDateFromMatcher(matcher, "day", "month", "year");
+                // make some validity checks
+                validateDate(outdate[0], outdate[1], outdate[2]);
             }
         } else {
             outdate = extractDateFromMatcher(matcher, "day", "month", "year");
-            System.out.println(new Gson().toJson(outdate));
             // make some validity checks
             validateDate(outdate[0], outdate[1], outdate[2]);
         }
+
         for (int i = 0; i < outdate.length; i++) {
             if(outdate[i] == null) outdate[i] = Constants.NODATA_INT;
         }

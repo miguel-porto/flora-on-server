@@ -131,7 +131,7 @@ public interface IOccurrenceDriver {
      */
     Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
-    Iterator<Inventory> findInventoriesByFilter(String filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
     int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
 
@@ -195,14 +195,14 @@ public interface IOccurrenceDriver {
 
     /**
      * Fetches all occurrences that match the given filter, or only those of a specific maintainer.
-     * @param textFilter The filter is searched in taxon name, GPS code, Locality and verbLocality
+     * @param filter The filter is searched in taxon name, GPS code, Locality and verbLocality
      * @param userId
      * @param offset
      * @param count
      * @return
      * @throws FloraOnException
      */
-    Iterator<Inventory> findOccurrencesByFilter(String textFilter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Inventory> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
     int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException;
 

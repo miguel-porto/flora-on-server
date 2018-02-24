@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Created by miguel on 26-03-2017.
  */
 public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOccurrenceDriver {
-    private static Pattern filterPattern = Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?.,;<>-]+))");
+    private static Pattern filterPattern = Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?.,;<>*-]+))");
 
     public GOccurrenceDriver(IFloraOn driver) {
         super(driver);
@@ -123,7 +123,9 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
             if(!pt.floraon.driver.utils.StringUtils.isStringEmpty(mat.group("value")))
                 out.put(mat.group("key"), mat.group("value"));
         }
-        out.put("NA", mat.replaceAll("").trim());
+        String na = mat.replaceAll("").trim();
+        if(!pt.floraon.driver.utils.StringUtils.isStringEmpty(na))
+            out.put("NA", na);
         return out;
     }
 }

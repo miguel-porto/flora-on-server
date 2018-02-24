@@ -101,8 +101,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);
                     request.setAttribute("nrtotaloccurrences", tmp);
-                    request.setAttribute("inventories"
-                            , driver.getOccurrenceDriver().findInventoriesByFilter(filter, tu1, (page - 1) * count, count));
+                    Map<String, String> parsedFilter = new HashMap<>();
+                    try {
+                        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                        request.setAttribute("inventories"
+                                , driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, tu1, (page - 1) * count, count));
+                    } catch(FloraOnException e) {
+                        request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
+                    }
+
                 }
                 break;
 
@@ -146,25 +153,26 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);   // TODO this should be the number after filtering, but we don't know it by now
                     request.setAttribute("nrtotaloccurrences", tmp);
+                    Map<String, String> parsedFilter = new HashMap<>();
                     try {
+                        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("occurrences"
-                                , driver.getOccurrenceDriver().findOccurrencesByFilter(filter, tu, (page - 1) * count, count));
+                                , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, tu, (page - 1) * count, count));
                     } catch(FloraOnException e) {
                         request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
                     }
 
-/*
-                    if(tu == null) {
+
+                    if(tu == null && parsedFilter.containsKey("NA")) {
                         List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                         for (SimpleOccurrenceDataProvider edp : sodps) {
                             if (edp.canQueryText()) {
                                 // TODO: only works for one provider
-                                edp.executeOccurrenceTextQuery(filter);
+                                edp.executeOccurrenceTextQuery(parsedFilter.get("NA"));
                                 request.setAttribute("externaloccurrences", edp.iterator());
                             }
                         }
                     }
-*/
                 }
 
                 if(tu != null)  // if it is all occurrences, we skip this check cause it takes a few seconds

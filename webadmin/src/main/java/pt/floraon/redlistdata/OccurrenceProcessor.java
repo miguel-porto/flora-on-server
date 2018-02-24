@@ -652,6 +652,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     }
 
     public int getNumberOfPointsOutsideProtectedAreas() {
+        // FIXME this returns wrong values sometimes?
         int outside = 0;
         for(Map.Entry<Point2D, Collection<Polygon>> entry : pointsInPolygons.asMap().entrySet()) {
             if(entry.getValue().size() == 1 && entry.getValue().iterator().next().isNullPolygon()) outside++;
