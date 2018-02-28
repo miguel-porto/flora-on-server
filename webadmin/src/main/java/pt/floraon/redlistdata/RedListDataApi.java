@@ -61,7 +61,7 @@ public class RedListDataApi extends FloraOnServlet {
         for(SimpleOccurrenceDataProvider edp : sodps)
             edp.executeOccurrenceQuery(rldes.getTaxEnt());
 
-        OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, clippingPolygon2,  null, null, true);
+        OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, new BasicOccurrenceFilter(clippingPolygon2));
 
         // populate sheet data with a copy of the occurrences
         Iterator<SimpleOccurrence> it6 = op.iterator();

@@ -61,7 +61,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
             }
 
-            op = OccurrenceProcessor.iterableOf(sodps, clippingPolygon, minimumYear, null, true);
+            op = OccurrenceProcessor.iterableOf(sodps, new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon));
 
             if(op.size() > 0) {
                 for (SimpleOccurrence so : op) {

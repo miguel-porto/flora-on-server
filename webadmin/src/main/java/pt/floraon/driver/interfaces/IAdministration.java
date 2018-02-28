@@ -3,6 +3,7 @@ package pt.floraon.driver.interfaces;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -13,6 +14,9 @@ public interface IAdministration {
     INodeKey createUser(User user) throws FloraOnException;
     User getUser(INodeKey id) throws FloraOnException;
     User getUser(String name) throws FloraOnException;
+
+    Iterator<User> findUserByName(String substr) throws FloraOnException;
+
     User updateUser(INodeKey id, User user) throws FloraOnException;
     User authenticateUser(String username, char[] password) throws FloraOnException;
     User removeTaxonPrivileges(INodeKey id, int index) throws FloraOnException;

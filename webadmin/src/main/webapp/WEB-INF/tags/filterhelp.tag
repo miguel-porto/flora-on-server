@@ -5,12 +5,29 @@
 <p>Pode fazer filtros compostos por vários campos, os quais devolvem os registos que simultaneamente cumprem todas as condições. A estes, pode ser adicionado um filtro textual livre, que procurará em vários campos de texto simultaneamente.</p>
 <p>Para definir um filtro para um campo concreto, escreva o nome do campo seguido de <code>:</code>, e em seguida o filtro que pretende. Por exemplo: <code>date:12-8-2009</code></p>
 <p>Pode combinar quantos filtros quiser, por exemplo <code>date:?-8-2017 phen:f lat:&lt;38.4</code> devolve todos os registos marcados como em floração, observados em qualquer dia de Agosto de 2017 numa latitude menor que 38.4º.</p>
-<p>Os nomes de campos permitidos de momento são:<br/>
-<code>date:</code> data de observação<br/><code>conf:</code> confiança na identificação<br/><code>phen:</code> estado fenológico<br/><code>prec:</code> precisão<br/>
-<code>lat:</code> latitude<br/><code>long:</code> longitude<br/><code>tax:</code> taxon<br/><code>local:</code> nome do local<br/><code>code:</code> código do local
-</p>
+<p>Os nomes de campos permitidos de momento são:</p>
+<table class="smalltext">
+    <thead><tr><th>Filtro</th><th>Campo</th><th>Tipo</th></tr></thead>
+    <tbody>
+        <tr><td><code>date:</code></td><td>Data de observação</td><td>Data e intervalo de datas (ver em baixo)</td></tr>
+        <tr><td><code>conf:</code></td><td>Confiança na identificação</td><td>Valores pré-definidos: <code>c</code> certo <code>a</code> quase certo <code>d</code> duvidoso</td></tr>
+        <tr><td><code>phen:</code></td><td>Estado fenológico</td><td>Valores pré-definidos: <code>f</code> floração <code>d</code> dispersão <code>fd</code> floração+dispersão <code>v</code> vegetativo <code>r</code> dormência <code>c</code> fruto imaturo <code>fc</code> flor+fruto imaturo</td></tr>
+        <tr><td><code>prec:</code></td><td>Precisão da coordenada</td><td>Numérico com unidade</td></tr>
+        <tr><td><code>lat:</code></td><td>Latitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
+        <tr><td><code>long:</code></td><td>Longitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
+        <tr><td><code>tax:</code></td><td>Taxon</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>local:</code></td><td>Nome do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>code:</code></td><td>Código do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>gps:</code></td><td>Código GPS</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>priv:</code></td><td>Notas privadas da ocorrência</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>acc:</code></td><td>Código de herbário (<i>accession</i>)</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>obs:</code></td><td>Observador</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>coll:</code></td><td>Colector</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+    </tbody>
+</table>
 <p>Qualquer dos filtros pode ser definido com o valor <code>na</code> para pesquisar registos cujo campo respectivo esteja vazio.</p>
-<p>Nos filtros textuais (<code>tax:</code> <code>local:</code> <code>code:</code>), use asteriscos <code>*</code> para significar qualquer sequência de caracteres.
+<h2>Filtrar por texto livre</h2>
+<p>Nos filtros textuais (ver tabela supra), use asteriscos <code>*</code> para significar qualquer sequência de caracteres.
 Por exemplo, <code>tax:lavandula</code> irá devolver apenas os registos cujo taxon está definido ao nível do género <i>Lavandula</i> (sem espécie), enquanto que <code>tax:lavandula*</code>
 irá devolver todos os registos das várias espécies de <i>Lavandula</i>. Similarmente, <code>tax:e*wel*</code> ira devolver os registos dos taxa que começam por <code>e</code> e que têm
 a sequência <code>wel</code> algures no nome (género, espécie ou autoria).</p>
@@ -39,16 +56,6 @@ a sequência <code>wel</code> algures no nome (género, espécie ou autoria).</p
     <tr><td><code>lat:38.5301 long:-8.0168</code></td><td>Registos num raio de poucos metros em torno do ponto definido</td></tr>
     </tbody>
 </table>
-<h2>Estado fenológico</h2>
-<p>São admitidos os acrónimos:<br/>
-<code>phen:f</code> floração<br/>
-<code>phen:d</code> dispersão<br/>
-<code>phen:fd</code> floração+dispersão<br/>
-<code>phen:v</code> vegetativo<br/>
-<code>phen:r</code> dormência<br/>
-<code>phen:c</code> fruto imaturo<br/>
-<code>phen:fc</code> flor+fruto imaturo
-</p>
 <h2>Filtrar na vista de inventários</h2>
 <p>Os filtros funcionam da mesma forma na vista de ocorrências e de inventários. Contudo, na vista de inventários, os resultados que são devolvidos são todos os inventários em que, pelo
 menos um dos taxa a ele pertencentes corresponda ao filtro na totalidade. Ou seja, <code>conf:d phen:f</code> irá devolver todos os inventários em que pelo menos um dos taxa esteja

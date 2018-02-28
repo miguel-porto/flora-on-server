@@ -12,10 +12,9 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.interfaces.IAdministration;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.utils.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by miguel on 26-11-2016.
@@ -70,6 +69,20 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
             if(!cur.hasNext()) return null;
             if(cur.getCount() > 1) throw new FloraOnException(Messages.getString("error.1", name));
             return cur.next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
+    public Iterator<User> findUserByName(String substr) throws FloraOnException {
+        if(StringUtils.isStringEmpty(substr))
+            return Collections.emptyIterator();
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("name", substr.replaceAll("\\*", "%"));
+        try {
+            return database.query(AQLQueries.getString("Administration.4a"), bind
+                    , null, User.class);
         } catch (ArangoDBException e) {
             throw new FloraOnException(e.getMessage());
         }

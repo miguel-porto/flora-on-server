@@ -6,6 +6,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.OccurrenceProcessor;
 import pt.floraon.redlistdata.RedListAdminPages;
+import pt.floraon.redlistdata.BasicOccurrenceFilter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -84,9 +85,9 @@ public class PublicApi extends FloraOnServlet {
 
                 wr = thisRequest.response.getWriter();
                 PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
+                OccurrenceProcessor.OccurrenceFilter oF = new BasicOccurrenceFilter(viewAll ? null : 1991, null, viewAll, cP);
                 OccurrenceProcessor op1 = new OccurrenceProcessor(
-                        sodps, protectedAreas, squareSize
-                        , cP, viewAll ? null : 1991, null, viewAll);
+                        sodps, protectedAreas, squareSize, oF);
                 op1.exportSVG(new PrintWriter(wr), true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)
                         , true

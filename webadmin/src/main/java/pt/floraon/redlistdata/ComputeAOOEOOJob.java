@@ -59,7 +59,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
             }
             op = new OccurrenceProcessor(sodps, null
-                    , sizeOfSquare, clippingPolygon, minimumYear, null, false);
+                    , sizeOfSquare, new BasicOccurrenceFilter(minimumYear, null, false, clippingPolygon));
 
             if(op.size() == 0) {
                 csvp.print(rlde.getTaxEnt().getID());

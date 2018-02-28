@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.collections.MultiMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
@@ -321,6 +320,11 @@ System.out.println(gs.toJson(getUser()));
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
                     RedListSettings rls = driver.getRedListSettings(territory);
+
+                    OccurrenceProcessor.OccurrenceFilter historicalFilter = new BasicOccurrenceFilter(null, rls.getHistoricalThreshold()
+                            , false, clippingPolygon);
+                    OccurrenceProcessor.OccurrenceFilter currentFilter = new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
+                            , null, false, clippingPolygon);
                     if(rldes == null) {
                         // set privileges for this taxon
 
@@ -340,20 +344,16 @@ System.out.println(gs.toJson(getUser()));
                         for(SimpleOccurrenceDataProvider edp : sodps)
                             edp.executeOccurrenceQuery(rlde.getTaxEnt());
 
-
-                        historicalOccurrenceProcessor = new OccurrenceProcessor(
-                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, null, rls.getHistoricalThreshold(), false);
-
-                        occurrenceProcessor = new OccurrenceProcessor(
-                                sodps, protectedAreas, sizeOfSquare, clippingPolygon, rls.getHistoricalThreshold() + 1, null, false);
+                        historicalOccurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, historicalFilter);
+                        occurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, currentFilter);
                     } else { // we want it read-only
                         thisRequest.getUser().revokeAllPrivilegesExcept(new Privileges[]{MANAGE_VERSIONS});
 
                         historicalOccurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
-                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, null, rls.getHistoricalThreshold(), false);
+                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, historicalFilter);
 
                         occurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
-                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, clippingPolygon, rls.getHistoricalThreshold() + 1, null, false);
+                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, currentFilter);
                     }
 
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
@@ -557,17 +557,18 @@ System.out.println(gs.toJson(getUser()));
                     edp.executeOccurrenceQuery(te);
                 RedListSettings rls = driver.getRedListSettings(territory);
 
-                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps
-                        , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : (rls.getHistoricalThreshold() + 1)
-                        , null, "all".equals(thisRequest.getParameterAsString("view")));
+                boolean viewAll = "all".equals(thisRequest.getParameterAsString("view"));
+
+                OccurrenceProcessor.OccurrenceFilter of = new BasicOccurrenceFilter(
+                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, viewAll, clippingPolygon2
+                );
+
+                OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, of);
 
                 request.setAttribute("occurrences", op);
 
                 if(thisRequest.getParameterAsInteger("group", 0) > 0) {
-                    OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(sodps
-                            , clippingPolygon2, "all".equals(thisRequest.getParameterAsString("view")) ? null : (rls.getHistoricalThreshold() + 1)
-                            , null, "all".equals(thisRequest.getParameterAsString("view")));
-
+                    OccurrenceProcessor op1 = OccurrenceProcessor.iterableOf(sodps, of);
                     SimpleOccurrenceClusterer clusters = new SimpleOccurrenceClusterer(op1.iterator()
                             , thisRequest.getParameterAsInteger("group", 0));
 
@@ -595,7 +596,8 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "downloadtaxonrecords":
-                if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
+                if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES() && !thisRequest.getUser().hasEDIT_ALL_1_8())
+                    throw new FloraOnException("You don't have privileges for this operation");
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
 
@@ -605,7 +607,13 @@ System.out.println(gs.toJson(getUser()));
                 thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
                 PrintWriter wr = thisRequest.response.getWriter();
-                OccurrenceProcessor.iterableOf(sodps1).exportKML(wr);
+                if(thisRequest.getUser().canDOWNLOAD_OCCURRENCES())
+                    OccurrenceProcessor.iterableOf(sodps1, BasicOccurrenceFilter.WithCoordinatesFilter()).exportKML(wr);
+                else {
+                    PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                    OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(driver.getRedListSettings(territory).getHistoricalThreshold() + 1
+                            , null, false, clippingPolygon)).exportKML(wr);
+                }
                 wr.flush();
                 return;
 
@@ -627,7 +635,8 @@ System.out.println(gs.toJson(getUser()));
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
                 PrintWriter wr1 = thisRequest.response.getWriter();
 //                OccurrenceProcessor.iterableOf(driver.getRedListData().getSimpleOccurrenceDataProviders()).exportKML(wr1);
-                OccurrenceProcessor.iterableOf(sodps2, clip, null, null).exportKML(wr1);
+                OccurrenceProcessor.iterableOf(sodps2
+                        , new BasicOccurrenceFilter(clip)).exportKML(wr1);
                 wr1.flush();
                 return;
 

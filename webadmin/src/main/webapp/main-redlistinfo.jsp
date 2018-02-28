@@ -501,7 +501,7 @@
                         <c:if test="${user.canVIEW_OCCURRENCES()}">
                             <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
                         </c:if>
-                        <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
+                        <c:if test="${user.canDOWNLOAD_OCCURRENCES() || user.hasEDIT_ALL_1_8()}">
                             <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
                         </c:if>
                     </div>
@@ -1849,7 +1849,7 @@
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
 
-            <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
+            <c:if test="${user.canDOWNLOAD_OCCURRENCES() || user.hasEDIT_ALL_1_8()}">
                 <div class="button anchorbutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}"><fmt:message key="button.1" /></a></div>
             </c:if>
 

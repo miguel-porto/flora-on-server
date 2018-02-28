@@ -6,6 +6,7 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import com.google.gson.Gson;
 import jline.internal.Log;
+import org.apache.commons.collections.IteratorUtils;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.NumericInterval;
@@ -459,9 +460,44 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+        // observers filter
+        if(filter.containsKey("obs")) {
+            if(filter.get("obs").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullObserver")).append(" ");
+            } else {
+                Iterator<User> it = this.driver.getAdministration().findUserByName(filter.get("obs").replaceAll("\\*", "%"));
+                List<String> uid = new ArrayList<>();
+                while(it.hasNext())
+                    uid.add(it.next().getID());
+                bindVars.put("observer", uid.toArray(new String[0]));
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.observer")).append(" ");
+            }
+        }
+
+        // collectors filter
+        if(filter.containsKey("coll")) {
+            if(filter.get("coll").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullCollector")).append(" ");
+            } else {
+                Iterator<User> it = this.driver.getAdministration().findUserByName(filter.get("coll").replaceAll("\\*", "%"));
+                List<String> uid = new ArrayList<>();
+                while(it.hasNext())
+                    uid.add(it.next().getID());
+                bindVars.put("collector", uid.toArray(new String[0]));
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.collector")).append(" ");
+            }
+        }
+
         return inventoryFilter.toString();
     }
 
+    /**
+     * Construct the AQL query filters for the occurrences
+     * @param filter
+     * @param bindVars
+     * @return
+     * @throws FloraOnException
+     */
     private String[] processOccurrenceFilters(Map<String, String> filter, Map<String, Object> bindVars) throws FloraOnException {
         StringBuilder inventoryFilter = new StringBuilder();
         StringBuilder occurrenceFilter = new StringBuilder();
@@ -547,6 +583,36 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             } else {
                 bindVars.put("taxon", filter.get("tax").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.taxon")).append(" ");
+            }
+        }
+
+        // gpsCode filter
+        if(filter.containsKey("gps")) {
+            if(filter.get("gps").toUpperCase().equals("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullGpsCode")).append(" ");
+            } else {
+                bindVars.put("gpscode", filter.get("gps").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.gpsCode")).append(" ");
+            }
+        }
+
+        // privateComment filter
+        if(filter.containsKey("priv")) {
+            if(filter.get("priv").toUpperCase().equals("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullPrivateComment")).append(" ");
+            } else {
+                bindVars.put("privateComment", filter.get("priv").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.privateComment")).append(" ");
+            }
+        }
+
+        // accession filter
+        if(filter.containsKey("acc")) {
+            if(filter.get("acc").toUpperCase().equals("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullAccession")).append(" ");
+            } else {
+                bindVars.put("accession", filter.get("acc").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.accession")).append(" ");
             }
         }
 

@@ -361,6 +361,10 @@ public class User extends NamedDBNode {
 		return hasAnyPrivilege(EDIT_ALL_FIELDS);
 	}
 
+	public boolean hasEDIT_ALL_1_8() {
+		return hasPrivilege(EDIT_ALL_1_8);
+	}
+
 	public boolean canEDIT_1_4() { return hasPrivilege(Privileges.EDIT_1_4) || hasPrivilege(EDIT_ALL_1_8); }
 
 	public boolean canEDIT_7_3() { return hasPrivilege(Privileges.EDIT_7_3) || hasPrivilege(EDIT_ALL_1_8); }

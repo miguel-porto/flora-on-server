@@ -286,6 +286,17 @@
         </c:forEach>
         </table>
     </c:forEach>
+    <h2>How to prepare a table for upload</h2>
+    <p>Note that no field is compulsory. You can include in table only the fields you need.</p>
+    <p>List of fields that are recognized:</p>
+    <table class="smalltext">
+        <tr><th>Field name</th><th>Scope</th><th>Description</th></tr>
+        <tr><td>latitude</td><td>Inventory</td><td>The latitude of the inventory, in decimal degrees or DMS (e.g. <code>37º26'13.4'' N</code>)</td></tr>
+        <tr><td>longitude</td><td>Inventory</td><td>The longitude of the inventory, in decimal degrees or DMS (e.g. <code>7º12'56.3'' W</code>)</td></tr>
+        <tr><td>coordinates</td><td>Inventory</td><td>The complete coordinates of the inventory in the form latitude, longitude. e.g. <code>37º26'13.4'' N 7º12'56.3'' W</code></td></tr>
+        <tr><td>wkt_geom</td><td>Inventory</td><td>The geographical expression of the inventory, in WKT format. Currently only pointz is supported.</td></tr>
+        <tr><td>x</td><td>Inventory</td><td>The X coordinate , in decimal degrees or DMS (e.g. <code>37º26'13.4'' N</code>)</td></tr>
+    </table>
 </c:when>
 
 <c:when test="${param.w == 'fixissues'}">

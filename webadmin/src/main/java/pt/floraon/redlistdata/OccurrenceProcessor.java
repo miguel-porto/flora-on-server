@@ -38,62 +38,17 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     private int nQuads = 0;
     private long sizeOfSquare;
     private List<SimpleOccurrenceDataProvider> occurrences;
-    private boolean includeDoubtful = true;
     private static final Polygon nullPolygon = new Polygon();
     private List<SimpleOccurrence> occurrenceList;
+    private OccurrenceFilter occurrenceFilter;
 
     /**
-     * A polygon theme to clip occurrences. May have any number of polygons.
-     */
-    private IPolygonTheme clippingPolygon;
-    /**
-     * The minimum and maximum years considered for including occurrences
-     */
-    private Integer minimumYear, maximumYear;
-
-    /**
-     * Tests whether a given occurrence should be included in the iterator. Occurrences without coordinates are not
-     * included.
+     * Tests whether a given occurrence should be included in the iterator, given the provided filter.
      * @param so
      * @return
      */
     private boolean enter(SimpleOccurrence so) {
-        boolean wasDestroyed;
-//        Gson gs = new GsonBuilder().setPrettyPrinting().create();
-//System.out.println("Enter? "+ so.getLatitude()+", "+so.getLongitude()+" Y:"+so.getYear());
-        if(so.getLatitude() == null || so.getLongitude() == null) return false;
-        if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
-        // if it was destroyed, then this will go forced into historical record
-        wasDestroyed = so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() == OccurrenceConstants.PresenceStatus.DESTROYED;
-        if(wasDestroyed && !includeDoubtful && minimumYear != null && maximumYear == null) return false;
-        if(!includeDoubtful) {
-            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
-                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed)
-                    || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
-                    || (so.getOccurrence().getAbundance() != null && !so.getOccurrence().getAbundance().wasDetected())
-                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty())
-                    ) return false;
-        }
-        boolean enter;
-        enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
-        enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear && !wasDestroyed);
-        // Records that do not have a year are excluded from historical datasets except if marked as destroyed.
-        // They're only included in the current dataset.
-        enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0) && !wasDestroyed);
-        // format: enter &= !(<excluding condition>);
-
-        if(clippingPolygon != null) {
-            boolean tmp2 = false;
-            for(Map.Entry<String, Polygon> po : clippingPolygon) {
-                if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
-                    tmp2 = true;
-                    break;
-                }
-            }
-            enter &= tmp2;
-        }
-
-        return enter;
+        return occurrenceFilter == null || occurrenceFilter.enter(so);
     }
 
     @Override
@@ -232,15 +187,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
 
         for(SimpleOccurrence o : this) {
-
+            if(o.getLatitude() == null || o.getLongitude() == null) continue;
             Placemark pl = folder.createAndAddPlacemark();
-//            CanonicalName co = new CanonicalName(o.getOccurrence().getVerbTaxon()); // FIXME: this sometimes has authorship but can't
-
-/*
-            String name = co.getGenus() + " " +
-                    co.getSpecificEpithet() +
-                    (co.getInfraRanksAsString(false) == null ? "" : " " + co.getInfraRanksAsString(false)) +
-*/
             String name = o.getOccurrence().getVerbTaxon() +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
                     (o.getPrecision()._isImprecise() ? (" (" + o.getPrecision().toString() + ")") : "") +
@@ -319,23 +267,16 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         return new OccurrenceProcessor(occurrences);
     }
 
-    public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
-        return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear);
-    }
-
-    public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
-        return new OccurrenceProcessor(occurrences, clippingPolygon, minimumYear, maximumYear, includeDoubtful);
+    public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences, OccurrenceFilter occurrenceFilter) {
+        return new OccurrenceProcessor(occurrences, occurrenceFilter);
     }
 
     public static OccurrenceProcessor createFromOccurrences(List<SimpleOccurrence> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
-            , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
+            , OccurrenceFilter occurrenceFilter) {
 
         OccurrenceProcessor out = new OccurrenceProcessor();
 
-        out.clippingPolygon = clippingPolygon;
-        out.minimumYear = minimumYear;
-        out.maximumYear = maximumYear;
-        out.includeDoubtful = includeDoubtful;
+        out.occurrenceFilter = occurrenceFilter;
         out.protectedAreas = protectedAreas;
         out.sizeOfSquare = sizeOfSquare;
         out.occurrenceList = occurrences;
@@ -360,18 +301,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         this.clusters = null;
     }
 
-    private OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear) {
-        this.occurrences = occurrences;
-        this.pointsInPolygons = null;
-        this.clusters = null;
-        this.clippingPolygon = clippingPolygon;
-        this.minimumYear = minimumYear;
-        this.maximumYear = maximumYear;
-    }
-
-    private OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
-        this(occurrences, clippingPolygon, minimumYear, maximumYear);
-        this.includeDoubtful = includeDoubtful;
+    private OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, OccurrenceFilter occurrenceFilter) {
+        this(occurrences, null, 0, occurrenceFilter);
     }
     /**
      * This constructor readily computes all indices from the data providers, for all records.
@@ -380,11 +311,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
      * @param sizeOfSquare
      */
     public OccurrenceProcessor(List<SimpleOccurrenceDataProvider> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
-            , PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
-        this.clippingPolygon = clippingPolygon;
-        this.minimumYear = minimumYear;
-        this.maximumYear = maximumYear;
-        this.includeDoubtful = includeDoubtful;
+            , OccurrenceFilter occurrenceFilter) {// PolygonTheme clippingPolygon, Integer minimumYear, Integer maximumYear, boolean includeDoubtful) {
+        this.occurrenceFilter = occurrenceFilter;
         this.protectedAreas = protectedAreas;
         this.sizeOfSquare = sizeOfSquare;
         this.pointsInPolygons = ArrayListMultimap.create();
@@ -684,5 +612,9 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
             }
         }
         return areas.toArray(new Double[areas.size()]);
+    }
+
+    public interface OccurrenceFilter {
+        boolean enter(SimpleOccurrence simpleOccurrence);
     }
 }
