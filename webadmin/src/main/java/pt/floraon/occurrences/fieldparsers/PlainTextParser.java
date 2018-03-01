@@ -14,25 +14,25 @@ public class PlainTextParser implements FieldParser {
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
 //        if (inputValue == null || inputValue.trim().equals("")) return;
         if (inputValue == null) return;
-        Inventory occurrence = (Inventory) bean;
+        Inventory inventory = (Inventory) bean;
 
 //        if(inputValue.trim().equals("")) inputValue = null;
 
         switch (inputFieldName.toLowerCase()) {
             case "code":
-                occurrence.setCode(inputValue);
+                inventory.setCode(inputValue);
                 break;
 
             case "habitat":
-                occurrence.setHabitat(inputValue);
+                inventory.setHabitat(inputValue);
                 break;
 
             case "threats":
-                occurrence.setThreats(inputValue);
+                inventory.setThreats(inputValue);
                 break;
 
-            case "inventoryid":
-                occurrence.setID(inputValue);
+            case "inventoryid": // TODO what is this for?
+                inventory.setID(inputValue);
                 break;
 
             case "gpscode":
@@ -42,9 +42,9 @@ public class PlainTextParser implements FieldParser {
             case "specificthreats":
             case "accession":
             case "coverindex":
-                if(occurrence.getUnmatchedOccurrences().size() == 0)
-                    occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
-                for(OBSERVED_IN obs : occurrence.getUnmatchedOccurrences())
+                if(inventory.getUnmatchedOccurrences().size() == 0)
+                    inventory.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
+                for(OBSERVED_IN obs : inventory.getUnmatchedOccurrences())
                     switch (inputFieldName.toLowerCase()) {
                         case "gpscode": obs.setGpsCode(inputValue); break;
                         case "comment": obs.setComment(inputValue); break;

@@ -87,6 +87,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("accession", new PlainTextParser());
         fieldMappingsSecondRound.put("codHerbario", new AliasFieldParser("accession", fieldMappingsSecondRound));
         fieldMappingsSecondRound.put("coverIndex", new PlainTextParser());
+        fieldMappingsSecondRound.put("excludeReason", new AliasFieldParser("presencestatus", fieldMappingsSecondRound));
 
     }
 

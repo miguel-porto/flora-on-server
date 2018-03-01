@@ -24,6 +24,8 @@ body.occurrencespage a.returntomain img {height:70px}
 
 body.occurrencespage.compactview .hideincompactview {display:none !important}
 
+tr.highlight td {background-color:#FFECB3}
+
 #alloccurrencetable th {position:sticky; top:0px;}
 
 .pager {margin:6px;vertical-align: middle; display: inline-block;}

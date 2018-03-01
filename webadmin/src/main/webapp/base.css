@@ -17,8 +17,8 @@ code {
     background-color: #d1f3f5;
     padding: 2px 4px;
     border-radius: 4px;
-    font-size: 1rem;
-    line-height:1.5rem;
+    font-size: 0.9em;
+    line-height:1.5em;
 }
 .inlineblock {display: inline-block !important}
 .inlineflex {display: inline-flex !important}

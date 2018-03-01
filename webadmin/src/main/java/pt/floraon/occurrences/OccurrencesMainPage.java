@@ -101,7 +101,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);
                     request.setAttribute("nrtotaloccurrences", tmp);
-                    Map<String, String> parsedFilter = new HashMap<>();
+                    Map<String, String> parsedFilter;
                     try {
                         parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("inventories"

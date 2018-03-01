@@ -23,6 +23,8 @@
         <tr><td><code>acc:</code></td><td>Código de herbário (<i>accession</i>)</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>obs:</code></td><td>Observador</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>coll:</code></td><td>Colector</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><th colspan="3">Filtros especiais</th></tr>
+        <tr><td><code>nsp:</code></td><td>Nº de taxa registados por inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
     </tbody>
 </table>
 <p>Qualquer dos filtros pode ser definido com o valor <code>na</code> para pesquisar registos cujo campo respectivo esteja vazio.</p>
@@ -45,15 +47,18 @@ a sequência <code>wel</code> algures no nome (género, espécie ou autoria).</p
     <tr><td><code>date:2005-2007</code></td><td>Registos observados de 2005 a 2007, inclusivé</td></tr>
     </tbody>
 </table>
-<h2>Filtrar por coordenadas e intervalos de coordenadas</h2>
-<p>Os intervalos de coordenadas podem ser abertos ou fechados. Se for especificada uma coordenada exacta (e não um intervalo), a pesquisa será feita num raio de poucos metros em torno desse ponto.</p>
+<h2>Filtrar por números e intervalos numéricos</h2>
+<p>Aplica-se aos filtros de coordenadas <code>lat:</code> <code>long:</code> e nº de taxa <code>nsp:</code>. Os intervalos numéricos podem ser abertos ou fechados.
+No caso de coordenadas, se for especificada uma coordenada exacta (e não um intervalo), a pesquisa será feita num raio de poucos metros em torno desse ponto.</p>
 <table class="smalltext">
     <thead><tr><th>Filtro (n.b. sem espaços)</th><th>Devolve</th></tr></thead>
     <tbody>
     <tr><td><code>lat:38.7-39.1 long:-7.7--8</code></td><td>Registos observados no quadrado definido pelas latitudes 38.7º e 39.1º e as longitudes -7.7º e -8.0º</td></tr>
-    <tr><td><code>lat:>40.3</code></td><td>Registos observados acima da latitude 40.3º</td></tr>
+    <tr><td><code>lat:&gt;40.3</code></td><td>Registos observados acima da latitude 40.3º</td></tr>
     <tr><td><code>long:na</code></td><td>Registos sem a longitude definida</td></tr>
     <tr><td><code>lat:38.5301 long:-8.0168</code></td><td>Registos num raio de poucos metros em torno do ponto definido</td></tr>
+    <tr><td><code>nsp:&gt;8</code></td><td>Inventários com mais de 8 taxa registados</td></tr>
+    <tr><td><code>nsp:0</code></td><td>Inventários vazios, sem taxa registados</td></tr>
     </tbody>
 </table>
 <h2>Filtrar na vista de inventários</h2>

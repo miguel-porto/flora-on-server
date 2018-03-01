@@ -9,6 +9,7 @@ import jline.internal.Log;
 import org.apache.commons.collections.IteratorUtils;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
+import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -488,6 +489,28 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+
+        // number of taxa filter
+        if(filter.containsKey("nsp")) {
+            if(filter.get("nsp").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.numberOfSpeciesZero")).append(" ");
+            } else {
+                IntegerInterval range = new IntegerInterval(filter.get("nsp"));
+                if((range.getValue() != null && range.getValue() == 0) || (range.getMaxValue() != null && range.getMaxValue() == 0))
+                    inventoryFilter.append(AQLOccurrenceQueries.getString("filter.numberOfSpeciesZero")).append(" ");
+                else {
+                    if (range.getValue() == null) {  // is an interval
+                        bindVars.put("minnsp", range.getMinValue() == null ? -9999 : range.getMinValue());
+                        bindVars.put("maxnsp", range.getMaxValue() == null ? 9999 : range.getMaxValue());
+                    } else {    // is an exact number
+                        bindVars.put("minnsp", range.getValue());
+                        bindVars.put("maxnsp", range.getValue());
+                    }
+
+                    inventoryFilter.append(AQLOccurrenceQueries.getString("filter.numberOfSpecies")).append(" ");
+                }
+            }
+        }
         return inventoryFilter.toString();
     }
 
