@@ -121,7 +121,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
 
         while(mat.find()) {
             if(!pt.floraon.driver.utils.StringUtils.isStringEmpty(mat.group("value")))
-                out.put(mat.group("key"), mat.group("value"));
+                out.put(mat.group("key").toLowerCase(), mat.group("value"));
         }
         String na = mat.replaceAll("").trim();
         if(!pt.floraon.driver.utils.StringUtils.isStringEmpty(na))

@@ -4,10 +4,11 @@
 <%@ attribute name="inv" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
 <%@ attribute name="tax" required="false" type="pt.floraon.occurrences.entities.OBSERVED_IN"%>
 
+<!-- the model for new taxa -->
 <c:if test="${tax == null}">
 <tr class="dummy id2holder geoelement">
-<!-- <td class="select clickable"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td> -->
-    <td class="hidden"><input type="hidden" name="occurrenceUuid" value=""/></td>
+    <td class="select clickable selectcol"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td>
+<!--    <td class="hidden"><input type="hidden" name="occurrenceUuid" value=""/></td>-->
     <td class="editable" data-name="gpsCode"></td>
     <td class="taxon editable" data-name="taxa"></td>
     <td class="editable" data-name="confidence"></td>
@@ -25,22 +26,21 @@
 </c:if>
 
 <c:if test="${tax != null}">
-    <c:if test="${tax.getTaxEnt() == null}">
-    <tr class="unmatched id2holder geoelement">
-    </c:if>
-    <c:if test="${tax.getTaxEnt() != null}">
-    <tr class="id2holder geoelement">
-    </c:if>
+    <c:set var="unm" value="${tax.getTaxEnt() == null ? 'unmatched' : ''}"/>
+    <tr class="${unm} id2holder geoelement">
+<!--
         <td class="hidden">
             <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
             <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
         </td>
-<!--
-        <td class="select clickable"><div class="selectbutton"></div>
+-->
+        <td class="select clickable selectcol"><div class="selectbutton"></div>
             <input type="hidden" name="occurrenceUuid" value="${tax.getUuid()}"/>
             <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
         </td>
--->
+        <td class="hidden editable coordinates" data-name="observationCoordinates" data-lat="${tax.getObservationLatitude()}" data-lng="${tax.getObservationLongitude()}" data-symbol="2">
+            ${tax._getObservationCoordinates()}
+        </td>
         <td class="editable" data-name="gpsCode">${tax.getGpsCode()}</td>
         <c:if test="${tax.getTaxEnt() == null}">
         <td class="taxon editable" data-name="taxa">${tax.getVerbTaxon()}</td>

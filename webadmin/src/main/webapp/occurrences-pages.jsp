@@ -44,22 +44,6 @@
         <t:isoptionselected optionname="allusers" value="false">
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
         </t:isoptionselected>
-<%--
-<form method="get" action="occurrences" class="inlineblock">
-    <input type="hidden" name="w" value="${param.w}" />
-    <input type="hidden" name="p" value="1" />
-    <fmt:message key="occurrences.1d"/>: <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
-    <input type="submit" class="textbutton" value="Filter" />
-</form>
-<c:if test="${filter != null && filter != ''}">
-<form method="get" action="occurrences" class="inlineblock">
-    <input type="hidden" name="w" value="${param.w}" />
-    <input type="hidden" name="p" value="1" />
-    <input type="hidden" name="filter" value="" />
-    <input type="submit" class="textbutton" value="Show all" />
-</form>
-</c:if>
---%>
         <div id="occurrencefilter">
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
@@ -107,7 +91,6 @@
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
     <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
     </div>  <!-- top buttons -->
-
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
             <div class="heading2">
@@ -138,8 +121,6 @@
         </c:if>
         <c:forEach var="inv" items="${inventories}">
         <div class="inventory geoelement">
-        <!--<c:if test="${inv._getInventoryLatitude() == null}"><div class="inventory"></c:if>
-        <c:if test="${inv._getInventoryLatitude() != null}"><div class="inventory geoelement"></c:if>-->
             <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
             <c:if test="${inv._getInventoryLatitude() != null}"> ${inv._getInventoryCoordinates()}</c:if>
             </h3>
@@ -188,6 +169,7 @@
             </form>
         </div>
         </c:forEach>
+        <div style="height:200px">&nbsp;</div>
     </div>
 </c:when>
 
@@ -289,51 +271,51 @@
     </c:forEach>
     </c:if>
     <h2>How to prepare a table for upload</h2>
-    <p>Note that no field is compulsory. You can include in table only the fields you need.</p>
-    <p>Follows the list of fields that are recognized. Those more commonly used are highlighted.</p>
-    <table>
-        <tr><th>Field name</th><th>Scope</th><th>Description</th></tr>
-        <tr class="highlight"><td><code>latitude</code></td><td>Inventory</td><td>The latitude of the inventory, in decimal degrees or DMS (e.g. <code>37º26'13.4'' N</code>)</td></tr>
+    <p>Save a table with a header row, in a tab-separated text file. In the header row, write the name of the fields that you need. Note that <b>no field is compulsory</b>. You can include in the table <em>only the fields you need</em>.</p>
+    <p>Follows the list of field names that are recognized. Those more commonly used are highlighted.</p>
+    <table style="empty-cells: hide; border-spacing:5px;">
+        <tr><th colspan="2"></th><th>Field name</th><th>Scope</th><th>Description</th></tr>
+        <tr class="highlight"><td rowspan="7" class="grouper">only one of</td><td rowspan="2" class="grouper">&#9830</td><td><code>latitude</code></td><td>Inventory</td><td>The latitude of the inventory, in decimal degrees or DMS (e.g. <code>37º26'13.4'' N</code>)</td></tr>
         <tr class="highlight"><td><code>longitude</code></td><td>Inventory</td><td>The longitude of the inventory, in decimal degrees or DMS (e.g. <code>7º12'56.3'' W</code>)</td></tr>
-        <tr><td><code>coordinates</code></td><td>Inventory</td><td>The complete coordinates of the inventory in the form latitude, longitude. e.g. <code>37º26'13.4'' N 7º12'56.3'' W</code></td></tr>
-        <tr><td><code>wkt_geom</code></td><td>Inventory</td><td>The geographical expression of the inventory, in WKT format. Currently only pointz is supported.</td></tr>
-        <tr><td><code>x</code></td><td>Inventory</td><td>The X coordinate (easting), in UTM WGS84. This assumes the UTM zone 29</td></tr>
+        <tr><td class="grouper">&#9830</td><td><code>coordinates</code></td><td>Inventory</td><td>The complete coordinates of the inventory in the form latitude, longitude. e.g. <code>37º26'13.4'' N 7º12'56.3'' W</code></td></tr>
+        <tr><td class="grouper">&#9830</td><td><code>wkt_geom</code></td><td>Inventory</td><td>The geographical expression of the inventory, in WKT format. Currently only pointz is supported.</td></tr>
+        <tr><td rowspan="2" class="grouper">&#9830</td><td><code>x</code></td><td>Inventory</td><td>The X coordinate (easting), in UTM WGS84. This assumes the UTM zone 29</td></tr>
         <tr><td><code>y</code></td><td>Inventory</td><td>The Y coordinate (northing), in UTM WGS84. This assumes the UTM zone 29</td></tr>
-        <tr class="highlight"><td><code>mgrs</code></td><td>Inventory</td><td>The UTM square in <a href="https://en.wikipedia.org/wiki/Military_Grid_Reference_System" target="_blank">MGRS format</a>, e.g. <code>29T NG3486</code></td></tr>
-        <tr><td><code>elevation</code></td><td>Inventory</td><td>The altitude</td></tr>
-        <tr class="highlight"><td><code>taxa</code></td><td>Inventory</td><td>The list of taxa observed in this inventory. This can be a single taxon or a list of taxa separated by <code>+</code>. e.g. <code>cistus ladanifer+cistus crispus</code>. Taxa with doubtful identification can be suffixed with <code>?</code> and those in flower suffixed by <code>#</code>, e.g. <code>lavandula multifida#+sideritis hirsuta?</code></td></tr>
-        <tr class="highlight"><td><code>date</code></td><td>Inventory</td><td>The date of the inventory. This can be a precise date e.g. <code>12-9-2007</code> or a vague date using question marks e.g. <code>23-5-?</code></td></tr>
-        <tr><td><code>year</code> <code>ano</code></td><td>Inventory</td><td>The year.</td></tr>
+        <tr class="highlight"><td class="grouper">&#9830</td><td><code>mgrs</code></td><td>Inventory</td><td>The UTM square in <a href="https://en.wikipedia.org/wiki/Military_Grid_Reference_System" target="_blank">MGRS format</a>, e.g. <code>29T NG3486</code></td></tr>
+        <tr><td></td><td></td><td><code>elevation</code></td><td>Inventory</td><td>The altitude</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>taxa</code></td><td>Inventory</td><td>The list of taxa observed in this inventory. This can be a single taxon or a list of taxa separated by <code>+</code>. e.g. <code>cistus ladanifer+cistus crispus</code>. Taxa with doubtful identification can be suffixed with <code>?</code> and those in flower suffixed by <code>#</code>, e.g. <code>lavandula multifida#+sideritis hirsuta?</code></td></tr>
+        <tr class="highlight"><td rowspan="4" class="grouper">only one of</td><td class="grouper">&#9830</td><td><code>date</code></td><td>Inventory</td><td>The date of the inventory. This can be a precise date e.g. <code>12-9-2007</code> or a vague date using question marks e.g. <code>23-5-?</code></td></tr>
+        <tr><td rowspan="3" class="grouper">&#9830</td><td><code>year</code> <code>ano</code></td><td>Inventory</td><td>The year.</td></tr>
         <tr><td><code>month</code></td><td>Inventory</td><td>The month.</td></tr>
         <tr><td><code>day</code></td><td>Inventory</td><td>The day.</td></tr>
-        <tr class="highlight"><td><code>precision</code></td><td>Inventory</td><td>The precision of the coordinates. This can be a single number (e.g. <code>1km</code>), which denotes a radius around the given coordinate, or a square (e.g. <code>500x500m</code>), which denotes the size of the UTM square where the point is located.</td></tr>
-        <tr class="highlight"><td><code>locality</code></td><td>Inventory</td><td>The description of the locality.</td></tr>
-        <tr><td><code>municipality</code></td><td>Inventory</td><td>The municipality of the locality.</td></tr>
-        <tr><td><code>province</code></td><td>Inventory</td><td>The province of the locality.</td></tr>
-        <tr><td><code>county</code></td><td>Inventory</td><td>The county of the locality.</td></tr>
-        <tr><td><code>code</code> <code>código</code> <code>inventário</code></td><td>Inventory</td><td>The short code of the inventory.</td></tr>
-        <tr><td><code>habitat</code></td><td>Inventory</td><td>The habitat applicable to all taxa in this inventory.</td></tr>
-        <tr><td><code>threats</code></td><td>Inventory</td><td>The threats applicable to all taxa in this inventory.</td></tr>
-        <tr class="highlight"><td><code>observers</code></td><td>Inventory</td><td>The observers, as a comma-separated list of person names.</td></tr>
-        <tr><td><code>collectors</code></td><td>Inventory</td><td>The collectors, as a comma-separated list of person names.</td></tr>
-        <tr><td><code>determiners</code></td><td>Inventory</td><td>The determiners, as a comma-separated list of person names.</td></tr>
-        <tr class="highlight"><td><code>gpscode</code></td><td>Occurrence</td><td>The short code of the GPS point of the occurrence.</td></tr>
-        <tr class="highlight"><td><code>abundance</code></td><td>Occurrence</td><td>The estimation of the number of individuals present of this taxon. Can be a number or an interval (e.g.<code>1200-1600</code>). Not to be confused with <code>coverIndex</code>.</td></tr>
-        <tr><td><code>coverIndex</code></td><td>Occurrence</td><td>The cover of this taxon, as text. Can be written in any user-defined scale.</td></tr>
-        <tr class="highlight"><td><code>typeofestimate</code></td><td>Occurrence</td><td>The type of estimation for the number of individuals. One of: <code>e</code> Numerical estimate <code>c</code> Exact count <code>g</code> Rough estimate</td></tr>
-        <tr class="highlight"><td><code>comment</code></td><td>Occurrence</td><td>Public notes about this occurrence.</td></tr>
-        <tr><td><code>privatenote</code></td><td>Occurrence</td><td>Private notes about this occurrence.</td></tr>
-        <tr class="highlight"><td><code>phenostate</code></td><td>Occurrence</td><td>The phenological state of this taxon. One of: <code>f</code> Flower <code>d</code> Dispersion <code>fd</code> Flower+Dispersion <code>v</code> Vegetative <code>r</code> Resting <code>c</code> Immature fruit <code>fc</code> Flower+Immature fruit</td></tr>
-        <tr class="highlight"><td><code>confidence</code></td><td>Occurrence</td><td>The confidence in the identification by the observers. One of: <code>c</code> Quite certain <code>a</code> Almost sure <code>d</code> Doubtful</td></tr>
-        <tr><td><code>excludeReason</code></td><td>Occurrence</td><td>If this occurrence is to be excluded from analyses, for what reason. One of: <code>d</code> Destroyed <code>m</code> Probably misidentified <code>w</code> Wrong coordinates <code>e</code> Escaped from cultivation <code>i</code> Introduced <code>o</code> Other reason</td></tr>
-        <tr><td><code>hasphoto</code></td><td>Occurrence</td><td>Whether and which photos were taken. One of: <code>s</code> Specimen photo <code>a</code> Threat photo <code>sa</code> Specimen+Threat photo</td></tr>
-        <tr><td><code>hasspecimen</code></td><td>Occurrence</td><td>How many specimens were collected, if any.</td></tr>
-        <tr><td><code>observationlatitude</code></td><td>Occurrence</td><td>The latitude of this occurrence, which can be different from the Inventory. In decimal degrees or DMS.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>precision</code></td><td>Inventory</td><td>The precision of the coordinates. This can be a single number (e.g. <code>1km</code>), which denotes a radius around the given coordinate, or a square (e.g. <code>500x500m</code>), which denotes the size of the UTM square where the point is located.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>locality</code></td><td>Inventory</td><td>The description of the locality.</td></tr>
+        <tr><td></td><td></td><td><code>municipality</code></td><td>Inventory</td><td>The municipality of the locality.</td></tr>
+        <tr><td></td><td></td><td><code>province</code></td><td>Inventory</td><td>The province of the locality.</td></tr>
+        <tr><td></td><td></td><td><code>county</code></td><td>Inventory</td><td>The county of the locality.</td></tr>
+        <tr><td></td><td></td><td><code>code</code> <code>código</code> <code>inventário</code></td><td>Inventory</td><td>The short code of the inventory.</td></tr>
+        <tr><td></td><td></td><td><code>habitat</code></td><td>Inventory</td><td>The habitat applicable to all taxa in this inventory.</td></tr>
+        <tr><td></td><td></td><td><code>threats</code></td><td>Inventory</td><td>The threats applicable to all taxa in this inventory.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>observers</code></td><td>Inventory</td><td>The observers, as a comma-separated list of person names.</td></tr>
+        <tr><td></td><td></td><td><code>collectors</code></td><td>Inventory</td><td>The collectors, as a comma-separated list of person names.</td></tr>
+        <tr><td></td><td></td><td><code>determiners</code></td><td>Inventory</td><td>The determiners, as a comma-separated list of person names.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>gpscode</code></td><td>Occurrence</td><td>The short code of the GPS point of the occurrence.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>abundance</code></td><td>Occurrence</td><td>The estimation of the number of individuals present of this taxon. Can be a number or an interval (e.g.<code>1200-1600</code>). Not to be confused with <code>coverIndex</code>.</td></tr>
+        <tr><td></td><td></td><td><code>coverIndex</code></td><td>Occurrence</td><td>The cover of this taxon, as text. Can be written in any user-defined scale.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>typeofestimate</code></td><td>Occurrence</td><td>The type of estimation for the number of individuals. One of: <code>e</code> Numerical estimate <code>c</code> Exact count <code>g</code> Rough estimate</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>comment</code></td><td>Occurrence</td><td>Public notes about this occurrence.</td></tr>
+        <tr><td></td><td></td><td><code>privatenote</code></td><td>Occurrence</td><td>Private notes about this occurrence.</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>phenostate</code></td><td>Occurrence</td><td>The phenological state of this taxon. One of: <code>f</code> Flower <code>d</code> Dispersion <code>fd</code> Flower+Dispersion <code>v</code> Vegetative <code>r</code> Resting <code>c</code> Immature fruit <code>fc</code> Flower+Immature fruit</td></tr>
+        <tr class="highlight"><td></td><td></td><td><code>confidence</code></td><td>Occurrence</td><td>The confidence in the identification by the observers. One of: <code>c</code> Quite certain <code>a</code> Almost sure <code>d</code> Doubtful</td></tr>
+        <tr><td></td><td></td><td><code>excludeReason</code></td><td>Occurrence</td><td>If this occurrence is to be excluded from analyses, for what reason. One of: <code>d</code> Destroyed <code>m</code> Probably misidentified <code>w</code> Wrong coordinates <code>e</code> Escaped from cultivation <code>i</code> Introduced <code>o</code> Other reason</td></tr>
+        <tr><td></td><td></td><td><code>hasphoto</code></td><td>Occurrence</td><td>Whether and which photos were taken. One of: <code>s</code> Specimen photo <code>a</code> Threat photo <code>sa</code> Specimen+Threat photo</td></tr>
+        <tr><td></td><td></td><td><code>hasspecimen</code></td><td>Occurrence</td><td>How many specimens were collected, if any.</td></tr>
+        <tr><td rowspan="3" class="grouper">only one of</td><td rowspan="2" class="grouper">&#9830</td><td><code>observationlatitude</code></td><td>Occurrence</td><td>The latitude of this occurrence, which can be different from the Inventory. In decimal degrees or DMS.</td></tr>
         <tr><td><code>observationlongitude</code></td><td>Occurrence</td><td>The longitude of this occurrence, which can be different from the Inventory. In decimal degrees or DMS.</td></tr>
-        <tr><td><code>observationcoordinates</code></td><td>Occurrence</td><td>The complete coordinates of this occurrence, which can be different from the Inventory.</td></tr>
-        <tr><td><code>labeldata</code></td><td>Occurrence</td><td>The data written in the label of the herbarium voucher.</td></tr>
-        <tr><td><code>accession</code> <code>codHerbario</code></td><td>Occurrence</td><td>The accession code of the herbarium voucher.</td></tr>
-        <tr><td><code>specificthreats</code></td><td>Occurrence</td><td>The threats applicable to this taxon only.</td></tr>
+        <tr><td class="grouper">&#9830</td><td><code>observationcoordinates</code></td><td>Occurrence</td><td>The complete coordinates of this occurrence, which can be different from the Inventory.</td></tr>
+        <tr><td></td><td></td><td><code>labeldata</code></td><td>Occurrence</td><td>The data written in the label of the herbarium voucher.</td></tr>
+        <tr><td></td><td></td><td><code>accession</code> <code>codHerbario</code></td><td>Occurrence</td><td>The accession code of the herbarium voucher.</td></tr>
+        <tr><td></td><td></td><td><code>specificthreats</code></td><td>Occurrence</td><td>The threats applicable to this taxon only.</td></tr>
     </table>
 </c:when>
 

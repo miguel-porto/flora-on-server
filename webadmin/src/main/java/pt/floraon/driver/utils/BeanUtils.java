@@ -1,5 +1,6 @@
 package pt.floraon.driver.utils;
 
+import jline.internal.Log;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -143,45 +144,82 @@ public class BeanUtils {
      * @throws InstantiationException
      */
     @SafeVarargs
-    public static <T extends DiffableBean> T mergeBeans(Class<T> cls, Collection<String> ignoreProperties, T... beans) throws IllegalAccessException
+    public static <T extends DiffableBean> T mergeBeans(Class<T> cls, Collection<String> ignoreProperties, String groupingProperty, T... beans) throws IllegalAccessException
             , InvocationTargetException, NoSuchMethodException, FloraOnException, InstantiationException {
         BeanMap propertyMap = new BeanMap(beans[0]);    // we assume beans are all same class! so we take the first as a model
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
 
-        System.out.println("Merging "+beans.length+" beans");
+        Log.info("Merging "+beans.length+" beans");
         T out = cls.newInstance();
 
         BeanUtilsBean bub = createBeanUtilsNull();
+        if(groupingProperty != null) {      // force grouping by given property, eventually discard data if it conflicts
+            Set<String> gP = new HashSet<>();
+            for (DiffableBean dB : beans) {
+                Object tmp = propUtils.getProperty(dB, groupingProperty);
+                if(tmp == null || StringUtils.isStringEmpty(tmp.toString())) {   // different codes, cancel grouping by code
+                    groupingProperty = null;
+                    Log.info("Cancelling grouping");
+                    break;
+                } else {
+                    gP.add(tmp.toString());
+                    if(gP.size() > 1) {    // different codes, cancel grouping by code
+                        groupingProperty = null;
+                        break;
+                    }
+                }
+            }
+        }
 
+        Float sum;
+        int count;
+        boolean average;
         for (Object propNameObject : propertyMap.keySet()) {
+            sum = 0f;
+            count = 0;
+            average = false;
             String propertyName = (String) propNameObject;
-            if(ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
+            if (ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
 
             Object property = null, newProperty;
 
             for (DiffableBean dB : beans) {
                 newProperty = propUtils.getProperty(dB, propertyName);
 
-                if(newProperty == null) continue;
+/*
+                try {
+                    sum += Float.parseFloat(newProperty.toString());
+                } catch (Throwable e) {}
+*/
 
-                if(property == null) {
+                if (newProperty == null) continue;
+
+                if (property == null) {
                     property = newProperty;
                     continue;
                 }
 
-                if(property.getClass().isArray()) {
+                if (property.getClass().isArray()) {
                     if (!Arrays.equals((Object[]) property, (Object[]) newProperty))
                         throw new FloraOnException("Cannot merge beans: field " + propertyName + " has different values.");
                 }/* else if(DiffableBean.class.isAssignableFrom(property.getClass())) {
-                    property = mergeBeans(DiffableBean.class, (DiffableBean) property, (DiffableBean) newProperty);
-                }*/ else {  // TODO: nested beans
-                    System.out.println("PROP: " + propertyName);
-                    System.out.println(property+" : "+newProperty);
-                    if(!property.equals(newProperty)) throw new FloraOnException("Cannot merge beans: field " + propertyName + " has different values.");
+                property = mergeBeans(DiffableBean.class, (DiffableBean) property, (DiffableBean) newProperty);
+            }*/ else {  // TODO: nested beans
+                    if (!StringUtils.isStringEmpty(property.toString()) && !StringUtils.isStringEmpty(newProperty.toString())
+                            && !property.equals(newProperty)) {
+                        if(groupingProperty != null) {  // force grouping, discard conflicting field
+                            Log.warn("Property conflict <" + propertyName + ">: " + property + " -> " + newProperty + ", but will group anyway.");
+//                            average = true;
+                        } else {
+                            Log.info("Property conflict <" + propertyName + ">: " + property + " -> " + newProperty);
+                            throw new FloraOnException("Cannot merge beans: field " + propertyName + " has different values.");
+                        }
+                    }
                 }
-
+                count++;
             }
-            if(property != null) bub.setProperty(out, propertyName, property);
+//            if(average && sum > 0) property = String.format("%.6f", sum / count);
+            if (property != null) bub.setProperty(out, propertyName, property);
         }
         return out;
     }

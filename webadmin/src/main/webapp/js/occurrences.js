@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    showPointsOnMap = projectPointsOnMap();
+    showPointsOnMap = projectPointsOnMap(null, {stack:true});
 
     attachSuggestionHandler('taxonsearchbox', 'checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('authorsearchbox', 'checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
@@ -409,7 +409,7 @@ function clickButton(ev) {
             for(var i=0; i<sel.length; i++) {
                 var ou = sel[i].querySelector('input[name=occurrenceUuid]').value;
                 var iid = sel[i].querySelector('input[name=inventoryId]').value;
-                var cell = sel[i].querySelector('.select');
+                var cell = sel[i].querySelector('td.selectcol');
                 var did = sel[i].getAttribute('data-id');
                 insertOrReplaceHiddenInput(cell, did + '_occurrenceUuid', ou);
                 insertOrReplaceHiddenInput(cell, did + '_inventoryId', iid);
@@ -483,14 +483,14 @@ function clickOccurrenceTable(ev) {
          var txt = cell.innerHTML;
          cell.textContent = '';
          displaySearchbox(cell, txt, 'threatsearchwrapper');
-    } else if(cell.classList.contains('select')) {    // select row
+    } else if(cell.classList.contains('selectcol') && cell.tagName == 'TD') {    // select row
         selectGeoElement(cell);
     } else if(cell.classList.contains('singleselect')) {    // select row
         selectGeoElement(cell, true, true);
-    } else if(cell.classList.contains('selectcol')) {    // select all
+    } else if(cell.classList.contains('selectcol') && cell.tagName == 'TH') {    // select all
         var tab = getParentbyClass(cell, 'occurrencetable');
         if(tab) {
-            var vr = tab.querySelectorAll('tr:not(.hidden) .select');
+            var vr = tab.querySelectorAll('tr:not(.hidden) td.selectcol');
             for(var i=0; i<vr.length; i++) {
                 selectGeoElement(vr[i]);
             }
@@ -593,10 +593,10 @@ function projectPointsOnMap(ota, markerOptions) {
     }
     var coo;
     for(var i=0; i<ot.length; i++) {
-        coo = ot[i].querySelectorAll('*:not(.geoelement) .coordinates');
+        coo = ot[i].querySelectorAll('.coordinates'); // FIXME this selector selects nested geoelements, it shouldn't
         for(var j=0; j<coo.length; j++) {
             if(!coo[j].getAttribute('data-lat') || !coo[j].getAttribute('data-lng')) continue;
-//            console.log("added "+coo[j].getAttribute('data-lat')+coo[j].getAttribute('data-lng'));
+            if(getParentbyClass(coo[j], 'geoelement') != ot[i]) continue;
             if(markerOptions.label)
                 markerOptions.label = coo[j].getAttribute('data-label');
             if(parseInt(coo[j].getAttribute('data-symbol')) == 2)
@@ -605,6 +605,8 @@ function projectPointsOnMap(ota, markerOptions) {
                 markerOptions.icon = blackCircle;
             else
                 markerOptions.icon = defaults.icon;
+                //FIXME HERE HERE
+//    console.log("added "+parseFloat(coo[j].getAttribute('data-lat'))+", "+parseFloat(coo[j].getAttribute('data-lng')));
             addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng'))
                 , ot[i], coo[j].classList.contains('editable'), markerOptions);
         }
@@ -614,18 +616,26 @@ function projectPointsOnMap(ota, markerOptions) {
 
 function addPointMarker(lat, lng, bondEl, draggable, options) {
     if(isNaN(lat) || isNaN(lng)) return;
-    options = Object.assign({icon: redCircle}, options);
+    options = Object.assign({icon: redCircle, stack: false}, options);
     var marker = L.marker([lat, lng], {icon: options.icon, draggable: draggable, keyboard: false});
     if(options.label)
         marker.bindPopup(options.label);
     if(draggable) marker.on('dragend', markerMove);
     marker.on('click', markerClick).addTo(myMap);
     if(bondEl) {
+        marker.tableRow = bondEl;
+        if(!bondEl.marker) {
+            bondEl.marker = marker._icon;
+            bondEl.markerObj = marker;
+        }
+
+/*
         if(bondEl.marker)
             bondEl.marker.remove();
         marker.tableRow = bondEl;
         bondEl.marker = marker._icon;
         bondEl.markerObj = marker;
+*/
     }
 }
 

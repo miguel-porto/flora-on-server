@@ -7,7 +7,7 @@
 
 <c:if test="${occ == null}">
 <tr class="geoelement dummy id1holder">
-    <td class="select clickable"><div class="selectbutton"></div></td>
+    <td class="selectcol clickable"><div class="selectbutton"></div></td>
     <c:choose>
     <c:when test="${param.flavour == null || param.flavour == '' || param.flavour == 'simple'}">
     <td class="taxon editable" data-name="taxa"></td>
@@ -87,7 +87,7 @@
 <tr class="geoelement id1holder">
 </c:if>
 <c:set var="coordchanged" value="${occ._getTaxa()[0].getCoordinatesChanged() ? 'textemphasis' : ''}" />
-    <td class="select clickable">
+    <td class="selectcol clickable">
         <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
         <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
         <div class="selectbutton"></div>

@@ -158,6 +158,7 @@ public class OccurrenceImporterJob implements JobTask {
                 // now let's sweep out the species from all inventory groups and aggregate
                 for (Map.Entry<Inventory, Collection<Inventory>> entr : invMap.asMap().entrySet()) {
                     // grab an array of Inventory of these Inventories
+                    // note that the field 'code', if present, rules over all the others
                     Collection<Inventory> tmp = entr.getValue();
 //            List<Inventory> tmp = new ArrayList<>();
 //            for(Inventory i : entr.getValue()) {
@@ -168,7 +169,7 @@ public class OccurrenceImporterJob implements JobTask {
                     Inventory merged = null;
                     try {
                         // we ignore the field that holds the occurrences
-                        merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences")
+                        merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences"), "code"
                                 , tmp.toArray(new Inventory[tmp.size()]));
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                         e.printStackTrace();

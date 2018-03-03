@@ -28,6 +28,13 @@ tr.highlight td {background-color:#FFECB3}
 
 #alloccurrencetable th {position:sticky; top:0px;}
 
+td.grouper {
+    border-right:3px solid black;
+    min-width:20px;
+    background-color:transparent !important;
+    text-align:center;
+}
+
 .pager {margin:6px;vertical-align: middle; display: inline-block;}
 .pager a {vertical-align:middle; display:inline-block}
 .pager .button {
@@ -120,10 +127,10 @@ tr.highlight td {background-color:#FFECB3}
 #topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
 .occurrencetable tbody tr td {cursor: pointer; height:16px; padding:2px}
-.geoelement.selected, .geoelement.selected td {background-color:#ffff76 !important;}
+.geoelement.selected, .geoelement.selected td, .coordinates.selected td {background-color:#ffff76 !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a; word-break: break-all}
-.occurrencetable th.selectcol {width:5%;}
+.occurrencetable selectcol {width:0;}
 .occurrencetable th.bigcol {min-width:150px;}
 .occurrencetable th.smallcol {width:10%;}
 tr.unmatched td {background-color: #ffcdd2 !important}
@@ -156,16 +163,19 @@ td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !importan
     margin:0;
 }
 
-.select .selectbutton, .selectcol .selectbutton {
+.selectcol .selectbutton {
     width:12px; height:12px; box-shadow: 0 0 3px black; border-radius: 50%;
     margin: 4px;
+    transform:scale(0.5);
+    transition: transform 0.2s;
 }
 
-.select .selectbutton.selected {
+.selectcol .selectbutton.selected {
     background-color: #0f0;
+    transform:scale(1);
 }
 
-td.select {background-color: transparent !important;}
+td.selectcol {background-color: transparent !important; padding:0 !important;}
 
 .inventory {
     margin: 36px 16px;

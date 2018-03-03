@@ -227,7 +227,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 try {
                     // we ignore the field that holds the occurrences and those that are replicated in the OBSERVED_BY
                     merged = BeanUtils.mergeBeans(Inventory.class
-                            , Arrays.asList("unmatchedOccurrences", "latitude", "longitude", "ID", "key", "databaseId", "code", "elevation"), tmp.toArray(new Inventory[tmp.size()]));
+                            , Arrays.asList("unmatchedOccurrences", "latitude", "longitude", "ID", "key", "databaseId", "code", "elevation"), null, tmp.toArray(new Inventory[tmp.size()]));
                 } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                     e.printStackTrace();
                     throw new FloraOnException(e.getMessage());

@@ -4,7 +4,8 @@
 
 <thead>
     <tr>
-        <th class="sorttable_nosort selectcol hidden"></th>
+        <th class="sorttable_nosort selectcol"></th>
+        <th class="hidden"></th>
         <th class="smallcol">GPS</th>
         <th class="bigcol">Taxon</th>
         <th class="smallcol">Conf</th>
