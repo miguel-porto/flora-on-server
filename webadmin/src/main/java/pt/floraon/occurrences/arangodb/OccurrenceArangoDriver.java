@@ -6,7 +6,6 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import com.google.gson.Gson;
 import jline.internal.Log;
-import org.apache.commons.collections.IteratorUtils;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.IntegerInterval;
@@ -296,9 +295,9 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                     } else {    // update existing occurrence
                         try {
                             OBSERVED_IN tmpori = origMap.get(eachNewOcc.getUuid());
-//                            System.out.println(original.getLatitude()+", "+original.getLongitude()+", "+tmpori.getObservationLatitude()+", "+tmpori.getObservationLongitude()+", "+eachNewOcc.getObservationLatitude()+", "+eachNewOcc.getObservationLongitude());
+//                            System.out.println(original._getLatitude()+", "+original._getLongitude()+", "+tmpori.getObservationLatitude()+", "+tmpori.getObservationLongitude()+", "+eachNewOcc.getObservationLatitude()+", "+eachNewOcc.getObservationLongitude());
                             if(tmpori.getObservationLatitude() == null || tmpori.getObservationLongitude() == null) {
-                                if(original.getLatitude() != null && original.getLongitude() != null
+                                if(original._getLatitude() != null && original._getLongitude() != null
                                         && eachNewOcc.getObservationLatitude() != null && eachNewOcc.getObservationLongitude() != null) {
                                     eachNewOcc.setCoordinatesChanged(true);
                                 }
@@ -439,6 +438,12 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("precision", new Precision(filter.get("prec")));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.precision")).append(" ");
             }
+        }
+
+        // inventory ID filter
+        if(filter.containsKey("iid")) {
+            bindVars.put("inventoryId", filter.get("iid"));
+            inventoryFilter.append(AQLOccurrenceQueries.getString("filter.inventoryId")).append(" ");
         }
 
         // verbLocality filter

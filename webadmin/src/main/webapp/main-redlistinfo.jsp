@@ -1885,8 +1885,8 @@
                         <!--<td>${occ.getDataSource()}</td>-->
                         <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                        <td><fmt:formatNumber value="${occ.getLatitude()}" maxFractionDigits="4"/></td>
-                        <td><fmt:formatNumber value="${occ.getLongitude()}" maxFractionDigits="4"/></td>
+                        <td><fmt:formatNumber value="${occ._getLatitude()}" maxFractionDigits="4"/></td>
+                        <td><fmt:formatNumber value="${occ._getLongitude()}" maxFractionDigits="4"/></td>
                         </c:if>
                         <td sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
                         <td>${occ._getObserverNames()[0]}</td>
@@ -1912,8 +1912,8 @@
                         <!--<td>${occ.getDataSource()}</td>-->
                         <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                         <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                        <td><fmt:formatNumber value="${occ.getLatitude()}" maxFractionDigits="4"/></td>
-                        <td><fmt:formatNumber value="${occ.getLongitude()}" maxFractionDigits="4"/></td>
+                        <td><fmt:formatNumber value="${occ._getLatitude()}" maxFractionDigits="4"/></td>
+                        <td><fmt:formatNumber value="${occ._getLongitude()}" maxFractionDigits="4"/></td>
                         </c:if>
                         <td sorttable_customkey="${occ._getDateYMD()}">${occ._getDate()}</td>
                         <td>${occ._getObserverNames()[0]}</td>

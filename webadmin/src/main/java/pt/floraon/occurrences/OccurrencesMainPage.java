@@ -3,17 +3,16 @@ package pt.floraon.occurrences;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.jfree.util.Log;
-import org.jfree.util.StringUtils;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
@@ -124,15 +123,13 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "openinventory":
-                if(thisRequest.getParameterAsString("id") != null) {
+                if(!StringUtils.isStringEmpty(thisRequest.getParameterAsString("id"))) {
                     request.setAttribute("inventories"
                             , driver.getOccurrenceDriver().getInventoriesByIds(new String[] {thisRequest.getParameterAsString("id")}));
                 } else
                     request.setAttribute("inventories"
                             , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
 
-                Inventory i;
-//                i._getTaxa()[0].getAccession()
                 break;
 
             case "occurrenceview":
@@ -246,8 +243,8 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     OBSERVED_IN oi = i2._getTaxa()[0];
 //                    TaxEnt te = oi.getTaxEnt();
 
-                    csv.printRecord(i2._getDateYMD(), pt.floraon.driver.utils.StringUtils.implode(", ", i2._getObserverNames()), i2.getLatitude(), i2.getLongitude()
-                            , CoordinateConversion.LatLongToMGRS(i2.getLatitude(), i2.getLongitude(), 1000)
+                    csv.printRecord(i2._getDateYMD(), pt.floraon.driver.utils.StringUtils.implode(", ", i2._getObserverNames()), i2._getLatitude(), i2._getLongitude()
+                            , CoordinateConversion.LatLongToMGRS(i2._getLatitude(), i2._getLongitude(), 1000)
                             , i2.getVerbLocality(), i2.getPrecision(), i2.getCode(), oi.getVerbTaxon(), oi.getConfidence()
                             , oi.getPhenoState(), oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
                             , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), i2.getYear(), i2.getMonth(), i2.getDay());

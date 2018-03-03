@@ -6,8 +6,6 @@ import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jline.internal.Log;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.BeanUtils;
@@ -217,9 +215,9 @@ public class OccurrenceApi extends FloraOnServlet {
                 for(Inventory tmp1 : tmp) {
                     for(OBSERVED_IN occ : tmp1._getOccurrences()) {
                         if(occ.getObservationLatitude() == null)
-                            occ.setObservationLatitude(tmp1.getLatitude());
+                            occ.setObservationLatitude(tmp1._getLatitude());
                         if(occ.getObservationLongitude() == null)
-                            occ.setObservationLongitude(tmp1.getLongitude());
+                            occ.setObservationLongitude(tmp1._getLongitude());
                     }
                 }
 

@@ -28,7 +28,7 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
 
         while(it.hasNext()) {
             i = it.next();
-            String mgrs = CoordinateConversion.LatLongToMGRS(i.getLatitude(), i.getLongitude(), sizeOfSquare);
+            String mgrs = CoordinateConversion.LatLongToMGRS(i._getLatitude(), i._getLongitude(), sizeOfSquare);
             if(out.containsKey(mgrs))
                 out.put(mgrs, out.get(mgrs) + 1);
             else
@@ -48,7 +48,7 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
             i = it.next();
             boolean isContained = false;
             for (Map.Entry<String, pt.floraon.geometry.Polygon> e : polygonTheme) {
-                if (e.getValue().contains(new Point2D(i.getLongitude(), i.getLatitude()))) {
+                if (e.getValue().contains(new Point2D(i._getLongitude(), i._getLatitude()))) {
                     isContained = true;
                     if (tmp.containsKey(e.getValue()))
                         tmp.put(e.getValue(), tmp.get(e.getValue()) + 1);

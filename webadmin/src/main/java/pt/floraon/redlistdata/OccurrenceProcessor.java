@@ -12,7 +12,6 @@ import pt.floraon.geometry.*;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
-import pt.floraon.taxonomy.entities.CanonicalName;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -187,7 +186,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
 
         for(SimpleOccurrence o : this) {
-            if(o.getLatitude() == null || o.getLongitude() == null) continue;
+            if(o._getLatitude() == null || o._getLongitude() == null) continue;
             Placemark pl = folder.createAndAddPlacemark();
             String name = o.getOccurrence().getVerbTaxon() +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
@@ -203,7 +202,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
                         ? " " + o.getOccurrence().getTypeOfEstimate() + " = " + o.getOccurrence().getAbundance() : "");
 
             pl.withName(name).withDescription(desc)
-                    .createAndSetPoint().addToCoordinates(o.getLongitude(), o.getLatitude());
+                    .createAndSetPoint().addToCoordinates(o._getLongitude(), o._getLatitude());
         }
         kml.marshal(out);
     }
@@ -335,11 +334,11 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         for (SimpleOccurrence so : this) {
             tmp = so._getUTMCoordinates();
             if(tmp == null) continue;
-            tmp1 = new Point2D(tmp, new LatLongCoordinate(so.getLatitude(), so.getLongitude()));
+            tmp1 = new Point2D(tmp, new LatLongCoordinate(so._getLatitude(), so._getLongitude()));
             utmZones.add(((Integer) tmp.getXZone()).toString() + java.lang.Character.toString(tmp.getYZone()));
             if(protectedAreas != null) {
                 for (Map.Entry<String, pt.floraon.geometry.Polygon> e : protectedAreas) {
-                    if (e.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                    if (e.getValue().contains(new Point2D(so._getLongitude(), so._getLatitude()))) {
 //                        System.out.println("Protected"+ tmp1.toString());
                         pointsInPolygons.put(tmp1, e.getValue());
                     }

@@ -444,7 +444,7 @@ public class RedListDataApi extends FloraOnServlet {
                                 lpa1 = ord.getListOfPolygonsWithOccurrences(
                                         Collections.singleton((Inventory) so).iterator(), protectedAreas1);
                                 pw.printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%d</td><td>%s</td></tr>", so.getOccurrence().getVerbTaxon(), so._getDate()
-                                    , so.getLocality() == null ? "" : so.getLocality(), so.getLatitude(), so.getLongitude()
+                                    , so.getLocality() == null ? "" : so.getLocality(), so._getLatitude(), so._getLongitude()
                                     , so.getOccurrence().getHasSpecimen()
                                     , lpa1.size() > 0 ? StringUtils.implode(", ", lpa1.keySet().toArray(new String[0])) : "none");
                             }

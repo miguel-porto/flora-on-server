@@ -1,7 +1,6 @@
 package pt.floraon.occurrences.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import com.google.gson.JsonObject;
 import org.jfree.util.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
@@ -137,39 +136,60 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * Returns the latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
      * @return
      */
-    @Override
-    public Float getLatitude() {
+    public Float _getLatitude() {
         checkGeographicCoordinates();
         if(shouldGetCoordinatesFromObservation()) {
             Float olat = _getTaxa()[0].getObservationLatitude();
             return (Constants.isNoData(olat) ? null : olat);
-        } else return latitude;
+        } else {
+            if(Constants.isNullOrNoData(latitude)) {
+                Float olat = 0f;
+                int count = 0;
+                for(OBSERVED_IN oi : _getTaxa()) {
+                    if(Constants.isNoData(oi.getObservationLatitude())) continue;
+                    olat += oi.getObservationLatitude();
+                    count ++;
+                }
+                return olat == 0 ? null : (olat / count);
+
+            } else return latitude;
+        }
     }
 
-    @Override
-    public Float getLongitude() {
+    public Float _getLongitude() {
         checkGeographicCoordinates();
         if(shouldGetCoordinatesFromObservation()) {
             Float olng = _getTaxa()[0].getObservationLongitude();
             return (Constants.isNoData(olng) ? null : olng);
-        } else return longitude;
+        } else {
+            if(Constants.isNullOrNoData(longitude)) {
+                Float olng = 0f;
+                int count = 0;
+                for(OBSERVED_IN oi : _getTaxa()) {
+                    if(Constants.isNoData(oi.getObservationLongitude())) continue;
+                    olng += oi.getObservationLongitude();
+                    count ++;
+                }
+                return olng == 0 ? null : (olng / count);
+            } else return longitude;
+        }
     }
 
     public String _getCoordinates() {
-        if(this.getLatitude() == null || this.getLongitude() == null)
+        if(this._getLatitude() == null || this._getLongitude() == null)
             return "*";
         else
-            return String.format(Locale.ROOT, "%.5f, %.5f", this.getLatitude(), this.getLongitude());
+            return String.format(Locale.ROOT, "%.5f, %.5f", this._getLatitude(), this._getLongitude());
     }
 
     public Float _getInventoryLatitude() {
         checkGeographicCoordinates();
-        return latitude == null ? getLatitude() : latitude;
+        return latitude == null ? _getLatitude() : latitude;
     }
 
     public Float _getInventoryLongitude() {
         checkGeographicCoordinates();
-        return longitude == null ? getLongitude() : longitude;
+        return longitude == null ? _getLongitude() : longitude;
     }
 
     /**
@@ -179,7 +199,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      */
     public String _getInventoryCoordinates() {
         if(this.latitude == null || this.longitude == null) {
-            if(this.getLatitude() == null || this.getLongitude() == null)
+            if(this._getLatitude() == null || this._getLongitude() == null)
                 return "*";
             else
                 return "* (" + this._getCoordinates() + ")";
@@ -214,8 +234,20 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     @Override
+    public Float getLatitude() {
+        checkGeographicCoordinates();
+        return this.latitude;
+    }
+
+    @Override
     public void setLongitude(Float longitude) {
         this.longitude = longitude;
+    }
+
+    @Override
+    public Float getLongitude() {
+        checkGeographicCoordinates();
+        return this.longitude;
     }
 
     public String getSpatialRS() {
@@ -326,12 +358,12 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public UTMCoordinate _getUTMCoordinates() {
-        if(this.getLatitude() == null || this.getLongitude() == null) return null;
-        return CoordinateConversion.LatLonToUtmWGS84(this.getLatitude(), this.getLongitude(), 0);
+        if(this._getLatitude() == null || this._getLongitude() == null) return null;
+        return CoordinateConversion.LatLonToUtmWGS84(this._getLatitude(), this._getLongitude(), 0);
     }
 
     public String _getMGRSString(long sizeOfSquare) {
-        return CoordinateConversion.LatLongToMGRS(this.getLatitude(), this.getLongitude(), sizeOfSquare);
+        return CoordinateConversion.LatLongToMGRS(this._getLatitude(), this._getLongitude(), sizeOfSquare);
     }
 
     public Boolean getComplete() {
@@ -594,7 +626,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
         if(code != null) return code.equals(that.code);
         if ((precision != null && precision._isImprecise()) || (that.precision != null && that.precision._isImprecise())
-            || (precision != null ? !precision.equals(that.precision) : that.precision != null)) return false;
+            || (precision != null ? !precision.equals(that.precision) : that.precision != null) || getLatitude() == null
+                || getLongitude() == null || that.getLatitude() == null || that.getLongitude() == null) return false;
         if (getLatitude() != null ? !getLatitude().equals(that.getLatitude()) : that.getLatitude() != null) return false;
         if (getLongitude() != null ? !getLongitude().equals(that.getLongitude()) : that.getLongitude() != null) return false;
         if (getYear() != null ? !getYear().equals(that.getYear()) : that.getYear() != null) return false;
@@ -620,6 +653,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     public int hashCode() {
         int result = code != null ? code.hashCode() : 0;    // NOTE: we don't use the getter here cause the getter does some processing to avoid nulls. here we want the real inventory code as is.
         if(code != null && !code.equals("")) return result;     // code rules!
+        if(getLatitude() == null || getLongitude() == null) return result;
         result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + (getLatitude() != null ? getLatitude().hashCode() : 0);
         result = 31 * result + (getLongitude() != null ? getLongitude().hashCode() : 0);

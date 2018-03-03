@@ -46,7 +46,7 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
 //            System.out.println(gs.toJson(inv));
             this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), inv));
 /*
-            this.occurrenceList.add(so = new SimpleOccurrence(this.getDataSource(), inv.getLatitude(), inv.getLongitude(), inv.getYear()
+            this.occurrenceList.add(so = new SimpleOccurrence(this.getDataSource(), inv._getLatitude(), inv._getLongitude(), inv.getYear()
                     , inv.getMonth(), inv.getDay(), mainObserver.length == 0 ? "" : mainObserver[0]
                     , cn.getGenus(), cn.getSpecificEpithet(), cn.getInfraRanksAsString(), te.getComment(), 0
                     , te.getTaxEnt().getOldId(), 0, te.getConfidence(), te.getPhenoState()) );

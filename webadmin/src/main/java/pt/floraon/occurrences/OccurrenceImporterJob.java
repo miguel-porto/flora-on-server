@@ -196,6 +196,14 @@ public class OccurrenceImporterJob implements JobTask {
                         // assemble all species found in these inventories into the merged one
                         List<OBSERVED_IN> occ = new ArrayList<>();
                         for (Inventory inventory : entr.getValue()) {
+                            // gather all coordinates of the pre-merged inventory and copy them to the occurrences, if empty.
+                            // because the inventory coordinates will be lost.
+                            for(OBSERVED_IN oi1 : inventory.getUnmatchedOccurrences()) {
+                                if(oi1.getObservationLatitude() == null)
+                                    oi1.setObservationLatitude(inventory.getLatitude());
+                                if(oi1.getObservationLongitude() == null)
+                                    oi1.setObservationLongitude(inventory.getLongitude());
+                            }
                             occ.addAll(inventory.getUnmatchedOccurrences());
                         }
                         if (occ.size() == 0) occ.add(new OBSERVED_IN(true));

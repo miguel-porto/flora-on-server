@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ attribute name="flavour" required="false" %>
 
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
@@ -36,9 +37,9 @@
         </tr></tbody>
     </table>
     <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-        <t:inventorytaxonheader />
+        <t:inventorytaxonheader flavour="${flavour}"/>
         <tbody>
-            <t:inventoryrow />
+            <t:inventoryrow flavour="${flavour}"/>
         </tbody>
     </table>
     <div class="button newtaxon">Add taxon</div>

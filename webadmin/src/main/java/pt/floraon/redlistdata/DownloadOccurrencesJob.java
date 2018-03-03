@@ -69,8 +69,8 @@ public class DownloadOccurrencesJob implements JobFileDownload {
                     csvp.print(rlde.getTaxEnt().getID());
                     csvp.print(rlde.getTaxEnt().getNameWithAnnotationOnly(false));
                     csvp.print(so.getOccurrence().getVerbTaxon());
-                    csvp.print(so.getLatitude());
-                    csvp.print(so.getLongitude());
+                    csvp.print(so._getLatitude());
+                    csvp.print(so._getLongitude());
                     csvp.print(so._getDate());
                     csvp.print(StringUtils.implode(", ", so._getObserverNames()));
                     csvp.println();

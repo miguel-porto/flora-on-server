@@ -27,7 +27,7 @@
     <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users inventories" defaultvalue="false"/></c:if>
     </div>  <!-- top buttons -->
 
-    <t:inventorymodel />
+    <t:inventorymodel flavour="${param.flavour}"/>
 
     <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
@@ -80,7 +80,7 @@
             <td data-name="code">${inv.getCode()}</td>
             <td data-name="locality">${inv.getLocality()}</td>
             <td sorttable_customkey="${inv._getDateYMD()}" data-name="date">${inv._getDate()}</td>
-            <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
+            <td class="coordinates" data-lat="${inv._getLatitude()}" data-lng="${inv._getLongitude()}">${inv._getInventoryCoordinates()}</td>
             <td class="taxon"><a href="?w=openinventory&id=${inv._getIDURLEncoded()}">${inv._getSampleTaxa(100)}</a></td>
         </tr>
     </c:forEach>
@@ -90,6 +90,12 @@
 <c:when test="${param.w == 'openinventory'}">
     <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
     <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
+    <div>
+        <fmt:message key="button.4a"/>
+        <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=openinventory&flavour=simple&id=${param.id}"><fmt:message key="button.5"/></a></div>
+        <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=openinventory&flavour=redlist&id=${param.id}"><fmt:message key="button.6"/></a></div>
+    </div>
     </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
         <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
@@ -98,13 +104,13 @@
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
-                <t:inventorytaxonheader />
+                <t:inventorytaxonheader flavour="${param.flavour}"/>
                 <tbody></tbody>
             </table>
         </form>
     </div>
 
-    <t:inventorymodel />
+    <t:inventorymodel flavour="${param.flavour}"/>
 
     <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
@@ -156,12 +162,12 @@
                     </tr></tbody>
                 </table>
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-                    <t:inventorytaxonheader />
+                    <t:inventorytaxonheader flavour="${param.flavour}"/>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
-                        <t:inventoryrow tax="${tax}" inv="${inv}" />
+                        <t:inventoryrow tax="${tax}" inv="${inv}" flavour="${param.flavour}"/>
                         </c:forEach>
-                        <t:inventoryrow />
+                        <t:inventoryrow flavour="${param.flavour}"/>
                     </tbody>
                 </table>
                 <div class="button" id="deleteselectedinv">Delete selected taxa</div>
@@ -263,7 +269,7 @@
             <tr class="geoelement">
                 <td>${inv.getCode()}</td>
                 <td sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
-                <td class="coordinates" data-lat="${inv.getLatitude()}" data-lng="${inv.getLongitude()}">${inv._getCoordinates()}</td>
+                <td class="coordinates" data-lat="${inv._getLatitude()}" data-lng="${inv._getLongitude()}">${inv._getCoordinates()}</td>
                 <td>${inv._getSampleTaxa(5)}</td>
             </tr>
         </c:forEach>
@@ -271,21 +277,22 @@
     </c:forEach>
     </c:if>
     <h2>How to prepare a table for upload</h2>
-    <p>Save a table with a header row, in a tab-separated text file. In the header row, write the name of the fields that you need. Note that <b>no field is compulsory</b>. You can include in the table <em>only the fields you need</em>.</p>
+    <p>Save a table with a header row, in a tab-separated text file. In the header row, write the name of the fields that you need. Note that <b>no field is compulsory</b>. You can include in the table <em>only the fields you need, in any order</em>.</p>
+    <p><b>If you use the field <code>code</code>, all the occurrences with the same code will be forcibly merged in the same inventory, even if they have different coordinates!</b> In this case, ensure that all the inventory-level fields of the records with the same <code>code</code> have the same values (or leave them blank except for the first record), as only the first record will be used. Note that you can still have different coordinates for each occurrence in the same inventory - for this, it is recommended to use <code>observationlatitude</code> and <code>observationlongitude</code> fields along with <code>code</code> for grouping.</p>
     <p>Follows the list of field names that are recognized. Those more commonly used are highlighted.</p>
-    <table style="empty-cells: hide; border-spacing:5px;">
+    <table style="empty-cells: hide; border-spacing:5px;" class="smalltext">
         <tr><th colspan="2"></th><th>Field name</th><th>Scope</th><th>Description</th></tr>
-        <tr class="highlight"><td rowspan="7" class="grouper">only one of</td><td rowspan="2" class="grouper">&#9830</td><td><code>latitude</code></td><td>Inventory</td><td>The latitude of the inventory, in decimal degrees or DMS (e.g. <code>37º26'13.4'' N</code>)</td></tr>
-        <tr class="highlight"><td><code>longitude</code></td><td>Inventory</td><td>The longitude of the inventory, in decimal degrees or DMS (e.g. <code>7º12'56.3'' W</code>)</td></tr>
-        <tr><td class="grouper">&#9830</td><td><code>coordinates</code></td><td>Inventory</td><td>The complete coordinates of the inventory in the form latitude, longitude. e.g. <code>37º26'13.4'' N 7º12'56.3'' W</code></td></tr>
-        <tr><td class="grouper">&#9830</td><td><code>wkt_geom</code></td><td>Inventory</td><td>The geographical expression of the inventory, in WKT format. Currently only pointz is supported.</td></tr>
-        <tr><td rowspan="2" class="grouper">&#9830</td><td><code>x</code></td><td>Inventory</td><td>The X coordinate (easting), in UTM WGS84. This assumes the UTM zone 29</td></tr>
+        <tr class="highlight"><td rowspan="7" class="grouper">only one of</td><td rowspan="2" class="grouper">&#8277</td><td><code>latitude</code></td><td>Inventory</td><td>The latitude of the inventory, in decimal degrees (e.g. <code>37.54778</code>) or DMS (e.g. <code>37º26'13.4'' N</code>)</td></tr>
+        <tr class="highlight"><td><code>longitude</code></td><td>Inventory</td><td>The longitude of the inventory, in decimal degrees (e.g. <code>37.54778 -8.34667</code>) or DMS (e.g. <code>7º12'56.3'' W</code>)</td></tr>
+        <tr><td class="grouper">&#8277</td><td><code>coordinates</code></td><td>Inventory</td><td>The complete coordinates of the inventory in the form latitude, longitude. e.g. <code>37.54778 -8.34667</code></td></tr>
+        <tr><td class="grouper">&#8277</td><td><code>wkt_geom</code></td><td>Inventory</td><td>The geographical expression of the inventory, in WKT format. Currently only pointz is supported.</td></tr>
+        <tr><td rowspan="2" class="grouper">&#8277</td><td><code>x</code></td><td>Inventory</td><td>The X coordinate (easting), in UTM WGS84. This assumes the UTM zone 29</td></tr>
         <tr><td><code>y</code></td><td>Inventory</td><td>The Y coordinate (northing), in UTM WGS84. This assumes the UTM zone 29</td></tr>
-        <tr class="highlight"><td class="grouper">&#9830</td><td><code>mgrs</code></td><td>Inventory</td><td>The UTM square in <a href="https://en.wikipedia.org/wiki/Military_Grid_Reference_System" target="_blank">MGRS format</a>, e.g. <code>29T NG3486</code></td></tr>
+        <tr class="highlight"><td class="grouper">&#8277</td><td><code>mgrs</code></td><td>Inventory</td><td>The UTM square in <a href="https://en.wikipedia.org/wiki/Military_Grid_Reference_System" target="_blank">MGRS format</a>, e.g. <code>29T NG3486</code></td></tr>
         <tr><td></td><td></td><td><code>elevation</code></td><td>Inventory</td><td>The altitude</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>taxa</code></td><td>Inventory</td><td>The list of taxa observed in this inventory. This can be a single taxon or a list of taxa separated by <code>+</code>. e.g. <code>cistus ladanifer+cistus crispus</code>. Taxa with doubtful identification can be suffixed with <code>?</code> and those in flower suffixed by <code>#</code>, e.g. <code>lavandula multifida#+sideritis hirsuta?</code></td></tr>
-        <tr class="highlight"><td rowspan="4" class="grouper">only one of</td><td class="grouper">&#9830</td><td><code>date</code></td><td>Inventory</td><td>The date of the inventory. This can be a precise date e.g. <code>12-9-2007</code> or a vague date using question marks e.g. <code>23-5-?</code></td></tr>
-        <tr><td rowspan="3" class="grouper">&#9830</td><td><code>year</code> <code>ano</code></td><td>Inventory</td><td>The year.</td></tr>
+        <tr class="highlight"><td rowspan="4" class="grouper">only one of</td><td class="grouper">&#8277</td><td><code>date</code></td><td>Inventory</td><td>The date of the inventory. This can be a precise date e.g. <code>12-9-2007</code> or a vague date using question marks e.g. <code>23-5-?</code></td></tr>
+        <tr><td rowspan="3" class="grouper">&#8277</td><td><code>year</code> <code>ano</code></td><td>Inventory</td><td>The year.</td></tr>
         <tr><td><code>month</code></td><td>Inventory</td><td>The month.</td></tr>
         <tr><td><code>day</code></td><td>Inventory</td><td>The day.</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>precision</code></td><td>Inventory</td><td>The precision of the coordinates. This can be a single number (e.g. <code>1km</code>), which denotes a radius around the given coordinate, or a square (e.g. <code>500x500m</code>), which denotes the size of the UTM square where the point is located.</td></tr>
@@ -293,7 +300,7 @@
         <tr><td></td><td></td><td><code>municipality</code></td><td>Inventory</td><td>The municipality of the locality.</td></tr>
         <tr><td></td><td></td><td><code>province</code></td><td>Inventory</td><td>The province of the locality.</td></tr>
         <tr><td></td><td></td><td><code>county</code></td><td>Inventory</td><td>The county of the locality.</td></tr>
-        <tr><td></td><td></td><td><code>code</code> <code>código</code> <code>inventário</code></td><td>Inventory</td><td>The short code of the inventory.</td></tr>
+        <tr><td></td><td></td><td><code>code</code> <code>código</code> <code>inventário</code></td><td>Inventory</td><td>The short code of the inventory. <b>All records with the same value in this field will be merged in the same inventory.</b></td></tr>
         <tr><td></td><td></td><td><code>habitat</code></td><td>Inventory</td><td>The habitat applicable to all taxa in this inventory.</td></tr>
         <tr><td></td><td></td><td><code>threats</code></td><td>Inventory</td><td>The threats applicable to all taxa in this inventory.</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>observers</code></td><td>Inventory</td><td>The observers, as a comma-separated list of person names.</td></tr>
@@ -310,9 +317,9 @@
         <tr><td></td><td></td><td><code>excludeReason</code></td><td>Occurrence</td><td>If this occurrence is to be excluded from analyses, for what reason. One of: <code>d</code> Destroyed <code>m</code> Probably misidentified <code>w</code> Wrong coordinates <code>e</code> Escaped from cultivation <code>i</code> Introduced <code>o</code> Other reason</td></tr>
         <tr><td></td><td></td><td><code>hasphoto</code></td><td>Occurrence</td><td>Whether and which photos were taken. One of: <code>s</code> Specimen photo <code>a</code> Threat photo <code>sa</code> Specimen+Threat photo</td></tr>
         <tr><td></td><td></td><td><code>hasspecimen</code></td><td>Occurrence</td><td>How many specimens were collected, if any.</td></tr>
-        <tr><td rowspan="3" class="grouper">only one of</td><td rowspan="2" class="grouper">&#9830</td><td><code>observationlatitude</code></td><td>Occurrence</td><td>The latitude of this occurrence, which can be different from the Inventory. In decimal degrees or DMS.</td></tr>
+        <tr><td rowspan="3" class="grouper">only one of</td><td rowspan="2" class="grouper">&#8277</td><td><code>observationlatitude</code></td><td>Occurrence</td><td>The latitude of this occurrence, which can be different from the Inventory. In decimal degrees or DMS.</td></tr>
         <tr><td><code>observationlongitude</code></td><td>Occurrence</td><td>The longitude of this occurrence, which can be different from the Inventory. In decimal degrees or DMS.</td></tr>
-        <tr><td class="grouper">&#9830</td><td><code>observationcoordinates</code></td><td>Occurrence</td><td>The complete coordinates of this occurrence, which can be different from the Inventory.</td></tr>
+        <tr><td class="grouper">&#8277</td><td><code>observationcoordinates</code></td><td>Occurrence</td><td>The complete coordinates of this occurrence, which can be different from the Inventory.</td></tr>
         <tr><td></td><td></td><td><code>labeldata</code></td><td>Occurrence</td><td>The data written in the label of the herbarium voucher.</td></tr>
         <tr><td></td><td></td><td><code>accession</code> <code>codHerbario</code></td><td>Occurrence</td><td>The accession code of the herbarium voucher.</td></tr>
         <tr><td></td><td></td><td><code>specificthreats</code></td><td>Occurrence</td><td>The threats applicable to this taxon only.</td></tr>
@@ -481,7 +488,7 @@
             </c:forEach>
             <c:forEach var="occ" items="${externaloccurrences}">
                 <tr class="geoelement hidden">
-                    <td class="coordinates" data-lat="${occ.getLatitude()}" data-lng="${occ.getLongitude()}"
+                    <td class="coordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}"
                         data-symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"></td>
                 </tr>
             </c:forEach>

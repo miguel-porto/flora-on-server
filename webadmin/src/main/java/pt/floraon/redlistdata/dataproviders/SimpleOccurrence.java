@@ -90,17 +90,17 @@ public class SimpleOccurrence extends Inventory {
     }
 
     @Override
-    public Float getLatitude() {
+    public Float _getLatitude() {
         if(this.getOccurrence().getObservationLatitude() == null)
-            return super.getLatitude();
+            return super._getLatitude();
         else
             return this.getOccurrence().getObservationLatitude();
     }
 
     @Override
-    public Float getLongitude() {
+    public Float _getLongitude() {
         if(this.getOccurrence().getObservationLongitude() == null)
-            return super.getLongitude();
+            return super._getLongitude();
         else
             return this.getOccurrence().getObservationLongitude();
     }

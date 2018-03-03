@@ -48,8 +48,8 @@ public class BasicOccurrenceFilter implements OccurrenceProcessor.OccurrenceFilt
     public boolean enter(SimpleOccurrence so) {
         boolean wasDestroyed;
 //        Gson gs = new GsonBuilder().setPrettyPrinting().create();
-//System.out.println("Enter? "+ so.getLatitude()+", "+so.getLongitude()+" Y:"+so.getYear());
-        if(so.getLatitude() == null || so.getLongitude() == null) return false;
+//System.out.println("Enter? "+ so._getLatitude()+", "+so._getLongitude()+" Y:"+so.getYear());
+        if(so._getLatitude() == null || so._getLongitude() == null) return false;
         if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
         // if it was destroyed, then this will go forced into historical record
         wasDestroyed = so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() == OccurrenceConstants.PresenceStatus.DESTROYED;
@@ -73,7 +73,7 @@ public class BasicOccurrenceFilter implements OccurrenceProcessor.OccurrenceFilt
         if(clippingPolygon != null) {
             boolean tmp2 = false;
             for(Map.Entry<String, Polygon> po : clippingPolygon) {
-                if(po.getValue().contains(new Point2D(so.getLongitude(), so.getLatitude()))) {
+                if(po.getValue().contains(new Point2D(so._getLongitude(), so._getLatitude()))) {
                     tmp2 = true;
                     break;
                 }

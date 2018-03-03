@@ -14,11 +14,15 @@ h2 {margin:8px 0 5px;font-size:1em;padding:0 4px 6px;}
 h3 {margin:0}
 p {margin:3px;}
 code {
-    background-color: #d1f3f5;
-    padding: 2px 4px;
+    background-color: #a7d4ff;
+    padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.9em;
     line-height:1.5em;
+    margin:2px;
+    display:inline-block;
+    vertical-align:middle;
+    font-weight: normal;
 }
 .inlineblock {display: inline-block !important}
 .inlineflex {display: inline-flex !important}

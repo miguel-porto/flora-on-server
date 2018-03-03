@@ -127,7 +127,7 @@ td.grouper {
 #topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
 .occurrencetable tbody tr td {cursor: pointer; height:16px; padding:2px}
-.geoelement.selected, .geoelement.selected td, .coordinates.selected td {background-color:#ffff76 !important;}
+.geoelement.selected:not(tr), .geoelement.selected td:not(.selectcol), .coordinates.selected td:not(.selectcol) {background-color:#ffff76 !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a; word-break: break-all}
 .occurrencetable selectcol {width:0;}
@@ -168,6 +168,7 @@ td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !importan
     margin: 4px;
     transform:scale(0.5);
     transition: transform 0.2s;
+    display: inline-block;
 }
 
 .selectcol .selectbutton.selected {
@@ -175,7 +176,7 @@ td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !importan
     transform:scale(1);
 }
 
-td.selectcol {background-color: transparent !important; padding:0 !important;}
+td.selectcol {background-color: transparent !important; padding:0 !important; text-align:center;}
 
 .inventory {
     margin: 36px 16px;
