@@ -146,7 +146,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
                 Float olat = 0f;
                 int count = 0;
                 for(OBSERVED_IN oi : _getTaxa()) {
-                    if(Constants.isNoData(oi.getObservationLatitude())) continue;
+                    if(Constants.isNullOrNoData(oi.getObservationLatitude())) continue;
                     olat += oi.getObservationLatitude();
                     count ++;
                 }
@@ -166,7 +166,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
                 Float olng = 0f;
                 int count = 0;
                 for(OBSERVED_IN oi : _getTaxa()) {
-                    if(Constants.isNoData(oi.getObservationLongitude())) continue;
+                    if(Constants.isNullOrNoData(oi.getObservationLongitude())) continue;
                     olng += oi.getObservationLongitude();
                     count ++;
                 }

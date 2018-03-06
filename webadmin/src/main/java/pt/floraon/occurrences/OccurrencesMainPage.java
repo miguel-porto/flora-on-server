@@ -174,6 +174,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 if(tu != null)  // if it is all occurrences, we skip this check cause it takes a few seconds
                     request.setAttribute("nproblems", driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));
+                request.setAttribute("historicalYear", 1991);   // TODO this should be user configuration
                 break;
 
             case "uploads":
@@ -197,7 +198,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 List<JobRunner> pending = new ArrayList<>();
                 for(String job : JobSubmitter.getJobList()) {
-                    jline.internal.Log.info(job + JobSubmitter.getJob(job).getOwner().getName());
+//                    jline.internal.Log.info(job + JobSubmitter.getJob(job).getOwner().getName());
                     if(user.equals(JobSubmitter.getJob(job).getOwner())
                             && OccurrenceImporterJob.class.isAssignableFrom(JobSubmitter.getJob(job).getJob().getClass()))
                         pending.add(JobSubmitter.getJob(job));

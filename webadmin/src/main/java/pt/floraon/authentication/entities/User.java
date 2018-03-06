@@ -599,4 +599,9 @@ public class User extends NamedDBNode {
 	public int hashCode() {
 		return this.getID().hashCode();
 	}
+
+	@Override
+	public String toString() {
+		return this.getName();
+	}
 }

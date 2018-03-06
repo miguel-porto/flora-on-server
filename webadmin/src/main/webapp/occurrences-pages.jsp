@@ -81,7 +81,7 @@
             <td data-name="locality">${inv.getLocality()}</td>
             <td sorttable_customkey="${inv._getDateYMD()}" data-name="date">${inv._getDate()}</td>
             <td class="coordinates" data-lat="${inv._getLatitude()}" data-lng="${inv._getLongitude()}">${inv._getInventoryCoordinates()}</td>
-            <td class="taxon"><a href="?w=openinventory&id=${inv._getIDURLEncoded()}">${inv._getSampleTaxa(100)}</a></td>
+            <td class="taxon"><a href="?w=openinventory&flavour=redlist&id=${inv._getIDURLEncoded()}">${inv._getSampleTaxa(100)}</a></td>
         </tr>
     </c:forEach>
     </table>
@@ -487,10 +487,12 @@
                 <t:occurrencerow flavour="${param.flavour}" occ="${occ}" userMap="${userMap}"/>
             </c:forEach>
             <c:forEach var="occ" items="${externaloccurrences}">
-                <tr class="geoelement hidden">
+                <t:occurrencerow flavour="${param.flavour}" occ="${occ}" userMap="${userMap}" locked="true"
+                    symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"/>
+                <%--<tr class="geoelement hidden">
                     <td class="coordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}"
                         data-symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"></td>
-                </tr>
+                </tr>--%>
             </c:forEach>
             </tbody>
         </table>

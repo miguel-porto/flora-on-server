@@ -1,5 +1,7 @@
 package pt.floraon.redlistdata.dataproviders;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.OccurrenceConstants;
@@ -31,6 +33,8 @@ public class SimpleOccurrence extends Inventory {
     }
 
     public OBSERVED_IN getOccurrence() {
+        if(occurrence == null)
+            this.setOccurrence(this._getTaxa()[0]);
         return occurrence;
     }
 
@@ -81,6 +85,7 @@ public class SimpleOccurrence extends Inventory {
         this.occurrence.setConfidence(confidence);
         this.occurrence.setPhenoState(flowering);
         this.occurrence.setNaturalization(escaped ? OccurrenceConstants.OccurrenceNaturalization.ESCAPED : null);
+        this.setUnmatchedOccurrences(Collections.singletonList(this.occurrence));
 
 /*
         getInventory().getPrecision()

@@ -113,7 +113,7 @@ td.grouper {
     margin-top: -6px !important;
 }
 
-.redcrossicon {background-color:transparent; border:2px solid red; transition: width 0.5s, height 0.5;}
+.opencircleicon {background-color:transparent; border:2px solid red; transition: width 0.5s, height 0.5;}
 .blackcircleicon {background-color:black; border:2px solid red;}
 
 .bigoption {
@@ -126,7 +126,8 @@ td.grouper {
 /*.occurrencetable {table-layout: fixed;}*/
 #topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
-.occurrencetable tbody tr td {cursor: pointer; height:16px; padding:2px}
+.occurrencetable tbody tr td {height:16px; padding:2px}
+.occurrencetable tbody tr td.editable {cursor: pointer;}
 .geoelement.selected:not(tr), .geoelement.selected td:not(.selectcol), .coordinates.selected td:not(.selectcol) {background-color:#ffff76 !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a; word-break: break-all}

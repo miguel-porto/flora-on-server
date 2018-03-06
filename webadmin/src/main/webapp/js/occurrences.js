@@ -3,7 +3,7 @@ var filterTimeout = null;
 var showPointsOnMap;
 var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
-var redCross = L.divIcon({className: 'redcrossicon', bgPos: [-4, -4], iconSize: [8, 8]});
+var openCircle = L.divIcon({className: 'opencircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var blackCircle = L.divIcon({className: 'blackcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 /*var redCircle = L.icon({
     iconUrl: 'images/redcircle.png',
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    showPointsOnMap = projectPointsOnMap(null, {stack:true});
+    showPointsOnMap = projectPointsOnMap();
 
     attachSuggestionHandler('taxonsearchbox', 'checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('authorsearchbox', 'checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
@@ -527,23 +527,22 @@ function selectGeoElement(cell, value, clearothers) {
         if(geoel.querySelector('.selectbutton'))
             geoel.querySelector('.selectbutton').classList.toggle('selected');
         if(geoel.marker) geoel.marker.classList.toggle('selected');
-        return;
-    }
-
-    if(clearothers) {
-        deselectGeoElements(geoel.parentNode);
-    }
-
-    if(value) {
-        geoel.classList.add('selected');
-        if(geoel.querySelector('.selectbutton'))
-            geoel.querySelector('.selectbutton').classList.add('selected');
-        if(geoel.marker) geoel.marker.classList.add('selected');
     } else {
-        geoel.classList.remove('selected');
-        if(geoel.querySelector('.selectbutton'))
-            geoel.querySelector('.selectbutton').classList.remove('selected');
-        if(geoel.marker) geoel.marker.classList.remove('selected');
+        if(clearothers) {
+            deselectGeoElements(geoel.parentNode);
+        }
+
+        if(value) {
+            geoel.classList.add('selected');
+            if(geoel.querySelector('.selectbutton'))
+                geoel.querySelector('.selectbutton').classList.add('selected');
+            if(geoel.marker) geoel.marker.classList.add('selected');
+        } else {
+            geoel.classList.remove('selected');
+            if(geoel.querySelector('.selectbutton'))
+                geoel.querySelector('.selectbutton').classList.remove('selected');
+            if(geoel.marker) geoel.marker.classList.remove('selected');
+        }
     }
 }
 
@@ -577,7 +576,6 @@ function removeGeoElements(elements) {
 
 function projectPointsOnMap(ota, markerOptions) {
     markerOptions = Object.assign({icon: redCircle, label: false}, markerOptions);
-    var defaults = markerOptions;
     if(!ota)
         var ot = document.querySelectorAll('.geoelement');
     else {
@@ -591,24 +589,22 @@ function projectPointsOnMap(ota, markerOptions) {
         var dispall = confirm('There are more than 5000 points. Do you want to display them all?');
         if(!dispall) return false;
     }
-    var coo;
+    var coo, tmpstyle;
     for(var i=0; i<ot.length; i++) {
         coo = ot[i].querySelectorAll('.coordinates'); // FIXME this selector selects nested geoelements, it shouldn't
         for(var j=0; j<coo.length; j++) {
             if(!coo[j].getAttribute('data-lat') || !coo[j].getAttribute('data-lng')) continue;
             if(getParentbyClass(coo[j], 'geoelement') != ot[i]) continue;
+            tmpstyle = Object.assign({}, markerOptions);
             if(markerOptions.label)
-                markerOptions.label = coo[j].getAttribute('data-label');
+                tmpstyle.label = coo[j].getAttribute('data-label');
             if(parseInt(coo[j].getAttribute('data-symbol')) == 2)
-                markerOptions.icon = redCross;
+                tmpstyle.icon = openCircle;
             else if(parseInt(coo[j].getAttribute('data-symbol')) == 1)
-                markerOptions.icon = blackCircle;
-            else
-                markerOptions.icon = defaults.icon;
-                //FIXME HERE HERE
+                tmpstyle.icon = blackCircle;
 //    console.log("added "+parseFloat(coo[j].getAttribute('data-lat'))+", "+parseFloat(coo[j].getAttribute('data-lng')));
             addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng'))
-                , ot[i], coo[j].classList.contains('editable'), markerOptions);
+                , ot[i], coo[j].classList.contains('editable'), tmpstyle);
         }
     }
     return true;
@@ -616,7 +612,7 @@ function projectPointsOnMap(ota, markerOptions) {
 
 function addPointMarker(lat, lng, bondEl, draggable, options) {
     if(isNaN(lat) || isNaN(lng)) return;
-    options = Object.assign({icon: redCircle, stack: false}, options);
+    options = Object.assign({icon: redCircle}, options);
     var marker = L.marker([lat, lng], {icon: options.icon, draggable: draggable, keyboard: false});
     if(options.label)
         marker.bindPopup(options.label);
@@ -690,6 +686,10 @@ function markerClick(ev) {
     if(ev.target.tableRow) {
         var ss = ev.target.tableRow.querySelector('.singleselect') ? true : false;
         selectGeoElement(ev.target.tableRow, ss ? true : undefined, ss);
+        if(ev.target.tableRow.classList.contains('selected'))
+            ev.target.tableRow.scrollIntoView({behavior:'smooth', inline:'center', block:'center'});
+
+
 /*        var container = getParentbyClass(ev.target.tableRow, 'singleselection');
         if(container) {
             deselectGeoElements(container.querySelectorAll('.geoelement'));
