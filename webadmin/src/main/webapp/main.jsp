@@ -76,6 +76,7 @@
             <li class="section3"><div class="bullet"></div><span><a href="occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></span></li>
             </c:if>
             <c:if test="${user.isAdministrator()}"><li class="section4"><div class="bullet"></div><span><a href="adminpage">Administration</a></span></li></c:if>
+            <c:if test="${!user.isAdministrator() && !user.isGuest()}"><li class="section4"><div class="bullet"></div><span><a href="adminpage">Personal area</a></span></li></c:if>
         </ul>
 <%--
         <div class="bigbutton section2">

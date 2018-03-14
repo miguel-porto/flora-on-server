@@ -27,7 +27,7 @@
     <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users inventories" defaultvalue="false"/></c:if>
     </div>  <!-- top buttons -->
 
-    <t:inventorymodel flavour="${param.flavour}"/>
+    <t:inventorymodel />
 
     <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
@@ -93,8 +93,17 @@
     <div class="button anchorbutton"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
     <div>
         <fmt:message key="button.4a"/>
-        <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=openinventory&flavour=simple&id=${param.id}"><fmt:message key="button.5"/></a></div>
+        <c:forEach var="flv" items="${flavourList}" varStatus="loop">
+        <c:if test="${flv.getValue().showInInventoryView()}">
+            <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>
+            <div class="button anchorbutton ${sel}"><a href="?w=openinventory&flavour=${flv.getKey()}&id=${param.id}">${flv.getValue().getName()}</a></div>
+        </c:if>
+        </c:forEach>
+<%--
+        <fmt:message key="button.4a"/>
+        <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'inventory') ? 'selected' : ''}"><a href="?w=openinventory&flavour=inventory&id=${param.id}"><fmt:message key="button.5"/></a></div>
         <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=openinventory&flavour=redlist&id=${param.id}"><fmt:message key="button.6"/></a></div>
+--%>
     </div>
     </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
@@ -104,13 +113,14 @@
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
-                <t:inventorytaxonheader flavour="${param.flavour}"/>
+<%--                <t:inventorytaxonheader flavour="${param.flavour}"/>    --%>
+                <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
                 <tbody></tbody>
             </table>
         </form>
     </div>
 
-    <t:inventorymodel flavour="${param.flavour}"/>
+    <t:inventorymodel />
 
     <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
         <div class="heading2">
@@ -162,12 +172,13 @@
                     </tr></tbody>
                 </table>
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-                    <t:inventorytaxonheader flavour="${param.flavour}"/>
+<%--                    <t:inventorytaxonheader flavour="${param.flavour}"/>    --%>
+                    <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
-                        <t:inventoryrow tax="${tax}" inv="${inv}" flavour="${param.flavour}"/>
+                        <t:inventoryrow tax="${tax}" inv="${inv}" fields="${flavourfields}"/>
                         </c:forEach>
-                        <t:inventoryrow flavour="${param.flavour}"/>
+                        <t:inventoryrow fields="${flavourfields}"/>
                     </tbody>
                 </table>
                 <div class="button" id="deleteselectedinv">Delete selected taxa</div>
@@ -368,10 +379,12 @@
     <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
     <div>
         <fmt:message key="button.4a"/>
-        <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'simple') ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=simple"><fmt:message key="button.5"/></a></div>
-        <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=redlist"><fmt:message key="button.6"/></a></div>
-        <div class="button anchorbutton ${param.flavour == 'herbarium' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=herbarium"><fmt:message key="button.7"/></a></div>
-        <div class="button anchorbutton ${param.flavour == 'management' ? 'selected' : ''}"><a href="?w=occurrenceview&flavour=management"><fmt:message key="button.10"/></a></div>
+        <c:forEach var="flv" items="${flavourList}" varStatus="loop">
+        <c:if test="${flv.getValue().showInOccurrenceView()}">
+            <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>
+            <div class="button anchorbutton ${sel}"><a href="?w=occurrenceview&flavour=${flv.getKey()}">${flv.getValue().getName()}</a></div>
+        </c:if>
+        </c:forEach>
     </div>
     </div>  <!-- top buttons -->
     <div id="deleteoccurrences" class="hidden">
@@ -381,7 +394,7 @@
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
-                <t:occurrenceheader flavour="${param.flavour}"/>
+                <t:occurrenceheader fields="${flavourfields}"/>
                 <tbody></tbody>
             </table>
         </form>
@@ -396,7 +409,7 @@
                 <input type="submit" class="textbutton" value="Update"/>
             </div>
             <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-                <t:occurrenceheader flavour="${param.flavour}"/>
+                <t:occurrenceheader fields="${flavourfields}"/>
                 <tbody></tbody>
             </table>
         </form>
@@ -414,9 +427,9 @@
             <input type="submit" class="textbutton" value="Save"/>
         </div>
         <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
-            <t:occurrenceheader flavour="${param.flavour}"/>
+            <t:occurrenceheader fields="${flavourfields}"/>
             <tbody>
-                <t:occurrencerow flavour="${param.flavour}"/>
+                <t:occurrencerow fields="${flavourfields}"/>
             </tbody>
         </table>
     </form>
@@ -427,7 +440,7 @@
             <input type="submit" class="textbutton" value="Merge"/>
         </div>
         <table id="mergeoccurrencetable" class="verysmalltext">
-            <t:occurrenceheader flavour="${param.flavour}"/>
+            <t:occurrenceheader fields="${flavourfields}"/>
             <tbody></tbody>
         </table>
     </form>
@@ -481,13 +494,13 @@
             <t:pager />
         </div>
         <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
-            <t:occurrenceheader flavour="${param.flavour}"/>
+            <t:occurrenceheader fields="${flavourfields}"/>
             <tbody>
             <c:forEach var="occ" items="${occurrences}">
-                <t:occurrencerow flavour="${param.flavour}" occ="${occ}" userMap="${userMap}"/>
+                <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}"/>
             </c:forEach>
             <c:forEach var="occ" items="${externaloccurrences}">
-                <t:occurrencerow flavour="${param.flavour}" occ="${occ}" userMap="${userMap}" locked="true"
+                <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" locked="true" cssclass="external"
                     symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"/>
                 <%--<tr class="geoelement hidden">
                     <td class="coordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}"

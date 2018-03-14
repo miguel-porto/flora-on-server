@@ -41,13 +41,11 @@ public class AdminAPI extends FloraOnServlet {
         ListIterator<String> path = thisRequest.getPathIteratorAfter("admin");
         User user;
         Gson gs;
-        if(!thisRequest.getUser().canMANAGE_REDLIST_USERS()) {
-            thisRequest.error("You don't have privileges to do this action.");
-            return;
-        }
 
         switch (path.next()) {
             case "createuser":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
+
                 user = readUserBean(thisRequest);
                 if(user == null) break;
                 char[] pass = new char[0];
@@ -70,7 +68,11 @@ public class AdminAPI extends FloraOnServlet {
 
             case "updateuser":
                 user = readUserBean(thisRequest);
+                if(user == null) return;
+                if(!thisRequest.getUser().getID().equals(user.getID()))
+                    thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
+                thisRequest.refreshUser();
 /*
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println("UPDATE BEAN:");
@@ -79,11 +81,13 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             case "deleteuser":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 driver.getNodeWorkerDriver().deleteDocument(thisRequest.getParameterAsKey("databaseId"));
                 thisRequest.success("Ok");
                 break;
 
             case "newpassword":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 user = readUserBean(thisRequest);
                 if(user == null) break;
 
@@ -98,6 +102,7 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             case "setuserpolygon":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 Part filePart;
                 InputStream fileContent = null;
                 try {
@@ -134,6 +139,7 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             case "addtaxonprivileges":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 String[] taxa = thisRequest.request.getParameterValues("applicableTaxa");
                 String[] privileges = thisRequest.request.getParameterValues("taxonPrivileges");
 
@@ -149,16 +155,19 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             case "removetaxonprivileges":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 thisRequest.success(driver.getAdministration().removeTaxonPrivileges(thisRequest.getParameterAsKey("userId")
                         , thisRequest.getParameterAsInt("index")).getID());
                 break;
 
             case "removetaxonfromset":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 thisRequest.success(driver.getAdministration().removeTaxonFromPrivilegeSet(thisRequest.getParameterAsKey("userId")
                         , thisRequest.getParameterAsKey("taxEntId"), thisRequest.getParameterAsInt("index")).getID());
                 break;
 
             case "updatetaxonprivileges":
+                thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 String[] taxa1 = thisRequest.request.getParameterValues("applicableTaxa");
                 if(taxa1 == null || taxa1.length == 0) throw new FloraOnException("You must select at least one taxon.");
                 User u1 = driver.getAdministration().getUser(thisRequest.getParameterAsKey("userId"));

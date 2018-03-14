@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by miguel on 06-01-2017.
  */
-public enum Privileges  implements RedListEnums.LabelledEnum {
+public enum Privileges implements RedListEnums.LabelledEnum {
     VIEW_FULL_SHEET(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "View full sheet")
     , VIEW_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "View occurrences")
     , EXCLUDE_OCCURRENCES(PrivilegeType.REDLISTDATA, PrivilegeScope.PER_SPECIES, "Exclude occurrences")

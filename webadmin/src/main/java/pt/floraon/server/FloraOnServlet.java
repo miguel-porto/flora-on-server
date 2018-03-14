@@ -16,6 +16,7 @@ import org.apache.commons.io.IOUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.authentication.entities.User;
@@ -53,7 +54,6 @@ public class FloraOnServlet extends HttpServlet {
 		if(resp) throw new FloraOnException("Missing parameter.");
 	}
 
-
 	@Override
 	public final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -78,7 +78,7 @@ public class FloraOnServlet extends HttpServlet {
 		ThisRequest thisRequest = new ThisRequest(request, response);
 
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "ak43");
+		request.setAttribute("uuid", "ak46");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -406,5 +406,9 @@ public class FloraOnServlet extends HttpServlet {
 			}
 		}
 
+		public void ensurePrivilege(Privileges privilege) throws FloraOnException {
+			if(!this.getUser().hasPrivilege(privilege))
+				throw new FloraOnException("You don't have privileges for this operation");
+		}
 	}
 }

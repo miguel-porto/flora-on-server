@@ -1,4 +1,4 @@
-package pt.floraon.geocoding;
+package pt.floraon.authentication;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.entities.Inventory;
@@ -23,13 +23,14 @@ public class AdminPage extends FloraOnServlet {
 
         thisRequest.request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
-        // fetch unmatched occurrences and try to match interactively
-        InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
-                driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(null)
-                , false, true);
+        if(thisRequest.getUser().isAdministrator()) {
+            // fetch unmatched occurrences and try to match interactively
+            InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
+                    driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(null)
+                    , false, true);
 
-        thisRequest.request.setAttribute("nomatchquestions", il.getQuestions());
-        thisRequest.request.setAttribute("matchwarnings", il.getVerboseWarnings());
+            thisRequest.request.setAttribute("nomatchquestions", il.getQuestions());
+            thisRequest.request.setAttribute("matchwarnings", il.getVerboseWarnings());
 
 /*
         Iterator<Inventory> umo = driver.getOccurrenceDriver().getUnmatchedOccurrences();
@@ -50,6 +51,9 @@ public class AdminPage extends FloraOnServlet {
 
         }
 */
+        } else {
+
+        }
 
         thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
     }

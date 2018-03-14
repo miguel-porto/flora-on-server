@@ -173,6 +173,23 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     }
 
+    var ft = document.querySelectorAll('.expandbutton');
+    for(var i=0; i<ft.length; i++) {
+        addEvent('click', ft[i], function(ev) {
+//            ev.stopPropagation();
+            var th = getParentbyTag(ev.target, 'th');
+            var nodes = Array.prototype.slice.call( th.parentNode.children );
+            var ncol = nodes.indexOf(th);
+            var table = getParentbyTag(th, 'table');
+            var tds = table.querySelectorAll('tr td:nth-of-type(' + (ncol + 1) + ')');
+            for(var i=0; i<tds.length; i++)
+                tds[i].classList.toggle('collapsed');
+            var tds = table.querySelectorAll('tr th:nth-of-type(' + (ncol + 1) + ')');
+            for(var i=0; i<tds.length; i++)
+                tds[i].classList.toggle('collapsed');
+        });
+    }
+
     attachHelpButtons();
 });
 
@@ -589,7 +606,7 @@ function projectPointsOnMap(ota, markerOptions) {
         var dispall = confirm('There are more than 5000 points. Do you want to display them all?');
         if(!dispall) return false;
     }
-    var coo, tmpstyle;
+    var coo, tmpstyle, minLat = 1000, maxLat = -1000, minLng = 1000, maxLng = -1000, lat, lng;
     for(var i=0; i<ot.length; i++) {
         coo = ot[i].querySelectorAll('.coordinates'); // FIXME this selector selects nested geoelements, it shouldn't
         for(var j=0; j<coo.length; j++) {
@@ -603,9 +620,20 @@ function projectPointsOnMap(ota, markerOptions) {
             else if(parseInt(coo[j].getAttribute('data-symbol')) == 1)
                 tmpstyle.icon = blackCircle;
 //    console.log("added "+parseFloat(coo[j].getAttribute('data-lat'))+", "+parseFloat(coo[j].getAttribute('data-lng')));
-            addPointMarker(parseFloat(coo[j].getAttribute('data-lat')), parseFloat(coo[j].getAttribute('data-lng'))
-                , ot[i], coo[j].classList.contains('editable'), tmpstyle);
+            lat = parseFloat(coo[j].getAttribute('data-lat'));
+            lng = parseFloat(coo[j].getAttribute('data-lng'));
+            if(lat < -90 || lat > 90 || lng < -180 || lng > 180) continue;
+            if(lat < minLat) minLat = lat;
+            if(lat > maxLat) maxLat = lat;
+            if(lng < minLng) minLng = lng;
+            if(lng > maxLng) maxLng = lng;
+            addPointMarker(lat, lng, ot[i], coo[j].classList.contains('editable'), tmpstyle);
         }
+    }
+    if(minLat < 1000) {
+        var ranLat = maxLat - minLat;
+        var ranLng = maxLng - minLng;
+        myMap.fitBounds([[minLat - ranLat * 0.1, minLng - ranLng * 0.1], [maxLat + ranLat * 0.1, maxLng + ranLng * 0.1]]);
     }
     return true;
 }
@@ -620,10 +648,10 @@ function addPointMarker(lat, lng, bondEl, draggable, options) {
     marker.on('click', markerClick).addTo(myMap);
     if(bondEl) {
         marker.tableRow = bondEl;
-        if(!bondEl.marker) {
-            bondEl.marker = marker._icon;
-            bondEl.markerObj = marker;
-        }
+        if(bondEl.marker && options.removeIfDuplicate)
+            bondEl.marker.remove();
+        bondEl.marker = marker._icon;
+        bondEl.markerObj = marker;
 
 /*
         if(bondEl.marker)
@@ -687,8 +715,7 @@ function markerClick(ev) {
         var ss = ev.target.tableRow.querySelector('.singleselect') ? true : false;
         selectGeoElement(ev.target.tableRow, ss ? true : undefined, ss);
         if(ev.target.tableRow.classList.contains('selected'))
-            ev.target.tableRow.scrollIntoView({behavior:'smooth', inline:'center', block:'center'});
-
+            ev.target.tableRow.scrollIntoView({behavior:'smooth', inline:'start', block:'center'});
 
 /*        var container = getParentbyClass(ev.target.tableRow, 'singleselection');
         if(container) {
@@ -726,7 +753,7 @@ function mapClick(ev) {
 /*                par.setAttribute('data-lat', ll.lat);
                 par.setAttribute('data-lng', ll.lng);
                 onConfirmEdit({}, Math.round(ll.lat * 1000000) / 1000000 + ', ' + Math.round(ll.lng * 1000000) / 1000000, null, par, true);*/
-                projectPointsOnMap(ge);
+                projectPointsOnMap(ge, {removeIfDuplicate: true});
                 if(ge.marker) ge.marker.classList.add('selected');
                 return;
             }

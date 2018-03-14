@@ -28,6 +28,7 @@ public class User extends NamedDBNode {
 	private List<TaxonPrivileges> taxonPrivileges;
 	private List<String> uploadedTables;
 	private String userPolygons;
+	private boolean isGuest;
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)
@@ -69,6 +70,7 @@ public class User extends NamedDBNode {
 		this.userName = username;
 		this.privileges = privileges;
 		this.userType = UserType.REGULAR;
+		this.isGuest = false;
 		resetEffectivePrivileges();
 	}
 
@@ -78,6 +80,7 @@ public class User extends NamedDBNode {
 
 	public static User guest() throws DatabaseException {
 		User u = new User("guest", "Guest", new Privileges[] {});
+		u.isGuest = true;
 		return u;
 	}
 
@@ -161,7 +164,7 @@ public class User extends NamedDBNode {
 	}
 
 	public boolean isGuest() {
-		return privileges.size() == 0;
+		return privileges.size() == 0 && this.isGuest;
 	}
 
 	public void setPrivileges(Privileges[] assignedPrivileges) {

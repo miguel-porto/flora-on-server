@@ -5,6 +5,7 @@
     60% {transform: none; box-shadow:none;}
     100% {transform: none; box-shadow:none;}
 }
+
 #hidegeorref {
     animation-name: example;
     animation-duration: 8s;
@@ -126,16 +127,25 @@ td.grouper {
 /*.occurrencetable {table-layout: fixed;}*/
 #topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
-.occurrencetable tbody tr td {height:16px; padding:2px}
-.occurrencetable tbody tr td.editable {cursor: pointer;}
+.occurrencetable td {height:16px; padding:2px}
+.occurrencetable td.editable {cursor: pointer;}
 .geoelement.selected:not(tr), .geoelement.selected td:not(.selectcol), .coordinates.selected td:not(.selectcol) {background-color:#ffff76 !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
-.occurrencetable th {background-color: #8bc34a; word-break: break-all}
-.occurrencetable selectcol {width:0;}
+.occurrencetable th {background-color: #8bc34a; word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
+.occurrencetable th.selectcol, .occurrencetable td.selectcol {width:0;}
 .occurrencetable th.bigcol {min-width:150px;}
 .occurrencetable th.smallcol {width:10%;}
 tr.unmatched td {background-color: #ffcdd2 !important}
-tr.modified td {background-color: #ce93d8}
+tr.modified {outline: 2px dotted #b931ff;}
+tr.external td {font-style:italic}
+.occurrencetable td.collapsed, .occurrencetable th.collapsed {min-width:12px; width:16px; max-width:16px; overflow: hidden; font-size:0.6em; padding:0}
+.occurrencetable td.collapsed {text-overflow: ellipsis; white-space: nowrap;}
+.occurrencetable .expandbutton {padding:0; background:transparent; text-align:center; background-size:auto 100%; height:8px;position:absolute; width:100%; top:1px; filter:invert(100%);}
+.occurrencetable .expandbutton:hover {filter:none;}
+.occurrencetable th:not(.collapsed) .expandbutton {background-image:url(images/expand.png); background-position:center center; background-repeat: no-repeat;}
+.occurrencetable th.collapsed .expandbutton {background-image:url(images/resist.png); background-position:center center; background-repeat: no-repeat;}
+
+.expandbutton-clicker {width:100%; height:10px; margin:0;}
 
 #suggestionstaxon {position:relative; width:0; height:0;}
 /*#taxonsearchwrapper {width: 100%;}*/

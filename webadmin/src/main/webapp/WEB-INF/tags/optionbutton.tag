@@ -13,9 +13,15 @@
 <c:set var="val" value="${sessionScope[name] == null ? defaultvalue : (sessionScope[name] == false ? false : true)}" />
 <c:choose>
 <c:when test="${style == 'light'}">
-<div class="${classes} filter option${val ? ' selected' : ''}" data-option="${optionname}" data-value="${val ? 'false' : 'true'}" data-element="${element == null ? '' : element}" data-norefresh="${norefresh == null ? 'false' : norefresh}"><div class="light"></div><div>${title}</div></div>
+    <div class="${classes} filter option${val ? ' selected' : ''}" data-option="${optionname}" data-value="${val ? 'false' : 'true'}" data-element="${element == null ? '' : element}" data-norefresh="${norefresh == null ? 'false' : norefresh}"><div class="light"></div><div>${title}</div></div>
+</c:when>
+<c:when test="${style == 'invisible'}">
+    <div class="${classes} option${val ? ' selected' : ''}" data-option="${optionname}" data-value="${val ? 'false' : 'true'}" data-element="${element == null ? '' : element}" data-norefresh="${norefresh == null ? 'false' : norefresh}"></div>
+</c:when>
+<c:when test="${style == 'content'}">
+    <div class="${classes} option${val ? ' selected' : ''}" data-option="${optionname}" data-value="${val ? 'false' : 'true'}" data-element="${element == null ? '' : element}" data-norefresh="${norefresh == null ? 'false' : norefresh}"><jsp:doBody var="content" />${content}</div>
 </c:when>
 <c:otherwise>
-<div class="${classes} button option${val ? ' selected' : ''}" data-option="${optionname}" data-value="${val ? 'false' : 'true'}" data-element="${element == null ? '' : element}" data-norefresh="${norefresh == null ? 'false' : norefresh}">${title}</div>
+    <div class="${classes} button option${val ? ' selected' : ''}" data-option="${optionname}" data-value="${val ? 'false' : 'true'}" data-element="${element == null ? '' : element}" data-norefresh="${norefresh == null ? 'false' : norefresh}">${title}</div>
 </c:otherwise>
 </c:choose>

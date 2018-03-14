@@ -207,6 +207,7 @@ function attachOptionButtonHandler(url) {
     var optionbuttons = document.querySelectorAll('.option');
     for(var i = 0; i < optionbuttons.length; i++) {
         addEvent('click', optionbuttons[i], function(ev) {
+            ev.stopPropagation();
             var optb = getParentbyClass(ev.target, 'option');
             var name = optb.getAttribute('data-option');
             var value = optb.getAttribute('data-value');

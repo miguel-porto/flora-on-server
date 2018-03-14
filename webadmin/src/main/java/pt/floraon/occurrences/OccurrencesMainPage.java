@@ -13,6 +13,7 @@ import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.redlistdata.OccurrenceProcessor;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
@@ -108,8 +109,13 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     } catch(FloraOnException e) {
                         request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
                     }
-
                 }
+                // get the list of fields for the selected flavour
+                String flavour2 = thisRequest.getParameterAsString("flavour", "simple");
+                if(StringUtils.isStringEmpty(flavour2) || !OccurrenceConstants.occurrenceManagerFlavours.containsKey(flavour2))
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple").getFields());
+                else
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(flavour2).getFields());
                 break;
 
             case "fixissues":
@@ -130,9 +136,20 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     request.setAttribute("inventories"
                             , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
 
+                // Flavours
+                // Get the list of flavours
+                request.setAttribute("flavourList", OccurrenceConstants.occurrenceManagerFlavours.entrySet());
+
+                // get the list of fields for the selected flavour
+                String flavour1 = thisRequest.getParameterAsString("flavour", "simple");
+                if(StringUtils.isStringEmpty(flavour1) || !OccurrenceConstants.occurrenceManagerFlavours.containsKey(flavour1))
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple").getFields());
+                else
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(flavour1).getFields());
+
                 break;
 
-            case "occurrenceview":
+            case "occurrenceview":  // The main view of occurrences, with many flavours
                 INodeKey tu;
                 if(session.getAttribute("option-allusers") != null && (Boolean) session.getAttribute("option-allusers"))
                     tu = null;
@@ -167,6 +184,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                                 // TODO: only works for one provider
                                 edp.executeOccurrenceTextQuery(parsedFilter.get("NA"));
                                 request.setAttribute("externaloccurrences", edp.iterator());
+                                break;
                             }
                         }
                     }
@@ -175,6 +193,17 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 if(tu != null)  // if it is all occurrences, we skip this check cause it takes a few seconds
                     request.setAttribute("nproblems", driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));
                 request.setAttribute("historicalYear", 1991);   // TODO this should be user configuration
+
+                // Flavours
+                // Get the list of flavours
+                request.setAttribute("flavourList", OccurrenceConstants.occurrenceManagerFlavours.entrySet());
+
+                // get the list of fields for the selected flavour
+                String flavour = thisRequest.getParameterAsString("flavour", "simple");
+                if(StringUtils.isStringEmpty(flavour) || !OccurrenceConstants.occurrenceManagerFlavours.containsKey(flavour))
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple").getFields());
+                else
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(flavour).getFields());
                 break;
 
             case "uploads":
