@@ -188,18 +188,26 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         for(SimpleOccurrence o : this) {
             if(o._getLatitude() == null || o._getLongitude() == null) continue;
             Placemark pl = folder.createAndAddPlacemark();
+            boolean hasEstimate = o.getOccurrence().getAbundance() != null
+                    || (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA);
+
             String name = o.getOccurrence().getVerbTaxon() +
                     (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "?" : "") +
                     (o.getPrecision()._isImprecise() ? (" (" + o.getPrecision().toString() + ")") : "") +
-                    (o.getOccurrence().getAbundance() != null || (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA) ? " JÁ CONTADO" : "");
+                    (hasEstimate ? " JÁ CONTADO" : "");
 
-            String desc = (o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") +
-                    " (" + (o.getYear() == null ? "<sem ano>" : o.getYear()) + ")" +
-                    (o.getLocality() != null ? "; " + o.getLocality() : "") +
-                    (o.getVerbLocality() != null ? "; " + o.getVerbLocality() : "") +
-                    (o.getOccurrence().getComment() != null ? "; " + o.getOccurrence().getComment() : "") +
-                    (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA
-                        ? " " + o.getOccurrence().getTypeOfEstimate() + " = " + o.getOccurrence().getAbundance() : "");
+            String desc = (o.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL ? "<b>Identificação duvidosa</b>" : "") +
+                    "<table style=\"width:300px; font-family:sans; font-size:1.1em\">" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Precisão</td><td>" + (o.getPrecision()._isImprecise() ? o.getPrecision().toString() : "máxima") + "</td></tr>" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Data</td><td>" + o._getDate() + "</td></tr>" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Local</td><td>"+ (o.getLocality() != null ? o.getLocality() : "") +
+                        (o.getVerbLocality() != null ? "; " + o.getVerbLocality() : "") + "</td></tr>" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Observadores</td><td>" + (o._getObserverNames().length > 0 ? o._getObserverNames()[0] : "<sem observador>") + "</td></tr>" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Alt</td><td>" + (o.getElevation() == null ? "" : o.getElevation()) + "</td></tr>" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Notas</td><td>" + (o.getOccurrence().getComment() != null ? o.getOccurrence().getComment() : "") +
+                        (o.getOccurrence().getLabelData() != null ? o.getOccurrence().getLabelData() : "") + "</td></tr>" +
+                    "<tr><td style=\"background-color: #eee; width:0px\">Estimativa</td><td>" +
+                        (hasEstimate ? (o.getOccurrence().getTypeOfEstimate() + " = " + o.getOccurrence().getAbundance()) : "<não estimado>") + "</td></tr></table>";
 
             pl.withName(name).withDescription(desc)
                     .createAndSetPoint().addToCoordinates(o._getLongitude(), o._getLatitude());

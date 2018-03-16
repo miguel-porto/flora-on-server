@@ -64,6 +64,10 @@
         <tr><td colspan="2"><input type="submit" class="textbutton" value="Gravar alterações" /></td></tr>
     </table>
     </form>
+    <c:if test="${showDownload}">
+    <h2>Tools</h2>
+    <div class="button anchorbutton"><a href="admin/downloadallkml" target="_blank">Download KML with all taxa</a></div>
+    </c:if>
     </c:if>
 
 </body>

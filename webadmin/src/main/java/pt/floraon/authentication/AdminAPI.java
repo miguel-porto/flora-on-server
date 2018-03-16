@@ -7,27 +7,28 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.OccurrenceImporterJob;
+import pt.floraon.redlistdata.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.OccurrenceProcessor;
+import pt.floraon.redlistdata.RedListAdminPages;
+import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Part;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  * Created by miguel on 26-11-2016.
@@ -144,13 +145,23 @@ public class AdminAPI extends FloraOnServlet {
                 String[] privileges = thisRequest.request.getParameterValues("taxonPrivileges");
 
                 if(taxa == null || taxa.length == 0) throw new FloraOnException("You must select at least one taxon.");
+                if(privileges == null || privileges.length == 0) throw new FloraOnException("You must select at least one privilege.");
+                if(taxa.length == 1) {
+                    if(taxa[0].contains(",")) {
+                        taxa = taxa[0].replaceAll("\\s", "").split(",");
+                    }
+                }
+
+                Set<INodeKey> taxaKeys = new HashSet<>();
+                for(String t : taxa)
+                    taxaKeys.add(driver.asNodeKey(t));
 /*
                 gs = new GsonBuilder().setPrettyPrinting().create();
                 System.out.println(gs.toJson(taxa));
                 System.out.println(gs.toJson(privileges));
 */
                 User u = driver.getAdministration().getUser(thisRequest.getParameterAsKey("userId"));
-                u.addTaxonPrivileges(taxa, privileges);
+                u.addTaxonPrivileges(taxaKeys.toArray(new INodeKey[0]), privileges);
                 thisRequest.success(driver.getAdministration().updateUser(thisRequest.getParameterAsKey("userId"), u).getID());
                 break;
 
@@ -221,6 +232,42 @@ public class AdminAPI extends FloraOnServlet {
 
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
-        thisRequest.error("Expecting POST.");
+        ListIterator<String> path = thisRequest.getPathIteratorAfter("admin");
+        User user;
+        Gson gs;
+
+        switch (path.next()) {
+            case "downloadallkml":
+                Set<String> taxaToDl = new HashSet<>();
+                for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
+                    if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES))
+                        taxaToDl.addAll(new HashSet<>(Arrays.asList(tp.getApplicableTaxa())));
+                }
+                if(taxaToDl.size() == 0)
+                    throw new FloraOnException("Nothing to download.");
+
+                Iterator<TaxEnt> itTe =
+                        driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])).iterator();
+
+                List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
+                for(SimpleOccurrenceDataProvider edp : sodps1)
+                    edp.executeOccurrenceQuery(itTe);
+
+                thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"all-occurrences.kml\"");
+                PrintWriter wr = thisRequest.response.getWriter();
+
+                PolygonTheme clippingPolygon = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("PT_buffer.geojson"), null);
+                OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(   // TODO territory!
+                        driver.getRedListSettings("lu").getHistoricalThreshold() + 1
+                        , null, true, clippingPolygon)).exportKML(wr);
+                wr.flush();
+
+                break;
+
+            default:
+                thisRequest.error("Command not found.");
+        }
     }
 }

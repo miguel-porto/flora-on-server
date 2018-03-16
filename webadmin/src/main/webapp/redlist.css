@@ -329,6 +329,15 @@ input[type=submit].textbutton {
     margin:8px;
 }
 
+input[type=submit].textbutton.compact {
+    font-size: 0.9rem;
+    width:auto;
+    height:auto;
+    padding:2px 8px;
+    margin:2px;
+    box-shadow:0 0 6px #595959;
+}
+
 .button {
     font-size: 1.2rem;
     font-weight: normal;

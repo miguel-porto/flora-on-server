@@ -2142,19 +2142,19 @@
                     <c:forEach var="tsp" items="${tsprivileges}" varStatus="loop">
                         <tr>
                             <td style="vertical-align:top;">
-                                <ul>
+                                <table class="smalltext">
                                 <c:forEach var="tax" items="${tsp.getApplicableTaxa()}">
-                                    <li>
-                                        ${taxonMap.get(tax)}
-                                        <form class="poster inlineblock" data-path="../admin/removetaxonfromset" data-refresh="true">
-                                            <input type="submit" value="Remove" class="textbutton"/>
+                                    <tr>
+                                        <td>${taxonMap.containsKey(tax) ? taxonMap.get(tax) : 'ERROR'}</td>
+                                        <td><form class="poster inlineblock" data-path="../admin/removetaxonfromset" data-refresh="true">
+                                            <input type="submit" value="Remove" class="textbutton compact"/>
                                             <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                                             <input type="hidden" name="taxEntId" value="${tax}"/>
                                             <input type="hidden" name="index" value="${loop.index}"/>
-                                        </form>
-                                    </li>
+                                        </form></td>
+                                    </tr>
                                 </c:forEach>
-                                </ul>
+                                </table>
                                 <form class="poster" data-path="../admin/updatetaxonprivileges" data-refresh="true">
                                     <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
                                     <input type="hidden" name="privilegeSet" value="${loop.index}"/>
@@ -2199,6 +2199,27 @@
                                 <td class="multiplechooser">
                                     <c:forEach var="tmp" items="${redlisttaxonprivileges}">
                                         <input type="checkbox" name="taxonPrivileges" value="${tmp}" id="tspriv_${tmp}"/><label for="tspriv_${tmp}" class="wordtag togglebutton">${tmp.getLabel()}</label>
+                                    </c:forEach>
+                                </td>
+                            </tr>
+                        <tr><td colspan="2"><input type="submit" value="Add privileges for these taxa" class="textbutton"/></td></tr>
+                        </tbody>
+                    </table>
+                </form>
+                <h3>Add a new set of privileges multiple taxa by ID</h3>
+                <form class="poster" data-path="../admin/addtaxonprivileges" data-refresh="true">
+                    <input type="hidden" name="userId" value="${requesteduser.getID()}"/>
+                    <table>
+                        <thead><tr><th>Taxa</th><th>Privileges</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td style="vertical-align:top;">
+                                    Paste comma-separated IDs here<br/>
+                                    <textarea style="width:400px; height:200px" name="applicableTaxa"></textarea>
+                                </td>
+                                <td class="multiplechooser">
+                                    <c:forEach var="tmp" items="${redlisttaxonprivileges}">
+                                        <input type="checkbox" name="taxonPrivileges" value="${tmp}" id="tspriv2_${tmp}"/><label for="tspriv2_${tmp}" class="wordtag togglebutton">${tmp.getLabel()}</label>
                                     </c:forEach>
                                 </td>
                             </tr>

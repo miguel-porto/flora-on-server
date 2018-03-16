@@ -6,9 +6,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by miguel on 07-01-2017.
@@ -22,21 +20,26 @@ public class TaxonPrivileges {
 
     public TaxonPrivileges() {}
 
-    public TaxonPrivileges(String[] taxa, String[] privileges) {
-        this.applicableTaxa = taxa;
-        if(this.privileges == null) this.privileges = new HashSet<>();
+    public TaxonPrivileges(INodeKey[] taxa, String[] privileges) {
+        this(taxa, new HashSet<Privileges>());
 
-        for(String p : privileges) {
-            try {
-                this.privileges.add(Privileges.valueOf(p));
-            } catch (IllegalArgumentException e) {
-                Log.warn("Privilege " + p + " not found.");
+        if(this.privileges != null) {
+            for (String p : privileges) {
+                try {
+                    this.privileges.add(Privileges.valueOf(p));
+                } catch (IllegalArgumentException e) {
+                    Log.warn("Privilege " + p + " not found.");
+                }
             }
         }
     }
 
-    public TaxonPrivileges(String[] taxa, Set<Privileges> privileges) {
-        this.applicableTaxa = taxa;
+    public TaxonPrivileges(INodeKey[] taxa, Set<Privileges> privileges) {
+        Set<String> tmp = new HashSet<>();
+        for(INodeKey t : taxa)
+            tmp.add(t.toString());
+
+        this.applicableTaxa = tmp.toArray(new String[taxa.length]);
         this.privileges = privileges;
     }
 

@@ -472,17 +472,17 @@ public class User extends NamedDBNode {
 		return hasPrivilege(Privileges.MODIFY_OCCURRENCES);
 	}
 
-	public void addTaxonPrivileges(String[] taxa, String[] privileges) {
+	public void addTaxonPrivileges(INodeKey[] taxa, String[] privileges) {
 		if(this.taxonPrivileges == null)
 			this.taxonPrivileges = new ArrayList<>();
 		this.taxonPrivileges.add(new TaxonPrivileges(taxa, privileges));
 	}
 
-	public void addTaxonPrivileges(String[] taxa, Set<Privileges> privileges) {
+/*	public void addTaxonPrivileges(String[] taxa, Set<Privileges> privileges) {
 		if(this.taxonPrivileges == null)
 			this.taxonPrivileges = new ArrayList<>();
 		this.taxonPrivileges.add(new TaxonPrivileges(taxa, privileges));
-	}
+	}*/
 
 	public List<TaxonPrivileges> getTaxonPrivileges() {
 		return taxonPrivileges == null ? Collections.<TaxonPrivileges>emptyList() : taxonPrivileges;
