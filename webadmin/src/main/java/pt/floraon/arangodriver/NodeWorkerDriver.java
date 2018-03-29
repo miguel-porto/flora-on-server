@@ -127,13 +127,13 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public List<TaxEnt> getTaxEntByIds(String[] id) throws FloraOnException {
+	public Iterator<TaxEnt> getTaxEntByIds(String[] id) throws FloraOnException {
 		Map<String, Object> bp = new HashMap<>();
 		bp.put("ids", id);
 		try {
-			return database.query(AQLQueries.getString("NodeWorkerDriver.13"), bp, null, TaxEnt.class).asListRemaining();
+			return database.query(AQLQueries.getString("NodeWorkerDriver.13"), bp, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
-			return Collections.emptyList();
+			return Collections.emptyIterator();
 		}
 	}
 

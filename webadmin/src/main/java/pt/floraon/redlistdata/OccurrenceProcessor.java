@@ -288,7 +288,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         out.sizeOfSquare = sizeOfSquare;
         out.occurrenceList = occurrences;
 
-        out.computeMetrics();
+        if(sizeOfSquare > 0) out.computeMetrics();
 
         return out;
     }
@@ -325,7 +325,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         this.pointsInPolygons = ArrayListMultimap.create();
         this.occurrences = occurrences;
 
-        computeMetrics();
+        if(sizeOfSquare > 0) computeMetrics();
     }
 
     private void computeMetrics() {

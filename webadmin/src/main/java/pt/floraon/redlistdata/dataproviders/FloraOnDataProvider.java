@@ -4,6 +4,7 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import jline.internal.Log;
 import org.apache.http.client.utils.URIBuilder;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -110,6 +111,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             newQuery += "&what=occurrences&id=" + legacyID;
         }
 
+        Log.info("Executing Flora-On query");
         URI newUri;
         URL u;
         try {

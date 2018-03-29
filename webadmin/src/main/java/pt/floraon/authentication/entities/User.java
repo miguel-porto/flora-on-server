@@ -8,6 +8,7 @@ import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.entities.RedListSettings;
 
@@ -101,7 +102,7 @@ public class User extends NamedDBNode {
 	}
 
 	public PolygonTheme _getUserPolygonsAsTheme() {
-		if(userPolygons == null) return null;
+		if(StringUtils.isStringEmpty(userPolygons)) return null;
 		if(userPolygonsTheme == null) {
 			InputStream stream = new ByteArrayInputStream(userPolygons.getBytes(StandardCharsets.UTF_8));
 			return userPolygonsTheme = new PolygonTheme(stream, null);

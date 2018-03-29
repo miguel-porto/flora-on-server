@@ -3,7 +3,9 @@ package pt.floraon.authentication;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import jline.internal.Log;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +31,8 @@ import javax.servlet.http.Part;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
+import static org.apache.commons.collections.IteratorUtils.toList;
 
 /**
  * Created by miguel on 26-11-2016.
@@ -238,6 +242,8 @@ public class AdminAPI extends FloraOnServlet {
 
         switch (path.next()) {
             case "downloadallkml":
+                PolygonTheme clip = thisRequest.getUser()._getUserPolygonsAsTheme();
+
                 Set<String> taxaToDl = new HashSet<>();
                 for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
                     if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES))
@@ -246,22 +252,18 @@ public class AdminAPI extends FloraOnServlet {
                 if(taxaToDl.size() == 0)
                     throw new FloraOnException("Nothing to download.");
 
-                Iterator<TaxEnt> itTe =
-                        driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])).iterator();
-
                 List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
-
+                Log.info("Starting query");
                 for(SimpleOccurrenceDataProvider edp : sodps1)
-                    edp.executeOccurrenceQuery(itTe);
+                    edp.executeOccurrenceQuery(driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])));
+                Log.info("End query");
 
                 thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"all-occurrences.kml\"");
                 PrintWriter wr = thisRequest.response.getWriter();
 
-                PolygonTheme clippingPolygon = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("PT_buffer.geojson"), null);
-                OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(   // TODO territory!
-                        driver.getRedListSettings("lu").getHistoricalThreshold() + 1
-                        , null, true, clippingPolygon)).exportKML(wr);
+                OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
+                        null, null, true, (clip == null || clip.size() == 0) ? null : clip)).exportKML(wr);
                 wr.flush();
 
                 break;

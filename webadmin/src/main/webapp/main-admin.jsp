@@ -55,7 +55,7 @@
 
     <c:if test="${!user.isAdministrator() && !user.isGuest()}">
     <h1>Personal area</h1>
-    <form class="poster" data-path="admin/updateuser" data-refresh="true">
+    <%--<form class="poster" data-path="admin/updateuser" data-refresh="true">
     <input type="hidden" name="databaseId" value="${user.getID()}"/>
     <table class="small">
         <tr><th colspan="2">Dados da conta</th></tr>
@@ -63,7 +63,7 @@
         <tr><td class="title">Username <span class="info">Este é o nome que usa para fazer login. Não pode conter espaços.</span></td><td><input type="text" name="userName" value="${user.getUserName()}" /></td></tr>
         <tr><td colspan="2"><input type="submit" class="textbutton" value="Gravar alterações" /></td></tr>
     </table>
-    </form>
+    </form>--%>
     <c:if test="${showDownload}">
     <h2>Tools</h2>
     <div class="button anchorbutton"><a href="admin/downloadallkml" target="_blank">Download KML with all taxa</a></div>

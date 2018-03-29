@@ -262,8 +262,20 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 else
                     u = driver.asNodeKey(user.getID());
 
+                Iterator<Inventory> it1;
+                if(filter == null) {
+                    it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, true,null, null);
+                } else {
+                    Map<String, String> parsedFilter3;
+                    try {
+                        parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                        it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter3, u, null, null);
+                    } catch (FloraOnException e) {
+                        thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
+                        return;
+                    }
+                }
                 CSVPrinter csv = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
-                Iterator<Inventory> it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, true,null, null);
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
                 csv.printRecord("date", "observers", "latitude", "longitude", "mgrs", "verbLocality", "precision"
                         , "gpsCode", "taxa", "confidence", "phenoState", "abundance", "method", "photo", "collected"

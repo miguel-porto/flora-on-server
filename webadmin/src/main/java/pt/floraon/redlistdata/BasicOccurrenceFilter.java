@@ -46,6 +46,7 @@ public class BasicOccurrenceFilter implements OccurrenceProcessor.OccurrenceFilt
 
     @Override
     public boolean enter(SimpleOccurrence so) {
+//        System.out.println(so.getDataSource()+": "+ so.getOccurrence().getVerbTaxon()+", "+ so.getLatitude()+", "+so.getVerbLocality()+", "+so._getDate()+", "+so.getOccurrence().getPrivateComment());
         boolean wasDestroyed;
 //        Gson gs = new GsonBuilder().setPrettyPrinting().create();
 //System.out.println("Enter? "+ so._getLatitude()+", "+so._getLongitude()+" Y:"+so.getYear());

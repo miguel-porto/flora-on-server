@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
@@ -535,7 +536,7 @@ System.out.println(gs.toJson(getUser()));
                     warnings.add("DataSheet.msg.warning.1");
                     request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                     request.setAttribute("multipletaxa", true);
-                    List<TaxEnt> taxEnts = driver.getNodeWorkerDriver().getTaxEntByIds(request.getParameterValues("id"));
+                    Iterator<TaxEnt> taxEnts = driver.getNodeWorkerDriver().getTaxEntByIds(request.getParameterValues("id"));
                     request.setAttribute("taxa", taxEnts);
                     List<PreviousAssessment> prev = new ArrayList<>();
                     for (int i = 0; i < 2; i++) {
@@ -1140,7 +1141,10 @@ System.out.println(gs.toJson(getUser()));
                     // make a map with all taxon names used in privileges
                     for (User tmp : allusers) {
                         for (TaxonPrivileges tp : tmp.getTaxonPrivileges()) {
-                            for (TaxEnt te1 : driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa())) {
+                            Iterator<TaxEnt> teIt1 = driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa());
+                            TaxEnt te1;
+                            while(teIt1.hasNext()) {
+                                te1 = teIt1.next();
                                 taxonMap1.put(te1.getID(), te1.getName());
                             }
                         }
@@ -1167,8 +1171,11 @@ System.out.println(gs.toJson(getUser()));
 */
                 Map<String, String> taxonMap = new HashMap<>();
                 for(TaxonPrivileges tp : tmp.getTaxonPrivileges()) {
-                    for(TaxEnt te1 : driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa())) {
-                        taxonMap.put(te1.getID(), te1.getFullName());
+                    Iterator<TaxEnt> teIt2 = driver.getNodeWorkerDriver().getTaxEntByIds(tp.getApplicableTaxa());
+                    TaxEnt te2;
+                    while(teIt2.hasNext()) {
+                        te2 = teIt2.next();
+                        taxonMap.put(te2.getID(), te2.getName());
                     }
                 }
                 request.setAttribute("taxonMap", taxonMap);

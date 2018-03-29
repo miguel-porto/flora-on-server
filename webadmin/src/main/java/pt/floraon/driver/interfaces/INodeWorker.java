@@ -80,7 +80,7 @@ public interface INodeWorker {
 
 	Habitat getHabitatById(INodeKey id) throws FloraOnException;
 
-	List<TaxEnt> getTaxEntByIds(String[] id) throws FloraOnException;
+	Iterator<TaxEnt> getTaxEntByIds(String[] id) throws FloraOnException;
 
 	TaxEnt getTaxEntByOldId(int oldId);
 
