@@ -60,6 +60,13 @@
                 <input type="hidden" name="filter" value="date:na" />
                 <input type="submit" class="button" value="Sem data" />
             </form>
+            <form method="get" action="occurrences" class="inlineblock">
+                <input type="hidden" name="w" value="${param.w}" />
+                <input type="hidden" name="flavour" value="${param.flavour}" />
+                <input type="hidden" name="p" value="1" />
+                <input type="hidden" name="filter" value="tag:lista*alvo" />
+                <input type="submit" class="button" value="Lista Alvo" />
+            </form>
             <c:if test="${filter != null && filter != ''}">
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
@@ -481,6 +488,14 @@
                     <input type="hidden" name="filter" value="date:na" />
                     <input type="submit" class="button" value="Sem data" />
                 </form>
+                <form method="get" action="occurrences" class="inlineblock">
+                    <input type="hidden" name="w" value="${param.w}" />
+                    <input type="hidden" name="flavour" value="${param.flavour}" />
+                    <input type="hidden" name="p" value="1" />
+                    <input type="hidden" name="filter" value="tag:lista*alvo" />
+                    <input type="submit" class="button" value="Lista Alvo" />
+                </form>
+
                 <c:if test="${filter != null && filter != ''}">
                 <form method="get" action="occurrences" class="inlineblock">
                     <input type="hidden" name="w" value="${param.w}" />

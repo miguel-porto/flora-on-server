@@ -65,8 +65,23 @@
     </table>
     </form>--%>
     <c:if test="${showDownload}">
-    <h2>Tools</h2>
-    <div class="button anchorbutton"><a href="admin/downloadallkml" target="_blank">Download KML with all taxa</a></div>
+    <h2>Download occurrence records</h2>
+    <table>
+    <tr>
+        <td>Descarregar todas as ocorrências de todos os taxa que lhe estão atribuídos</td>
+        <td><div class="button anchorbutton"><a href="admin/downloadallkml" target="_blank">Download KML</a></div></td>
+    </tr>
+    <tr>
+        <td>Descarregar ocorrências LVF de todos os taxa que lhe estão atribuídos filtrando por autores</td>
+        <td>
+            <form action="admin/downloadallkml" method="post" enctype="multipart/form-data">
+                <c:forEach var="user" items="${allusers}">
+                <label><input type="checkbox" value="${user.getID()}" name="filterusers">${user.getName()}</input></label> | </c:forEach>
+                <br/><input type="submit" class="textbutton" value="Download KML"/>
+            </form>
+        </td>
+    </tr>
+    </table>
     </c:if>
     </c:if>
 

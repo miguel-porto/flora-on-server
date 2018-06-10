@@ -16,6 +16,7 @@
         <tr><td><code>lat:</code></td><td>Latitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>long:</code></td><td>Longitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>tax:</code></td><td>Taxon</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>tag:</code></td><td>Etiquetas</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>local:</code></td><td>Nome do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>code:</code></td><td>Código do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>gps:</code></td><td>Código GPS</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>

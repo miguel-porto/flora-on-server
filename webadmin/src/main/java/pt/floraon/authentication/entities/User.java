@@ -22,7 +22,7 @@ import static pt.floraon.authentication.Privileges.*;
 /**
  * Represents a user of the Flora-On Server, who can be an observer, collector, etc.
  */
-public class User extends NamedDBNode {
+public class User extends NamedDBNode implements Comparable<User> {
 	private String userName, password;
 	private UserType userType;
 	private Set<Privileges> privileges = new HashSet<>();
@@ -30,6 +30,12 @@ public class User extends NamedDBNode {
 	private List<String> uploadedTables;
 	private String userPolygons;
 	private boolean isGuest;
+
+	@Override
+	public int compareTo(User user) {
+		return this.getName().compareTo(user.getName());
+	}
+
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)

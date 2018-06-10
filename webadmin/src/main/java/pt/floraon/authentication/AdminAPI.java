@@ -18,8 +18,10 @@ import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.redlistdata.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.BasicOccurrenceFilterWithAuthors;
 import pt.floraon.redlistdata.OccurrenceProcessor;
 import pt.floraon.redlistdata.RedListAdminPages;
+import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -197,7 +199,7 @@ public class AdminAPI extends FloraOnServlet {
                 break;
 
             default:
-                thisRequest.error("Command not found.");
+                doFloraOnGet(thisRequest);
         }
     }
 
@@ -244,6 +246,7 @@ public class AdminAPI extends FloraOnServlet {
             case "downloadallkml":
                 PolygonTheme clip = thisRequest.getUser()._getUserPolygonsAsTheme();
 
+                // get the taxa for which the user can download occurrences
                 Set<String> taxaToDl = new HashSet<>();
                 for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
                     if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES))
@@ -253,19 +256,35 @@ public class AdminAPI extends FloraOnServlet {
                     throw new FloraOnException("Nothing to download.");
 
                 List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
-                Log.info("Starting query");
-                for(SimpleOccurrenceDataProvider edp : sodps1)
-                    edp.executeOccurrenceQuery(driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])));
-                Log.info("End query");
-
                 thisRequest.response.setContentType("application/vnd.google-earth.kml+xml; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"all-occurrences.kml\"");
                 PrintWriter wr = thisRequest.response.getWriter();
 
-                OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
-                        null, null, true, (clip == null || clip.size() == 0) ? null : clip)).exportKML(wr);
-                wr.flush();
+                Log.info("Starting query");
 
+                String[] filterByUsers = thisRequest.getParameterAsStringArray("filterusers");
+                OccurrenceProcessor op;
+                if(pt.floraon.driver.utils.StringUtils.isArrayEmpty(filterByUsers)) {
+                    for(SimpleOccurrenceDataProvider edp : sodps1)
+                        edp.executeOccurrenceQuery(driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])));
+
+                    op = OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
+                            null, null, true, (clip == null || clip.size() == 0) ? null : clip));
+                } else {
+                    for(SimpleOccurrenceDataProvider edp : sodps1) {
+                        if (edp instanceof InternalDataProvider)
+                            edp.executeOccurrenceQuery(driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])));
+                    }
+
+                    Set<String> maintainers = new HashSet<>(Arrays.asList(filterByUsers));
+                    op = OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilterWithAuthors(
+                            null, null, true, (clip == null || clip.size() == 0) ? null : clip
+                            , maintainers));
+                }
+                Log.info("End query");
+
+                op.exportKML(wr);
+                wr.flush();
                 break;
 
             default:

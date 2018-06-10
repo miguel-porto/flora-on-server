@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
+import jline.internal.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
@@ -184,9 +185,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
     public void exportKML(PrintWriter out) {
         final Kml kml = new Kml();
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
-
         for(SimpleOccurrence o : this) {
-            if(o._getLatitude() == null || o._getLongitude() == null) continue;
+            if(o._getLatitude() == null || o._getLongitude() == null || !enter(o)) continue;
             Placemark pl = folder.createAndAddPlacemark();
             boolean hasEstimate = o.getOccurrence().getAbundance() != null
                     || (o.getOccurrence().getTypeOfEstimate() != null && o.getOccurrence().getTypeOfEstimate() != RedListEnums.TypeOfPopulationEstimate.NO_DATA);

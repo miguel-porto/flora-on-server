@@ -614,6 +614,16 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+        // tag filter
+        if(filter.containsKey("tag")) {
+            if(filter.get("tag").toUpperCase().equals("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulltag")).append(" ");
+            } else {
+                bindVars.put("tag", filter.get("tag").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.tag")).append(" ");
+            }
+        }
+
         // gpsCode filter
         if(filter.containsKey("gps")) {
             if(filter.get("gps").toUpperCase().equals("NA")) {

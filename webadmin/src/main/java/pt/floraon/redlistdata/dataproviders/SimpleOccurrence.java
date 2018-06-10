@@ -73,6 +73,7 @@ public class SimpleOccurrence extends Inventory {
         this.setMonth(month);
         this.setDay(day);
         this._setObserverNames(new String[] {author});
+        this.setMaintainer(author);
 
         try {
             this.setPrecision(precision);

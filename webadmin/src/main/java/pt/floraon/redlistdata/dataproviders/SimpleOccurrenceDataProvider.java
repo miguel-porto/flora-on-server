@@ -1,5 +1,7 @@
 package pt.floraon.redlistdata.dataproviders;
 
+import com.google.common.collect.Iterators;
+import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -60,7 +62,7 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
 
     @Override
     public Iterator<SimpleOccurrence> iterator() {
-        return occurrenceList.iterator();
+        return occurrenceList == null ? Collections.emptyList().iterator() : occurrenceList.iterator();
     }
 
 }

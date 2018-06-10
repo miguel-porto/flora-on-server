@@ -1,6 +1,8 @@
 package pt.floraon.authentication;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.authentication.entities.TaxonPrivileges;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
@@ -8,11 +10,9 @@ import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by miguel on 16-04-2017.
@@ -23,6 +23,11 @@ public class AdminPage extends FloraOnServlet {
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         String what;
 
+        if(thisRequest.getUser().isGuest()) {
+            thisRequest.response.setStatus(HttpServletResponse.SC_FOUND);
+            thisRequest.response.setHeader("Location", "./main");
+            return;
+        }
 
         thisRequest.request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
@@ -58,6 +63,10 @@ public class AdminPage extends FloraOnServlet {
             for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
                 if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
                     thisRequest.request.setAttribute("showDownload", true);
+                    List<User> allusers = driver.getAdministration().getAllUsers(true);
+                    Collections.sort(allusers);
+                    thisRequest.request.setAttribute("allusers", allusers);
+                    break;
                 }
             }
         }
