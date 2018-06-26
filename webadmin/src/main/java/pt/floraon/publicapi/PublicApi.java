@@ -85,7 +85,7 @@ public class PublicApi extends FloraOnServlet {
 
                 wr = thisRequest.response.getWriter();
                 PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
-                OccurrenceProcessor.OccurrenceFilter oF = new BasicOccurrenceFilter(viewAll ? null : 1991, null, viewAll, cP);
+                OccurrenceProcessor.OccurrenceFilter oF = new BasicOccurrenceFilter(viewAll ? null : 1991, null, false, cP);
                 OccurrenceProcessor op1 = new OccurrenceProcessor(
                         sodps, protectedAreas, squareSize, oF);
                 op1.exportSVG(new PrintWriter(wr), true, false

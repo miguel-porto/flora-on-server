@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata;
 
+import jline.internal.Log;
 import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
@@ -7,6 +8,8 @@ import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 
 import java.util.Map;
+
+import static pt.floraon.occurrences.OccurrenceConstants.ConfidenceInIdentifiction.NULL;
 
 /**
  * A filter to filter out the occurrences without coordinates and optionally with other predicates.
@@ -51,27 +54,29 @@ public class BasicOccurrenceFilter implements OccurrenceProcessor.OccurrenceFilt
 //        Gson gs = new GsonBuilder().setPrettyPrinting().create();
 //System.out.println("Enter? "+ so._getLatitude()+", "+so._getLongitude()+" Y:"+so.getYear());
         if(so._getLatitude() == null || so._getLongitude() == null) return false;
-        if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
+
+        boolean enter;
+//        if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
         // if it was destroyed, then this will go forced into historical record
         wasDestroyed = so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() == OccurrenceConstants.PresenceStatus.DESTROYED;
-        if(wasDestroyed && !includeDoubtful && minimumYear != null && maximumYear == null) return false;
-        if(!includeDoubtful) {
-            if(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL
-                    || (so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed)
-                    || (so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
-                    || (so.getOccurrence().getAbundance() != null && !so.getOccurrence().getAbundance().wasDetected())
-                    || (so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty())
-                    ) return false;
-        }
-        boolean enter;
-        enter = !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
+
+        enter = !(wasDestroyed && !includeDoubtful && minimumYear != null && maximumYear == null);
+        // format: enter &= !(<excluding condition>);
+        enter &= !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
         enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear && !wasDestroyed);
+        if(!includeDoubtful) {
+            enter &= !(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.ALMOST_SURE
+                    || so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
+            enter &= !(so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed);
+            enter &= !(so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD);
+            enter &= !(so.getOccurrence().getAbundance() != null && !so.getOccurrence().getAbundance().wasDetected());
+            enter &= !(so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty());
+        }
         // Records that do not have a year are excluded from historical datasets except if marked as destroyed.
         // They're only included in the current dataset.
         enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0) && !wasDestroyed);
-        // format: enter &= !(<excluding condition>);
 
-        if(clippingPolygon != null) {
+        if(enter && clippingPolygon != null) {
             boolean tmp2 = false;
             for(Map.Entry<String, Polygon> po : clippingPolygon) {
                 if(po.getValue().contains(new Point2D(so._getLongitude(), so._getLatitude()))) {
@@ -79,7 +84,7 @@ public class BasicOccurrenceFilter implements OccurrenceProcessor.OccurrenceFilt
                     break;
                 }
             }
-            enter &= tmp2;
+            enter = tmp2;
         }
 
         return enter;

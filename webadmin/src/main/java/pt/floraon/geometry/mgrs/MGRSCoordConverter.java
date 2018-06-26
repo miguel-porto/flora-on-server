@@ -16,7 +16,6 @@ package pt.floraon.geometry.mgrs;
  * @see MGRSCoord
  */
 
-import org.jfree.util.Log;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.occurrences.Messages;

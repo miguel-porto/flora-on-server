@@ -1,7 +1,7 @@
 package pt.floraon.occurrences.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import org.jfree.util.Log;
+import jline.internal.Log;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.FloraOnException;

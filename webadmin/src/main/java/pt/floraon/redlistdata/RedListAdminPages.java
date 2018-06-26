@@ -561,7 +561,8 @@ System.out.println(gs.toJson(getUser()));
                 boolean viewAll = "all".equals(thisRequest.getParameterAsString("view"));
 
                 OccurrenceProcessor.OccurrenceFilter of = new BasicOccurrenceFilter(
-                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, viewAll, clippingPolygon2
+//                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, viewAll, clippingPolygon2
+                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, false, clippingPolygon2
                 );
 
                 OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, of);

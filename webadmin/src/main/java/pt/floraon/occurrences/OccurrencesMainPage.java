@@ -1,8 +1,8 @@
 package pt.floraon.occurrences;
 
+import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.jfree.util.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -13,7 +13,6 @@ import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.redlistdata.OccurrenceProcessor;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 

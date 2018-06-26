@@ -1,11 +1,7 @@
 package pt.floraon.bibliography;
 
-import com.arangodb.ArangoDB;
-import com.arangodb.ArangoDatabase;
-import com.arangodb.model.DocumentReplaceOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.jfree.util.Log;
 import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -21,7 +17,6 @@ import javax.servlet.annotation.WebServlet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Ref;
 import java.util.*;
 
 @MultipartConfig

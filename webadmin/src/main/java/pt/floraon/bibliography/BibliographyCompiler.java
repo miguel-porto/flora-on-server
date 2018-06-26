@@ -1,9 +1,9 @@
 package pt.floraon.bibliography;
 
 import com.google.common.collect.*;
+import jline.internal.Log;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.jfree.util.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
