@@ -34,7 +34,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         String autor, genero, especie, subespecie, notas;
         int id_reg, id_ent, ano, mes, dia, precisao, espontanea;
         float latitude, longitude;
-        boolean duvida, validado;
+        boolean duvida, validado, destroyed;
         Boolean floracao;
     }
 
@@ -61,7 +61,11 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                             , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
                             , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER
                             , o.espontanea == 1);
-                    so.getOccurrence().setPresenceStatus(o.validado ? null : OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
+                    if(!o.validado)
+                        so.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
+                    else if(o.destroyed)
+                        so.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.DESTROYED);
+
                     occurrenceList.add(so);
                 }
                 jr.endArray();
@@ -173,7 +177,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             e.printStackTrace();
             return;
         }
-System.out.println(u.toString());
+//System.out.println(u.toString());
         readBigJsonFromStream(u.openStream());
     }
 

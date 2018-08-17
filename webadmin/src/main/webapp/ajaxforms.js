@@ -89,6 +89,7 @@ function attachAJAXContent(callback) {
 
     for(var i=0; i<ajaxcontent.length; i++) {
         var url = ajaxcontent[i].getAttribute('data-url');
+        console.log('Fetching AJAX content from ' + url);
         if(url)
             createMyFunction(url, ajaxcontent[i])();
     }

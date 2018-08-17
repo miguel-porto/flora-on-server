@@ -1,6 +1,7 @@
 <%@ tag description="Occurrence table cell" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ attribute name="inventory" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
 <%@ attribute name="taxon" required="false" type="pt.floraon.occurrences.entities.OBSERVED_IN"%>
 <%@ attribute name="field" required="true"%>
@@ -44,7 +45,9 @@
 <c:when test="${field == 'date' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>
 <c:when test="${field == 'phenoState'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="phenoState">${taxon == null ? '' : taxon._getPhenoStateLabel()}</td></c:when>
 <c:when test="${field == 'coverIndex'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="coverIndex">${taxon == null ? '' : taxon.getCoverIndex()}</td></c:when>
-<c:when test="${field == 'observers' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="observers"><t:usernames idarray="${inventory == null ? null : inventory.getObservers()}" usermap="${userMap}"/></td></c:when>
+<c:when test="${field == 'observers' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="observers">
+<c:if test="${fn:length(inventory.getObservers()) > 0}"><t:usernames idarray="${inventory == null ? null : inventory.getObservers()}" usermap="${userMap}"/></c:if>
+<c:if test="${fn:length(inventory.getObservers()) == 0}"><c:forEach var="id" items="${inventory._getObserverNames()}" varStatus="loop">${id}<c:if test="${!loop.last}">, </c:if></c:forEach></c:if></td></c:when>
 <c:when test="${field == 'collectors' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="collectors"><t:usernames idarray="${inventory == null ? null : inventory.getCollectors()}" usermap="${userMap}"/></td></c:when>
 <c:when test="${field == 'locality' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="locality">${inventory == null ? '' : inventory.getLocality()}</td></c:when>
 <c:when test="${field == 'verbLocality' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>

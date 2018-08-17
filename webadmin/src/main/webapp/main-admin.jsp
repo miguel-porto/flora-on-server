@@ -24,6 +24,7 @@
 </head>
 <body>
     <c:if test="${user.isAdministrator()}">
+<%--
     <c:if test="${matchwarnings.size() > 0}">
     <div class="warning">
         <p><fmt:message key="error.7"/></p>
@@ -44,7 +45,7 @@
     <input type="submit" class="textbutton" value="<fmt:message key="occurrences.2"/>"/>
     </form>
     </c:if>
-
+--%>
     <h1>Toponomy</h1>
     <form action="upload/toponyms" method="post" enctype="multipart/form-data" class="poster" data-path="upload/toponyms">
         <input type="hidden" name="type" value="kml"/>
@@ -57,6 +58,7 @@
     <h1>Personal area</h1>
     <%--<form class="poster" data-path="admin/updateuser" data-refresh="true">
     <input type="hidden" name="databaseId" value="${user.getID()}"/>
+
     <table class="small">
         <tr><th colspan="2">Dados da conta</th></tr>
         <tr><td class="title">Name</td><td><input type="text" name="name" value="${user.getName()}" /></td></tr>

@@ -32,6 +32,7 @@ public class AdminPage extends FloraOnServlet {
         thisRequest.request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
         if(thisRequest.getUser().isAdministrator()) {
+/*
             // fetch unmatched occurrences and try to match interactively
             InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
                     driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(null)
@@ -39,8 +40,9 @@ public class AdminPage extends FloraOnServlet {
 
             thisRequest.request.setAttribute("nomatchquestions", il.getQuestions());
             thisRequest.request.setAttribute("matchwarnings", il.getVerboseWarnings());
-
+*/
 /*
+DEPRECATED
         Iterator<Inventory> umo = driver.getOccurrenceDriver().getUnmatchedOccurrences();
         Set<String> unmNames = new HashSet<>();
         int count = 0;

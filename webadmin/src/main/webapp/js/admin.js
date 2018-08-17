@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     attachFormPosters();
-
+    attachAJAXContent();
 });
 
 function fileUploadCallback(resp, ev) {

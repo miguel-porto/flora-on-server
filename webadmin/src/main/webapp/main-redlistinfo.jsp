@@ -44,6 +44,7 @@
             <li><a href="?w=alleditions"><fmt:message key="Separator.10"/></a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
+                <li><a href="?w=stats"><fmt:message key="Separator.11"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
                 <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
                 <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
@@ -181,9 +182,6 @@
     </c:when>
     <c:when test="${what=='main'}">
         <h1>Taxon index</h1>
-        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-        <t:ajaxloadhtml url="api/statistics-table?territory=${territory}" width="100px" height="100px" text="carregando estatísticas"/>
-        </c:if>
         <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
         <div class="filterpanel">
             <h3><fmt:message key="TaxonIndex.admin.1"/></h3>
@@ -2252,6 +2250,10 @@
     </c:when>
     <c:when test="${what=='editreference'}">
         <jsp:include page="/references/?w=edit"></jsp:include>
+    </c:when>
+
+    <c:when test="${what=='stats'}">
+        <jsp:include page="fragments/frag-statisticstable.jsp"></jsp:include>
     </c:when>
     </c:choose>
     </div>

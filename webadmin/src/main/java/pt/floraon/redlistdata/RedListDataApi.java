@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -7,7 +8,10 @@ import com.google.gson.reflect.TypeToken;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
@@ -16,6 +20,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
@@ -23,6 +28,7 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
+import pt.floraon.redlistdata.entities.Conservation;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.entities.RedListDataEntitySnapshot;
 import pt.floraon.redlistdata.entities.RedListSettings;
@@ -276,24 +282,30 @@ public class RedListDataApi extends FloraOnServlet {
                         , thisRequest.request.getParameterValues("taxEntID"), thisRequest.getParameterAsString("tag")) + " taxa");
                 break;
 
-            case "statistics-table":
-                territory = thisRequest.getParameterAsString("territory");
-                Iterator<RedListDataEntity> taxEntList = driver.getRedListData().getAllRedListData(territory, true, null);
-                if(thisRequest.getUser().canMANAGE_REDLIST_USERS()) {
-                    int count1 = 0, count2 = 0, count3 = 0;
-                    while (taxEntList.hasNext()) {
-                        RedListDataEntity rlde1 = taxEntList.next();
-                        if (rlde1.hasResponsibleForTexts()) count1++;
-                        if (rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.PRELIMINARY)
-                            count2++;
-                        if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY) count3++;
-                    }
-                    thisRequest.request.setAttribute("nrsppwithresponsible", count1);
-                    thisRequest.request.setAttribute("nrspppreliminaryassessment", count2);
-                    thisRequest.request.setAttribute("nrspptextsready", count3);
-                }
+            case "download-statistics":
+//                System.out.println(System.getProperty("java.io.tmpdir"));
+                String filename = thisRequest.getParameterAsString("file");
+                StringBuilder sb = new StringBuilder();
+                String cmd = String.format("print('%s');t <- read.csv('%s');print(t)", System.getProperty("java.io.tmpdir") + "/" + filename, System.getProperty("java.io.tmpdir") + "/" + filename);
+                Process pr = Runtime.getRuntime().exec("Rscript -e {" + cmd + "}");
 
-                thisRequest.request.getRequestDispatcher("/fragments/frag-statisticstable.jsp").forward(thisRequest.request, thisRequest.response);
+                IOUtils.copy(pr.getInputStream(), pw = thisRequest.response.getWriter());
+                pr.destroy();
+
+
+/*
+
+                FileInputStream fis = new FileInputStream(System.getProperty("java.io.tmpdir") + "/" + filename);
+                InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+                //response.setContentType("text/csv; charset=Windows-1252");
+                thisRequest.response.setContentType("text/csv; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"stats.csv\"");
+                thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+                //IOUtils.copy(jobInput, response.getOutputStream());
+                IOUtils.copy(isr, pw = thisRequest.response.getWriter());
+                fis.close();
+*/
+                pw.flush();
                 break;
 
             case "report-ninv":
