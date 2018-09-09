@@ -146,15 +146,29 @@ public class BaseFloraOnDriver {
 
 	public String buildRedListSheetCitation(RedListDataEntity rlde, Map<String, String> userMap) {
 		if(StringUtils.isArrayEmpty(rlde.getAssessment().getAuthors())) return "";
-		List<String> authors = new ArrayList<>();
+		Set<String> authors = new LinkedHashSet<>();
+		List<String> citationParts = new ArrayList<>();
+
 		for(String aut : rlde.getAssessment().getAuthors())
 			authors.add(userMap.get(aut));
 
-		String tmp = StringUtils.implode(", ", authors.toArray(new String[authors.size()]));
-		String out = (tmp == null ? "" : tmp) + ". " +
-				(rlde.getAssessment().getPublicationStatus().isPublished() ? rlde._getYearPublished() : "Unpublished") +
-				". <i>" + rlde.getTaxEnt().getName() + "</i>" +
-				". Lista Vermelha da Flora Vascular de Portugal Continental.";
-		return out;
+		for(String aut : rlde.getAssessment().getEvaluator())
+			authors.add(userMap.get(aut));
+
+		String tmp = StringUtils.implode(", ", authors.toArray(new String[0]));
+
+		String year;
+		if(rlde.getAssessment().getPublicationStatus() != null
+				&& rlde.getAssessment().getPublicationStatus().isPublished()
+				&& rlde._getYearPublished() != null)
+			year = rlde._getYearPublished().toString();
+		else
+			year = "unpublished";
+
+		citationParts.add(tmp + " (" + year + ")");
+		citationParts.add("<i>" + rlde.getTaxEnt().getName() + "</i>");
+		citationParts.add("Lista Vermelha da Flora Vascular de Portugal Continental");
+
+		return StringUtils.implode(". ", citationParts.toArray(new String[0]));
 	}
 }

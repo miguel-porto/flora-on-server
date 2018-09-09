@@ -474,7 +474,7 @@ table.simpleform input[type=text] {width:100%;box-sizing: border-box;}
     position:fixed;
     right:0;
     bottom:0;
-    z-index: 2;
+    z-index: 3;
     pointer-events: none;
 }
 
@@ -723,7 +723,7 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
     overflow-y:scroll;
     background-color:#ffd79b;
     box-shadow: 0 0 30px 5px black;
-    z-index: 1;
+    z-index: 2;
     transition: bottom 0.6s;
     font-size:1.1rem;
     padding:10px;

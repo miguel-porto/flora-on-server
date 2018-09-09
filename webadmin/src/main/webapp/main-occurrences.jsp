@@ -27,6 +27,7 @@
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
 	<!--<script src="js/leaflet-areaselect.js"></script>-->
+	<script src="js/getcursorxy.js"></script>
 	<script type="text/javascript" src="sorttable.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>
 	<script type="text/javascript" src="basefunctions.js?nocache=${uuid}"></script>

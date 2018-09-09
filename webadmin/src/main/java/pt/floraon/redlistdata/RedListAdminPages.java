@@ -603,13 +603,13 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "downloadtaxonrecords":
-                // FIXME missing setEffectivePrivilegesFor here
                 thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"), null);
                 if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES() && !thisRequest.getUser().hasEDIT_ALL_1_8())
                     throw new FloraOnException("You don't have privileges for this operation");
 
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
 
                 for(SimpleOccurrenceDataProvider edp : sodps1)
                     edp.executeOccurrenceQuery(te);
@@ -621,7 +621,8 @@ System.out.println(gs.toJson(getUser()));
                     OccurrenceProcessor.iterableOf(sodps1, BasicOccurrenceFilter.WithCoordinatesFilter()).exportKML(wr);
                 else {
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                    OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(driver.getRedListSettings(territory).getHistoricalThreshold() + 1
+                    OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
+                            "all".equals(thisRequest.getParameterAsString("view")) ? null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
                             , null, false, clippingPolygon)).exportKML(wr);
                 }
                 wr.flush();
@@ -1258,8 +1259,8 @@ System.out.println(gs.toJson(getUser()));
                 String filtertag = "Lista Alvo";
                 Map<String, MutableInt> statsFull = new HashMap<>();
                 Map<String, MutableInt> statsTag = new HashMap<>();
-                String[] statfields = new String[]{"nrWithResponsible", "nrWithTextsReady", "nrWithPreliminaryAssessment"
-                        , "nrUnderReview", "nrReadyToPublish"};
+                String[] statfields = new String[]{"nrWithResponsible", "nrTextsInProgress", "nrTextsAssessed"
+                        , "nrTextsAssessedReviewed", "nrReadyToPublish"};
                 for(String sf : statfields) {
                     statsFull.put(sf, new MutableInt(0));
                     statsTag.put(sf, new MutableInt(0));
@@ -1290,21 +1291,31 @@ System.out.println(gs.toJson(getUser()));
                         if (isFromTag)
                             statsTag.get("nrWithResponsible").increment();
                     }
-                    if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY) {
-                        statsFull.get("nrWithTextsReady").increment();
+
+                    if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.IN_PROGRESS
+                            && rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.NOT_EVALUATED
+                            && rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.NOT_REVISED) {
+                        statsFull.get("nrTextsInProgress").increment();
                         if (isFromTag)
-                            statsTag.get("nrWithTextsReady").increment();
-                    }
-                    if (rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.PRELIMINARY) {
-                        statsFull.get("nrWithPreliminaryAssessment").increment();
-                        if (isFromTag)
-                            statsTag.get("nrWithPreliminaryAssessment").increment();
+                            statsTag.get("nrTextsInProgress").increment();
                     }
 
-                    if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING) {
-                        statsFull.get("nrUnderReview").increment();
+                    if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY
+                            && rlde1.getAssessment().getAssessmentStatus() != RedListEnums.AssessmentStatus.NOT_EVALUATED
+                            && rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.NOT_REVISED) {
+                        statsFull.get("nrTextsAssessed").increment();
                         if (isFromTag)
-                            statsTag.get("nrUnderReview").increment();
+                            statsTag.get("nrTextsAssessed").increment();
+                    }
+
+                    if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY
+                            && rlde1.getAssessment().getAssessmentStatus() != RedListEnums.AssessmentStatus.NOT_EVALUATED
+                            && (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
+                                || rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_MAJOR
+                            )) {
+                        statsFull.get("nrTextsAssessedReviewed").increment();
+                        if (isFromTag)
+                            statsTag.get("nrTextsAssessedReviewed").increment();
                     }
 
                     if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) {

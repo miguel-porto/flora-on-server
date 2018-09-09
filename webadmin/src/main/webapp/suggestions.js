@@ -98,8 +98,16 @@ function attachSuggestionHandler(elid, url, suggestionBoxId, onClick, allowFreeT
 
             currentSuggestionAjax = fetchAJAX(url + encodeURIComponent(it), function(rt) {
                 currentSuggestionAjax = null;
-                document.getElementById(suggestionBoxId).innerHTML = rt;
-                makeSuggestionBox(document.getElementById(suggestionBoxId).querySelector('ul.suggestions'), input.id, onClick, separator);
+                var sb = document.getElementById(suggestionBoxId);
+                sb.innerHTML = rt;
+
+                if(typeof(getCursorXY) === typeof(Function)) {
+                    var cp = getCursorXY(input, input.selectionEnd);
+                    sb.style.position='absolute';
+                    sb.style.top=(cp.y + 16 + 8) + 'px';
+                }
+//                document.getElementById(suggestionBoxId).style.left=cp.x + 'px';
+                makeSuggestionBox(sb.querySelector('ul.suggestions'), input.id, onClick, separator);
             });
         }
 	});
@@ -200,7 +208,7 @@ function setSuggestionInputText(el, separator, text) {
     if(i == 0) i = 1;
     v[i-1] = text;
     for(i=0; i<v.length; i++) v[i] = v[i].trim();
-    el.value = v.join(separator + ' ');
+    el.value = v.join(separator + '');
 }
 
 function attachOptionButtonHandler(url) {

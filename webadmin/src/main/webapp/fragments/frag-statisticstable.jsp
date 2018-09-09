@@ -11,9 +11,9 @@
     <tr><th></th><th>All taxa</th><th>Lista Alvo</th></tr>
     </thead>
     <tr><td>Nº taxa com responsável</td><td class="bignumber">${nrWithResponsible_full}</td><td class="bignumber">${nrWithResponsible_tag}</td></tr>
-    <tr><td>Nº taxa com textos prontos</td><td class="bignumber">${nrWithTextsReady_full}</td><td class="bignumber">${nrWithTextsReady_tag}</td></tr>
-    <tr><td>Nº taxa com avaliação preliminar pronta</td><td class="bignumber">${nrWithPreliminaryAssessment_full}</td><td class="bignumber">${nrWithPreliminaryAssessment_tag}</td></tr>
-    <tr><td>Nº taxa em revisão</td><td class="bignumber">${nrUnderReview_full}</td><td class="bignumber">${nrUnderReview_tag}</td></tr>
+    <tr><td>Nº taxa com textos em curso</td><td class="bignumber">${nrTextsInProgress_full}</td><td class="bignumber">${nrTextsInProgress_tag}</td></tr>
+    <tr><td>Nº taxa com textos prontos, com avaliação preliminar pronta</td><td class="bignumber">${nrTextsAssessed_full}</td><td class="bignumber">${nrTextsAssessed_tag}</td></tr>
+    <tr><td>Nº taxa revistos em revisão</td><td class="bignumber">${nrTextsAssessedReviewed_full}</td><td class="bignumber">${nrTextsAssessedReviewed_tag}</td></tr>
     <tr><td>Nº taxa revistos prontos para publicar</td><td class="bignumber">${nrReadyToPublish_full}</td><td class="bignumber">${nrReadyToPublish_tag}</td></tr>
 </table>
 <h2>All taxa</h2>

@@ -161,6 +161,9 @@ tr.external td {font-style:italic}
     border:2px solid black;
 }
 
+#taxonsearchwrapper.editbox {min-width:60%;left:20%}
+/*.occurrencetable #taxonsearchwrapper textarea {height:200px;}*/
+
 td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !important}
 
 .occurrencetable textarea, .occurrencetable input[type=text] {

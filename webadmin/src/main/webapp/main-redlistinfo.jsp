@@ -1047,7 +1047,7 @@
                                 <input name="ecology_GenerationLength" type="text" class="trigger" value="${rlde.getEcology().getGenerationLength()}"/>
                                 <span class="legend alwaysvisible"><fmt:message key="DataSheet.msg.interval"/></span>
                             </td></tr>
-                            <tr class="triggered ${(rlde.getEcology().getGenerationLength() != null && rlde.getEcology().getGenerationLength().getMaxValue() != null) ? '' : 'hidden'}"><td>Justification</td><td>
+                            <tr class="triggered ${(rlde.getEcology().getGenerationLength() != null && (rlde.getEcology().getGenerationLength().getMaxValue() != null || rlde.getEcology().getGenerationLength().getMinValue() != null)) ? '' : 'hidden'}"><td>Justification</td><td>
                                 <div contenteditable="true" class="contenteditable">${rlde.getEcology().getGenerationLengthJustification()}</div>
                                 <input type="hidden" name="ecology_GenerationLengthJustification" value="${fn:escapeXml(rlde.getEcology().getGenerationLengthJustification())}"/>
                             </td></tr>
@@ -1583,6 +1583,7 @@
                         </c:if>
                         </table>
                     </td></tr>
+                </c:if> <!-- can view full sheet -->
                     <tr class="section9"><td class="title">9.6</td><td><fmt:message key="DataSheet.label.9.6" /></td>
                     <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91() || user.canEDIT_SECTION9()}">
                         <td>
@@ -1645,6 +1646,7 @@
                         </td>
                     </c:if>
                     </tr>
+                <c:if test="${user.canVIEW_FULL_SHEET()}">
                     <tr class="section9"><td class="title">9.8</td><td><fmt:message key="DataSheet.label.9.8" /></td>
                     <c:if test="${user.canEDIT_9_8_9_93() || user.canEDIT_SECTION9()}">
                         <td>
@@ -1847,12 +1849,12 @@
             </c:if>
             <h2>${occurrences.size()} occurrences</h2>
 
-            <c:if test="${user.canDOWNLOAD_OCCURRENCES() || user.hasEDIT_ALL_1_8()}">
-                <div class="button anchorbutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}"><fmt:message key="button.1" /></a></div>
-            </c:if>
-
             <c:set var="pgroup" value="${param.group==null ? '' : (param.group==500 ? '&group=500' : '&group=2500')}" />
             <c:set var="pview" value="${param.view==null ? '' : '&view=all'}" />
+
+            <c:if test="${user.canDOWNLOAD_OCCURRENCES() || user.hasEDIT_ALL_1_8()}">
+                <div class="button anchorbutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}${pview}"><fmt:message key="button.1" /></a></div>
+            </c:if>
 
             <c:if test="${param.view == 'all'}"><div class="button anchorbutton selected"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}${pgroup}"><fmt:message key="button.4" /></a></div></c:if>
             <c:if test="${param.view == null}"><div class="button anchorbutton"><a href="?w=taxonrecords&id=${taxon._getIDURLEncoded()}${pgroup}&view=all"><fmt:message key="button.4" /></a></div></c:if>
