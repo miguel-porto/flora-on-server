@@ -25,15 +25,15 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
         if(taxa == null) throw new FloraOnException("Must specify a taxon");
 //        List<Inventory> result = new ArrayList<>();
         Iterator<Inventory> it;
-        occurrenceList = new ArrayList<>();
+        this.occurrenceList = new ArrayList<>();
 
         Log.info("Executing internal query");
         while(taxa.hasNext()) {
             TaxEnt te = taxa.next();
             it = driver.getOccurrenceDriver().getOccurrencesOfTaxon(driver.asNodeKey(te.getID()));
+//            occurrences = new SimpleOccurrenceIterator(it);
             while(it.hasNext())
                 this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), it.next()));
-                //result.add(it.next());
         }
 
 
@@ -66,4 +66,5 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
     public String getDataSource() {
         return "Red list database";
     }
+
 }

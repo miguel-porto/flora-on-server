@@ -44,11 +44,11 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     }
 
     private void readBigJsonFromStream(InputStream stream) throws IOException {
+        occurrenceList = new ArrayList<>();
         Gson gson = new Gson();
         JsonReader jr;
         jr = new JsonReader(new InputStreamReader(stream));
         //        occArray = new ArrayList<>();
-        occurrenceList = new ArrayList<>();
         jr.beginObject();
         while (jr.hasNext()) {
             if(jr.peek() == JsonToken.BEGIN_ARRAY) {
@@ -74,6 +74,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         jr.endObject();
         jr.close();
 
+//        this.occurrences = occurrenceList.iterator();
     }
 
     @Override
@@ -95,7 +96,6 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             legacyID = Arrays.toString(oldIds.toArray(new Integer[oldIds.size()]));
             legacyID = legacyID.substring(1, legacyID.length());
         } else {
-            occurrenceList = new ArrayList<>();
             return;
             //legacyID = "all";
         }
@@ -125,7 +125,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             throw new FloraOnException(e.getMessage());
         }
         u = newUri.toURL();
-
+//        Log.info("Address: " + u.toString());
         readBigJsonFromStream(u.openStream());
 
 /*        Type listType = new TypeToken<List<FloraOnOccurrence>>() {

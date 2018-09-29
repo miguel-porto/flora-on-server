@@ -11,6 +11,8 @@ import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 
 import java.io.IOException;
 import java.io.OutputStream;

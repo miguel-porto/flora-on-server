@@ -689,6 +689,7 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 #allmapholder .svgmap {float:none;}
 #allmapholder .header {height:2.2rem; line-height:1.1rem; font-size:1rem; font-style:italic}
 #allmapholder .svgmap path.portugal {stroke:black; stroke-width: 1000px;}
+#allmapholder.big .svgmap {width:500px}
 
 #referencelist {
     position: fixed;

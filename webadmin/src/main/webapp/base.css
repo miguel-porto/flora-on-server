@@ -97,14 +97,14 @@ span.warning {  /* inline warnings */
 
 .bigbutton {
     margin:10px;
-    padding:8px;
+    padding:20px 0;
     text-align:center;
     border-radius:6px;
     box-shadow:0 0 12px #777;
     color:white;
     opacity:0.9;
     flex: 1 0 auto;
-    min-height:120px;
+    /*min-height:120px;*/
 }
 .bigbutton:hover {opacity:1}
 
@@ -115,7 +115,7 @@ span.warning {  /* inline warnings */
 .bigbutton.section2 {background-color: #8bc34a;}
 .bigbutton.section3 {background-color: #f44336;}
 .bigbutton.section4 {background-color: #2196f3;}    /* filter: blur(1.5px); */
-.bigbutton h1 {padding:0px 10px; font-size:2em; color:white; font-weight:normal}
+.bigbutton h1 {padding:0px 10px; font-size:2em; color:white; font-weight:normal; text-align:center}
 .bigbutton h1>a { color:white; font-weight:normal;}
 .bigbutton .subbutton {
     background-color:#2979ff;

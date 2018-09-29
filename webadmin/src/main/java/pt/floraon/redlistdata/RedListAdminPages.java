@@ -8,7 +8,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
@@ -30,6 +29,10 @@ import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.OccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
+import pt.floraon.redlistdata.occurrences.SimpleOccurrenceClusterer;
 import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
@@ -325,9 +328,9 @@ System.out.println(gs.toJson(getUser()));
 
                     RedListSettings rls = driver.getRedListSettings(territory);
 
-                    OccurrenceProcessor.OccurrenceFilter historicalFilter = new BasicOccurrenceFilter(null, rls.getHistoricalThreshold()
+                    OccurrenceFilter historicalFilter = new BasicOccurrenceFilter(null, rls.getHistoricalThreshold()
                             , false, clippingPolygon);
-                    OccurrenceProcessor.OccurrenceFilter currentFilter = new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
+                    OccurrenceFilter currentFilter = new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
                             , null, false, clippingPolygon);
                     if(rldes == null) {
                         // set privileges for this taxon
@@ -565,7 +568,7 @@ System.out.println(gs.toJson(getUser()));
 
                 boolean viewAll = "all".equals(thisRequest.getParameterAsString("view"));
 
-                OccurrenceProcessor.OccurrenceFilter of = new BasicOccurrenceFilter(
+                OccurrenceFilter of = new BasicOccurrenceFilter(
 //                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, viewAll, clippingPolygon2
                         viewAll ? null : (rls.getHistoricalThreshold() + 1), null, false, clippingPolygon2
                 );
@@ -1352,6 +1355,13 @@ System.out.println(gs.toJson(getUser()));
                         rldeSum.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getCategory());
                         if(isFromTag)
                             rldeSumTag.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getCategory());
+                        if(rlde1.getAssessment().getCategory().getEffectiveCategory() == RedListEnums.RedListCategories.CR) {
+                            if(rlde1.getAssessment().getSubCategory() != null && rlde1.getAssessment().getSubCategory() == RedListEnums.CRTags.PRE) {
+                                rldeSum.addForTaxon(rlde1.getTaxEntID(), "CR(PRE)");
+                                if(isFromTag)
+                                    rldeSumTag.addForTaxon(rlde1.getTaxEntID(), "CR(PRE)");
+                            }
+                        }
                     }
 
                     if (rlde1.getAssessment().getUpDownListing() != null) {
@@ -1436,6 +1446,8 @@ System.out.println(gs.toJson(getUser()));
                     tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
+                tableAll.put("CR (PRE)", rldeSum.getCountsForProperty("CR(PRE)"));
+                tableTag.put("CR (PRE)", rldeSumTag.getCountsForProperty("CR(PRE)"));
                 statTableAll.put("Categorias de ameaça 9.1", tableAll);
                 statTableTag.put("Categorias de ameaça 9.1", tableTag);
 

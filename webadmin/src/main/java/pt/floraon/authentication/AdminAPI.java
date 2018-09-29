@@ -1,30 +1,21 @@
 package pt.floraon.authentication;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import jline.internal.Log;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.interfaces.INodeKey;
-import pt.floraon.driver.jobs.JobRunnerTask;
-import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.occurrences.OccurrenceImporterJob;
-import pt.floraon.redlistdata.BasicOccurrenceFilter;
-import pt.floraon.redlistdata.BasicOccurrenceFilterWithAuthors;
-import pt.floraon.redlistdata.OccurrenceProcessor;
-import pt.floraon.redlistdata.RedListAdminPages;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilterWithAuthors;
+import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
-import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;

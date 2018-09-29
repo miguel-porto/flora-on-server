@@ -349,13 +349,13 @@ public final class CoordinateConversion {
 		if (lat < 84.0 && lat >= 72.0) {
 			// Special case: zone X is 12 degrees from north to south, not 8.
 			utmYZone = cArray[19];
-		} else {
-			utmYZone =cArray[(int)((lat + 80.0) / 8.0)];	// FIXME: array out of bounds, should check coordinates before
-		}
-		if (lat >= 84.0 || lat < -80.0) {
+		} else if (lat >= 84.0 || lat < -80.0) {
 			// Invalid coordinate; the vertical zone is set to the invalid
 			utmYZone = '\0';
+		} else {
+			utmYZone =cArray[(int)((lat + 80.0) / 8.0)];
 		}
+
 		latRad = lat * deg2rad;
 		lonRad = lon * deg2rad;
 		recf = 1 / f;

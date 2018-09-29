@@ -673,6 +673,11 @@ public class RedListEnums {
 //|| this.getEffectiveCategory() == EW || this.getEffectiveCategory() == EX || this.getEffectiveCategory() == RE
         }
 
+        public boolean isPossiblyExtinct() {
+            RedListCategories cat = this.getEffectiveCategory();
+            return cat == EW || cat == EX || cat == RE;
+        }
+
         public RedListCategories getUplistCategory() {
             switch(this) {
                 case EN: return CR_UP;

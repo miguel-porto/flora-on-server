@@ -1,10 +1,6 @@
 package pt.floraon.server;
 
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.redlistdata.OccurrenceProcessor;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
-import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -21,7 +17,7 @@ public class MainPage extends FloraOnServlet {
             for (SimpleOccurrenceDataProvider edp : driver.getRedListData().getSimpleOccurrenceDataProviders())
                 edp.executeOccurrenceQuery(tmpTe);
             
-            PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
+            PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.occurrences.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
             OccurrenceProcessor oP = new OccurrenceProcessor(
                     driver.getRedListData().getSimpleOccurrenceDataProviders(), null
                     , 10000, cP, null, null);

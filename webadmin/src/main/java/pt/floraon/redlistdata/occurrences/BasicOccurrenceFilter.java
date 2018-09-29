@@ -1,6 +1,5 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.occurrences;
 
-import jline.internal.Log;
 import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
@@ -9,12 +8,10 @@ import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 
 import java.util.Map;
 
-import static pt.floraon.occurrences.OccurrenceConstants.ConfidenceInIdentifiction.NULL;
-
 /**
  * A filter to filter out the occurrences without coordinates and optionally with other predicates.
  */
-public class BasicOccurrenceFilter implements OccurrenceProcessor.OccurrenceFilter {
+public class BasicOccurrenceFilter implements OccurrenceFilter {
     /**
      * The minimum and maximum years considered for including occurrences
      */

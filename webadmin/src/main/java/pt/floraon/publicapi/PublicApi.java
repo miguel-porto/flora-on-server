@@ -4,10 +4,13 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.redlistdata.OccurrenceProcessor;
-import pt.floraon.redlistdata.RedListAdminPages;
-import pt.floraon.redlistdata.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.*;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.OccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
+import pt.floraon.redlistdata.occurrences.TaxonOccurrenceProcessor;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -16,8 +19,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +33,7 @@ public class PublicApi extends FloraOnServlet {
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         PrintWriter wr;
         ListIterator<String> path;
+        String territory = "lu";    // TODO variable
         try {
             path = thisRequest.getPathIteratorAfter("api");
         } catch (FloraOnException e) {
@@ -43,11 +46,13 @@ public class PublicApi extends FloraOnServlet {
         switch(path.next()) {
             case "svgmap":
                 INodeKey key;
+                String category = null;
                 Integer squareSize;
                 Integer borderWidth;
                 boolean viewAll;
                 Matcher m;
 
+                // a kind of mod_rewrite
                 if(path.hasNext() && (m = svgURL.matcher(path.next())).find()) {
                     key = driver.asNodeKey("taxent/" + m.group("id"));
                     squareSize = 10000;
@@ -55,23 +60,19 @@ public class PublicApi extends FloraOnServlet {
                     viewAll = false;
                 } else {
                     key = thisRequest.getParameterAsKey("taxon");
+                    category = thisRequest.getParameterAsString("category");
                     squareSize = thisRequest.getParameterAsInteger("size", 10000);
                     borderWidth = thisRequest.getParameterAsInteger("border", 2);
                     viewAll = "all".equals(thisRequest.getParameterAsString("view"));
                 }
-
 
                 if(squareSize < 10000 && !user.canVIEW_OCCURRENCES()) {
                     thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN, "No public access for this precision.");
                     return;
                 }
 
-                if(key == null) return;
-                TaxEnt te2 = driver.getNodeWorkerDriver().getDocument(key, TaxEnt.class);
-                if(te2 == null) return;
                 List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-                for(SimpleOccurrenceDataProvider edp : sodps)
-                    edp.executeOccurrenceQuery(te2);
+                if(key == null && category == null) return;
 
                 thisRequest.response.setContentType("image/svg+xml; charset=utf-8");
                 thisRequest.response.setCharacterEncoding("UTF-8");
@@ -84,11 +85,62 @@ public class PublicApi extends FloraOnServlet {
                     protectedAreas = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("SNAC.geojson"), "SITE_NAME");
 
                 wr = thisRequest.response.getWriter();
-                PolygonTheme cP = new PolygonTheme(pt.floraon.redlistdata.OccurrenceProcessor.class.getResourceAsStream("PT_buffer.geojson"), null);
-                OccurrenceProcessor.OccurrenceFilter oF = new BasicOccurrenceFilter(viewAll ? null : 1991, null, false, cP);
-                OccurrenceProcessor op1 = new OccurrenceProcessor(
-                        sodps, protectedAreas, squareSize, oF);
-                op1.exportSVG(new PrintWriter(wr), true, false
+                PolygonTheme cP = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("PT_buffer.geojson"), null);
+
+                SVGMapExporter processor = null;
+                OccurrenceFilter occFilter;
+
+                if("maybeextinct".equals(category))
+                    occFilter = new BasicOccurrenceFilter(null, null, false, cP);
+                else
+                    occFilter = new BasicOccurrenceFilter(viewAll ?
+                            null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
+                            , null, false, cP);
+
+                if(key != null) {   // we want one taxon
+                    TaxEnt te2 = driver.getNodeWorkerDriver().getTaxEntById(key);
+                    if(te2 == null) return;
+                    for(SimpleOccurrenceDataProvider edp : sodps)
+                        edp.executeOccurrenceQuery(te2);
+
+                    processor = new OccurrenceProcessor(sodps, protectedAreas, squareSize, occFilter);
+
+                } else if(category != null) {   // we want a threat category
+                    Iterator<RedListDataEntity> it =
+                            driver.getRedListData().getAllRedListData(territory, false, null);
+                    Set<TaxEnt> filteredTaxa = new HashSet<>();
+                    RedListDataEntity rlde;
+                    while(it.hasNext()) {
+                        rlde = it.next();
+                        if(rlde.getAssessment().getAdjustedCategory() == null) continue;
+                        RedListEnums.RedListCategories cat = rlde.getAssessment().getAdjustedCategory().getEffectiveCategory();
+                        switch(category) {
+                            case "CR":
+                                if(cat.equals(RedListEnums.RedListCategories.CR)) filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+                            case "EN":
+                                if(cat.equals(RedListEnums.RedListCategories.EN)) filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+                            case "VU":
+                                if(cat.equals(RedListEnums.RedListCategories.VU)) filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+                            case "threatened":
+                                if(cat.isThreatened()) filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+                            case "maybeextinct":
+                                if(cat.isPossiblyExtinct() || (cat.equals(RedListEnums.RedListCategories.CR)
+                                        && rlde.getAssessment().getSubCategory() != null && !rlde.getAssessment().getSubCategory().equals(RedListEnums.CRTags.NO_TAG)))
+                                    filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+                        }
+
+                    }
+
+                    processor = new TaxonOccurrenceProcessor(sodps, filteredTaxa.iterator(), squareSize, occFilter);
+
+                }
+
+                processor.exportSVG(new PrintWriter(wr), true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)
                         , true
                         , borderWidth

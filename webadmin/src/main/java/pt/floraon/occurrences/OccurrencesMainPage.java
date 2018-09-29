@@ -277,7 +277,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 CSVPrinter csv = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
                 csv.printRecord("date", "observers", "latitude", "longitude", "mgrs", "verbLocality", "precision"
-                        , "gpsCode", "taxa", "confidence", "phenoState", "abundance", "method", "photo", "collected"
+                        , "gpsCode", "verbTaxa", "taxa", "confidence", "phenoState", "abundance", "method", "photo", "collected"
                         , "specificThreats", "comment", "privateNote", "year", "month", "day");
                 while(it1.hasNext()) {
                     Inventory i2 = it1.next();
@@ -286,7 +286,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                     csv.printRecord(i2._getDateYMD(), pt.floraon.driver.utils.StringUtils.implode(", ", i2._getObserverNames()), i2._getLatitude(), i2._getLongitude()
                             , CoordinateConversion.LatLongToMGRS(i2._getLatitude(), i2._getLongitude(), 1000)
-                            , i2.getVerbLocality(), i2.getPrecision(), i2.getCode(), oi.getVerbTaxon(), oi.getConfidence()
+                            , i2.getVerbLocality(), i2.getPrecision(), i2.getCode(), oi.getVerbTaxon(), oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false), oi.getConfidence()
                             , oi.getPhenoState(), oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
                             , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), i2.getYear(), i2.getMonth(), i2.getDay());
 

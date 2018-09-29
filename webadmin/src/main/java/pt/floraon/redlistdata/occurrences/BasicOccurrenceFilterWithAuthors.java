@@ -1,9 +1,9 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.occurrences;
 
-import jline.internal.Log;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 
 import java.util.HashSet;
 import java.util.Set;

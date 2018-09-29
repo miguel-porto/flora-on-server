@@ -1,6 +1,5 @@
 package pt.floraon.redlistdata;
 
-import au.com.bytecode.opencsv.CSVWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
@@ -8,10 +7,8 @@ import com.google.gson.reflect.TypeToken;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
@@ -20,7 +17,6 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
@@ -28,10 +24,11 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
-import pt.floraon.redlistdata.entities.Conservation;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.entities.RedListDataEntitySnapshot;
 import pt.floraon.redlistdata.entities.RedListSettings;
+import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
+import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
 

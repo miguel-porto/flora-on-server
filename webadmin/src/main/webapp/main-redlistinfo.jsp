@@ -44,7 +44,6 @@
             <li><a href="?w=alleditions"><fmt:message key="Separator.10"/></a></li>
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
-                <li><a href="?w=stats"><fmt:message key="Separator.11"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
                 <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
                 <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
@@ -59,6 +58,7 @@
                 <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
             </c:if>
             <c:if test="${user.canVIEW_OCCURRENCES()}">
+                <li><a href="?w=stats"><fmt:message key="Separator.11"/></a></li>
                 <li><a href="?w=allmaps">Todos os mapas</a></li>
             </c:if>
             <c:if test="${!user.isGuest()}">
@@ -2232,15 +2232,62 @@
     </c:when>
 
     <c:when test="${what=='allmaps'}">
-    <div id="allmapholder">
-    <c:forEach var="taxon" items="${allTaxa}">
-        <div>
-        <div class="header">${taxon.getName()}</div>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
-        <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
+
+        <c:choose>
+        <c:when test="${param.maps=='alvo'}">
+        <div id="allmapholder">
+        <c:forEach var="taxon" items="${allTaxa}">
+            <div>
+            <div class="header">${taxon.getName()}</div>
+            <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
+            <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
+            </div>
+        </c:forEach>
         </div>
-    </c:forEach>
-    </div>
+        </c:when>
+
+        <c:when test="${param.maps=='threats'}">
+        <div id="allmapholder" class="big">
+            <div>
+                <div class="header">Threatened</div>
+                <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=threatened" width="400px" height="200px"/>
+            </div>
+            <div>
+                <div class="header">Potentially extinct</div>
+                <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=maybeextinct" width="400px" height="200px"/>
+            </div>
+            <div>
+                <div class="header">CR</div>
+                <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=CR" width="400px" height="200px"/>
+            </div>
+            <div>
+                <div class="header">EN</div>
+                <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=EN" width="400px" height="200px"/>
+            </div>
+            <div>
+                <div class="header">VU</div>
+                <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=VU" width="400px" height="200px"/>
+            </div>
+        </div>
+        </c:when>
+
+        <c:otherwise>
+        <h1>Maps</h1>
+        <div class="outer">
+            <div class="bigbutton section2">
+                <h1><a href="?w=allmaps&maps=alvo">All Lista Alvo</a></h1>
+            </div>
+            <div class="bigbutton section3">
+                <h1><a href="?w=allmaps&maps=threats">By threat category</a></h1>
+            </div>
+        </div>
+        </c:otherwise>
+
+        </c:choose>
+        </div>
+
+
+
     </c:when>
 
     <c:when test="${what=='report'}">

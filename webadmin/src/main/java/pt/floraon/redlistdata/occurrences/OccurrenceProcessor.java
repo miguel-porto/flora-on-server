@@ -1,16 +1,17 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.occurrences;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
-import jline.internal.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.geometry.*;
 import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.SVGMapExporter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 
@@ -23,7 +24,7 @@ import java.util.List;
  * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
+public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapExporter {
 /*
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
@@ -215,61 +216,6 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         kml.marshal(out);
     }
 
-    private class Square {
-        private long qx, qy;
-        private Point2D point;
-        private String MGRS;
-
-        public Square(Point2D coordinate) {
-            this.point = coordinate;
-            qx = (long) Math.floor(coordinate.x() / sizeOfSquare);
-            qy = (long) Math.floor(coordinate.y() / sizeOfSquare);
-        }
-
-        public Rectangle2D getSquare() {
-            return new Rectangle2D.Double(qx * sizeOfSquare, qy * sizeOfSquare, sizeOfSquare, sizeOfSquare);
-        }
-
-        public List<Point2D> getVertices() {
-            List<Point2D> out = new ArrayList<>(4);
-            out.add(new Point2D(qx * sizeOfSquare, qy * sizeOfSquare));
-            out.add(new Point2D((qx + 1) * sizeOfSquare, qy * sizeOfSquare));
-            out.add(new Point2D(qx * sizeOfSquare, (qy + 1) * sizeOfSquare));
-            out.add(new Point2D((qx + 1) * sizeOfSquare, (qy + 1) * sizeOfSquare));
-            return out;
-        }
-
-        public String getMGRS() {
-            if(MGRS == null) {
-                MGRS = CoordinateConversion.LatLongToMGRS(this.point.getLatitude(), this.point.getLongitude(), sizeOfSquare);
-            }
-            return MGRS;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == null) {
-                return false;
-            }
-            if (!Square.class.isAssignableFrom(obj.getClass())) {
-                return false;
-            }
-            final Square other = (Square) obj;
-            if (this.qx != other.qx || this.qy != other.qy) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int x = Long.valueOf(qx).hashCode();
-            int y = Long.valueOf(qy).hashCode();
-            int tmp = (y + ((x+1)/2));
-            return x + (tmp * tmp);
-        }
-    }
-
     public static OccurrenceProcessor iterableOf(List<SimpleOccurrenceDataProvider> occurrences) {
         return new OccurrenceProcessor(occurrences);
     }
@@ -360,7 +306,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         // now calculate the number of UTM squares occupied
         squares = new HashSet<>();
         for (Point2D u : pointsInPolygons.keySet()) {
-            squares.add(new Square(u));
+            squares.add(new Square(u, sizeOfSquare));
         }
 //System.out.println(new Gson().toJson(squares));
         this.nQuads = squares.size();
@@ -415,9 +361,10 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
+    @Override
     public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border, boolean showShadow) {
         if(showBaseMap) {
-            InputStream str = this.getClass().getResourceAsStream(showShadow ? "basemap.svg" : "basemap-noshadow.svg");
+            InputStream str = OccurrenceProcessor.class.getResourceAsStream(showShadow ? "../basemap.svg" : "../basemap-noshadow.svg");
             try {
                 IOUtils.copy(str, out);
             } catch (IOException e) {
@@ -621,7 +568,4 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence> {
         return areas.toArray(new Double[areas.size()]);
     }
 
-    public interface OccurrenceFilter {
-        boolean enter(SimpleOccurrence simpleOccurrence);
-    }
 }

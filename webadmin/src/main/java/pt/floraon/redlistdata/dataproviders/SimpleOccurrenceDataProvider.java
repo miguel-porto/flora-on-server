@@ -1,8 +1,8 @@
 package pt.floraon.redlistdata.dataproviders;
 
-import com.google.common.collect.Iterators;
 import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOccurrence> {
     protected List<SimpleOccurrence> occurrenceList;
+//    protected Iterator<SimpleOccurrence> occurrences;
 
     public int size() {
         return this.occurrenceList.size();
@@ -63,6 +64,35 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
     @Override
     public Iterator<SimpleOccurrence> iterator() {
         return occurrenceList == null ? Collections.emptyList().iterator() : occurrenceList.iterator();
+//        return occurrences == null ? Collections.emptyList().iterator() : occurrences;
+    }
+
+/*
+    */
+/**
+     * A conversion iterator from Iterator<Inventory> to Iterator<SimpleOccurrence>
+*/
+    public class SimpleOccurrenceIterator implements Iterator<SimpleOccurrence> {
+        Iterator<Inventory> inventoryIterator;
+
+        SimpleOccurrenceIterator(Iterator<Inventory> inventoryIterator) {
+            this.inventoryIterator = inventoryIterator;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return inventoryIterator.hasNext();
+        }
+
+        @Override
+        public SimpleOccurrence next() {
+            return new SimpleOccurrence(SimpleOccurrenceDataProvider.this.getDataSource(), inventoryIterator.next());
+        }
+
+        @Override
+        public void remove() {
+
+        }
     }
 
 }
