@@ -12,6 +12,7 @@ import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -22,6 +23,12 @@ import pt.floraon.taxonomy.entities.TaxEnt;
  *
  */
 public interface IQuery {
+	/**
+	 * Gets all occurrences that are contained in the given polygon
+	 * @param geoJsonPolygon
+	 * @return
+	 */
+	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon) throws FloraOnException;
     /**
 	 * Gets all inventories within a radius of a given point
 	 * @param latitude The point's latitude

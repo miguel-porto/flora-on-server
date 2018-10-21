@@ -20,6 +20,7 @@ import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -45,7 +46,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException {
+    public Iterator<Occurrence> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException {
         // TODO: see occurrencequery.1 for the TODO
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("id", taxEntId.toString());
@@ -53,7 +54,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.1")
-                    , bindVars, null, Inventory.class);
+                    , bindVars, null, Occurrence.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

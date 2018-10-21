@@ -1,10 +1,12 @@
 package pt.floraon.redlistdata.occurrences;
 
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
 import pt.floraon.occurrences.OccurrenceConstants;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.Occurrence;
 
 import java.util.Map;
 
@@ -45,7 +47,8 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
     }
 
     @Override
-    public boolean enter(SimpleOccurrence so) {
+    public boolean enter(Inventory inv) {
+        Occurrence so = (Occurrence) inv;
 //        System.out.println(so.getDataSource()+": "+ so.getOccurrence().getVerbTaxon()+", "+ so.getLatitude()+", "+so.getVerbLocality()+", "+so._getDate()+", "+so.getOccurrence().getPrivateComment());
         boolean wasDestroyed;
 //        Gson gs = new GsonBuilder().setPrettyPrinting().create();

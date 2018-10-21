@@ -933,7 +933,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                             critB.add("Bxa");
                             if(!(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
                                     && !StringUtils.cleanText(pop.getSeverelyFragmentedJustification().toString()).equals(""))
-                                    && !(thr.getNumberOfLocations() != null && thr.getNumberOfLocations().getMaxValue() != null && thr.getNumberOfLocations().getMaxValue() <= 10
+                                    && !(thr.getNumberOfLocations() != null && (thr.getNumberOfLocations().getMinValue() == null || thr.getNumberOfLocations().getMinValue() <= 10)
                                     && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.8.1");
                                 alc.add("B2a");
@@ -1119,7 +1119,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                         case "2":
                             if (alc.contains("D2")) break;
                             if (!(dist.getAOO() != null && dist.getAOO() <= 20)
-                                    && !(thr.getNumberOfLocations() != null && getThreats().getNumberOfLocations().getMaxValue() != null && getThreats().getNumberOfLocations().getMaxValue() <= 6
+                                    && !(thr.getNumberOfLocations() != null && (getThreats().getNumberOfLocations().getMinValue() == null && getThreats().getNumberOfLocations().getMinValue() <= 5)
                                     && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.11");
                                 alc.add("D2");
@@ -1256,17 +1256,17 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                                 break;
                             }
 
-                            if(cat == RedListEnums.RedListCategories.CR && !alc.contains("BA-CR") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations().getMaxValue() == null || thr.getNumberOfLocations().getMaxValue() > 1)) {
+                            if(cat == RedListEnums.RedListCategories.CR && !alc.contains("BA-CR") && (thr.getNumberOfLocations() == null || (thr.getNumberOfLocations().getMinValue() != null && thr.getNumberOfLocations().getMinValue() > 1))) {
                                 warns.add("DataSheet.msg.warning.B.a.CR");
                                 alc.add("BA-CR");
                                 break;
                             }
-                            if(cat == RedListEnums.RedListCategories.EN && !alc.contains("BA-EN") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations().getMaxValue() == null || thr.getNumberOfLocations().getMaxValue() > 5)) {
+                            if(cat == RedListEnums.RedListCategories.EN && !alc.contains("BA-EN") && (thr.getNumberOfLocations() == null || (thr.getNumberOfLocations().getMinValue() != null && thr.getNumberOfLocations().getMinValue() > 5))) {
                                 warns.add("DataSheet.msg.warning.B.a.EN");
                                 alc.add("BA-EN");
                                 break;
                             }
-                            if(cat == RedListEnums.RedListCategories.VU && !alc.contains("BA-VU") && (thr.getNumberOfLocations() == null || thr.getNumberOfLocations().getMaxValue() == null || thr.getNumberOfLocations().getMaxValue() > 10)) {
+                            if(cat == RedListEnums.RedListCategories.VU && !alc.contains("BA-VU") && (thr.getNumberOfLocations() == null || (thr.getNumberOfLocations().getMinValue() != null && thr.getNumberOfLocations().getMinValue() > 10))) {
                                 warns.add("DataSheet.msg.warning.B.a.VU");
                                 alc.add("BA-VU");
                                 break;

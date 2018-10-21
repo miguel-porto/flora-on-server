@@ -30,7 +30,7 @@ import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
-import pt.floraon.redlistdata.occurrences.OccurrenceFilter;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.SimpleOccurrenceClusterer;
 import pt.floraon.taxonomy.entities.CanonicalName;
@@ -1258,7 +1258,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "stats":
-                if(!thisRequest.getUser().canMANAGE_REDLIST_USERS()) break;
+                if(!thisRequest.getUser().canVIEW_OCCURRENCES()) break;
                 String filtertag = "Lista Alvo";
                 Map<String, MutableInt> statsFull = new HashMap<>();
                 Map<String, MutableInt> statsTag = new HashMap<>();
@@ -1311,7 +1311,8 @@ System.out.println(gs.toJson(getUser()));
                             statsTag.get("nrTextsAssessed").increment();
                     }
 
-                    if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY
+                    if ((rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY
+                            || rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.REVISION_READY)
                             && rlde1.getAssessment().getAssessmentStatus() != RedListEnums.AssessmentStatus.NOT_EVALUATED
                             && (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
                                 || rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_MAJOR

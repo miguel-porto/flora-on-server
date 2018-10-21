@@ -8,6 +8,7 @@ import jline.internal.Log;
 import org.apache.http.client.utils.URIBuilder;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -55,7 +56,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                 jr.beginArray();
                 while (jr.hasNext()) {
                     FloraOnOccurrence o = gson.fromJson(jr, FloraOnOccurrence.class);
-                    SimpleOccurrence so = new SimpleOccurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
+                    Occurrence so = new Occurrence(this.getDataSource(), o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
                             , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent
                             , o.precisao == 0 ? "1" : (o.precisao == 1 ? "100" : (o.precisao == 2 ? "1000x1000" : "10000x10000"))
                             , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
@@ -146,7 +147,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         occurrenceList = new ArrayList<>();
         for (FloraOnOccurrence o : occArray) {
             if (!o.duvida)
-                occurrenceList.add(new SimpleOccurrence(o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
+                occurrenceList.add(new Occurrence(o.latitude, o.longitude, o.ano, o.mes, o.dia, o.autor, o.genero
                         , o.especie, o.subespecie, o.notas, o.id_reg, o.id_ent, o.precisao, !o.duvida, o.floracao));
         }
         */

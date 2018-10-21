@@ -5,7 +5,7 @@ import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.Date;
@@ -23,7 +23,7 @@ public interface IOccurrenceReportDriver {
     Iterator<TaxEnt> getTaxaWithTag(INodeKey userId, Date from, Date to, String territory, String tag, boolean withPhoto) throws DatabaseException;
     Iterator<StatisticPerTaxon> getTaxaWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
 
-    Iterator<SimpleOccurrence> getOccurrencesWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
+    Iterator<Occurrence> getOccurrencesWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
 
     Iterator<StatisticPerTaxon> getTaxaWithTagNrRecords(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
 

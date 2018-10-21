@@ -8,12 +8,13 @@ import de.micromata.opengis.kml.v_2_2_0.Placemark;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.*;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.SVGMapExporter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Occurrence;
 
 import java.awt.geom.Rectangle2D;
 import java.io.*;
@@ -24,7 +25,7 @@ import java.util.List;
  * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapExporter {
+public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter {
 /*
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
@@ -40,7 +41,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
     private long sizeOfSquare;
     private List<SimpleOccurrenceDataProvider> occurrences;
     private static final Polygon nullPolygon = new Polygon();
-    private List<SimpleOccurrence> occurrenceList;
+    private List<Occurrence> occurrenceList;
     private OccurrenceFilter occurrenceFilter;
 
     /**
@@ -48,12 +49,12 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
      * @param so
      * @return
      */
-    private boolean enter(SimpleOccurrence so) {
+    private boolean enter(Occurrence so) {
         return occurrenceFilter == null || occurrenceFilter.enter(so);
     }
 
     @Override
-    public Iterator<SimpleOccurrence> iterator() {
+    public Iterator<Occurrence> iterator() {
         // if we've got a static occurrence list, just iterate over it. Otherwise, make new iterator from queries.
         if(this.occurrenceList == null)
             return new ExternalDataProviderIterator(occurrences);
@@ -61,12 +62,12 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
             return new OccurrenceListIterator(this.occurrenceList);
     }
 
-    public class OccurrenceListIterator implements Iterator<SimpleOccurrence> {
-        private List<SimpleOccurrence> occurrences;
-        private Iterator<SimpleOccurrence> iterator;
-        private SimpleOccurrence prevElement;
+    public class OccurrenceListIterator implements Iterator<Occurrence> {
+        private List<Occurrence> occurrences;
+        private Iterator<Occurrence> iterator;
+        private Occurrence prevElement;
 
-        OccurrenceListIterator(List<SimpleOccurrence> providers) {
+        OccurrenceListIterator(List<Occurrence> providers) {
             this.occurrences = providers;
             this.iterator = this.occurrences.iterator();
         }
@@ -84,8 +85,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
         }
 
         @Override
-        public SimpleOccurrence next() {
-            SimpleOccurrence so;
+        public Occurrence next() {
+            Occurrence so;
             if(this.prevElement != null) {
                 so = this.prevElement;
                 this.prevElement = null;
@@ -105,11 +106,11 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
         }
     }
 
-    public class ExternalDataProviderIterator implements Iterator<SimpleOccurrence> {
+    public class ExternalDataProviderIterator implements Iterator<Occurrence> {
         private List<SimpleOccurrenceDataProvider> providers;
         private int curIteratorDataProvider = 0;
-        private Iterator<SimpleOccurrence> curIterator;
-        private SimpleOccurrence prevElement;
+        private Iterator<Occurrence> curIterator;
+        private Occurrence prevElement;
 
         ExternalDataProviderIterator(List<SimpleOccurrenceDataProvider> providers) {
             this.providers = providers;
@@ -137,8 +138,8 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
         }
 
         @Override
-        public SimpleOccurrence next() {
-            SimpleOccurrence so;
+        public Occurrence next() {
+            Occurrence so;
             if(this.prevElement != null) {
                 so = this.prevElement;
                 this.prevElement = null;
@@ -174,7 +175,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
         int size = 0;
         if(this.occurrenceList == null) {
             for (SimpleOccurrenceDataProvider edp : this.occurrences) {
-                for (SimpleOccurrence so : edp) {
+                for (Occurrence so : edp) {
                     if (enter(so)) size++;
                 }
             }
@@ -186,7 +187,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
     public void exportKML(PrintWriter out) {
         final Kml kml = new Kml();
         Folder folder = kml.createAndSetFolder().withOpen(true).withName("Occurrences");
-        for(SimpleOccurrence o : this) {
+        for(Occurrence o : this) {
             if(o._getLatitude() == null || o._getLongitude() == null || !enter(o)) continue;
             Placemark pl = folder.createAndAddPlacemark();
             boolean hasEstimate = o.getOccurrence().getAbundance() != null
@@ -224,7 +225,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
         return new OccurrenceProcessor(occurrences, occurrenceFilter);
     }
 
-    public static OccurrenceProcessor createFromOccurrences(List<SimpleOccurrence> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
+    public static OccurrenceProcessor createFromOccurrences(List<Occurrence> occurrences, PolygonTheme protectedAreas, long sizeOfSquare
             , OccurrenceFilter occurrenceFilter) {
 
         OccurrenceProcessor out = new OccurrenceProcessor();
@@ -285,7 +286,7 @@ public class OccurrenceProcessor implements Iterable<SimpleOccurrence>, SVGMapEx
         }
 
         // process occurrences and at the same time assign each occurrence to the protected area it falls within
-        for (SimpleOccurrence so : this) {
+        for (Occurrence so : this) {
             tmp = so._getUTMCoordinates();
             if(tmp == null) continue;
             tmp1 = new Point2D(tmp, new LatLongCoordinate(so._getLatitude(), so._getLongitude()));

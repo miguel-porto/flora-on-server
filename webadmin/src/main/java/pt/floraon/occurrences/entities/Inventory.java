@@ -57,7 +57,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * TODO: this is a workaround for now...
      */
     @Expose(serialize = false)
-    private OBSERVED_IN[] taxa;
+    protected OBSERVED_IN[] taxa;
+
     /**
      * This list shall be populated, when needed, with the observer names.
      * Remember that only the observer IDs are stored in the field "observers"
@@ -300,7 +301,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public void setMonth(Integer month) {
         if(!Constants.isNoData(month) && (month < 1 || month > 12)) {
-            Log.warn("Invalid month " + month);
+//            Log.warn("Invalid month " + month);
             return;
         }
         this.month = month;
@@ -312,7 +313,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public void setDay(Integer day) {
         if(!Constants.isNoData(day) && (day < 1 || day > 31)) {
-            Log.warn("Invalid day " + day);
+//            Log.warn("Invalid day " + day);
             return;
 //            throw new IllegalArgumentException("Invalid day " + day);
         }

@@ -24,7 +24,7 @@ public class PolygonTheme implements IPolygonTheme {
     /**
      * Create from geoJson and construct a map.
      * @param geoJsonStream
-     * @param keyFieldName The name of the field for use as the key. Key needs not be unique.
+     * @param keyFieldName The name of the field for use as the key. Key needs not be unique. If null, key will be the serial number.
      */
     public PolygonTheme(InputStream geoJsonStream, String keyFieldName) {
         FeatureCollection features;

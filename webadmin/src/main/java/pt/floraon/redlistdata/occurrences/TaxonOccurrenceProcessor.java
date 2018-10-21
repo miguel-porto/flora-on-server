@@ -2,13 +2,13 @@ package pt.floraon.redlistdata.occurrences;
 
 import org.apache.commons.io.IOUtils;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Square;
 import pt.floraon.geometry.UTMCoordinate;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.SVGMapExporter;
-import pt.floraon.redlistdata.dataproviders.FloraOnDataProvider;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -48,9 +48,9 @@ public class TaxonOccurrenceProcessor implements SVGMapExporter {
 //                if(edp instanceof FloraOnDataProvider) continue;
 
                 edp.executeOccurrenceQuery(te);
-                Iterator<SimpleOccurrence> it = edp.iterator();
+                Iterator<Occurrence> it = edp.iterator();
 
-                SimpleOccurrence so;
+                Occurrence so;
                 UTMCoordinate tmp;
                 Point2D tmp1;
                 // iterate through all occurrences of this taxon

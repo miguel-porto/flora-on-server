@@ -5,6 +5,7 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
+import pt.floraon.occurrences.entities.Occurrence;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -28,7 +29,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Inventory> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException;
+    Iterator<Occurrence> getOccurrencesOfTaxon(INodeKey taxEntId) throws DatabaseException;
 
     /**
      * Gets all occurrences that don't match any taxon

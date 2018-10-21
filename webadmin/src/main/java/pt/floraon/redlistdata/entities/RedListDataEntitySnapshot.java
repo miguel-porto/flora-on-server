@@ -2,13 +2,13 @@ package pt.floraon.redlistdata.entities;
 
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Occurrence;
 
 import java.util.Date;
 import java.util.List;
 
 public class RedListDataEntitySnapshot extends RedListDataEntity {
-    private List<SimpleOccurrence> occurrences;
+    private List<Occurrence> occurrences;
     private Date dateSaved;
     private String savedByUser;
     private String versionTag;
@@ -33,11 +33,11 @@ public class RedListDataEntitySnapshot extends RedListDataEntity {
         this.savedByUser = savedByUser;
     }
 
-    public List<SimpleOccurrence> getOccurrences() {
+    public List<Occurrence> getOccurrences() {
         return this.occurrences;
     }
 
-    public void setOccurrences(List<SimpleOccurrence> occurrences) {
+    public void setOccurrences(List<Occurrence> occurrences) {
         this.occurrences = occurrences;
     }
 

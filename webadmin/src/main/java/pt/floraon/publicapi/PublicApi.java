@@ -8,7 +8,7 @@ import pt.floraon.redlistdata.*;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
-import pt.floraon.redlistdata.occurrences.OccurrenceFilter;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.TaxonOccurrenceProcessor;
 import pt.floraon.server.FloraOnServlet;

@@ -8,7 +8,7 @@ import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
 import pt.floraon.occurrences.StatisticPerTaxon;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.text.DateFormat;
@@ -94,7 +94,7 @@ public class OccurrenceReportArangoDriver extends GOccurrenceReportDriver implem
     }
 
     @Override
-    public Iterator<SimpleOccurrence> getOccurrencesWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException {
+    public Iterator<Occurrence> getOccurrencesWithTagCollected(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException {
         Map<String, Object> bindVars = new HashMap<>();
         DateFormat df = Constants.dateFormatYMD.get();
         bindVars.put("user", userId.toString());
@@ -104,7 +104,7 @@ public class OccurrenceReportArangoDriver extends GOccurrenceReportDriver implem
         bindVars.put("@redlistcollection", "redlist_" + territory);
         try {
             return database.query(AQLOccurrenceQueries.getString("occurrencereportquery.8"), bindVars
-                    , null, SimpleOccurrence.class);
+                    , null, Occurrence.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

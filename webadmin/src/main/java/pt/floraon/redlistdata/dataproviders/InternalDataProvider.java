@@ -2,8 +2,8 @@ package pt.floraon.redlistdata.dataproviders;
 
 import jline.internal.Log;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.driver.interfaces.IFloraOn;
-import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
     public void executeOccurrenceQuery(Iterator<TaxEnt> taxa) throws FloraOnException, IOException {
         if(taxa == null) throw new FloraOnException("Must specify a taxon");
 //        List<Inventory> result = new ArrayList<>();
-        Iterator<Inventory> it;
+        Iterator<Occurrence> it;
         this.occurrenceList = new ArrayList<>();
 
         Log.info("Executing internal query");
@@ -33,7 +33,7 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
             it = driver.getOccurrenceDriver().getOccurrencesOfTaxon(driver.asNodeKey(te.getID()));
 //            occurrences = new SimpleOccurrenceIterator(it);
             while(it.hasNext())
-                this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), it.next()));
+                this.occurrenceList.add(new Occurrence(this.getDataSource(), it.next()));
         }
 
 
@@ -42,7 +42,7 @@ public class InternalDataProvider extends SimpleOccurrenceDataProvider {
         it = result.iterator();
         while(it.hasNext()) {
             Inventory inv = it.next();
-            this.occurrenceList.add(new SimpleOccurrence(this.getDataSource(), inv));
+            this.occurrenceList.add(new Occurrence(this.getDataSource(), inv));
 
         }*/
     }

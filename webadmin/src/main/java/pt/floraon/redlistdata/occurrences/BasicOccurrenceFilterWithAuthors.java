@@ -2,8 +2,7 @@ package pt.floraon.redlistdata.occurrences;
 
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.IPolygonTheme;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
-import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
+import pt.floraon.occurrences.entities.Inventory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +22,7 @@ public class BasicOccurrenceFilterWithAuthors extends BasicOccurrenceFilter {
     }
 
     @Override
-    public boolean enter(SimpleOccurrence so) {
+    public boolean enter(Inventory so) {
         boolean enter = super.enter(so);
         // format: enter &= !(<excluding condition>);
 //        Log.info(so.getMaintainer().trim().toLowerCase());

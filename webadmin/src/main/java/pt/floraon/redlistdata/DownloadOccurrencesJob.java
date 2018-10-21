@@ -8,7 +8,7 @@ import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
@@ -66,7 +66,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             op = OccurrenceProcessor.iterableOf(sodps, new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon));
 
             if(op.size() > 0) {
-                for (SimpleOccurrence so : op) {
+                for (Occurrence so : op) {
                     csvp.print(so.getDataSource());
                     csvp.print(rlde.getTaxEnt().getID());
                     csvp.print(rlde.getTaxEnt().getNameWithAnnotationOnly(false));

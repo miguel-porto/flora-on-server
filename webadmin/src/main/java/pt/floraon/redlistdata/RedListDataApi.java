@@ -22,7 +22,7 @@ import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.fieldparsers.DateParser;
-import pt.floraon.redlistdata.dataproviders.SimpleOccurrence;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.entities.RedListDataEntitySnapshot;
@@ -67,8 +67,8 @@ public class RedListDataApi extends FloraOnServlet {
         OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, new BasicOccurrenceFilter(clippingPolygon2));
 
         // populate sheet data with a copy of the occurrences
-        Iterator<SimpleOccurrence> it6 = op.iterator();
-        List<SimpleOccurrence> ol = new ArrayList<>();
+        Iterator<Occurrence> it6 = op.iterator();
+        List<Occurrence> ol = new ArrayList<>();
         while(it6.hasNext())
             ol.add(it6.next());
         rldes.setOccurrences(ol);
@@ -442,10 +442,10 @@ public class RedListDataApi extends FloraOnServlet {
                         case "report-listspecimens":
                             PolygonTheme protectedAreas1 = new PolygonTheme(this.getClass().getResourceAsStream("SNAC.geojson"), "SITE_NAME");
                             Map<String, Integer> lpa1;
-                            SimpleOccurrence so;
+                            Occurrence so;
                             pw.print("<table class=\"subtable\"><thead><tr><th>Taxon colhido (<i>sic</i>)</th><th>Data de colheita</th>" +
                                     "<th>Local</th><th>Latitude</th><th>Longitude</th><th>Nº de espécimes</th><th>Área protegida</th></tr></thead>");
-                            Iterator<SimpleOccurrence> it6 = ord.getOccurrencesWithTagCollected(
+                            Iterator<Occurrence> it6 = ord.getOccurrencesWithTagCollected(
                                     driver.asNodeKey(thisRequest.getUser().getID()), from, to, territory, thisRequest.getParameterAsString("tag"));
 
                             while(it6.hasNext()) {

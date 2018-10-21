@@ -1,6 +1,8 @@
 package pt.floraon.arangodriver;
 
 import java.util.*;
+
+import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -16,10 +18,12 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -34,7 +38,79 @@ public class QueryDriver extends GQuery implements IQuery {
 		database = (ArangoDatabase) driver.getDatabase();
 	}
 
+	public class OccurrenceIterator implements Iterator<Occurrence> {
+		private ArangoCursor<Occurrence> cursor;
+		private OccurrenceFilter filter = null;
+		private Occurrence nextItem = null;
+
+		public OccurrenceIterator(ArangoCursor<Occurrence> cursor) {
+			this.cursor = cursor;
+		}
+
+		public OccurrenceIterator(ArangoCursor<Occurrence> cursor, OccurrenceFilter filter) {
+			this.cursor = cursor;
+			this.filter = filter;
+		}
+
+		@Override
+		public boolean hasNext() {
+			if(filter == null)
+				return cursor.hasNext();
+			else {
+				do {
+					if(cursor.hasNext())
+						nextItem = cursor.next();
+					else
+						return false;
+				} while(!filter.enter(nextItem));
+				return true;
+			}
+		}
+
+		@Override
+		public Occurrence next() {
+			Occurrence out;
+			if(nextItem == null)
+				throw new NoSuchElementException();
+
+			out = nextItem;
+			nextItem = null;
+			return out;
+		}
+
+		@Override
+		public void remove() {
+
+		}
+	}
+
 	@Override
+	public Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon) throws FloraOnException {
+		Iterator<Occurrence> out;
+		ArangoCursor<Occurrence> tmp;
+		OccurrenceFilter geoFilter = new OccurrenceFilter() {
+			@Override
+			public boolean enter(Inventory simpleOccurrence) {
+				if(simpleOccurrence.getYear() != null && simpleOccurrence.getYear() == 1999)
+					return true;
+				else
+					return false;
+			}
+		};
+
+		try {
+			 tmp = database.query(
+					AQLQueries.getString("QueryDriver.4")
+					, null, null, Occurrence.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+		out = new OccurrenceIterator(tmp, geoFilter);
+		return out;
+	}
+
+	@Override
+	@Deprecated
 	public Iterator<Inventory> findInventoriesWithin(Float latitude, Float longitude, Float distance) throws FloraOnException {
     	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.inventory.toString());
 		try {

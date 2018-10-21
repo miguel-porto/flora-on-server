@@ -2,6 +2,7 @@ package pt.floraon.redlistdata.dataproviders;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -14,9 +15,9 @@ import java.util.Map;
 /**
  * Created by miguel on 02-11-2016.
  */
-public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOccurrence> {
-    protected List<SimpleOccurrence> occurrenceList;
-//    protected Iterator<SimpleOccurrence> occurrences;
+public abstract class SimpleOccurrenceDataProvider implements Iterable<Occurrence> {
+    protected List<Occurrence> occurrenceList;
+//    protected Iterator<Occurrence> occurrences;
 
     public int size() {
         return this.occurrenceList.size();
@@ -62,7 +63,7 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
     public abstract String getDataSource();
 
     @Override
-    public Iterator<SimpleOccurrence> iterator() {
+    public Iterator<Occurrence> iterator() {
         return occurrenceList == null ? Collections.emptyList().iterator() : occurrenceList.iterator();
 //        return occurrences == null ? Collections.emptyList().iterator() : occurrences;
     }
@@ -70,9 +71,9 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
 /*
     */
 /**
-     * A conversion iterator from Iterator<Inventory> to Iterator<SimpleOccurrence>
+     * A conversion iterator from Iterator<Inventory> to Iterator<Occurrence>
 */
-    public class SimpleOccurrenceIterator implements Iterator<SimpleOccurrence> {
+    public class SimpleOccurrenceIterator implements Iterator<Occurrence> {
         Iterator<Inventory> inventoryIterator;
 
         SimpleOccurrenceIterator(Iterator<Inventory> inventoryIterator) {
@@ -85,8 +86,8 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<SimpleOcc
         }
 
         @Override
-        public SimpleOccurrence next() {
-            return new SimpleOccurrence(SimpleOccurrenceDataProvider.this.getDataSource(), inventoryIterator.next());
+        public Occurrence next() {
+            return new Occurrence(SimpleOccurrenceDataProvider.this.getDataSource(), inventoryIterator.next());
         }
 
         @Override
