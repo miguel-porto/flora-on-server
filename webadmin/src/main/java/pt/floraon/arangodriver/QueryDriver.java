@@ -22,6 +22,11 @@ import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.geocoding.entities.Toponym;
+import pt.floraon.geometry.Point2D;
+import pt.floraon.geometry.Polygon;
+import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.InventoryIterator;
+import pt.floraon.occurrences.OccurrenceIterator;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
@@ -38,65 +43,25 @@ public class QueryDriver extends GQuery implements IQuery {
 		database = (ArangoDatabase) driver.getDatabase();
 	}
 
-	public class OccurrenceIterator implements Iterator<Occurrence> {
-		private ArangoCursor<Occurrence> cursor;
-		private OccurrenceFilter filter = null;
-		private Occurrence nextItem = null;
-
-		public OccurrenceIterator(ArangoCursor<Occurrence> cursor) {
-			this.cursor = cursor;
-		}
-
-		public OccurrenceIterator(ArangoCursor<Occurrence> cursor, OccurrenceFilter filter) {
-			this.cursor = cursor;
-			this.filter = filter;
-		}
-
-		@Override
-		public boolean hasNext() {
-			if(filter == null)
-				return cursor.hasNext();
-			else {
-				do {
-					if(cursor.hasNext())
-						nextItem = cursor.next();
-					else
-						return false;
-				} while(!filter.enter(nextItem));
-				return true;
-			}
-		}
-
-		@Override
-		public Occurrence next() {
-			Occurrence out;
-			if(nextItem == null)
-				throw new NoSuchElementException();
-
-			out = nextItem;
-			nextItem = null;
-			return out;
-		}
-
-		@Override
-		public void remove() {
-
-		}
-	}
-
 	@Override
-	public Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon) throws FloraOnException {
+	public Iterator<Occurrence> findOccurrencesContainedIn(final String geoJsonPolygon, final OccurrenceFilter filter) throws FloraOnException {
 		Iterator<Occurrence> out;
 		ArangoCursor<Occurrence> tmp;
+		final PolygonTheme polyt = new PolygonTheme(geoJsonPolygon);
+		final Polygon poly = polyt.iterator().next().getValue();
+
 		OccurrenceFilter geoFilter = new OccurrenceFilter() {
 			@Override
 			public boolean enter(Inventory simpleOccurrence) {
-				if(simpleOccurrence.getYear() != null && simpleOccurrence.getYear() == 1999)
-					return true;
-				else
+//				return simpleOccurrence.getYear()!=null && simpleOccurrence.getYear()==1998;
+				if(simpleOccurrence._getLongitude() == null || simpleOccurrence._getLatitude() == null)
 					return false;
+				else
+					return poly.contains(new Point2D(simpleOccurrence._getLongitude(), simpleOccurrence._getLatitude()));
 			}
 		};
+
+		Float[] bbox = polyt.getBoundingBox();
 
 		try {
 			 tmp = database.query(
@@ -105,11 +70,41 @@ public class QueryDriver extends GQuery implements IQuery {
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
-		out = new OccurrenceIterator(tmp, geoFilter);
+		out = new OccurrenceIterator(tmp, new OccurrenceFilter[] {geoFilter});
 		return out;
 	}
 
-	@Override
+    @Override
+    public Iterator<Inventory> findInventoriesContainedIn(String geoJsonPolygon, OccurrenceFilter filter) throws FloraOnException {
+        Iterator<Inventory> out;
+        ArangoCursor<Inventory> tmp;
+        final PolygonTheme polyt = new PolygonTheme(geoJsonPolygon);
+        final Polygon poly = polyt.iterator().next().getValue();
+
+        OccurrenceFilter geoFilter = new OccurrenceFilter() {
+            @Override
+            public boolean enter(Inventory inventory) {
+//				return simpleOccurrence.getYear()!=null && simpleOccurrence.getYear()==1998;
+                if(inventory._getLongitude() == null || inventory._getLatitude() == null)
+                    return false;
+                else
+                    return poly.contains(new Point2D(inventory._getLongitude(), inventory._getLatitude()));
+            }
+        };
+
+        Float[] bbox = polyt.getBoundingBox();
+
+
+        try {
+            out = driver.getOccurrenceDriver().getInventoriesOfMaintainer(null, null, null);
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        out = new InventoryIterator(out, new OccurrenceFilter[] {geoFilter});
+        return out;
+    }
+
+    @Override
 	@Deprecated
 	public Iterator<Inventory> findInventoriesWithin(Float latitude, Float longitude, Float distance) throws FloraOnException {
     	String query=String.format("RETURN WITHIN(%4$s,%1$f,%2$f,%3$f,'dist')",latitude,longitude,distance,NodeTypes.inventory.toString());

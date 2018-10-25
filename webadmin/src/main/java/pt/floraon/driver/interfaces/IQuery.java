@@ -28,7 +28,16 @@ public interface IQuery {
 	 * @param geoJsonPolygon
 	 * @return
 	 */
-	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon) throws FloraOnException;
+	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon, OccurrenceFilter filter) throws FloraOnException;
+
+	/**
+	 * Gets all the inventories contained in the given polygon
+	 * @param geoJsonPolygon
+	 * @param filter
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Iterator<Inventory> findInventoriesContainedIn(String geoJsonPolygon, OccurrenceFilter filter) throws FloraOnException;
     /**
 	 * Gets all inventories within a radius of a given point
 	 * @param latitude The point's latitude

@@ -12,6 +12,7 @@
 <c:if test="${fromDate != null}"><h2>Period ${fromDate} to ${toDate}</h2></c:if>
 <form>
     <input type="hidden" name="w" value="report"/>
+    <input type="hidden" name="type" value="technical"/>
     <input type="hidden" name="tag" value="Lista Alvo"/>
     <p>Período: de <input type="text" name="fromdate" value="${fromDate}" placeholder="${fromDate == null ? 'dd-mm-yyyy' : ''}"/> até <input type="text" name="todate" value="${toDate}" placeholder="${toDate == null ? 'dd-mm-yyyy' : ''}"/></p>
     <input type="submit" class="textbutton" value="Realizar relatório"/>

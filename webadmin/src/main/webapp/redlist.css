@@ -168,6 +168,7 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 #speciesindex tr.reassessment td {background-color: #80D8FF; }
 #speciesindex tr.validated td {background-color: #00E676; }
 #speciesindex.filter_onlyresponsible tbody tr:not(.responsible) {display: none;}
+#speciesindex.filter_onlyauthor tbody tr:not(.author) {display: none;}
 #speciesindex.filter_onlyassessor tbody tr:not(.assessor) {display: none;}
 #speciesindex.filter_onlyreviewer tbody tr:not(.reviewer) {display: none;}
 #speciesindex.filter_onlyrevised tbody tr:not(.revised) {display: none;}
@@ -191,6 +192,8 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 .filterpanel {padding:8px; text-align:left; }
 .filterpanel.inactive {opacity:0.3}
 .filterpanel.inactive .button, .filterpanel.inactive .filter {background-color:#999 !important;}
+.filterpanel .filter-section {border-bottom:3px solid #ccc;}
+.filterpanel .title {display:inline-block; color:gray; margin:6px;text-transform: uppercase;}
 
 .filter {
     border-radius: 50px 4px 4px 50px;

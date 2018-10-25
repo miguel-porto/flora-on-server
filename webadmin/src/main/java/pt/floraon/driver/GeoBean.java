@@ -7,8 +7,18 @@ import pt.floraon.geometry.Precision;
  */
 public interface GeoBean {
     void setLatitude(Float latitude);
+
+    /**
+     * The getter for the inventory latitude field. No processing is done. Can be null.
+     * @return
+     */
     Float getLatitude();
     void setLongitude(Float longitude);
+
+    /**
+     * The getter for the inventory longitude field. No processing is done. Can be null.
+     * @return
+     */
     Float getLongitude();
 
     void _setUTMX(Float x);

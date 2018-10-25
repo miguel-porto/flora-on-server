@@ -5,6 +5,7 @@ import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -168,6 +169,18 @@ public class Assessment implements DiffableBean {
 
     public String[] getReviewer() {
         return isArrayEmpty(reviewer) ? new String[0] : reviewer;
+    }
+
+    public boolean containsAuthor(String userId) {
+        return Arrays.asList(this.getAuthors()).contains(userId);
+    }
+
+    public boolean containsReviewer(String userId) {
+        return Arrays.asList(this.getReviewer()).contains(userId);
+    }
+
+    public boolean containsEvaluator(String userId) {
+        return Arrays.asList(this.getEvaluator()).contains(userId);
     }
 
     /**

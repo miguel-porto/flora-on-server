@@ -282,6 +282,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 //		database.collection(NodeTypes.specieslist.toString()).createGeoIndex(Arrays.asList("location"), new GeoIndexOptions().geoJson(false));
 		database.collection(NodeTypes.inventory.toString()).ensureGeoIndex(Arrays.asList("latitude", "longitude"), new GeoIndexOptions().geoJson(false));
+		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("latitude", "longitude"), new SkiplistIndexOptions().sparse(false));
 //		database.collection(NodeTypes.author.toString()).createHashIndex(Arrays.asList("idAut"), new HashIndexOptions().unique(true).sparse(false));
 		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Collections.singleton("oldId"), new HashIndexOptions().unique(false).sparse(true));
 		database.collection(NodeTypes.taxent.toString()).ensureHashIndex(Collections.singleton("rank"), new HashIndexOptions().unique(false).sparse(true));

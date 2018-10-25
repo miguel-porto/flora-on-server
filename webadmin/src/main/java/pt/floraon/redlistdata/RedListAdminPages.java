@@ -23,9 +23,13 @@ import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
@@ -59,6 +63,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 
+import static pt.floraon.authentication.Privileges.DOWNLOAD_OCCURRENCES;
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
 import static pt.floraon.authentication.Privileges.MANAGE_VERSIONS;
 import static pt.floraon.driver.utils.StringUtils.cleanArray;
@@ -78,7 +83,7 @@ public class RedListAdminPages extends FloraOnServlet {
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         final HttpServletRequest request = thisRequest.request;
-        RedListDataEntitySnapshot rldes = null;
+        RedListDataEntitySnapshot rldeSnap = null;
         String what;
         TaxEnt te;
         Iterator<TaxEnt> iTaxEnt;
@@ -245,7 +250,7 @@ System.out.println(gs.toJson(getUser()));
 
             case "sheet":   // read-only sheet
                 INodeKey idSnap = driver.asNodeKey("redlist_snapshots_" + territory + "/" + thisRequest.getParameterAsString("id"));
-                rldes = driver.getNodeWorkerDriver().getDocument(idSnap, RedListDataEntitySnapshot.class);
+                rldeSnap = driver.getNodeWorkerDriver().getDocument(idSnap, RedListDataEntitySnapshot.class);
 
             case "taxon":
                 // enums
@@ -297,16 +302,16 @@ System.out.println(gs.toJson(getUser()));
                 }
                 if(ids.length == 1) {       // only one taxon requested
                     INodeKey thisId;
-                    if(rldes == null) {
+                    if(rldeSnap == null) {
                         thisId = thisRequest.getParameterAsKey("id");
                         rlde = driver.getRedListData().getRedListDataEntity(territory, thisId);
                         if (rlde == null) return;
                     } else {
-                        request.setAttribute("snapshotid", rldes.getID());
-                        rlde = rldes;
+                        request.setAttribute("snapshotid", rldeSnap.getID());
+                        rlde = rldeSnap;
                         thisId = driver.asNodeKey(rlde.getTaxEntID());
                         rlde.setTaxEnt(driver.getNodeWorkerDriver().getDocument(thisId, TaxEnt.class));
-                        request.setAttribute("versiondate", rldes._getDateSavedFormatted());
+                        request.setAttribute("versiondate", rldeSnap._getDateSavedFormatted());
                     }
                     request.setAttribute("snapshots", driver.getRedListData().getSnapshots(territory, driver.asNodeKey(rlde.getTaxEntID())));
                     request.setAttribute("taxon", rlde.getTaxEnt());
@@ -332,7 +337,7 @@ System.out.println(gs.toJson(getUser()));
                             , false, clippingPolygon);
                     OccurrenceFilter currentFilter = new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
                             , null, false, clippingPolygon);
-                    if(rldes == null) {
+                    if(rldeSnap == null) {
                         // set privileges for this taxon
 
                         //rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
@@ -357,10 +362,10 @@ System.out.println(gs.toJson(getUser()));
                         thisRequest.getUser().revokeAllPrivilegesExcept(new Privileges[]{MANAGE_VERSIONS});
 
                         historicalOccurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
-                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, historicalFilter);
+                                rldeSnap.getOccurrences(), protectedAreas, sizeOfSquare, historicalFilter);
 
                         occurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
-                                rldes.getOccurrences(), protectedAreas, sizeOfSquare, currentFilter);
+                                rldeSnap.getOccurrences(), protectedAreas, sizeOfSquare, currentFilter);
                     }
 
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
@@ -1236,25 +1241,86 @@ System.out.println(gs.toJson(getUser()));
             case "report":
                 DateFormat df = Constants.dateFormat.get();
                 Date from = null, to = null;
-                try {
-                    from = DateParser.parseDateAsDate(thisRequest.getParameterAsString("fromdate"));
-                    to = DateParser.parseDateAsDate(thisRequest.getParameterAsString("todate"));
-                } catch(IllegalArgumentException e) {
-                    warnings.add(e.getMessage());
-                    break;
+                if("technical".equals(thisRequest.getParameterAsString("type"))) {
+                    // Technical report
+                    try {
+                        from = DateParser.parseDateAsDate(thisRequest.getParameterAsString("fromdate"));
+                        to = DateParser.parseDateAsDate(thisRequest.getParameterAsString("todate"));
+                    } catch (IllegalArgumentException e) {
+                        warnings.add(e.getMessage());
+                        break;
+                    }
+                    if (from == null || to == null) {
+                        Calendar now = new GregorianCalendar();
+                        now.set(Calendar.DAY_OF_MONTH, 1);
+                        now.add(Calendar.MONTH, -1);
+                        from = now.getTime();
+                        Calendar after = new GregorianCalendar();
+                        after.set(Calendar.DAY_OF_MONTH, 1);
+                        after.add(Calendar.DAY_OF_MONTH, -1);
+                        to = after.getTime();
+                    }
+                    request.setAttribute("fromDate", df.format(from));
+                    request.setAttribute("toDate", df.format(to));
                 }
-                if(from == null || to == null) {
-                    Calendar now = new GregorianCalendar();
-                    now.set(Calendar.DAY_OF_MONTH, 1);
-                    now.add(Calendar.MONTH, -1);
-                    from = now.getTime();
-                    Calendar after = new GregorianCalendar();
-                    after.set(Calendar.DAY_OF_MONTH, 1);
-                    after.add(Calendar.DAY_OF_MONTH, -1);
-                    to = after.getTime();
+
+                if("geo".equals(thisRequest.getParameterAsString("type"))) {
+                    thisRequest.ensurePrivilege(DOWNLOAD_OCCURRENCES);
+                    String polygonWKT = thisRequest.getParameterAsString("polygon");
+//                    Polygon ((-7.61676305104465801 37.9335618844394773, -7.6221485973442924 37.93207466244877679, -7.62282460734006229 37.92853687680425168, -7.61852067703365954 37.92567510115549112, -7.61444208339251372 37.92497655749319563, -7.61288726040224262 37.92871714613645651, -7.61270699107003779 37.93049730579198098, -7.61462235272471943 37.93252533577929597, -7.61676305104465801 37.9335618844394773))
+//Polygon ((-7.96382658287298995 38.43561197463136381, -8.22341442124868394 38.18756137351681446, -8.20755072001461272 38.01738712391497188, -8.05612448096212574 37.92797353514112046, -7.8845080767026392 37.91932060719526731, -7.810958189162859 38.04623021706782993, -7.81672680779342954 38.20054076543559773, -7.96382658287298995 38.43561197463136381))
+                    if(polygonWKT != null) {
+                        Iterator<Inventory> it = null;
+                        Inventory inv;
+//                        Set<TaxEnt> speciesList = new TreeSet<>();
+                        Map<TaxEnt, Map<String, Object>> speciesList = new TreeMap<>();
+                        MutableInt nInventories = new MutableInt(0);
+                        MutableInt nEndemic = new MutableInt(0);
+                        MutableInt nThreatened = new MutableInt(0);
+                        try {
+                            it = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT, null);
+                            while(it.hasNext()) {
+                                inv = it.next();
+                                nInventories.increment();
+                                for(OBSERVED_IN o : inv._getTaxa()) {
+                                    if(o.getTaxEnt() != null && !speciesList.containsKey(o.getTaxEnt())) {
+                                        speciesList.put(o.getTaxEnt(), new HashMap<String, Object>());
+                                    }
+                                }
+                            }
+
+                            for(Map.Entry<TaxEnt, Map<String, Object>> en : speciesList.entrySet()) {
+                                INodeKey tKey = driver.asNodeKey(en.getKey().getID());
+                                InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
+                                boolean endemic = is != null && is.isEndemic();
+
+                                rlde = driver.getRedListData().getRedListDataEntity(territory, tKey);
+                                if(rlde != null && rlde.getAssessment().getAdjustedCategory() != null) {
+                                    if(rlde.getAssessment().getAdjustedCategory().isThreatened())
+                                        nThreatened.increment();
+
+                                    en.getValue().put("category", rlde.getAssessment().getAdjustedCategory().getLabel());
+                                }
+
+
+                                if (endemic) {
+                                    en.getValue().put("endemic", true);
+                                    nEndemic.increment();
+                                }
+                            }
+
+                        } catch (IllegalArgumentException e) {
+                            request.setAttribute("message", e.getMessage());
+                        } finally {
+                            request.setAttribute("nInventories", nInventories.intValue());
+                            request.setAttribute("nSpecies", speciesList.size());
+                            request.setAttribute("nEndemic", nEndemic.intValue());
+                            request.setAttribute("nThreatened", nThreatened.intValue());
+                            request.setAttribute("speciesList", speciesList);
+                        }
+
+                    }
                 }
-                request.setAttribute("fromDate", df.format(from));
-                request.setAttribute("toDate", df.format(to));
                 break;
 
             case "stats":
@@ -1510,5 +1576,7 @@ System.out.println(gs.toJson(getUser()));
 
         request.setAttribute("warning", warnings);
         request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, thisRequest.response);
+
+        thisRequest.getUser().resetEffectivePrivileges();
     }
 }

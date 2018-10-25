@@ -24,7 +24,7 @@ public class LatitudeLongitudeParser implements FieldParser {
             "(?<latlet>[nsNS])[ ,;]+(?<lngdeg>[0-9-]+). *(?<lngmin>[0-9]+). *(?<lngsec>[0-9.]+)..? *(?<lnglet>[ewoEWO]) *$");
     private static Pattern wktParse = Pattern.compile("pointz? *\\( *(?<lng>[0-9-]+(\\.[0-9]+)?) (?<lat>[0-9-]+(\\.[0-9]+)?)( [0-9.-]+)? *\\)", Pattern.CASE_INSENSITIVE);
 
-    private Float[] getFromDMS(Matcher mat) {
+    static private Float[] getFromDMS(Matcher mat) {
         float latdeg = Float.parseFloat(mat.group("latdeg"));
         float latmin = Float.parseFloat(mat.group("latmin"));
         float latsec = Float.parseFloat(mat.group("latsec"));
@@ -42,7 +42,7 @@ public class LatitudeLongitudeParser implements FieldParser {
         return new Float[]{lat, lng};
     }
 
-    private float DMS2Dec(float deg, float min, float sec, String letter) {
+    static private float DMS2Dec(float deg, float min, float sec, String letter) {
         float dec = deg + (min + sec / 60) / 60;
         if((letter.toUpperCase().equals("S") || letter.toUpperCase().equals("W") || letter.toUpperCase().equals("O")) && dec > 0) dec = -dec;
         return dec;

@@ -22,6 +22,7 @@ import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.driver.results.ResultItem;
+import pt.floraon.driver.utils.StringUtils;
 
 /**
  * Represents a taxonomic entity.
@@ -29,7 +30,7 @@ import pt.floraon.driver.results.ResultItem;
  * @author miguel
  *
  */
-public class TaxEnt extends NamedDBNode implements ResultItem, Serializable {
+public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Comparable<TaxEnt> {
 	/**
 	 * Matches a taxon name of the form:
 	 * Genus species rank infrataxa Author [annotation] sensu somework
@@ -418,5 +419,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable {
 	@Override
 	public int hashCode() {
 		return this.getID().hashCode();
+	}
+
+	@Override
+	public int compareTo(TaxEnt taxEnt) {
+		if(taxEnt == null || StringUtils.isStringEmpty(this.getFullName()) || StringUtils.isStringEmpty(taxEnt.getFullName()))
+			return 0;
+		return this.getFullName().compareTo(taxEnt.getFullName());
 	}
 }
