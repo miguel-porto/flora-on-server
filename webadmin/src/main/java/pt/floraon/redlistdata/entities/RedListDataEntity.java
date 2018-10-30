@@ -1119,8 +1119,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                         case "2":
                             if (alc.contains("D2")) break;
                             if (!(dist.getAOO() != null && dist.getAOO() <= 20)
-                                    && !(thr.getNumberOfLocations() != null && (getThreats().getNumberOfLocations().getMinValue() == null && getThreats().getNumberOfLocations().getMinValue() <= 5)
-                                    && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
+                                    && !(thr.getNumberOfLocations() != null && thr.getNumberOfLocations().overlapsWith(null, 5)
+                                        && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.11");
                                 alc.add("D2");
                             }

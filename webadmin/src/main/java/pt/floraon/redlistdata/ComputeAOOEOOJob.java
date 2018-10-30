@@ -5,7 +5,9 @@ import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobFileDownload;
+import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -28,6 +30,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     private int curSpeciesI = 0;
     private String curSpeciesName = "";
     private Set<String> filterTags;
+    private Iterator<RedListDataEntity> itRLDE;
 
     ComputeAOOEOOJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Integer sizeOfSquare, Set<String> filterTags) {
         this.territory = territory;
@@ -37,21 +40,36 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         this.filterTags = filterTags;
     }
 
+    ComputeAOOEOOJob(String territory, Iterator<RedListDataEntity> redListDataEntityIterator, PolygonTheme clippingPolygon, Integer minimumYear, Integer sizeOfSquare, Set<String> filterTags) {
+        this.territory = territory;
+        this.clippingPolygon = clippingPolygon;
+        this.minimumYear = minimumYear;
+        this.sizeOfSquare = sizeOfSquare;
+        this.filterTags = filterTags;
+        this.itRLDE = redListDataEntityIterator;
+    }
+
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         OccurrenceProcessor op;
-        Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
+        Iterator<RedListDataEntity> it =
+                itRLDE == null ?
+                        driver.getRedListData().getAllRedListData(territory, false, null)
+                        : itRLDE;
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
 
         csvp.print("TaxEnt ID");
         csvp.print("Taxon");
+        csvp.print("Endemic?");
+        csvp.print("Threat category");
         csvp.print("AOO (km2)");
         csvp.print("EOO (km2)");
         csvp.print("Real EOO (km2)");
         csvp.print("Number of sites");
+        csvp.print("Number of occurrence records");
         csvp.println();
 
-        while(it.hasNext()) {
+        while(it.hasNext()) {   // for each taxon in red list
             RedListDataEntity rlde = it.next();
             curSpeciesI++;
             curSpeciesName = rlde.getTaxEnt().getName();
@@ -66,18 +84,31 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             if(op.size() == 0) {
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
-                csvp.print("");
-                csvp.print("");
-                csvp.print("");
-                csvp.print("");
+                csvp.print("-");
+                csvp.print("-");
+                csvp.print("-");
+                csvp.print("-");
+                csvp.print("-");
+                csvp.print("-");
+                csvp.print("-");
                 csvp.println();
             } else {
+                INodeKey tKey = driver.asNodeKey(rlde.getTaxEntID());
+                InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
+                boolean endemic = is != null && is.isEndemic();
+
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
+                csvp.print(endemic ? ("Endemic from " + territory) : "No");
+                if(rlde.getAssessment().getAdjustedCategory() != null)
+                    csvp.print(rlde.getAssessment().getAdjustedCategory().getLabel());
+                else
+                    csvp.print("");
                 csvp.print(op.getAOO());
                 csvp.print(op.getEOO());
                 csvp.print(op.getRealEOO());
                 csvp.print(op.getNLocations());
+                csvp.print(op.size());
                 csvp.println();
             }
         }

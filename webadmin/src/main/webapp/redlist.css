@@ -791,3 +791,12 @@ div.fieldhelp a {
     text-decoration: underline;
     color:red;
 }
+
+form.orderdownload {
+    box-shadow: 0 0 10px black;
+    margin: 20px;
+    padding: 0 16px 16px 16px;
+    border-radius: 5px;
+}
+
+/*form.orderdownload input[type=submit] {float:right}*/

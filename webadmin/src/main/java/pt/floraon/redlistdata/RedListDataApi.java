@@ -17,10 +17,12 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.fieldparsers.DateParser;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
@@ -131,6 +133,38 @@ public class RedListDataApi extends FloraOnServlet {
                         new DownloadOccurrencesJob(territory, clippingPolygon1, (rls2.getHistoricalThreshold() + 1)
                                 , filter1 == null ? null : new HashSet<>(Arrays.asList(filter1)))
                         , "all-occurrences.csv", driver).getID());
+                break;
+
+            case "downloadtaxainpolygon":
+                territory = thisRequest.getParameterAsString("territory");
+                String polygonWKT = thisRequest.getParameterAsString("polygon");
+                Iterator<Inventory> itInv = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT, null);
+                Set<INodeKey> taxaSet = new HashSet<>();
+                Set<RedListDataEntity> rldeSet = new HashSet<>();
+                // iterate all inventories falling in polygon
+                while(itInv.hasNext()) {
+                    Inventory inv = itInv.next();
+                    for(OBSERVED_IN o : inv._getTaxa()) {
+                        if(o.getTaxEnt() != null)
+                            taxaSet.add(driver.asNodeKey(o.getTaxEnt().getID()));
+                    }
+                }
+
+                // make an iterator of those species
+                for(INodeKey nk : taxaSet) {
+                    RedListDataEntity rlde3 = driver.getRedListData().getRedListDataEntity(territory, nk);
+                    if(rlde3 != null)
+                        rldeSet.add(rlde3);
+                }
+
+                // TODO clipping polygon and years must be a user configuration
+                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+
+                RedListSettings rls3 = driver.getRedListSettings(territory);
+                thisRequest.success(JobSubmitter.newJobFileDownload(
+                        new ComputeAOOEOOJob(territory, rldeSet.iterator(), clippingPolygon2, (rls3.getHistoricalThreshold() + 1), 2000
+                                , null)
+                        , "taxa-in-polygon.csv", driver).getID());
                 break;
 
             case "downloadtable":

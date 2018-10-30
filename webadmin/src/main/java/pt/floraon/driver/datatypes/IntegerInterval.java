@@ -100,6 +100,44 @@ public class IntegerInterval implements Serializable {
         return this.exactValue == null && this.maxValue == null && this.minValue == null;
     }
 
+    public boolean overlapsWith(Integer min, Integer max) {
+        if(min == null && max == null) return true;
+
+        Integer ev = getValue();
+
+        if(ev != null) {
+            if(min != null && max != null && ev >= min && ev <= max) return true;
+            if(min == null && ev <= max) return true;
+            if(max == null && ev >= min) return true;
+            return false;
+        }
+
+        Integer maxv = getMaxValue();
+        Integer minv = getMinValue();
+        if(maxv != null && minv != null) {
+            if(min != null && max != null) {
+                if(!(min > maxv || max < minv)) return true;
+                return false;
+            }
+            if(min == null && max >= minv) return true;
+            if(max == null && min <= maxv) return true;
+            return false;
+        }
+
+        if(maxv != null) {
+            if(min != null && maxv >= min) return true;
+            if(min == null) return true;
+            return false;
+        }
+
+
+        if(minv != null) {
+            if(max != null && minv <= max) return true;
+            if(max == null) return true;
+        }
+        return false;
+    }
+
     public static IntegerInterval emptyInterval() {
         return new IntegerInterval("");
     }

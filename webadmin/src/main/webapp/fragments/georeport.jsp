@@ -27,7 +27,6 @@
     <tr><td class="title">Number of taxa</td><td>${nSpecies}</td></tr>
     <tr><td class="title">Number of endemic taxa</td><td>${nEndemic}</td></tr>
     <tr><td class="title">Number of threatened taxa</td><td>${nThreatened}</td></tr>
-
 </table>
 <table class="small sortable">
     <tr><th>List of recorded taxa</th><th>Endemic</th><th>Threat category</th></tr>
@@ -35,6 +34,14 @@
     <tr><td>${res.key.getNameWithAnnotationOnly(true)}</td><td>${res.value['endemic'] == 'true' ? 'Endémica' : ''}</td><td>${res.value['category']}</td></tr>
     </c:forEach>
 </table>
+
+<form class="poster orderdownload" data-path="api/downloadtaxainpolygon" data-refresh="true" data-callback="?w=jobs">
+    <h2>Descarregar tabela dos taxa</h2>
+    <input type="hidden" name="polygon" value="${param.polygon}"/>
+    <input type="hidden" name="territory" value="${territory}"/>
+    <input type="submit" value="Descarregar" class="textbutton"/>
+</form>
+
 </c:if>
 
 <c:if test="${message != null}">
