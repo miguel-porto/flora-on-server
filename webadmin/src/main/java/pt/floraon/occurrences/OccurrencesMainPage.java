@@ -1,5 +1,9 @@
 package pt.floraon.occurrences;
 
+import com.openhtmltopdf.extend.FSTextBreaker;
+import com.openhtmltopdf.extend.FSUriResolver;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;

@@ -4,9 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
 import pt.floraon.driver.Constants;
@@ -41,6 +44,7 @@ import javax.servlet.http.Part;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.*;
@@ -157,7 +161,7 @@ public class RedListDataApi extends FloraOnServlet {
                         rldeSet.add(rlde3);
                 }
 
-                // TODO clipping polygon and years must be a user configuration
+                // TODO clipping polygon must be a user configuration
                 PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
                 RedListSettings rls3 = driver.getRedListSettings(territory);
@@ -618,6 +622,64 @@ public class RedListDataApi extends FloraOnServlet {
                     thisRequest.success(errors.size() + " errors: " + Arrays.toString(errors.toArray(new String[errors.size()])), true);
                 } else
                     thisRequest.error("Could not update.");
+                break;
+
+            case "downloadoccurrencesinpolygon":
+                String polygonWKT1 = thisRequest.getParameterAsString("polygon");
+                Iterator<Occurrence> itOcc = driver.getQueryDriver().findOccurrencesContainedIn(polygonWKT1, null);
+                thisRequest.response.setContentType("text/csv; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences-in-polygon.csv\"");
+                thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+
+                PrintWriter pw = thisRequest.response.getWriter();
+                CSVPrinter csvp = new CSVPrinter(pw, CSVFormat.EXCEL);
+                csvp.printRecord("Taxon", "VerbTaxon", "Confidence", "Date", "Latitude", "Longitude", "Precision", "Observers", "Comments", "Taxon notes");
+
+                // iterate all inventories falling in polygon
+                while(itOcc.hasNext()) {
+                    Occurrence inv = itOcc.next();
+                    OBSERVED_IN oin = inv.getOccurrence();
+                    csvp.printRecord(oin.getTaxEnt() != null ? oin.getTaxEnt().getFullName(false) : "-"
+                            , oin.getConfidence() == null ? "-" : oin.getConfidence().getLabel(), inv._getDate()
+                            , oin.getVerbTaxon(), inv._getLatitude(), inv._getLongitude(), inv.getPrecision() == null ? "-" : inv.getPrecision().toString()
+                            , StringUtils.implode(", ", inv._getObserverNames())
+                            , inv.getPubNotes(), oin.getComment());
+                }
+                csvp.close();
+
+                break;
+
+            case "downloadinventoriesPDF":
+                String polygonWKT2 = thisRequest.getParameterAsString("polygon");
+                Iterator<Inventory> itInv1 = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT2, null);
+                List<String> ids = new ArrayList<>();
+                while(itInv1.hasNext())
+                    ids.add(itInv1.next().getID());
+
+                if(ids.size() == 0) break;
+
+                String idsString = StringUtils.implode(",", ids.toArray(new String[0]));
+
+                thisRequest.response.setContentType("application/pdf; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"inventories.pdf\"");
+                thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+
+                PdfRendererBuilder builder = new PdfRendererBuilder();
+                final NaiveUserAgent.DefaultUriResolver defaultUriResolver = new NaiveUserAgent.DefaultUriResolver();
+
+                builder.useUriResolver(defaultUriResolver);
+                StringBuffer url = thisRequest.request.getRequestURL();
+                String uri = thisRequest.request.getRequestURI();
+                String ctx = thisRequest.request.getContextPath();
+                String base = url.substring(0, url.length() - uri.length() + ctx.length()) + "/";
+
+                builder.withUri(base + "occurrences/api/exportinventory?ids=" + URLEncoder.encode(idsString, StandardCharsets.UTF_8.toString()));
+                builder.toStream(thisRequest.response.getOutputStream());
+                try {
+                    builder.run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
 
             default:

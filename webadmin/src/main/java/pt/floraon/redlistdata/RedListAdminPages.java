@@ -1057,13 +1057,13 @@ System.out.println(gs.toJson(getUser()));
                                     occArray = new Gson().fromJson(resp.getAsJsonArray("msg"), listType);
                                     for (Map<String, Object> ph : occArray) {
                                         Element photo = doc.createElement("photo");
-                                        photo.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
+                                        photo.appendChild(doc.createTextNode("https://flora-on.pt/" + cn.getGenus() + "-"
                                                 + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
                                         photos.appendChild(photo);
 
                                         if(!headerphoto.hasChildNodes()) {
                                             if(StringUtils.isStringEmpty(rlde.getCoverPhotoUrl()))
-                                                headerphoto.appendChild(doc.createTextNode("http://flora-on.pt/" + cn.getGenus() + "-"
+                                                headerphoto.appendChild(doc.createTextNode("https://flora-on.pt/" + cn.getGenus() + "-"
                                                         + cn.getSpecificEpithet() + "_ori_" + ph.get("guid").toString() + ".jpg"));
                                             else
                                                 headerphoto.appendChild(doc.createTextNode(rlde.getCoverPhotoUrl()));
@@ -1308,7 +1308,6 @@ System.out.println(gs.toJson(getUser()));
                                     nEndemic.increment();
                                 }
                             }
-
                         } catch (IllegalArgumentException e) {
                             request.setAttribute("message", e.getMessage());
                         } finally {

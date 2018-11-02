@@ -20,7 +20,6 @@
 </c:if>
 
 <c:if test="${param.polygon != null}">
-<p>Current polygon:<br/><code>${param.polygon}</code></p>
 <table class="small">
     <tr><th>Statistic</th><th>Value</th></tr>
     <tr><td class="title">Number of inventories</td><td>${nInventories}</td></tr>
@@ -28,6 +27,39 @@
     <tr><td class="title">Number of endemic taxa</td><td>${nEndemic}</td></tr>
     <tr><td class="title">Number of threatened taxa</td><td>${nThreatened}</td></tr>
 </table>
+
+<h2>Descarregamentos</h2>
+<table class="small">
+<tr>
+    <td>Tabela dos taxa dentro do polígono</td>
+    <td>
+        <form class="poster" data-path="api/downloadtaxainpolygon" data-refresh="true" data-callback="?w=jobs">
+            <input type="hidden" name="polygon" value="${param.polygon}"/>
+            <input type="hidden" name="territory" value="${territory}"/>
+            <input type="submit" value="Descarregar" class="textbutton"/>
+        </form>
+    </td>
+</tr>
+<tr>
+    <td>Ocorrências dentro do polígono (só LVF)</td>
+    <td>
+        <form action="api/downloadoccurrencesinpolygon" method="POST">
+            <input type="hidden" name="polygon" value="${param.polygon}"/>
+            <input type="submit" value="Descarregar" class="textbutton"/>
+        </form>
+    </td>
+</tr>
+<tr>
+    <td>PDF dos inventários dentro do polígono (só LVF)</td>
+    <td>
+        <form action="api/downloadinventoriesPDF" method="POST">
+            <input type="hidden" name="polygon" value="${param.polygon}"/>
+            <input type="submit" value="Descarregar" class="textbutton"/>
+        </form>
+    </td>
+</tr>
+</table>
+
 <table class="small sortable">
     <tr><th>List of recorded taxa</th><th>Endemic</th><th>Threat category</th></tr>
     <c:forEach var="res" items="${speciesList}">
@@ -35,13 +67,7 @@
     </c:forEach>
 </table>
 
-<form class="poster orderdownload" data-path="api/downloadtaxainpolygon" data-refresh="true" data-callback="?w=jobs">
-    <h2>Descarregar tabela dos taxa</h2>
-    <input type="hidden" name="polygon" value="${param.polygon}"/>
-    <input type="hidden" name="territory" value="${territory}"/>
-    <input type="submit" value="Descarregar" class="textbutton"/>
-</form>
-
+<p>Current polygon:<br/><code>${param.polygon}</code></p>
 </c:if>
 
 <c:if test="${message != null}">

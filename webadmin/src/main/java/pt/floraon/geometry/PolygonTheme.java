@@ -26,8 +26,9 @@ import java.util.regex.Pattern;
  */
 public class PolygonTheme implements IPolygonTheme {
     private Multimap<String, pt.floraon.geometry.Polygon> polygons;
-    private static Pattern wktParse = Pattern.compile("polygon *\\( *\\( *[0-9., -]+ *\\) *\\)", Pattern.CASE_INSENSITIVE);
-    private static Pattern wktCoordinate = Pattern.compile("(?<lng>[0-9-]+(\\.[0-9]+)?) +(?<lat>[0-9-]+(\\.[0-9]+)?) *[,)]", Pattern.CASE_INSENSITIVE);
+    private static Pattern wktParse = Pattern.compile("polygonz? *\\( *\\( *[0-9., -]+ *\\) *\\)", Pattern.CASE_INSENSITIVE);
+    private static Pattern wktCoordinate = Pattern.compile("(?<lng>[0-9-]+(\\.[0-9]+)?) +(?<lat>[0-9-]+(\\.[0-9]+)?)" +
+            "(?: +[0-9-]+(\\.[0-9]+)?)? *[,)]", Pattern.CASE_INSENSITIVE);
     private float minX, maxX, minY, maxY;
 
     public PolygonTheme(String WKTString) {

@@ -3,7 +3,7 @@ package pt.floraon.occurrences;
 import pt.floraon.driver.datatypes.IntegerInterval;
 
 /**
- * Represents the abundance of a taxon in an obsrevation
+ * Represents the abundance of a taxon in an observation
  */
 public class Abundance extends IntegerInterval {
     public Abundance(String text) {

@@ -93,8 +93,7 @@ public class Polygon {
                     crossings++;
             }
         }
-        if (crossings % 2 == 1) return true;
-        else                    return false;
+        return crossings % 2 == 1;
     }
 
     // does this Polygon contain the point p?

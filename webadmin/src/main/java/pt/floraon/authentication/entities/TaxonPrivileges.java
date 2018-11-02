@@ -6,12 +6,13 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by miguel on 07-01-2017.
  */
-public class TaxonPrivileges {
+public class TaxonPrivileges implements Serializable {
     /**
      * The INodeKeys of the taxa to which the privileges apply.
      */

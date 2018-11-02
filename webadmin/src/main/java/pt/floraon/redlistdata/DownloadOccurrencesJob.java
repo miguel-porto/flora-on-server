@@ -20,7 +20,7 @@ import java.io.OutputStreamWriter;
 import java.util.*;
 
 /**
- * Downloads all occurrences from all providers of all species (or optionally filtered by tags)
+ * Downloads all occurrences from all providers of all species in the given red list (or optionally filtered by tags)
  */
 public class DownloadOccurrencesJob implements JobFileDownload {
     private String territory;
@@ -59,23 +59,18 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             curSpeciesName = rlde.getTaxEnt().getName();
             if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
             List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-            for (SimpleOccurrenceDataProvider edp : sodps) {
+            for (SimpleOccurrenceDataProvider edp : sodps)
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
-            }
 
             op = OccurrenceProcessor.iterableOf(sodps, new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon));
 
             if(op.size() > 0) {
                 for (Occurrence so : op) {
-                    csvp.print(so.getDataSource());
-                    csvp.print(rlde.getTaxEnt().getID());
-                    csvp.print(rlde.getTaxEnt().getNameWithAnnotationOnly(false));
-                    csvp.print(so.getOccurrence().getVerbTaxon());
-                    csvp.print(so._getLatitude());
-                    csvp.print(so._getLongitude());
-                    csvp.print(so._getDate());
-                    csvp.print(StringUtils.implode(", ", so._getObserverNames()));
-                    csvp.println();
+                    csvp.printRecord(
+                        so.getDataSource(), rlde.getTaxEnt().getID(), rlde.getTaxEnt().getNameWithAnnotationOnly(false)
+                        , so.getOccurrence().getVerbTaxon(), so._getLatitude(), so._getLongitude(), so._getDate()
+                        , StringUtils.implode(", ", so._getObserverNames())
+                    );
                 }
             }
         }

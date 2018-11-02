@@ -13,6 +13,7 @@ import org.apache.commons.csv.CSVPrinter;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.Messages;
 import pt.floraon.driver.TaxonomyException;
@@ -245,10 +246,11 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	public String getFullName(boolean htmlFormatted) {
 		if(htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())	// genus or inferior
 			return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
-				+ this.getCanonicalName().toString(true) + (this.getAuthor() != null ? " "+this.getAuthor() : "")
+				+ this.getCanonicalName().toString(true) + (this.getAuthor() != null ?
+					" " + StringEscapeUtils.escapeHtml(this.getAuthor()) : "")
 //				+ "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
-				+ (this.getSensu() != null ? " <i>sensu</i> "+this.getSensu() : "")
-				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
+				+ (this.getSensu() != null ? " <i>sensu</i> " + StringEscapeUtils.escapeHtml(this.getSensu()) : "")
+				+ (this.getAnnotation() != null ? " [" + StringEscapeUtils.escapeHtml(this.getAnnotation()) + "]" : "");
 		else
 			return this.getName() + (this.getAuthor() != null ? " "+this.getAuthor() : "")
 				+ (this.getSensu() != null ? " sensu "+this.getSensu() : "")

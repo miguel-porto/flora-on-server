@@ -9,6 +9,7 @@ import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.BeanUtils;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
@@ -32,16 +33,22 @@ import java.util.regex.Pattern;
 @WebServlet("/occurrences/api/*")
 public class OccurrenceApi extends FloraOnServlet {
     @Override
+    public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+        doFloraOnPost(thisRequest);
+    }
+
+    @Override
     public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         ListIterator<String> path = thisRequest.getPathIteratorAfter("api");
         Gson gs = new GsonBuilder().setPrettyPrinting().create();
         String fileName;
         User user = thisRequest.getUser();
-        if(user.isGuest()) {
+        String option = path.next();
+
+        if(user.isGuest() && !option.equals("exportinventory")) {
             thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
-        String option = path.next();
 
         switch (option) {
             case "fixtaxonomicissues":
@@ -273,6 +280,16 @@ public class OccurrenceApi extends FloraOnServlet {
             case "matchtaxa":
                 driver.getOccurrenceDriver().matchTaxEntNames(driver.getOccurrenceDriver().getUnmatchedOccurrences(), true, true);
 
+                break;
+
+            case "exportinventory":
+                String ids1 = thisRequest.getParameterAsString("ids");
+                if(ids1 == null) break;
+                String[] idsArr = ids1.split(",");
+                Iterator<Inventory> itInv = driver.getOccurrenceDriver().getInventoriesByIds(idsArr);
+                thisRequest.request.setAttribute("inventories", itInv);
+//                itInv.next()._getTaxa()[0].getTaxEnt().getFullName(true)
+                thisRequest.request.getRequestDispatcher("/pdf/inventory-layout.jsp").forward(thisRequest.request, thisRequest.response);
                 break;
         }
     }

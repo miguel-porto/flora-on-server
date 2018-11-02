@@ -81,10 +81,13 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             op = new OccurrenceProcessor(sodps, null
                     , sizeOfSquare, new BasicOccurrenceFilter(minimumYear, null, false, clippingPolygon));
 
+            INodeKey tKey = driver.asNodeKey(rlde.getTaxEntID());
+            InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
+            boolean endemic = is != null && is.isEndemic();
             if(op.size() == 0) {
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
-                csvp.print("-");
+                csvp.print(endemic ? ("Endemic from " + territory) : "No");
                 csvp.print("-");
                 csvp.print("-");
                 csvp.print("-");
@@ -93,10 +96,6 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.print("-");
                 csvp.println();
             } else {
-                INodeKey tKey = driver.asNodeKey(rlde.getTaxEntID());
-                InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
-                boolean endemic = is != null && is.isEndemic();
-
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
                 csvp.print(endemic ? ("Endemic from " + territory) : "No");

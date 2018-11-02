@@ -13,6 +13,7 @@ public class OccurrenceIterator implements Iterator<Occurrence> {
     private Iterator<Occurrence> cursor;
     private OccurrenceFilter[] filter = new OccurrenceFilter[0];
     private Occurrence nextItem = null;
+    private boolean consumed = true;
 
     public OccurrenceIterator(Iterator<Occurrence> cursor) {
         this.cursor = cursor;
@@ -25,18 +26,20 @@ public class OccurrenceIterator implements Iterator<Occurrence> {
 
     @Override
     public boolean hasNext() {
+        if(!consumed) return true;
         if(filter == null) {
             if(cursor.hasNext())
                 nextItem = cursor.next();
             else
                 return false;
+            consumed = false;
             return true;
         } else {
             boolean enter;
             do {
-                if(cursor.hasNext())
+                if(cursor.hasNext()) {
                     nextItem = cursor.next();
-                else
+                } else
                     return false;
 
                 enter = true;
@@ -44,6 +47,7 @@ public class OccurrenceIterator implements Iterator<Occurrence> {
                     enter &= of.enter(nextItem);
                 }
             } while(!enter);
+            consumed = false;
             return true;
         }
     }
@@ -54,13 +58,12 @@ public class OccurrenceIterator implements Iterator<Occurrence> {
         if(nextItem == null)
             throw new NoSuchElementException();
 
-        out = nextItem;
-        nextItem = null;
-        return out;
+        consumed = true;
+        return nextItem;
     }
 
     @Override
     public void remove() {
-
+        throw new UnsupportedOperationException();
     }
 }
