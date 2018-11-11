@@ -54,18 +54,66 @@
     </form>
     </c:if>
 
-    <c:if test="${!user.isAdministrator() && !user.isGuest()}">
+    <c:if test="${!user.isGuest()}">
     <h1>Personal area</h1>
-    <%--<form class="poster" data-path="admin/updateuser" data-refresh="true">
+    <p>${user.getID()}</p>
+    <%--
+    <form class="poster" data-path="admin/updateuser" data-refresh="true">
     <input type="hidden" name="databaseId" value="${user.getID()}"/>
-
     <table class="small">
         <tr><th colspan="2">Dados da conta</th></tr>
         <tr><td class="title">Name</td><td><input type="text" name="name" value="${user.getName()}" /></td></tr>
         <tr><td class="title">Username <span class="info">Este é o nome que usa para fazer login. Não pode conter espaços.</span></td><td><input type="text" name="userName" value="${user.getUserName()}" /></td></tr>
         <tr><td colspan="2"><input type="submit" class="textbutton" value="Gravar alterações" /></td></tr>
     </table>
-    </form>--%>
+    </form>
+    --%>
+
+    <h2>Vistas personalizadas</h2>
+    <form class="poster" data-path="admin/createcustomoccurrenceflavour" data-refresh="true">
+        <h3>Criar nova vista personalizada</h3>
+        <table class="small">
+        <tr><td>Nome da vista</td><td><input type="text" name="flavourname"/></td></tr>
+        <tr><td>Mostrar a vista em</td><td class="multiplechooser left">
+        <input type="checkbox" name="showinoccurrenceview" id="showinoccurrenceview" checked="checked"/><label for="showinoccurrenceview" class="wordtag togglebutton">Vista de ocorrências</label>
+        <input type="checkbox" name="showininventoryview" id="showininventoryview"/><label for="showininventoryview" class="wordtag togglebutton">Vista de inventários</label>
+        </td></tr>
+        <tr><td>Incluir na vista os campos</td><td class="multiplechooser left">
+            <c:forEach var="entry" items="${specialfields}">
+            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#E1BEE7">${entry.key}<div class="info" style="color:#222">${entry.value}</div></label>
+            </c:forEach>
+            <c:forEach var="entry" items="${occurrencefields}">
+            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#B2DFDB">${entry.key}<div class="info" style="color:#222">${entry.value}</div></label>
+            </c:forEach>
+            <c:forEach var="entry" items="${inventoryfields}">
+            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#FFE0B2">${entry.key}<div class="info" style="color:#222">${entry.value}</div></label>
+            </c:forEach>
+        </td></tr>
+        <tr><td colspan="2"><input type="submit" value="Criar vista" class="textbutton"/></td></tr>
+        </table>
+    </form>
+
+    <h3>Vistas personalizadas existentes</h3>
+    <table class="small">
+    <tr><th>Nome</th><th>Show in occurrence view</th><th>Show in inventory view</th><th>Fields</th><th></th></tr>
+    <c:forEach var="flv" items="${customflavours}">
+    <tr>
+        <td>${flv.getName()}</td><td><t:yesno test="${flv.showInOccurrenceView()}"/></td><td><t:yesno test="${flv.showInInventoryView()}"/></td>
+        <td>
+        <c:forEach var="field" items="${flv.getFields()}"><div class="wordtag">${field}</div></c:forEach>
+        </td>
+        <td>
+            <form class="poster" data-path="admin/deletecustomoccurrenceflavour" data-refresh="true">
+            <input type="hidden" name="flavourname" value="${flv.getName()}"/>
+            <input type="submit" value="Apagar" class="textbutton"/>
+            </form>
+        </td>
+    </tr>
+    </c:forEach>
+    </table>
+
+
+
     <c:if test="${showDownload}">
     <h2>Download occurrence records</h2>
     <table>

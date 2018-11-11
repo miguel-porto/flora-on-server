@@ -1,17 +1,21 @@
-package pt.floraon.authentication;
+package pt.floraon.authentication.servlets;
 
 import edu.emory.mathcs.backport.java.util.Collections;
+import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.annotations.PrettyName;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.InventoryList;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.SpecialFields;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -29,6 +33,7 @@ public class AdminPage extends FloraOnServlet {
             return;
         }
 
+        thisRequest.refreshUser();
         thisRequest.request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
         if(thisRequest.getUser().isAdministrator()) {
@@ -61,17 +66,45 @@ DEPRECATED
 
         }
 */
-        } else {
-            for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
-                if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
-                    thisRequest.request.setAttribute("showDownload", true);
-                    List<User> allusers = driver.getAdministration().getAllUsers(true);
-                    Collections.sort(allusers);
-                    thisRequest.request.setAttribute("allusers", allusers);
-                    break;
-                }
+        }
+
+        for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
+            if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
+                thisRequest.request.setAttribute("showDownload", true);
+                List<User> allusers = driver.getAdministration().getAllUsers(true);
+                Collections.sort(allusers);
+                thisRequest.request.setAttribute("allusers", allusers);
+                break;
             }
         }
+
+        Map<String, String> occurrenceFieldNames = new HashMap<>();
+        Map<String, String> inventoryFieldNames = new HashMap<>();
+        Map<String, String> specialFieldNames = new HashMap<>();
+        Field[] fs = OBSERVED_IN.class.getDeclaredFields();
+        for(Field f : fs) {
+            if(f.isAnnotationPresent(PrettyName.class)) {
+                PrettyName fpn = f.getAnnotation(PrettyName.class);
+                occurrenceFieldNames.put(f.getName(), fpn.value());
+            }
+        }
+        for(Field f : Inventory.class.getDeclaredFields()) {
+            if(f.isAnnotationPresent(PrettyName.class)) {
+                PrettyName fpn = f.getAnnotation(PrettyName.class);
+                inventoryFieldNames.put(f.getName(), fpn.value());
+            }
+        }
+        for(Field f : SpecialFields.class.getDeclaredFields()) {
+            if(f.isAnnotationPresent(PrettyName.class)) {
+                PrettyName fpn = f.getAnnotation(PrettyName.class);
+                specialFieldNames.put(f.getName(), fpn.value());
+            }
+        }
+
+        thisRequest.request.setAttribute("occurrencefields", occurrenceFieldNames);
+        thisRequest.request.setAttribute("inventoryfields", inventoryFieldNames);
+        thisRequest.request.setAttribute("specialfields", specialFieldNames);
+        thisRequest.request.setAttribute("customflavours", thisRequest.getUser().getCustomOccurrenceFlavours());
 
         thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
     }

@@ -8,6 +8,7 @@ import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.Occurrence;
 
 import java.util.*;
 
@@ -23,7 +24,7 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
     public Map<String, Integer> getListOfUTMSquaresWithOccurrences(INodeKey userId, Date from, Date to, long sizeOfSquare) throws DatabaseException{
         Map<String, Integer> out = new TreeMap<>();
         Inventory i;
-        Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesOfObserverWithinDates(
+        Iterator<Occurrence> it = driver.getOccurrenceDriver().getOccurrencesOfObserverWithinDates(
                 userId, from, to, null, null);
 
         while(it.hasNext()) {
@@ -38,7 +39,7 @@ public abstract class GOccurrenceReportDriver extends BaseFloraOnDriver implemen
     }
 
     @Override
-    public Map<String, Integer> getListOfPolygonsWithOccurrences(Iterator<Inventory> it, PolygonTheme polygonTheme) throws DatabaseException {
+    public Map<String, Integer> getListOfPolygonsWithOccurrences(Iterator<Occurrence> it, PolygonTheme polygonTheme) throws DatabaseException {
         if(polygonTheme == null) return Collections.emptyMap();
         Map<String, Integer> out = new TreeMap<>();
         Map<Polygon, Integer> tmp = new HashMap<>();

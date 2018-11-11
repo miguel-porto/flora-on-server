@@ -72,7 +72,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("abundance", new NumericIntervalParser());
         fieldMappingsSecondRound.put("typeofestimate", new EnumParser());
         fieldMappingsSecondRound.put("comment", new PlainTextParser());
-        fieldMappingsSecondRound.put("privatenote", new PlainTextParser());
+        fieldMappingsSecondRound.put("privateComment", new PlainTextParser());
         fieldMappingsSecondRound.put("phenostate", new EnumParser());
         fieldMappingsSecondRound.put("confidence", new EnumParser());
         fieldMappingsSecondRound.put("presencestatus", new EnumParser());
@@ -88,7 +88,7 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("codHerbario", new AliasFieldParser("accession", fieldMappingsSecondRound));
         fieldMappingsSecondRound.put("coverIndex", new PlainTextParser());
         fieldMappingsSecondRound.put("excludeReason", new AliasFieldParser("presencestatus", fieldMappingsSecondRound));
-
+        fieldMappingsSecondRound.put("privatenote", new AliasFieldParser("privateComment", fieldMappingsSecondRound));
     }
 
     @Override

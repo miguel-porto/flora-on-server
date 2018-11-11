@@ -618,7 +618,6 @@ System.out.println(gs.toJson(getUser()));
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 List<SimpleOccurrenceDataProvider> sodps1 = driver.getRedListData().getSimpleOccurrenceDataProviders();
 
-
                 for(SimpleOccurrenceDataProvider edp : sodps1)
                     edp.executeOccurrenceQuery(te);
 

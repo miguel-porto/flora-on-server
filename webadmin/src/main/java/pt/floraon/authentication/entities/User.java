@@ -1,7 +1,6 @@
 package pt.floraon.authentication.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import com.google.gson.JsonObject;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
@@ -10,7 +9,9 @@ import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.redlistdata.entities.RedListSettings;
+import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.flavours.IOccurrenceFlavour;
+import pt.floraon.occurrences.flavours.CustomOccurrenceFlavour;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -30,6 +31,7 @@ public class User extends NamedDBNode implements Comparable<User> {
 	private List<String> uploadedTables;
 	private String userPolygons;
 	private boolean isGuest;
+	private Set<CustomOccurrenceFlavour> customOccurrenceFlavours;
 
 	@Override
 	public int compareTo(User user) {
@@ -141,6 +143,27 @@ public class User extends NamedDBNode implements Comparable<User> {
 		if(uploadedTables == null)
 			uploadedTables = new ArrayList<>();
 		uploadedTables.add(uploadedTable);
+	}
+
+	public Set<CustomOccurrenceFlavour> getCustomOccurrenceFlavours() {
+		return customOccurrenceFlavours;
+	}
+
+    /**
+     * Merge the pre-defined flavours with the custom
+     * @return
+     */
+	public Map<String, IOccurrenceFlavour> getEffectiveOccurrenceFlavours() {
+        Map<String, IOccurrenceFlavour> flv1 = new LinkedHashMap<>(OccurrenceConstants.occurrenceManagerFlavours);
+        if(getCustomOccurrenceFlavours() != null) {
+            for (CustomOccurrenceFlavour of : getCustomOccurrenceFlavours())
+                flv1.put(of.getName(), of);
+        }
+        return flv1;
+    }
+
+	public void setCustomOccurrenceFlavours(Set<CustomOccurrenceFlavour> customOccurrenceFlavours) {
+		this.customOccurrenceFlavours = customOccurrenceFlavours;
 	}
 
 	public Set<Privileges> getPrivileges() {return privileges;}

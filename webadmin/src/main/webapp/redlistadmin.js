@@ -552,6 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
     addEvent('click', document.getElementById('deletereferences'), referenceListActions);
     addEvent('click', document.getElementById('mergeintothis'), referenceListActions);
 
+    attachHelpButtons();
 });
 
 function referenceListActions(ev) {

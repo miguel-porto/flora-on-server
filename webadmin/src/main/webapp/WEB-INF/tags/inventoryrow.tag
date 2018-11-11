@@ -2,12 +2,12 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ attribute name="fields" required="true" type="java.lang.String[]" %>
+<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="inv" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
 <%@ attribute name="tax" required="false" type="pt.floraon.occurrences.entities.OBSERVED_IN"%>
 
 <jsp:useBean id="collapseField" class="java.util.HashMap"/>
-<c:forEach var="flf" items="${fields}">
+<c:forEach var="flf" items="${fields.getFields()}">
     <t:isoptionselected optionname="collapse-${flf}" value="true"><c:set target="${collapseField}" property="${flf}" value="true"/></t:isoptionselected>
 </c:forEach>
 
@@ -15,8 +15,8 @@
 <c:if test="${tax == null}">
 <tr class="geoelement dummy id2holder">
     <td class="selectcol clickable"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td>
-    <c:forEach var="flf" items="${fields}">
-    <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" noInventory="true"/>
+    <c:forEach var="flf" items="${fields.getFields()}">
+    <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" noInventory="true" fields="${fields}"/>
     </c:forEach>
 </tr>
 </c:if>
@@ -30,8 +30,8 @@
         <div class="selectbutton"></div>
     </td>
     <td class="hidden editable coordinates" data-name="observationCoordinates" data-lat="${tax.getObservationLatitude()}" data-lng="${tax.getObservationLongitude()}" data-symbol="2">${tax._getObservationCoordinates()}</td>
-    <c:forEach var="flf" items="${fields}">
-    <t:occurrence-cell taxon="${tax}" field="${flf}" collapsed="${collapseField[flf]}" noInventory="true"/>
+    <c:forEach var="flf" items="${fields.getFields()}">
+    <t:occurrence-cell taxon="${tax}" field="${flf}" collapsed="${collapseField[flf]}" noInventory="true" fields="${fields}"/>
     </c:forEach>
 </tr>
 </c:if>
@@ -51,7 +51,7 @@
         <td class="editable" data-name="abundance"></td>
         <td class="editable" data-name="coverIndex"></td>
         <td class="editable" data-name="comment"></td>
-        <td class="editable" data-name="privateNote"></td>
+        <td class="editable" data-name="privateComment"></td>
         </c:when>
 
         <c:when test="${flavour == 'redlist'}">
@@ -65,7 +65,7 @@
         <td class="editable" data-name="hasPhoto"></td>
         <td class="editable" data-name="hasSpecimen"></td>
         <td class="editable" data-name="comment"></td>
-        <td class="editable" data-name="privateNote"></td>
+        <td class="editable" data-name="privateComment"></td>
         <td class="editable threats" data-name="specificThreats"></td>
         <td class="editable" data-name="presenceStatus"></td>
         </c:when>
@@ -90,7 +90,7 @@
             <td class="editable" data-name="abundance">${tax.getAbundance()}</td>
             <td class="editable" data-name="coverIndex">${tax.getCoverIndex()}</td>
             <td class="editable" data-name="comment">${tax.getComment()}</td>
-            <td class="editable" data-name="privateNote">${tax.getPrivateComment()}</td>
+            <td class="editable" data-name="privateComment">${tax.getPrivateComment()}</td>
             </c:when>
 
             <c:when test="${flavour == 'redlist'}">
@@ -104,7 +104,7 @@
             <td class="editable" data-name="hasPhoto">${tax._getHasPhotoLabel()}</td>
             <td class="editable" data-name="hasSpecimen">${tax.getHasSpecimen()}</td>
             <td class="editable" data-name="comment">${tax.getComment()}</td>
-            <td class="editable" data-name="privateNote">${tax.getPrivateComment()}</td>
+            <td class="editable" data-name="privateComment">${tax.getPrivateComment()}</td>
             <td class="editable threats" data-name="specificThreats">${tax.getSpecificThreats()}</td>
             <td class="editable" data-name="presenceStatus">${tax._getPresenceStatusLabel()}</td>
             </c:when>

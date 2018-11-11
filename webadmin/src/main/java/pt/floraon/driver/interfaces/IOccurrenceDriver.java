@@ -75,7 +75,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+    Iterator<Occurrence> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
@@ -89,7 +89,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Inventory> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException;
+    Iterator<Occurrence> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets all or part of the occurrences maintained by the given user. Inventories as disaggregated into individual
@@ -101,7 +101,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
+    Iterator<Occurrence> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets the number of occurrences of the maintainer (inventories are disaggregated into single occurrences).
@@ -203,9 +203,14 @@ public interface IOccurrenceDriver {
      * @return
      * @throws FloraOnException
      */
-    Iterator<Inventory> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
     int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException;
 
+    /**
+     * Parses a compound occurrence filter into a Map.
+     * @param filterText
+     * @return
+     */
     Map<String, String> parseFilterExpression(String filterText);
 }

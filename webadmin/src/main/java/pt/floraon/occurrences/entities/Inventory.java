@@ -1,11 +1,8 @@
 package pt.floraon.occurrences.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import jline.internal.Log;
-import pt.floraon.driver.Constants;
-import pt.floraon.driver.DiffableBean;
-import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.GeoBean;
+import pt.floraon.driver.*;
+import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.*;
@@ -27,20 +24,59 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String spatialRS;
     private Float elevation;
     private String geometry;
-    private Integer year, month, day;   // TODO: these cannot be erased...
+    @SmallField @HideInInventoryView
+    @PrettyName(value = "Ano", shortName = "Ano")
+    private Integer year;
+    @SmallField @HideInInventoryView
+    @PrettyName(value = "Mês", shortName = "Mês")
+    private Integer month;
+    @SmallField @HideInInventoryView
+    @PrettyName(value = "Dia", shortName = "Dia")
+    private Integer day;   // TODO: these cannot be erased...
+    @SmallField @HideInInventoryView
+    @PrettyName(value = "Precisão", shortName = "Prec")
     private Precision precision;
     private Boolean complete;
-    private String habitat, pubNotes, privNotes, geology;
-    private String[] tags, observers, collectors, dets;
+    @HideInInventoryView
+    @PrettyName(value = "Habitat", shortName = "Hab")
+    private String habitat;
+    @HideInCompactView @HideInInventoryView
+    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
+    private String pubNotes;
+    @HideInCompactView @HideInInventoryView
+    @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
+    private String privNotes;
+    private String geology;
+    private String[] tags;
+    @HideInInventoryView
+    @PrettyName(value = "Observadores", shortName = "Observadores")
+    private String[] observers;
+    @HideInCompactView @HideInInventoryView
+    @PrettyName(value = "Colectores", shortName = "Colectores")
+    private String[] collectors;
+    @HideInCompactView @HideInInventoryView
+    @PrettyName(value = "Determinadores", shortName = "Dets")
+    private String[] dets;
     private String verbLocality;
+    @HideInInventoryView
+    @PrettyName(value = "Local", shortName = "Local")
     private String locality;
     private String municipality;
     private String province;
     private String county;
+    @SmallField @HideInInventoryView
+    @PrettyName(value = "Código do inventário", shortName = "Cod")
     private String code;
+    @HideInInventoryView
+    @PrettyName(value = "Ameaças do local", shortName = "Ameaças")
     private String threats;
+    @HideInCompactView @ReadOnly @HideInInventoryView
+    @PrettyName(value = "Responsável", shortName = "Resp")
     private String maintainer;
-    private Float area, meanHeight;
+    @HideInInventoryView
+    @PrettyName(value = "Área do inventário", shortName = "Área")
+    private Float area;
+    private Float meanHeight;
     private Float totalCover;
     private String aspect;
     private Integer slope;

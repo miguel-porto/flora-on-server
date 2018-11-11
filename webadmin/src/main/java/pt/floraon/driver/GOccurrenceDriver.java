@@ -115,6 +115,9 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
 
     @Override
     public Map<String, String> parseFilterExpression(String filterText) {
+        if(pt.floraon.driver.utils.StringUtils.isStringEmpty(filterText))
+            return new HashMap<>();
+
         Map<String, String> out = new HashMap<>();
 
         Matcher mat = filterPattern.matcher(filterText);

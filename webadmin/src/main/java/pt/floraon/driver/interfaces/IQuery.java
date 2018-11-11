@@ -25,19 +25,12 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 public interface IQuery {
 	/**
 	 * Gets all occurrences that are contained in the given polygon
-	 * @param geoJsonPolygon
+	 * @param geoJsonPolygon A WKT string, only Polygon or PolygonZ works.
+	 * @param filter A textual filter
 	 * @return
 	 */
-	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon, OccurrenceFilter filter) throws FloraOnException;
+	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon, String filter) throws FloraOnException;
 
-	/**
-	 * Gets all the inventories contained in the given polygon
-	 * @param geoJsonPolygon
-	 * @param filter
-	 * @return
-	 * @throws FloraOnException
-	 */
-	Iterator<Inventory> findInventoriesContainedIn(String geoJsonPolygon, OccurrenceFilter filter) throws FloraOnException;
     /**
 	 * Gets all inventories within a radius of a given point
 	 * @param latitude The point's latitude
@@ -127,4 +120,12 @@ public interface IQuery {
      */
 	int getNumberOfNodesInCollection(NodeTypes nodetype) throws FloraOnException;
 
+	/**
+	 * Gets all the inventories contained in the given polygon
+	 * @param geoJsonPolygon A WKT string, only Polygon or PolygonZ works.
+	 * @param filter A textual compound filter, as documented elsewhere
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Iterator<Inventory> findInventoriesContainedIn(String geoJsonPolygon, String filter) throws FloraOnException;
 }

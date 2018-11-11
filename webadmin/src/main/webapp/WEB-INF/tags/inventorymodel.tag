@@ -36,7 +36,6 @@
         </tr></tbody>
     </table>
     <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-<%--        <t:inventorytaxonheader flavour="${flavour}"/>  --%>
         <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
         <tbody>
             <t:inventoryrow fields="${flavourfields}"/>

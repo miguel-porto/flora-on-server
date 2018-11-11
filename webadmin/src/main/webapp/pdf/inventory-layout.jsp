@@ -21,7 +21,8 @@
             text-align:left;
         }
 
-        table td {padding:2px;}
+        td {padding:2px;}
+        /*td.taxon {font-style:italic}*/
 
         .header table td {background-color: #bbdefb}
 
@@ -32,7 +33,6 @@
 
         page-after {
           display: block;
-/*          page-break-after: always;*/
           page-break-inside: avoid;
           margin-bottom: 20px;
         }
@@ -58,7 +58,7 @@
         <tr><th>Taxon</th><th>Fenologia</th><th>Abundância</th><th>Notas</th></tr>
         <c:forEach var="occ" items="${inv._getTaxa()}">
         <tr>
-            <td><c:out value="${occ.getTaxEnt() == null ? occ.getVerbTaxon() : occ.getTaxEnt().getName()}"/></td>
+            <td class="taxon"><c:out value="${occ.getTaxEnt() == null ? occ.getVerbTaxon() : occ.getTaxEnt().getName()}"/></td>
             <td>${occ.getPhenoState() == null ? '-' : occ.getPhenoState().getLabel()}</td>
             <td>${occ.getAbundance() == null ? '-' : occ.getAbundance()}</td>
             <td><c:out value="${occ.getComment() == null ? '-' : occ.getComment()}"/></td>

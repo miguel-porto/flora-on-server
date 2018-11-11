@@ -21,4 +21,9 @@ public interface IAdministration {
     User authenticateUser(String username, char[] password) throws FloraOnException;
     User removeTaxonPrivileges(INodeKey id, int index) throws FloraOnException;
     User removeTaxonFromPrivilegeSet(INodeKey userId, INodeKey taxEntId, int indexOfSet) throws FloraOnException;
+
+    User createCustomOccurrenceFlavour(INodeKey id, String[] fields, String name, boolean showInOccurrenceView
+            , boolean showInInventoryView) throws FloraOnException;
+    User deleteCustomOccurrenceFlavour(INodeKey id, String name) throws FloraOnException;
+
 }

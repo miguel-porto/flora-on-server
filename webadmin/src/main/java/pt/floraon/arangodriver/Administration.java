@@ -13,6 +13,7 @@ import pt.floraon.driver.interfaces.IAdministration;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.flavours.CustomOccurrenceFlavour;
 
 import java.util.*;
 
@@ -113,6 +114,31 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
         try {
             return database.query(AQLQueries.getString("Administration.5", userId.getID(), indexOfSet, taxEntId)
                     , null, null, User.class).next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
+    public User createCustomOccurrenceFlavour(INodeKey id, String[] fields, String name, boolean showInOccurrenceView
+            , boolean showInInventoryView) throws FloraOnException {
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("user", id.toString());
+        bind.put("flavour", new CustomOccurrenceFlavour(fields, name, showInOccurrenceView, showInInventoryView));
+        try {
+            return database.query(AQLQueries.getString("Administration.6"), bind, null, User.class).next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
+    public User deleteCustomOccurrenceFlavour(INodeKey id, String name) throws FloraOnException {
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("user", id.toString());
+        bind.put("flavour", name);
+        try {
+            return database.query(AQLQueries.getString("Administration.7"), bind, null, User.class).next();
         } catch (ArangoDBException e) {
             throw new FloraOnException(e.getMessage());
         }

@@ -390,18 +390,24 @@ function clickButton(ev) {
                 }
 
                 document.getElementById('mergeoccurrences').classList.remove('hidden');
-            }
+            } else
+                alert('Tem de seleccionar as ocorrências a apagar');
             break;
 
         case 'deleteselected':
             acceptVisibleSearchbox();
             var sel = document.querySelectorAll('#alloccurrencetable tr.selected');
-            if(sel.length == 0) return;
+            if(sel.length == 0) {
+                alert('Tem de seleccionar as ocorrências a apagar');
+                break;
+            }
             var tbody = document.querySelector('#deleteoccurrencetable tbody');
             for(var i=0; i<sel.length; i++)
                 tbody.appendChild(sel[i]);
 
             document.getElementById('deleteoccurrences').classList.remove('hidden');
+            document.getElementById('alloccurrences').classList.add('inactive');
+            document.getElementById('warningpanel').classList.add('inactive');
             break;
 
         case 'deleteselectedinv':
@@ -434,6 +440,13 @@ function clickButton(ev) {
             }
 
             document.getElementById('updateoccurrences').classList.remove('hidden');
+            document.getElementById('alloccurrences').classList.add('inactive');
+            document.getElementById('warningpanel').classList.add('inactive');
+            break;
+
+        case 'cancelupdate':
+        case 'canceldelete':
+            window.location.reload(false);
             break;
 
 /*

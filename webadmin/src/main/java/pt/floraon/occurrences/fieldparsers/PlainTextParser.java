@@ -37,7 +37,7 @@ public class PlainTextParser implements FieldParser {
 
             case "gpscode":
             case "comment":
-            case "privatenote":
+            case "privatecomment":
             case "labeldata":
             case "specificthreats":
             case "accession":
@@ -48,7 +48,7 @@ public class PlainTextParser implements FieldParser {
                     switch (inputFieldName.toLowerCase()) {
                         case "gpscode": obs.setGpsCode(inputValue); break;
                         case "comment": obs.setComment(inputValue); break;
-                        case "privatenote": obs.setPrivateComment(inputValue); break;
+                        case "privatecomment": obs.setPrivateComment(inputValue); break;
                         case "labeldata": obs.setLabelData(inputValue); break;
                         case "specificthreats": obs.setSpecificThreats(inputValue); break;
                         case "accession": obs.setAccession(inputValue); break;

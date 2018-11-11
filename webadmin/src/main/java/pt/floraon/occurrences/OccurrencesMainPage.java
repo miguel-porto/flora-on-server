@@ -1,22 +1,15 @@
 package pt.floraon.occurrences;
 
-import com.openhtmltopdf.extend.FSTextBreaker;
-import com.openhtmltopdf.extend.FSUriResolver;
-import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.geometry.CoordinateConversion;
-import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
-import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.flavours.IOccurrenceFlavour;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
@@ -114,11 +107,12 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     }
                 }
                 // get the list of fields for the selected flavour
+                Map<String, IOccurrenceFlavour> flv2 = user.getEffectiveOccurrenceFlavours();
                 String flavour2 = thisRequest.getParameterAsString("flavour", "simple");
-                if(StringUtils.isStringEmpty(flavour2) || !OccurrenceConstants.occurrenceManagerFlavours.containsKey(flavour2))
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple").getFields());
+                if(StringUtils.isStringEmpty(flavour2) || !flv2.containsKey(flavour2))
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
                 else
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(flavour2).getFields());
+                    request.setAttribute("flavourfields", flv2.get(flavour2));
                 break;
 
             case "fixissues":
@@ -141,14 +135,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 // Flavours
                 // Get the list of flavours
-                request.setAttribute("flavourList", OccurrenceConstants.occurrenceManagerFlavours.entrySet());
+                Map<String, IOccurrenceFlavour> flv = user.getEffectiveOccurrenceFlavours();
+                request.setAttribute("flavourList", flv.entrySet());
 
                 // get the list of fields for the selected flavour
                 String flavour1 = thisRequest.getParameterAsString("flavour", "simple");
-                if(StringUtils.isStringEmpty(flavour1) || !OccurrenceConstants.occurrenceManagerFlavours.containsKey(flavour1))
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple").getFields());
+                if(StringUtils.isStringEmpty(flavour1) || !flv.containsKey(flavour1))
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
                 else
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(flavour1).getFields());
+                    request.setAttribute("flavourfields", flv.get(flavour1));
 
                 break;
 
@@ -199,14 +194,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 // Flavours
                 // Get the list of flavours
-                request.setAttribute("flavourList", OccurrenceConstants.occurrenceManagerFlavours.entrySet());
+                Map<String, IOccurrenceFlavour> flv1 = user.getEffectiveOccurrenceFlavours();
+                request.setAttribute("flavourList", flv1.entrySet());
 
                 // get the list of fields for the selected flavour
                 String flavour = thisRequest.getParameterAsString("flavour", "simple");
-                if(StringUtils.isStringEmpty(flavour) || !OccurrenceConstants.occurrenceManagerFlavours.containsKey(flavour))
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple").getFields());
+                if(StringUtils.isStringEmpty(flavour) || !flv1.containsKey(flavour))
+                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
                 else
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(flavour).getFields());
+                    request.setAttribute("flavourfields", flv1.get(flavour));
                 break;
 
             case "uploads":
@@ -265,7 +261,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 else
                     u = driver.asNodeKey(user.getID());
 
-                Iterator<Inventory> it1;
+                Iterator<Occurrence> it1;
                 if(filter == null) {
                     it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, true,null, null);
                 } else {
@@ -278,24 +274,8 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         return;
                     }
                 }
-                CSVPrinter csv = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
-//                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
-                csv.printRecord("date", "observers", "latitude", "longitude", "mgrs", "verbLocality", "precision"
-                        , "gpsCode", "verbTaxa", "taxa", "confidence", "phenoState", "abundance", "method", "photo", "collected"
-                        , "specificThreats", "comment", "privateNote", "year", "month", "day");
-                while(it1.hasNext()) {
-                    Inventory i2 = it1.next();
-                    OBSERVED_IN oi = i2._getTaxa()[0];
-//                    TaxEnt te = oi.getTaxEnt();
 
-                    csv.printRecord(i2._getDateYMD(), pt.floraon.driver.utils.StringUtils.implode(", ", i2._getObserverNames()), i2._getLatitude(), i2._getLongitude()
-                            , CoordinateConversion.LatLongToMGRS(i2._getLatitude(), i2._getLongitude(), 1000)
-                            , i2.getVerbLocality(), i2.getPrecision(), i2.getCode(), oi.getVerbTaxon(), oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false), oi.getConfidence()
-                            , oi.getPhenoState(), oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
-                            , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), i2.getYear(), i2.getMonth(), i2.getDay());
-
-                }
-                csv.close();
+                Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter());
                 return;
         }
         request.getRequestDispatcher("/main-occurrences.jsp").forward(request, thisRequest.response);

@@ -3,6 +3,10 @@ package pt.floraon.occurrences.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
+import pt.floraon.driver.annotations.HideInCompactView;
+import pt.floraon.driver.annotations.PrettyName;
+import pt.floraon.driver.annotations.ReadOnly;
+import pt.floraon.driver.annotations.SmallField;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
@@ -19,31 +23,74 @@ import java.util.UUID;
  * Created by miguel on 05-02-2017.
  */
 public class OBSERVED_IN extends GeneralDBEdge implements Serializable, DiffableBean {
-    private Float observationLatitude, observationLongitude;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Latitude da ocorrência", shortName = "Obs lat")
+    private Float observationLatitude;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Longitude da ocorrência", shortName = "Obs long")
+    private Float observationLongitude;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Estado fenológico", shortName = "Fen")
     private Constants.PhenologicalStates phenoState;
+    @HideInCompactView @ReadOnly
+    @PrettyName(value = "Espontaneidade", shortName = "Nat")
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Confiança ID", shortName = "Conf")
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
+    @HideInCompactView
+    @PrettyName(value = "Nome original", shortName = "Verb tax")
     private String verbTaxon;
-    /**
-     * Public comments
-     */
+    @HideInCompactView
+    @PrettyName(value = "Notas públicas", shortName = "Notas pub")
     private String comment;
+    @HideInCompactView
+    @PrettyName(value = "Notas privadas", shortName = "Notas priv")
     private String privateComment;
+    @SmallField
+    @PrettyName(value = "Etiqueta herbário", shortName = "Etiq")
     private String labelData;
+    @SmallField
+    @PrettyName(value = "Código herbário", shortName = "Cód Herb")
     private String accession;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Nº indivíduos", shortName = "Nº", description = "Estimated number of individuals")
     private Abundance abundance;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Método da estimativa", shortName = "Met", description = "Estimation method")
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
-    private Float cover;   // percentage cover 0-100
-    private String coverIndex;  // custom cover/abundance scale (e.g. Braun-Blanquet, etc.)
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Cobertura", shortName = "Cob", description = "Cover")
+    private Float cover;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Escala de cobertura", shortName = "Cob", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
+    private String coverIndex;
     private OccurrenceConstants.CoverType coverIndexScale;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Foto", shortName = "Foto")
     private RedListEnums.HasPhoto hasPhoto;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Colheita", shortName = "Colh")
     private Integer hasSpecimen;
+/*
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Código Instituição", shortName = "Inst Cod")
+*/
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
+    @SmallField @HideInCompactView @ReadOnly
+    @PrettyName(value = "Data de inserção", shortName = "Data ins")
     private Date dateInserted;
+    @SmallField @HideInCompactView @ReadOnly
+    @PrettyName(value = "Identificador único", shortName = "UUID")
     private UUID uuid;
+    @SmallField
+    @PrettyName(value = "Código GPS", shortName = "GPS")
     private String gpsCode;
+    @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
+    @SmallField @HideInCompactView
+    @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record")
     private OccurrenceConstants.PresenceStatus presenceStatus;
     private Boolean coordinatesChanged;
     /**

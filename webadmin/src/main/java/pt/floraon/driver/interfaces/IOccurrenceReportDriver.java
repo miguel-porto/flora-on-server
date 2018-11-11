@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
+ * A driver to produce occurrence reports within specified dates, of a given observer.
  * Created by miguel on 08-07-2017.
  */
 public interface IOccurrenceReportDriver {
@@ -36,7 +37,7 @@ public interface IOccurrenceReportDriver {
      * @return
      * @throws DatabaseException
      */
-    Map<String, Integer> getListOfPolygonsWithOccurrences(Iterator<Inventory> inventories, PolygonTheme polygonTheme) throws DatabaseException;
+    Map<String, Integer> getListOfPolygonsWithOccurrences(Iterator<Occurrence> inventories, PolygonTheme polygonTheme) throws DatabaseException;
 
     Iterator<StatisticPerTaxon> getTaxaWithTagEstimates(INodeKey userId, Date from, Date to, String territory, String tag) throws DatabaseException;
 

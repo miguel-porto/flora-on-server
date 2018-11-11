@@ -6,6 +6,7 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
@@ -25,13 +26,28 @@ import java.util.*;
  */
 public class ComputeAOOEOOJob implements JobFileDownload {
     private String territory;
-    private PolygonTheme clippingPolygon;
-    private Integer minimumYear, sizeOfSquare;
+//    private PolygonTheme clippingPolygon;
+//    private Integer minimumYear;
+    private Integer sizeOfSquare;
     private int curSpeciesI = 0;
     private String curSpeciesName = "";
-    private Set<String> filterTags;
     private Iterator<RedListDataEntity> itRLDE;
+    private OccurrenceFilter occurrenceFilter;
+    private RedListDataFilter redListDataFilter;
 
+    ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter, RedListDataFilter redListDataFilter) {
+        this.sizeOfSquare = sizeOfSquare;
+        this.occurrenceFilter = occurrenceFilter;
+        this.redListDataFilter = redListDataFilter;
+        this.territory = territory;
+    }
+
+    ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter, RedListDataFilter redListDataFilter, Iterator<RedListDataEntity> redListDataEntityIterator) {
+        this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter);
+        this.itRLDE = redListDataEntityIterator;
+    }
+
+/*
     ComputeAOOEOOJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Integer sizeOfSquare, Set<String> filterTags) {
         this.territory = territory;
         this.clippingPolygon = clippingPolygon;
@@ -48,6 +64,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         this.filterTags = filterTags;
         this.itRLDE = redListDataEntityIterator;
     }
+*/
 
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
@@ -73,13 +90,13 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             RedListDataEntity rlde = it.next();
             curSpeciesI++;
             curSpeciesName = rlde.getTaxEnt().getName();
-            if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
+            if(redListDataFilter != null && !redListDataFilter.enter(rlde)) continue;
+
             List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
             for (SimpleOccurrenceDataProvider edp : sodps) {
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
             }
-            op = new OccurrenceProcessor(sodps, null
-                    , sizeOfSquare, new BasicOccurrenceFilter(minimumYear, null, false, clippingPolygon));
+            op = new OccurrenceProcessor(sodps, null, sizeOfSquare, this.occurrenceFilter);
 
             INodeKey tKey = driver.asNodeKey(rlde.getTaxEntID());
             InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);

@@ -45,6 +45,8 @@
     <td>
         <form action="api/downloadoccurrencesinpolygon" method="POST">
             <input type="hidden" name="polygon" value="${param.polygon}"/>
+            <input type="text" name="filter" placeholder="use um filtro avançado"/>
+            <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
             <input type="submit" value="Descarregar" class="textbutton"/>
         </form>
     </td>
@@ -54,6 +56,8 @@
     <td>
         <form action="api/downloadinventoriesPDF" method="POST">
             <input type="hidden" name="polygon" value="${param.polygon}"/>
+            <input type="text" name="filter" placeholder="use um filtro avançado"/>
+            <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
             <input type="submit" value="Descarregar" class="textbutton"/>
         </form>
     </td>

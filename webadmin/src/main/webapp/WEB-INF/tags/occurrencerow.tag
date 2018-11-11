@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ attribute name="occ" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
-<%@ attribute name="fields" required="true" type="java.lang.String[]" %>
+<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="userMap" required="false" type="java.util.Map" %>
 <%@ attribute name="locked" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="symbol" required="false" %>
@@ -11,14 +11,14 @@
 <%-- This iterates through all the field names and outputs a table cell per each, formatted accordingly --%>
 
 <jsp:useBean id="collapseField" class="java.util.HashMap"/>
-<c:forEach var="flf" items="${fields}">
+<c:forEach var="flf" items="${fields.getFields()}">
     <t:isoptionselected optionname="collapse-${flf}" value="true"><c:set target="${collapseField}" property="${flf}" value="true"/></t:isoptionselected>
 </c:forEach>
 
 <c:if test="${occ == null}">
 <tr class="geoelement dummy id1holder">
     <td class="selectcol clickable"><div class="selectbutton"></div></td>
-    <c:forEach var="flf" items="${fields}">
+    <c:forEach var="flf" items="${fields.getFields()}">
     <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}"/>
     </c:forEach>
 </tr>
@@ -33,8 +33,8 @@
         <div class="selectbutton"></div>
     </td>
 
-    <c:forEach var="flf" items="${fields}">
-    <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}" locked="${locked}" symbol="${symbol}"/>
+    <c:forEach var="flf" items="${fields.getFields()}">
+    <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}" locked="${locked}" symbol="${symbol}" fields="${fields}"/>
     </c:forEach>
 </tr>
 </c:if>

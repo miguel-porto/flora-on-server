@@ -111,7 +111,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
 
     @Override
-    public Iterator<Inventory> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
+    public Iterator<Occurrence> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException {
         if(authorId == null) return getOccurrencesOfMaintainer(null, false, offset, count);
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("observer", authorId.toString());
@@ -121,14 +121,14 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.2")
-                    , bindVars, null, Inventory.class);
+                    , bindVars, null, Occurrence.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
     }
 
     @Override
-    public Iterator<Inventory> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException {
+    public Iterator<Occurrence> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException {
         if(authorId == null) return getOccurrencesOfMaintainer(null, false, offset, count);
         DateFormat df = Constants.dateFormatYMD.get();
         Map<String, Object> bindVars = new HashMap<>();
@@ -141,14 +141,14 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         try {
             return database.query(
                     AQLOccurrenceQueries.getString("occurrencequery.2.date")
-                    , bindVars, null, Inventory.class);
+                    , bindVars, null, Occurrence.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
     }
 
     @Override
-    public Iterator<Inventory> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException {
+    public Iterator<Occurrence> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException {
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
         String query = authorId == null ?
@@ -157,7 +157,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 : (returnObserverNames ? AQLOccurrenceQueries.getString("occurrencequery.4.observernames", authorId.getID(), offset, count)
                     : AQLOccurrenceQueries.getString("occurrencequery.4", authorId.getID(), offset, count));
         try {
-            return database.query(query, null, null, Inventory.class);
+            return database.query(query, null, null, Occurrence.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
@@ -660,7 +660,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
 
     @Override
-    public Iterator<Inventory> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
+    public Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
         String textFilter = filter.get("NA");
 //        System.out.println(new Gson().toJson(filter));
 
@@ -696,7 +696,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             return database.query(
                     AQLOccurrenceQueries.getString(!StringUtils.isStringEmpty(textFilter) ?
                             "occurrencequery.8.withtextfilter" : "occurrencequery.8.withouttextfilter", inventoryFilter, occurrenceFilter)
-                    , bindVars, null, Inventory.class);
+                    , bindVars, null, Occurrence.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

@@ -1922,7 +1922,6 @@
     </c:when>
 
     <c:when test="${what=='allmaps'}">
-
         <c:choose>
         <c:when test="${param.maps=='alvo'}">
         <div id="allmapholder">

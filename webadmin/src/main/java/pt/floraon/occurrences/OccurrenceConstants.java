@@ -1,6 +1,7 @@
 package pt.floraon.occurrences;
 
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.flavours.*;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.util.HashMap;
@@ -12,129 +13,13 @@ import java.util.Map;
  * Created by miguel on 05-02-2017.
  */
 public final class OccurrenceConstants {
-    static public Map<String, OccurrenceFlavour> occurrenceManagerFlavours = new LinkedHashMap<>();
+    static public Map<String, IOccurrenceFlavour> occurrenceManagerFlavours = new LinkedHashMap<>();
     static {
-        occurrenceManagerFlavours.put("simple", new OccurrenceFlavour() {
-            @Override
-            public String[] getFields() {
-                return new String[]{
-                        "taxa", "confidence", "coordinates", "precision", "comment", "privateNote", "date", "phenoState", "observers"
-                };
-            }
-
-            @Override
-            public boolean showInOccurrenceView() {
-                return true;
-            }
-
-            @Override
-            public boolean showInInventoryView() {
-                return false;
-            }
-
-            @Override
-            public String getName() {
-                return "Simples";
-            }
-        });
-
-        occurrenceManagerFlavours.put("redlist", new OccurrenceFlavour() {
-            @Override
-            public String[] getFields() {
-                return new String[] {
-                    "date", "observers", "coordinates", "locality", "precision", "gpsCode", "taxa", "presenceStatus"
-                    , "confidence", "phenoState", "abundance", "typeOfEstimate", "hasPhoto", "hasSpecimen", "specificThreats"
-                    , "comment", "privateNote"};
-            }
-
-            @Override
-            public boolean showInOccurrenceView() {
-                return true;
-            }
-
-            @Override
-            public boolean showInInventoryView() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return "Red List";
-            }
-        });
-
-        occurrenceManagerFlavours.put("herbarium", new OccurrenceFlavour() {
-            @Override
-            public String[] getFields() {
-                return new String[] {
-                    "accession", "taxa", "presenceStatus", "coordinates", "precision", "verbLocality", "date"
-                        , "collectors", "labelData", "privateNote"};
-            }
-
-            @Override
-            public boolean showInOccurrenceView() {
-                return true;
-            }
-
-            @Override
-            public boolean showInInventoryView() {
-                return false;
-            }
-
-            @Override
-            public String getName() {
-                return "Herbário";
-            }
-        });
-
-        occurrenceManagerFlavours.put("management", new OccurrenceFlavour() {
-            @Override
-            public String[] getFields() {
-                return new String[] {
-                        "gpsCode_accession", "coordinates", "precision", "taxa", "confidence", "date", "locality_verbLocality"
-                        , "presenceStatus", "observers_collectors", "comment_labelData", "privateNote", "abundance"
-                        , "typeOfEstimate", "hasPhoto", "hasSpecimen", "specificThreats", "phenoState"};
-            }
-
-            @Override
-            public boolean showInOccurrenceView() {
-                return true;
-            }
-
-            @Override
-            public boolean showInInventoryView() {
-                return false;
-            }
-
-            @Override
-            public String getName() {
-                return "Gestão";
-            }
-        });
-
-        occurrenceManagerFlavours.put("inventory", new OccurrenceFlavour() {
-            @Override
-            public String[] getFields() {
-                return new String[] {
-                        "taxa", "confidence", "phenoState", "abundance", "coverIndex", "comment", "privateNote"};
-            }
-
-            @Override
-            public boolean showInOccurrenceView() {
-                return false;
-            }
-
-            @Override
-            public boolean showInInventoryView() {
-                return true;
-            }
-
-            @Override
-            public String getName() {
-                return "Inventário";
-            }
-        });
-
+        occurrenceManagerFlavours.put("simple", new SimpleFlavour());
+        occurrenceManagerFlavours.put("redlist", new RedListFlavour());
+        occurrenceManagerFlavours.put("herbarium", new HerbariumFlavour());
+        occurrenceManagerFlavours.put("management", new ManagementFlavour());
+        occurrenceManagerFlavours.put("inventory", new InventoryFlavour());
     }
     /**
      * Whether the presence of this taxon in a location is wild or cultivated.

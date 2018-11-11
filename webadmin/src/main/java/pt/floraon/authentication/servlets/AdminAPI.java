@@ -1,10 +1,13 @@
-package pt.floraon.authentication;
+package pt.floraon.authentication.servlets;
 
 import com.google.gson.Gson;
 import jline.internal.Log;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import pt.floraon.authentication.Privileges;
+import pt.floraon.authentication.RandomString;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
@@ -39,7 +42,6 @@ public class AdminAPI extends FloraOnServlet {
         ListIterator<String> path = thisRequest.getPathIteratorAfter("admin");
         User user;
         Gson gs;
-
         switch (path.next()) {
             case "createuser":
                 thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
@@ -134,6 +136,28 @@ public class AdminAPI extends FloraOnServlet {
                                 , "userPolygons", IOUtils.toString(bais)).toJsonObject());
                     }
                 }
+                break;
+
+            case "createcustomoccurrenceflavour":
+                String[] fields = thisRequest.getParameterAsStringArray("fields");
+                boolean showinoccurrenceview = thisRequest.getParameterAsBoolean("showinoccurrenceview", false);
+                boolean showininventoryview = thisRequest.getParameterAsBoolean("showininventoryview", false);
+                String flavourname = pt.floraon.driver.utils.StringUtils.sanitizeHtmlId(thisRequest.getParameterAsString("flavourname"));
+
+                if(pt.floraon.driver.utils.StringUtils.isStringEmpty(flavourname))
+                    throw new FloraOnException("Name must not be empty.");
+
+                driver.getAdministration().createCustomOccurrenceFlavour(driver.asNodeKey(thisRequest.getUser().getID())
+                    , fields, flavourname, showinoccurrenceview, showininventoryview);
+
+                thisRequest.success("Ok");
+                break;
+
+            case "deletecustomoccurrenceflavour":
+                driver.getAdministration().deleteCustomOccurrenceFlavour(driver.asNodeKey(thisRequest.getUser().getID())
+                        , thisRequest.getParameterAsString("flavourname"));
+
+                thisRequest.success("Ok");
                 break;
 
             case "addtaxonprivileges":

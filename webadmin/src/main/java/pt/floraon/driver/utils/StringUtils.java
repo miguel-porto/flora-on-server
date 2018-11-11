@@ -71,6 +71,11 @@ public class StringUtils {
         return Jsoup.clean(text, "", whiteTagList, new Document.OutputSettings().prettyPrint(false));
     }
 
+    /**
+     * Convert a string to a safe HTML ID string.
+     * @param txt
+     * @return
+     */
     public static String sanitizeHtmlId(String txt) {
         return txt.replaceAll(Constants.sanitizeHtmlId, "");
     }

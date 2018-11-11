@@ -120,7 +120,6 @@
                 <input type="submit" class="textbutton" value="Delete"/>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
-<%--                <t:inventorytaxonheader flavour="${param.flavour}"/>    --%>
                 <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
                 <tbody></tbody>
             </table>
@@ -179,7 +178,6 @@
                     </tr></tbody>
                 </table>
                 <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-<%--                    <t:inventorytaxonheader flavour="${param.flavour}"/>    --%>
                     <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
                     <tbody>
                         <c:forEach var="tax" items="${inv._getTaxa()}">
@@ -329,7 +327,7 @@
         <tr><td></td><td></td><td><code>coverIndex</code></td><td>Occurrence</td><td>The cover of this taxon, as text. Can be written in any user-defined scale.</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>typeofestimate</code></td><td>Occurrence</td><td>The type of estimation for the number of individuals. One of: <code>e</code> Numerical estimate <code>c</code> Exact count <code>g</code> Rough estimate</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>comment</code></td><td>Occurrence</td><td>Public notes about this occurrence.</td></tr>
-        <tr><td></td><td></td><td><code>privatenote</code></td><td>Occurrence</td><td>Private notes about this occurrence.</td></tr>
+        <tr><td></td><td></td><td><code>privatenote</code> <code>privateComment</code></td><td>Occurrence</td><td>Private notes about this occurrence.</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>phenostate</code></td><td>Occurrence</td><td>The phenological state of this taxon. One of: <code>f</code> Flower <code>d</code> Dispersion <code>fd</code> Flower+Dispersion <code>v</code> Vegetative <code>r</code> Resting <code>c</code> Immature fruit <code>fc</code> Flower+Immature fruit</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>confidence</code></td><td>Occurrence</td><td>The confidence in the identification by the observers. One of: <code>c</code> Quite certain <code>a</code> Almost sure <code>d</code> Doubtful</td></tr>
         <tr><td></td><td></td><td><code>excludeReason</code></td><td>Occurrence</td><td>If this occurrence is to be excluded from analyses, for what reason. One of: <code>d</code> Destroyed <code>m</code> Probably misidentified <code>w</code> Wrong coordinates <code>e</code> Escaped from cultivation <code>i</code> Introduced <code>o</code> Other reason</td></tr>
@@ -385,7 +383,7 @@
     <div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div>
     <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
     <div>
-        <fmt:message key="button.4a"/>
+        <div class="label"><fmt:message key="button.4a"/></div>
         <c:forEach var="flv" items="${flavourList}" varStatus="loop">
         <c:if test="${flv.getValue().showInOccurrenceView()}">
             <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>
@@ -399,6 +397,7 @@
             <div class="heading2">
                 <h2><fmt:message key="occurrences.5" /></h2>
                 <input type="submit" class="textbutton" value="Delete"/>
+                <div class="button" id="canceldelete"><fmt:message key="occurrences.cancel"/></div>
             </div>
             <table id="deleteoccurrencetable" class="verysmalltext sortable">
                 <t:occurrenceheader fields="${flavourfields}"/>
@@ -414,6 +413,7 @@
                 <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
                 <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
                 <input type="submit" class="textbutton" value="Update"/>
+                <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
             </div>
             <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
                 <t:occurrenceheader fields="${flavourfields}"/>
@@ -453,7 +453,7 @@
     </form>
 
     <c:if test="${nproblems > 0}">
-    <div class="warning">
+    <div id="warningpanel" class="warning">
         <p><fmt:message key="error.7"/></p>
         <fmt:message key="error.11"/><br/>
         <div class="button anchorbutton"><a href="?w=fixissues"><fmt:message key="button.3"/></a></div>

@@ -22,6 +22,7 @@ import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.StatisticPerTaxon;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.occurrences.entities.Inventory;
@@ -145,7 +146,7 @@ public class RedListDataApi extends FloraOnServlet {
                 Iterator<Inventory> itInv = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT, null);
                 Set<INodeKey> taxaSet = new HashSet<>();
                 Set<RedListDataEntity> rldeSet = new HashSet<>();
-                // iterate all inventories falling in polygon
+                // iterate all inventories falling in polygon and fetch the existing species
                 while(itInv.hasNext()) {
                     Inventory inv = itInv.next();
                     for(OBSERVED_IN o : inv._getTaxa()) {
@@ -154,9 +155,10 @@ public class RedListDataApi extends FloraOnServlet {
                     }
                 }
 
-                // make an iterator of those species
+                // make an iterator of RedListData pertaining to those species
                 for(INodeKey nk : taxaSet) {
                     RedListDataEntity rlde3 = driver.getRedListData().getRedListDataEntity(territory, nk);
+//                    driver.wrapTaxEnt(nk).isInfrataxonOf()
                     if(rlde3 != null)
                         rldeSet.add(rlde3);
                 }
@@ -165,9 +167,11 @@ public class RedListDataApi extends FloraOnServlet {
                 PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
                 RedListSettings rls3 = driver.getRedListSettings(territory);
+
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new ComputeAOOEOOJob(territory, rldeSet.iterator(), clippingPolygon2, (rls3.getHistoricalThreshold() + 1), 2000
-                                , null)
+                        new ComputeAOOEOOJob(territory, 2000
+                                , new BasicOccurrenceFilter(rls3.getHistoricalThreshold() + 1, null, false, clippingPolygon2)
+                                , null, rldeSet.iterator())
                         , "taxa-in-polygon.csv", driver).getID());
                 break;
 
@@ -178,8 +182,9 @@ public class RedListDataApi extends FloraOnServlet {
                 PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
                 RedListSettings rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new ComputeAOOEOOJob(territory, clippingPolygon, (rls.getHistoricalThreshold() + 1), 2000
-                                , filter == null ? null : new HashSet<>(Arrays.asList(filter))
+                        new ComputeAOOEOOJob(territory, 2000
+                                , new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, clippingPolygon)
+                                , new BasicRedListDataFilter(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
                         )
                         , "AOO.csv", driver).getID());
                 break;
@@ -489,7 +494,7 @@ public class RedListDataApi extends FloraOnServlet {
                             while(it6.hasNext()) {
                                 so = it6.next();
                                 lpa1 = ord.getListOfPolygonsWithOccurrences(
-                                        Collections.singleton((Inventory) so).iterator(), protectedAreas1);
+                                        Collections.singleton(so).iterator(), protectedAreas1);
                                 pw.printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%f</td><td>%f</td><td>%d</td><td>%s</td></tr>", so.getOccurrence().getVerbTaxon(), so._getDate()
                                     , so.getLocality() == null ? "" : so.getLocality(), so._getLatitude(), so._getLongitude()
                                     , so.getOccurrence().getHasSpecimen()
@@ -626,11 +631,15 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "downloadoccurrencesinpolygon":
                 String polygonWKT1 = thisRequest.getParameterAsString("polygon");
-                Iterator<Occurrence> itOcc = driver.getQueryDriver().findOccurrencesContainedIn(polygonWKT1, null);
+                String filter = thisRequest.getParameterAsString("filter");
+                Iterator<Occurrence> itOcc = driver.getQueryDriver().findOccurrencesContainedIn(polygonWKT1, filter);
                 thisRequest.response.setContentType("text/csv; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences-in-polygon.csv\"");
                 thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 
+                Common.exportOccurrencesToCSV(itOcc, thisRequest.response.getWriter());
+
+/*
                 PrintWriter pw = thisRequest.response.getWriter();
                 CSVPrinter csvp = new CSVPrinter(pw, CSVFormat.EXCEL);
                 csvp.printRecord("Taxon", "VerbTaxon", "Confidence", "Date", "Latitude", "Longitude", "Precision", "Observers", "Comments", "Taxon notes");
@@ -646,40 +655,25 @@ public class RedListDataApi extends FloraOnServlet {
                             , inv.getPubNotes(), oin.getComment());
                 }
                 csvp.close();
+*/
 
                 break;
 
             case "downloadinventoriesPDF":
                 String polygonWKT2 = thisRequest.getParameterAsString("polygon");
-                Iterator<Inventory> itInv1 = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT2, null);
-                List<String> ids = new ArrayList<>();
-                while(itInv1.hasNext())
-                    ids.add(itInv1.next().getID());
-
-                if(ids.size() == 0) break;
-
-                String idsString = StringUtils.implode(",", ids.toArray(new String[0]));
+                String filter1 = thisRequest.getParameterAsString("filter");
+                Iterator<Inventory> itInv1 = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT2, filter1);
 
                 thisRequest.response.setContentType("application/pdf; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"inventories.pdf\"");
                 thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 
-                PdfRendererBuilder builder = new PdfRendererBuilder();
-                final NaiveUserAgent.DefaultUriResolver defaultUriResolver = new NaiveUserAgent.DefaultUriResolver();
-
-                builder.useUriResolver(defaultUriResolver);
                 StringBuffer url = thisRequest.request.getRequestURL();
                 String uri = thisRequest.request.getRequestURI();
                 String ctx = thisRequest.request.getContextPath();
-                String base = url.substring(0, url.length() - uri.length() + ctx.length()) + "/";
+                String base = url.substring(0, url.length() - uri.length() + ctx.length()) + "/" + "occurrences/api/exportinventory?ids=";
 
-                builder.withUri(base + "occurrences/api/exportinventory?ids=" + URLEncoder.encode(idsString, StandardCharsets.UTF_8.toString()));
-                builder.toStream(thisRequest.response.getOutputStream());
-                try {
-                    builder.run();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Common.exportInventoriesToPDF(itInv1, base, thisRequest.response.getOutputStream());
                 break;
 
             default:
