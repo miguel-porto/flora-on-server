@@ -9,11 +9,10 @@ import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.BeanUtils;
-import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.occurrences.fieldparsers.UserListParser;
+import pt.floraon.occurrences.fields.parsers.UserListParser;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -128,7 +127,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 if(thisRequest.getParameterAsBoolean("createUsers", false)) {
                     op.registerParser("observers", new UserListParser(op.getUserMap(), driver, true));
                     op.registerParser("collectors", new UserListParser(op.getUserMap(), driver, true));
-                    op.registerParser("determiners", new UserListParser(op.getUserMap(), driver, true));
+                    op.registerParser("dets", new UserListParser(op.getUserMap(), driver, true));
                 }
 
                 Set<String> tmpset = new HashSet<>(grp.keySet());
@@ -150,7 +149,7 @@ public class OccurrenceApi extends FloraOnServlet {
                         keyValues = new HashMap<>();
                         for(String name : map.get(id2)) {   // this is one occurrence (one table row)
                             String field = name.substring(14);
-                            System.out.println(name + ": "+thisRequest.getParameterAsString(name));
+//                            System.out.println(name + ": "+thisRequest.getParameterAsString(name));
                             keyValues.put(field, thisRequest.getParameterAsString(name));
                         }
 

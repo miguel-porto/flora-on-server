@@ -19,7 +19,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.occurrences.fieldparsers.*;
+import pt.floraon.occurrences.fields.parsers.*;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -51,7 +51,7 @@ public class OccurrenceImporterJob implements JobTask {
 
         occurrenceParser.registerParser("observers", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
         occurrenceParser.registerParser("collectors", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
-        occurrenceParser.registerParser("determiners", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
+        occurrenceParser.registerParser("dets", new UserListParser(occurrenceParser.getUserMap(), driver, createUsers));
     }
 
     /**

@@ -1,6 +1,7 @@
 package pt.floraon.driver.interfaces;
 
 import java.util.List;
+import java.util.Properties;
 
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.occurrences.CSVFileProcessor;
@@ -28,6 +29,7 @@ public interface IFloraOn {
 	INodeKey asNodeKey(String id) throws FloraOnException;
     void reloadSettings();
     RedListSettings getRedListSettings(String territory);
+    Properties getProperties();
     boolean hasFailed();
     String getErrorMessage();
 }

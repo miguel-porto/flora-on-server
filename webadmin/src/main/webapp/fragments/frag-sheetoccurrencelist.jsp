@@ -5,7 +5,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
-
 <c:if test="${!user.canVIEW_OCCURRENCES()}">
     <div class="warning"><b>You&#8217;re not authorized to enter this page</b></div>
 </c:if>

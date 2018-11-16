@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.flavours.IOccurrenceFlavour" %>
+<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="inv" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
 <%@ attribute name="tax" required="false" type="pt.floraon.occurrences.entities.OBSERVED_IN"%>
 

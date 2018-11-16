@@ -1,7 +1,7 @@
 <%@ tag description="Occurrence table header" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.flavours.IOccurrenceFlavour" %>
+<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="noInventory" required="false" type="java.lang.Boolean" %>
 
 <jsp:useBean id="collapseField" class="java.util.HashMap"/>
@@ -51,7 +51,7 @@
 
         <c:otherwise>
         <c:if test="${!(fields.isInventoryField(field) && noInventory)}">
-        <th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}"
+        <th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
             title="${fields.getFieldName(field)}">
             <t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>
             ${fields.getFieldShortName(field)}

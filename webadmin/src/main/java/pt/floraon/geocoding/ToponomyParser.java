@@ -4,14 +4,11 @@ import pt.floraon.driver.parsers.CSVParser;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.driver.parsers.FieldParser;
-import pt.floraon.occurrences.Messages;
-import pt.floraon.occurrences.fieldparsers.AliasFieldParser;
-import pt.floraon.occurrences.fieldparsers.LatitudeLongitudeParser;
-import pt.floraon.occurrences.fieldparsers.LocalityParser;
+import pt.floraon.occurrences.fields.parsers.AliasFieldParser;
+import pt.floraon.occurrences.fields.parsers.LatitudeLongitudeParser;
+import pt.floraon.occurrences.fields.parsers.LocalityParser;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 /**

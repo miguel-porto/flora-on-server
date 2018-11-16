@@ -121,13 +121,14 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         URL u;
         try {
             newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(), oldUri.getPath(), newQuery, oldUri.getFragment());
-        } catch (URISyntaxException e) {
+            u = newUri.toURL();
+            readBigJsonFromStream(u.openStream());
+        } catch (Throwable e) {
             e.printStackTrace();
-            throw new FloraOnException(e.getMessage());
+            throw new FloraOnException("Error accessing Flora-On: " + e.toString());
         }
-        u = newUri.toURL();
+
 //        Log.info("Address: " + u.toString());
-        readBigJsonFromStream(u.openStream());
 
 /*        Type listType = new TypeToken<List<FloraOnOccurrence>>() {
         }.getType();

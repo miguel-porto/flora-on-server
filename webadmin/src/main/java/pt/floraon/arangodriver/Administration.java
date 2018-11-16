@@ -13,7 +13,7 @@ import pt.floraon.driver.interfaces.IAdministration;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.occurrences.flavours.CustomOccurrenceFlavour;
+import pt.floraon.occurrences.fields.flavours.CustomOccurrenceFlavour;
 
 import java.util.*;
 

@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ attribute name="occ" required="false" type="pt.floraon.occurrences.entities.Inventory"%>
-<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.flavours.IOccurrenceFlavour" %>
+<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="userMap" required="false" type="java.util.Map" %>
 <%@ attribute name="locked" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="symbol" required="false" %>

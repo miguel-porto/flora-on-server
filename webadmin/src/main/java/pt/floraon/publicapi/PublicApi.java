@@ -1,5 +1,7 @@
 package pt.floraon.publicapi;
 
+import org.apache.commons.io.IOUtils;
+import org.jfree.util.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -17,8 +19,7 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,7 +32,7 @@ public class PublicApi extends FloraOnServlet {
     static Pattern svgURL = Pattern.compile("^[a-zçA-Z]+_[a-zç-]+_(?<id>[0-9]+).svg$");
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
-        PrintWriter wr;
+        PrintWriter writer;
         ListIterator<String> path;
         String territory = "lu";    // TODO variable
         try {
@@ -84,7 +85,6 @@ public class PublicApi extends FloraOnServlet {
                 if(thisRequest.getParameterAsBoolean("pa", false))
                     protectedAreas = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("SNAC.geojson"), "SITE_NAME");
 
-                wr = thisRequest.response.getWriter();
                 PolygonTheme cP = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("PT_buffer.geojson"), null);
 
                 SVGMapExporter processor = null;
@@ -104,7 +104,8 @@ public class PublicApi extends FloraOnServlet {
                         edp.executeOccurrenceQuery(te2);
 
                     processor = new OccurrenceProcessor(sodps, protectedAreas, squareSize, occFilter);
-
+                    // we output directly to page
+                    writer = thisRequest.response.getWriter();
                 } else if(category != null) {   // we want a threat category
                     Iterator<RedListDataEntity> it =
                             driver.getRedListData().getAllRedListData(territory, false, null);
@@ -133,19 +134,43 @@ public class PublicApi extends FloraOnServlet {
                                     filteredTaxa.add(rlde.getTaxEnt());
                                 break;
                         }
-
                     }
 
+                    if(driver.getProperties().getProperty("folder") == null) {
+                        Log.info("Temporary folder is not defined in floraon.properties");
+                        writer = thisRequest.response.getWriter();
+                    } else {
+                        File outfile = new File(driver.getProperties().getProperty("folder"), "map-" + category + ".svg");
+
+                        if (thisRequest.getParameterAsBoolean("refresh", false)) {
+                            outfile.delete();
+                            if (!outfile.createNewFile()) {
+                                Log.info("Couldn't create SVG file.");
+                                writer = thisRequest.response.getWriter();
+                            } else writer = new PrintWriter(outfile);
+                        } else {
+                            if (outfile.exists()) {
+                                IOUtils.copy(new FileReader(outfile), thisRequest.response.getWriter());
+                                break;
+                            } else writer = new PrintWriter(outfile);
+                        }
+                    }
                     processor = new TaxonOccurrenceProcessor(sodps, filteredTaxa.iterator(), squareSize, occFilter);
+                } else break;
 
-                }
-
-                processor.exportSVG(new PrintWriter(wr), true, false
+                processor.exportSVG(writer, true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)
                         , true
                         , borderWidth
                         , thisRequest.getParameterAsBoolean("shadow", true));
-                wr.flush();
+                writer.flush();
+                writer.close();
+
+                if(writer != thisRequest.response.getWriter()) {
+                    File outfile = new File(driver.getProperties().getProperty("folder"), "map-" + category + ".svg");
+                    if(outfile.exists())
+                        IOUtils.copy(new FileReader(outfile), thisRequest.response.getWriter());
+                }
                 break;
         }
     }

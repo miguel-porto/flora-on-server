@@ -6,6 +6,7 @@ import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.*;
+import pt.floraon.occurrences.fields.parsers.PlainTextParser;
 
 import java.io.Serializable;
 import java.util.*;
@@ -37,13 +38,13 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Precisão", shortName = "Prec")
     private Precision precision;
     private Boolean complete;
-    @HideInInventoryView
+    @HideInInventoryView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Habitat", shortName = "Hab")
     private String habitat;
-    @HideInCompactView @HideInInventoryView
+    @HideInCompactView @HideInInventoryView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
     private String pubNotes;
-    @HideInCompactView @HideInInventoryView
+    @HideInCompactView @HideInInventoryView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
     private String privNotes;
     private String geology;
@@ -58,16 +59,22 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Determinadores", shortName = "Dets")
     private String[] dets;
     private String verbLocality;
-    @HideInInventoryView
+    @HideInInventoryView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Local", shortName = "Local")
     private String locality;
+    @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @PrettyName(value = "Município", shortName = "Município")
     private String municipality;
+    @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @PrettyName(value = "Distrito", shortName = "Distrito")
     private String province;
+    @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @PrettyName(value = "Região", shortName = "Região")
     private String county;
     @SmallField @HideInInventoryView
     @PrettyName(value = "Código do inventário", shortName = "Cod")
     private String code;
-    @HideInInventoryView
+    @HideInInventoryView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Ameaças do local", shortName = "Ameaças")
     private String threats;
     @HideInCompactView @ReadOnly @HideInInventoryView

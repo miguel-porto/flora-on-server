@@ -21,7 +21,7 @@ import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.occurrences.fieldparsers.DateParser;
+import pt.floraon.occurrences.fields.parsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.lang.reflect.InvocationTargetException;

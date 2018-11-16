@@ -6,8 +6,10 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.fieldparsers.*;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.fields.parsers.*;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -39,40 +41,47 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("taxa", new TaxaParser());
         fieldMappings.put("year", new IntegerParser());
         fieldMappings.put("month", new IntegerParser());
-        fieldMappings.put("date", new DateParser());
         fieldMappings.put("day", new IntegerParser());
+        fieldMappings.put("date", new DateParser());
         fieldMappings.put("precision", new LocalityParser());
-        fieldMappings.put("locality", new LocalityParser());
-        fieldMappings.put("municipality", new LocalityParser());
-        fieldMappings.put("province", new LocalityParser());
-        fieldMappings.put("county", new LocalityParser());
         fieldMappings.put("code", new PlainTextParser());
-        fieldMappings.put("gpscode", new PlainTextParser());
+//        fieldMappings.put("locality", new LocalityParser());
+//        fieldMappings.put("municipality", new LocalityParser());
+//        fieldMappings.put("province", new LocalityParser());
+//        fieldMappings.put("county", new LocalityParser());
         fieldMappings.put("verblocality", new LocalityParser());
+//        fieldMappings.put("habitat", new PlainTextParser());
+//        fieldMappings.put("threats", new PlainTextParser());
+//        fieldMappings.put("pubNotes", new PlainTextParser());
+//        fieldMappings.put("privNotes", new PlainTextParser());
 
-        fieldMappings.put("habitat", new PlainTextParser());
-        fieldMappings.put("threats", new PlainTextParser());
+        // aliases
+        fieldMappings.put("observers", new UserListParser(userMap, driver, false));
+        fieldMappings.put("collectors", new UserListParser(userMap, driver, false));
+        fieldMappings.put("dets", new UserListParser(userMap, driver, false));
         fieldMappings.put("ano", new AliasFieldParser("year", fieldMappings));
         fieldMappings.put("código", new AliasFieldParser("code", fieldMappings));
         fieldMappings.put("inventário", new AliasFieldParser("code", fieldMappings));
         fieldMappings.put("data", new AliasFieldParser("date", fieldMappings));
         fieldMappings.put("time", new AliasFieldParser("date", fieldMappings));
-        fieldMappings.put("gps", new AliasFieldParser("gpscode", fieldMappings));
-        fieldMappings.put("gps code", new AliasFieldParser("gpscode", fieldMappings));
         fieldMappings.put("name", new AliasFieldParser("gpscode", fieldMappings));
         fieldMappings.put("z", new AliasFieldParser("elevation", fieldMappings));
         fieldMappings.put("região", new AliasFieldParser("province", fieldMappings));
         fieldMappings.put("concelho", new AliasFieldParser("municipality", fieldMappings));
         fieldMappings.put("altitude", new AliasFieldParser("elevation", fieldMappings));
-        fieldMappings.put("observers", new UserListParser(userMap, driver, false));
-        fieldMappings.put("collectors", new UserListParser(userMap, driver, false));
-        fieldMappings.put("determiners", new UserListParser(userMap, driver, false));
+        fieldMappings.put("determiners", new AliasFieldParser("dets", fieldMappings));
         fieldMappings.put("inventoryid", new PlainTextParser());
 
+
+//        fieldMappingsSecondRound.put("gpscode", new PlainTextParser());
+//        fieldMappingsSecondRound.put("comment", new PlainTextParser());
+//        fieldMappingsSecondRound.put("privateComment", new PlainTextParser());
+//        fieldMappingsSecondRound.put("labeldata", new PlainTextParser());
+//        fieldMappingsSecondRound.put("specificthreats", new PlainTextParser());
+//        fieldMappingsSecondRound.put("accession", new PlainTextParser());
+//        fieldMappingsSecondRound.put("coverIndex", new PlainTextParser());
         fieldMappingsSecondRound.put("abundance", new NumericIntervalParser());
         fieldMappingsSecondRound.put("typeofestimate", new EnumParser());
-        fieldMappingsSecondRound.put("comment", new PlainTextParser());
-        fieldMappingsSecondRound.put("privateComment", new PlainTextParser());
         fieldMappingsSecondRound.put("phenostate", new EnumParser());
         fieldMappingsSecondRound.put("confidence", new EnumParser());
         fieldMappingsSecondRound.put("presencestatus", new EnumParser());
@@ -82,13 +91,36 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("observationlatitude", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("observationlongitude", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("observationcoordinates", new LatitudeLongitudeParser());
-        fieldMappingsSecondRound.put("labeldata", new PlainTextParser());
-        fieldMappingsSecondRound.put("specificthreats", new PlainTextParser());
-        fieldMappingsSecondRound.put("accession", new PlainTextParser());
         fieldMappingsSecondRound.put("codHerbario", new AliasFieldParser("accession", fieldMappingsSecondRound));
-        fieldMappingsSecondRound.put("coverIndex", new PlainTextParser());
         fieldMappingsSecondRound.put("excludeReason", new AliasFieldParser("presencestatus", fieldMappingsSecondRound));
         fieldMappingsSecondRound.put("privatenote", new AliasFieldParser("privateComment", fieldMappingsSecondRound));
+
+        fieldMappingsSecondRound.put("gps", new AliasFieldParser("gpscode", fieldMappingsSecondRound));
+        fieldMappingsSecondRound.put("gps code", new AliasFieldParser("gpscode", fieldMappingsSecondRound));
+
+        // Add field parsers for the inventory fields, from the annotations.
+        for(Field field : Inventory.class.getDeclaredFields()) {
+            if(field.isAnnotationPresent(pt.floraon.driver.annotations.FieldParser.class)) {
+                try {
+                    fieldMappings.put(field.getName()
+                            , field.getAnnotation(pt.floraon.driver.annotations.FieldParser.class).value().newInstance());
+                } catch (IllegalAccessException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Add field parsers for the observation fields, from the annotations.
+        for(Field field : OBSERVED_IN.class.getDeclaredFields()) {
+            if(field.isAnnotationPresent(pt.floraon.driver.annotations.FieldParser.class)) {
+                try {
+                    fieldMappingsSecondRound.put(field.getName()
+                            , field.getAnnotation(pt.floraon.driver.annotations.FieldParser.class).value().newInstance());
+                } catch (IllegalAccessException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
@@ -133,7 +165,7 @@ public class OccurrenceParser implements CSVParser {
                 String tmp = keyValues.get(key);
                 if(tmp != null) tmp = tmp.trim();
 //                if(tmp != null) System.out.println("Col: "+key.toLowerCase()+" value: "+Hex.encodeHexString(tmp.getBytes()));
-                fieldMappings.get(key.toLowerCase()).parseValue(tmp, key.toLowerCase(), inv);
+                fieldMappings.get(key.toLowerCase()).parseValue(tmp, key, inv);
             } catch(IllegalArgumentException | FloraOnException e) {
                 errors.add(e.getMessage());
             }
@@ -149,7 +181,7 @@ public class OccurrenceParser implements CSVParser {
                 String tmp = keyValues.get(key);
                 if(tmp != null) tmp = tmp.trim();
 //                if(tmp != null) System.out.println("Col: "+key.toLowerCase()+" value: "+Hex.encodeHexString(tmp.getBytes()));
-                fieldMappingsSecondRound.get(key.toLowerCase()).parseValue(tmp, key.toLowerCase(), inv);
+                fieldMappingsSecondRound.get(key.toLowerCase()).parseValue(tmp, key, inv);
             } catch(IllegalArgumentException | FloraOnException e) {
                 errors.add(e.getMessage());
             }

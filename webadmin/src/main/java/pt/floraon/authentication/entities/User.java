@@ -10,8 +10,8 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.OccurrenceConstants;
-import pt.floraon.occurrences.flavours.IOccurrenceFlavour;
-import pt.floraon.occurrences.flavours.CustomOccurrenceFlavour;
+import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
+import pt.floraon.occurrences.fields.flavours.CustomOccurrenceFlavour;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

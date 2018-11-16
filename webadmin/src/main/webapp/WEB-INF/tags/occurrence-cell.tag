@@ -10,7 +10,7 @@
 <%@ attribute name="locked" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="collapsed" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="symbol" required="false" %>
-<%@ attribute name="fields" required="false" type="pt.floraon.occurrences.flavours.IOccurrenceFlavour" %>
+<%@ attribute name="fields" required="false" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 
 <c:set var="taxon" value="${taxon == null ? (inventory == null ? null : (inventory._getTaxa()[0])) : taxon}" />
 <%--
@@ -31,20 +31,12 @@
 
 <c:choose>
 <%--    SPECIAL FIELDS      --%>
-<c:when test="${field == 'taxa'}">
-    <c:set var="taxa" value="${taxon == null ? '' : (taxon.getTaxEnt() == null ? taxon.getVerbTaxon() : taxon.getTaxEnt().getNameWithAnnotationOnly(false))}" />
-    <td class="${editable} ${collapsedClass} taxon" data-name="taxa">${taxa}</td>
-</c:when>
-<c:when test="${field == 'coordinates' && !noInventory}">
-    <c:set var="coordchanged" value="${taxon == null ? '' : (taxon.getCoordinatesChanged() ? 'textemphasis' : '')}" />
-    <td class="${editable} ${collapsedClass} ${coordchanged} coordinates hideincompactview" data-name="observationCoordinates" data-lat="${inventory._getLatitude()}" data-lng="${inventory._getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getCoordinates()}</td>
-</c:when>
+<c:when test="${field == 'taxa'}"><c:set var="taxa" value="${taxon == null ? '' : (taxon.getTaxEnt() == null ? taxon.getVerbTaxon() : taxon.getTaxEnt().getNameWithAnnotationOnly(false))}" /><td class="${editable} ${collapsedClass} taxon" data-name="taxa">${taxa}</td></c:when>
+<c:when test="${field == 'coordinates' && !noInventory}"><c:set var="coordchanged" value="${taxon == null ? '' : (taxon.getCoordinatesChanged() ? 'textemphasis' : '')}" /><td class="${editable} ${collapsedClass} ${coordchanged} coordinates hideincompactview" data-name="observationCoordinates" data-lat="${inventory._getLatitude()}" data-lng="${inventory._getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getCoordinates()}</td></c:when>
 <c:when test="${field == 'date' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>
-<c:when test="${field == 'observers' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="observers">
-    <c:if test="${fn:length(inventory.getObservers()) > 0}"><t:usernames idarray="${inventory == null ? null : inventory.getObservers()}" usermap="${userMap}"/></c:if>
-    <c:if test="${fn:length(inventory.getObservers()) == 0}"><c:forEach var="id" items="${inventory._getObserverNames()}" varStatus="loop">${id}<c:if test="${!loop.last}">, </c:if></c:forEach></c:if></td>
-</c:when>
+<c:when test="${field == 'observers' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="observers"><c:if test="${fn:length(inventory.getObservers()) > 0}"><t:usernames idarray="${inventory == null ? null : inventory.getObservers()}" usermap="${userMap}"/></c:if><c:if test="${fn:length(inventory.getObservers()) == 0}"><c:forEach var="id" items="${inventory._getObserverNames()}" varStatus="loop">${id}<c:if test="${!loop.last}">, </c:if></c:forEach></c:if></td></c:when>
 <c:when test="${field == 'collectors' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="collectors"><t:usernames idarray="${inventory == null ? null : inventory.getCollectors()}" usermap="${userMap}"/></td></c:when>
+<c:when test="${field == 'dets' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="dets"><t:usernames idarray="${inventory == null ? null : inventory.getDets()}" usermap="${userMap}"/></td></c:when>
 <c:when test="${field == 'verbLocality' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
 
 <%-- These are concatenated fields, which are read-only --%>

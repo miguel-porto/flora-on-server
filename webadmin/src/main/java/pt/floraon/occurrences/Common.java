@@ -5,14 +5,14 @@ import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.driver.annotations.HideInInventoryView;
+import pt.floraon.driver.annotations.PrettyName;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
-import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.InventoryList;
-import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.entities.*;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public final class Common {
     }
 
     public static int levenshteinDistance(String lhs, String rhs) {
-        if(rhs == null || lhs == null) return 1000;
+        if (rhs == null || lhs == null) return 1000;
         // dashes and spaces mean the same in locality names
 /*
         rhs = rhs.replace('-', ' ');
@@ -64,21 +64,23 @@ public final class Common {
             newcost[0] = j;
 
             // transformation cost for each letter in s0
-            for(int i = 1; i < len0; i++) {
+            for (int i = 1; i < len0; i++) {
                 // matching current letters in both strings
                 int match = (lhs.charAt(i - 1) == rhs.charAt(j - 1)) ? 0 : 1;
 
                 // computing cost for each transformation
                 int cost_replace = cost[i - 1] + match;
-                int cost_insert  = cost[i] + 1;
-                int cost_delete  = newcost[i - 1] + 1;
+                int cost_insert = cost[i] + 1;
+                int cost_delete = newcost[i - 1] + 1;
 
                 // keep minimum cost
                 newcost[i] = Math.min(Math.min(cost_insert, cost_delete), cost_replace);
             }
 
             // swap cost/newcost arrays
-            int[] swap = cost; cost = newcost; newcost = swap;
+            int[] swap = cost;
+            cost = newcost;
+            newcost = swap;
         }
 
         // the distance is the cost for transforming all letters in both strings
@@ -88,10 +90,10 @@ public final class Common {
 
     public static void exportInventoriesToPDF(Iterator<Inventory> inventoryIterator, String baseUri, OutputStream stream) throws UnsupportedEncodingException {
         List<String> ids = new ArrayList<>();
-        while(inventoryIterator.hasNext())
+        while (inventoryIterator.hasNext())
             ids.add(inventoryIterator.next().getID());
 
-        if(ids.size() == 0) return;
+        if (ids.size() == 0) return;
 
         String idsString = StringUtils.implode(",", ids.toArray(new String[0]));
 
@@ -115,7 +117,7 @@ public final class Common {
                 , "precision", "mgrs", "verbLocality", "gpsCode", "verbTaxa", "abundance", "method", "photo", "collected"
                 , "specificThreats", "comment", "privateComment", "year", "month", "day");
 
-        while(occurrenceIterator.hasNext()) {
+        while (occurrenceIterator.hasNext()) {
             Occurrence i2 = occurrenceIterator.next();
             OBSERVED_IN oi = i2._getTaxa()[0];
 //                    TaxEnt te = oi.getTaxEnt();

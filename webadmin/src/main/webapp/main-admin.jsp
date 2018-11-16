@@ -78,16 +78,16 @@
         <input type="checkbox" name="showinoccurrenceview" id="showinoccurrenceview" checked="checked"/><label for="showinoccurrenceview" class="wordtag togglebutton">Vista de ocorrências</label>
         <input type="checkbox" name="showininventoryview" id="showininventoryview"/><label for="showininventoryview" class="wordtag togglebutton">Vista de inventários</label>
         </td></tr>
-        <tr><td>Incluir na vista os campos</td><td class="multiplechooser left">
-            <c:forEach var="entry" items="${specialfields}">
-            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#E1BEE7">${entry.key}<div class="info" style="color:#222">${entry.value}</div></label>
-            </c:forEach>
+        <tr><td>Incluir na vista os campos</td><td>
+            <div class="filter lilac legend"><div class="light"></div><div>Campos do inventário</div></div><div class="filter beige legend"><div class="light"></div><div>Campos do taxon (ocorrência)</div></div>
+            <div class="multiplechooser left sized">
             <c:forEach var="entry" items="${occurrencefields}">
-            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#B2DFDB">${entry.key}<div class="info" style="color:#222">${entry.value}</div></label>
+            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#8bc34a">${entry.key}<div class="info" style="color:black">${entry.value}</div></label>
             </c:forEach>
             <c:forEach var="entry" items="${inventoryfields}">
-            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#FFE0B2">${entry.key}<div class="info" style="color:#222">${entry.value}</div></label>
+            <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#FFC107">${entry.key}<div class="info" style="color:black">${entry.value}</div></label>
             </c:forEach>
+            </div>
         </td></tr>
         <tr><td colspan="2"><input type="submit" value="Criar vista" class="textbutton"/></td></tr>
         </table>

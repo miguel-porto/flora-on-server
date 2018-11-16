@@ -9,7 +9,7 @@ import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.occurrences.flavours.IOccurrenceFlavour;
+import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 

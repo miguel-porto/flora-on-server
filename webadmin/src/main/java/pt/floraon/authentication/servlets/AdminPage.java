@@ -5,6 +5,7 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.annotations.HideInInventoryView;
 import pt.floraon.driver.annotations.PrettyName;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
@@ -97,7 +98,10 @@ DEPRECATED
         for(Field f : SpecialFields.class.getDeclaredFields()) {
             if(f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                specialFieldNames.put(f.getName(), fpn.value());
+                if(f.isAnnotationPresent(HideInInventoryView.class))
+                    inventoryFieldNames.put(f.getName(), fpn.value());
+                else
+                    occurrenceFieldNames.put(f.getName(), fpn.value());
             }
         }
 

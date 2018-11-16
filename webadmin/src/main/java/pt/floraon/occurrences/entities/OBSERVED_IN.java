@@ -3,13 +3,11 @@ package pt.floraon.occurrences.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.DiffableBean;
-import pt.floraon.driver.annotations.HideInCompactView;
-import pt.floraon.driver.annotations.PrettyName;
-import pt.floraon.driver.annotations.ReadOnly;
-import pt.floraon.driver.annotations.SmallField;
+import pt.floraon.driver.annotations.*;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.fields.parsers.PlainTextParser;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -38,19 +36,19 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView
     @PrettyName(value = "Confiança ID", shortName = "Conf")
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
-    @HideInCompactView
+    @HideInCompactView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Nome original", shortName = "Verb tax")
     private String verbTaxon;
-    @HideInCompactView
-    @PrettyName(value = "Notas públicas", shortName = "Notas pub")
+    @HideInCompactView @FieldParser(PlainTextParser.class)
+    @PrettyName(value = "Notas públicas do taxon", shortName = "Notas pub")
     private String comment;
-    @HideInCompactView
-    @PrettyName(value = "Notas privadas", shortName = "Notas priv")
+    @HideInCompactView @FieldParser(PlainTextParser.class)
+    @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv")
     private String privateComment;
-    @SmallField
+    @SmallField @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Etiqueta herbário", shortName = "Etiq")
     private String labelData;
-    @SmallField
+    @SmallField @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Código herbário", shortName = "Cód Herb")
     private String accession;
     @SmallField @HideInCompactView
@@ -62,7 +60,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView
     @PrettyName(value = "Cobertura", shortName = "Cob", description = "Cover")
     private Float cover;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Escala de cobertura", shortName = "Cob", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
     private String coverIndex;
     private OccurrenceConstants.CoverType coverIndexScale;
@@ -84,9 +82,10 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @ReadOnly
     @PrettyName(value = "Identificador único", shortName = "UUID")
     private UUID uuid;
-    @SmallField
+    @SmallField @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Código GPS", shortName = "GPS")
     private String gpsCode;
+    @FieldParser(PlainTextParser.class)
     @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
     @SmallField @HideInCompactView

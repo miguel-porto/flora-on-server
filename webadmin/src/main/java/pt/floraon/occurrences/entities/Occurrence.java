@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.entities;
 
+import com.arangodb.velocypack.annotations.Expose;
 import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -15,7 +16,8 @@ public class Occurrence extends Inventory {
      * The data dataSource.
      */
     private String dataSource;
-//    private OBSERVED_IN occurrence;
+    @Expose(serialize = false)
+    private OBSERVED_IN occurrence;
     private int id_reg;
     private Integer id_ent;
 
@@ -32,6 +34,8 @@ public class Occurrence extends Inventory {
     }
 
     public OBSERVED_IN getOccurrence() {
+        if(this.occurrence != null)
+            return this.occurrence;
         if(this._getTaxa().length == 0)
             return null;
         else

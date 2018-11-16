@@ -45,6 +45,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	private List<Territory> checklistTerritories;
 	private Map<String, RedListSettings> redListSettings;
 	private String errorMessage;
+	private Properties properties;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -55,6 +56,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	}
 
 	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
+		this.properties = properties;
 		String username = properties.getProperty("arango.user");
 		String pass = properties.getProperty("arango.password");
 
@@ -132,6 +134,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 			out.setTerritory(territory);
 		}
 		return out;
+	}
+
+	@Override
+	public Properties getProperties() {
+		return this.properties;
 	}
 
 	@Override

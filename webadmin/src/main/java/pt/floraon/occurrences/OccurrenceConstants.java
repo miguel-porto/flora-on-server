@@ -1,7 +1,7 @@
 package pt.floraon.occurrences;
 
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.occurrences.flavours.*;
+import pt.floraon.occurrences.fields.flavours.*;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.util.HashMap;

@@ -113,6 +113,8 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 .multiplechooser label.line-break {width:100%; padding:0; margin:0}
 .multiplechooser input:checked + label {background-color: #00e676; opacity:1;}
 .multiplechooser input:not(:checked) + label {background-color: #ccc; opacity:0.6;}
+.multiplechooser.sized input:checked + label {transform:scale(1)}
+.multiplechooser.sized input:not(:checked) + label {transform:scale(0.8)}
 .multiplechooser.compact label {padding: 2px 8px; margin:4px;}
 
 .triggered.hidden {display:none;}
@@ -217,6 +219,22 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 .filter[data-option=onlyresponsible] {background: linear-gradient(270deg, #b2ff59 0, #b2ff59 20px, #3949ab 20px, #3949ab 100%);}
 .filter[data-option=onlyassessor] {background: linear-gradient(270deg, #64ffda 0, #64ffda 20px, #3949ab 20px, #3949ab 100%);}
 .filter[data-option=onlyreviewer] {background: linear-gradient(270deg, #ffab40 0, #ffab40 20px, #3949ab 20px, #3949ab 100%);}
+
+.filter.lilac .light {background-color: #FFC107}
+.filter.beige .light {background-color: #8bc34a}
+.filter.legend {
+    border-radius: 0;
+    cursor: auto;
+    background-color:white;
+}
+.filter.legend .light {
+    margin: 0 10px 0 0;
+    border-radius:0;
+    box-shadow:none;
+}
+.filter.legend > div {color:black;}
+/*{background: linear-gradient(270deg, #E1BEE7 0, #E1BEE7 20px, #ccc 20px, #ccc 100%);}
+{background: linear-gradient(270deg, #FFE0B2 0, #FFE0B2 20px, #ccc 20px, #ccc 100%);}*/
 /*
 .filter[data-option=onlyreassessment] {background-color: #80D8FF;}
 .filter[data-option=onlyrevised] {background-color: #b388ff;}
@@ -692,7 +710,9 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 #allmapholder .svgmap {float:none;}
 #allmapholder .header {height:2.2rem; line-height:1.1rem; font-size:1rem; font-style:italic}
 #allmapholder .svgmap path.portugal {stroke:black; stroke-width: 1000px;}
-#allmapholder.big .svgmap {width:500px}
+#allmapholder.big .svgmap {width:350px}
+#allmapholder.interactive .svgmap rect {transition: fill 0.2s;}
+#allmapholder.interactive .svgmap rect:hover {fill:blue !important;}
 
 #referencelist {
     position: fixed;
