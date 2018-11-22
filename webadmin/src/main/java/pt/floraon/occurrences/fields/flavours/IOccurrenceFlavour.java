@@ -9,6 +9,7 @@ public interface IOccurrenceFlavour {
     boolean showInInventoryView();
     String getName();
     String getFieldName(String field);
+    boolean containsCoordinates();
 
     /**
      * A reflection-based getter, just for use in JSTL

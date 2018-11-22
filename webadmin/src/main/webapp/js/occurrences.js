@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+/*
     var ft = document.getElementById('filtertable');
     if(ft) {
         addEvent('keyup', ft, function(ev) {
@@ -119,10 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     if(!showPointsOnMap) {
-/*
-                        document.getElementById('occurrencemap').classList.add('hidden');
-                        myMap.invalidateSize(false);
-*/
                     }
                 } else {
                     var count = 0;
@@ -160,18 +157,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                     if(!showPointsOnMap) {
-/*
-                        if(count < 1000 || dispall)
-                            document.getElementById('occurrencemap').classList.remove('hidden');
-                        else
-                            document.getElementById('occurrencemap').classList.add('hidden');
-                        myMap.invalidateSize(false);
-*/
                     }
                 }
             }, 500);
         })
     }
+*/
 
     var ft = document.querySelectorAll('.expandbutton');
     for(var i=0; i<ft.length; i++) {
@@ -233,7 +224,7 @@ function clickOptionButton(ev) {
 }
 */
 
-function onConfirmEdit(ev, name, key, parent, dry) {
+function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
     if(!dry || !parent.classList.contains('editable')) return;  // that's the bugfix
     var fieldname = parent.getAttribute('data-name');
     if(ev.target)   // move edit box back to its hidden home
@@ -253,7 +244,8 @@ function onConfirmEdit(ev, name, key, parent, dry) {
     }
 
     // the bug was here, in some circumstances this was called in the editbox-home, thus erasing the edit box completely
-    parent.innerHTML = name;
+    if(!nocontent)
+        parent.innerHTML = name;
 
     var id1el = getParentbyClass(parent, 'id1holder');
     var id2el = getParentbyClass(parent, 'id2holder');
@@ -295,6 +287,18 @@ function onConfirmEdit(ev, name, key, parent, dry) {
         var iid = id1el.querySelector('input[name=inventoryId]');
         if(iid) insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
         id1el.classList.add('modified');
+    }
+
+    // if there are selected rows, update field in all selected!
+    var sel = document.querySelectorAll('#alloccurrencetable tr.selected td[data-name="' + fieldname + '"]');
+    if(sel.length == 0) {
+        sel = document.querySelectorAll('table.newoccurrencetable tr.selected td[data-name="' + fieldname + '"]');
+    }
+
+    if(sel.length > 0 && !nopropagation) {
+        for(var i=0; i<sel.length; i++) {
+            onConfirmEdit({}, name, null, sel[i], true, sel[i].classList.contains('nodisplay'), true);
+        }
     }
 
 /*
@@ -481,7 +485,8 @@ function updateCoords(geoel, lat, lng) {
     if(oldlat && parseFloat(oldlat) != 0) console.log('CHANGED');
     cooel.setAttribute('data-lat', lat);
     cooel.setAttribute('data-lng', lng);
-    onConfirmEdit({}, Math.round(lat * 1000000) / 1000000 + ', ' + Math.round(lng * 1000000) / 1000000, null, cooel, true);
+    onConfirmEdit({}, Math.round(lat * 1000000) / 1000000 + ', ' + Math.round(lng * 1000000) / 1000000, null, cooel
+        , true, cooel.classList.contains('nodisplay'));
 }
 
 function addNewTaxon(ev) {
@@ -496,10 +501,9 @@ function addNewTaxon(ev) {
 function clickOccurrenceTable(ev) {
     var cell = getParentbyClass(ev.target, 'editable') || getParentbyClass(ev.target, 'clickable');
     if(!cell || !cell.classList) return;
-//console.log(cell);
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
-        selectGeoElement(cell, true, true);
+//        selectGeoElement(cell, true, true);
         var txt = cell.innerHTML;
         cell.textContent = '';
         displaySearchbox(cell, txt, 'taxonsearchwrapper');
@@ -527,11 +531,9 @@ function clickOccurrenceTable(ev) {
         }
     } else if(cell.classList.contains('editable')) {    // editable as plain text
         if(cell.querySelector('#editfieldwrapper')) return;
-        selectGeoElement(cell, true, true);
+//        selectGeoElement(cell, true, true);
         var txt = cell.innerHTML;
-        //var inp = cell.querySelectorAll('input[type=hidden]');
         cell.textContent = '';
-//        if(inp) cell.appendChild(inp);
         displayEditField(cell, txt);
     }
 }
@@ -837,8 +839,8 @@ function addNewOccurrence(ev) {
     if(lat && lng) {
         var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
         var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
-
-        cell2.innerHTML = lat + ', ' + lng;
+        if(!cell2.classList.contains('nodisplay'))
+            cell2.innerHTML = lat + ', ' + lng;
         cell2.appendChild(inp_latitude);
         cell2.appendChild(inp_longitude);
         cell2.setAttribute('data-lat', lat);

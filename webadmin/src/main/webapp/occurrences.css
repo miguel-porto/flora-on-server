@@ -6,6 +6,8 @@
     100% {transform: none; box-shadow:none;}
 }
 
+.geoelement.selected:not(tr), .geoelement.selected td:not(.selectcol), .coordinates.selected td:not(.selectcol) {background-color:#ffff76 !important;}
+
 #hidegeorref {
     animation-name: example;
     animation-duration: 8s;
@@ -132,7 +134,6 @@ td.grouper {
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
 .occurrencetable td {height:16px; padding:2px}
 .occurrencetable td.editable {cursor: pointer;}
-.geoelement.selected:not(tr), .geoelement.selected td:not(.selectcol), .coordinates.selected td:not(.selectcol) {background-color:#ffff76 !important;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a; word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
 .occurrencetable th.inventoryfield {background-color: #FFC107}
@@ -195,7 +196,7 @@ td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !importan
     transform:scale(1);
 }
 
-td.selectcol {background-color: transparent !important; padding:0 !important; text-align:center;}
+td.selectcol {background-color: transparent !important; padding:0 !important; text-align:center; cursor:pointer;}
 
 .inventory {
     margin: 36px 16px;
@@ -210,7 +211,7 @@ td.selectcol {background-color: transparent !important; padding:0 !important; te
 .inventory .occurrencetable th {background-color: transparent}
 .inventory table td {background-color: transparent}
 .inventory table tr:hover td:not(.title) {background-color:transparent;}
-.inventory table tr:hover .editable {background-color:#e3f2fd !important;}
+.inventory table tr:hover:not(.selected) .editable {background-color:#e3f2fd !important;}
 
 .onlywhenmodified {display:none !important;}
 .modified .onlywhenmodified {display:inherit !important;}

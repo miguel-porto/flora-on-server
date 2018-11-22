@@ -23,4 +23,9 @@ public class ManagementFlavour extends GeneralOccurrenceFlavour implements IOccu
     public String getName() {
         return "Gestão";
     }
+
+    @Override
+    public boolean containsCoordinates() {
+        return true;
+    }
 }

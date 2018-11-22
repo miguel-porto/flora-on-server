@@ -57,6 +57,14 @@ public class CustomOccurrenceFlavour extends GeneralOccurrenceFlavour implements
         return name;
     }
 
+    @Override
+    public boolean containsCoordinates() {
+        for(String s : fields) {
+            if (s.equals("coordinates")) return true;
+        }
+        return false;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

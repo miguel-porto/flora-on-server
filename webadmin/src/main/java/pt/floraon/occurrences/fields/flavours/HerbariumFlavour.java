@@ -22,4 +22,9 @@ public class HerbariumFlavour extends GeneralOccurrenceFlavour implements IOccur
     public String getName() {
         return "Herbário";
     }
+
+    @Override
+    public boolean containsCoordinates() {
+        return true;
+    }
 }

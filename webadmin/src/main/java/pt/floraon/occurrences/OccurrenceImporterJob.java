@@ -133,7 +133,7 @@ public class OccurrenceImporterJob implements JobTask {
                     Map<String, String> recordValues = new HashMap<>();
                     try {
                         for (String col : headers.keySet())
-                            recordValues.put(col.replaceAll("\t", ""), record.get(col).replaceAll("\t", ""));
+                            recordValues.put(col.replaceAll("\t", "").toLowerCase().trim(), record.get(col).replaceAll("\t", ""));
 
                         occurrenceParser.parseFields(recordValues, inv);
                     } catch (FloraOnException | IllegalArgumentException e) {

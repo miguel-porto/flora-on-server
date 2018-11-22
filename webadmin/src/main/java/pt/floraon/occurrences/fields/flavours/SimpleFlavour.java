@@ -23,4 +23,9 @@ public class SimpleFlavour extends GeneralOccurrenceFlavour implements IOccurren
         return "Simples";
     }
 
+    @Override
+    public boolean containsCoordinates() {
+        return true;
+    }
+
 }

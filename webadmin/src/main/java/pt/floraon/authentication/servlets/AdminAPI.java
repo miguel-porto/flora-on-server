@@ -160,6 +160,15 @@ public class AdminAPI extends FloraOnServlet {
                 thisRequest.success("Ok");
                 break;
 
+            case "changefieldorder":
+                String flavourName = thisRequest.getParameterAsString("flavourname");
+                int index = thisRequest.getParameterAsInt("index");
+                String action = thisRequest.getParameterAsString("action");
+                driver.getAdministration().changeCustomOccurrenceFlavourFieldOrder(driver.asNodeKey(thisRequest.getUser().getID())
+                    , flavourName, index, action.equals("decrease"));
+                thisRequest.success("Ok");
+                break;
+
             case "addtaxonprivileges":
                 thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 String[] taxa = thisRequest.request.getParameterValues("applicableTaxa");

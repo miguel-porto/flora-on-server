@@ -99,7 +99,7 @@
     <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
     <div class="button anchorbutton"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
     <div>
-        <fmt:message key="button.4a"/>
+        <div class="label"><fmt:message key="button.4a"/></div>
         <c:forEach var="flv" items="${flavourList}" varStatus="loop">
         <c:if test="${flv.getValue().showInInventoryView()}">
             <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>

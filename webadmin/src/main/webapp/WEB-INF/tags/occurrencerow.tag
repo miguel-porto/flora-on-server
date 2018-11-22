@@ -17,7 +17,7 @@
 
 <c:if test="${occ == null}">
 <tr class="geoelement dummy id1holder">
-    <td class="selectcol clickable"><div class="selectbutton"></div></td>
+    <td class="selectcol clickable ${!fields.containsCoordinates() ? 'coordinates nodisplay' : ''}"><div class="selectbutton"></div></td>
     <c:forEach var="flf" items="${fields.getFields()}">
     <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}"/>
     </c:forEach>
@@ -25,16 +25,25 @@
 </c:if>
 
 <c:if test="${occ != null}">
-<c:set var="unmatched" value="${occ._getTaxa()[0].getTaxEnt() == null ? 'unmatched' : ''}"/>
-<tr class="${unmatched} geoelement id1holder ${cssclass}">
-    <td class="selectcol clickable">
-        <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
-        <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
-        <div class="selectbutton"></div>
-    </td>
+    <c:set var="unmatched" value="${occ._getTaxa()[0].getTaxEnt() == null ? 'unmatched' : ''}"/>
+    <c:if test="${!fields.containsCoordinates()}">
+    <c:set var="symbol" value="${((symbol == null || symbol == '') && occ != null) ? (occ.getYear() != null && occ.getYear() >= historicalYear ? 0 : 1) : symbol}"/>
+    </c:if>
 
-    <c:forEach var="flf" items="${fields.getFields()}">
-    <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}" locked="${locked}" symbol="${symbol}" fields="${fields}"/>
-    </c:forEach>
-</tr>
+    <tr class="${unmatched} geoelement id1holder ${cssclass}">
+        <c:if test="${!fields.containsCoordinates()}">
+        <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="observationCoordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}" data-symbol="${symbol}">
+        </c:if>
+        <c:if test="${fields.containsCoordinates()}">
+        <td class="selectcol clickable">
+        </c:if>
+            <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
+            <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
+            <div class="selectbutton"></div>
+        </td>
+
+        <c:forEach var="flf" items="${fields.getFields()}">
+        <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}" locked="${locked}" symbol="${symbol}" fields="${fields}"/>
+        </c:forEach>
+    </tr>
 </c:if>

@@ -141,6 +141,7 @@ public class OccurrenceApi extends FloraOnServlet {
                         System.out.println(name + ": "+thisRequest.getParameterAsString(name));
                         keyValues.put(field, thisRequest.getParameterAsString(name));
                     }
+
                     op.parseFields(keyValues, inv);     // feed in inventory fields
 
                     for(String id2 : new HashSet<>(grp.get(invid))) {    // go through all occurrence fields this inventory

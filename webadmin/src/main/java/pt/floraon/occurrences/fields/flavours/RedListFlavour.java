@@ -24,4 +24,9 @@ public class RedListFlavour extends GeneralOccurrenceFlavour implements IOccurre
         return "Red List";
     }
 
+    @Override
+    public boolean containsCoordinates() {
+        return true;
+    }
+
 }

@@ -26,4 +26,6 @@ public interface IAdministration {
             , boolean showInInventoryView) throws FloraOnException;
     User deleteCustomOccurrenceFlavour(INodeKey id, String name) throws FloraOnException;
 
+    User changeCustomOccurrenceFlavourFieldOrder(INodeKey userId, String flavourName, int index, boolean decrease)
+        throws FloraOnException;
 }

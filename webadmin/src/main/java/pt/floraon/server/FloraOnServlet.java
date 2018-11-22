@@ -78,7 +78,7 @@ public class FloraOnServlet extends HttpServlet {
 		ThisRequest thisRequest = new ThisRequest(request, response);
 
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk01");
+		request.setAttribute("uuid", "bk03");
 
 		try {
 			doFloraOnGet(thisRequest);

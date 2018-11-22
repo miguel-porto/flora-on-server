@@ -145,6 +145,20 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
     }
 
     @Override
+    public User changeCustomOccurrenceFlavourFieldOrder(INodeKey userId, String flavourName, int index, boolean decrease) throws FloraOnException {
+        if(decrease && index < 1) return null;
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("user", userId.toString());
+        bind.put("flavour", flavourName);
+        bind.put("ind", decrease ? index : (index + 1));
+        try {
+            return database.query(AQLQueries.getString("Administration.8"), bind, null, User.class).next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
     public User authenticateUser(String username, char[] password) throws FloraOnException {
         String query = AQLQueries.getString("Administration.2", username);
         PasswordAuthentication pa = new PasswordAuthentication();

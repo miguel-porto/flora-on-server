@@ -95,12 +95,32 @@
 
     <h3>Vistas personalizadas existentes</h3>
     <table class="small">
-    <tr><th>Nome</th><th>Show in occurrence view</th><th>Show in inventory view</th><th>Fields</th><th></th></tr>
+    <tr><th>Nome</th><th>Show in occurrence view</th><th>Show in inventory view</th><th>Fields (click arrows to reorder)</th><th></th></tr>
     <c:forEach var="flv" items="${customflavours}">
     <tr>
         <td>${flv.getName()}</td><td><t:yesno test="${flv.showInOccurrenceView()}"/></td><td><t:yesno test="${flv.showInInventoryView()}"/></td>
         <td>
-        <c:forEach var="field" items="${flv.getFields()}"><div class="wordtag">${field}</div></c:forEach>
+        <c:forEach var="field" items="${flv.getFields()}" varStatus="loop">
+        <div class="filter legend nopadding">
+            <c:if test="${!loop.isFirst()}">
+                <div class="light"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
+                <input type="hidden" name="flavourname" value="${flv.getName()}"/>
+                <input type="hidden" name="index" value="${loop.index}"/>
+                <input type="hidden" name="action" value="decrease"/>
+                <input type="submit" class="light" value="&lt;"/>
+                </form></div>
+            </c:if>
+            ${field}
+            <c:if test="${!loop.isLast()}">
+                <div class="light right"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
+                <input type="hidden" name="flavourname" value="${flv.getName()}"/>
+                <input type="hidden" name="index" value="${loop.index}"/>
+                <input type="hidden" name="action" value="increase"/>
+                <input type="submit" class="light" value="&gt;"/>
+                </form></div>
+            </c:if>
+        </div>
+        </c:forEach>
         </td>
         <td>
             <form class="poster" data-path="admin/deletecustomoccurrenceflavour" data-refresh="true">

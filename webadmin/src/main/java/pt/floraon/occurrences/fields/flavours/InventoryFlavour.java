@@ -21,4 +21,9 @@ public class InventoryFlavour extends GeneralOccurrenceFlavour implements IOccur
     public String getName() {
         return "Inventário";
     }
+
+    @Override
+    public boolean containsCoordinates() {
+        return false;
+    }
 }
