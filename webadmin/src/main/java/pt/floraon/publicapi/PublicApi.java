@@ -162,7 +162,7 @@ public class PublicApi extends FloraOnServlet {
                         , thisRequest.getParameterAsBoolean("basemap", false)
                         , true
                         , borderWidth
-                        , thisRequest.getParameterAsBoolean("shadow", true));
+                        , thisRequest.getParameterAsBoolean("shadow", true), false);
                 writer.flush();
                 writer.close();
 

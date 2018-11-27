@@ -326,7 +326,7 @@ System.out.println(gs.toJson(getUser()));
 //                    bc.formatCitations();
 
                     List<SimpleOccurrenceDataProvider> sodps = null;
-                    OccurrenceProcessor occurrenceProcessor, historicalOccurrenceProcessor;
+                    OccurrenceProcessor occurrenceProcessor, historicalOccurrenceProcessor, publicOccurrenceProcessor;
                     // TODO clipping polygon and years must be a user configuration
                     PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
@@ -357,6 +357,8 @@ System.out.println(gs.toJson(getUser()));
 
                         historicalOccurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, historicalFilter);
                         occurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, currentFilter);
+                        publicOccurrenceProcessor = thisRequest.getUser().canVIEW_FULL_SHEET() ? occurrenceProcessor :
+                            new OccurrenceProcessor(sodps, protectedAreas, 10000, currentFilter);
                     } else { // we want it read-only
                         thisRequest.getUser().revokeAllPrivilegesExcept(new Privileges[]{MANAGE_VERSIONS});
 
@@ -365,6 +367,10 @@ System.out.println(gs.toJson(getUser()));
 
                         occurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
                                 rldeSnap.getOccurrences(), protectedAreas, sizeOfSquare, currentFilter);
+
+                        publicOccurrenceProcessor = thisRequest.getUser().canVIEW_FULL_SHEET() ? occurrenceProcessor :
+                                OccurrenceProcessor.createFromOccurrences(
+                                        rldeSnap.getOccurrences(), protectedAreas, 10000, currentFilter);
                     }
 
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
@@ -425,15 +431,18 @@ System.out.println(gs.toJson(getUser()));
     */
 
                         StringWriter sw = new StringWriter();
-                        occurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
-                                , true, true, false, 0, true);
+                        publicOccurrenceProcessor.exportSVG(new PrintWriter(sw), true
+                                , thisRequest.getUser().canVIEW_FULL_SHEET(), true
+                                , !thisRequest.getUser().canVIEW_FULL_SHEET()
+                                , thisRequest.getUser().canVIEW_FULL_SHEET() ? 0 : 1, true
+                                , thisRequest.getUser().canVIEW_FULL_SHEET());
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
 
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
                             historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
-                                    , true, true, false, 0, true);
+                                    , true, true, false, 0, true, true);
                             request.setAttribute("historicalsvgmap", sw.toString());
                             sw.close();
                         }
@@ -830,7 +839,7 @@ System.out.println(gs.toJson(getUser()));
                     while (rldeIt.hasNext()) {
                         RedListDataEntity rlde1 = rldeIt.next();
                         // FIXME this just a temporary fix
-                        if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde1.getTags()))) continue;
+//                        if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde1.getTags()))) continue;
 
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
                         if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;

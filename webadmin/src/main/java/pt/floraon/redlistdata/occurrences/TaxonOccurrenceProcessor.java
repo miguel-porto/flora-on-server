@@ -88,7 +88,7 @@ public class TaxonOccurrenceProcessor implements SVGMapExporter {
 
     @Override
     public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap
-            , boolean standAlone, int border, boolean showShadow) {
+            , boolean standAlone, int border, boolean showShadow, boolean showProtectedAreas) {
         if(showBaseMap) {
             InputStream str = TaxonOccurrenceProcessor.class.getResourceAsStream(showShadow ? "../basemap.svg" : "../basemap-noshadow.svg");
             try {

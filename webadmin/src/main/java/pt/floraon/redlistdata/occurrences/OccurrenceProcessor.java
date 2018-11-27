@@ -363,7 +363,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
     }
 
     @Override
-    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border, boolean showShadow) {
+    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border, boolean showShadow, boolean showProtectedAreas) {
         if(showBaseMap) {
             InputStream str = OccurrenceProcessor.class.getResourceAsStream(showShadow ? "../basemap.svg" : "../basemap-noshadow.svg");
             try {
@@ -385,7 +385,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
         }
 */
 
-        if(protectedAreas != null) {
+        if(showProtectedAreas && protectedAreas != null) {
             // draw protected areas
             List<UTMCoordinate> tmp;
             for (Map.Entry<String, pt.floraon.geometry.Polygon> p : protectedAreas) {
