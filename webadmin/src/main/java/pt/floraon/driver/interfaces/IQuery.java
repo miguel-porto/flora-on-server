@@ -29,7 +29,7 @@ public interface IQuery {
 	 * @param filter A textual filter
 	 * @return
 	 */
-	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon, String filter) throws FloraOnException;
+	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon, String filterExpression, OccurrenceFilter filter) throws FloraOnException;
 
     /**
 	 * Gets all inventories within a radius of a given point

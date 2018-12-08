@@ -8,8 +8,8 @@ import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.occurrences.InventoryIterator;
-import pt.floraon.occurrences.OccurrenceIterator;
+import pt.floraon.occurrences.iterators.InventoryIterator;
+import pt.floraon.occurrences.iterators.OccurrenceIterator;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
@@ -63,7 +63,8 @@ public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 	}
 
 	@Override
-	public Iterator<Occurrence> findOccurrencesContainedIn(final String geoJsonPolygon, final String filter) throws FloraOnException {
+	public Iterator<Occurrence> findOccurrencesContainedIn(final String geoJsonPolygon, final String filterExpression
+			, OccurrenceFilter filter) throws FloraOnException {
 		Iterator<Occurrence> out;
 		final Map<String, String> parsedFilter;
 		final PolygonTheme polyt = new PolygonTheme(geoJsonPolygon);
@@ -79,9 +80,9 @@ public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 			}
 		};
 
-		parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
+		parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filterExpression);
 		out = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, null, null, null);
-		return new OccurrenceIterator(out, new OccurrenceFilter[] {geoFilter});
+		return new OccurrenceIterator(out, new OccurrenceFilter[] {geoFilter, filter});
 	}
 
 /*

@@ -1,25 +1,25 @@
-package pt.floraon.occurrences;
+package pt.floraon.occurrences.iterators;
 
 import pt.floraon.driver.interfaces.OccurrenceFilter;
-import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.entities.Inventory;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * An iterator for occurrences, implementing a filter at each iteration.
+ * An iterator for inventories, implementing a filter at each iteration.
  */
-public class OccurrenceIterator implements Iterator<Occurrence> {
-    private Iterator<Occurrence> cursor;
+public class InventoryIterator implements Iterator<Inventory> {
+    private Iterator<Inventory> cursor;
     private OccurrenceFilter[] filter = new OccurrenceFilter[0];
-    private Occurrence nextItem = null;
+    private Inventory nextItem = null;
     private boolean consumed = true;
 
-    public OccurrenceIterator(Iterator<Occurrence> cursor) {
+    public InventoryIterator(Iterator<Inventory> cursor) {
         this.cursor = cursor;
     }
 
-    public OccurrenceIterator(Iterator<Occurrence> cursor, OccurrenceFilter[] filter) {
+    public InventoryIterator(Iterator<Inventory> cursor, OccurrenceFilter[] filter) {
         this.cursor = cursor;
         this.filter = filter == null ? new OccurrenceFilter[0] : filter;
     }
@@ -37,9 +37,9 @@ public class OccurrenceIterator implements Iterator<Occurrence> {
         } else {
             boolean enter;
             do {
-                if(cursor.hasNext()) {
+                if(cursor.hasNext())
                     nextItem = cursor.next();
-                } else
+                else
                     return false;
 
                 enter = true;
@@ -53,8 +53,8 @@ public class OccurrenceIterator implements Iterator<Occurrence> {
     }
 
     @Override
-    public Occurrence next() {
-        Occurrence out;
+    public Inventory next() {
+        Inventory out;
         if(nextItem == null)
             throw new NoSuchElementException();
 

@@ -23,7 +23,7 @@ import java.util.List;
  * Created by miguel on 23-03-2017.
  */
 public final class Common {
-    static InventoryList readInventoryListFromFile(String fileName) throws IOException, ClassNotFoundException {
+    public static InventoryList readInventoryListFromFile(String fileName) throws IOException, ClassNotFoundException {
         ObjectInputStream oist;
         InventoryList invList;
 

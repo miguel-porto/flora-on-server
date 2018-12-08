@@ -36,7 +36,8 @@
 <a class="returntomain" href="../"><img src="../images/cap-cor.png" alt="logo"/></a>
 <div id="title"><a href="../"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
-    <c:if test="${what != 'taxonrecords'}">
+    <c:if test="${what != 'taxonrecords' && !user.isGuest()}">
+    <%--                THE MAIN MENU ON THE LEFT               --%>
     <div id="left-bar" class="buttonmenu">
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
@@ -46,6 +47,7 @@
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
                 <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
                 <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
+                <li><a href="?w=debug">Diagnósticos</a></li>
             </c:if>
             <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
                 <li><a href="api/updatenativestatus?territory=${territory}"><fmt:message key="Separator.4"/> ${territory}</a></li>
@@ -90,73 +92,6 @@
             <input type="submit" class="textbutton" value="<fmt:message key='Update.2'/>"/>
         </form>
     </c:when>
-    <c:when test="${what=='jobs'}">
-        <iframe style="visibility: hidden; width:0; height:0" name="trash"></iframe>
-        <c:if test="${user.canMANAGE_REDLIST_USERS()}">
-            <h1><fmt:message key="Separator.6"/></h1>
-            <p><fmt:message key="Downloads.1"/></p>
-            <form class="poster orderdownload" data-path="api/downloadtable" data-refresh="true">
-                <input type="hidden" name="territory" value="${territory}"/>
-                <h2>Tabela de taxa</h2>
-                <p>Descarregar uma tabela com um taxon por linha (opcionalmente filtrada por etiquetas), e com o respectivo EOO, AOO, etc.</p>
-                    <div class="multiplechooser left">
-                    <c:forEach var="tmp" items="${allTags}">
-                        <input type="checkbox" name="tags" value="${tmp}" id="tags_${tmp}"/>
-                        <label for="tags_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
-                    </c:forEach>
-                    </div>
-                <input type="submit" value="Descarregar" class="textbutton"/>
-            </form>
-
-            <form class="poster orderdownload" data-path="api/downloadalloccurrences" data-refresh="true">
-                <h2>Tabela de todas as ocorrências</h2>
-                <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas).</p>
-                <input type="hidden" name="territory" value="${territory}"/>
-                <div class="multiplechooser left">
-                <c:forEach var="tmp" items="${allTags}">
-                    <input type="checkbox" name="tags" value="${tmp}" id="tags1_${tmp}"/>
-                    <label for="tags1_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
-                </c:forEach>
-                </div>
-                <input type="submit" value="Descarregar" class="textbutton"/>
-            </form>
-
-            <form class="poster orderdownload" data-path="api/downloadtaxainpolygon" data-refresh="true">
-                <h2>Tabela de taxa numa área</h2>
-                <p>Descarregar uma tabela com os taxa existentes dentro do polígono fornecido, e o respectivo EOO e AOO.</p>
-                <p>Paste a polygon in WKT format here, in latitude longitude coordinates, for example:<br/><code>Polygon ((-7.6167 37.9335, -7.6221 37.9320, -7.6228 37.9285, -7.6185 37.9256, -7.6144 37.9249, -7.6128 37.9287, -7.6127 37.9304, -7.6146 37.9325, -7.6167 37.9335))</code><br/><span class="info">You can copy a polygon from QGIS and paste it!</span></p>
-                <input type="hidden" name="territory" value="${territory}"/>
-                <textarea style="width: 98%; height: 150px; border: 2px solid #1e88e5; margin: 0 1%; padding: 4px; font-size: 0.75em; border-radius: 3px;" name="polygon"></textarea>
-                <input type="submit" value="Descarregar" class="textbutton"/>
-            </form>
-
-            <c:if test="${jobs.size() > 0}">
-                <h1><fmt:message key="Downloads.2"/></h1>
-                <table>
-                    <tr>
-                        <th>Download type</th>
-                        <th>Date started</th>
-                        <th>Ready</th>
-                        <th>Status</th>
-                        <th>Download</th>
-                    </tr>
-                    <c:forEach var="job" items="${jobs}">
-                    <tr>
-                        <td>${job.getDescription()}</td>
-                        <td>${job.getDateSubmitted()}</td>
-                        <td><t:yesno test="${job.isReady()}"/></td>
-                        <td>${job.getState()}</td>
-                        <td>
-                            <c:if test="${job.isFileDownload() && job.isReady()}">
-                            <a href="../job/${job.getID()}">Download file</a>
-                            </c:if>
-                        </td>
-                    </tr>
-                    </c:forEach>
-                </table>
-            </c:if>
-        </c:if>
-    </c:when>
     <c:when test="${what=='published'}">
         <h1>Published sheets</h1>
         <table id="speciesindex" class="sortable">
@@ -194,21 +129,29 @@
     </c:when>
 
     <c:when test="${what=='search'}">
-    <form method="GET">
-        <input type="hidden" name="w" value="search"/>
-        <input type="text" name="s" placeholder="type search text"/>
-        <input type="submit" value="Search all data sheets" class="textbutton"/>
-    </form>
+        <form method="GET">
+            <input type="hidden" name="w" value="search"/>
+            <input type="text" name="s" placeholder="type search text"/>
+            <input type="submit" value="Search all data sheets" class="textbutton"/>
+        </form>
 
-    <table class="sortable">
-        <tr><th>Taxon</th><th>Found match</th></tr>
-        <c:forEach var="res" items="${searchResults}">
-        <tr>
-            <td><a href="?w=taxon&id=${res.getKey().getTaxEnt()._getIDURLEncoded()}">${res.getKey().getTaxEnt().getNameWithAnnotationOnly(true)}</a></td>
-            <td><ul style="margin:0"><c:forEach var="res1" items="${res.getValue()}"><li>${res1}</li></c:forEach></ul></td>
-        </tr>
-        </c:forEach>
-    </table>
+        <table class="sortable">
+            <tr><th>Taxon</th><th>Found match</th></tr>
+            <c:forEach var="res" items="${searchResults}">
+            <tr>
+                <td><a href="?w=taxon&id=${res.getKey().getTaxEnt()._getIDURLEncoded()}">${res.getKey().getTaxEnt().getNameWithAnnotationOnly(true)}</a></td>
+                <td><ul style="margin:0"><c:forEach var="res1" items="${res.getValue()}"><li>${res1}</li></c:forEach></ul></td>
+            </tr>
+            </c:forEach>
+        </table>
+    </c:when>
+
+    <c:when test="${what=='debug'}">
+        <jsp:include page="fragments/frag-debug.jsp"></jsp:include>
+    </c:when>
+
+    <c:when test="${what=='jobs'}">
+        <jsp:include page="fragments/frag-jobs.jsp"></jsp:include>
     </c:when>
 
     <c:when test="${what=='taxon' || what == 'sheet'}">

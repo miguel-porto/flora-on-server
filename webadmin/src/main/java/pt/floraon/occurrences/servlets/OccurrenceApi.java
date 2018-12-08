@@ -1,4 +1,4 @@
-package pt.floraon.occurrences;
+package pt.floraon.occurrences.servlets;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -9,6 +9,10 @@ import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.BeanUtils;
+import pt.floraon.occurrences.Common;
+import pt.floraon.occurrences.Messages;
+import pt.floraon.occurrences.OccurrenceParser;
+import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;

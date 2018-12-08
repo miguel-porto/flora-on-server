@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.jobs;
 
 import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
@@ -21,7 +21,7 @@ public class UpdateNativeStatusJob implements JobTask {
     private int n = 0, total;
     private String territory;
 
-    UpdateNativeStatusJob(String territory) {
+    public UpdateNativeStatusJob(String territory) {
         this.territory = territory;
     }
 

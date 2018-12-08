@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.jobs;
 
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
@@ -18,7 +18,7 @@ public class CreateRedListSheetsJob implements JobTask {
     private int n = 0, total;
     private String territory;
 
-    CreateRedListSheetsJob(String territory) {
+    public CreateRedListSheetsJob(String territory) {
         this.territory = territory;
     }
 

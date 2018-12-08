@@ -2,7 +2,6 @@ package pt.floraon.arangodriver;
 
 import java.util.*;
 
-import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
@@ -18,17 +17,10 @@ import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.StringMatchTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
-import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.geocoding.entities.Toponym;
-import pt.floraon.geometry.Point2D;
-import pt.floraon.geometry.Polygon;
-import pt.floraon.geometry.PolygonTheme;
-import pt.floraon.occurrences.InventoryIterator;
-import pt.floraon.occurrences.OccurrenceIterator;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;

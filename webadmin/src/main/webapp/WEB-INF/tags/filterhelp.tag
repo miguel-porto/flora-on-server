@@ -24,6 +24,8 @@
         <tr><td><code>acc:</code></td><td>Código de herbário (<i>accession</i>)</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>obs:</code></td><td>Observador</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>coll:</code></td><td>Colector</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>ilat:</code></td><td>Latitude do inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
+        <tr><td><code>ilong:</code></td><td>Longitude do inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><th colspan="3">Filtros especiais</th></tr>
         <tr><td><code>nsp:</code></td><td>Nº de taxa registados por inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
     </tbody>

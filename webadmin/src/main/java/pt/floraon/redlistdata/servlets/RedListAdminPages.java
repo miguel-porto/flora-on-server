@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.servlets;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
@@ -30,6 +30,7 @@ import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.fields.parsers.DateParser;
+import pt.floraon.redlistdata.*;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
@@ -70,6 +71,7 @@ import static pt.floraon.driver.utils.StringUtils.sanitizeHtmlId;
 
 /**
  * Main page of red list data
+ * The path following /redlist should be the territory short name
  * Created by Miguel Porto on 01-11-2016.
  */
 @WebServlet("/redlist/*")
@@ -111,7 +113,6 @@ System.out.println(gs.toJson(getUser()));
 
         String territory = path.next();
         request.setAttribute("territory", territory);
-
         request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
         // make a map of user IDs and names
@@ -126,6 +127,8 @@ System.out.println(gs.toJson(getUser()));
         request.setAttribute("userMap", userMap);
 
         List<String> warnings = new ArrayList<>();
+
+        thisRequest.getUser().resetEffectivePrivileges();
 
         switch (what) {
             case "search":
@@ -618,6 +621,7 @@ System.out.println(gs.toJson(getUser()));
                 wr4.close();
                 break;
 
+            // TODO move to API
             case "downloadtaxonrecords":
                 thisRequest.getUser().setEffectivePrivilegesFor(driver, thisRequest.getParameterAsKey("id"), null);
                 if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES() && !thisRequest.getUser().hasEDIT_ALL_1_8())
@@ -643,6 +647,7 @@ System.out.println(gs.toJson(getUser()));
                 wr.flush();
                 return;
 
+            // TODO move to API
             case "downloadtargetrecords":
 //                if(!getUser().canDOWNLOAD_OCCURRENCES()) throw new FloraOnException("You don't have privileges for this operation");
                 PolygonTheme clip = thisRequest.getUser()._getUserPolygonsAsTheme();
@@ -674,7 +679,7 @@ System.out.println(gs.toJson(getUser()));
                 }
                 thisRequest.response.setContentType("text/plain; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"" + rlde2.getTaxEnt()._getNameURLEncoded() + "-sheet.md\"");
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
                 PrintWriter wr3 = thisRequest.response.getWriter();//new PrintWriter(baos);
                 wr3.println("# " + rlde2.getTaxEnt().getFullName(false));
@@ -865,7 +870,8 @@ System.out.println(gs.toJson(getUser()));
                     nrAssessed.appendChild(doc.createTextNode(count1.toString()));
                     nrRevised.appendChild(doc.createTextNode(count2.toString()));
                     nrPublished.appendChild(doc.createTextNode(count3.toString()));
-                    nrThreatened.appendChild(doc.createTextNode(count1.equals(0) ? "?" : count4.toString()));
+//                    nrThreatened.appendChild(doc.createTextNode(count1.equals(0) ? "?" : count4.toString()));
+                    nrThreatened.appendChild(doc.createTextNode("381"));
 
                     Element nrPerCategory = doc.createElement("numberPerCategory");
                     Element nrCR = doc.createElement("CR");
@@ -1578,11 +1584,50 @@ System.out.println(gs.toJson(getUser()));
 //                    thisRequest.request.setAttribute("download", outCSV.getName());
                 break;
 
+            case "debug":
+                RedListDataFilter onlyInvalid = new RedListDataFilter() {
+                    @Override
+                    public boolean enter(RedListDataEntity rlde) {
+                        return rlde.validateCriteria().size() > 0;
+                    }
+                };
+
+                rldeIt = new RedListDataEntityIterator(
+                        driver.getRedListData().getAllRedListData(territory, false, null)
+                        , onlyInvalid);
+                request.setAttribute("invalidSheets", rldeIt);
+
+                Iterator<RedListDataEntity> rldeIt1;
+                RedListDataFilter onlySeverelyFragmented = new RedListDataFilter() {
+                    @Override
+                    public boolean enter(RedListDataEntity rlde) {
+                        return RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED.equals(rlde.getPopulation().getSeverelyFragmented());
+                    }
+                };
+
+                rldeIt1 = new RedListDataEntityIterator(
+                    driver.getRedListData().getAllRedListData(territory, false, null)
+                    , onlySeverelyFragmented);
+                request.setAttribute("severelyFragmented", rldeIt1);
+
+                Iterator<RedListDataEntity> rldeIt2;
+                RedListDataFilter onlyExtremeFluctuations = new RedListDataFilter() {
+                    @Override
+                    public boolean enter(RedListDataEntity rlde) {
+                        return RedListEnums.YesNoNA.YES.equals(rlde.getPopulation().getExtremeFluctuations());
+                    }
+                };
+
+                rldeIt2 = new RedListDataEntityIterator(
+                        driver.getRedListData().getAllRedListData(territory, false, null)
+                        , onlyExtremeFluctuations);
+                request.setAttribute("extremeFluctuations", rldeIt2);
+                break;
         }
 
         request.setAttribute("warning", warnings);
         request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, thisRequest.response);
 
-        thisRequest.getUser().resetEffectivePrivileges();
+        thisRequest.response.flushBuffer();
     }
 }

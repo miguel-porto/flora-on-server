@@ -82,6 +82,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerSerializer(IntegerInterval.class, new NumericIntervalSerializer())
 				.registerDeserializer(Abundance.class, new AbundanceDeserializer())
 				.registerSerializer(Abundance.class, new AbundanceSerializer())
+				.registerSerializer(Float.class, new FloatNoDataSerializer())	// to handle no data values
 				.build();
 
 		database = driver.db(dbname);

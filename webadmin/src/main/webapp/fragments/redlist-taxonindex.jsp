@@ -7,7 +7,10 @@
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
-
+<c:if test="${user.isGuest()}">
+    <div class="warning"><b>You&#8217;re not authorized to enter this page</b></div>
+</c:if>
+<c:if test="${!user.isGuest()}">
 <h1>Taxon index</h1>
 <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
 <div class="filterpanel">
@@ -244,3 +247,4 @@
         </tbody>
     </table>
 </form>
+</c:if>

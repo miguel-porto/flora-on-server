@@ -13,6 +13,7 @@ import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.TaxonOccurrenceProcessor;
+import pt.floraon.redlistdata.servlets.RedListAdminPages;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -83,9 +84,9 @@ public class PublicApi extends FloraOnServlet {
                 PolygonTheme protectedAreas = null;
 
                 if(thisRequest.getParameterAsBoolean("pa", false))
-                    protectedAreas = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("SNAC.geojson"), "SITE_NAME");
+                    protectedAreas = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("/pt/floraon/redlistdata/servlets/SNAC.geojson"), "SITE_NAME");
 
-                PolygonTheme cP = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("PT_buffer.geojson"), null);
+                PolygonTheme cP = new PolygonTheme(RedListAdminPages.class.getResourceAsStream("/pt/floraon/redlistdata/servlets/PT_buffer.geojson"), null);
 
                 SVGMapExporter processor = null;
                 OccurrenceFilter occFilter;

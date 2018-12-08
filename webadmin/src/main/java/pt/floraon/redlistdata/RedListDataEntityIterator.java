@@ -1,27 +1,29 @@
-package pt.floraon.occurrences;
+package pt.floraon.redlistdata;
 
 import pt.floraon.driver.interfaces.OccurrenceFilter;
-import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-/**
- * An iterator for inventories, implementing a filter at each iteration.
- */
-public class InventoryIterator implements Iterator<Inventory> {
-    private Iterator<Inventory> cursor;
-    private OccurrenceFilter[] filter = new OccurrenceFilter[0];
-    private Inventory nextItem = null;
+public class RedListDataEntityIterator implements Iterator<RedListDataEntity> {
+    private Iterator<RedListDataEntity> cursor;
+    private RedListDataFilter[] filter = new RedListDataFilter[0];
+    private RedListDataEntity nextItem = null;
     private boolean consumed = true;
 
-    public InventoryIterator(Iterator<Inventory> cursor) {
+    public RedListDataEntityIterator(Iterator<RedListDataEntity> cursor) {
         this.cursor = cursor;
     }
 
-    public InventoryIterator(Iterator<Inventory> cursor, OccurrenceFilter[] filter) {
+    public RedListDataEntityIterator(Iterator<RedListDataEntity> cursor, RedListDataFilter[] filter) {
         this.cursor = cursor;
-        this.filter = filter == null ? new OccurrenceFilter[0] : filter;
+        this.filter = filter == null ? new RedListDataFilter[0] : filter;
+    }
+
+    public RedListDataEntityIterator(Iterator<RedListDataEntity> cursor, RedListDataFilter filter) {
+        this(cursor, new RedListDataFilter[] {filter});
     }
 
     @Override
@@ -37,13 +39,13 @@ public class InventoryIterator implements Iterator<Inventory> {
         } else {
             boolean enter;
             do {
-                if(cursor.hasNext())
+                if(cursor.hasNext()) {
                     nextItem = cursor.next();
-                else
+                } else
                     return false;
 
                 enter = true;
-                for(OccurrenceFilter of : this.filter) {
+                for(RedListDataFilter of : this.filter) {
                     enter &= of.enter(nextItem);
                 }
             } while(!enter);
@@ -53,8 +55,8 @@ public class InventoryIterator implements Iterator<Inventory> {
     }
 
     @Override
-    public Inventory next() {
-        Inventory out;
+    public RedListDataEntity next() {
+        Occurrence out;
         if(nextItem == null)
             throw new NoSuchElementException();
 
@@ -66,4 +68,5 @@ public class InventoryIterator implements Iterator<Inventory> {
     public void remove() {
         throw new UnsupportedOperationException();
     }
+
 }

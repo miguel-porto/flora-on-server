@@ -34,8 +34,10 @@ public class OccurrenceParser implements CSVParser {
 
     public OccurrenceParser(IFloraOn driver) {
         this.driver = driver;
+/*
         fieldMappings.put("latitude", new LatitudeLongitudeParser());
         fieldMappings.put("longitude", new LatitudeLongitudeParser());
+*/
         fieldMappings.put("coordinates", new LatitudeLongitudeParser());
         fieldMappings.put("wkt_geom", new LatitudeLongitudeParser());
         fieldMappings.put("x", new UTMCoordinateParser());
@@ -93,8 +95,10 @@ public class OccurrenceParser implements CSVParser {
         fieldMappingsSecondRound.put("hasphoto", new EnumParser());
         fieldMappingsSecondRound.put("hasspecimen", new IntegerParser());
         fieldMappingsSecondRound.put("occurrenceuuid", new UUIDParser());
+/*
         fieldMappingsSecondRound.put("observationlatitude", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("observationlongitude", new LatitudeLongitudeParser());
+*/
         fieldMappingsSecondRound.put("observationcoordinates", new LatitudeLongitudeParser());
         fieldMappingsSecondRound.put("codHerbario", new AliasFieldParser("accession", fieldMappingsSecondRound));
         fieldMappingsSecondRound.put("excludeReason", new AliasFieldParser("presencestatus", fieldMappingsSecondRound));

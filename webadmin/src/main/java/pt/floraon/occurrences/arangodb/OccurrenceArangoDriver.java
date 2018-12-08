@@ -565,6 +565,42 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+        // inventory latitude filter
+        if(filter.containsKey("ilat")) {
+            if(filter.get("ilat").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulllatitude")).append(" ");
+            } else {
+                NumericInterval range = new NumericInterval(filter.get("ilat"));
+                if(range.getValue() == null) {  // is an interval
+                    bindVars.put("minlat", range.getMinValue() == null ? true : range.getMinValue());
+                    bindVars.put("maxlat", range.getMaxValue() == null ? "" : range.getMaxValue());
+                } else {    // is an exact number
+                    bindVars.put("minlat", range.getValue() - 0.0001);
+                    bindVars.put("maxlat", range.getValue() + 0.0001);
+                }
+
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.ilatitude")).append(" ");
+            }
+        }
+
+        // inventory longitude filter
+        if(filter.containsKey("ilong")) {
+            if(filter.get("ilong").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulllongitude")).append(" ");
+            } else {
+                NumericInterval range = new NumericInterval(filter.get("ilong"));
+                if(range.getValue() == null) {  // is an interval
+                    bindVars.put("minlng", range.getMinValue() == null ? true : range.getMinValue());
+                    bindVars.put("maxlng", range.getMaxValue() == null ? "" : range.getMaxValue());
+                } else {    // is an exact number
+                    bindVars.put("minlng", range.getValue() - 0.0001);
+                    bindVars.put("maxlng", range.getValue() + 0.0001);
+                }
+
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.ilongitude")).append(" ");
+            }
+        }
+
         // latitude filter
         if(filter.containsKey("lat")) {
             if(filter.get("lat").toUpperCase().equals("NA")) {

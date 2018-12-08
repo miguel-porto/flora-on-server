@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.jobs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -10,6 +10,7 @@ import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.redlistdata.RedListDataFilter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
@@ -25,24 +26,26 @@ import java.util.*;
  * Created by miguel on 13-03-2017.
  */
 public class ComputeAOOEOOJob implements JobFileDownload {
-    private String territory;
+    protected String territory;
 //    private PolygonTheme clippingPolygon;
 //    private Integer minimumYear;
-    private Integer sizeOfSquare;
-    private int curSpeciesI = 0;
-    private String curSpeciesName = "";
+    protected Integer sizeOfSquare;
+    protected int curSpeciesI = 0;
+    protected String curSpeciesName = "";
+    protected OccurrenceFilter occurrenceFilter;
     private Iterator<RedListDataEntity> itRLDE;
-    private OccurrenceFilter occurrenceFilter;
-    private RedListDataFilter redListDataFilter;
+    protected RedListDataFilter redListDataFilter;
 
-    ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter, RedListDataFilter redListDataFilter) {
+    public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
+            , RedListDataFilter redListDataFilter) {
         this.sizeOfSquare = sizeOfSquare;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
         this.territory = territory;
     }
 
-    ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter, RedListDataFilter redListDataFilter, Iterator<RedListDataEntity> redListDataEntityIterator) {
+    public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
+            , RedListDataFilter redListDataFilter, Iterator<RedListDataEntity> redListDataEntityIterator) {
         this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter);
         this.itRLDE = redListDataEntityIterator;
     }

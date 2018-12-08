@@ -1,4 +1,4 @@
-package pt.floraon.redlistdata;
+package pt.floraon.redlistdata.jobs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -30,7 +30,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     private String curSpeciesName = "";
     private Set<String> filterTags;
 
-    DownloadOccurrencesJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Set<String> filterTags) {
+    public DownloadOccurrencesJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Set<String> filterTags) {
         this.territory = territory;
         this.clippingPolygon = clippingPolygon;
         this.minimumYear = minimumYear;

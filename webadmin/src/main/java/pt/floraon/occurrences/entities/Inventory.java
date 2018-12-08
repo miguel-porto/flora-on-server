@@ -6,6 +6,7 @@ import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.*;
+import pt.floraon.occurrences.fields.parsers.LatitudeLongitudeParser;
 import pt.floraon.occurrences.fields.parsers.PlainTextParser;
 
 import java.io.Serializable;
@@ -21,7 +22,12 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * NOTE: coordinates of the observation have priority over these. Only if observationLatitude and observationLongitude
      * are not set, then we can use these inventory coordinates.
      */
-    private Float latitude, longitude;
+    @SmallField @HideInInventoryView @FieldParser(LatitudeLongitudeParser.class)
+    @PrettyName(value = "Latitude do inventário", shortName = "Inv lat")
+    private Float latitude;
+    @SmallField @HideInInventoryView @FieldParser(LatitudeLongitudeParser.class)
+    @PrettyName(value = "Longitude do inventário", shortName = "Inv long")
+    private Float longitude;
     private String spatialRS;
     private Float elevation;
     private String geometry;

@@ -7,6 +7,7 @@ import pt.floraon.driver.annotations.*;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.fields.parsers.LatitudeLongitudeParser;
 import pt.floraon.occurrences.fields.parsers.PlainTextParser;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -21,10 +22,10 @@ import java.util.UUID;
  * Created by miguel on 05-02-2017.
  */
 public class OBSERVED_IN extends GeneralDBEdge implements Serializable, DiffableBean {
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Latitude da ocorrência", shortName = "Obs lat")
     private Float observationLatitude;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Longitude da ocorrência", shortName = "Obs long")
     private Float observationLongitude;
     @SmallField @HideInCompactView

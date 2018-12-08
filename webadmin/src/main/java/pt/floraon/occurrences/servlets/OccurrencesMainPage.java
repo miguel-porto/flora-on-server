@@ -1,4 +1,4 @@
-package pt.floraon.occurrences;
+package pt.floraon.occurrences.servlets;
 
 import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
@@ -7,6 +7,9 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.Common;
+import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
