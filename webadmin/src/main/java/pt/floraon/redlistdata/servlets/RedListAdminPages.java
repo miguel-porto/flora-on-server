@@ -170,6 +170,15 @@ System.out.println(gs.toJson(getUser()));
                     searchtmp = rlde.getAssessment().getFinalJustification().searchString(thisRequest.getParameterAsString("s"));
                     if(searchtmp != null)
                         searchResults.put(rlde, "<span class=\"wordtag compact\">JUSTIFICATION</span> " + searchtmp);
+
+                    searchtmp = rlde.getReviewerComments().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">REVISION</span> " + searchtmp);
+
+                    searchtmp = rlde.getReplyToReviewer().searchString(thisRequest.getParameterAsString("s"));
+                    if(searchtmp != null)
+                        searchResults.put(rlde, "<span class=\"wordtag compact\">REPLY</span> " + searchtmp);
+
                 }
                 request.setAttribute("searchResults", searchResults.asMap().entrySet());
                 break;
@@ -610,10 +619,11 @@ System.out.println(gs.toJson(getUser()));
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"taxonlist.csv\"");
 
                 CSVPrinter wr4 = new CSVPrinter(thisRequest.response.getWriter(), CSVFormat.EXCEL);
-                wr4.printRecord("Family", "Taxon");
+                wr4.printRecord("ID", "Family", "Taxon");
                 while(iTaxEnt.hasNext()) {
                     te = iTaxEnt.next();
                     TaxEnt family = driver.wrapTaxEnt(driver.asNodeKey(te.getID())).getParentOfRank(Constants.TaxonRanks.FAMILY);
+                    wr4.print(te.getID());
                     wr4.print(family.getFullName());
                     wr4.print(te.getNameWithAnnotationOnly(false));
                     wr4.println();
@@ -850,16 +860,17 @@ System.out.println(gs.toJson(getUser()));
                         if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;
                         if (rlde1.getAssessment().getPublicationStatus().isPublished() || rlde1.getAssessment().getPublicationStatus().isApproved()) count3++;
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed() && rlde1.getAssessment().getCategory() != null) {
-                            if(rlde1.getAssessment().getAdjustedCategory().isThreatened()) count4++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.CR) countCR++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.EN) countEN++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.VU) countVU++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.NT) countNT++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.LC) countLC++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.RE) countRE++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.EX) countEX++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.EW) countEW++;
-                            if(rlde1.getAssessment().getAdjustedCategory().getEffectiveCategory() == RedListEnums.RedListCategories.DD) countDD++;
+                            RedListEnums.RedListCategories cat = rlde1.getAssessment().getAdjustedCategory();
+                            if(cat.isThreatened()) count4++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.CR) countCR++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.EN) countEN++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.VU) countVU++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.NT) countNT++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.LC) countLC++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.RE) countRE++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.EX) countEX++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.EW) countEW++;
+                            if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.DD) countDD++;
                         }
                     }
                     Element nrAssessed = doc.createElement("numberAssessed");
@@ -870,8 +881,8 @@ System.out.println(gs.toJson(getUser()));
                     nrAssessed.appendChild(doc.createTextNode(count1.toString()));
                     nrRevised.appendChild(doc.createTextNode(count2.toString()));
                     nrPublished.appendChild(doc.createTextNode(count3.toString()));
-//                    nrThreatened.appendChild(doc.createTextNode(count1.equals(0) ? "?" : count4.toString()));
-                    nrThreatened.appendChild(doc.createTextNode("381"));
+                    nrThreatened.appendChild(doc.createTextNode(count1.equals(0) ? "?" : count4.toString()));
+//                    nrThreatened.appendChild(doc.createTextNode("381"));
 
                     Element nrPerCategory = doc.createElement("numberPerCategory");
                     Element nrCR = doc.createElement("CR");

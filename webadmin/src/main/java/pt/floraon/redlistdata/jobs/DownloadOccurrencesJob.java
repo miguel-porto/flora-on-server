@@ -51,6 +51,11 @@ public class DownloadOccurrencesJob implements JobFileDownload {
         csvp.print("longitude");
         csvp.print("date");
         csvp.print("observers");
+        csvp.print("precision");
+        csvp.print("confidence");
+        csvp.print("code");
+        csvp.print("local");
+        csvp.print("pubNotes");
         csvp.println();
 
         while(it.hasNext()) {
@@ -67,9 +72,13 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             if(op.size() > 0) {
                 for (Occurrence so : op) {
                     csvp.printRecord(
-                        so.getDataSource(), rlde.getTaxEnt().getID(), rlde.getTaxEnt().getNameWithAnnotationOnly(false)
+                        so.getDataSource(), rlde.getTaxEnt().getID()
+                        , rlde.getTaxEnt().getNameWithAnnotationOnly(false)
                         , so.getOccurrence().getVerbTaxon(), so._getLatitude(), so._getLongitude(), so._getDate()
                         , StringUtils.implode(", ", so._getObserverNames())
+                        , so.getPrecision(), so.getOccurrence().getConfidence()
+                        , so.getCode(), so.getLocality()
+                        , so.getPubNotes()
                     );
                 }
             }

@@ -154,7 +154,14 @@
 			<groupId>com.openhtmltopdf</groupId>
 			<artifactId>openhtmltopdf-pdfbox</artifactId>
 			<version>${openhtml.version}</version>
-		</dependency>    </dependencies>
+		</dependency>
+		<dependency>
+			<!-- SVG support plugin. -->
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-svg-support</artifactId>
+			<version>${openhtml.version}</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<finalName>floraon</finalName>

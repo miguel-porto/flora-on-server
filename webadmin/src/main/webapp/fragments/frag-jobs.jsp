@@ -6,7 +6,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
 <iframe style="visibility: hidden; width:0; height:0" name="trash"></iframe>
-<c:if test="${user.canMANAGE_REDLIST_USERS()}">
+<c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
     <h1><fmt:message key="Separator.6"/></h1>
     <p><fmt:message key="Downloads.1"/></p>
     <form class="poster orderdownload" data-path="api/downloadtable" data-refresh="true">

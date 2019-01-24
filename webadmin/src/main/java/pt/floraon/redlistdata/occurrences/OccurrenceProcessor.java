@@ -414,9 +414,9 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
                 if(standAlone)
                     out.print("<rect class=\"utmsquare\" style=\"fill:#f55145; stroke:white; stroke-width:" + border
                             + "px\" vector-effect=\"non-scaling-stroke\" lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX()
-                            + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"/>");
+                            + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"></rect>");
                 else
-                    out.print("<rect lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX() + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"/>");
+                    out.print("<rect lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX() + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"></rect>");
             }
         }
 

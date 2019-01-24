@@ -83,7 +83,7 @@ public class TaxonOccurrenceProcessor implements SVGMapExporter {
             if(sqs.getValue().size() > maxNSp)
                 maxNSp = sqs.getValue().size();
         }
-        maxNSp = (float) Math.log(maxNSp);
+//        maxNSp = (float) Math.log(maxNSp);
     }
 
     @Override
@@ -130,8 +130,8 @@ public class TaxonOccurrenceProcessor implements SVGMapExporter {
             // draw occurrence squares
             for (Square s : this.squares.keySet()) {
                 Rectangle2D s1 = s.getSquare();
-//                float prop = (float) this.squares.get(s).size() / maxNSp;
-                float prop = (float) Math.log(this.squares.get(s).size()) / maxNSp;
+                float prop = (float) this.squares.get(s).size() / maxNSp;
+//                float prop = (float) Math.log(this.squares.get(s).size()) / maxNSp;
 //                String color = String.format("#%02x%02x%02x", (int) (prop * 255f), 60, 0);
                 String color = gradient[(int)(prop * 8f)];
                 if(standAlone) {

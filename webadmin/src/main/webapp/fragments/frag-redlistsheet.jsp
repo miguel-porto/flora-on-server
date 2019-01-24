@@ -67,6 +67,7 @@
             <div class="wordtag togglebutton"><a href="../checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
             <c:if test="${user.canVIEW_FULL_SHEET()}">
                 <div class="wordtag togglebutton" id="summary_toggle">summary</div>
+                <div class="wordtag togglebutton" id="declines_toggle">declines</div>
                 <div class="wordtag togglebutton"><a href="?w=downloadsheet&id=${taxon._getIDURLEncoded()}">download sheet</a></div>
                 <c:url value="https://lvf.flora-on.pt/redlist/${territory}" var="urlmd">
                   <c:param name="w" value="downloadsheet" />
@@ -180,7 +181,7 @@
         <tr class="section2 textual"><t:redlistsheetrow field="2.1" help="true"/><td><%@ include file="/fragments/redlistsheetfields/2.1.jsp" %></td></tr>
         <tr class="section2"><t:redlistsheetrow field="2.2" help="false"/><td><%@ include file="/fragments/redlistsheetfields/2.2.jsp" %></td></tr>
         <tr class="section2"><t:redlistsheetrow field="2.3" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.3.jsp" %></td></tr>
-        <tr class="section2"><t:redlistsheetrow field="2.4" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.4.jsp" %></td></tr>
+        <tr class="section2 declines"><t:redlistsheetrow field="2.4" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.4.jsp" %></td></tr>
         <tr class="section2"><t:redlistsheetrow field="2.5" help="false"/><td><%@ include file="/fragments/redlistsheetfields/2.5.jsp" %></td></tr>
         <tr class="section2"><t:redlistsheetrow field="2.6" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.6.jsp" %></td></tr>
 
@@ -193,9 +194,9 @@
         </td></tr>
         <tr class="section3"><t:redlistsheetrow field="3.2" help="false"/><td><%@ include file="/fragments/redlistsheetfields/3.2.jsp" %></td></tr>
         <tr class="section3"><t:redlistsheetrow field="3.3"/><td><%@ include file="/fragments/redlistsheetfields/3.3.jsp" %></td></tr>
-        <tr class="section3"><t:redlistsheetrow field="3.4"/><td><%@ include file="/fragments/redlistsheetfields/3.4.jsp" %></td></tr>
+        <tr class="section3 declines"><t:redlistsheetrow field="3.4"/><td><%@ include file="/fragments/redlistsheetfields/3.4.jsp" %></td></tr>
         <tr class="section3"><t:redlistsheetrow field="3.5"/><td><%@ include file="/fragments/redlistsheetfields/3.5.jsp" %></td></tr>
-        <tr class="section3"><t:redlistsheetrow field="3.6"/><td><%@ include file="/fragments/redlistsheetfields/3.6.jsp" %></td></tr>
+        <tr class="section3 declines"><t:redlistsheetrow field="3.6"/><td><%@ include file="/fragments/redlistsheetfields/3.6.jsp" %></td></tr>
         <tr class="section3"><t:redlistsheetrow field="3.7"/><td><%@ include file="/fragments/redlistsheetfields/3.7.jsp" %></td></tr>
         <tr class="section3"><t:redlistsheetrow field="3.8"/><td><%@ include file="/fragments/redlistsheetfields/3.8.jsp" %></td></tr>
         <tr class="section3"><t:redlistsheetrow field="3.9"/><td><%@ include file="/fragments/redlistsheetfields/3.9.jsp" %></td></tr>
@@ -210,7 +211,7 @@
         <tr class="section4"><t:redlistsheetrow field="4.2" help="false"/><td><%@ include file="/fragments/redlistsheetfields/4.2.jsp" %></td></tr>
         <tr class="section4"><t:redlistsheetrow field="4.3" help="false"/><td>${lifeform}</td></tr>
         <tr class="section4"><t:redlistsheetrow field="4.4" help="false"/><td><%@ include file="/fragments/redlistsheetfields/4.4.jsp" %></td></tr>
-        <tr class="section4"><t:redlistsheetrow field="4.5" help="true" /><td><%@ include file="/fragments/redlistsheetfields/4.5.jsp" %></td></tr>
+        <tr class="section4 declines"><t:redlistsheetrow field="4.5" help="true" /><td><%@ include file="/fragments/redlistsheetfields/4.5.jsp" %></td></tr>
 
         <tr class="section5"><td class="title" colspan="3"><a name="uses"></a><fmt:message key="DataSheet.label.section"/> 5 - <fmt:message key="DataSheet.label.5" /></td></tr>
         <tr class="section5 textual"><t:redlistsheetrow field="5.1" help="true" /><td>
@@ -232,7 +233,7 @@
         </td></tr>
         <tr class="section6"><t:redlistsheetrow field="6.2" help="true"/><td><%@ include file="/fragments/redlistsheetfields/6.2.jsp" %></td></tr>
         <tr class="section6"><t:redlistsheetrow field="6.3" help="true"/><td><%@ include file="/fragments/redlistsheetfields/6.3.jsp" %></td></tr>
-        <tr class="section6"><t:redlistsheetrow field="6.4" help="true"/><td><%@ include file="/fragments/redlistsheetfields/6.4.jsp" %></td></tr>
+        <tr class="section6 declines"><t:redlistsheetrow field="6.4" help="true"/><td><%@ include file="/fragments/redlistsheetfields/6.4.jsp" %></td></tr>
         <tr class="section6"><t:redlistsheetrow field="6.5" help="true"/><td><%@ include file="/fragments/redlistsheetfields/6.5.jsp" %></td></tr>
 
         <tr class="section7"><td class="title" colspan="3"><a name="conservation"></a><fmt:message key="DataSheet.label.section"/> 7 - <fmt:message key="DataSheet.label.7" /></td></tr>

@@ -212,7 +212,9 @@ public class TaxEntWrapperDriver extends GTaxEntWrapper implements ITaxEntWrappe
 		bindVars.put("rank", rank.getValue());
 
 		try {
-			return database.query(AQLQueries.getString("TaxEntWrapperDriver.15"), bindVars,null, TaxEnt.class).next();
+			Iterator<TaxEnt> it = database.query(AQLQueries.getString("TaxEntWrapperDriver.15"), bindVars,null, TaxEnt.class);
+			if(it.hasNext()) return it.next();
+			return null;
 		} catch (ArangoDBException | NoSuchElementException e) {
 			throw new DatabaseException(e.getMessage());
 		}

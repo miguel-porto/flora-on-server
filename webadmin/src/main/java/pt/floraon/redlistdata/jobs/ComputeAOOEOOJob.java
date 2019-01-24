@@ -3,18 +3,21 @@ package pt.floraon.redlistdata.jobs;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.results.InferredStatus;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.RedListDataFilter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -79,9 +82,13 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
 
         csvp.print("TaxEnt ID");
+        csvp.print("Family");
         csvp.print("Taxon");
+        csvp.print("Tags");
         csvp.print("Endemic?");
         csvp.print("Threat category");
+        csvp.print("Criteria");
+        csvp.print("Protection");
         csvp.print("AOO (km2)");
         csvp.print("EOO (km2)");
         csvp.print("Real EOO (km2)");
@@ -102,13 +109,29 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             op = new OccurrenceProcessor(sodps, null, sizeOfSquare, this.occurrenceFilter);
 
             INodeKey tKey = driver.asNodeKey(rlde.getTaxEntID());
-            InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
-            boolean endemic = is != null && is.isEndemic();
+            String endemicFrom = StringUtils.implode(", ", driver.wrapTaxEnt(tKey).getEndemismDegree());
+//            InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
+//            boolean endemic = is != null && is.isEndemic();
+            TaxEnt f = driver.wrapTaxEnt(tKey).getParentOfRank(Constants.TaxonRanks.FAMILY);
+            String family = f == null ? "" : f.getName();
+
+            csvp.print(rlde.getTaxEnt().getID());
+            csvp.print(family);
+            csvp.print(rlde.getTaxEnt().getName());
+            csvp.print(StringUtils.implode(", ", rlde.getTags()));
+//            csvp.print(endemic ? ("Endemic from " + territory) : "No");
+            csvp.print(endemicFrom == null ? "No info" : ("Endemic from " + endemicFrom));
+            if(rlde.getAssessment().getAdjustedCategory() != null) {
+                csvp.print(rlde.getAssessment().getAdjustedCategory().getLabel());
+                csvp.print(rlde.getAssessment()._getCriteriaAsString());
+            } else {
+                csvp.print("");
+                csvp.print("");
+            }
+
+            csvp.print(StringUtils.implode(", ", rlde.getConservation().getLegalProtection()));
+
             if(op.size() == 0) {
-                csvp.print(rlde.getTaxEnt().getID());
-                csvp.print(rlde.getTaxEnt().getName());
-                csvp.print(endemic ? ("Endemic from " + territory) : "No");
-                csvp.print("-");
                 csvp.print("-");
                 csvp.print("-");
                 csvp.print("-");
@@ -116,13 +139,6 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.print("-");
                 csvp.println();
             } else {
-                csvp.print(rlde.getTaxEnt().getID());
-                csvp.print(rlde.getTaxEnt().getName());
-                csvp.print(endemic ? ("Endemic from " + territory) : "No");
-                if(rlde.getAssessment().getAdjustedCategory() != null)
-                    csvp.print(rlde.getAssessment().getAdjustedCategory().getLabel());
-                else
-                    csvp.print("");
                 csvp.print(op.getAOO());
                 csvp.print(op.getEOO());
                 csvp.print(op.getRealEOO());

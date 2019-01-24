@@ -108,6 +108,15 @@ public class PublicApi extends FloraOnServlet {
                     // we output directly to page
                     writer = thisRequest.response.getWriter();
                 } else if(category != null) {   // we want a threat category
+                    List<String> dosOlivais = Arrays.asList("taxent/338146505630","taxent/338148078494","taxent/727429989271"
+                            ,"taxent/335881057182","taxent/1489742363194","taxent/340986901406"
+                            ,"taxent/335732159390","taxent/336302650270","taxent/337052971934","taxent/337094980510"
+                            ,"taxent/337253381022","taxent/338349994910","taxent/336382473118","taxent/336687936414"
+                            ,"taxent/338109608862","taxent/337843991454","taxent/334667002782","taxent/334671721374"
+                            ,"taxent/334683255710","taxent/339628667806","taxent/338193298334","taxent/341236462494"
+                            ,"taxent/338443383710","taxent/337565528990","taxent/335377740702", "taxent/1489766753625"
+                            ,"taxent/335452386206","taxent/341505225630", "taxent/334285452190");
+
                     Iterator<RedListDataEntity> it =
                             driver.getRedListData().getAllRedListData(territory, false, null);
                     Set<TaxEnt> filteredTaxa = new HashSet<>();
@@ -132,6 +141,11 @@ public class PublicApi extends FloraOnServlet {
                             case "maybeextinct":
                                 if(cat.isPossiblyExtinct() || (cat.equals(RedListEnums.RedListCategories.CR)
                                         && rlde.getAssessment().getSubCategory() != null && !rlde.getAssessment().getSubCategory().equals(RedListEnums.CRTags.NO_TAG)))
+                                    filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+
+                            case "olivais":
+                                if(dosOlivais.contains(rlde.getTaxEnt().getID()))
                                     filteredTaxa.add(rlde.getTaxEnt());
                                 break;
                         }
@@ -165,7 +179,8 @@ public class PublicApi extends FloraOnServlet {
                         , borderWidth
                         , thisRequest.getParameterAsBoolean("shadow", true), false);
                 writer.flush();
-                writer.close();
+                if(thisRequest.getParameterAsBoolean("close", true))
+                    writer.close();
 
                 if(writer != thisRequest.response.getWriter()) {
                     File outfile = new File(driver.getProperties().getProperty("folder"), "map-" + category + ".svg");

@@ -129,6 +129,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // toggle summary / full view
     addEvent('click', document.getElementById('summary_toggle'), function(ev) {
         document.querySelector('table.sheet').classList.toggle('summary');
+        document.getElementById('summary_toggle').classList.toggle('selected');
+    });
+
+    // toggle declines / full view
+    addEvent('click', document.getElementById('declines_toggle'), function(ev) {
+        document.querySelector('table.sheet').classList.toggle('declines');
+        document.getElementById('declines_toggle').classList.toggle('selected');
     });
 
     // toggle help tips

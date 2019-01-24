@@ -90,8 +90,8 @@ public class Occurrence extends Inventory {
             e.printStackTrace();
         }
 
+        this.setPubNotes(pubNotes);
         occurrence.setVerbTaxon(genus + " " + species + (infrataxon == null ? "" : " " + infrataxon));
-        occurrence.setComment(pubNotes);
         occurrence.setConfidence(confidence);
         occurrence.setPhenoState(flowering);
         occurrence.setNaturalization(escaped ? OccurrenceConstants.OccurrenceNaturalization.ESCAPED : null);

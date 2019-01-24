@@ -18,6 +18,6 @@ public class BasicRedListDataFilter implements RedListDataFilter {
 
     @Override
     public boolean enter(RedListDataEntity rlde) {
-        return(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags())));
+        return(filterTags == null || !Collections.disjoint(filterTags, Arrays.asList(rlde.getTags())));
     }
 }

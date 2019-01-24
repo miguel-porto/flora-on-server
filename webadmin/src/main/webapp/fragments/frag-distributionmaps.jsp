@@ -43,6 +43,10 @@
         <h3>Vulnerável (VU)</h3>
         <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=VU${refresh}" width="400px" height="200px"/>
     </div>
+    <div>
+        <h3>Olivais tradicionais de sequeiro</h3>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=olivais${refresh}" width="400px" height="200px"/>
+    </div>
 </div>
 </c:when>
 

@@ -4,6 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
+import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -47,6 +50,7 @@ import javax.servlet.http.Part;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.util.*;
@@ -596,6 +600,38 @@ public class RedListDataApi extends FloraOnServlet {
 
                 driver.reloadSettings();
                 thisRequest.success("Ok");
+                break;
+
+            case "sheet2PDF":
+//                thisRequest.request.setAttribute("inventories", itInv);
+                thisRequest.request.getRequestDispatcher("/pdf/redlistsheet-layout.jsp").forward(thisRequest.request, thisRequest.response);
+                break;
+
+            case "downloadsheetPDF":
+                //TODO HERE
+                thisRequest.response.setContentType("application/pdf; charset=utf-8");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"sheets.pdf\"");
+                thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+
+                StringBuffer url1 = thisRequest.request.getRequestURL();
+                String uri1 = thisRequest.request.getRequestURI();
+                String ctx1 = thisRequest.request.getContextPath();
+                String base1 = url1.substring(0, url1.length() - uri1.length() + ctx1.length()) + "/" + "redlist/api/sheet2PDF?id=";
+
+//                String idsString = StringUtils.implode(",", ids.toArray(new String[0]));
+
+                PdfRendererBuilder builder = new PdfRendererBuilder();
+                final NaiveUserAgent.DefaultUriResolver defaultUriResolver = new NaiveUserAgent.DefaultUriResolver();
+
+                builder.useUriResolver(defaultUriResolver);
+                builder.useSVGDrawer(new BatikSVGDrawer());
+                builder.withUri(base1 + URLEncoder.encode("as", StandardCharsets.UTF_8.toString()));
+                builder.toStream(thisRequest.response.getOutputStream());
+                try {
+                    builder.run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 break;
 
             default:

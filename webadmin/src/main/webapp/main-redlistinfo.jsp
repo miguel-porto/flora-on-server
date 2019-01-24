@@ -45,6 +45,8 @@
             <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
+            </c:if>
+            <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
                 <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
                 <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
                 <li><a href="?w=debug">Diagnósticos</a></li>
