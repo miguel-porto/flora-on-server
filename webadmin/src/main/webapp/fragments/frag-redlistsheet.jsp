@@ -49,9 +49,10 @@
 </c:if>
 <c:if test="${!multipletaxa}">
     <h1>${taxon.getCanonicalName().toString(true)}
+        <c:if test="${rls.isEditionLocked(rlde) && !rls.isSheetUnlocked(taxon.getID())}"> <img class="lock" src="../images/locked.png" style="height:auto"/></c:if>
         <c:if test="${versiondate != null}"><span style="font-size:0.4em"> [version ${versiondate}]</span></c:if>
-        <c:if test="${rls.isEditionLocked() && !rls.isEditionLocked(taxon.getID()) && versiondate == null}">
-            <span class="warning">Esta ficha está desbloqueada!</span>
+        <c:if test="${rls.isEditionLocked(rlde) && rls.isSheetUnlocked(taxon.getID()) && versiondate == null}">
+            <img class="lock" style="height:auto" src="../images/unlocked.png"/> <span class="warning">Esta ficha está desbloqueada!</span>
         </c:if>
     </h1>
     <div class="redlistcategory assess_${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}">
@@ -81,10 +82,10 @@
                 <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>
             </c:if>
         </div>
-        <c:if test="${user.canMANAGE_VERSIONS() && rls.isEditionLocked() && versiondate == null}">
+        <c:if test="${user.canMANAGE_VERSIONS() && rls.isEditionLocked(rlde) && versiondate == null}">
         <div>
             <h3>Edition</h3>
-            <c:if test="${rls.isEditionLocked(taxon.getID())}">
+            <c:if test="${!rls.isSheetUnlocked(taxon.getID())}">
                 <form class="poster inlineblock" data-path="api/setoptions" data-refresh="true">
                     <input type="hidden" name="territory" value="${territory}"/>
                     <input type="hidden" name="option" value="unlockEdition"/>
@@ -92,7 +93,7 @@
                     <input type="submit" value="Unlock edition" class="textbutton"/>
                 </form>
             </c:if>
-            <c:if test="${!rls.isEditionLocked(taxon.getID())}">
+            <c:if test="${rls.isSheetUnlocked(taxon.getID())}">
                 <form class="poster inlineblock" data-path="api/setoptions" data-refresh="true">
                     <input type="hidden" name="territory" value="${territory}"/>
                     <input type="hidden" name="option" value="removeUnlockEdition"/>

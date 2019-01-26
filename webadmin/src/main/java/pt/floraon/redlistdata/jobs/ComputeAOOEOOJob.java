@@ -94,6 +94,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("Real EOO (km2)");
         csvp.print("Number of sites");
         csvp.print("Number of occurrence records");
+        csvp.print("URL");
         csvp.println();
 
         while(it.hasNext()) {   // for each taxon in red list
@@ -146,6 +147,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.print(op.size());
                 csvp.println();
             }
+            csvp.print("https://lvf.flora-on.pt/redlist/" + territory + "?w=taxon&id=" + rlde.getTaxEnt()._getIDURLEncoded());
         }
         csvp.close();
     }
@@ -157,7 +159,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 
     @Override
     public String getDescription() {
-        return "AOO and EOO table";
+        return "Table of taxa with AOO, EOO, etc.";
     }
 
     @Override

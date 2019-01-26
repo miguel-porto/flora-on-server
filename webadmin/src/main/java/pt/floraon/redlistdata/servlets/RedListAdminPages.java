@@ -242,9 +242,11 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "settings":    // settings page
-                request.setAttribute("lockediting", driver.getRedListSettings(territory).isEditionLocked());
+                request.setAttribute("lockediting", driver.getRedListSettings(territory).isEditionGloballyLocked());
                 request.setAttribute("historicalthreshold", driver.getRedListSettings(territory).getHistoricalThreshold());
                 request.setAttribute("unlockedSheets", driver.getRedListSettings(territory).getUnlockedSheets());
+                request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
+                request.setAttribute("lockedTags", driver.getRedListSettings(territory).getLockedTags());
                 break;
 
             case "setoption":
@@ -353,13 +355,12 @@ System.out.println(gs.toJson(getUser()));
 
                         //rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
                         Set<Privileges> ignorePrivileges = null;
-                        // FIXME: the tag to lock must be user configuration
-                        // So, if text edition is locked, we only lock for the Diretiva tag, and only for those who don't have the secion 9 privilege
+                        // So, if text edition is locked, we only unlock when the user has the section 9 privilege
                         // Also, if the reviewer marked as revised, needs working, then don't lock.
-                        if (rls.isEditionLocked(thisId.getID()) && !thisRequest.getUser().canEDIT_SECTION9() && Arrays.asList(rlde.getTags()).contains("Diretiva")     // TODO user configuration
-                                && rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_WORKING) {
+                        if (rls.isEditionLocked(rlde) && !rls.isSheetUnlocked(rlde.getTaxEntID()) && !thisRequest.getUser().canEDIT_SECTION9()) {     // TODO user configuration
+//                                && rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_WORKING) {
                             ignorePrivileges = Privileges.TextEditingPrivileges;
-                        }
+                        }   // && Arrays.asList(rlde.getTags()).contains("Diretiva")
 
                         thisRequest.getUser().setEffectivePrivilegesFor(driver, thisId, ignorePrivileges);
 

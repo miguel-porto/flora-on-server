@@ -16,6 +16,6 @@
     <input type="text" class="nochangeevent" name="query" placeholder="<fmt:message key="DataSheet.msg.newtag" />" autocomplete="off" id="tagbox"/>
     <input type="button" value="Create new..." class="button" id="newtag"/>
 </c:if>
-<c:if test="${!user.canEDIT_1_4()}">
+<c:if test="${!user.canMANAGE_REDLIST_USERS()}">
     <ul><c:forEach var="tmp" items="${tags}"><li><c:out value="${tmp}"></c:out></li></c:forEach></ul>
 </c:if>

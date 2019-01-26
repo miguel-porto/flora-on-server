@@ -3,11 +3,9 @@ package pt.floraon.redlistdata.entities;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The user settings for a given red list dataset.
@@ -16,6 +14,7 @@ import java.util.Set;
 public class RedListSettings extends GeneralDBNode {
     private String territory;
     private boolean editionLocked = false;
+    private Set<String> tagsEditionLocked = new HashSet<>();
     private Integer historicalThreshold, editionsLastNDays;
     private Set<String> unlockedSheets = new HashSet<>();
 
@@ -35,6 +34,14 @@ public class RedListSettings extends GeneralDBNode {
         return unlockedSheets;
     }
 
+    public Set<String> getLockedTags() {
+        return tagsEditionLocked;
+    }
+
+    public void lockEditionForTag(String tag) {
+        this.tagsEditionLocked.add(tag);
+    }
+
     public void unlockEditionForTaxon(String taxEntId) {
         this.unlockedSheets.add(taxEntId);
     }
@@ -47,12 +54,17 @@ public class RedListSettings extends GeneralDBNode {
         this.territory = territory;
     }
 
-    public boolean isEditionLocked() {
+    public boolean isEditionGloballyLocked() {
         return editionLocked;
     }
 
-    public boolean isEditionLocked(String taxEntId) {
-        return editionLocked && !this.unlockedSheets.contains(taxEntId);
+    public boolean isEditionLocked(String taxEntId, String[] tagsOfThisTaxon) {
+        return (editionLocked || !Collections.disjoint(Arrays.asList(tagsOfThisTaxon), tagsEditionLocked));
+//                && !this.unlockedSheets.contains(taxEntId);
+    }
+
+    public boolean isEditionLocked(RedListDataEntity rlde) {
+        return isEditionLocked(rlde.getTaxEntID(), rlde.getTags());
     }
 
     public boolean isSheetUnlocked(String taxEntId) {

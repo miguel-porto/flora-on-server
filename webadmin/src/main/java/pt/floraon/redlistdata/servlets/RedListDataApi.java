@@ -577,6 +577,18 @@ public class RedListDataApi extends FloraOnServlet {
                         driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "editionLocked", thisRequest.getParameterAsBoolean("value", false));
                         break;
 
+                    case "lockeditingfortags":
+                        String[] tagsToLock = thisRequest.getParameterAsStringArray("tags");
+                        if(StringUtils.isArrayEmpty(tagsToLock)) break;
+                        for(String t : tagsToLock)
+                            rls1.lockEditionForTag(t);
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "tagsEditionLocked", rls1.getLockedTags());
+                        break;
+
+                    case "unlockeditingforalltags":
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "tagsEditionLocked", new HashSet<>());
+                        break;
+
                     case "historicalthreshold":
                         driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls1.getID()), "historicalThreshold", thisRequest.getParameterAsInteger("value", 1990));
                         break;

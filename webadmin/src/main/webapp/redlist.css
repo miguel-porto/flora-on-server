@@ -6,6 +6,8 @@ ul li {border-left: 3px solid #dad8d8; margin-bottom: 6px; padding-left: 6px;}
 ul.hanging li {padding-left: 26px; text-indent: -20px;}
 img.exclamation {width: 1.5em;vertical-align: middle;}
 img.exclamation+* {vertical-align: middle;}
+img.lock {vertical-align:middle; height:25px; margin: 2px 6px 2px 0;}
+img.lock+* {vertical-align: middle;}
 /*.compactform {padding:0}
 .compactform * {margin:0 !important}*/
 #main {text-align:left;}
@@ -42,7 +44,6 @@ table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sor
 table td.separator {background-color:#2979ff; line-height:0.2em}
 
 td.bignumber {font-size:1.2em; vertical-align:middle; text-align:center; font-weight:bold; padding: 8px 12px;}
-
 
 #savingscreen {
     background-color:rgba(255,255,255,0.95);
