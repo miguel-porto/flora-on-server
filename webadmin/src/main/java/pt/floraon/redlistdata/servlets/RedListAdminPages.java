@@ -235,7 +235,6 @@ System.out.println(gs.toJson(getUser()));
                         driver.getRedListData().getAllRedListData(territory, true, null); //new String[] {"Lista preliminar", "Lista Alvo", "Lista B"}
                 request.setAttribute("allTags", ate.entrySet());
                 request.setAttribute("specieslist", taxEntList);
-
                 RedListSettings rls2 = driver.getRedListSettings(territory);
                 request.setAttribute("rls", rls2);
 //                taxEntList.next().getAssessment().getAuthors()

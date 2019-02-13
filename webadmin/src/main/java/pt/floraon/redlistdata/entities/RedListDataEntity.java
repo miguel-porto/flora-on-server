@@ -38,6 +38,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     private transient Set<String> responsibleAuthors_Revision;
     @Expose(serialize = false, deserialize = false)
     private transient boolean flag = false;
+    @Expose(serialize = false, deserialize = false)
+    private transient List<String> validation_warnings;
 
     /**
      * The ID of the TaxEnt
@@ -844,7 +846,12 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
      * @return
      */
     public List<String> validateCriteria() {
-        List<String> warns = new ArrayList<>();
+        if(this.validation_warnings != null)
+            return this.validation_warnings;
+
+        this.validation_warnings = new ArrayList<>();
+        List<String> warns = this.validation_warnings;
+
         Population pop = getPopulation();
         GeographicalDistribution dist = getGeographicalDistribution();
         Threats thr = getThreats();
@@ -853,6 +860,29 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
         RedListEnums.RedListCategories cat = getAssessment().getCategory();
         List<RedListEnums.PopulationSizeReduction> psr = pop._getPopulationSizeReductionAsList();
 
+        if(getAssessment().getJustification().getLength() > 1700)
+            warns.add("DataSheet.msg.warning.justification.length");
+
+        // check if declines are justified
+        if((dist.getDeclineDistribution().isTrigger() && dist.getDeclineDistributionJustification().isAlmostEmpty())
+                || (getEcology().getDeclineHabitatQuality() == RedListEnums.DeclineHabitatQuality.CONTINUED_DECLINE && getEcology().getDeclineHabitatQualityJustification().isAlmostEmpty())
+                || (thr.getDeclineNrLocations() == RedListEnums.DeclineNrLocations.CONTINUED_DECLINE && thr.getDeclineNrLocationsJustification().isAlmostEmpty())
+                || (pop.getPopulationDecline() == RedListEnums.DeclinePopulation.CONTINUED_DECLINE && pop.getPopulationDeclineJustification().isAlmostEmpty())
+
+//                || (getEcology().getDeclineHabitatQuality().isTrigger() && getEcology().getDeclineHabitatQualityJustification().isAlmostEmpty())
+//                || (thr.getDeclineNrLocations().isTrigger() && thr.getDeclineNrLocationsJustification().isAlmostEmpty())
+//                || (pop.getPopulationDecline().isTrigger() && pop.getPopulationDeclineJustification().isAlmostEmpty())
+            )
+            warns.add("DataSheet.msg.warning.declines");
+
+        if(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
+                && pop.getSeverelyFragmentedJustification().isAlmostEmpty())
+            warns.add("DataSheet.msg.warning.sev.frag");
+        if(pop.getExtremeFluctuations() == RedListEnums.YesNoNA.YES
+                && pop.getExtremeFluctuationsJustification().isAlmostEmpty())
+            warns.add("DataSheet.msg.warning.extreme.fluct");
+
+        // now check if criteria are misapplied
         for(RedListEnums.AssessmentCriteria cr : getAssessment().getCriteria()) {
             // first check the validity of the 5 major criteria
             switch(cr.getCriteria()) {
@@ -932,7 +962,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                             if(alc.contains("B2a")) break;
                             critB.add("Bxa");
                             if(!(pop.getSeverelyFragmented() == RedListEnums.SeverelyFragmented.SEVERELY_FRAGMENTED
-                                    && !StringUtils.cleanText(pop.getSeverelyFragmentedJustification().toString()).equals(""))
+                                    && !pop.getSeverelyFragmentedJustification().isAlmostEmpty())
                                     && !(thr.getNumberOfLocations() != null && (thr.getNumberOfLocations().getMinValue() == null || thr.getNumberOfLocations().getMinValue() <= 10)
                                     && !StringUtils.cleanText(thr.getNumberOfLocationsJustification().toString()).equals(""))) {
                                 warns.add("DataSheet.msg.warning.8.1");
@@ -945,7 +975,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                             switch (cr.getSubsubsubCriteria()) {
                                 case "i":
                                     if(alc.contains("B2bi")) break;
-                                    if(StringUtils.cleanText(dist.getDeclineDistributionJustification().toString()).equals("")
+                                    if(dist.getDeclineDistributionJustification().isAlmostEmpty()
                                             || (dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO
                                             && dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO_AOO)) {
                                         warns.add("DataSheet.msg.warning.8.2");
@@ -955,7 +985,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
                                 case "ii":
                                     if(alc.contains("B2bii")) break;
-                                    if(StringUtils.cleanText(dist.getDeclineDistributionJustification().toString()).equals("")
+                                    if(dist.getDeclineDistributionJustification().isAlmostEmpty()
                                             || (dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_AOO
                                             && dist.getDeclineDistribution() != RedListEnums.DeclineDistribution.DECLINE_EOO_AOO)) {
                                         warns.add("DataSheet.msg.warning.8.3");
@@ -965,7 +995,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
                                 case "iii":
                                     if(alc.contains("B2biii")) break;
-                                    if(StringUtils.cleanText(getEcology().getDeclineHabitatQualityJustification().toString()).equals("")
+                                    if(getEcology().getDeclineHabitatQualityJustification().isAlmostEmpty()
                                             || getEcology().getDeclineHabitatQuality() != RedListEnums.DeclineHabitatQuality.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.4");
                                         alc.add("B2biii");
@@ -974,7 +1004,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
                                 case "iv":
                                     if(alc.contains("B2biv")) break;
-                                    if(StringUtils.cleanText(thr.getDeclineNrLocationsJustification().toString()).equals("")
+                                    if(thr.getDeclineNrLocationsJustification().isAlmostEmpty()
                                             || thr.getDeclineNrLocations() != RedListEnums.DeclineNrLocations.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.5");
                                         alc.add("B2biv");
@@ -983,7 +1013,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
                                 case "v":
                                     if(alc.contains("B2bv")) break;
-                                    if(StringUtils.cleanText(pop.getPopulationDeclineJustification().toString()).equals("")
+                                    if(pop.getPopulationDeclineJustification().isAlmostEmpty()
                                             || pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE) {
                                         warns.add("DataSheet.msg.warning.8.6");
                                         alc.add("B2bv");
@@ -1015,7 +1045,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
                                 case "iii":
                                     if(alc.contains("B2ciii")) break;
-                                    if(thr.getExtremeFluctuationsNrLocationsJustification().isEmpty()
+                                    if(thr.getExtremeFluctuationsNrLocationsJustification().isAlmostEmpty()
                                             || thr.getExtremeFluctuationsNrLocations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.8.9");
                                         alc.add("B2ciii");
@@ -1024,7 +1054,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
                                 case "iv":
                                     if(alc.contains("B2civ")) break;
-                                    if(pop.getExtremeFluctuationsJustification().isEmpty()
+                                    if(pop.getExtremeFluctuationsJustification().isAlmostEmpty()
                                             || pop.getExtremeFluctuations() != RedListEnums.YesNoNA.YES) {
                                         warns.add("DataSheet.msg.warning.8.10");
                                         alc.add("B2civ");
@@ -1052,7 +1082,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                         case "1":
                             if(alc.contains("C1")) break;
                             if(pop.getPopulationDecline() != RedListEnums.DeclinePopulation.CONTINUED_DECLINE
-                                    || StringUtils.cleanText(pop.getPopulationDeclineJustification().toString()).equals("")
+                                    || pop.getPopulationDeclineJustification().isAlmostEmpty()
                                     || pop.getPopulationDeclinePercent() == null || pop.getPopulationDeclinePercent().getMaxValue() == null || pop.getPopulationDeclinePercent().getMaxValue() < 10) {
                                 warns.add("DataSheet.msg.warning.9.1");
                                 alc.add("C1");

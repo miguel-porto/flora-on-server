@@ -201,7 +201,8 @@
                     </td>
                 </c:if>
                     <td class="taxonname">
-                        <c:if test="${taxon.getAssessment().getJustification().getLength() > 1700}"><img class="exclamation" src="../images/exclamation.png"/></c:if>
+                        <%-- <c:if test="${taxon.getAssessment().getJustification().getLength() > 1700}"><img class="exclamation" src="../images/exclamation.png"/></c:if> --%>
+                        <c:if test="${taxon.validateCriteria().size() > 0}"><img class="exclamation" src="../images/exclamation.png"/> <span class="warning" title="${taxon.validateCriteria().size()} warnings/errors">${taxon.validateCriteria().size()}</span></c:if>
                         <c:if test="${rls.isEditionLocked(taxon) && rls.isSheetUnlocked(taxon.getTaxEnt().getID())}"><img class="exclamation" src="../images/unlocked.png"/></c:if>
                         <a href="?w=taxon&id=${taxon.getTaxEnt()._getIDURLEncoded()}">${taxon.getTaxEnt().getNameWithAnnotationOnly(true)}</a>
                     </td>

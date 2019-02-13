@@ -207,7 +207,7 @@ public class RedListEnums {
         NO_INFORMATION(FieldValues.getString("DeclinePopulation.1"), false)
         , STABLE(FieldValues.getString("DeclinePopulation.2"), false)
         , INCREASING(FieldValues.getString("DeclinePopulation.3"), false)
-        , NON_CONTINUED_DECLINE(FieldValues.getString("DeclinePopulation.4"), false)
+        , NON_CONTINUED_DECLINE(FieldValues.getString("DeclinePopulation.4"), true)
         , CONTINUED_DECLINE(FieldValues.getString("DeclinePopulation.5"), true);
 
         private String label;
@@ -319,7 +319,7 @@ public class RedListEnums {
         NO_INFORMATION(FieldValues.getString("DeclineHabitatQuality.1"), false)
         , STABLE(FieldValues.getString("DeclineHabitatQuality.2"), false)
         , INCREASING(FieldValues.getString("DeclineHabitatQuality.3"), false)
-        , NON_CONTINUED_DECLINE(FieldValues.getString("DeclineHabitatQuality.4"), false)
+        , NON_CONTINUED_DECLINE(FieldValues.getString("DeclineHabitatQuality.4"), true)
         , CONTINUED_DECLINE(FieldValues.getString("DeclineHabitatQuality.5"), true);
 
         private String label;
@@ -345,7 +345,7 @@ public class RedListEnums {
         NO_INFORMATION("DeclineNrLocations.1", false)
         , STABLE("DeclineNrLocations.2", false)
         , INCREASING("DeclineNrLocations.3", false)
-        , NON_CONTINUED_DECLINE("DeclineNrLocations.4", false)
+        , NON_CONTINUED_DECLINE("DeclineNrLocations.4", true)
         , CONTINUED_DECLINE("DeclineNrLocations.5", true);
 
         private String label;

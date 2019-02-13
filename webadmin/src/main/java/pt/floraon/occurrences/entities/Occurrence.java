@@ -91,6 +91,7 @@ public class Occurrence extends Inventory {
         }
 
         this.setPubNotes(pubNotes);
+        occurrence.setComment(pubNotes);
         occurrence.setVerbTaxon(genus + " " + species + (infrataxon == null ? "" : " " + infrataxon));
         occurrence.setConfidence(confidence);
         occurrence.setPhenoState(flowering);

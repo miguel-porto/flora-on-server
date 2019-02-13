@@ -30,6 +30,14 @@ public class SafeHTMLString {
         return StringUtils.isStringEmpty(this.toCleanString());
     }
 
+    /**
+     * Tests if this string has just some words, which are surely not enough for the purpose.
+     * @return
+     */
+    public boolean isAlmostEmpty() {
+        return this.toCleanString().length() < 30;
+    }
+
     @Override
     public String toString() {
         return this.text;
@@ -40,6 +48,7 @@ public class SafeHTMLString {
      * @return
      */
     public String toCleanString() {
+        if(this.text == null) return "";
         return Jsoup.parse(this.text).text().replace("\u00a0", " ").trim();
     }
 
@@ -78,7 +87,7 @@ public class SafeHTMLString {
     }
 
     public int getLength() {
-        return StringUtils.cleanText(this.text).length();
+        return this.toCleanString().length();
     }
 
     public String searchString(String search) {
