@@ -101,6 +101,11 @@ public class PublicApi extends FloraOnServlet {
                 if(key != null) {   // we want one taxon
                     TaxEnt te2 = driver.getNodeWorkerDriver().getTaxEntById(key);
                     if(te2 == null) return;
+
+                    if(thisRequest.getParameterAsBoolean("download", false))
+                        thisRequest.response.addHeader("Content-Disposition"
+                                , String.format("attachment;Filename=\"map-%s.svg\"", te2._getNameURLEncoded()));
+
                     for(SimpleOccurrenceDataProvider edp : sodps)
                         edp.executeOccurrenceQuery(te2);
 

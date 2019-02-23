@@ -364,8 +364,13 @@ System.out.println(gs.toJson(getUser()));
                         thisRequest.getUser().setEffectivePrivilegesFor(driver, thisId, ignorePrivileges);
 
                         sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-                        for(SimpleOccurrenceDataProvider edp : sodps)
-                            edp.executeOccurrenceQuery(rlde.getTaxEnt());
+                        for(SimpleOccurrenceDataProvider edp : sodps) {
+                            try {
+                                edp.executeOccurrenceQuery(rlde.getTaxEnt());
+                            } catch (FloraOnException e) {
+                                warnings.add(e.getMessage());
+                            }
+                        }
 
                         historicalOccurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, historicalFilter);
                         occurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, currentFilter);

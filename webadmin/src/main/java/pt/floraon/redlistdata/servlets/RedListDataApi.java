@@ -241,6 +241,22 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.success(rlde.getID());
                 break;
 
+            case "migratetotaxon":
+                if(!thisRequest.getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
+                territory = thisRequest.getParameterAsString("territory");
+                if(StringUtils.isStringEmpty(thisRequest.getParameterAsString("id")) || thisRequest.getParameterAsKey("source") == null)
+                    throw new FloraOnException("No ID specified");
+
+                if(driver.getRedListData().getRedListDataEntity(territory, thisRequest.getParameterAsKey("id")) != null)
+                    throw new FloraOnException(FieldValues.getString("Error.1"));
+
+                Log.info(thisRequest.getParameterAsKey("source"));
+                Log.info(thisRequest.getParameterAsString("id"));
+                driver.getNodeWorkerDriver().updateDocument(thisRequest.getParameterAsKey("source")
+                        , "taxEntID", thisRequest.getParameterAsString("id"));
+                thisRequest.success("Ok");
+                break;
+
             case "removetaxent":
                 if(!thisRequest.getUser().canCREATE_REDLIST_DATASETS()) throw new FloraOnException("You don't have privileges for this operation");
                 territory = thisRequest.getParameterAsString("territory");

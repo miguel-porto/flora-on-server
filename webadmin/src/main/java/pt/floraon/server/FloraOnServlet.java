@@ -79,7 +79,7 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk04");
+		request.setAttribute("uuid", "bk05");
 
 		try {
 			doFloraOnGet(thisRequest);

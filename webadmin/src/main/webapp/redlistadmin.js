@@ -382,6 +382,22 @@ document.addEventListener('DOMContentLoaded', function() {
             changeHandler.call(this, ev);
     });
 
+    attachSuggestionHandler('migratetaxonbox', '../checklist/api/suggestions?limit=20&q=', 'migratetaxsuggestions', function(ev, name, key) {
+        var box = document.getElementById('migratetaxonbox');
+        box.value = name + ' <' + key + '>';
+        box.setAttribute('data-key', key);
+        var el = document.querySelector('#migrate2taxon input[name=id]');
+        if(!el) {
+            el = document.createElement('INPUT');
+            el.setAttribute('type', 'hidden');
+            el.setAttribute('name', 'id');
+            el.setAttribute('value', key);
+            document.getElementById('migrate2taxon').appendChild(el);
+        } else {
+            el.value = key;
+        }
+    });
+
     attachSuggestionHandler('addtaxonbox', '../checklist/api/suggestions?limit=20&q=', 'addtaxsuggestions', function(ev, name, key) {
         var box = document.getElementById('addtaxonbox');
         box.value = name + ' <' + key + '>';

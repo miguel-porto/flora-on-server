@@ -863,6 +863,9 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
         if(getAssessment().getJustification().getLength() > 1700)
             warns.add("DataSheet.msg.warning.justification.length");
 
+        if(!getTaxEnt().getCurrent())
+            warns.add("DataSheet.msg.warning.notcurrent");
+
         // check if declines are justified
         if((dist.getDeclineDistribution().isTrigger() && dist.getDeclineDistributionJustification().isAlmostEmpty())
                 || (getEcology().getDeclineHabitatQuality() == RedListEnums.DeclineHabitatQuality.CONTINUED_DECLINE && getEcology().getDeclineHabitatQualityJustification().isAlmostEmpty())

@@ -6,16 +6,6 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
-<c:if test="${warning != null && warning.size() > 0}">
-    <div class="warning">
-        <p><fmt:message key="DataSheet.msg.warning"/></p>
-        <ul>
-        <c:forEach var="warn" items="${warning}">
-            <li><fmt:message key="${warn}"/></li>
-        </c:forEach>
-        </ul>
-    </div>
-</c:if>
 <c:if test="${user.canVIEW_FULL_SHEET()}">
     <div class="navigator">
         <fmt:message key="DataSheet.label.2" var="NS2"/>
@@ -66,6 +56,7 @@
         <div id="header-buttons">
             <h3>Tools</h3>
             <div class="wordtag togglebutton"><a href="../checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
+            <div class="wordtag togglebutton"><a href="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&download=1&taxon=${taxon._getIDURLEncoded()}">download map</a></div>
             <c:if test="${user.canVIEW_FULL_SHEET()}">
                 <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                 <div class="wordtag togglebutton" id="declines_toggle">declines</div>
@@ -134,6 +125,25 @@
             </c:if>
         </div>
         </c:if>
+        <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
+        <div id="migrate">
+            <h3><fmt:message key="TaxonIndex.admin.1"/></h3>
+            <form class="poster" data-path="api/migratetotaxon" data-callback="?w=main" id="migrate2taxon">
+                <div class="withsuggestions">
+                    <input type="text" class="nochangeevent" placeholder="<fmt:message key="DataSheet.msg.typeletters"/>" autocomplete="off" id="migratetaxonbox"/>
+                    <div id="migratetaxsuggestions"></div>
+                </div>
+                <input type="hidden" name="territory" value="${territory}"/>
+                <input type="hidden" name="source" value="${rlde.getID()}"/>
+                <br/><input type="submit" value="Migrate to taxon" class="textbutton"/>
+            </form>
+            <form class="poster" data-path="api/removetaxent" data-refresh="false" data-callback="?w=main" data-confirm="true">
+                <input type="hidden" name="id" value="${rlde.getTaxEntID()}"/>
+                <input type="hidden" name="territory" value="${territory}"/>
+                <input type="submit" value="Delete this data sheet" class="textbutton"/>
+            </form>
+        </div>
+        </c:if>
     </div>  <!-- top panels -->
 </c:if> <!-- not multiple taxa -->
 </div>  <!-- header -->
@@ -141,6 +151,16 @@
 <form class="poster" data-path="api/updatedata" id="maindataform" data-callback="?w=main">
 </c:if>
 <c:if test="${!multipletaxa}">
+<c:if test="${warning != null && warning.size() > 0}">
+    <div class="warning inline">
+        <p><fmt:message key="DataSheet.msg.warning"/></p>
+        <ul>
+        <c:forEach var="warn" items="${warning}">
+            <li><fmt:message key="${warn}"/></li>
+        </c:forEach>
+        </ul>
+    </div>
+</c:if>
 <form class="poster" data-path="api/updatedata" id="maindataform" data-refresh="true">
 </c:if>
     <table class="sheet">
@@ -335,13 +355,3 @@
     </div>
     </c:if>
 </form>
-<c:if test="${!multipletaxa}">
-<c:if test="${user.canCREATE_REDLIST_DATASETS()}">
-<h1><fmt:message key="TaxonIndex.admin.1"/></h1>
-<form class="poster" data-path="api/removetaxent" data-refresh="false" data-callback="?w=main">
-    <input type="hidden" name="id" value="${rlde.getTaxEntID()}"/>
-    <input type="hidden" name="territory" value="${territory}"/>
-    <input type="submit" value="Delete this data sheet and remove taxon from red list" class="textbutton"/>
-</form>
-</c:if>
-</c:if>

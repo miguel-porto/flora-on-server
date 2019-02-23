@@ -125,7 +125,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
             readBigJsonFromStream(u.openStream());
         } catch (Throwable e) {
             e.printStackTrace();
-            throw new FloraOnException("Error accessing Flora-On: " + e.toString());
+            throw new FloraOnException("Não foi possível descarregar os registos do Flora-On (" + e.toString() + ")");
         }
 
 //        Log.info("Address: " + u.toString());
@@ -214,7 +214,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         InputStreamReader isr;
         try {
             isr = new InputStreamReader(u.openStream());
-        } catch(UnknownHostException e) {
+        } catch(Exception e) {
             return Collections.emptyMap();
         }
         JsonObject resp = new JsonParser().parse(isr).getAsJsonObject();

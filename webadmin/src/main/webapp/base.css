@@ -58,6 +58,7 @@ div.warning {
     width: 100%;
     text-align: left;
 }
+div.warning.inline {position: static;}
 div.warning p {font-size: 1.4em;text-align:center; color:yellow; font-weight:bold}
 
 .enterpage div.warning {
