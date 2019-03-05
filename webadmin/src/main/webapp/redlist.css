@@ -484,7 +484,7 @@ table.sheet.help .placeholder {display: none !important;}
 
 .legend {font-size: 0.65em; color:#545454;}
 
-table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px; font-size:1.2rem;}
+table {text-align: left; width:100%; border-collapse: separate; border-spacing:3px; margin-bottom:8px; font-size:1.1rem;}
 table.small {width: auto;}
 table.smalltext {font-size:1rem;}
 table.verysmalltext {font-size:0.8rem;}

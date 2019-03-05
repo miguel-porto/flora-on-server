@@ -90,6 +90,10 @@ public class JobRunnerFileDownload implements JobRunner {
 		return dateTimeFormat.get().format(this.date);
 	}
 
+	public Charset getCharset() {
+		return job.getCharset();
+	}
+
 	/*
         public InputStream getInputStream() throws FloraOnException, FileNotFoundException {
             if(!isClosed) throw new FloraOnException("Job hasn't finished yet");

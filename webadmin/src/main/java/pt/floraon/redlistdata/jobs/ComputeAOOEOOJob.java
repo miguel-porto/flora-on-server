@@ -22,6 +22,8 @@ import pt.floraon.taxonomy.entities.TaxEnt;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -73,14 +75,18 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 */
 
     @Override
+    public Charset getCharset() {
+        return Charset.forName("Windows-1252");
+    }
+
+    @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         OccurrenceProcessor op;
         Iterator<RedListDataEntity> it =
                 itRLDE == null ?
                         driver.getRedListData().getAllRedListData(territory, false, null)
                         : itRLDE;
-        CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
-
+        CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out, this.getCharset()), CSVFormat.TDF);
         csvp.print("TaxEnt ID");
         csvp.print("Family");
         csvp.print("Taxon");
@@ -138,16 +144,15 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.print("-");
                 csvp.print("-");
                 csvp.print("-");
-                csvp.println();
             } else {
                 csvp.print(op.getAOO());
                 csvp.print(op.getEOO());
                 csvp.print(op.getRealEOO());
                 csvp.print(op.getNLocations());
                 csvp.print(op.size());
-                csvp.println();
             }
             csvp.print("https://lvf.flora-on.pt/redlist/" + territory + "?w=taxon&id=" + rlde.getTaxEnt()._getIDURLEncoded());
+            csvp.println();
         }
         csvp.close();
     }

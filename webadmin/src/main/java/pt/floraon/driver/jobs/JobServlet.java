@@ -53,12 +53,13 @@ public class JobServlet extends FloraOnServlet {
 					thisRequest.response.setContentType("text/html; charset=utf-8");
 					break;
 				case "csv":
+
 					//response.setContentType("text/csv; charset=Windows-1252");
-					thisRequest.response.setContentType("text/csv; charset=utf-8");
+					thisRequest.response.setContentType("text/csv; charset=" + jobFD.getCharset().name());
 					thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"" + jobFD.getFileName() + "\"");
 					break;
 			}
-			thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+			thisRequest.response.setCharacterEncoding(jobFD.getCharset().name());
 			//IOUtils.copy(jobInput, response.getOutputStream());
 			IOUtils.copy(jobInput, pw = thisRequest.response.getWriter());
 			pw.flush();

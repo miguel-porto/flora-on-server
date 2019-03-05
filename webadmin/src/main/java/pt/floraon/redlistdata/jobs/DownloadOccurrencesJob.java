@@ -17,6 +17,8 @@ import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -35,6 +37,11 @@ public class DownloadOccurrencesJob implements JobFileDownload {
         this.clippingPolygon = clippingPolygon;
         this.minimumYear = minimumYear;
         this.filterTags = filterTags;
+    }
+
+    @Override
+    public Charset getCharset() {
+        return StandardCharsets.UTF_8;
     }
 
     @Override

@@ -31,7 +31,7 @@ public class ComputeAOOEOOJobWithInfo extends ComputeAOOEOOJob {
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         OccurrenceProcessor op;
-        CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
+        CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out, this.getCharset()), CSVFormat.TDF);
 
         csvp.print("TaxEnt ID");
         csvp.print("Taxon");

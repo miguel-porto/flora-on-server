@@ -3,6 +3,7 @@ package pt.floraon.driver.jobs;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,6 +18,11 @@ import pt.floraon.driver.results.ResultProcessor;
 
 public class ChecklistDownloadJob implements JobFileDownload {
 	private boolean finished = false;
+
+	@Override
+	public Charset getCharset() {
+		return StandardCharsets.UTF_8;
+	}
 
 	@Override
 	public void run(IFloraOn driver, OutputStream outputStream) throws FloraOnException, IOException {
