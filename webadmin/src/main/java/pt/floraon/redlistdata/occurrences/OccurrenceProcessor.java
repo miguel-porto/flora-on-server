@@ -36,7 +36,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
     private Stack<Point2D> convexHull;
     private Set<Square> squares;
     private IPolygonTheme protectedAreas;
-    private Double EOO, realEOO, squareEOO, AOO;
+    private Double EOO = 0d, realEOO = 0d, squareEOO = 0d, AOO = 0d;
     private int nQuads = 0;
     private long sizeOfSquare;
     private List<SimpleOccurrenceDataProvider> occurrences;

@@ -416,6 +416,7 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("nquads", occurrenceProcessor.getNQuads());
                         request.setAttribute("hnquads", historicalOccurrenceProcessor.getNQuads());
                         request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
+
                         if(!AOO.equals(rlde.getGeographicalDistribution().getAOO())
                                 || !EOO.equals(rlde.getGeographicalDistribution().getEOO()))
                             warnings.add("DataSheet.msg.warning.AOOEOOnotuptodate");
