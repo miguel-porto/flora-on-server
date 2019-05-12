@@ -33,6 +33,7 @@ import pt.floraon.occurrences.fields.parsers.DateParser;
 import pt.floraon.redlistdata.*;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.*;
+import pt.floraon.redlistdata.jobs.SearchAndReplaceDryJob;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
@@ -54,15 +55,20 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 
+import static java.nio.file.Files.readAllLines;
 import static pt.floraon.authentication.Privileges.DOWNLOAD_OCCURRENCES;
 import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
 import static pt.floraon.authentication.Privileges.MANAGE_VERSIONS;
@@ -75,7 +81,7 @@ import static pt.floraon.driver.utils.StringUtils.sanitizeHtmlId;
  * Created by Miguel Porto on 01-11-2016.
  */
 @WebServlet("/redlist/*")
-public class RedListAdminPages extends FloraOnServlet {
+public class RedListMainPages extends FloraOnServlet {
     @Override
     public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         doFloraOnGet(thisRequest);
@@ -246,6 +252,8 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("unlockedSheets", driver.getRedListSettings(territory).getUnlockedSheets());
                 request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                 request.setAttribute("lockedTags", driver.getRedListSettings(territory).getLockedTags());
+                request.setAttribute("mapBounds", driver.getRedListSettings(territory).getMapBounds());
+                request.setAttribute("svgDivisor", driver.getRedListSettings(territory).getSvgMapDivisor());
                 break;
 
             case "setoption":
@@ -332,7 +340,8 @@ System.out.println(gs.toJson(getUser()));
                     request.setAttribute("includedTaxa", driver.wrapTaxEnt(thisId).getIncludedTaxa());
 
                     // compile citations to make bibliography on the fly
-                    BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
+                    BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc =
+                            new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
                     //                    request.setAttribute("bibliography", driver.getNodeWorkerDriver().getDocuments(bc.getBibliography(), Reference.class));
                     bc.collectAllCitations();
                     request.setAttribute("bibliography", bc.getBibliography());
@@ -340,10 +349,8 @@ System.out.println(gs.toJson(getUser()));
 
                     List<SimpleOccurrenceDataProvider> sodps = null;
                     OccurrenceProcessor occurrenceProcessor, historicalOccurrenceProcessor, publicOccurrenceProcessor;
-                    // TODO clipping polygon and years must be a user configuration
-                    PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-
                     RedListSettings rls = driver.getRedListSettings(territory);
+                    PolygonTheme clippingPolygon = rls.getClippingPolygon();
 
                     OccurrenceFilter historicalFilter = new BasicOccurrenceFilter(null, rls.getHistoricalThreshold()
                             , false, clippingPolygon);
@@ -451,20 +458,32 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("histogram", svgElement);
     */
 
+/*
                         StringWriter sw = new StringWriter();
                         publicOccurrenceProcessor.exportSVG(new PrintWriter(sw), true
                                 , thisRequest.getUser().canVIEW_FULL_SHEET(), true
                                 , !thisRequest.getUser().canVIEW_FULL_SHEET()
                                 , thisRequest.getUser().canVIEW_FULL_SHEET() ? 0 : 1, true
-                                , thisRequest.getUser().canVIEW_FULL_SHEET());
+                                , thisRequest.getUser().canVIEW_FULL_SHEET()
+                                , rls);
                         request.setAttribute("svgmap", sw.toString());
                         sw.close();
+*/
+                        StringWriter sw;
+                        // these attributes are for the inline SVG maps
+                        request.setAttribute("redListSettings", driver.getRedListSettings(territory));
+                        request.setAttribute("currentSquares", publicOccurrenceProcessor.squares());
+                        request.setAttribute("currentConvexHull", publicOccurrenceProcessor.getConvexHull());
 
                         if(historicalOccurrenceProcessor.getNQuads() > 0) {
                             sw = new StringWriter();
+                            request.setAttribute("historicalSquares", historicalOccurrenceProcessor.squares());
+                            request.setAttribute("historicalConvexHull", historicalOccurrenceProcessor.getConvexHull());
+/*
                             historicalOccurrenceProcessor.exportSVG(new PrintWriter(sw), thisRequest.getUser().canVIEW_FULL_SHEET()
-                                    , true, true, false, 0, true, true);
+                                    , true, true, false, 0, true, true, rls);
                             request.setAttribute("historicalsvgmap", sw.toString());
+*/
                             sw.close();
                         }
 
@@ -593,7 +612,7 @@ System.out.println(gs.toJson(getUser()));
                 if (!thisRequest.getUser().canVIEW_OCCURRENCES()) break;
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
-                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                PolygonTheme clippingPolygon2 = driver.getRedListSettings(territory).getClippingPolygon();
                 List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
 
                 for(SimpleOccurrenceDataProvider edp : sodps)
@@ -658,7 +677,7 @@ System.out.println(gs.toJson(getUser()));
                 if(thisRequest.getUser().canDOWNLOAD_OCCURRENCES())
                     OccurrenceProcessor.iterableOf(sodps1, BasicOccurrenceFilter.WithCoordinatesFilter()).exportKML(wr);
                 else {
-                    PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+                    PolygonTheme clippingPolygon = driver.getRedListSettings(territory).getClippingPolygon();
                     OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
                             "all".equals(thisRequest.getParameterAsString("view")) ? null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
                             , null, false, clippingPolygon)).exportKML(wr);
@@ -1248,7 +1267,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "jobs":
-                if (!thisRequest.getUser().canMANAGE_REDLIST_USERS()) break;
+                if (!thisRequest.getUser().canDOWNLOAD_OCCURRENCES()) break;
                 String[] allt = driver.getRedListData().getRedListTags(territory).toArray(new String[0]);
 
                 List<JobRunner> jobs = new ArrayList<>();
@@ -1269,6 +1288,23 @@ System.out.println(gs.toJson(getUser()));
                 }
 */
                 request.setAttribute("allTaxa", iTaxEnt);
+                break;
+
+            case "replacetools":
+                thisRequest.request.setAttribute("jobs", JobSubmitter.getJobsOfType(SearchAndReplaceDryJob.class));
+
+/*
+                for(JobRunner job : JobSubmitter.getJobsOfType(SearchAndReplaceDryJob.class)) {
+                    if(job.isReady()) {
+
+                        job.getDateSubmitted()
+//                        BufferedReader resultsReader = new BufferedReader(new FileReader(((SearchAndReplaceDryJob) job.getJob()).getResults()));
+//                        Files.readLines(((SearchAndReplaceDryJob) job.getJob()).getResults(), StandardCharsets.UTF_8);
+                        byte[] encoded = java.nio.file.Files.readAllBytes(Paths.get(((SearchAndReplaceDryJob) job.getJob()).getResults().getAbsolutePath()));
+                        thisRequest.request.setAttribute("aaa", new String(encoded, StandardCharsets.UTF_8));
+                    }
+                }
+*/
                 break;
 
             case "report":
@@ -1358,12 +1394,12 @@ System.out.println(gs.toJson(getUser()));
             case "stats":
                 if(!thisRequest.getUser().canVIEW_OCCURRENCES()) break;
                 String filtertag = "Lista Alvo";
-                Map<String, MutableInt> statsFull = new HashMap<>();
+                Map<String, MutableInt> statsFinalized = new HashMap<>();
                 Map<String, MutableInt> statsTag = new HashMap<>();
                 String[] statfields = new String[]{"nrWithResponsible", "nrTextsInProgress", "nrTextsAssessed"
                         , "nrTextsAssessedReviewed", "nrReadyToPublish"};
                 for(String sf : statfields) {
-                    statsFull.put(sf, new MutableInt(0));
+                    statsFinalized.put(sf, new MutableInt(0));
                     statsTag.put(sf, new MutableInt(0));
                 }
 
@@ -1377,36 +1413,34 @@ System.out.println(gs.toJson(getUser()));
                 csvp.println();
 */
                 Iterator<RedListDataEntity> taxEntList2 = driver.getRedListData().getAllRedListData(territory, true, null);
-                RedListDataEntitySummary rldeSum = new RedListDataEntitySummary();
+                RedListDataEntitySummary rldeSumFinalized = new RedListDataEntitySummary();
                 RedListDataEntitySummary rldeSumTag = new RedListDataEntitySummary();
                 Set<String> habitatTypes = new HashSet<>();     // HT are not hardcoded, so we have to build a set with the values
 
                 while (taxEntList2.hasNext()) {
                     RedListDataEntity rlde1 = taxEntList2.next();
-                    boolean isFromTag = Arrays.asList(rlde1.getTags()).contains(filtertag);
+                    boolean isPublished = rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING;
+                    boolean isFromTag = rlde1.containsTag(filtertag);
 
 //                        csvp.print(rlde1.getTaxEnt().getNameWithAnnotationOnly(false));
 
                     if (rlde1.hasResponsibleForTexts()) {
-                        statsFull.get("nrWithResponsible").increment();
-                        if (isFromTag)
-                            statsTag.get("nrWithResponsible").increment();
+                        if(isPublished) statsFinalized.get("nrWithResponsible").increment();
+                        if(isFromTag) statsTag.get("nrWithResponsible").increment();
                     }
 
                     if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.IN_PROGRESS
                             && rlde1.getAssessment().getAssessmentStatus() == RedListEnums.AssessmentStatus.NOT_EVALUATED
                             && rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.NOT_REVISED) {
-                        statsFull.get("nrTextsInProgress").increment();
-                        if (isFromTag)
-                            statsTag.get("nrTextsInProgress").increment();
+                        if(isPublished) statsFinalized.get("nrTextsInProgress").increment();
+                        if (isFromTag) statsTag.get("nrTextsInProgress").increment();
                     }
 
                     if (rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY
                             && rlde1.getAssessment().getAssessmentStatus() != RedListEnums.AssessmentStatus.NOT_EVALUATED
                             && rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.NOT_REVISED) {
-                        statsFull.get("nrTextsAssessed").increment();
-                        if (isFromTag)
-                            statsTag.get("nrTextsAssessed").increment();
+                        if(isPublished) statsFinalized.get("nrTextsAssessed").increment();
+                        if (isFromTag) statsTag.get("nrTextsAssessed").increment();
                     }
 
                     if ((rlde1.getAssessment().getTextStatus() == RedListEnums.TextStatus.READY
@@ -1415,71 +1449,71 @@ System.out.println(gs.toJson(getUser()));
                             && (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_WORKING
                                 || rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_MAJOR
                             )) {
-                        statsFull.get("nrTextsAssessedReviewed").increment();
-                        if (isFromTag)
-                            statsTag.get("nrTextsAssessedReviewed").increment();
+                        if(isPublished) statsFinalized.get("nrTextsAssessedReviewed").increment();
+                        if (isFromTag) statsTag.get("nrTextsAssessedReviewed").increment();
                     }
 
                     if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) {
-                        statsFull.get("nrReadyToPublish").increment();
-                        if (isFromTag)
-                            statsTag.get("nrReadyToPublish").increment();
+                        if(isPublished) statsFinalized.get("nrReadyToPublish").increment();
+                        if (isFromTag) statsTag.get("nrReadyToPublish").increment();
                     }
 
                     for (RedListEnums.Threats th : rlde1.getThreats().getThreats()) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), th);
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
 
                     for (RedListEnums.ProposedConservationActions th : rlde1.getConservation().getProposedConservationActions()) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), th);
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
 
                     for (RedListEnums.ProposedStudyMeasures th : rlde1.getConservation().getProposedStudyMeasures()) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), th);
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
 
                     for (RedListEnums.Uses th : rlde1.getUsesAndTrade().getUses()) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), th);
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
 
                     if (rlde1.getAssessment().getCategory() != null) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getCategory());
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getCategory());
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getCategory());
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getCategory());
+
                         if(rlde1.getAssessment().getCategory().getEffectiveCategory() == RedListEnums.RedListCategories.CR) {
                             if(rlde1.getAssessment().getSubCategory() != null && rlde1.getAssessment().getSubCategory() == RedListEnums.CRTags.PRE) {
-                                rldeSum.addForTaxon(rlde1.getTaxEntID(), "CR(PRE)");
-                                if(isFromTag)
-                                    rldeSumTag.addForTaxon(rlde1.getTaxEntID(), "CR(PRE)");
+                                if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), "CR(PRE)");
+                                if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), "CR(PRE)");
                             }
                         }
                     }
 
+                    if(rlde1.getConservation().getConservationPlans() == RedListEnums.YesNoNA.YES) {
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), "Had Conservation Plan");
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), "Had Conservation Plan");
+                    }
+
+                    if(rlde1.getConservation().getExSituConservation() == RedListEnums.YesNoNA.YES) {
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), "Had ex-situ conservation");
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), "Had ex-situ conservation");
+                    }
+
                     if (rlde1.getAssessment().getUpDownListing() != null) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getUpDownListing());
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getUpDownListing());
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getUpDownListing());
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), rlde1.getAssessment().getUpDownListing());
                     }
 
                     for (RedListEnums.AssessmentCriteria th : rlde1.getAssessment().getCriteria()) {
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), th);
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
 
                     for (String h : rlde1.getEcology().getHabitatTypes()) {
                         if (h == null) continue;
-                        rldeSum.addForTaxon(rlde1.getTaxEntID(), h);
-                        if(isFromTag)
-                            rldeSumTag.addForTaxon(rlde1.getTaxEntID(), h);
+                        if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), h);
+                        if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), h);
                         habitatTypes.add(h);
                     }
                 }
@@ -1497,92 +1531,102 @@ System.out.println(gs.toJson(getUser()));
 //                    csvp.close();
 
                 for(String sf : statfields) {
-                    thisRequest.request.setAttribute(sf + "_full", statsFull.get(sf).intValue());
+                    thisRequest.request.setAttribute(sf + "_full", statsFinalized.get(sf).intValue());
                     thisRequest.request.setAttribute(sf + "_tag", statsTag.get(sf).intValue());
                 }
 
-                Map<String, Map<String, Integer>> statTableAll = new HashMap<>();
+                Map<String, Map<String, Integer>> statTableFinalized = new HashMap<>();
                 Map<String, Map<String, Integer>> statTableTag = new HashMap<>();
-                Map<String, Integer> tableAll = new HashMap<>();
+                Map<String, Integer> tableFinalized = new HashMap<>();
                 Map<String, Integer> tableTag = new HashMap<>();
                 for(RedListEnums.Threats th : RedListEnums.Threats.values()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                statTableAll.put("Ameaças 6.2", tableAll);
+                statTableFinalized.put("Ameaças 6.2", tableFinalized);
                 statTableTag.put("Ameaças 6.2", tableTag);
 
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 for(RedListEnums.ProposedStudyMeasures th : RedListEnums.ProposedStudyMeasures.values()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                statTableAll.put("Estudos 7.6", tableAll);
+                statTableFinalized.put("Estudos 7.6", tableFinalized);
                 statTableTag.put("Estudos 7.6", tableTag);
 
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 for(RedListEnums.ProposedConservationActions th : RedListEnums.ProposedConservationActions.values()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                statTableAll.put("Medidas de conservação 7.5", tableAll);
+                statTableFinalized.put("Medidas de conservação 7.5", tableFinalized);
                 statTableTag.put("Medidas de conservação 7.5", tableTag);
 
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 for(RedListEnums.Uses th : RedListEnums.Uses.values()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                statTableAll.put("Usos 5.2", tableAll);
+                statTableFinalized.put("Usos 5.2", tableFinalized);
                 statTableTag.put("Usos 5.2", tableTag);
 
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 for(RedListEnums.RedListCategories th : RedListEnums.RedListCategories.valuesNotUpDownListed()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                tableAll.put("CR (PRE)", rldeSum.getCountsForProperty("CR(PRE)"));
+
+                tableFinalized.put("CR (PRE)", rldeSumFinalized.getCountsForProperty("CR(PRE)"));
                 tableTag.put("CR (PRE)", rldeSumTag.getCountsForProperty("CR(PRE)"));
-                statTableAll.put("Categorias de ameaça 9.1", tableAll);
+                statTableFinalized.put("Categorias de ameaça 9.1", tableFinalized);
                 statTableTag.put("Categorias de ameaça 9.1", tableTag);
 
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
+                tableTag = new HashMap<>();
+                tableFinalized.put("Had Conservation Plan", rldeSumFinalized.getCountsForProperty("Had Conservation Plan"));
+                tableTag.put("Had Conservation Plan", rldeSumTag.getCountsForProperty("Had Conservation Plan"));
+                tableFinalized.put("Had ex-situ conservation", rldeSumFinalized.getCountsForProperty("Had ex-situ conservation"));
+                tableTag.put("Had ex-situ conservation", rldeSumTag.getCountsForProperty("Had ex-situ conservation"));
+                statTableFinalized.put("Foi alvo de medidas de conservação?", tableFinalized);
+                statTableTag.put("Foi alvo de medidas de conservação?", tableTag);
+
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 for(RedListEnums.AssessmentCriteria th : RedListEnums.AssessmentCriteria.values()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                statTableAll.put("Critérios utilizados 9.2", tableAll);
+                statTableFinalized.put("Critérios utilizados 9.2", tableFinalized);
                 statTableTag.put("Critérios utilizados 9.2", tableTag);
 
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 for(RedListEnums.UpDownList th : RedListEnums.UpDownList.values()) {
-                    tableAll.put(th.getLabel(), rldeSum.getCountsForProperty(th));
+                    tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }
-                statTableAll.put("Up/Down listing 9.4.4", tableAll);
+                statTableFinalized.put("Up/Down listing 9.4.4", tableFinalized);
                 statTableTag.put("Up/Down listing 9.4.4", tableTag);
 
                 // habitat types
-                tableAll = new HashMap<>();
+                tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
                 Iterator<Habitat> ith = NWD.getDocuments(habitatTypes, Habitat.class);
                 while(ith.hasNext()) {
                     Habitat tmp2 = ith.next();
                     if(tmp2 != null) {
-                        tableAll.put(tmp2.getName(), rldeSum.getCountsForProperty(tmp2.getID()));
+                        tableFinalized.put(tmp2.getName(), rldeSumFinalized.getCountsForProperty(tmp2.getID()));
                         tableTag.put(tmp2.getName(), rldeSumTag.getCountsForProperty(tmp2.getID()));
                     }
                 }
-                statTableAll.put("Habitat types", tableAll);
+                statTableFinalized.put("Habitat types", tableFinalized);
                 statTableTag.put("Habitat types", tableTag);
 
-                thisRequest.request.setAttribute("statTables", statTableAll);
+                thisRequest.request.setAttribute("statTables", statTableFinalized);
                 thisRequest.request.setAttribute("statTablesTag", statTableTag);
 
                 // now crossed stats
@@ -1594,7 +1638,7 @@ System.out.println(gs.toJson(getUser()));
                     Habitat tmp2 = ith.next();
                     if(tmp2 != null) {
                         for(RedListEnums.RedListCategories th : RedListEnums.RedListCategories.valuesNotUpDownListed())
-                            mkm.put(tmp2.getName(), th.getShortTag(), rldeSum.getCountsForPropertyIntersection(tmp2.getID(), th));
+                            mkm.put(tmp2.getName(), th.getShortTag(), rldeSumFinalized.getCountsForPropertyIntersection(tmp2.getID(), th));
                     }
                 }
                 crossedStatTable.put("Habitat", mkm);

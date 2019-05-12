@@ -1,8 +1,9 @@
 package pt.floraon.occurrences.fields.flavours;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class CustomOccurrenceFlavour extends GeneralOccurrenceFlavour implements IOccurrenceFlavour {
+public class CustomOccurrenceFlavour extends GeneralOccurrenceFlavour implements IOccurrenceFlavour, Serializable {
     private String[] fields;
     private boolean showInOccurrenceView, showInInventoryView;
     private String name;

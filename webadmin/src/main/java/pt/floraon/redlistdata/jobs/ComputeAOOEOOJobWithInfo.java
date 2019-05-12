@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is just a short selection of fields.
+ */
 public class ComputeAOOEOOJobWithInfo extends ComputeAOOEOOJob {
     Map<INodeKey, Object> taxaKeyMap;
 

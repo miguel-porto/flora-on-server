@@ -11,7 +11,7 @@
 <c:forEach var="taxon" items="${allTaxa}">
     <div>
     <div class="header">${taxon.getName()}</div>
-    <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
+    <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&pa=0&sa=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
     <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
     </div>
 </c:forEach>
@@ -25,27 +25,28 @@
     <c:set var="refresh" value="${user.isGuest() ? '' : '&refresh=1'}"/>
     <div>
         <h3>Ameaçadas</h3>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=threatened${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?0000basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=threatened${refresh}" width="400px" height="200px"/>
     </div>
     <div>
         <h3>Potencialmente extintas</h3>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=maybeextinct${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=maybeextinct${refresh}" width="400px" height="200px"/>
     </div>
     <div>
         <h3>Criticamente Em Perigo (CR)</h3>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=CR${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=CR${refresh}" width="400px" height="200px"/>
     </div>
     <div>
         <h3>Em Perigo (EN)</h3>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=EN${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=EN${refresh}" width="400px" height="200px"/>
     </div>
     <div>
         <h3>Vulnerável (VU)</h3>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=VU${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=VU${refresh}" width="400px" height="200px"/>
     </div>
+
     <div>
         <h3>Olivais tradicionais de sequeiro</h3>
-        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&category=olivais${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=olivais${refresh}" width="400px" height="200px"/>
     </div>
 </div>
 </c:when>

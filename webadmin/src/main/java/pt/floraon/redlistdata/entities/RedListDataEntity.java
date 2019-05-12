@@ -3,6 +3,7 @@ package pt.floraon.redlistdata.entities;
 import com.arangodb.velocypack.annotations.Expose;
 import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.annotations.NoAutomaticProcessing;
 import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.entities.GeneralDBNode;
@@ -99,7 +100,11 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
      */
     private List<Revision> revisions;
 
-    private SafeHTMLString reviewerComments, replyToReviewer, otherInformation, validationComments, replyToValidation;
+    @NoAutomaticProcessing private SafeHTMLString reviewerComments;
+    @NoAutomaticProcessing private SafeHTMLString replyToReviewer;
+    @NoAutomaticProcessing private SafeHTMLString otherInformation;
+    @NoAutomaticProcessing private SafeHTMLString validationComments;
+    @NoAutomaticProcessing private SafeHTMLString replyToValidation;
 
     private String coverPhotoUrl;
 
@@ -133,6 +138,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
     public String[] getTags() {
         return tags == null ? new String[0] : tags;
+    }
+
+    public boolean containsTag(String tag) {
+        return Arrays.asList(this.getTags()).contains(tag);
     }
 
     public String[] _getHTMLEscapedTags() {

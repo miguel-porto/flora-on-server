@@ -77,9 +77,9 @@
         <div style="width:100%"></div>
         <%--<c:if test="${user.isGuest()}"><p style="font-size:3em">portal de trabalho</p></c:if>
         <c:if test="${!user.isGuest()}">--%>
-        <p style="font-size:0.7em">Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes. Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>
+        <%--<p style="font-size:0.7em">Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes. Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>--%>
         <div style="width:100%"></div>
-        <ul id="mainmenu">
+        <ul id="mainmenu" class="mainmenu">
             <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>
             <c:if test="${!user.isGuest()}">
             <li class="section2"><div class="bullet"></div><span><a href="redlist/lu"><fmt:message key="Modules.1"/></a>

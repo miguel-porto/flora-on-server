@@ -32,7 +32,7 @@ public class UpdateNativeStatusJob implements JobTask {
         Map<String, Object> v = new HashMap<>();
 
         while(rldel.hasNext()) {
-        RedListDataEntity rlde = rldel.next();
+            RedListDataEntity rlde = rldel.next();
             InferredStatus is = driver.wrapTaxEnt(driver.asNodeKey(rlde.getTaxEntID())).getInferredNativeStatus(territory);
 //            rlde.setInferredStatus(is);
 //            INodeKey nk = driver.asNodeKey(rlde.getID());

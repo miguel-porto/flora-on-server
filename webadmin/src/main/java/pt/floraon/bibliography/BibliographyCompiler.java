@@ -36,10 +36,6 @@ public class BibliographyCompiler<T, C> {
     private char[] chars = {'a', 'b', 'c', 'd', 'e', 'f'};
     private IFloraOn driver;
 
-    private interface CitationProcessor {
-        void process(Object bean, String propertyName, Document fieldHTML, Element citationElement);
-    }
-
     private class CollectCitations implements CitationProcessor {
         @Override
         public void process(Object bean, String propertyName, Document d, Element el) {

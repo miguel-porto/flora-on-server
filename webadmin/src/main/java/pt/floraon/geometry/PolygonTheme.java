@@ -31,6 +31,10 @@ public class PolygonTheme implements IPolygonTheme {
             "(?: +[0-9-]+(\\.[0-9]+)?)? *[,)]", Pattern.CASE_INSENSITIVE);
     private float minX, maxX, minY, maxY;
 
+    /**
+     * Constructs a single-polygon with key "1"
+     * @param WKTString
+     */
     public PolygonTheme(String WKTString) {
         Matcher mat = wktParse.matcher(WKTString);
         if(mat.find()) {

@@ -46,7 +46,7 @@ public class JobServlet extends FloraOnServlet {
 				thisRequest.error("Job is not ready");
 				return;
 			}
-			InputStreamReader jobInput = jobFD.getInputStreamReader(StandardCharsets.UTF_8);
+			InputStreamReader jobInput = jobFD.getInputStreamReader(jobFD.getCharset());
 			switch (jobFD.getFileType().toLowerCase()) {
 				case "html":
 				case "htm":

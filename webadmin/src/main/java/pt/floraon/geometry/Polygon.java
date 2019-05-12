@@ -1,5 +1,6 @@
 package pt.floraon.geometry;
 
+import com.arangodb.velocypack.annotations.Expose;
 import jline.internal.Log;
 
 import java.util.*;
@@ -10,7 +11,8 @@ import java.util.*;
 public class Polygon {
     private int N;        // number of points in the polygon
     private Point2D[] points;    // the points, setting points[0] = points[N]
-    private List<UTMCoordinate> UTMCoordinates; // for caching purposes
+    @Expose(serialize = false, deserialize = false)
+    private transient List<UTMCoordinate> UTMCoordinates; // for caching purposes
     /**
      * The data fields
      */
@@ -35,6 +37,7 @@ public class Polygon {
         this.points = new Point2D[points.size()];
         for(Point2D p : points)
             this.add(p);
+
     }
 
     // double size of array
@@ -112,6 +115,7 @@ public class Polygon {
 
 
     // return string representation of this point
+    @Override
     public String toString() {
         if (N == 0) return "[ ]";
         String s = "";
@@ -120,6 +124,29 @@ public class Polygon {
             s = s + points[i] + " ";
         s = s + "]";
         return s;
+    }
+
+    public Iterator<Point2D> getCoordinates() {
+        return new Point2DIterator();
+    }
+
+    public class Point2DIterator implements Iterator<Point2D> {
+        private int i = 0;
+        @Override
+        public boolean hasNext() {
+            return this.i <= N;
+        }
+
+        @Override
+        public Point2D next() {
+            this.i++;
+            return points[i - 1];
+        }
+
+        @Override
+        public void remove() {
+
+        }
     }
 
     public List<UTMCoordinate> getUTMCoordinates() {
@@ -138,6 +165,33 @@ public class Polygon {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public String toSVGPathString() {
+        return this.toSVGPathString(1);
+    }
+
+    public String toSVGPathString(int divisor) {
+        StringBuilder sb1 = new StringBuilder();
+        for (int i = 0; i <= N; i++) {
+            sb1.append(i == 0 ? "M" : "L")
+                    .append(String.format("%.0f", points[i].x() / divisor)).append(" ")
+                    .append(String.format("%.0f", points[i].y() / divisor));
+        }
+        return sb1.toString();
+    }
+
+    public String toSVGPathStringUTM(int divisor) {
+        this.getUTMCoordinates();
+        StringBuilder sb1 = new StringBuilder();
+        boolean first = true;
+        for(UTMCoordinate coo : this.UTMCoordinates) {
+            sb1.append(first ? "M" : "L")
+                    .append(String.format("%d", coo.getX() / divisor)).append(" ")
+                    .append(String.format("%d", coo.getY() / divisor));
+            first = false;
+        }
+        return sb1.toString();
     }
 
     @Override

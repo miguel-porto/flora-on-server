@@ -7,14 +7,19 @@ import pt.floraon.occurrences.entities.Inventory;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Adds ability to filter occurrences from givn maintainers.
+ */
 public class BasicOccurrenceFilterWithAuthors extends BasicOccurrenceFilter {
     private Set<String> fromAuthors;
 
-    public BasicOccurrenceFilterWithAuthors(Integer minimumYear, Integer maximumYear, boolean includeDoubtful, IPolygonTheme clippingPolygon) {
+    public BasicOccurrenceFilterWithAuthors(Integer minimumYear, Integer maximumYear, boolean includeDoubtful
+            , IPolygonTheme clippingPolygon) {
         super(minimumYear, maximumYear, includeDoubtful, clippingPolygon);
     }
 
-    public BasicOccurrenceFilterWithAuthors(Integer minimumYear, Integer maximumYear, boolean includeDoubtful, IPolygonTheme clippingPolygon, Set<String> fromAuthors) {
+    public BasicOccurrenceFilterWithAuthors(Integer minimumYear, Integer maximumYear, boolean includeDoubtful
+            , IPolygonTheme clippingPolygon, Set<String> fromAuthors) {
         super(minimumYear, maximumYear, includeDoubtful, clippingPolygon);
         this.fromAuthors = new HashSet<>();
         for(String author : fromAuthors)

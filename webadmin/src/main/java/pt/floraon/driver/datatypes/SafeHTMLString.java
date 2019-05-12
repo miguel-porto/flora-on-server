@@ -3,8 +3,17 @@ package pt.floraon.driver.datatypes;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.select.NodeTraversor;
+import org.jsoup.select.NodeVisitor;
+import org.w3c.dom.traversal.NodeFilter;
 import pt.floraon.driver.utils.StringUtils;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SafeHTMLString {
     private String text;
@@ -57,16 +66,16 @@ public class SafeHTMLString {
         out = out.replace("&nbsp;", " ");
         Document d = Jsoup.parse(out);
         for(Element el : d.select("span.highlight"))
-            el.replaceWith(new TextNode("*"+el.text()+"*", null));
+            el.replaceWith(new TextNode("*"+el.text()+"*"));
 
         for(Element el : d.select("i"))
-            el.replaceWith(new TextNode("*"+el.text()+"*", null));
+            el.replaceWith(new TextNode("*"+el.text()+"*"));
 
         for(Element el : d.select("span.reference"))
-            el.replaceWith(new TextNode("_"+el.text()+"_", null));
+            el.replaceWith(new TextNode("_"+el.text()+"_"));
 
         for(Element el : d.select("span"))
-            el.replaceWith(new TextNode(el.text(), null));
+            el.replaceWith(new TextNode(el.text()));
 
         return d.body().html();
     }
@@ -81,7 +90,7 @@ public class SafeHTMLString {
             el.replaceWith(new Element("cite").text(el.text()));
 
         for(Element el : d.select("span"))
-            el.replaceWith(new TextNode(" " + el.text() + " ", null));
+            el.replaceWith(new TextNode(" " + el.text() + " "));
 
         return d.body().html().replaceAll(" {2,}", " ");
     }
@@ -100,6 +109,66 @@ public class SafeHTMLString {
             if(start + retlen >= plain.length()) end = plain.length(); else {end = start + retlen; suffix = "...";}
             return prefix + plain.substring(start, end) + suffix;
         } else return null;
+    }
+
+    /**
+     * Replaces, recursively in all text nodes, all occurrences of search with replace.
+     * Only changes text nodes; keeps element structure unchanged.
+     * @param search
+     * @param replace
+     * @return
+     */
+    public void replaceSubString(final String search, final String replace) {
+        Document d = Jsoup.parse(this.text);
+        org.jsoup.select.NodeFilter NF = new org.jsoup.select.NodeFilter() {
+            @Override
+            public FilterResult head(Node node, int i) {
+                if (node instanceof TextNode) {
+                    TextNode textNode = (TextNode) node;
+                    textNode.text(textNode.text().replaceAll("(?i)" + Pattern.quote(search), replace));
+                } else if (node instanceof Element) {
+                    if(((Element) node).hasClass("reference"))
+                        return FilterResult.SKIP_ENTIRELY;
+                }
+                return FilterResult.CONTINUE;
+            }
+
+            @Override
+            public FilterResult tail(Node node, int i) {
+                return FilterResult.CONTINUE;
+            }
+        };
+        NodeTraversor.filter(NF, d.body());
+        this.text = d.body().html();
+    }
+
+    public Set<String> replaceSubStringDry(final String search, final String replace) {
+        final Set<String> out = new HashSet<>();
+        Document d = Jsoup.parse(this.text);
+        final Pattern p = Pattern.compile("(?i)\\b\\S*" + Pattern.quote(search) + "\\S*\\b");
+        org.jsoup.select.NodeFilter NF = new org.jsoup.select.NodeFilter() {
+            @Override
+            public FilterResult head(Node node, int i) {
+                if (node instanceof TextNode) {
+                    TextNode textNode = (TextNode) node;
+                    Matcher m = p.matcher(textNode.text());
+                    while(m.find()) {
+                        out.add(m.group());
+                    }
+                } else if (node instanceof Element) {
+                    if(((Element) node).hasClass("reference"))
+                        return FilterResult.SKIP_ENTIRELY;
+                }
+                return FilterResult.CONTINUE;
+            }
+
+            @Override
+            public FilterResult tail(Node node, int i) {
+                return FilterResult.CONTINUE;
+            }
+        };
+        NodeTraversor.filter(NF, d.body());
+        return out;
     }
 
     @Override

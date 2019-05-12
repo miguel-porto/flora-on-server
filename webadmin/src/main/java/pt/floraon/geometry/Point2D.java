@@ -30,6 +30,9 @@ public class Point2D implements Comparable<Point2D>, Clusterable {
     protected final Float latitude;    // x coordinate in latlong
     protected final Float longitude;    // y coordinate in latlong
 
+    public Point2D() {
+        this(0, 0, null, null);
+    }
     /**
      * Initializes a new point (x, y).
      *

@@ -5,18 +5,18 @@ import com.google.common.collect.Multimap;
 import de.micromata.opengis.kml.v_2_2_0.Folder;
 import de.micromata.opengis.kml.v_2_2_0.Kml;
 import de.micromata.opengis.kml.v_2_2_0.Placemark;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.*;
+import pt.floraon.geometry.gridmaps.GridMap;
+import pt.floraon.geometry.gridmaps.Square;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
-import pt.floraon.redlistdata.SVGMapExporter;
+import pt.floraon.redlistdata.SVGGridMapExporter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.occurrences.entities.Occurrence;
 
-import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
  * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter {
+public class OccurrenceProcessor implements Iterable<Occurrence>, SVGGridMapExporter {
 /*
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
@@ -34,7 +34,9 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
     private List<Cluster<Point2D>> clusters;
     private final Multimap<Point2D, Polygon> pointsInPolygons;   // for each occurrence lists the protected area polygons in which it falls
     private Stack<Point2D> convexHull;
-    private Set<Square> squares;
+//    private Set<Square> squares;
+//    private Map<Square, Set<String>> squares = new HashMap<>();
+    private GridMap<Square> squares = new GridMap<>();
     private IPolygonTheme protectedAreas;
     private Double EOO = 0d, realEOO = 0d, squareEOO = 0d, AOO = 0d;
     private int nQuads = 0;
@@ -54,12 +56,33 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
     }
 
     @Override
+//    public Iterable<Map.Entry<Square, Set<String>>> squares() {
+    public GridMap<Square> squares() {
+        return this.squares;
+/*
+        return new Iterable<Map.Entry<Square, Set<String>>>() {
+            @Override
+            public Iterator<Map.Entry<Square, Set<String>>> iterator() {
+                if(OccurrenceProcessor.this.squares == null)
+                    return Collections.emptyIterator();
+                else
+                    return OccurrenceProcessor.this.squares.entrySet().iterator();
+            }
+        };
+*/
+    }
+
+    @Override
     public Iterator<Occurrence> iterator() {
         // if we've got a static occurrence list, just iterate over it. Otherwise, make new iterator from queries.
         if(this.occurrenceList == null)
             return new ExternalDataProviderIterator(occurrences);
         else
             return new OccurrenceListIterator(this.occurrenceList);
+    }
+
+    public Polygon getConvexHull() {
+        return new Polygon(convexHull);
     }
 
     public class OccurrenceListIterator implements Iterator<Occurrence> {
@@ -74,11 +97,12 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
 
         @Override
         public boolean hasNext() {
-            if(prevElement != null) return true;
+            if (prevElement != null) return true;
 
             while (this.iterator.hasNext()) {
                 prevElement = this.iterator.next();
-                if (enter(prevElement)) return true; else prevElement = null;
+                if (enter(prevElement)) return true;
+                else prevElement = null;
             }
 
             return false;
@@ -87,7 +111,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
         @Override
         public Occurrence next() {
             Occurrence so;
-            if(this.prevElement != null) {
+            if (this.prevElement != null) {
                 so = this.prevElement;
                 this.prevElement = null;
                 return so;
@@ -305,9 +329,9 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
         }
 
         // now calculate the number of UTM squares occupied
-        squares = new HashSet<>();
         for (Point2D u : pointsInPolygons.keySet()) {
-            squares.add(new Square(u, sizeOfSquare));
+            squares.put(new Square(u, sizeOfSquare), new HashSet<>(Collections.singletonList("p")));
+//            squares.add(new Square(u, sizeOfSquare));
         }
 //System.out.println(new Gson().toJson(squares));
         this.nQuads = squares.size();
@@ -324,6 +348,8 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
 
             convexHull = (Stack<Point2D>) new GrahamScan(pointsInPolygons.keySet().toArray(new Point2D[0])).hull();
             convexHull.add(convexHull.get(0));
+
+            // compute area of convex hull
             double sum = 0.0;
             for (int i = 0; i < convexHull.size() - 1; i++) {
                 sum = sum + (convexHull.get(i).x() * convexHull.get(i + 1).y()) - (convexHull.get(i).y() * convexHull.get(i + 1).x());
@@ -341,7 +367,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
         }
 
         // compute convex hull of squares
-        Iterator<Square> it = squares.iterator();
+        Iterator<Square> it = squares.keySet().iterator();
         List<Point2D> vertices = new ArrayList<>();
         while(it.hasNext()) {
             vertices.addAll(it.next().getVertices());
@@ -362,10 +388,12 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
         clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
+/*
     @Override
     public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border, boolean showShadow, boolean showProtectedAreas) {
         if(showBaseMap) {
             InputStream str = OccurrenceProcessor.class.getResourceAsStream(showShadow ? "../basemap.svg" : "../basemap-noshadow.svg");
+
             try {
                 IOUtils.copy(str, out);
             } catch (IOException e) {
@@ -376,6 +404,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
             out.print("<svg class=\"svgmap\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:lvf=\"http://flora-on.pt\" preserveAspectRatio=\"xMidYMin meet\" viewBox=\"440000 4090000 300000 597000\">" +
                     "<g transform=\"translate(0,8767000) scale(1,-1)\">");
         }
+*/
 /*
         for (int i = 0; i < this.clusters.size(); i++) {
             Cluster<Point2D> cl = this.clusters.get(i);
@@ -383,7 +412,8 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
                 out.print("<circle cx=\"" + p.x() + "\" cy=\"" + p.y() + "\" r=\"3000\" style=\"fill:" + colors[i % colors.length] + "\" />");
             }
         }
-*/
+*//*
+
 
         if(showProtectedAreas && protectedAreas != null) {
             // draw protected areas
@@ -422,6 +452,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGMapExporter
 
         out.print("</g></svg>");
     }
+*/
 
     /**
      * Gets the official Extent of Occurrence, in km2, as per IUCN rules

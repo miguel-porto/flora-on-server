@@ -23,6 +23,9 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.interfaces.IListDriver;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.INodeWorker;
+import pt.floraon.geometry.IPolygonTheme;
+import pt.floraon.redlistdata.SVGGridMapExporter;
+import pt.floraon.redlistdata.entities.RedListSettings;
 
 public class FloraOnServlet extends HttpServlet {
 	protected static final int PAGESIZE=200;
@@ -39,7 +42,7 @@ public class FloraOnServlet extends HttpServlet {
 			this.LD = this.driver.getListDriver();
 		}
 	}
-	
+
 	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
 		for(Object o : pars) {
 			if(o == null) throw new FloraOnException("Missing parameter.");
@@ -79,7 +82,7 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk06");
+		request.setAttribute("uuid", "bk09");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -182,9 +185,17 @@ public class FloraOnServlet extends HttpServlet {
 			return driver.asNodeKey(getParameterAsString(name));
 		}
 
-		public Integer getParameterAsInteger(String name,Integer nullValue) throws IOException, ServletException, FloraOnException {
+		public Integer getParameterAsInteger(String name,Integer nullValue) throws IOException, ServletException {
 			try {
 				return Integer.parseInt(getParameterAsString(name));
+			} catch (NumberFormatException e) {
+				return nullValue;
+			}
+		}
+
+		public Long getParameterAsLong(String name, Long nullValue) throws IOException, ServletException {
+			try {
+				return Long.parseLong(getParameterAsString(name));
 			} catch (NumberFormatException e) {
 				return nullValue;
 			}
@@ -336,6 +347,11 @@ public class FloraOnServlet extends HttpServlet {
 			response.setHeader("Pragma", "no-cache");
 		}
 
+		public void setDownloadFileName(String fileName) {
+			response.addHeader("Content-Disposition"
+					, String.format("attachment;Filename=\"%s\"", fileName));
+		}
+
 		public void success(JsonElement obj, JsonObject header) throws IOException {
 			JsonObject out;
 			if(header==null)
@@ -412,6 +428,74 @@ public class FloraOnServlet extends HttpServlet {
 		public void ensurePrivilege(Privileges privilege) throws FloraOnException {
 			if(!this.getUser().hasPrivilege(privilege))
 				throw new FloraOnException("You don't have privileges for this operation");
+		}
+
+		/**
+		 * Forwards the request to the SVG map creator.
+		 * @param processor
+		 * @param territory
+		 * @param showBaseMap
+		 * @param borderWidth Ignored if standAlone is false
+		 * @param showShadow
+		 * @param protectedAreas
+		 * @param standAlone
+		 * @param showOccurrences
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+		public void includeSVGMap(SVGGridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences);
+            this.request.getRequestDispatcher("/fragments/frag-basemapsvg.jsp")
+                    .include(this.request, this.response);
+        }
+
+		/**
+		 * Exports an SVG map to the given writer.
+		 * @param writer
+		 * @param processor
+		 * @param territory
+		 * @param showBaseMap
+		 * @param borderWidth
+		 * @param showShadow Show a drop shadow in the map border
+		 * @param protectedAreas
+		 * @param standAlone
+		 * @param showOccurrences
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+        public void exportSVGMap(PrintWriter writer, SVGGridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences);
+			HttpServletResponse2Writer customResponse = new HttpServletResponse2Writer(this.response, writer);
+			this.request.getRequestDispatcher("/fragments/frag-basemapsvg.jsp").forward(this.request, customResponse);
+//			return customResponse.getOutput();
+		}
+
+        /**
+         * Prepare request attributes for rendering SVG map.
+         * @param processor
+         * @param territory
+         * @param showBaseMap
+         * @param borderWidth
+         * @param showShadow
+         * @param protectedAreas
+         * @param standAlone
+         * @param showOccurrences
+         */
+		private void setSVGMapVariables(SVGGridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences) {
+			RedListSettings redListSettings = driver.getRedListSettings(territory);
+			this.request.setAttribute("mapBounds", redListSettings.getMapBounds());
+			this.request.setAttribute("svgDivisor", redListSettings.getSvgMapDivisor());
+			this.request.setAttribute("baseMap", redListSettings.getBaseMapPathString());
+			if(processor != null) this.request.setAttribute("squares", processor.squares());
+			this.request.setAttribute("showBaseMap", showBaseMap);
+			this.request.setAttribute("showShadow", showShadow);
+			this.request.setAttribute("standAlone", standAlone);
+			this.request.setAttribute("borderWidth", borderWidth);
+			this.request.setAttribute("showOccurrences", showOccurrences);
+			if(protectedAreas != null) this.request.setAttribute("protectedAreas", protectedAreas.iterator());
 		}
 	}
 }

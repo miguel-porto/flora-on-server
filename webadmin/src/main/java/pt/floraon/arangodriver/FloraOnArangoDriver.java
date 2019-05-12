@@ -16,6 +16,8 @@ import jline.internal.Log;
 import pt.floraon.arangodriver.serializers.*;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
+import pt.floraon.driver.datatypes.Rectangle;
+import pt.floraon.geometry.Polygon;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
@@ -78,6 +80,10 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerSerializer(Precision.class, new PrecisionSerializer())
 				.registerDeserializer(SafeHTMLString.class, new SafeHTMLStringDeserializer())
 				.registerSerializer(SafeHTMLString.class, new SafeHTMLStringSerializer())
+				.registerDeserializer(Rectangle.class, new RectangleDeserializer())
+ /*
+				.registerSerializer(Rectangle.class, new RectangleSerializer())
+*/
 				.registerDeserializer(IntegerInterval.class, new NumericIntervalDeserializer())
 				.registerSerializer(IntegerInterval.class, new NumericIntervalSerializer())
 				.registerDeserializer(Abundance.class, new AbundanceDeserializer())

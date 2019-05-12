@@ -413,10 +413,10 @@ input[type=submit].textbutton.compact {
     z-index:2;
 }
 .svgmap path.portugal {fill:white;}
-.svgmap path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2000px; stroke: #2962ff; stroke-linejoin: round;}
+.svgmap path.convexhull {fill: rgba(41, 98, 255, 0.3); stroke-width: 2px; stroke: #2962ff; stroke-linejoin: round;}
 .svgmap.floating path.convexhull {stroke-width:500px;}
 .svgmap path.protectedarea {fill: rgba(139, 195, 74, 0.5); stroke-width:0px;} /* stroke-width: 2000px; stroke: #64dd17; */
-.svgmap rect {fill:red; stroke-width: 1000px; stroke:red;}
+.svgmap rect {fill:red; stroke-width: 2px; stroke:red;}
 .svgmap.floating rect {stroke-width: 0px;}
 
 .checkboxes {display:flex; flex-wrap: wrap; justify-content: space-between;}
@@ -718,7 +718,8 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 }
 #allmapholder .svgmap {float:none;}
 #allmapholder .header {height:2.2rem; line-height:1.1rem; font-size:1rem; font-style:italic}
-#allmapholder .svgmap path.portugal {stroke:black; stroke-width: 1000px;}
+#allmapholder .svgmap path.portugal {stroke:black; stroke-width: 8px;}
+#allmapholder .svgmap rect {fill: #f55145; stroke:white;stroke-width: 1px;}
 #allmapholder.big .svgmap {width:350px}
 #allmapholder.interactive .svgmap rect {transition: fill 0.2s;}
 #allmapholder.interactive .svgmap rect:hover {fill:blue !important;}

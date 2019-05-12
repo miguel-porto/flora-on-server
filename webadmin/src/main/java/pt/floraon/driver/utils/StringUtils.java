@@ -1,5 +1,6 @@
 package pt.floraon.driver.utils;
 
+import com.sun.istack.NotNull;
 import jline.internal.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,6 +10,7 @@ import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.entities.NamedDBNode;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.occurrences.Common;
+import pt.floraon.redlistdata.RedListEnums;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -107,7 +109,9 @@ public class StringUtils {
 		return out;
     }
 
+    @NotNull
     public static String implode(String separator, String... data) {
+        if(data == null || data.length == 0) return "";
         StringBuilder sb = new StringBuilder();
         boolean any = false;
         for (int i = 0; i < data.length; i++) {
@@ -117,11 +121,12 @@ public class StringUtils {
                 if(i < data.length-1 && data[i+1] != null && !data[i+1].matches(" *")) sb.append(separator);
             }
         }
-    	return any ? sb.toString() : null;
+    	return any ? sb.toString() : "";
     }
 
     @SafeVarargs
 	public static <E extends Enum<E>> String implode(String separator, E... data) {
+        if(data == null || data.length == 0) return "";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < data.length - 1; i++) {
             if (!data[i].toString().matches(" *")) {
@@ -130,6 +135,43 @@ public class StringUtils {
             }
         }
         sb.append(data[data.length - 1].toString().trim());
+        return sb.toString();
+    }
+
+    @SafeVarargs
+    public static <E extends RedListEnums.LabelledEnum> String implode(String separator, String resourceBundle, E... data) {
+        if(data == null || data.length == 0) return "";
+        StringBuilder sb = new StringBuilder();
+        if(resourceBundle != null) {
+            ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(resourceBundle);
+            String tmp;
+            for (int i = 0; i < data.length - 1; i++) {
+                try {
+                    tmp = RESOURCE_BUNDLE.getString(data[i].getLabel());
+                } catch (MissingResourceException e) {
+                    tmp = '!' + data[i].getLabel() + '!';
+                }
+
+                if (!tmp.matches(" *")) {
+                    sb.append(tmp);
+                    sb.append(separator);
+                }
+            }
+            try {
+                tmp = RESOURCE_BUNDLE.getString(data[data.length - 1].getLabel());
+            } catch (MissingResourceException e) {
+                tmp = '!' + data[data.length - 1].getLabel() + '!';
+            }
+            sb.append(tmp.trim());
+        } else {
+            for (int i = 0; i < data.length - 1; i++) {
+                if (!data[i].getLabel().matches(" *")) {
+                    sb.append(data[i].getLabel());
+                    sb.append(separator);
+                }
+            }
+            sb.append(data[data.length - 1].getLabel().trim());
+        }
         return sb.toString();
     }
 

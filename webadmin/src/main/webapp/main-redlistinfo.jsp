@@ -42,20 +42,11 @@
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
             <li><a href="?w=published"><fmt:message key="Separator.9"/></a></li>
-            <c:if test="${user.canMANAGE_REDLIST_USERS()}">
+            <c:if test="${user.canMANAGE_REDLIST_USERS() || user.canDOWNLOAD_OCCURRENCES()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
-            </c:if>
-            <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
-                <li><a href="api/downloaddata?territory=${territory}"><fmt:message key="Separator.3"/></a></li>
+                <li><a href="?w=admin"><fmt:message key="Separator.12"/></a></li>
                 <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
-                <li><a href="?w=debug">Diagnósticos</a></li>
-            </c:if>
-            <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
-                <li><a href="api/updatenativestatus?territory=${territory}"><fmt:message key="Separator.4"/> ${territory}</a></li>
-            </c:if>
-            <c:if test="${user.isAdministrator()}">
-                <li><a href="?w=batch"><fmt:message key="Separator.5"/></a></li>
             </c:if>
             <c:if test="${user.getUserPolygons() != null && !user.getUserPolygons().equals(\"\")}">
                 <li><a href="?w=downloadtargetrecords"><fmt:message key="Separator.7"/></a></li>
@@ -168,6 +159,14 @@
         <jsp:include page="fragments/frag-redlistsettings.jsp"></jsp:include>
     </c:when>
 
+    <c:when test="${what=='admin'}">
+        <jsp:include page="fragments/frag-redlistadmin.jsp"></jsp:include>
+    </c:when>
+<%--
+    <c:when test="${what=='replacetools'}">
+        <jsp:include page="fragments/frag-redlistreplacetools.jsp"></jsp:include>
+    </c:when>
+--%>
     <c:when test="${what=='users'}">
         <jsp:include page="fragments/frag-userlist.jsp"></jsp:include>
     </c:when>

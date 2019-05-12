@@ -295,19 +295,20 @@ ul.suggestions li.selected {
     transform-origin: left top 0;
 }
 
-#mainmenu {
+.mainmenu {
     text-align: left;
     font-size: 1.8rem;
 }
-#mainmenu,#mainmenu a {color: #1e88e5}
-#mainmenu span {vertical-align:middle}
-#mainmenu li {list-style-type:none;}
+.mainmenu, .mainmenu a {color: #1e88e5}
+.mainmenu span {vertical-align:middle}
+.mainmenu li {list-style-type:none; border-left:none}
 .bullet {border-radius:50%; width:2.5rem; height:2.5rem; display:inline-block; vertical-align:middle; margin:10px 20px;}
 
-#mainmenu li.section1 .bullet {background-color: #8bc34a;}
-#mainmenu li.section2 .bullet {background-color: #f44336;}
-#mainmenu li.section3 .bullet {background-color: #2196f3;}
-#mainmenu li.section4 .bullet {background-color: black;}
+.mainmenu li .bullet {background-color: #2196f3;;}
+.mainmenu li.section1 .bullet {background-color: #8bc34a;}
+.mainmenu li.section2 .bullet {background-color: #f44336;}
+.mainmenu li.section3 .bullet {background-color: #2196f3;}
+.mainmenu li.section4 .bullet {background-color: black;}
 
 .button.help {
     background-image: url(images/ic_menu_help.png);

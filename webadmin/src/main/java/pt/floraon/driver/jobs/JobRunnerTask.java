@@ -74,7 +74,7 @@ public class JobRunnerTask implements JobRunner {
         try {
             this.job.run(this.driver);
             isClosed=true;
-            JobSubmitter.jobs.remove(this.uuid);
+//            JobSubmitter.jobs.remove(this.uuid);
         } catch (FloraOnException | IOException e) {
             this.hasError=true;
             this.errorMessage=e.getMessage();

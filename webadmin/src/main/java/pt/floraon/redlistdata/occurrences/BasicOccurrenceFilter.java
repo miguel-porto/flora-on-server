@@ -42,6 +42,10 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         this.clippingPolygon = clippingPolygon;
     }
 
+    /**
+     * Only filter out records without coordinates.
+     * @return
+     */
     public static BasicOccurrenceFilter WithCoordinatesFilter() {
         return new BasicOccurrenceFilter(null, null, true, null);
     }

@@ -101,6 +101,6 @@
         </c:forEach>
         </c:if>
     </table>
-    <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=2000&view=${param.view}&pa=true&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
+    <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=2000&view=${param.view}&pa=true&sa=false&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/>
     <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=2000&view=${param.view}&border=0&taxon=${taxon._getIDURLEncoded()}" width="150px" height="100px" text="carregando mapa" id="taxonrecords-map"/> --%>
 </c:if>

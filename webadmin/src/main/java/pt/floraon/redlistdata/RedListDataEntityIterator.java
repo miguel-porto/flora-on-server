@@ -1,12 +1,14 @@
 package pt.floraon.redlistdata;
 
-import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * An iterator of {@link RedListDataEntity} that implements a filter (or filters) upon iteration.
+ */
 public class RedListDataEntityIterator implements Iterator<RedListDataEntity> {
     private Iterator<RedListDataEntity> cursor;
     private RedListDataFilter[] filter = new RedListDataFilter[0];

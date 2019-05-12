@@ -89,5 +89,46 @@
             </form>
         </td>
     </tr>
+    <tr>
+        <td>Mapas</td>
+        <td><table>
+            <tr>
+                <td>Mapa base em formato WKT (copy/paste do QGIS)</td>
+                <td>
+                    <form class="poster" data-path="api/setoptions" data-refresh="true">
+                        <input type="hidden" name="territory" value="${territory}"/>
+                        <input type="hidden" name="option" value="setBaseMap"/>
+                        <textarea name="mapWKT"></textarea>
+                        <input type="submit" value="Set" class="textbutton"/>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>Bounding box dos mapas</td>
+                <td>
+                    <form class="poster" data-path="api/setoptions" data-refresh="true">
+                        <input type="hidden" name="territory" value="${territory}"/>
+                        <input type="hidden" name="option" value="setMapBounds"/>
+                        Left: <input type="number" name="mapleft" value="${mapBounds.getLeft()}"/><br/>
+                        Right: <input type="number" name="mapright" value="${mapBounds.getRight()}"/><br/>
+                        Top: <input type="number" name="maptop" value="${mapBounds.getTop()}"/><br/>
+                        Bottom: <input type="number" name="mapbottom" value="${mapBounds.getBottom()}"/>
+                        <input type="submit" value="Set" class="textbutton"/>
+                    </form>
+                </td>
+            </tr>
+            <tr>
+                <td>Divisor para exportação em SVG</td>
+                <td>
+                    <form class="poster" data-path="api/setoptions" data-refresh="true">
+                        <input type="hidden" name="territory" value="${territory}"/>
+                        <input type="hidden" name="option" value="svgDivisor"/>
+                        <input type="number" name="value" value="${svgDivisor}"/><br/>
+                        <input type="submit" value="Set" class="textbutton"/>
+                    </form>
+                </td>
+            </tr>
+        </table></td>
+    </tr>
 </table>
 </c:if>

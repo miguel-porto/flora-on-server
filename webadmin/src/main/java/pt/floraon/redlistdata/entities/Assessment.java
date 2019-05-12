@@ -98,6 +98,10 @@ public class Assessment implements DiffableBean {
         return this.getAdjustedCategory().getLabel() + subcat;
     }
 
+    /**
+     * Collapse all criteria in a string formatted accroding to IUCN guidelines.
+     * @return Formatted criteria
+     */
     public String _getCriteriaAsString() {
         if(isArrayEmpty(criteria)) return "";
         StringBuilder sb = new StringBuilder();

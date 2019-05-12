@@ -8,7 +8,7 @@
 <table class="small">
     <thead>
     <tr><th colspan="3">Statistics</th></tr>
-    <tr><th></th><th>All taxa</th><th>Lista Alvo</th></tr>
+    <tr><th></th><th>Ready to publish taxa</th><th>Lista Alvo</th></tr>
     </thead>
     <tr><td>Nº taxa com responsável</td><td class="bignumber">${nrWithResponsible_full}</td><td class="bignumber">${nrWithResponsible_tag}</td></tr>
     <tr><td>Nº taxa com textos em curso</td><td class="bignumber">${nrTextsInProgress_full}</td><td class="bignumber">${nrTextsInProgress_tag}</td></tr>
@@ -20,7 +20,7 @@
 <c:forEach var="table" items="${statTables}">
 <c:set var="tableTag" value="${statTablesTag.get(table.key)}"/>
 <table class="sortable small">
-<thead><tr><th>${table.key}</th><th>Counts for all taxa</th><th>Counts for Lista Alvo</th></tr></thead>
+<thead><tr><th>${table.key}</th><th>Counts for ready to publish taxa</th><th>Counts for all Lista Alvo</th></tr></thead>
 <c:forEach var="entry" items="${table.value}">
     <tr><td><fmt:message key="${entry.key}"/></td><td class="">${entry.value}</td><td class="">${tableTag.get(entry.key)}</td></tr>
 </c:forEach>

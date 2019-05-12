@@ -1,7 +1,5 @@
 package pt.floraon.geometry;
 
-import pt.floraon.geometry.Polygon;
-
 import java.util.Collection;
 import java.util.Map;
 

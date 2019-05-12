@@ -1,10 +1,13 @@
-package pt.floraon.geometry;
+package pt.floraon.geometry.gridmaps;
+
+import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.Point2D;
 
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Square {
+public class Square implements ISquare {
     private long qx, qy;
     private Point2D point;
     private String MGRS;
@@ -17,8 +20,24 @@ public class Square {
         qy = (long) Math.floor(coordinate.y() / sizeOfSquare);
     }
 
+    @Override
     public Rectangle2D getSquare() {
         return new Rectangle2D.Double(qx * sizeOfSquare, qy * sizeOfSquare, sizeOfSquare, sizeOfSquare);
+    }
+
+    @Override
+    public boolean hasColor() {
+        return false;
+    }
+
+    @Override
+    public String getColor() {
+        return null;
+    }
+
+    @Override
+    public void setColor(String color) {
+
     }
 
     public List<Point2D> getVertices() {
@@ -30,6 +49,7 @@ public class Square {
         return out;
     }
 
+    @Override
     public String getMGRS() {
         if(MGRS == null) {
             MGRS = CoordinateConversion.LatLongToMGRS(this.point.getLatitude(), this.point.getLongitude(), sizeOfSquare);
