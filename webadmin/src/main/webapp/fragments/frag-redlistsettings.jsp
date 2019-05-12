@@ -93,7 +93,7 @@
         <td>Mapas</td>
         <td><table>
             <tr>
-                <td>Mapa base em formato WKT (copy/paste do QGIS)</td>
+                <td>Mapa base em formato WKT (copy/paste do QGIS de um só polígono)</td>
                 <td>
                     <form class="poster" data-path="api/setoptions" data-refresh="true">
                         <input type="hidden" name="territory" value="${territory}"/>
