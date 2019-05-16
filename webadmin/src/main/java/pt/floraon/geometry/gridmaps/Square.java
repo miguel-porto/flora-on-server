@@ -4,6 +4,7 @@ import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.Point2D;
 
 import java.awt.geom.Rectangle2D;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,22 @@ public class Square implements ISquare {
         out.add(new Point2D(qx * sizeOfSquare, (qy + 1) * sizeOfSquare));
         out.add(new Point2D((qx + 1) * sizeOfSquare, (qy + 1) * sizeOfSquare));
         return out;
+    }
+
+    @Override
+    public String toWKT() {
+        StringBuilder sb = new StringBuilder("POLYGON ((");
+        sb.append(String.format("%d %d,", qx * sizeOfSquare, qy * sizeOfSquare));
+        sb.append(String.format("%d %d,", (qx + 1) * sizeOfSquare, qy * sizeOfSquare));
+        sb.append(String.format("%d %d,", (qx + 1) * sizeOfSquare, (qy + 1) * sizeOfSquare));
+        sb.append(String.format("%d %d,", qx * sizeOfSquare, (qy + 1) * sizeOfSquare));
+        sb.append(String.format("%d %d))", qx * sizeOfSquare, qy * sizeOfSquare));
+        return sb.toString();
+    }
+
+    @Override
+    public void toWKT(PrintWriter writer) {
+        writer.println(this.toWKT());
     }
 
     @Override

@@ -3,12 +3,16 @@ package pt.floraon.geometry;
 import com.arangodb.velocypack.annotations.Expose;
 import jline.internal.Log;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 
 /**
  * Created by miguel on 01-12-2016.
  */
 public class Polygon {
+    @Expose(serialize = false, deserialize = false)
+    private static DecimalFormat decimalFormat = new DecimalFormat("###.##", new DecimalFormatSymbols(Locale.US));
     private int N;        // number of points in the polygon
     private Point2D[] points;    // the points, setting points[0] = points[N]
     @Expose(serialize = false, deserialize = false)
@@ -34,6 +38,11 @@ public class Polygon {
      */
     public Polygon(Stack<Point2D> points) {
         N = 0;
+        if(points == null) {
+            this.points = new Point2D[1];
+            return;
+        }
+
         this.points = new Point2D[points.size()];
         for(Point2D p : points)
             this.add(p);
@@ -173,10 +182,15 @@ public class Polygon {
 
     public String toSVGPathString(int divisor) {
         StringBuilder sb1 = new StringBuilder();
+
         for (int i = 0; i <= N; i++) {
             sb1.append(i == 0 ? "M" : "L")
-                    .append(String.format("%.0f", points[i].x() / divisor)).append(" ")
-                    .append(String.format("%.0f", points[i].y() / divisor));
+                    .append(decimalFormat.format(points[i].x() / divisor)).append(" ")
+                    .append(decimalFormat.format(points[i].y() / divisor));
+/*
+                    .append(String.format("%.2f", points[i].x() / divisor)).append(" ")
+                    .append(String.format("%.2f", points[i].y() / divisor));
+*/
         }
         return sb1.toString();
     }
@@ -187,8 +201,12 @@ public class Polygon {
         boolean first = true;
         for(UTMCoordinate coo : this.UTMCoordinates) {
             sb1.append(first ? "M" : "L")
-                    .append(String.format("%d", coo.getX() / divisor)).append(" ")
-                    .append(String.format("%d", coo.getY() / divisor));
+                    .append(decimalFormat.format((float) coo.getX() / divisor)).append(" ")
+                    .append(decimalFormat.format((float) coo.getY() / divisor));
+/*
+                    .append(String.format("%.2f", (float) coo.getX() / divisor)).append(" ")
+                    .append(String.format("%.2f", (float) coo.getY() / divisor));
+*/
             first = false;
         }
         return sb1.toString();

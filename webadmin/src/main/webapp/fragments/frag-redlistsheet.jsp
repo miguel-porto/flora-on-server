@@ -56,7 +56,7 @@
         <div id="header-buttons">
             <h3>Tools</h3>
             <div class="wordtag togglebutton"><a href="../checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
-            <div class="wordtag togglebutton"><a href="../api/svgmap?basemap=1&size=10000&border=8&shadow=0&download=1&pa=0&taxon=${taxon._getIDURLEncoded()}">download map</a></div>
+            <div class="wordtag togglebutton"><a href="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&download=1&pa=0&stroke=true&taxon=${taxon._getIDURLEncoded()}">download map</a></div>
             <c:if test="${user.canVIEW_FULL_SHEET()}">
                 <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                 <div class="wordtag togglebutton" id="declines_toggle">declines</div>
@@ -68,6 +68,7 @@
             </c:if>
             <c:if test="${user.canVIEW_OCCURRENCES()}">
                 <div class="wordtag togglebutton"><a href="?w=taxonrecords&group=500&id=${taxon._getIDURLEncoded()}">view occurrences</a></div>
+                <div class="wordtag togglebutton"><a href="../api/wktmap?size=2000&taxon=${taxon._getIDURLEncoded()}">download WKT</a></div>
             </c:if>
             <c:if test="${user.canDOWNLOAD_OCCURRENCES() || user.hasEDIT_ALL_1_8()}">
                 <div class="wordtag togglebutton"><a href="?w=downloadtaxonrecords&id=${taxon._getIDURLEncoded()}">download KML</a></div>

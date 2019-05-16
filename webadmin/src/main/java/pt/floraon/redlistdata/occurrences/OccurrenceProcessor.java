@@ -13,7 +13,7 @@ import pt.floraon.geometry.gridmaps.GridMap;
 import pt.floraon.geometry.gridmaps.Square;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
-import pt.floraon.redlistdata.SVGGridMapExporter;
+import pt.floraon.redlistdata.GridMapExporter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.occurrences.entities.Occurrence;
 
@@ -22,10 +22,10 @@ import java.util.*;
 import java.util.List;
 
 /**
- * Processes a list of occurrences, computes a range of indices, and produces an SVG image with them.
+ * Processes a list of occurrences, computes a range of indices, and create a grid map of them.
  * Created by miguel on 01-12-2016.
  */
-public class OccurrenceProcessor implements Iterable<Occurrence>, SVGGridMapExporter {
+public class OccurrenceProcessor implements Iterable<Occurrence>, GridMapExporter {
 /*
     private final String[] colors = new String[] {"#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"
             , "#770000", "#007700", "#000077", "#777700", "#770077", "#007777"
@@ -82,7 +82,7 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGGridMapExpo
     }
 
     public Polygon getConvexHull() {
-        return new Polygon(convexHull);
+        return convexHull == null ? null : new Polygon(convexHull);
     }
 
     public class OccurrenceListIterator implements Iterator<Occurrence> {
@@ -388,83 +388,15 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, SVGGridMapExpo
         clusters = cls.cluster(pointsInPolygons.keySet());
     }
 
-/*
-    @Override
-    public void exportSVG(PrintWriter out, boolean showOccurrences, boolean showConvexhull, boolean showBaseMap, boolean standAlone, int border, boolean showShadow, boolean showProtectedAreas) {
-        if(showBaseMap) {
-            InputStream str = OccurrenceProcessor.class.getResourceAsStream(showShadow ? "../basemap.svg" : "../basemap-noshadow.svg");
-
-            try {
-                IOUtils.copy(str, out);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-        } else {
-            out.print("<svg class=\"svgmap\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:lvf=\"http://flora-on.pt\" preserveAspectRatio=\"xMidYMin meet\" viewBox=\"440000 4090000 300000 597000\">" +
-                    "<g transform=\"translate(0,8767000) scale(1,-1)\">");
-        }
-*/
-/*
-        for (int i = 0; i < this.clusters.size(); i++) {
-            Cluster<Point2D> cl = this.clusters.get(i);
-            for(Point2D p : cl.getPoints()) {
-                out.print("<circle cx=\"" + p.x() + "\" cy=\"" + p.y() + "\" r=\"3000\" style=\"fill:" + colors[i % colors.length] + "\" />");
-            }
-        }
-*//*
-
-
-        if(showProtectedAreas && protectedAreas != null) {
-            // draw protected areas
-            List<UTMCoordinate> tmp;
-            for (Map.Entry<String, pt.floraon.geometry.Polygon> p : protectedAreas) {
-                tmp = p.getValue().getUTMCoordinates();
-                out.print("<path class=\"protectedarea\" d=\"M" + tmp.get(0).getX() + " " + tmp.get(0).getY());
-                for (int i = 1; i < tmp.size(); i++) {
-                    out.print("L" + tmp.get(i).getX() + " " + tmp.get(i).getY());
-                }
-                out.print("\"></path>");
-            }
-        }
-        // draw convex hull
-        if(showConvexhull && convexHull != null) {
-            out.print("<path class=\"convexhull\" d=\"M" + (int) convexHull.get(0).x() + " " + (int) convexHull.get(0).y());
-            for (int i = 1; i < convexHull.size(); i++) {
-                out.print("L" + (int) convexHull.get(i).x() + " " + (int) convexHull.get(i).y());
-            }
-            out.print("\"></path>");
-        }
-//System.out.println("********** Process SVG");
-        if(showOccurrences && this.squares != null) {
-            // draw occurrence squares
-            for (Square s : this.squares) {
-                Rectangle2D s1 = s.getSquare();
-
-                if(standAlone)
-                    out.print("<rect class=\"utmsquare\" style=\"fill:#f55145; stroke:white; stroke-width:" + border
-                            + "px\" vector-effect=\"non-scaling-stroke\" lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX()
-                            + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"></rect>");
-                else
-                    out.print("<rect lvf:quad=\"" + s.getMGRS() + "\" x=\"" + s1.getMinX() + "\" y=\"" + s1.getMinY() + "\" width=\"" + s1.getWidth() + "\" height=\"" + s1.getHeight() + "\"></rect>");
-            }
-        }
-
-        out.print("</g></svg>");
-    }
-*/
-
     /**
-     * Gets the official Extent of Occurrence, in km2, as per IUCN rules
-     * @return
+     * @return The official Extent of Occurrence, in km2, as per IUCN rules
      */
     public Double getEOO() {
         return EOO;
     }
 
     /**
-     * Gets the real EOO, computed with occurrence coordinates (only if >= 3)
-     * @return
+     * @return The real EOO, computed with occurrence coordinates (only if >= 3)
      */
     public Double getRealEOO() {
         return realEOO;

@@ -24,7 +24,7 @@ import pt.floraon.driver.interfaces.IListDriver;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.geometry.IPolygonTheme;
-import pt.floraon.redlistdata.SVGGridMapExporter;
+import pt.floraon.redlistdata.GridMapExporter;
 import pt.floraon.redlistdata.entities.RedListSettings;
 
 public class FloraOnServlet extends HttpServlet {
@@ -440,12 +440,13 @@ public class FloraOnServlet extends HttpServlet {
 		 * @param protectedAreas
 		 * @param standAlone
 		 * @param showOccurrences
+		 * @param scaleStroke TRUE to use absolute values, in viewBox units, for stroke-width.
 		 * @throws ServletException
 		 * @throws IOException
 		 */
-		public void includeSVGMap(SVGGridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
-				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences) throws ServletException, IOException {
-			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences);
+		public void includeSVGMap(GridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences, boolean scaleStroke) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences, scaleStroke);
             this.request.getRequestDispatcher("/fragments/frag-basemapsvg.jsp")
                     .include(this.request, this.response);
         }
@@ -464,9 +465,10 @@ public class FloraOnServlet extends HttpServlet {
 		 * @throws ServletException
 		 * @throws IOException
 		 */
-        public void exportSVGMap(PrintWriter writer, SVGGridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
-				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences) throws ServletException, IOException {
-			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences);
+        public void exportSVGMap(PrintWriter writer, GridMapExporter processor, String territory, boolean showBaseMap
+				, int borderWidth, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone
+				, boolean showOccurrences, boolean scaleStroke) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences, scaleStroke);
 			HttpServletResponse2Writer customResponse = new HttpServletResponse2Writer(this.response, writer);
 			this.request.getRequestDispatcher("/fragments/frag-basemapsvg.jsp").forward(this.request, customResponse);
 //			return customResponse.getOutput();
@@ -483,8 +485,8 @@ public class FloraOnServlet extends HttpServlet {
          * @param standAlone
          * @param showOccurrences
          */
-		private void setSVGMapVariables(SVGGridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
-				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences) {
+		private void setSVGMapVariables(GridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences, boolean scaleStroke) {
 			RedListSettings redListSettings = driver.getRedListSettings(territory);
 			this.request.setAttribute("mapBounds", redListSettings.getMapBounds());
 			this.request.setAttribute("svgDivisor", redListSettings.getSvgMapDivisor());
@@ -494,6 +496,7 @@ public class FloraOnServlet extends HttpServlet {
 			this.request.setAttribute("showShadow", showShadow);
 			this.request.setAttribute("standAlone", standAlone);
 			this.request.setAttribute("borderWidth", borderWidth);
+			this.request.setAttribute("scaleStroke", scaleStroke);
 			this.request.setAttribute("showOccurrences", showOccurrences);
 			if(protectedAreas != null) this.request.setAttribute("protectedAreas", protectedAreas.iterator());
 		}

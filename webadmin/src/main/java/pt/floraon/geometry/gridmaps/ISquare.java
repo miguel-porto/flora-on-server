@@ -5,7 +5,7 @@ import java.awt.geom.Rectangle2D;
 /**
  * Represents a square used to build graduated maps
  */
-public interface ISquare {
+public interface ISquare extends WKTExportable {
     String getMGRS();
     Rectangle2D getSquare();
     boolean hasColor();

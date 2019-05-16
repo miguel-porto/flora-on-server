@@ -53,7 +53,7 @@ public class RedListSettings extends GeneralDBNode {
     }
 
     /**
-     * The divisor to be applied to map coordinates when exporting SVG. This is usually needed for projected cordinates
+     * The divisor to be applied to map coordinates when exporting SVG. This is usually needed for projected coordinates
      * because the values are too large to be used in conventional SVG editing software.
      * @return
      */

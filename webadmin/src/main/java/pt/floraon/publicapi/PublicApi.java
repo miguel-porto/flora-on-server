@@ -14,7 +14,6 @@ import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.TaxonOccurrenceProcessor;
-import pt.floraon.redlistdata.servlets.RedListMainPages;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -37,6 +36,7 @@ public class PublicApi extends FloraOnServlet {
         PrintWriter writer;
         ListIterator<String> path;
         String territory = "lu";    // TODO variable
+        List<SimpleOccurrenceDataProvider> sodps;
         RedListSettings rls = driver.getRedListSettings(territory);
         try {
             path = thisRequest.getPathIteratorAfter("api");
@@ -77,7 +77,7 @@ public class PublicApi extends FloraOnServlet {
                     return;
                 }
 
-                List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+                sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                 if(key == null && category == null) return;
 
                 thisRequest.response.setContentType("image/svg+xml; charset=utf-8");
@@ -89,7 +89,7 @@ public class PublicApi extends FloraOnServlet {
                         rls.getProtectedAreas() : null;
                 PolygonTheme clippingPolygon = rls.getClippingPolygon();
 
-                SVGGridMapExporter processor;
+                GridMapExporter processor;
                 OccurrenceFilter occurrenceFilter;
 
                 if("maybeextinct".equals(category))
@@ -176,7 +176,7 @@ public class PublicApi extends FloraOnServlet {
 //                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true);
 
                 thisRequest.exportSVGMap(writer, processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
-                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true);
+                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true, thisRequest.getParameterAsBoolean("stroke", false));
 /*
                 processor.exportSVG(writer, true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)
@@ -194,6 +194,42 @@ public class PublicApi extends FloraOnServlet {
                     if(outfile.exists())
                         IOUtils.copy(new FileReader(outfile), thisRequest.response.getWriter());
                 }
+                break;
+
+
+            case "wktmap":
+                key = thisRequest.getParameterAsKey("taxon");
+                squareSize = thisRequest.getParameterAsInteger("size", 10000);
+                viewAll = "all".equals(thisRequest.getParameterAsString("view"));
+
+                if(squareSize < 10000 && !user.canVIEW_OCCURRENCES()) {
+                    thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN, "No public access for this precision.");
+                    return;
+                }
+
+                if(key == null) return;
+                sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
+                thisRequest.response.setContentType("text/csv; charset=utf-8");
+                thisRequest.response.setCharacterEncoding("UTF-8");
+                thisRequest.setCacheHeaders(60);
+
+                TaxEnt te3 = driver.getNodeWorkerDriver().getTaxEntById(key);
+                if(te3 == null) return;
+
+                thisRequest.setDownloadFileName(String.format("map-%s.wkt", te3._getNameURLEncoded()));
+
+                for(SimpleOccurrenceDataProvider edp : sodps)
+                    edp.executeOccurrenceQuery(te3);
+
+                clippingPolygon = rls.getClippingPolygon();
+                occurrenceFilter = new BasicOccurrenceFilter(viewAll ?
+                        null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
+                        , null, false, clippingPolygon);
+
+                processor = new OccurrenceProcessor(sodps, null, squareSize, occurrenceFilter);
+
+                processor.squares().toWKT(thisRequest.response.getWriter());
                 break;
         }
     }

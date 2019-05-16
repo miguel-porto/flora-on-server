@@ -1,12 +1,14 @@
 package pt.floraon.geometry.gridmaps;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
  * A map composed of squares {@link ISquare}, each holding a data object.
  * @param <T> The type of squares composing this map.
  */
-public class GridMap<T extends ISquare> implements Iterable<Map.Entry<T, SquareData>>, Map<T, SquareData> {
+public class GridMap<T extends ISquare> implements Iterable<Map.Entry<T, SquareData>>, Map<T, SquareData>, WKTExportable {
     private final Map<T, SquareData> squares = new HashMap<>();
     private final String gradient[] = {"#FFCDD2","#EF9A9A","#E57373","#EF5350","#F44336","#E53935","#D32F2F","#C62828","#B71C1C"};  //"#FFEBEE",
     private int maxNumSp = 0;
@@ -94,6 +96,25 @@ public class GridMap<T extends ISquare> implements Iterable<Map.Entry<T, SquareD
         }
 
         return new SquareIterator(this.entrySet().iterator());
+    }
+
+    @Override
+    public String toWKT() {
+        StringBuilder sb = new StringBuilder();
+        for (Entry<? extends WKTExportable, SquareData> entry : this) {
+            sb.append(entry.getKey().toWKT()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public void toWKT(PrintWriter writer) {
+        Iterator<? extends Map.Entry<? extends WKTExportable, SquareData>> it = this.iterator();
+        writer.println("wkt");
+        while(it.hasNext()) {
+            Map.Entry<? extends WKTExportable, SquareData> entry = it.next();
+            entry.getKey().toWKT(writer);
+        }
     }
 
     public class SquareIterator implements Iterator<Entry<T, SquareData>> {

@@ -1,31 +1,23 @@
 package pt.floraon.redlistdata.occurrences;
 
-import org.apache.commons.io.IOUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
-import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.*;
 import pt.floraon.geometry.gridmaps.ColoredSquare;
 import pt.floraon.geometry.gridmaps.GridMap;
-import pt.floraon.geometry.gridmaps.ISquare;
-import pt.floraon.geometry.gridmaps.Square;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.redlistdata.SVGGridMapExporter;
+import pt.floraon.redlistdata.GridMapExporter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
-import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.*;
 import java.util.List;
 
 /**
  * Process multiple taxa and aggregate their occurrences in maps
  */
-public class TaxonOccurrenceProcessor implements SVGGridMapExporter {
+public class TaxonOccurrenceProcessor implements GridMapExporter {
     private final String gradient[] = {"#FFCDD2","#EF9A9A","#E57373","#EF5350","#F44336","#E53935","#D32F2F","#C62828","#B71C1C"};  //"#FFEBEE",
     private final long legendPosition[] = {670000, 4220000};
     private final long legendSize = 10000;

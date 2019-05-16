@@ -7,7 +7,8 @@
 <%@ attribute name="protectedAreas" required="false" type="java.util.Iterator" %>  <%-- latlong --%>
 <%@ attribute name="showShadow" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="standAlone" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="borderWidth" required="false" type="java.lang.Integer" %>
+<%@ attribute name="borderWidth" required="false" type="java.lang.Integer" %>   <%-- in km --%>
+<%@ attribute name="scaleStroke" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="showOccurrences" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="convexHull" required="false" type="pt.floraon.geometry.Polygon" %>  <%-- UTM --%>
 <c:set var="svgDivisor" value="${(empty svgDivisor) ? 1 : svgDivisor}" scope="page"/>
@@ -15,6 +16,7 @@
 <c:set var="showOccurrences" value="${(empty showOccurrences) ? true : showOccurrences}" scope="page"/>
 <c:set var="standAlone" value="${(empty standAlone) ? true : standAlone}" scope="page"/>
 <c:set var="borderWidth" value="${(empty borderWidth) ? 1 : borderWidth}" scope="page"/>
+<c:set var="scaleStroke" value="${(empty scaleStroke) ? false : scaleStroke}" scope="page"/>
 <svg class="svgmap" xmlns="http://www.w3.org/2000/svg" xmlns:lvf="http://flora-on.pt" preserveAspectRatio="xMidYMin meet"
     viewBox="${mapBounds.toString(svgDivisor)}">
     <c:if test="${showShadow}">
@@ -32,9 +34,16 @@
     </c:if>
     <g transform="translate(0,${(mapBounds.getBottom() + mapBounds.getTop() - 10000) / svgDivisor}) scale(1,-1)">
         <c:if test="${baseMap != null}">
+            <c:if test="${standAlone}">
+            <c:forEach var="poly" items="${baseMap}">
+            <path style="${shadow}; fill:none; stroke-width:${borderWidth * 1000 / svgDivisor}; stroke:black" class="portugal" d="${poly}"></path>
+            </c:forEach>
+            </c:if>
+            <c:if test="${!standAlone}">
             <c:forEach var="poly" items="${baseMap}">
             <path style="${shadow}" class="portugal" d="${poly}"></path>
             </c:forEach>
+            </c:if>
         </c:if>
         <c:if test="${protectedAreas != null}">
             <c:if test="${standAlone}">
@@ -50,11 +59,20 @@
             <c:forEach var="sqentry" items="${squares.iterator()}">
                 <c:set var="sqcoords" value="${sqentry.key.getSquare()}"/>
                 <c:set var="color" value="${squares.isColored() ? sqentry.key.getColor() : '#f55145'}"/>
+                <c:if test="${scaleStroke}">
+                <rect class="utmsquare" style="fill:${color}; stroke:white; stroke-width:${borderWidth * 1000 / svgDivisor}"
+                    lvf:quad="${sqentry.key.getMGRS()}" x="${sqcoords.getMinX() / svgDivisor}"
+                    y="${sqcoords.getMinY() / svgDivisor}" width="${sqcoords.getWidth() / svgDivisor}" height="${sqcoords.getHeight() / svgDivisor}">
+                    <title>${sqentry.value.getText()}</title>
+                </rect>
+                </c:if>
+                <c:if test="${!scaleStroke}">
                 <rect class="utmsquare" style="fill:${color}; stroke:white; stroke-width:${borderWidth}px"
                     vector-effect="non-scaling-stroke" lvf:quad="${sqentry.key.getMGRS()}" x="${sqcoords.getMinX() / svgDivisor}"
                     y="${sqcoords.getMinY() / svgDivisor}" width="${sqcoords.getWidth() / svgDivisor}" height="${sqcoords.getHeight() / svgDivisor}">
                     <title>${sqentry.value.getText()}</title>
                 </rect>
+                </c:if>
             </c:forEach>
             </c:if>
             <c:if test="${!standAlone && !squares.isColored()}">
