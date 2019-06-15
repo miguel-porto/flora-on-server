@@ -326,6 +326,10 @@ public class FloraOnServlet extends HttpServlet {
 			pw.flush();
 		}
 
+		public void errorServer(String msg) throws IOException {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, msg);
+		}
+
 		protected void errorHTML(String obj) throws IOException {
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			response.setContentType("text/html");
@@ -426,8 +430,12 @@ public class FloraOnServlet extends HttpServlet {
 		}
 
 		public void ensurePrivilege(Privileges privilege) throws FloraOnException {
+			ensurePrivilege(privilege, "You don't have privileges for this operation");
+		}
+
+		public void ensurePrivilege(Privileges privilege, String message) throws FloraOnException {
 			if(!this.getUser().hasPrivilege(privilege))
-				throw new FloraOnException("You don't have privileges for this operation");
+				throw new FloraOnException(message);
 		}
 
 		/**

@@ -5,6 +5,7 @@ import java.util.*;
 import com.arangodb.ArangoCursor;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
+import com.arangodb.model.AqlQueryOptions;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -117,16 +118,17 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
     }
 
 	@Override
-	public List<TaxEnt> getAllSpeciesOrInferiorTaxEnt(Boolean onlyCurrent, boolean higherTaxa, String territory, Integer offset, Integer count) throws FloraOnException {
+	public Iterator<TaxEnt> getAllSpeciesOrInferiorTaxEnt(Boolean onlyCurrent, boolean higherTaxa, String territory, Integer offset, Integer count) throws FloraOnException {
 		String query = null;
 		boolean withLimit = false;
-		if(!(offset==null && count==null)) {
-			if(offset==null) offset=0;
-			if(count==null) count=50;
-			withLimit=true;
+		if(!(offset == null && count == null)) {
+			if(offset == null) offset = 0;
+			if(count == null) count = 50;
+			withLimit = true;
 		}
 		if(territory == null) {
-			return Collections.emptyList();
+		    Log.warn("Not implemented");
+			return Collections.emptyIterator();
 			// FIXME return all taxa - should know the root node?
 		} else {
 			Log.warn("Possibly omitting taxa from the checklist.");
@@ -139,7 +141,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 			System.out.println(query);
 		}
 		try {
-			return database.query(query, null, null, TaxEnt.class).asListRemaining();
+			return database.query(query, null, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
 			throw new FloraOnException(e.getMessage());
 		}

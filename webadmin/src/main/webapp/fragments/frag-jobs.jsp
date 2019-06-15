@@ -45,6 +45,7 @@
     </form>
 
     <c:if test="${jobs.size() > 0}">
+        <a name="jobs"></a>
         <h1><fmt:message key="Downloads.2"/></h1>
         <table>
             <tr>

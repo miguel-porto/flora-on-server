@@ -31,7 +31,7 @@
 <h2>Descarregamentos</h2>
 <table class="small">
 <tr>
-    <td>Tabela dos taxa dentro do polígono</td>
+    <td>Tabela dos taxa dentro do polígono<br/><img class="exclamation" src="../images/exclamation.png"/> Apenas LVF</td>
     <td>
         <form class="poster" data-path="api/downloadtaxainpolygon" data-refresh="true" data-callback="?w=jobs">
             <input type="hidden" name="polygon" value="${param.polygon}"/>
@@ -41,7 +41,7 @@
     </td>
 </tr>
 <tr>
-    <td>Ocorrências dentro do polígono (só LVF)</td>
+    <td>Todas as ocorrências dentro do polígono<br/><img class="exclamation" src="../images/exclamation.png"/> Apenas LVF</td>
     <td>
         <form action="api/downloadoccurrencesinpolygon" method="POST">
             <input type="hidden" name="polygon" value="${param.polygon}"/>
@@ -52,7 +52,17 @@
     </td>
 </tr>
 <tr>
-    <td>PDF dos inventários dentro do polígono (só LVF)</td>
+    <td>Ocorrências actuais e de confiança dentro do polígono (inc. Flora-On)</td>
+    <td>
+        <form class="poster" data-path="api/downloadredlistoccurrencesinpolygon" data-callback="?w=jobs#jobs">
+            <input type="hidden" name="polygon" value="${param.polygon}"/>
+            <input type="hidden" name="territory" value="${territory}"/>
+            <input type="submit" value="Ordenar descarregamento" class="textbutton"/>
+        </form>
+    </td>
+</tr>
+<tr>
+    <td>PDF dos inventários dentro do polígono<br/><img class="exclamation" src="../images/exclamation.png"/> Apenas LVF</td>
     <td>
         <form action="api/downloadinventoriesPDF" method="POST">
             <input type="hidden" name="polygon" value="${param.polygon}"/>
@@ -65,7 +75,7 @@
 </table>
 
 <table class="small sortable">
-    <tr><th>List of recorded taxa</th><th>Endemic</th><th>Threat category</th></tr>
+    <tr><th>List of recorded taxa<br/><img class="exclamation" src="../images/exclamation.png"/> Apenas LVF</th><th>Endemic</th><th>Threat category</th></tr>
     <c:forEach var="res" items="${speciesList}">
     <tr><td>${res.key.getNameWithAnnotationOnly(true)}</td><td>${res.value['endemic'] == 'true' ? 'Endémica' : ''}</td><td>${res.value['category']}</td></tr>
     </c:forEach>

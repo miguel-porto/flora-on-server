@@ -1,7 +1,6 @@
 package pt.floraon.geometry.gridmaps;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -85,6 +84,8 @@ public class GridMap<T extends ISquare> implements Iterable<Map.Entry<T, SquareD
 
     @Override
     public Iterator<Entry<T, SquareData>> iterator() {
+        if(!this.keySet().iterator().hasNext())
+            return Collections.emptyIterator();
         T first = this.keySet().iterator().next();
         if(!first.hasColor()) {
             return this.entrySet().iterator();

@@ -21,7 +21,6 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.driver.datatypes.Rectangle;
@@ -109,7 +108,7 @@ public class RedListDataApi extends FloraOnServlet {
                 }
                 territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
-                thisRequest.success(JobSubmitter.newJobTask(new CreateRedListSheetsJob(territory), driver).getID());
+                thisRequest.success(JobSubmitter.newJobTask(new CreateRedListIndexJob(territory), driver).getID());
                 break;
 
             case "snapshot":    // archives a new snapshot of one sheet, including a copy of the occurrence records
@@ -821,6 +820,7 @@ public class RedListDataApi extends FloraOnServlet {
             case "downloadoccurrencesinpolygon":
                 String polygonWKT1 = thisRequest.getParameterAsString("polygon");
                 String filter = thisRequest.getParameterAsString("filter");
+
                 Iterator<Occurrence> itOcc = driver.getQueryDriver().findOccurrencesContainedIn(polygonWKT1, filter, null);
                 thisRequest.response.setContentType("text/csv; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences-in-polygon.csv\"");
@@ -848,11 +848,23 @@ public class RedListDataApi extends FloraOnServlet {
 
                 break;
 
+            case "downloadredlistoccurrencesinpolygon":
+                String polygonWKT2 = thisRequest.getParameterAsString("polygon");
+                territory = thisRequest.getParameterAsString("territory");
+
+                thisRequest.success(JobSubmitter.newJobFileDownload(
+                        new DownloadOccurrencesJob(
+                                driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, false, territory, null, null)
+                                , BasicOccurrenceFilter.OnlyCurrentAndCertainRecordsInPolygon(driver, territory, polygonWKT2))
+                        , "occurrences-in-polygon.csv", driver
+                ));
+                break;
+
             // TODO this should go to the occurrence API!
             case "downloadinventoriesPDF":
-                String polygonWKT2 = thisRequest.getParameterAsString("polygon");
+                String polygonWKT3 = thisRequest.getParameterAsString("polygon");
                 String filter1 = thisRequest.getParameterAsString("filter");
-                Iterator<Inventory> itInv1 = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT2, filter1);
+                Iterator<Inventory> itInv1 = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT3, filter1);
 
                 thisRequest.response.setContentType("application/pdf; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"inventories.pdf\"");

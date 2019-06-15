@@ -48,7 +48,7 @@ public interface IListDriver {
 	 * @return A List<TaxEnt>.
 	 * @throws FloraOnException
 	 */
-	List<TaxEnt> getAllSpeciesOrInferiorTaxEnt(Boolean onlyCurrent, boolean higherTaxa, String territory, Integer offset, Integer count) throws FloraOnException;
+	Iterator<TaxEnt> getAllSpeciesOrInferiorTaxEnt(Boolean onlyCurrent, boolean higherTaxa, String territory, Integer offset, Integer count) throws FloraOnException;
 	/**
 	 * Gets all species or inferior ranks, optionally filtered by those that exist in the given territory.
 	 * Note that when onlyLeafNodes is true and territory is not null, some taxa may be omitted from the list,

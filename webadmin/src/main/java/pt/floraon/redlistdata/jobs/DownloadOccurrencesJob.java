@@ -5,14 +5,18 @@ import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.redlistdata.BasicRedListDataFilter;
+import pt.floraon.redlistdata.RedListDataFilter;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,17 +30,36 @@ import java.util.*;
  */
 public class DownloadOccurrencesJob implements JobFileDownload {
     private String territory;
-    private PolygonTheme clippingPolygon;
-    private Integer minimumYear;
     private int curSpeciesI = 0;
     private String curSpeciesName = "";
-    private Set<String> filterTags;
+    private OccurrenceFilter occurrenceFilter;
+    private RedListDataFilter redListDataFilter;
+    private Iterator<TaxEnt> taxEntIterator;
 
     public DownloadOccurrencesJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Set<String> filterTags) {
         this.territory = territory;
-        this.clippingPolygon = clippingPolygon;
-        this.minimumYear = minimumYear;
-        this.filterTags = filterTags;
+        this.occurrenceFilter = new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon);
+        this.redListDataFilter = new BasicRedListDataFilter(filterTags);
+    }
+
+    public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter) {
+        this.territory = territory;
+        this.occurrenceFilter = occurrenceFilter;
+        this.redListDataFilter = redListDataFilter;
+    }
+
+    /**
+     * Include only given taxa
+     * @param taxEntIterator
+     * @param occurrenceFilter
+     */
+    public DownloadOccurrencesJob(Iterator<TaxEnt> taxEntIterator, OccurrenceFilter occurrenceFilter) {
+        this.occurrenceFilter = occurrenceFilter;
+        // this is to prevent the database cursor timeout
+        List<TaxEnt> te = new ArrayList<>();
+        while(taxEntIterator.hasNext())
+            te.add(taxEntIterator.next());
+        this.taxEntIterator = te.iterator();
     }
 
     @Override
@@ -46,8 +69,6 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
-        OccurrenceProcessor op;
-        Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
 
         csvp.print("Source");
@@ -64,33 +85,47 @@ public class DownloadOccurrencesJob implements JobFileDownload {
         csvp.print("local");
         csvp.print("pubNotes");
         csvp.println();
+        if(this.taxEntIterator == null) {
+            Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
+            while (it.hasNext()) {
+                RedListDataEntity rlde = it.next();
+                if (redListDataFilter != null && !this.redListDataFilter.enter(rlde)) continue;
+                TaxEnt te = rlde.getTaxEnt();
+                querySpecies(driver, te, csvp);
+            }
+        } else {
+            while(taxEntIterator.hasNext()) {
+                querySpecies(driver, taxEntIterator.next(), csvp);
+            }
+        }
 
-        while(it.hasNext()) {
-            RedListDataEntity rlde = it.next();
-            curSpeciesI++;
-            curSpeciesName = rlde.getTaxEnt().getName();
-            if(filterTags != null && Collections.disjoint(filterTags, Arrays.asList(rlde.getTags()))) continue;
-            List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-            for (SimpleOccurrenceDataProvider edp : sodps)
-                edp.executeOccurrenceQuery(rlde.getTaxEnt());
+        csvp.close();
+    }
 
-            op = OccurrenceProcessor.iterableOf(sodps, new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon));
+    private void querySpecies(IFloraOn driver, TaxEnt taxEnt, CSVPrinter printer) throws IOException, FloraOnException {
+        OccurrenceProcessor op;
+        curSpeciesI++;
+        curSpeciesName = taxEnt.getName();
+        List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+        for (SimpleOccurrenceDataProvider edp : sodps)
+            edp.executeOccurrenceQuery(taxEnt);
 
-            if(op.size() > 0) {
-                for (Occurrence so : op) {
-                    csvp.printRecord(
-                        so.getDataSource(), rlde.getTaxEnt().getID()
-                        , rlde.getTaxEnt().getNameWithAnnotationOnly(false)
+        op = OccurrenceProcessor.iterableOf(sodps, occurrenceFilter);
+
+        if (op.size() > 0) {
+            for (Occurrence so : op) {
+                printer.printRecord(
+                        so.getDataSource(), taxEnt.getID()
+                        , taxEnt.getNameWithAnnotationOnly(false)
                         , so.getOccurrence().getVerbTaxon(), so._getLatitude(), so._getLongitude(), so._getDate()
                         , StringUtils.implode(", ", so._getObserverNames())
                         , so.getPrecision(), so.getOccurrence().getConfidence()
                         , so.getCode(), so.getLocality()
                         , so.getPubNotes()
-                    );
-                }
+                );
             }
         }
-        csvp.close();
+
     }
 
     @Override

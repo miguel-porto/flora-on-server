@@ -352,10 +352,9 @@ System.out.println(gs.toJson(getUser()));
                     RedListSettings rls = driver.getRedListSettings(territory);
                     PolygonTheme clippingPolygon = rls.getClippingPolygon();
 
-                    OccurrenceFilter historicalFilter = new BasicOccurrenceFilter(null, rls.getHistoricalThreshold()
-                            , false, clippingPolygon);
-                    OccurrenceFilter currentFilter = new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
-                            , null, false, clippingPolygon);
+                    OccurrenceFilter historicalFilter = BasicOccurrenceFilter.OnlyHistoricalAndCertainRecords(driver, territory);
+                    OccurrenceFilter currentFilter = BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+
                     if(rldeSnap == null) {
                         // set privileges for this taxon
 
@@ -1334,6 +1333,8 @@ System.out.println(gs.toJson(getUser()));
                 }
 
                 if("geo".equals(thisRequest.getParameterAsString("type"))) {
+                    // download records inside polygon
+                    // NOTE: this only uses the records in the internal database!
                     thisRequest.ensurePrivilege(DOWNLOAD_OCCURRENCES);
                     String polygonWKT = thisRequest.getParameterAsString("polygon");
 //                    Polygon ((-7.61676305104465801 37.9335618844394773, -7.6221485973442924 37.93207466244877679, -7.62282460734006229 37.92853687680425168, -7.61852067703365954 37.92567510115549112, -7.61444208339251372 37.92497655749319563, -7.61288726040224262 37.92871714613645651, -7.61270699107003779 37.93049730579198098, -7.61462235272471943 37.93252533577929597, -7.61676305104465801 37.9335618844394773))

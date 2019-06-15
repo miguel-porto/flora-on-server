@@ -2,6 +2,7 @@ package pt.floraon.publicapi;
 
 import org.apache.commons.io.IOUtils;
 import org.jfree.util.Log;
+import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -202,10 +203,8 @@ public class PublicApi extends FloraOnServlet {
                 squareSize = thisRequest.getParameterAsInteger("size", 10000);
                 viewAll = "all".equals(thisRequest.getParameterAsString("view"));
 
-                if(squareSize < 10000 && !user.canVIEW_OCCURRENCES()) {
-                    thisRequest.response.sendError(HttpServletResponse.SC_FORBIDDEN, "No public access for this precision.");
-                    return;
-                }
+                if(squareSize < 10000)
+                    thisRequest.ensurePrivilege(Privileges.VIEW_OCCURRENCES, "No public access for this precision.");
 
                 if(key == null) return;
                 sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
@@ -215,17 +214,19 @@ public class PublicApi extends FloraOnServlet {
                 thisRequest.setCacheHeaders(60);
 
                 TaxEnt te3 = driver.getNodeWorkerDriver().getTaxEntById(key);
-                if(te3 == null) return;
+                if(te3 == null) {
+                    thisRequest.errorServer(String.format("Taxon %s not found.", key));
+                    return;
+                }
 
                 thisRequest.setDownloadFileName(String.format("map-%s.wkt", te3._getNameURLEncoded()));
 
                 for(SimpleOccurrenceDataProvider edp : sodps)
                     edp.executeOccurrenceQuery(te3);
 
-                clippingPolygon = rls.getClippingPolygon();
-                occurrenceFilter = new BasicOccurrenceFilter(viewAll ?
-                        null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
-                        , null, false, clippingPolygon);
+                occurrenceFilter = viewAll
+                        ? new BasicOccurrenceFilter(null, null, false, rls.getClippingPolygon())
+                        : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
 
                 processor = new OccurrenceProcessor(sodps, null, squareSize, occurrenceFilter);
 

@@ -118,7 +118,7 @@ public class JobRunnerFileDownload implements JobRunner {
 			this.job.run(this.driver, this.outputStream);
 			isClosed=true;
 //			JobSubmitter.jobs.remove(this.uuid);
-		} catch (FloraOnException | IOException e) {
+		} catch (Exception e) {
 			this.hasError=true;
 			this.errorMessage=e.getMessage();
 			try {

@@ -1,12 +1,15 @@
 package pt.floraon.redlistdata.occurrences;
 
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
+import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.redlistdata.entities.RedListSettings;
 
 import java.util.Map;
 
@@ -48,6 +51,43 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      */
     public static BasicOccurrenceFilter WithCoordinatesFilter() {
         return new BasicOccurrenceFilter(null, null, true, null);
+    }
+
+    /**
+     * Include only the records used to make the published current maps
+     * @param driver
+     * @param territory
+     * @return
+     */
+    public static BasicOccurrenceFilter OnlyCurrentAndCertainRecords(IFloraOn driver, String territory) {
+        RedListSettings rls = driver.getRedListSettings(territory);
+        return new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
+                , null, false, rls.getClippingPolygon());
+    }
+
+    /**
+     * Include only the records used to make the published current maps, contained in the given polygon
+     * @param driver
+     * @param territory
+     * @param polygonWKT
+     * @return
+     */
+    public static BasicOccurrenceFilter OnlyCurrentAndCertainRecordsInPolygon(IFloraOn driver, String territory, String polygonWKT) {
+        RedListSettings rls = driver.getRedListSettings(territory);
+        PolygonTheme polygon = new PolygonTheme(polygonWKT);
+        return new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
+                , null, false, polygon);
+    }
+
+    /**
+     * Include only the records used to make the published historical maps
+     * @param driver
+     * @param territory
+     * @return
+     */
+    public static BasicOccurrenceFilter OnlyHistoricalAndCertainRecords(IFloraOn driver, String territory) {
+        RedListSettings rls = driver.getRedListSettings(territory);
+        return new BasicOccurrenceFilter(null, rls.getHistoricalThreshold(), false, rls.getClippingPolygon());
     }
 
     @Override
