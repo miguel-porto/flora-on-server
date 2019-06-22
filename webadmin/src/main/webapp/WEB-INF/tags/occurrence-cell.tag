@@ -38,6 +38,8 @@
 <c:when test="${field == 'observers' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="observers"><c:if test="${fn:length(inventory.getObservers()) > 0}"><t:usernames idarray="${inventory == null ? null : inventory.getObservers()}" usermap="${userMap}"/></c:if><c:if test="${fn:length(inventory.getObservers()) == 0}"><c:forEach var="id" items="${inventory._getObserverNames()}" varStatus="loop">${id}<c:if test="${!loop.last}">, </c:if></c:forEach></c:if></td></c:when>
 <c:when test="${field == 'collectors' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="collectors"><t:usernames idarray="${inventory == null ? null : inventory.getCollectors()}" usermap="${userMap}"/></td></c:when>
 <c:when test="${field == 'dets' && !noInventory}"><td class="${editable} ${collapsedClass} authors hideincompactview" data-name="dets"><t:usernames idarray="${inventory == null ? null : inventory.getDets()}" usermap="${userMap}"/></td></c:when>
+<%--<c:when test="${field == 'tags' && !noInventory}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="tags"><c:if test="${inventory != null}"><c:forEach var="tag" items="${inventory.getTags()}"><span class="wordtag">${tag}</span></c:forEach></c:if></td></c:when>--%>
+<c:when test="${field == 'tags' && !noInventory}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}"/></td></c:when>
 <c:when test="${field == 'verbLocality' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
 
 <%-- These are concatenated fields, which are read-only --%>
@@ -52,26 +54,4 @@
     <td class="${fields.isReadOnly(field) ? '' : editable} ${collapsedClass} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
     </c:if>
 </c:otherwise>
-
-<%--
-<c:when test="${field == 'locality' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="locality">${inventory == null ? '' : inventory.getLocality()}</td></c:when>
-<c:when test="${field == 'precision' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="precision">${inventory == null ? '' : inventory.getPrecision().toString()}</td></c:when>
-
-<c:when test="${field == 'comment'}"><td class="${editable} ${collapsedClass}" data-name="comment">${taxon == null ? '' : taxon.getComment()}</td></c:when>
-<c:when test="${field == 'specificThreats'}"><td class="${editable} ${collapsedClass} threats" data-name="specificThreats">${taxon == null ? '' : taxon.getSpecificThreats()}</td></c:when>
-<c:when test="${field == 'privateComment'}"><td class="${editable} ${collapsedClass}" data-name="privateComment">${taxon == null ? '' : taxon.getPrivateComment()}</td></c:when>
-<c:when test="${field == 'gpsCode'}"><td class="${editable} ${collapsedClass}" data-name="gpsCode">${taxon == null ? '' : taxon.getGpsCode()}</td></c:when>
-<c:when test="${field == 'accession'}"><td class="${editable} ${collapsedClass}" data-name="accession">${taxon == null ? '' : taxon.getAccession()}</td></c:when>
-<c:when test="${field == 'labelData'}"><td class="${editable} ${collapsedClass}" data-name="labelData">${taxon == null ? '' : taxon.getLabelData()}</td></c:when>
-<c:when test="${field == 'confidence'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="confidence">${taxon == null ? '' : taxon._getConfidenceLabel()}</td></c:when>
-<c:when test="${field == 'phenoState'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="phenoState">${taxon == null ? '' : taxon._getPhenoStateLabel()}</td></c:when>
-<c:when test="${field == 'presenceStatus'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="presenceStatus">${taxon == null ? '' : taxon._getPresenceStatusLabel()}</td></c:when>
-<c:when test="${field == 'abundance'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="abundance"><c:if test="${taxon != null && taxon.getAbundance().getError() != null}"><span class="error"></c:if>${taxon == null ? '' : taxon.getAbundance()}<c:if test="${taxon != null && taxon.getAbundance().getError() != null}"></span></c:if></td></c:when>
-<c:when test="${field == 'typeOfEstimate'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="typeOfEstimate">${taxon == null ? '' : taxon._getTypeOfEstimateLabel()}</td></c:when>
-<c:when test="${field == 'coverIndex'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="coverIndex">${taxon == null ? '' : taxon.getCoverIndex()}</td></c:when>
-<c:when test="${field == 'naturalization'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="naturalization">${taxon == null ? '' : taxon.getNaturalization()}</td></c:when>
-<c:when test="${field == 'hasPhoto'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="hasPhoto">${taxon == null ? '' : taxon._getHasPhotoLabel()}</td></c:when>
-<c:when test="${field == 'hasSpecimen'}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="hasSpecimen">${taxon == null ? '' : taxon.getHasSpecimen()}</td></c:when>
---%>
-
 </c:choose>

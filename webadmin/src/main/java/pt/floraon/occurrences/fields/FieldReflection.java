@@ -6,6 +6,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.SpecialFields;
+import pt.floraon.occurrences.fields.parsers.IntegerParser;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.lang.reflect.Field;
@@ -54,6 +55,53 @@ public final class FieldReflection {
         }
     }
 
+    static public void setFieldValueInteger(Inventory inventory, String field, Integer value)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Method method;
+        String methodName = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
+        if(isInventoryField(field)) {
+            method = Inventory.class.getMethod(methodName, Integer.class);
+            method.invoke(inventory, value);
+        } else {
+            method = OBSERVED_IN.class.getMethod(methodName, Integer.class);
+
+            if(inventory.getUnmatchedOccurrences().size() == 0)
+                inventory.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
+
+            for(OBSERVED_IN obs : inventory.getUnmatchedOccurrences()) {
+                method.invoke(obs, value);
+            }
+        }
+    }
+
+    static public <T> void setFieldValueAny (Inventory inventory, String field, Class type, T value)
+            throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        Method method;
+        String methodName = "set" + field.substring(0, 1).toUpperCase() + field.substring(1);
+        if(isInventoryField(field)) {
+            method = Inventory.class.getMethod(methodName, type);
+            method.invoke(inventory, value);
+        } else {
+            method = OBSERVED_IN.class.getMethod(methodName, type);
+
+            if(inventory.getUnmatchedOccurrences().size() == 0)
+                inventory.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
+
+            for(OBSERVED_IN obs : inventory.getUnmatchedOccurrences()) {
+                method.invoke(obs, value);
+            }
+        }
+    }
+
+    /**
+     * Gets the display value of any field, coercing any types to a human-readable string
+     * @param occurrence
+     * @param inventory
+     * @param field
+     * @return
+     */
     static public String getFieldValue(OBSERVED_IN occurrence, Inventory inventory, String field) {
         Method method;
         Object result = null;
@@ -94,6 +142,8 @@ public final class FieldReflection {
                 return "<span class=\"error\">" + result.toString() + "</span>";
             else
                 return result.toString();
+        } else if(String[].class.isInstance(result)) {
+            return StringUtils.implode(", ", (String[]) result);
         } else
             return result.toString();
     }

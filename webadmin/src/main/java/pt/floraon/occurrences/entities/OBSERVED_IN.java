@@ -7,8 +7,10 @@ import pt.floraon.driver.annotations.*;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.fields.parsers.EnumParser;
+import pt.floraon.occurrences.fields.parsers.GeneralFieldParser;
+import pt.floraon.occurrences.fields.parsers.IntegerParser;
 import pt.floraon.occurrences.fields.parsers.LatitudeLongitudeParser;
-import pt.floraon.occurrences.fields.parsers.PlainTextParser;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -19,6 +21,7 @@ import java.util.UUID;
 
 /**
  * See https://github.com/miguel-porto/flora-on-server/wiki/The-data-model#observed_in
+ * Fields that don't have a @FieldParser annotation, cannot be updated in the GUI, or added in tables.
  * Created by miguel on 05-02-2017.
  */
 public class OBSERVED_IN extends GeneralDBEdge implements Serializable, DiffableBean {
@@ -28,47 +31,47 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Longitude da ocorrência", shortName = "Obs long")
     private Float observationLongitude;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Estado fenológico", shortName = "Fen")
     private Constants.PhenologicalStates phenoState;
     @HideInCompactView @ReadOnly
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Confiança ID", shortName = "Conf")
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
-    @HideInCompactView @FieldParser(PlainTextParser.class)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nome original", shortName = "Verb tax")
     private String verbTaxon;
-    @HideInCompactView @FieldParser(PlainTextParser.class)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas públicas do taxon", shortName = "Notas pub")
     private String comment;
-    @HideInCompactView @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv")
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote")
     private String privateComment;
-    @SmallField @FieldParser(PlainTextParser.class)
+    @SmallField @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Etiqueta herbário", shortName = "Etiq")
     private String labelData;
-    @SmallField @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Código herbário", shortName = "Cód Herb")
+    @SmallField @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Código herbário", shortName = "Cód Herb", alias="codHerbario")
     private String accession;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nº indivíduos", shortName = "Nº", description = "Estimated number of individuals")
     private Abundance abundance;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Método da estimativa", shortName = "Met", description = "Estimation method")
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     @SmallField @HideInCompactView
     @PrettyName(value = "Cobertura", shortName = "Cob", description = "Cover")
     private Float cover;
-    @SmallField @HideInCompactView @FieldParser(PlainTextParser.class)
+    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Escala de cobertura", shortName = "Cob", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
     private String coverIndex;
     private OccurrenceConstants.CoverType coverIndexScale;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Foto", shortName = "Foto")
     private RedListEnums.HasPhoto hasPhoto;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(IntegerParser.class)
     @PrettyName(value = "Colheita", shortName = "Colh")
     private Integer hasSpecimen;
 /*
@@ -83,14 +86,15 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @ReadOnly
     @PrettyName(value = "Identificador único", shortName = "UUID")
     private UUID uuid;
-    @SmallField @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Código GPS", shortName = "GPS")
+    @SmallField @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Código GPS", shortName = "GPS", alias={"gps", "gps code"}
+        , description = "The GPS point name for this particular taxon. Usage discouraged: not to be confounded with the inventory code!")
     private String gpsCode;
-    @FieldParser(PlainTextParser.class)
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
-    @SmallField @HideInCompactView
-    @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record")
+    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
+    @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
     private OccurrenceConstants.PresenceStatus presenceStatus;
     private Boolean coordinatesChanged;
     /**
@@ -191,6 +195,10 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 
     public void setAbundance(Abundance abundance) {
         this.abundance = abundance;
+    }
+
+    public void setAbundance(String abundance) {
+        this.abundance = new Abundance(abundance);
     }
 
     public RedListEnums.TypeOfPopulationEstimate getTypeOfEstimate() {

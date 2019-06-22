@@ -36,11 +36,11 @@ public class LocalityParser implements FieldParser {
             case "county":
                 occurrence.setCounty(inputValue);
                 break;
-*/
+
             case "precision":
                 occurrence.setPrecision(inputValue);
                 break;
-
+*/
             case "type":
                 ((Toponym) occurrence).setToponymType(inputValue);
                 break;

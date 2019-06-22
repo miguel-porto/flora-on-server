@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata.jobs;
 
+import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.driver.FloraOnException;
@@ -50,17 +51,18 @@ public class ComputeAOOEOOJobWithInfo extends ComputeAOOEOOJob {
 
         for (Map.Entry<INodeKey, Object> entry : this.taxaKeyMap.entrySet()) {   // for each taxon in red list
             RedListDataEntity rlde = driver.getRedListData().getRedListDataEntity(this.territory, entry.getKey());
-            if(rlde == null) continue;
+            if(rlde == null) {
+                Log.warn("Taxon not found!");
+                continue;
+            }
             curSpeciesI++;
             curSpeciesName = rlde.getTaxEnt().getName();
             if (redListDataFilter != null && !redListDataFilter.enter(rlde)) continue;
-
             List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
             for (SimpleOccurrenceDataProvider edp : sodps) {
                 edp.executeOccurrenceQuery(rlde.getTaxEnt());
             }
             op = new OccurrenceProcessor(sodps, null, sizeOfSquare, this.occurrenceFilter);
-
             INodeKey tKey = driver.asNodeKey(rlde.getTaxEntID());
             InferredStatus is = driver.wrapTaxEnt(tKey).getInferredNativeStatus(territory);
             boolean endemic = is != null && is.isEndemic();

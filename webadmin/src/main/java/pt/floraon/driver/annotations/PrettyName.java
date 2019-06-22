@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 public @interface PrettyName {
     String value();
     String shortName();
+    String[] alias() default {};
     String description() default "[no description]";
 }

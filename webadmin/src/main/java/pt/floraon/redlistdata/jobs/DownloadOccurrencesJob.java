@@ -9,6 +9,7 @@ import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.BasicRedListDataFilter;
 import pt.floraon.redlistdata.RedListDataFilter;
@@ -70,7 +71,8 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
-
+        Common.exportOccurrenceHeaderToCSV(csvp);
+/*
         csvp.print("Source");
         csvp.print("TaxEnt ID");
         csvp.print("taxon");
@@ -85,6 +87,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
         csvp.print("local");
         csvp.print("pubNotes");
         csvp.println();
+*/
         if(this.taxEntIterator == null) {
             Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
             while (it.hasNext()) {
@@ -114,6 +117,8 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
         if (op.size() > 0) {
             for (Occurrence so : op) {
+                Common.exportOccurrenceToCSV(so, printer);
+/*
                 printer.printRecord(
                         so.getDataSource(), taxEnt.getID()
                         , taxEnt.getNameWithAnnotationOnly(false)
@@ -123,6 +128,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
                         , so.getCode(), so.getLocality()
                         , so.getPubNotes()
                 );
+*/
             }
         }
 

@@ -113,28 +113,35 @@ public final class Common {
     public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream) throws IOException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
-        csv.printRecord("taxa", "confidence", "phenoState", "date", "observers", "latitude", "longitude"
-                , "precision", "mgrs", "verbLocality", "gpsCode", "verbTaxa", "abundance", "method", "photo", "collected"
-                , "specificThreats", "comment", "privateComment", "year", "month", "day");
-
+        exportOccurrenceHeaderToCSV(csv);
         while (occurrenceIterator.hasNext()) {
             Occurrence i2 = occurrenceIterator.next();
-            OBSERVED_IN oi = i2._getTaxa()[0];
-//                    TaxEnt te = oi.getTaxEnt();
-
-            csv.printRecord(
-                    oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
-                    , oi.getConfidence()
-                    , oi.getPhenoState()
-                    , i2._getDateYMD()
-                    , StringUtils.implode(", ", i2._getObserverNames())
-                    , i2._getLatitude(), i2._getLongitude(), i2.getPrecision()
-                    , CoordinateConversion.LatLongToMGRS(i2._getLatitude(), i2._getLongitude(), 1000)
-                    , i2.getVerbLocality(), i2.getCode(), oi.getVerbTaxon()
-                    , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
-                    , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), i2.getYear(), i2.getMonth(), i2.getDay());
-
+            exportOccurrenceToCSV(i2, csv);
         }
         csv.close();
+    }
+
+    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
+        csv.printRecord("source", "taxa", "confidence", "phenoState", "date", "observers", "latitude", "longitude"
+                , "precision", "mgrs", "verbLocality", "gpsCode", "verbTaxa", "abundance", "method", "photo", "collected"
+                , "specificThreats", "comment", "privateComment", "year", "month", "day");
+    }
+
+    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv) throws IOException {
+        OBSERVED_IN oi = occurrence._getTaxa()[0];
+//                    TaxEnt te = oi.getTaxEnt();
+
+        csv.printRecord(
+                occurrence.getDataSource()
+                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
+                , oi.getConfidence()
+                , oi.getPhenoState()
+                , occurrence._getDateYMD()
+                , StringUtils.implode(", ", occurrence._getObserverNames())
+                , occurrence._getLatitude(), occurrence._getLongitude(), occurrence.getPrecision()
+                , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
+                , occurrence.getVerbLocality(), occurrence.getCode(), oi.getVerbTaxon()
+                , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
+                , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay());
     }
 }

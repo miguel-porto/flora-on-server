@@ -6,8 +6,7 @@ import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.*;
-import pt.floraon.occurrences.fields.parsers.LatitudeLongitudeParser;
-import pt.floraon.occurrences.fields.parsers.PlainTextParser;
+import pt.floraon.occurrences.fields.parsers.*;
 
 import java.io.Serializable;
 import java.util.*;
@@ -29,31 +28,35 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Longitude do inventário", shortName = "Inv long")
     private Float longitude;
     private String spatialRS;
+    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @PrettyName(value = "Altitude", shortName = "Alt", alias={"z", "altitude"})
     private Float elevation;
     private String geometry;
-    @SmallField @HideInInventoryView
-    @PrettyName(value = "Ano", shortName = "Ano")
+    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @PrettyName(value = "Ano", shortName = "Ano", alias="ano")
     private Integer year;
-    @SmallField @HideInInventoryView
-    @PrettyName(value = "Mês", shortName = "Mês")
+    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @PrettyName(value = "Mês", shortName = "Mês", alias="mês")
     private Integer month;
-    @SmallField @HideInInventoryView
+    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
     @PrettyName(value = "Dia", shortName = "Dia")
     private Integer day;   // TODO: these cannot be erased...
-    @SmallField @HideInInventoryView
+    @SmallField @HideInInventoryView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Precisão", shortName = "Prec")
     private Precision precision;
     private Boolean complete;
-    @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Habitat", shortName = "Hab")
     private String habitat;
-    @HideInCompactView @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @HideInCompactView @HideInInventoryView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
     private String pubNotes;
-    @HideInCompactView @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @HideInCompactView @HideInInventoryView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
     private String privNotes;
     private String geology;
+    @HideInCompactView @HideInInventoryView @FieldParser(StringArrayParser.class)
+    @PrettyName(value = "Etiquetas", shortName = "Tags")
     private String[] tags;
     @HideInInventoryView
     @PrettyName(value = "Observadores", shortName = "Observadores")
@@ -66,28 +69,28 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String[] dets;
     @Deprecated
     private String verbLocality;
-    @HideInInventoryView @FieldParser(PlainTextParser.class)
+    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Local", shortName = "Local")
     private String locality;
-    @HideInInventoryView @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Município", shortName = "Município")
+    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Município", shortName = "Município", alias="concelho")
     private String municipality;
-    @HideInInventoryView @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Distrito", shortName = "Distrito")
+    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Distrito", shortName = "Distrito", alias="distrito")
     private String province;
-    @HideInInventoryView @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Região", shortName = "Região")
+    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Região", shortName = "Região", alias="região")
     private String county;
-    @SmallField @HideInInventoryView
-    @PrettyName(value = "Código do inventário", shortName = "Cod")
+    @SmallField @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Código do inventário", shortName = "Cod", alias={"código", "inventário"})
     private String code;
-    @HideInInventoryView @FieldParser(PlainTextParser.class)
-    @PrettyName(value = "Ameaças do local", shortName = "Ameaças")
+    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Ameaças do local", shortName = "Ameaças", alias="ameaças")
     private String threats;
     @HideInCompactView @ReadOnly @HideInInventoryView
     @PrettyName(value = "Responsável", shortName = "Resp")
     private String maintainer;
-    @HideInInventoryView
+    @HideInInventoryView @FieldParser(FloatParser.class)
     @PrettyName(value = "Área do inventário", shortName = "Área")
     private Float area;
     private Float meanHeight;
@@ -315,6 +318,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public void setElevation(Float elevation) {
         this.elevation = elevation;
+    }
+
+    public void setElevation(Integer elevation) {
+        this.elevation = elevation.floatValue();
     }
 
     public String getGeometry() {

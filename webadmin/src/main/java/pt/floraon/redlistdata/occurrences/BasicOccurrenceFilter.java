@@ -73,8 +73,18 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      * @return
      */
     public static BasicOccurrenceFilter OnlyCurrentAndCertainRecordsInPolygon(IFloraOn driver, String territory, String polygonWKT) {
+        return OnlyCurrentAndCertainRecordsInPolygon(driver, territory, new PolygonTheme(polygonWKT));
+    }
+
+    /**
+     * Include only the records used to make the published current maps, contained in the given polygon
+     * @param driver
+     * @param territory
+     * @param polygon
+     * @return
+     */
+    public static BasicOccurrenceFilter OnlyCurrentAndCertainRecordsInPolygon(IFloraOn driver, String territory, PolygonTheme polygon) {
         RedListSettings rls = driver.getRedListSettings(territory);
-        PolygonTheme polygon = new PolygonTheme(polygonWKT);
         return new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
                 , null, false, polygon);
     }

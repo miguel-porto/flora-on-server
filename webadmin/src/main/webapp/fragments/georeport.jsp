@@ -21,7 +21,7 @@
 
 <c:if test="${param.polygon != null}">
 <table class="small">
-    <tr><th>Statistic</th><th>Value</th></tr>
+    <tr><th>Statistic<br/><img class="exclamation" src="../images/exclamation.png"/> Apenas LVF</th><th>Value</th></tr>
     <tr><td class="title">Number of inventories</td><td>${nInventories}</td></tr>
     <tr><td class="title">Number of taxa</td><td>${nSpecies}</td></tr>
     <tr><td class="title">Number of endemic taxa</td><td>${nEndemic}</td></tr>
@@ -31,9 +31,9 @@
 <h2>Descarregamentos</h2>
 <table class="small">
 <tr>
-    <td>Tabela dos taxa dentro do polígono<br/><img class="exclamation" src="../images/exclamation.png"/> Apenas LVF</td>
+    <td>Tabela dos taxa dentro do polígono (inc. Flora-On)</td>
     <td>
-        <form class="poster" data-path="api/downloadtaxainpolygon" data-refresh="true" data-callback="?w=jobs">
+        <form class="poster" data-path="api/downloadtaxainpolygon" data-callback="?w=jobs#jobs">
             <input type="hidden" name="polygon" value="${param.polygon}"/>
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="submit" value="Descarregar" class="textbutton"/>

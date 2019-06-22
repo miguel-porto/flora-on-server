@@ -1,25 +1,40 @@
 package pt.floraon.occurrences.fields.parsers;
 
-import pt.floraon.driver.parsers.FieldParser;
-import pt.floraon.driver.utils.BeanUtils;
-import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.occurrences.fields.FieldReflection;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
+ * General field parser for String-based fields.
  * Created by miguel on 14-02-2017.
  */
-public class PlainTextParser implements FieldParser {
+public class GeneralFieldParser extends GlobalFieldParser {
+    @Override
+    public Object preProcessValue(String inputValue) {
+        return inputValue;
+    }
+
+    @Override
+    public Class getType(String inputFieldName) {
+        return String.class;
+    }
+
+    @Override
+    public boolean processSpecialCases(Inventory inventory, String inputFieldName, Object processedValue) {
+        switch (inputFieldName.toLowerCase()) {
+            case "inventoryid": // special cases: this one is for updating data
+                inventory.setID((String) processedValue);
+                break;
+
+            default:
+                return false;
+        }
+        return true;
+    }
+
+    /*
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
-//        if (inputValue == null || inputValue.trim().equals("")) return;
         if (inputValue == null) return;
         Inventory inventory = (Inventory) bean;
-
-//        if(inputValue.trim().equals("")) inputValue = null;
 
         try {
             // try reflection. If setter is not found, handle special cases.
@@ -36,7 +51,7 @@ public class PlainTextParser implements FieldParser {
             }
         }
 
-/*
+
         switch (inputFieldName.toLowerCase()) {
             case "code":
                 inventory.setCode(inputValue);
@@ -78,6 +93,7 @@ public class PlainTextParser implements FieldParser {
             default:
                 throw new IllegalArgumentException(Messages.getString("error.1", inputFieldName));
         }
-*/
+
     }
+    */
 }

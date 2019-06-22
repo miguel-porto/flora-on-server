@@ -150,12 +150,55 @@ public class RedListDataApi extends FloraOnServlet {
                 territory = thisRequest.getParameterAsString("territory");
                 String polygonWKT = thisRequest.getParameterAsString("polygon");
                 // TODO clipping polygon must be a user configuration
-                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
                 rls = driver.getRedListSettings(territory);
+//                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
+                thisRequest.success(JobSubmitter.newJobFileDownload(new DownloadTaxaInPolygonJob(territory, polygonWKT, rls.getClippingPolygon())
+                        ,"taxa-in-polygon.csv", driver).getID());
+/*
                 Map<INodeKey, Object> taxaSet = new HashMap<>();
                 Set<RedListDataEntity> rldeSet = new HashSet<>();
 
+                List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+
+                Iterator<TaxEnt> taxEntIterator = driver.getRedListData().getAllRedListTaxa(territory);
+                TaxEnt taxEnt;
+                while(taxEntIterator.hasNext()) {
+                    taxEnt = taxEntIterator.next();
+                    for (SimpleOccurrenceDataProvider edp : sodps)
+                        edp.executeOccurrenceQuery(taxEnt);
+
+                    OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps
+                            , BasicOccurrenceFilter.OnlyCurrentAndCertainRecordsInPolygon(driver, territory, polygonWKT));
+
+                    Iterator<Occurrence> itOcc = op.iterator();
+
+                    TaxEnt tmp;
+                    while(itOcc.hasNext()) {
+                        Occurrence occ = itOcc.next();
+                        // this adds the taxa and records the most recent year of observation of this taxon, in the polygon
+                        if((tmp = occ.getOccurrence().getTaxEnt()) != null) {
+                            INodeKey tmpKey = driver.asNodeKey(tmp.getID());
+                            if(taxaSet.containsKey(tmpKey)) {
+                                if(occ.getYear() != null) {
+                                    Integer tmp1 = ((MutableInt) taxaSet.get(tmpKey)).toInteger();
+                                    if (tmp1 == null)
+                                        ((MutableInt) taxaSet.get(tmpKey)).setValue(occ.getYear());
+                                    else {
+                                        if(occ.getYear() > ((MutableInt) taxaSet.get(tmpKey)).intValue())
+                                            ((MutableInt) taxaSet.get(tmpKey)).setValue(occ.getYear());
+                                    }
+                                }
+                            } else
+                                taxaSet.put(tmpKey, new MutableInt(occ.getYear()));
+                        }
+                    }
+
+                }
+
+
+*/
+/*
                 Iterator<Occurrence> itOcc = driver.getQueryDriver().findOccurrencesContainedIn(polygonWKT, null
                         // NOTE: this filter is to select which taxa to consider, only!
                         , new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, null));
@@ -180,36 +223,17 @@ public class RedListDataApi extends FloraOnServlet {
                             taxaSet.put(tmpKey, new MutableInt(occ.getYear()));
                     }
                 }
+*//*
 
-/*
-                Iterator<Inventory> itInv = driver.getQueryDriver().findInventoriesContainedIn(polygonWKT, null);
-                // iterate all inventories falling in polygon and fetch the existing species
-                while(itInv.hasNext()) {
-                    Inventory inv = itInv.next();
-                    for(OBSERVED_IN o : inv._getTaxa()) {
-                        if(o.getTaxEnt() != null)
-                            taxaSet.add(driver.asNodeKey(o.getTaxEnt().getID()));
-                    }
-                }
-*/
-
-                // make an iterator of RedListData pertaining to those species. We need this because we need red list info
-                // about the taxon.
-/*
-                for(INodeKey nk : taxaSet) {
-                    RedListDataEntity rlde3 = driver.getRedListData().getRedListDataEntity(territory, nk);
-//                    driver.wrapTaxEnt(nk).isInfrataxonOf()
-                    if(rlde3 != null)
-                        rldeSet.add(rlde3);
-                }
-*/
 
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                         new ComputeAOOEOOJobWithInfo(territory, 2000
                             // NOTE this filter is for computing AOO & EOO only!
-                                , new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, clippingPolygon2)
+                                , BasicOccurrenceFilter.OnlyCurrentAndCertainRecordsInPolygon(driver, territory, clippingPolygon2)
+//                                , new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, clippingPolygon2)
                                 , null, taxaSet)
                         , "taxa-in-polygon.csv", driver).getID());
+*/
                 break;
 
             case "downloadtable":
