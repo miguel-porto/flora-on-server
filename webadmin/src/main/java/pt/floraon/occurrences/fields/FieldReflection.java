@@ -95,14 +95,7 @@ public final class FieldReflection {
         }
     }
 
-    /**
-     * Gets the display value of any field, coercing any types to a human-readable string
-     * @param occurrence
-     * @param inventory
-     * @param field
-     * @return
-     */
-    static public String getFieldValue(OBSERVED_IN occurrence, Inventory inventory, String field) {
+    private static Object getFieldValueInternal(OBSERVED_IN occurrence, Inventory inventory, String field) {
         Method method;
         Object result = null;
         String methodName = "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
@@ -131,6 +124,18 @@ public final class FieldReflection {
                 e.printStackTrace();
             }
         }
+        return result;
+    }
+
+    /**
+     * Gets the display value of any field, coercing any types to a human-readable string
+     * @param occurrence
+     * @param inventory
+     * @param field
+     * @return
+     */
+    static public String getFieldValue(OBSERVED_IN occurrence, Inventory inventory, String field) {
+        Object result = FieldReflection.getFieldValueInternal(occurrence, inventory, field);
 
         if(result == null) return "";
 
@@ -148,6 +153,18 @@ public final class FieldReflection {
             return result.toString();
     }
 
+    /**
+     * Gets the value of any field, but does not do any post-processing. The field type is returned.
+     * @param occurrence
+     * @param inventory
+     * @param field
+     * @return
+     */
+    static public Object getFieldValueRaw(OBSERVED_IN occurrence, Inventory inventory, String field) {
+        Object result = FieldReflection.getFieldValueInternal(occurrence, inventory, field);
+        return result;
+    }
+
     static public boolean isInventoryField(String field) {
         Field f = findField(field);
         if(f == null) return false;
@@ -159,6 +176,12 @@ public final class FieldReflection {
         Field f = findField(field);
         if(f == null) return false;
         return f.isAnnotationPresent(ReadOnly.class);
+    }
+
+    static public boolean isImageField(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(Image.class);
     }
 
     static public boolean isSmallField(String field) {

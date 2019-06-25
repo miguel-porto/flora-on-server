@@ -7,10 +7,7 @@ import pt.floraon.driver.annotations.*;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.entities.GeneralDBEdge;
 import pt.floraon.occurrences.OccurrenceConstants;
-import pt.floraon.occurrences.fields.parsers.EnumParser;
-import pt.floraon.occurrences.fields.parsers.GeneralFieldParser;
-import pt.floraon.occurrences.fields.parsers.IntegerParser;
-import pt.floraon.occurrences.fields.parsers.LatitudeLongitudeParser;
+import pt.floraon.occurrences.fields.parsers.*;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -96,6 +93,9 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
     private OccurrenceConstants.PresenceStatus presenceStatus;
+    @Image @FieldParser(StringArrayParser.class)
+    @PrettyName(value="Fotografias", shortName = "Fotos")
+    private String[] images;
     private Boolean coordinatesChanged;
     /**
      * Field to hold the matched TaxEnt ID
@@ -155,6 +155,14 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 
     public void setConfidence(OccurrenceConstants.ConfidenceInIdentifiction confidence) {
         this.confidence = confidence;
+    }
+
+    public String[] getImages() {
+        return images;
+    }
+
+    public void setImages(String[] images) {
+        this.images = images;
     }
 
     public String getVerbTaxon() {

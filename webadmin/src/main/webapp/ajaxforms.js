@@ -21,6 +21,7 @@ function formPoster(ev, callback, beforePost) {
 		var rt1=JSON.parse(rt);
 
 		if(callback) {
+		    console.log(rt1);
 		    callback(rt1, ev);
 		    isFormSubmitting = false;
 		    if(loader) loader.style.display = 'none';
@@ -60,6 +61,15 @@ function attachFormPosters(callback, beforePost) {
 	        });
 	    } else addEvent('submit', forms[i], formPoster);
 	}
+}
+
+function attachFormPosterTo(formEl, callback, beforePost) {
+    if(callback || beforePost) {
+        addEvent('submit', formEl, callback);
+    } else {
+        removeEvent('submit', formEl, formPoster);
+        addEvent('submit', formEl, formPoster);
+    }
 }
 
 function attachAJAXContent(callback) {

@@ -2,6 +2,7 @@ package pt.floraon.arangodriver;
 
 import static pt.floraon.driver.Constants.*;
 
+import java.io.File;
 import java.util.*;
 
 import com.arangodb.ArangoDB;
@@ -18,6 +19,7 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.Rectangle;
 import pt.floraon.geometry.Polygon;
+import pt.floraon.images.ImageManagementArangoDriver;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
@@ -36,18 +38,19 @@ import pt.floraon.authentication.RandomString;
 public class FloraOnArangoDriver implements IFloraOn {
 	private ArangoDB driver;
 	private ArangoDatabase database;
-	private INodeWorker NWD;
-	private IQuery QD;
-	private IListDriver LD;
-	private CSVFileProcessor CSV;
-	private IRedListDataDriver RLD;
-	private IOccurrenceDriver OCD;
-	private IOccurrenceReportDriver OCRD;
-	private IAdministration ADMIN;
-	private List<Territory> checklistTerritories;
-	private Map<String, RedListSettings> redListSettings;
-	private String errorMessage;
-	private Properties properties;
+	private final INodeWorker NWD;
+	private final IQuery QD;
+	private final IListDriver LD;
+	private final CSVFileProcessor CSV;
+	private final IRedListDataDriver RLD;
+	private final IOccurrenceDriver OCD;
+	private final IOccurrenceReportDriver OCRD;
+    private final IAdministration ADMIN;
+    private final IImageManagement IMG;
+    private List<Territory> checklistTerritories;
+    private Map<String, RedListSettings> redListSettings;
+    private String errorMessage;
+    private Properties properties;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -55,7 +58,16 @@ public class FloraOnArangoDriver implements IFloraOn {
 	 */
 	public FloraOnArangoDriver(String error) {
 		this.errorMessage = error;
-	}
+        NWD = null;
+        QD = null;
+        LD = null;
+        CSV = null;
+        RLD = null;
+        OCD = null;
+        OCRD = null;
+        ADMIN = null;
+        IMG = null;
+    }
 
 	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
 		this.properties = properties;
@@ -100,6 +112,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		OCD = new OccurrenceArangoDriver(this);
 		OCRD = new OccurrenceReportArangoDriver(this);
 		ADMIN = new Administration(this);
+		IMG = new ImageManagementArangoDriver(this);
 
         try {
 			Collection<String> dbs=driver.getDatabases();	// TODO: this needs permissions in the _system database...
@@ -159,6 +172,20 @@ public class FloraOnArangoDriver implements IFloraOn {
 	}
 
 	@Override
+	public File getImageFolder() throws FloraOnException {
+		String folder;
+		if((folder = this.getProperties().getProperty("imageFolder")) == null)
+			throw new FloraOnException("Image folder is not defined.");
+
+		File imageFolder = new File(folder);
+		if(!imageFolder.exists()) {
+			if(!imageFolder.mkdir())
+				throw new FloraOnException("Could not create folder.");
+		}
+		return imageFolder;
+	}
+
+	@Override
 	public Object getDatabaseDriver() {
 		return driver;
 	}
@@ -208,7 +235,12 @@ public class FloraOnArangoDriver implements IFloraOn {
 		return ADMIN;
 	}
 
-	@Override
+    @Override
+    public IImageManagement getImageManagement() {
+        return this.IMG;
+    }
+
+    @Override
 	public List<Territory> getChecklistTerritories() {
 		return this.checklistTerritories;
 	}

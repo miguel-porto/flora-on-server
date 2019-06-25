@@ -155,10 +155,10 @@
       <servlet-name>Query</servlet-name>
       <url-pattern>/checklist/api/query</url-pattern>
    </servlet-mapping>
-
+<!--
    <servlet-mapping>
       <servlet-name>FileUploader</servlet-name>
       <url-pattern>/upload/*</url-pattern>
    </servlet-mapping>
-
+-->
 </web-app>

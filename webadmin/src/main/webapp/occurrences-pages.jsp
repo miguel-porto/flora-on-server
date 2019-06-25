@@ -15,6 +15,13 @@
     <div class="withsuggestions editbox" id="authorsearchwrapper"><textarea id="authorsearchbox" name="query" rows="2" placeholder="start typing author name, or Esc to cancel | separate multiple authors with +"></textarea><div id="suggestionsauthor"></div></div>
     <div class="withsuggestions editbox" id="threatsearchwrapper"><textarea id="threatsearchbox" name="query" rows="2" placeholder="type cell value and Enter, or Esc to cancel"></textarea><div id="suggestionsthreat"></div></div>
     <div class="withsuggestions editbox" id="editfieldwrapper"><input id="editfield" type="text" name="query" autocomplete="off" placeholder="type cell value and Enter, or Esc to cancel"/></div>
+    <div class="withsuggestions editbox" id="uploadfilewrapper">
+        <input id="imageidfield" type="text" name="query"/>
+        <form class="posternoattach" data-path="upload/image" enctype="multipart/form-data" data-refresh="false">
+        <input id="uploadfile" type="file" name="imageFile" accept=".jpg,.jpeg"/>
+        <input type="submit" class="textbutton" value="Upload"/>
+        </form>
+    </div>
 </div>
 <div id="topbuttons" class="hideincompactview">
 <a class="returntomain" href="./"><img src="images/cap-cor.png" alt="logo"/></a>

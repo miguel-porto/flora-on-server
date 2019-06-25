@@ -880,12 +880,15 @@ System.out.println(gs.toJson(getUser()));
                     Integer countCR = 0, countEN = 0, countVU = 0, countNT = 0, countLC = 0, countRE = 0, countEX = 0, countEW = 0, countDD = 0;
                     while (rldeIt.hasNext()) {
                         RedListDataEntity rlde1 = rldeIt.next();
-                        // FIXME this just a temporary fix
 //                        if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde1.getTags()))) continue;
 
-                        if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
-                        if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) count2++;
-                        if (rlde1.getAssessment().getPublicationStatus().isPublished() || rlde1.getAssessment().getPublicationStatus().isApproved()) count3++;
+                        if(rlde1.getAssessment().getAdjustedCategory() != RedListEnums.RedListCategories.NA) {
+                            if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
+                            if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING)
+                                count2++;
+                            if (rlde1.getAssessment().getPublicationStatus().isPublished() || rlde1.getAssessment().getPublicationStatus().isApproved())
+                                count3++;
+                        }
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed() && rlde1.getAssessment().getCategory() != null) {
                             RedListEnums.RedListCategories cat = rlde1.getAssessment().getAdjustedCategory();
                             if(cat.isThreatened()) count4++;
@@ -986,8 +989,12 @@ System.out.println(gs.toJson(getUser()));
                                 || rlde.getGeographicalDistribution().getDescription().isEmpty()) continue;
 */
 
+/*
                         if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde.getTags()))
                                 || (!rlde.getAssessment().getPublicationStatus().isPublished()
+                                && !rlde.getAssessment().getPublicationStatus().isApproved())) continue;
+*/
+                        if ((!rlde.getAssessment().getPublicationStatus().isPublished()
                                 && !rlde.getAssessment().getPublicationStatus().isApproved())) continue;
 
                         Element species = doc.createElement("species");

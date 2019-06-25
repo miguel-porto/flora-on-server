@@ -90,8 +90,8 @@ function loadXMLDocPOST(doc,formElement,onopen) {
 	}*/
 	xmlhttp.open("POST", doc, true);
 //	xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlhttp.setRequestHeader("Content-length", params.length);
-	xmlhttp.setRequestHeader("Connection", "close");
+//	xmlhttp.setRequestHeader("Content-length", params.length);
+//	xmlhttp.setRequestHeader("Connection", "close");
 
 	xmlhttp.onreadystatechange = onopen;
 	xmlhttp.send(params);

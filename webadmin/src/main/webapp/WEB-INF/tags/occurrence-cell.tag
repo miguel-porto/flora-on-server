@@ -41,6 +41,7 @@
 <%--<c:when test="${field == 'tags' && !noInventory}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="tags"><c:if test="${inventory != null}"><c:forEach var="tag" items="${inventory.getTags()}"><span class="wordtag">${tag}</span></c:forEach></c:if></td></c:when>--%>
 <c:when test="${field == 'tags' && !noInventory}"><td class="${editable} ${collapsedClass} hideincompactview" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}"/></td></c:when>
 <c:when test="${field == 'verbLocality' && !noInventory}"><td class="${editable} ${collapsedClass}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
+<c:when test="${fields.isImageField(field)}"><td class="${editable} ${collapsedClass} imageupload" data-name="${field}"><c:if test="${taxon != null}"><c:forEach var="image" items="${fields.getFieldValueRaw(taxon, inventory, field)}"><img src="/floraon-images/${image}.jpg"/></c:forEach></c:if></td></c:when>
 
 <%-- These are concatenated fields, which are read-only --%>
 <c:when test="${field == 'gpsCode_accession' && !noInventory}"><td class="${collapsedClass}">${inventory == null ? '' : inventory.getCode()} ${taxon == null ? '' : taxon.getAccession()}</td></c:when>

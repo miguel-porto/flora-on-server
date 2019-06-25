@@ -26,6 +26,15 @@ public interface IOccurrenceFlavour {
      */
     String getFieldValue(OBSERVED_IN occurrence, Inventory inventory, String field);
 
+    /**
+     * A reflection-based getter, for getting any field in its original type
+     * @param occurrence
+     * @param inventory
+     * @param field
+     * @return The field value in its original type.
+     */
+    Object getFieldValueRaw(OBSERVED_IN occurrence, Inventory inventory, String field);
+
     String getFieldShortName(String field);
 
     boolean hideFieldInCompactView(String field);
@@ -35,4 +44,6 @@ public interface IOccurrenceFlavour {
     boolean isReadOnly(String field);
 
     boolean isSmallField(String field);
+
+    boolean isImageField(String field);
 }

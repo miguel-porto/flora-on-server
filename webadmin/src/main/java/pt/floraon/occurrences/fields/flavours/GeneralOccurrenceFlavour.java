@@ -20,6 +20,11 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
+    public Object getFieldValueRaw(OBSERVED_IN occurrence, Inventory inventory, String field) {
+        return FieldReflection.getFieldValueRaw(occurrence, inventory, field);
+    }
+
+    @Override
     public String getFieldShortName(String field) {
         return FieldReflection.getFieldShortName(field);
     }
@@ -43,6 +48,11 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     @Override
     public boolean isSmallField(String field) {
         return FieldReflection.isSmallField(field);
+    }
+
+    @Override
+    public boolean isImageField(String field) {
+        return FieldReflection.isImageField(field);
     }
 
 }

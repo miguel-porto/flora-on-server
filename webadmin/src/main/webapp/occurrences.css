@@ -149,6 +149,7 @@ tr.external td {font-style:italic}
 .occurrencetable .expandbutton:hover {filter:none;}
 .occurrencetable th:not(.collapsed) .expandbutton {background-image:url(images/expand.png); background-position:center center; background-repeat: no-repeat;}
 .occurrencetable th.collapsed .expandbutton {background-image:url(images/resist.png); background-position:center center; background-repeat: no-repeat;}
+.occurrencetable td img {width:200px}
 
 .expandbutton-clicker {width:100%; height:10px; margin:0;}
 

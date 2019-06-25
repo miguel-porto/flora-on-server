@@ -145,6 +145,12 @@ public class BaseFloraOnDriver {
 		return new GraphUpdateResult(sb.toString(), "[]");
 	}
 
+	/**
+	 * Make the recommended citation of a red list sheet.
+	 * @param rlde
+	 * @param userMap
+	 * @return
+	 */
 	public String buildRedListSheetCitation(RedListDataEntity rlde, Map<String, String> userMap) {
 		if(StringUtils.isArrayEmpty(rlde.getAssessment().getAuthors())) return "";
 		Set<String> authors = new LinkedHashSet<>();

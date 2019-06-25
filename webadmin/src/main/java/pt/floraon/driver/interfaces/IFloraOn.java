@@ -1,5 +1,6 @@
 package pt.floraon.driver.interfaces;
 
+import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,6 +23,7 @@ public interface IFloraOn {
 	IOccurrenceDriver getOccurrenceDriver();
 	IOccurrenceReportDriver getOccurrenceReportDriver();
 	IAdministration getAdministration();
+	IImageManagement getImageManagement();
 	INodeWrapper wrapNode(INodeKey node) throws FloraOnException;
 	ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException;
 	IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException;
@@ -32,4 +34,10 @@ public interface IFloraOn {
     Properties getProperties();
     boolean hasFailed();
     String getErrorMessage();
+    /**
+     * Gets a reference to the folder where images are stored.
+     * @return
+     * @throws FloraOnException
+     */
+    File getImageFolder() throws FloraOnException;
 }

@@ -5,6 +5,7 @@ var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize
 var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var openCircle = L.divIcon({className: 'opencircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var blackCircle = L.divIcon({className: 'blackcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
+var lastFileUploadCallback = null;
 /*var redCircle = L.icon({
     iconUrl: 'images/redcircle.png',
     iconSize: [12, 12],
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     attachSuggestionHandler('authorsearchbox', 'checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('threatsearchbox', 'checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
+    attachSuggestionHandler('imageidfield', null, null, onConfirmEdit, true, null, tabHandler);
 
     addEvent('mouseup', document.body, function(ev) {
         if(!document.getElementById('georreferencer')) return;
@@ -512,11 +514,16 @@ function clickOccurrenceTable(ev) {
         var txt = cell.innerHTML;
         cell.textContent = '';
         displaySearchbox(cell, txt, 'authorsearchwrapper');
-    } else if(cell.classList.contains('threats')) { // clicked authors cell
+    } else if(cell.classList.contains('threats')) { // clicked threats cell
          if(cell.querySelector('#threatsearchwrapper')) return;
          var txt = cell.innerHTML;
          cell.textContent = '';
          displaySearchbox(cell, txt, 'threatsearchwrapper');
+    } else if(cell.classList.contains('imageupload')) { // clicked image cell
+         if(cell.querySelector('#uploadfilewrapper')) return;
+         var txt = cell.innerHTML;
+         cell.textContent = '';
+         displayFileUploadField(cell, txt);
     } else if(cell.classList.contains('selectcol') && cell.tagName == 'TD') {    // select row
         selectGeoElement(cell);
     } else if(cell.classList.contains('singleselect')) {    // select row
@@ -686,11 +693,11 @@ function markerMove(ev) {
     }
 }
 
+// dispatch an enter key to confirm the edit field that is visible
 function acceptVisibleSearchbox() {
     var editboxes = document.querySelectorAll('.editbox');
     for(var i = 0; i < editboxes.length; i++) {
         var c = 0;
-//        while(editboxes[i].offsetParent !== null && c < 4) {
         while(getParentbyClass(editboxes[i], 'editbox-home') == null && c < 4) { // keep on clicking Enter until box is in its home
             var event = new KeyboardEvent('keyup', { 'keyCode': 13});
             Object.defineProperty(event, 'keyCode', {get:function(){return this.charCodeVal;}});
@@ -725,6 +732,43 @@ function displayEditField(el, text) {
     inp.focus();
 }
 
+
+/*
+function fileUploadCallback(resp, ev) {
+    if(ev.target.getAttribute('data-refresh') != 'false')
+        window.location.reload();
+    else {
+        if(resp.success) alert(resp.msg);
+    }
+}
+*/
+
+
+function displayFileUploadField(el, text) {
+    acceptVisibleSearchbox();
+    var old = document.getElementById('uploadfilewrapper');
+    el.appendChild(old);
+    el.setAttribute('data-original', text);
+    el.classList.add('beingedited');
+
+    if(lastFileUploadCallback)
+        removeEvent('submit', old.querySelector('form.posternoattach'), lastFileUploadCallback);
+
+    lastFileUploadCallback = function (ev) {
+        formPoster.call(this, ev, function(rt, ev) {
+            old.querySelector("[name=query]").value = rt.msg;
+            acceptVisibleSearchbox();
+        }, null);
+    };
+
+    attachFormPosterTo(old.querySelector('form.posternoattach'), lastFileUploadCallback, null);
+
+    var inp = old.querySelector('input');
+    inp.value = createHTML(text).textContent;
+//    inp.setSelectionRange(0, inp.value.length);
+    inp.focus();
+}
+
 function markerClick(ev) {
     if(ev.target.tableRow) {
         var ss = ev.target.tableRow.querySelector('.singleselect') ? true : false;
@@ -742,14 +786,6 @@ function markerClick(ev) {
 
         ev.target._icon.classList.toggle('selected');
         ev.target.tableRow.classList.toggle('selected');*/
-    }
-}
-
-function fileUploadCallback(resp, ev) {
-    if(ev.target.getAttribute('data-refresh') != 'false')
-        window.location.reload();
-    else {
-        if(resp.success) alert(resp.msg);
     }
 }
 

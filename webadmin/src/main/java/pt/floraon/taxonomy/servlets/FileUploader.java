@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Part;
 
 import com.google.gson.Gson;
@@ -15,6 +16,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import pt.floraon.bibliography.entities.Reference;
+import pt.floraon.driver.entities.Image;
 import pt.floraon.driver.jobs.JobRunnerTask;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.FloraOnException;
@@ -22,8 +24,10 @@ import pt.floraon.geocoding.ToponomyParser;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.server.FloraOnServlet;
+import sun.misc.IOUtils;
 
 @MultipartConfig
+@WebServlet("/upload/*")
 public class FileUploader extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 	private String filePath;
@@ -76,6 +80,34 @@ public class FileUploader extends FloraOnServlet {
 
 		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("upload");
 		switch(partIt.next()) {
+        case "image":
+            try {
+                filePart = thisRequest.request.getPart("imageFile");
+//				System.out.println(filePart.getSize());
+                if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
+                fileContent = filePart.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if(fileContent != null) {
+                String uuid = UUID.randomUUID().toString();
+                File newImage = new File(driver.getImageFolder(), uuid + ".jpg");
+                if(!newImage.createNewFile())
+                    throw new FloraOnException("Could not store image.");
+
+                OutputStream out = new FileOutputStream(newImage);
+                org.apache.commons.io.IOUtils.copy(fileContent, out);
+                fileContent.close();
+                out.close();
+
+                Image image = new Image(newImage.getName(), uuid);
+				image = driver.getImageManagement().addNewImage(image);
+
+                thisRequest.success(image.getID());
+            }
+            break;
+
 		case "occurrences":
 			boolean main = thisRequest.getParameterAsBoolean("mainobserver", false);
 			boolean create = thisRequest.getParameterAsBoolean("createUsers", false);
