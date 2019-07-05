@@ -51,6 +51,7 @@
         <t:isoptionselected optionname="allusers" value="false">
         <div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div>
         </t:isoptionselected>
+        <div class="button" id="addemptyinventory">Novo</div>
         <div id="occurrencefilter">
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
@@ -192,6 +193,7 @@
                         </c:forEach>
                         <t:inventoryrow fields="${flavourfields}"/>
                     </tbody>
+                    <tfoot></tfoot>
                 </table>
                 <div class="button" id="deleteselectedinv">Delete selected taxa</div>
                 <div class="button newtaxon">Add taxon</div>

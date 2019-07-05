@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * Created by miguel on 08-02-2017.
  */
 public class LatitudeLongitudeParser implements FieldParser {
-    private static Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+(\\.[0-9]+)?)[ ,;]+(?<lng>[0-9-]+(\\.[0-9]+)?)$");
+    private static Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+(\\.[0-9]+)?)[\\s,;]+(?<lng>[0-9-]+(\\.[0-9]+)?)$");
     private static Pattern DMSParseSingle = Pattern.compile("^ *(?<deg>[0-9-]+). *(?<min>[0-9]+). *(?<sec>[0-9.]+)..? *(?<let>[nsNSewoEWO]) *$");
     private static Pattern DMSParse = Pattern.compile("^ *(?<latdeg>[0-9-]+). *(?<latmin>[0-9]+). *(?<latsec>[0-9.]+)..? *" +
             "(?<latlet>[nsNS])[ ,;]+(?<lngdeg>[0-9-]+). *(?<lngmin>[0-9]+). *(?<lngsec>[0-9.]+)..? *(?<lnglet>[ewoEWO]) *$");

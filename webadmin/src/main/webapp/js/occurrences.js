@@ -102,6 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    var addemptyinventory = document.getElementById('addemptyinventory');
+    if(addemptyinventory) {
+        addEvent('click', addemptyinventory, function(ev) {addNewInventory(null);})
+    }
+
 /*
     var ft = document.getElementById('filtertable');
     if(ft) {
@@ -268,10 +273,11 @@ function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
     }
 
     if(id1 && id2) {    // inventories
-        // ad the input for the current modified cell
+        // add the input for the current modified cell
         insertOrReplaceHiddenInput(parent, id1 + '_' + id2 + '_' + fieldname, name);
         var ou = id2el.querySelector('input[name=occurrenceUuid]');
         var iid = id1el.querySelector('input[name=inventoryId]');
+        id2el.classList.remove('empty');
 //        var cell = id2el.querySelector('.select');
         insertOrReplaceHiddenInput(ou.parentNode, id1 + '_' + id2 + '_occurrenceUuid', ou.value);
         insertOrReplaceHiddenInput(iid.parentNode, id1 + '_inventoryId', iid.value);
@@ -279,7 +285,8 @@ function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
 // we're in the add new occurrences of the inventory. add new row if needed.
         if(getParentbyClass(parent, 'newoccurrencetable')) {
             var lastRow = getParentbyClass(parent, 'newoccurrencetable').querySelector('tbody tr:last-of-type');
-            if(lastRow.querySelectorAll('input[type=hidden]').length > 1) { // only add if there is no empty row already NOTE empty rows have one hidden input
+            if(lastRow.querySelectorAll('input[type=hidden]').length > 1) {
+                // only add if there is no empty row already NOTE empty rows have ONLY one hidden input
                 doMouseClick(id1el.querySelector('.newtaxon'));
             }
         }
@@ -525,15 +532,36 @@ function clickOccurrenceTable(ev) {
          cell.textContent = '';
          displayFileUploadField(cell, txt);
     } else if(cell.classList.contains('selectcol') && cell.tagName == 'TD') {    // select row
-        selectGeoElement(cell);
+        if(ev.shiftKey && !cell.parentNode.classList.contains('active')) {
+//            document.getSelection().removeAllRanges();
+            var tab = getParentbyClass(cell, 'occurrencetable');
+            if(tab) {
+                var vr = tab.querySelectorAll('tr:not(.hidden):not(.empty) td.selectcol');
+                var started = false;
+                var dormant = false;
+
+                for(var i=0; i<vr.length; i++) {
+                    if(!started && (vr[i] === cell || vr[i].parentNode.classList.contains('active'))) {
+                        started = true;
+                        dormant = true;
+                    }
+                    if(started) {
+                        selectGeoElement(vr[i], true, false, true);
+                        if(!dormant && (vr[i] === cell || vr[i].parentNode.classList.contains('active'))) break;
+                    }
+                    dormant = false;
+                }
+            }
+        } else
+            selectGeoElement(cell);
     } else if(cell.classList.contains('singleselect')) {    // select row
         selectGeoElement(cell, true, true);
     } else if(cell.classList.contains('selectcol') && cell.tagName == 'TH') {    // select all
         var tab = getParentbyClass(cell, 'occurrencetable');
         if(tab) {
-            var vr = tab.querySelectorAll('tr:not(.hidden) td.selectcol');
+            var vr = tab.querySelectorAll('tr:not(.hidden):not(.empty) td.selectcol');
             for(var i=0; i<vr.length; i++) {
-                selectGeoElement(vr[i]);
+                selectGeoElement(vr[i], null, false, true);
             }
         }
     } else if(cell.classList.contains('editable')) {    // editable as plain text
@@ -555,13 +583,21 @@ function deselectGeoElements(par) {
     }
 }
 
-function selectGeoElement(cell, value, clearothers) {
+function selectGeoElement(cell, value, clearothers, doNotChangeActiveRow) {
     var geoel = getParentbyTag(cell, 'tr');
     if(!geoel && cell.classList.contains('geoelement')) geoel = cell;
     if(!geoel) geoel = getParentbyClass(cell, 'geoelement');
     if(!geoel) return;
 
-    if(value === undefined) {
+    if(!doNotChangeActiveRow) {
+        // set the current row as active, deactivate all others
+        var active = geoel.parentNode.querySelectorAll('.geoelement.active');
+        for(var i=0; i<active.length; i++)
+            active[i].classList.remove('active');
+        geoel.classList.add('active');
+    }
+
+    if(value === undefined || value === null) {
         geoel.classList.toggle('selected');
         if(geoel.querySelector('.selectbutton'))
             geoel.querySelector('.selectbutton').classList.toggle('selected');
@@ -826,26 +862,25 @@ function mapClick(ev) {
 
 function addNewInventory(ev) {
     var id = randomString(6);
-    var lat = Math.round(ev.latlng.lat * 100000) / 100000;
-    var lng = Math.round(ev.latlng.lng * 100000) / 100000;
-
     var inv = document.querySelector('.inventory.dummy').cloneNode(true);
-//    var tab = document.querySelector('#newinventorytable tbody');
-    var cell2 = inv.querySelector('.coordinates');
     inv.classList.remove('dummy');
-
+    if(ev) {
+        var lat = Math.round(ev.latlng.lat * 100000) / 100000;
+        var lng = Math.round(ev.latlng.lng * 100000) / 100000;
+        var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
+        var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
+        var cell2 = inv.querySelector('.coordinates');
+        cell2.innerHTML = lat + ', ' + lng;
+        cell2.appendChild(inp_latitude);
+        cell2.appendChild(inp_longitude);
+        cell2.setAttribute('data-lat', lat);
+        cell2.setAttribute('data-lng', lng);
+        addPointMarker(lat, lng, inv, true);
+    }
+//    var tab = document.querySelector('#newinventorytable tbody');
 //    inv.querySelector('input[name=code]').setAttribute('name', id + '_code');
-    var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
-    var inp_longitude = createHiddenInputElement(id + '_longitude', lng);
 
     inv.setAttribute('data-id', id);
-
-    cell2.innerHTML = lat + ', ' + lng;
-    cell2.appendChild(inp_latitude);
-    cell2.appendChild(inp_longitude);
-    cell2.setAttribute('data-lat', lat);
-    cell2.setAttribute('data-lng', lng);
-    addPointMarker(lat, lng, inv, true);
     document.getElementById('addnewinventories').appendChild(inv);
 
     var ot = inv.querySelectorAll('.occurrencetable');
@@ -868,9 +903,9 @@ function addNewOccurrence(ev) {
     }
 
     var tab = document.querySelector('#addoccurrencetable tbody');
-    var row = document.querySelector('#addoccurrencetable tr.dummy').cloneNode(true);
-    var cell2 = row.querySelector('td.coordinates');
-    row.classList.remove('dummy');
+    var newRow = document.querySelector('#addoccurrencetable tr.dummy').cloneNode(true);
+    var cell2 = newRow.querySelector('td.coordinates');
+    newRow.classList.remove('dummy');
 
     if(lat && lng) {
         var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
@@ -881,11 +916,11 @@ function addNewOccurrence(ev) {
         cell2.appendChild(inp_longitude);
         cell2.setAttribute('data-lat', lat);
         cell2.setAttribute('data-lng', lng);
-        addPointMarker(lat, lng, row, true);
+        addPointMarker(lat, lng, newRow, true);
     }
 
-    row.setAttribute('data-id', id);
-    tab.appendChild(row);
+    newRow.setAttribute('data-id', id);
+    tab.appendChild(newRow);
 
     document.getElementById('addnewoccurrences').classList.remove('hidden');
 }

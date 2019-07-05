@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
+ * Processes an occurrence record table or KML, to insert into database.
  * Created by miguel on 15-02-2017.
  */
 public class OccurrenceImporterJob implements JobTask {
@@ -156,10 +157,10 @@ public class OccurrenceImporterJob implements JobTask {
                 freader.close();
 
                 // now let's sweep out the species from all inventory groups and aggregate
-                for (Map.Entry<Inventory, Collection<Inventory>> entr : invMap.asMap().entrySet()) {
+                for (Map.Entry<Inventory, Collection<Inventory>> entry : invMap.asMap().entrySet()) {
                     // grab an array of Inventory of these Inventories
                     // note that the field 'code', if present, rules over all the others
-                    Collection<Inventory> tmp = entr.getValue();
+                    Collection<Inventory> tmpInventories = entry.getValue();
 //            List<Inventory> tmp = new ArrayList<>();
 //            for(Inventory i : entr.getValue()) {
 //                tmp.add(i.getInventoryData());
@@ -169,8 +170,8 @@ public class OccurrenceImporterJob implements JobTask {
                     Inventory merged = null;
                     try {
                         // we ignore the field that holds the occurrences
-                        merged = BeanUtils.mergeBeans(Inventory.class, Arrays.asList("unmatchedOccurrences"), "code"
-                                , tmp.toArray(new Inventory[tmp.size()]));
+                        merged = BeanUtils.mergeBeans(Inventory.class, Collections.singletonList("unmatchedOccurrences"), "code"
+                                , tmpInventories.toArray(new Inventory[0]));
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                         e.printStackTrace();
                         throw new FloraOnException(e.getMessage());
@@ -179,12 +180,13 @@ public class OccurrenceImporterJob implements JobTask {
                     }
 
                     if(merged == null) {    // could not merge, go on without merging
-                        for(Inventory i : entr.getValue()) {
+                        // insert each occurrence in a separate inventory
+                        for(Inventory i : entry.getValue()) {
                             if (mainObserver) {
                                 Set<String> obs = new LinkedHashSet<>();
                                 obs.add(user.getID());
                                 obs.addAll(Arrays.asList(i.getObservers()));
-                                i.setObservers(obs.toArray(new String[obs.size()]));
+                                i.setObservers(obs.toArray(new String[0]));
                             }
                             i.setMaintainer(user.getID());
                             invList.add(i);
@@ -194,20 +196,43 @@ public class OccurrenceImporterJob implements JobTask {
 //            System.out.println(gs.toJson(merged));
 
                         // assemble all species found in these inventories into the merged one
-                        List<OBSERVED_IN> occ = new ArrayList<>();
-                        for (Inventory inventory : entr.getValue()) {
+                        List<OBSERVED_IN> occurrences = new ArrayList<>();
+                        for (Inventory inventory : entry.getValue()) {
                             // gather all coordinates of the pre-merged inventory and copy them to the occurrences, if empty.
                             // because the inventory coordinates will be lost.
+/*  TODO: IS THIS NEEDED?
                             for(OBSERVED_IN oi1 : inventory.getUnmatchedOccurrences()) {
                                 if(oi1.getObservationLatitude() == null)
                                     oi1.setObservationLatitude(inventory.getLatitude());
                                 if(oi1.getObservationLongitude() == null)
                                     oi1.setObservationLongitude(inventory.getLongitude());
                             }
-                            occ.addAll(inventory.getUnmatchedOccurrences());
+*/
+                            occurrences.addAll(inventory.getUnmatchedOccurrences());
                         }
-                        if (occ.size() == 0) occ.add(new OBSERVED_IN(true));
-                        merged.setUnmatchedOccurrences(occ);
+                        if (occurrences.size() == 0) occurrences.add(new OBSERVED_IN(true));
+/*
+                        Set<String> coords = new HashSet<>();
+                        for(OBSERVED_IN oi1 : occurrences) {
+                            System.out.println(oi1.getObservationLatitude());
+                            System.out.println(oi1.getObservationLongitude());
+                            if (oi1.getObservationLatitude() != null && oi1.getObservationLongitude() != null) {
+                                System.out.println(oi1._getObservationCoordinates());
+                                coords.add(oi1._getObservationCoordinates());
+                            }
+                        }
+                        if(coords.size() == 1) {
+                            // all the coordinates are the same, so we can remove them all and keep only the inventory's
+                            ListIterator<OBSERVED_IN> li = occurrences.listIterator();
+                            while(li.hasNext()) {
+                                OBSERVED_IN oi2 = li.next();
+                                oi2.setObservationLatitude(null);
+                                oi2.setObservationLongitude(null);
+                                li.set(oi2);
+                            }
+                        }
+*/
+                        merged.setUnmatchedOccurrences(occurrences);
 
                         if (mainObserver) {
                             Set<String> obs = new LinkedHashSet<>();

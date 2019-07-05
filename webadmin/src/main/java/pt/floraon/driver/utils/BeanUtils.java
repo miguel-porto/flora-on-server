@@ -208,7 +208,7 @@ public class BeanUtils {
                     if (!StringUtils.isStringEmpty(property.toString()) && !StringUtils.isStringEmpty(newProperty.toString())
                             && !property.equals(newProperty)) {
                         if(groupingProperty != null) {  // force grouping, discard conflicting field
-                            Log.warn("Property conflict <" + propertyName + ">: " + property + " -> " + newProperty + ", but will group anyway.");
+                            Log.warn("Property conflict <" + propertyName + ">: " + property + " -> " + newProperty + ", but will group anyway, since 'code' has been given.");
 //                            average = true;
                         } else {
                             Log.info("Property conflict <" + propertyName + ">: " + property + " -> " + newProperty);

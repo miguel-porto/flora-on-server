@@ -33,6 +33,7 @@
 	<script type="text/javascript" src="basefunctions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="suggestions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="js/occurrences.js?nocache=${uuid}"></script>
+	<!-- <script type="text/javascript" src="js/ajax_nav.js?nocache=${uuid}"></script> -->
 </head>
 <body class="occurrencespage ${sessionScope['option-compactview'] ? 'compactview' : ''}">
     <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">

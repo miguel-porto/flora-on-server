@@ -132,7 +132,17 @@ td.grouper {
 /*.occurrencetable {table-layout: fixed;}*/
 #topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
-.occurrencetable td {height:16px; padding:2px}
+.occurrencetable td {
+    height:16px;
+    padding:2px;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                          supported by Chrome and Opera */
+}
 .occurrencetable td.editable {cursor: pointer;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a; word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
@@ -141,7 +151,8 @@ td.grouper {
 .occurrencetable th.bigcol {min-width:150px;}
 .occurrencetable th.smallcol {width:10%;}
 tr.unmatched td {background-color: #ffcdd2 !important}
-tr.modified {outline: 2px dotted #b931ff;}
+tr.modified {outline: 1px dashed #b931ff; box-shadow: 0 0 3px #b931ff;}
+tr.active {outline: 1px solid #63c2ff;}
 tr.external td {font-style:italic}
 .occurrencetable td.collapsed, .occurrencetable th.collapsed {min-width:12px; width:16px; max-width:16px; overflow: hidden; font-size:0.6em; padding:0}
 .occurrencetable td.collapsed {text-overflow: ellipsis; white-space: nowrap;}

@@ -13,7 +13,7 @@
 
 <%-- the model for new taxa --%>
 <c:if test="${tax == null}">
-<tr class="geoelement dummy id2holder">
+<tr class="geoelement dummy empty id2holder">
     <td class="selectcol clickable"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td>
     <c:forEach var="flf" items="${fields.getFields()}">
     <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" noInventory="true" fields="${fields}"/>
@@ -39,7 +39,7 @@
 
 
 
-<%--
+<%-- OLD CODE
 <c:if test="${tax == null}">
 <tr class="dummy id2holder geoelement">
     <td class="select clickable selectcol"><div class="selectbutton"></div><input type="hidden" name="occurrenceUuid" value=""/></td>

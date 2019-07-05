@@ -208,7 +208,7 @@ function setSuggestionInputText(el, separator, text) {
     if(i == 0) i = 1;
     v[i-1] = text;
     for(i=0; i<v.length; i++) v[i] = v[i].trim();
-    el.value = v.join(separator + '');
+    el.value = v.join(separator + '') + separator;
 }
 
 function attachOptionButtonHandler(url) {

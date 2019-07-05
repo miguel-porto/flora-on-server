@@ -8,7 +8,7 @@
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 
 <!-- This is the model for the inventory. It will be cloned when adding new. -->
-<div class="inventory dummy id1holder">
+<div class="inventory dummy id1holder geoelement">
     <input type="hidden" name="inventoryId" value=""/>
     <h3><fmt:message key="inventory.1a"/></h3>
     <table class="verysmalltext occurrencetable">
@@ -18,7 +18,7 @@
             <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
         </tr>
         <tr>
-            <td class="field coordinates" data-name="coordinates"></td>
+            <td class="field editable coordinates" data-name="coordinates"></td>
             <td class="field editable" data-name="precision"></td>
             <td class="field editable" data-name="code"></td>
             <td class="field editable" data-name="locality"></td>
@@ -37,9 +37,7 @@
     </table>
     <table class="verysmalltext occurrencetable sortable newoccurrencetable">
         <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
-        <tbody>
-            <t:inventoryrow fields="${flavourfields}"/>
-        </tbody>
+        <tbody><t:inventoryrow fields="${flavourfields}"/></tbody>
     </table>
     <div class="button newtaxon">Add taxon</div>
 </div>
