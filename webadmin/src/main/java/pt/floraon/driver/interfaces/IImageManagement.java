@@ -5,4 +5,5 @@ import pt.floraon.driver.entities.Image;
 
 public interface IImageManagement {
     Image addNewImage(Image image) throws DatabaseException;
+    Image getImageFromUUID(String uuid) throws DatabaseException;
 }

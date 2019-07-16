@@ -54,7 +54,7 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
     }
 
     /**
-     * Include only the records used to make the published current maps
+     * Include only the records used to make the published current maps.
      * @param driver
      * @param territory
      * @return

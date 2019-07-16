@@ -130,7 +130,7 @@ public final class Common {
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv) throws IOException {
         OBSERVED_IN oi = occurrence._getTaxa()[0];
 //                    TaxEnt te = oi.getTaxEnt();
-
+// TODO use field annotations
         csv.printRecord(
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)

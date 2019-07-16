@@ -1,9 +1,16 @@
 package pt.floraon.taxonomy.servlets;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.List;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -22,9 +29,9 @@ import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geocoding.ToponomyParser;
 import pt.floraon.geocoding.entities.Toponym;
+import pt.floraon.images.filters.UnsharpMaskFilter;
 import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.server.FloraOnServlet;
-import sun.misc.IOUtils;
 
 @MultipartConfig
 @WebServlet("/upload/*")
@@ -91,20 +98,50 @@ public class FileUploader extends FloraOnServlet {
             }
 
             if(fileContent != null) {
-                String uuid = UUID.randomUUID().toString();
-                File newImage = new File(driver.getImageFolder(), uuid + ".jpg");
-                if(!newImage.createNewFile())
+            	Image imageNode = Image.createNew();
+                File newImage = new File(driver.getOriginalImageFolder(), imageNode.getUuid() + ".jpg");
+				if(!newImage.createNewFile())
                     throw new FloraOnException("Could not store image.");
+
+				imageNode.setFileName(newImage.getName());
 
                 OutputStream out = new FileOutputStream(newImage);
                 org.apache.commons.io.IOUtils.copy(fileContent, out);
                 fileContent.close();
                 out.close();
 
-                Image image = new Image(newImage.getName(), uuid);
-				image = driver.getImageManagement().addNewImage(image);
+                // resize to thumbnail
+                BufferedImage original = ImageIO.read(newImage);
+                imageNode.setWidth(original.getWidth());
+                imageNode.setHeight(original.getHeight());
+                java.awt.Image tmp = original.getScaledInstance(-1, 500, java.awt.Image.SCALE_SMOOTH);
+                BufferedImage scaledImage = new BufferedImage(tmp.getWidth(null), tmp.getHeight(null), BufferedImage.TYPE_3BYTE_BGR);
+				Graphics2D g2d = scaledImage.createGraphics();
+				g2d.drawImage(tmp, 0, 0, null);
+				g2d.dispose();
+				Kernel kernel = new Kernel(3, 3, new float[] { -1, -1, -1, -1, 9, -1, -1,
+						-1, -1 });
+				BufferedImageOp op = new ConvolveOp(kernel);
 
-                thisRequest.success(image.getID());
+//				BufferedImageOp op = new UnsharpMaskFilter(50, 4, 20);
+				scaledImage = op.filter(scaledImage, null);
+				ImageIO.write(scaledImage, "jpg", new File(driver.getThumbsFolder(), imageNode.getUuid() + ".jpg"));
+//                newImage.length()
+
+/*
+                BufferedImage tThumbImage = new BufferedImage( tThumbWidth, tThumbHeight, BufferedImage.TYPE_INT_RGB );
+                Graphics2D tGraphics2D = tThumbImage.createGraphics(); //create a graphics object to paint to
+                tGraphics2D.setBackground( Color.WHITE );
+                tGraphics2D.setPaint( Color.WHITE );
+                tGraphics2D.fillRect( 0, 0, tThumbWidth, tThumbHeight );
+                tGraphics2D.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR );
+                tGraphics2D.drawImage( tOriginalImage, 0, 0, tThumbWidth, tThumbHeight, null ); //draw the image scaled
+
+                ImageIO.write( tThumbImage, "JPG", tThumbnailTarget ); //write the image to a fi
+*/
+
+				imageNode = driver.getImageManagement().addNewImage(imageNode);
+                thisRequest.success(imageNode.getUuid());
             }
             break;
 

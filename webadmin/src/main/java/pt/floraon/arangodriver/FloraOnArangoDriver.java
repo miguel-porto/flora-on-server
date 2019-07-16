@@ -51,6 +51,7 @@ public class FloraOnArangoDriver implements IFloraOn {
     private Map<String, RedListSettings> redListSettings;
     private String errorMessage;
     private Properties properties;
+    private final File imageFolder, thumbsFolder, originalImageFolder;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -67,6 +68,9 @@ public class FloraOnArangoDriver implements IFloraOn {
         OCRD = null;
         ADMIN = null;
         IMG = null;
+        imageFolder = null;
+        thumbsFolder = null;
+        originalImageFolder = null;
     }
 
 	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
@@ -113,6 +117,29 @@ public class FloraOnArangoDriver implements IFloraOn {
 		OCRD = new OccurrenceReportArangoDriver(this);
 		ADMIN = new Administration(this);
 		IMG = new ImageManagementArangoDriver(this);
+
+		// check or create image folders
+        String folder;
+        if((folder = this.getProperties().getProperty("imageFolder")) == null)
+            throw new FloraOnException("Image folder is not defined.");
+
+        imageFolder = new File(folder);
+        if(!imageFolder.exists()) {
+            if(!imageFolder.mkdir())
+                throw new FloraOnException("Could not create image folder.");
+        }
+
+        thumbsFolder = new File(imageFolder, "thumbs");
+        if(!thumbsFolder.exists()) {
+            if(!thumbsFolder.mkdir())
+                throw new FloraOnException("Could not create thumbs folder.");
+        }
+
+        originalImageFolder = new File(imageFolder, "originals");
+        if(!originalImageFolder.exists()) {
+            if(!originalImageFolder.mkdir())
+                throw new FloraOnException("Could not create originals folder.");
+        }
 
         try {
 			Collection<String> dbs=driver.getDatabases();	// TODO: this needs permissions in the _system database...
@@ -172,18 +199,19 @@ public class FloraOnArangoDriver implements IFloraOn {
 	}
 
 	@Override
-	public File getImageFolder() throws FloraOnException {
-		String folder;
-		if((folder = this.getProperties().getProperty("imageFolder")) == null)
-			throw new FloraOnException("Image folder is not defined.");
-
-		File imageFolder = new File(folder);
-		if(!imageFolder.exists()) {
-			if(!imageFolder.mkdir())
-				throw new FloraOnException("Could not create folder.");
-		}
+	public File getImageFolder() {
 		return imageFolder;
 	}
+
+    @Override
+    public File getThumbsFolder() {
+        return thumbsFolder;
+    }
+
+    @Override
+    public File getOriginalImageFolder() {
+        return originalImageFolder;
+    }
 
 	@Override
 	public Object getDatabaseDriver() {
@@ -289,7 +317,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 		checkCollections();
 		createTaxonomicGraph();
 	}
-	
+
+	/**
+	 * This is where the database structure is created.
+	 * @throws ArangoDBException
+	 */
 	private void checkCollections() throws ArangoDBException {
 //		Map<String,CollectionEntity> collections=driver.getCollections().getNames();
 		
@@ -342,6 +374,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("year", "month", "day"), new SkiplistIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].confidence"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].phenoState"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.image.toString()).ensureHashIndex(Collections.singleton("uuid"), new HashIndexOptions().unique(true).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("latitude", "longitude"), new SkiplistIndexOptions().unique(false).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Collections.singleton("month"), new SkiplistIndexOptions().unique(false).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Collections.singleton("day"), new SkiplistIndexOptions().unique(false).sparse(false));

@@ -54,6 +54,14 @@ public class Rectangle {
         this.right = right;
     }
 
+    public long getWidth() {
+        return this.getRight() - this.getLeft();
+    }
+
+    public long getHeight() {
+        return this.getTop() - this.getBottom();
+    }
+
     @Override
     public String toString() {
         return this.getLeft() + " " + this.getBottom() + " " + (this.getRight() - this.getLeft())

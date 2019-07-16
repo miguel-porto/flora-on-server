@@ -35,6 +35,26 @@
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
 
+    <form class="poster orderdownload" data-path="api/downloadoccurrencesusedinassessments" data-refresh="true">
+        <h2>Tabela de todas as ocorrências actuais usadas nas avaliações publicadas</h2>
+        <p>Descarregar uma tabela com todas as ocorrências que foram usadas nos mapas de distribuição actual, das espécies com avaliações publicadas.</p>
+        <input type="hidden" name="territory" value="${territory}"/>
+        <input type="submit" value="Descarregar" class="textbutton"/>
+    </form>
+
+    <form class="poster orderdownload" data-path="api/downloadalloccurrences" data-refresh="true">
+        <h2>Tabela de todas as ocorrências</h2>
+        <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas).</p>
+        <input type="hidden" name="territory" value="${territory}"/>
+        <div class="multiplechooser left">
+        <c:forEach var="tmp" items="${allTags}">
+            <input type="checkbox" name="tags" value="${tmp}" id="tags1_${tmp}"/>
+            <label for="tags1_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
+        </c:forEach>
+        </div>
+        <input type="submit" value="Descarregar" class="textbutton"/>
+    </form>
+
     <form class="poster orderdownload" data-path="api/downloadtaxainpolygon" data-refresh="true">
         <h2>Tabela de taxa numa área</h2>
         <p>Descarregar uma tabela com os taxa existentes dentro do polígono fornecido, e o respectivo EOO e AOO.</p>

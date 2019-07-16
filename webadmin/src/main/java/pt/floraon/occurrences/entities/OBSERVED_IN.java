@@ -301,6 +301,10 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         return this.taxEnt;
     }
 
+    public void setTaxEnt(TaxEnt taxEnt) {
+        this.taxEnt = taxEnt;
+    }
+
     public UUID getUuid() {
         return uuid == null ? (uuid = UUID.randomUUID()) : uuid;
     }

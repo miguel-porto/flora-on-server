@@ -59,13 +59,13 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Etiquetas", shortName = "Tags")
     private String[] tags;
     @HideInInventoryView
-    @PrettyName(value = "Observadores", shortName = "Observadores")
+    @Authors @PrettyName(value = "Observadores", shortName = "Observadores")
     private String[] observers;
     @HideInCompactView @HideInInventoryView
-    @PrettyName(value = "Colectores", shortName = "Colectores")
+    @Authors @PrettyName(value = "Colectores", shortName = "Colectores")
     private String[] collectors;
     @HideInCompactView @HideInInventoryView
-    @PrettyName(value = "Determinadores", shortName = "Dets")
+    @Authors @PrettyName(value = "Determinadores", shortName = "Dets")
     private String[] dets;
     @Deprecated
     private String verbLocality;

@@ -12,7 +12,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
@@ -137,19 +136,27 @@ public class RedListDataApi extends FloraOnServlet {
             case "downloadalloccurrences":
                 territory = thisRequest.getParameterAsString("territory");
                 String[] filter1 = thisRequest.getParameterAsStringArray("tags");
-                // TODO clipping polygon and years must be a user configuration
-                PolygonTheme clippingPolygon1 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+//                PolygonTheme clippingPolygon1 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
                 rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new DownloadOccurrencesJob(territory, clippingPolygon1, (rls.getHistoricalThreshold() + 1)
+                        new DownloadOccurrencesJob(territory, rls.getClippingPolygon(), (rls.getHistoricalThreshold() + 1)
                                 , filter1 == null ? null : new HashSet<>(Arrays.asList(filter1)))
                         , "all-occurrences.csv", driver).getID());
+                break;
+
+            case "downloadoccurrencesusedinassessments":
+                territory = thisRequest.getParameterAsString("territory");
+                thisRequest.success(JobSubmitter.newJobFileDownload(
+                        new DownloadOccurrencesJob(territory
+                                , RedListDataFilterFactory.onlyAssessed()
+                                , BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory)
+                            )
+                        , "used-occurrences.csv", driver).getID());
                 break;
 
             case "downloadtaxainpolygon":
                 territory = thisRequest.getParameterAsString("territory");
                 String polygonWKT = thisRequest.getParameterAsString("polygon");
-                // TODO clipping polygon must be a user configuration
                 rls = driver.getRedListSettings(territory);
 //                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
 
@@ -239,18 +246,17 @@ public class RedListDataApi extends FloraOnServlet {
             case "downloadtable":
                 territory = thisRequest.getParameterAsString("territory");
                 String[] filter = thisRequest.getParameterAsStringArray("tags");
-                // TODO clipping polygon and years must be a user configuration
-                PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                rls = driver.getRedListSettings(territory);
+//                PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
+//                rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(
 /*
                         new ComputeAOOEOOJob(territory, 2000
                                 , new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, clippingPolygon)
-                                , new BasicRedListDataFilter(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
+                                , new RedListDataFilterTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
                         )
 */
                         new ComputeAOOEOOJob(territory, null
-                                , null, new BasicRedListDataFilter(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
+                                , null, RedListDataFilterFactory.filterByTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
                                 , false
                         )
                         , "AOO.csv", driver).getID());

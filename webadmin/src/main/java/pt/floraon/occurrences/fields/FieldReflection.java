@@ -184,6 +184,12 @@ public final class FieldReflection {
         return f.isAnnotationPresent(Image.class);
     }
 
+    static public boolean isAuthorField(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(Authors.class);
+    }
+
     static public boolean isSmallField(String field) {
         Field f = findField(field);
         if(f == null) return false;

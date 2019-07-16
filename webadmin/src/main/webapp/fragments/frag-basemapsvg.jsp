@@ -13,4 +13,5 @@
     borderWidth="${borderWidth}"
     scaleStroke="${scaleStroke}"
     showOccurrences="${showOccurrences}"
+    squareFill="${squareFill}"
     />

@@ -193,6 +193,14 @@ public class FloraOnServlet extends HttpServlet {
 			}
 		}
 
+		public Float getParameterAsFloat(String name, Float nullValue) throws IOException, ServletException {
+			try {
+				return Float.parseFloat(getParameterAsString(name));
+			} catch (NumberFormatException e) {
+				return nullValue;
+			}
+		}
+
 		public Long getParameterAsLong(String name, Long nullValue) throws IOException, ServletException {
 			try {
 				return Long.parseLong(getParameterAsString(name));
@@ -453,8 +461,10 @@ public class FloraOnServlet extends HttpServlet {
 		 * @throws IOException
 		 */
 		public void includeSVGMap(GridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
-				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences, boolean scaleStroke) throws ServletException, IOException {
-			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences, scaleStroke);
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences
+                , boolean scaleStroke, String squareFill) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone
+                    , showOccurrences, scaleStroke, squareFill);
             this.request.getRequestDispatcher("/fragments/frag-basemapsvg.jsp")
                     .include(this.request, this.response);
         }
@@ -474,9 +484,10 @@ public class FloraOnServlet extends HttpServlet {
 		 * @throws IOException
 		 */
         public void exportSVGMap(PrintWriter writer, GridMapExporter processor, String territory, boolean showBaseMap
-				, int borderWidth, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone
-				, boolean showOccurrences, boolean scaleStroke) throws ServletException, IOException {
-			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone, showOccurrences, scaleStroke);
+				, float borderWidth, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone
+				, boolean showOccurrences, boolean scaleStroke, String squareFill) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, showBaseMap, borderWidth, showShadow, protectedAreas, standAlone
+                    , showOccurrences, scaleStroke, squareFill);
 			HttpServletResponse2Writer customResponse = new HttpServletResponse2Writer(this.response, writer);
 			this.request.getRequestDispatcher("/fragments/frag-basemapsvg.jsp").forward(this.request, customResponse);
 //			return customResponse.getOutput();
@@ -493,8 +504,9 @@ public class FloraOnServlet extends HttpServlet {
          * @param standAlone
          * @param showOccurrences
          */
-		private void setSVGMapVariables(GridMapExporter processor, String territory, boolean showBaseMap, int borderWidth
-				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences, boolean scaleStroke) {
+		private void setSVGMapVariables(GridMapExporter processor, String territory, boolean showBaseMap, float borderWidth
+				, boolean showShadow, IPolygonTheme protectedAreas, boolean standAlone, boolean showOccurrences, boolean scaleStroke
+                , String squareFill) {
 			RedListSettings redListSettings = driver.getRedListSettings(territory);
 			this.request.setAttribute("mapBounds", redListSettings.getMapBounds());
 			this.request.setAttribute("svgDivisor", redListSettings.getSvgMapDivisor());
@@ -506,6 +518,7 @@ public class FloraOnServlet extends HttpServlet {
 			this.request.setAttribute("borderWidth", borderWidth);
 			this.request.setAttribute("scaleStroke", scaleStroke);
 			this.request.setAttribute("showOccurrences", showOccurrences);
+			this.request.setAttribute("squareFill", squareFill);
 			if(protectedAreas != null) this.request.setAttribute("protectedAreas", protectedAreas.iterator());
 		}
 	}

@@ -56,7 +56,7 @@
         <div id="header-buttons">
             <h3>Tools</h3>
             <div class="wordtag togglebutton"><a href="../checklist?w=taxdetails&id=${taxon._getIDURLEncoded()}">checklist</a></div>
-            <div class="wordtag togglebutton"><a href="../api/svgmap?basemap=1&size=${user.canVIEW_OCCURRENCES() ? 2000 : 10000}&border=2&shadow=0&download=1&pa=0&stroke=true&taxon=${taxon._getIDURLEncoded()}">download map</a></div>
+            <div class="wordtag togglebutton"><a href="../api/svgmap?basemap=1&size=${user.canVIEW_OCCURRENCES() ? 2000 : 10000}&border=0.05&shadow=0&download=1&pa=0&stroke=true&squareFill=98d900&taxon=${taxon._getIDURLEncoded()}">download SVG map</a></div>
             <c:if test="${user.canVIEW_FULL_SHEET()}">
                 <div class="wordtag togglebutton" id="summary_toggle">summary</div>
                 <div class="wordtag togglebutton" id="declines_toggle">declines</div>

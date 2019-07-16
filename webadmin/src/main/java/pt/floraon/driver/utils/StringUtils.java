@@ -21,13 +21,24 @@ import java.util.regex.Pattern;
  * Created by miguel on 14-02-2017.
  */
 public class StringUtils {
+    private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     private static final Whitelist whiteTagList = Whitelist.none();
+    private static Random rnd = new Random();
+
     static {
         whiteTagList.addTags("br", "span", "i", "sup")
                 .addAttributes("span", "data-id")
                 .addAttributes("span", "contenteditable")
                 .addAttributes("span", "class");
     }
+
+    static public String randomString( int len ) {
+        StringBuilder sb = new StringBuilder( len );
+        for( int i = 0; i < len; i++ )
+            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+        return sb.toString();
+    }
+
 
     public static Collection<String> cleanCollection(Collection<String> tmp, boolean returnEmpty) {
         tmp.removeAll(Collections.singleton(""));
@@ -216,12 +227,6 @@ public class StringUtils {
         }
     }
 */
-
-    public String randomString(int n) {
-        String uuid = UUID.randomUUID().toString();
-        uuid = uuid.replaceAll("-", "");
-        return uuid.substring(uuid.length() - n);
-    }
 
     /**
      * "Intelligent" fuzzy match of strings, word by word.

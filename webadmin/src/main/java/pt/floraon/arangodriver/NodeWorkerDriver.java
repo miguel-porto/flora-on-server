@@ -1,6 +1,5 @@
 package pt.floraon.arangodriver;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.arangodb.ArangoCursor;
@@ -15,7 +14,6 @@ import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
 import com.arangodb.velocypack.VPackSlice;
-import com.google.gson.Gson;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.*;
 import pt.floraon.driver.Constants.DocumentType;
@@ -30,7 +28,6 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
-import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.morphology.entities.Attribute;
 import pt.floraon.morphology.entities.Character;
 import pt.floraon.driver.entities.DBEntity;

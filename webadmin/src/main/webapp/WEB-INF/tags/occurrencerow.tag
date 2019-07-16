@@ -19,7 +19,7 @@
 <tr class="geoelement dummy id1holder">
     <td class="selectcol clickable ${!fields.containsCoordinates() ? 'coordinates nodisplay' : ''}"><div class="selectbutton"></div></td>
     <c:forEach var="flf" items="${fields.getFields()}">
-    <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}"/>
+    <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}" fields="${fields}"/>
     </c:forEach>
 </tr>
 </c:if>

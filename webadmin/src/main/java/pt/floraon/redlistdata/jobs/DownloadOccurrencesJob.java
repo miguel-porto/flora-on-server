@@ -7,12 +7,11 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
-import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.redlistdata.BasicRedListDataFilter;
 import pt.floraon.redlistdata.RedListDataFilter;
+import pt.floraon.redlistdata.RedListDataFilterFactory;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
@@ -27,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Downloads all occurrences from all providers of all species in the given red list (or optionally filtered by tags)
+ * Downloads all occurrences from all providers of all species in the given red list (or optionally filtered)
  */
 public class DownloadOccurrencesJob implements JobFileDownload {
     private String territory;
@@ -40,7 +39,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     public DownloadOccurrencesJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Set<String> filterTags) {
         this.territory = territory;
         this.occurrenceFilter = new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon);
-        this.redListDataFilter = new BasicRedListDataFilter(filterTags);
+        this.redListDataFilter = RedListDataFilterFactory.filterByTags(filterTags);
     }
 
     public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter) {
@@ -117,6 +116,8 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
         if (op.size() > 0) {
             for (Occurrence so : op) {
+                // here we override the matched taxent because we want occurrences to be organized by red list sheets.
+                so.getOccurrence().setTaxEnt(taxEnt);
                 Common.exportOccurrenceToCSV(so, printer);
 /*
                 printer.printRecord(
@@ -141,7 +142,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
     @Override
     public String getDescription() {
-        return "Occurrence table for all taxa";
+        return "Occurrence table for taxa (optionally filtered)";
     }
 
     @Override

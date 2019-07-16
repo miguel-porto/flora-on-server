@@ -55,4 +55,9 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
         return FieldReflection.isImageField(field);
     }
 
+    @Override
+    public boolean isAuthorField(String field) {
+        return FieldReflection.isAuthorField(field);
+    }
+
 }

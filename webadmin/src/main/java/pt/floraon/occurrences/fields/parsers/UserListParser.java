@@ -41,26 +41,30 @@ public class UserListParser implements FieldParser {
 
         String[] spl = inputValue.split("\\+");
         if(spl.length == 1) spl = inputValue.split(",");
+/*
+        if(spl.length == 1)
+            spl[0] = spl[0].replaceAll("\\+,", "");
+*/
 
-        String tmp;
+        String cleanUserName;
         List<String> userIds = new ArrayList<>();
         List<String> errors = new ArrayList<>();
 
         for(String username : spl) {
-            tmp = username.trim();
-            if(userMap.containsKey(tmp))
-                userIds.add(userMap.get(tmp));
+            cleanUserName = username.trim().replaceAll("[+,]", "");
+            if(userMap.containsKey(cleanUserName))
+                userIds.add(userMap.get(cleanUserName));
             else {
-                User user = driver.getAdministration().getUser(username.trim());
+                User user = driver.getAdministration().getUser(cleanUserName);
                 if(user == null) {
                     if(createUsers == null)
                         continue;
                     else if(!createUsers) {
-                        errors.add(Messages.getString("error.2", username.trim()));
+                        errors.add(Messages.getString("error.2", cleanUserName));
                         continue;
                     }
                     user = new User();
-                    user.setName(username.trim());
+                    user.setName(cleanUserName);
                     String id = driver.getAdministration().createUser(user).getID();
                     user.setID(id);
                 }

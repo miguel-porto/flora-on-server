@@ -14,30 +14,56 @@ import pt.floraon.taxonomy.entities.Territory;
  */
 public interface IFloraOn {
 	Object getDatabaseDriver();
+
 	Object getDatabase();
+
 	INodeWorker getNodeWorkerDriver();
+
 	IQuery getQueryDriver();
+
 	IListDriver getListDriver();
+
 	CSVFileProcessor getCSVFileProcessor();
+
 	IRedListDataDriver getRedListData();
+
 	IOccurrenceDriver getOccurrenceDriver();
+
 	IOccurrenceReportDriver getOccurrenceReportDriver();
+
 	IAdministration getAdministration();
+
 	IImageManagement getImageManagement();
+
 	INodeWrapper wrapNode(INodeKey node) throws FloraOnException;
+
 	ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException;
+
 	IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException;
+
 	List<Territory> getChecklistTerritories();
+
 	INodeKey asNodeKey(String id) throws FloraOnException;
-    void reloadSettings();
-    RedListSettings getRedListSettings(String territory);
-    Properties getProperties();
-    boolean hasFailed();
-    String getErrorMessage();
-    /**
-     * Gets a reference to the folder where images are stored.
-     * @return
-     * @throws FloraOnException
-     */
-    File getImageFolder() throws FloraOnException;
+
+	void reloadSettings();
+
+	RedListSettings getRedListSettings(String territory);
+
+	Properties getProperties();
+
+	boolean hasFailed();
+
+	String getErrorMessage();
+
+	/**
+	 * Gets a reference to the folder where images are stored.
+	 *
+	 * @return
+	 * @throws FloraOnException
+	 */
+	File getImageFolder();
+
+	File getThumbsFolder();
+
+	File getOriginalImageFolder();
 }

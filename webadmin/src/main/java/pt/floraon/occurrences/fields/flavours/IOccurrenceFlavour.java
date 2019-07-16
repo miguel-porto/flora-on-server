@@ -46,4 +46,6 @@ public interface IOccurrenceFlavour {
     boolean isSmallField(String field);
 
     boolean isImageField(String field);
+
+    boolean isAuthorField(String field);
 }

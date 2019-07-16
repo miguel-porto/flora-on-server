@@ -52,7 +52,8 @@ public class PublicApi extends FloraOnServlet {
                 INodeKey key;
                 String category = null;
                 Integer squareSize;
-                Integer borderWidth;
+                Float borderWidth;
+                String squareFill = null;
                 boolean standAlone;
                 boolean viewAll;
                 Matcher m;
@@ -61,16 +62,17 @@ public class PublicApi extends FloraOnServlet {
                 if(path.hasNext() && (m = svgURL.matcher(path.next())).find()) {
                     key = driver.asNodeKey("taxent/" + m.group("id"));
                     squareSize = 10000;
-                    borderWidth = 2;
+                    borderWidth = 2f;
                     viewAll = false;
                     standAlone = true;
                 } else {
                     key = thisRequest.getParameterAsKey("taxon");
                     category = thisRequest.getParameterAsString("category");
                     squareSize = thisRequest.getParameterAsInteger("size", 10000);
-                    borderWidth = thisRequest.getParameterAsInteger("border", 2);
+                    borderWidth = thisRequest.getParameterAsFloat("border", 2f);
                     viewAll = "all".equals(thisRequest.getParameterAsString("view"));
                     standAlone = thisRequest.getParameterAsBoolean("sa", true);
+                    squareFill = "#" + thisRequest.getParameterAsString("squareFill");
                 }
 
                 if(squareSize < 10000 && !user.canVIEW_OCCURRENCES()) {
@@ -177,7 +179,8 @@ public class PublicApi extends FloraOnServlet {
 //                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true);
 
                 thisRequest.exportSVGMap(writer, processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
-                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true, thisRequest.getParameterAsBoolean("stroke", false));
+                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas
+                        , standAlone, true, thisRequest.getParameterAsBoolean("stroke", false), squareFill);
 /*
                 processor.exportSVG(writer, true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)
