@@ -3,6 +3,7 @@ package pt.floraon.server;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.*;
 
 import javax.servlet.ServletException;
@@ -254,6 +255,15 @@ public class FloraOnServlet extends HttpServlet {
 			return out;
 		}
 
+		public Date getParameterAsDate(String name) throws IOException, ServletException {
+			try {
+				return Constants.dateFormatYMD.get().parse(getParameterAsString(name));
+			} catch (ParseException e) {
+				return null;
+			}
+		}
+
+
 		/**
 		 * Gets the called path, either if it was jsp:included or requested by browser
 		 * @return
@@ -443,6 +453,15 @@ public class FloraOnServlet extends HttpServlet {
 
 		public void ensurePrivilege(Privileges privilege, String message) throws FloraOnException {
 			if(!this.getUser().hasPrivilege(privilege))
+				throw new FloraOnException(message);
+		}
+
+		public void ensureAdministrator() throws FloraOnException {
+			ensureAdministrator("Reserved for administrators.");
+		}
+
+		public void ensureAdministrator(String message) throws FloraOnException {
+			if(!this.getUser().isAdministrator())
 				throw new FloraOnException(message);
 		}
 

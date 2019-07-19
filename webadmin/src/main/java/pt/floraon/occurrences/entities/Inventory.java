@@ -54,7 +54,6 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @HideInCompactView @HideInInventoryView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
     private String privNotes;
-    private String geology;
     @HideInCompactView @HideInInventoryView @FieldParser(StringArrayParser.class)
     @PrettyName(value = "Etiquetas", shortName = "Tags")
     private String[] tags;
@@ -93,6 +92,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @HideInInventoryView @FieldParser(FloatParser.class)
     @PrettyName(value = "Área do inventário", shortName = "Área")
     private Float area;
+    private String geology;
     private Float meanHeight;
     private Float totalCover;
     private String aspect;

@@ -1,6 +1,7 @@
 package pt.floraon.geometry;
 
 
+import pt.floraon.driver.Constants;
 import pt.floraon.geometry.mgrs.MGRSCoordConverter;
 import pt.floraon.geometry.mgrs.UTMCoord;
 
@@ -466,7 +467,7 @@ public final class CoordinateConversion {
 	}
 
 	public static String LatLongToMGRS(Float latitude, Float longitude, long sizeOfSquare) {
-		if(latitude == null || longitude == null) return "";
+		if(Constants.isNullOrNoData(latitude) || Constants.isNullOrNoData(longitude)) return "";
 		MGRSCoordConverter cnv = new MGRSCoordConverter();
 		return cnv.convertGeodeticToMGRS((latitude / 180) * PI, (longitude / 180) * PI, sizeOfSquare);
 	}

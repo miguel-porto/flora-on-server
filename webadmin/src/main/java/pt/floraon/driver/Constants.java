@@ -80,7 +80,14 @@ public final class Constants {
 			return new SimpleDateFormat("yyyy-MM-dd");
 		}
 	};
-	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
+
+	public static final ThreadLocal<DateFormat> dateFormatYMDHM = new ThreadLocal<DateFormat>(){
+		@Override
+		protected DateFormat initialValue() {
+			return new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		}
+	};
+ 	public static final String sanitizeHtmlId = "[^^A-Za-z0-9\\w\\-\\:\\.]+";
 	public static final Float NODATA = -999999999.99999f;
 	public static final Integer NODATA_INT = -999999999;
 

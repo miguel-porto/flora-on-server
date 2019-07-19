@@ -146,10 +146,13 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "downloadoccurrencesusedinassessments":
                 territory = thisRequest.getParameterAsString("territory");
+
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                         new DownloadOccurrencesJob(territory
                                 , RedListDataFilterFactory.onlyAssessed()
-                                , BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory)
+                                , "current".equals(thisRequest.getParameterAsString("currentOrHistorical"))
+                                    ? BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory)
+                                    : BasicOccurrenceFilter.OnlyHistoricalAndCertainRecords(driver, territory)
                             )
                         , "used-occurrences.csv", driver).getID());
                 break;
@@ -158,8 +161,6 @@ public class RedListDataApi extends FloraOnServlet {
                 territory = thisRequest.getParameterAsString("territory");
                 String polygonWKT = thisRequest.getParameterAsString("polygon");
                 rls = driver.getRedListSettings(territory);
-//                PolygonTheme clippingPolygon2 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-
                 thisRequest.success(JobSubmitter.newJobFileDownload(new DownloadTaxaInPolygonJob(territory, polygonWKT, rls.getClippingPolygon())
                         ,"taxa-in-polygon.csv", driver).getID());
 /*
@@ -642,6 +643,11 @@ public class RedListDataApi extends FloraOnServlet {
 
                     case "historicalthreshold":
                         driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls.getID()), "historicalThreshold", thisRequest.getParameterAsInteger("value", 1990));
+                        break;
+
+                    case "cutRecordsAfter":
+                        driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(rls.getID()), "cutRecordsInsertedAfter"
+                                , thisRequest.getParameterAsDate("value"));
                         break;
 
                     case "svgDivisor":

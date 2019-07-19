@@ -79,6 +79,17 @@
         </td>
     </tr>
     <tr>
+        <td>Excluir todos os registos inseridos após a data</td>
+        <td>
+            <form class="poster" data-path="api/setoptions" data-refresh="true">
+                <input type="hidden" name="territory" value="${territory}"/>
+                <input type="hidden" name="option" value="cutRecordsAfter"/>
+                <input type="date" name="value" value="${cutRecordsAfter}"/>
+                <input type="submit" value="Set" class="textbutton"/>
+            </form>
+        </td>
+    </tr>
+    <tr>
         <td>Mostrar edições dos últimos</td>
         <td>
             <form class="poster" data-path="api/setoptions" data-refresh="true">

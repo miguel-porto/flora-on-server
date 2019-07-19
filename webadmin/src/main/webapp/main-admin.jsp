@@ -133,7 +133,6 @@
     </table>
 
 
-
     <c:if test="${showDownload}">
     <h2>Download occurrence records</h2>
     <table>

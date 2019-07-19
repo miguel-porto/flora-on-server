@@ -6,10 +6,13 @@ import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.driver.interfaces.IOccurrenceDriver;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.iterators.OccurrenceIterator;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.*;
@@ -131,4 +134,12 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
             out.put("NA", na);
         return out;
     }
+
+    @Override
+    public Iterator<Occurrence> getFilteredOccurrences(OccurrenceFilter filter) throws DatabaseException {
+        Iterator<Occurrence> tmp =
+                this.driver.getOccurrenceDriver().getOccurrencesOfMaintainer(null, true, null, null);
+        return new OccurrenceIterator(tmp, new OccurrenceFilter[] {filter});
+    }
+
 }

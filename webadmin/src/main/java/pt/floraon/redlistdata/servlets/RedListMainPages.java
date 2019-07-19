@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata.servlets;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Multimap;
@@ -249,6 +250,8 @@ System.out.println(gs.toJson(getUser()));
             case "settings":    // settings page
                 request.setAttribute("lockediting", driver.getRedListSettings(territory).isEditionGloballyLocked());
                 request.setAttribute("historicalthreshold", driver.getRedListSettings(territory).getHistoricalThreshold());
+                request.setAttribute("cutRecordsAfter", driver.getRedListSettings(territory).getCutRecordsInsertedAfter() == null
+                        ? null : Constants.dateFormatYMD.get().format(driver.getRedListSettings(territory).getCutRecordsInsertedAfter()));
                 request.setAttribute("unlockedSheets", driver.getRedListSettings(territory).getUnlockedSheets());
                 request.setAttribute("allTags", driver.getRedListData().getRedListTags(territory));
                 request.setAttribute("lockedTags", driver.getRedListSettings(territory).getLockedTags());
@@ -611,19 +614,16 @@ System.out.println(gs.toJson(getUser()));
                 if (!thisRequest.getUser().canVIEW_OCCURRENCES()) break;
                 te = driver.getNodeWorkerDriver().getTaxEntById(thisRequest.getParameterAsKey("id"));
                 request.setAttribute("taxon", te);
-                PolygonTheme clippingPolygon2 = driver.getRedListSettings(territory).getClippingPolygon();
                 List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
 
                 for(SimpleOccurrenceDataProvider edp : sodps)
                     edp.executeOccurrenceQuery(te);
-                RedListSettings rls = driver.getRedListSettings(territory);
 
                 boolean viewAll = "all".equals(thisRequest.getParameterAsString("view"));
 
-                OccurrenceFilter of = new BasicOccurrenceFilter(
-//                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, viewAll, clippingPolygon2
-                        viewAll ? null : (rls.getHistoricalThreshold() + 1), null, false, clippingPolygon2
-                );
+                OccurrenceFilter of = viewAll ?
+                        BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
+                        : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
 
                 OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, of);
 
@@ -674,12 +674,13 @@ System.out.println(gs.toJson(getUser()));
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.kml\"");
                 PrintWriter wr = thisRequest.response.getWriter();
                 if(thisRequest.getUser().canDOWNLOAD_OCCURRENCES())
-                    OccurrenceProcessor.iterableOf(sodps1, BasicOccurrenceFilter.WithCoordinatesFilter()).exportKML(wr);
+                    OccurrenceProcessor.iterableOf(sodps1, BasicOccurrenceFilter.create()).exportKML(wr);
                 else {
-                    PolygonTheme clippingPolygon = driver.getRedListSettings(territory).getClippingPolygon();
-                    OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
-                            "all".equals(thisRequest.getParameterAsString("view")) ? null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
-                            , null, false, clippingPolygon)).exportKML(wr);
+                    OccurrenceProcessor.iterableOf(sodps1
+                            , "all".equals(thisRequest.getParameterAsString("view"))
+                                    ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
+                                    : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory)
+                    ).exportKML(wr);
                 }
                 wr.flush();
                 return;

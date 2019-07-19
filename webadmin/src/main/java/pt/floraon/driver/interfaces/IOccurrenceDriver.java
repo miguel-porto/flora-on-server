@@ -69,7 +69,7 @@ public interface IOccurrenceDriver {
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
      * observer). Inventories as disaggregated into individual occurrences. NOTE: in case of empty inventories, one
      * (empty) occurrence is returned, to allow the user to populate the empty inventory with taxa.
-     * @param authorId
+     * @param authorId Set to NULL to return all
      * @param offset
      * @param count
      * @return
@@ -195,7 +195,7 @@ public interface IOccurrenceDriver {
     void replaceTaxEntMatch(Map<String, TaxonomicChange> changes) throws FloraOnException;
 
     /**
-     * Fetches all occurrences that match the given filter, or only those of a specific maintainer.
+     * Fetches all occurrences that match the given provider filter, or only those of a specific maintainer.
      * @param filter The filter is searched in taxon name, GPS code, Locality and verbLocality
      * @param userId
      * @param offset
@@ -205,6 +205,7 @@ public interface IOccurrenceDriver {
      */
     Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
+    @Deprecated
     int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException;
 
     /**
@@ -213,4 +214,12 @@ public interface IOccurrenceDriver {
      * @return
      */
     Map<String, String> parseFilterExpression(String filterText);
+
+    /**
+     * Finds all occurrences and iterate applying a custom in-house filter
+     * @param filter
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Occurrence> getFilteredOccurrences(OccurrenceFilter filter) throws DatabaseException;
 }

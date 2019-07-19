@@ -12,10 +12,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.iterators.OccurrenceIterator;
 import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 
@@ -178,4 +181,5 @@ public class BaseFloraOnDriver {
 
 		return StringUtils.implode(". ", citationParts.toArray(new String[0]));
 	}
+
 }

@@ -55,16 +55,17 @@ public class PublicApi extends FloraOnServlet {
                 Float borderWidth;
                 String squareFill = null;
                 boolean standAlone;
-                boolean viewAll;
+                boolean viewAll, showProtectedAreas;
                 Matcher m;
 
                 // a kind of mod_rewrite
                 if(path.hasNext() && (m = svgURL.matcher(path.next())).find()) {
                     key = driver.asNodeKey("taxent/" + m.group("id"));
                     squareSize = 10000;
-                    borderWidth = 2f;
+                    borderWidth = 0.2f;
                     viewAll = false;
                     standAlone = true;
+                    showProtectedAreas = false;
                 } else {
                     key = thisRequest.getParameterAsKey("taxon");
                     category = thisRequest.getParameterAsString("category");
@@ -73,6 +74,7 @@ public class PublicApi extends FloraOnServlet {
                     viewAll = "all".equals(thisRequest.getParameterAsString("view"));
                     standAlone = thisRequest.getParameterAsBoolean("sa", true);
                     squareFill = "#" + thisRequest.getParameterAsString("squareFill");
+                    showProtectedAreas = thisRequest.getParameterAsBoolean("pa", true);
                 }
 
                 if(squareSize < 10000 && !user.canVIEW_OCCURRENCES()) {
@@ -88,19 +90,17 @@ public class PublicApi extends FloraOnServlet {
                 thisRequest.setCacheHeaders(60 * 10);
 //                thisRequest.response.addHeader("Access-Control-Allow-Origin", "*");
 
-                PolygonTheme protectedAreas = thisRequest.getParameterAsBoolean("pa", true) ?
-                        rls.getProtectedAreas() : null;
-                PolygonTheme clippingPolygon = rls.getClippingPolygon();
+                PolygonTheme protectedAreas = showProtectedAreas ? rls.getProtectedAreas() : null;
 
                 GridMapExporter processor;
                 OccurrenceFilter occurrenceFilter;
 
                 if("maybeextinct".equals(category))
-                    occurrenceFilter = new BasicOccurrenceFilter(null, null, false, clippingPolygon);
+                    occurrenceFilter = BasicOccurrenceFilter.OnlyCertainRecords(driver, territory);
                 else
-                    occurrenceFilter = new BasicOccurrenceFilter(viewAll ?
-                            null : (driver.getRedListSettings(territory).getHistoricalThreshold() + 1)
-                            , null, false, clippingPolygon);
+                    occurrenceFilter = viewAll
+                            ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
+                            : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
 
                 if(key != null) {   // we want one taxon
                     TaxEnt te2 = driver.getNodeWorkerDriver().getTaxEntById(key);
@@ -228,7 +228,7 @@ public class PublicApi extends FloraOnServlet {
                     edp.executeOccurrenceQuery(te3);
 
                 occurrenceFilter = viewAll
-                        ? new BasicOccurrenceFilter(null, null, false, rls.getClippingPolygon())
+                        ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
                         : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
 
                 processor = new OccurrenceProcessor(sodps, null, squareSize, occurrenceFilter);

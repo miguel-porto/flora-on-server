@@ -221,7 +221,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	}
 	
 	public Boolean isSpeciesOrInferior() {
-		return this.getRankValue()>=TaxonRanks.SPECIES.getValue();
+		return this.getRankValue() >= TaxonRanks.SPECIES.getValue();
 	}
 
 	/**

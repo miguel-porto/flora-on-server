@@ -13,6 +13,8 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.geometry.PolygonTheme;
+import pt.floraon.occurrences.Common;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilterWithAuthors;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
@@ -309,6 +311,14 @@ public class AdminAPI extends FloraOnServlet {
 
                 op.exportKML(wr);
                 wr.flush();
+                break;
+
+            case "downloadallrecords":
+                thisRequest.ensureAdministrator();
+                Iterator<Occurrence> it = driver.getOccurrenceDriver().getFilteredOccurrences(
+                        BasicOccurrenceFilter.create().withMinimumPrecision(100).withValidTaxaOnly().withSpeciesOrLowerRankOnly());
+                thisRequest.setDownloadFileName("all-occurrences.csv");
+                Common.exportOccurrencesToCSV(it, thisRequest.response.getWriter());
                 break;
 
             default:

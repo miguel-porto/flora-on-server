@@ -53,6 +53,7 @@ public class FloraOnArangoDriver implements IFloraOn {
     private Properties properties;
     private final File imageFolder, thumbsFolder, originalImageFolder;
 
+
 	/**
 	 * Constructs a dummy driver object to hold error messages
 	 * @param error

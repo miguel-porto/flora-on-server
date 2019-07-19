@@ -5,6 +5,7 @@ import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.annotations.HideInInventoryView;
 import pt.floraon.driver.annotations.PrettyName;
 import pt.floraon.driver.utils.StringUtils;
@@ -15,6 +16,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -122,26 +124,31 @@ public final class Common {
     }
 
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        csv.printRecord("source", "taxa", "confidence", "phenoState", "date", "observers", "latitude", "longitude"
-                , "precision", "mgrs", "verbLocality", "gpsCode", "verbTaxa", "abundance", "method", "photo", "collected"
-                , "specificThreats", "comment", "privateComment", "year", "month", "day");
+        csv.printRecord("source", "taxa", "verbTaxa", "confidence", "excludeReason", "phenoState", "date", "observers", "latitude", "longitude"
+                , "precision", "mgrs", "verbLocality", "code", "abundance", "method", "photo", "collected"
+                , "specificThreats", "comment", "privateComment", "year", "month", "day", "dateInserted");
     }
 
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv) throws IOException {
-        OBSERVED_IN oi = occurrence._getTaxa()[0];
+        OBSERVED_IN oi = occurrence.getOccurrence();// ._getTaxa()[0];
 //                    TaxEnt te = oi.getTaxEnt();
 // TODO use field annotations
         csv.printRecord(
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
+                , oi.getVerbTaxon()
                 , oi.getConfidence()
+                , oi.getPresenceStatus()
                 , oi.getPhenoState()
                 , occurrence._getDateYMD()
                 , StringUtils.implode(", ", occurrence._getObserverNames())
                 , occurrence._getLatitude(), occurrence._getLongitude(), occurrence.getPrecision()
                 , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
-                , occurrence.getVerbLocality(), occurrence.getCode(), oi.getVerbTaxon()
+                , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
-                , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay());
+                , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
+                , Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
+        );
+
     }
 }

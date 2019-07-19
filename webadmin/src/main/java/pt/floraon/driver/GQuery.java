@@ -73,7 +73,7 @@ public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 		OccurrenceFilter geoFilter = new OccurrenceFilter() {
 			@Override
 			public boolean enter(Inventory simpleOccurrence) {
-				if(simpleOccurrence._getLongitude() == null || simpleOccurrence._getLatitude() == null)
+				if(Constants.isNullOrNoData(simpleOccurrence._getLongitude()) || Constants.isNullOrNoData(simpleOccurrence._getLatitude()))
 					return false;
 				else
 					return poly.contains(new Point2D(simpleOccurrence._getLongitude(), simpleOccurrence._getLatitude()));

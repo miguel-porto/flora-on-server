@@ -8,6 +8,7 @@ import pt.floraon.geometry.Polygon;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.redlistdata.servlets.RedListMainPages;
 
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -19,6 +20,7 @@ public class RedListSettings extends GeneralDBNode {
     private boolean editionLocked = false;
     private Set<String> tagsEditionLocked = new HashSet<>();
     private Integer historicalThreshold, editionsLastNDays;
+    private Date cutRecordsInsertedAfter;
     private Set<String> unlockedSheets = new HashSet<>();
     private Rectangle mapBounds;
     private List<Polygon> baseMap;
@@ -63,6 +65,18 @@ public class RedListSettings extends GeneralDBNode {
 
     public Integer getHistoricalThreshold() {
         return historicalThreshold == null ? 1990 : historicalThreshold;
+    }
+
+    public Date getCutRecordsInsertedAfter() {
+        return this.cutRecordsInsertedAfter;
+/*
+        try {
+            return Constants.dateFormatYMD.get().parse("2019-03-20");
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+*/
     }
 
     public Integer getEditionsLastNDays() {

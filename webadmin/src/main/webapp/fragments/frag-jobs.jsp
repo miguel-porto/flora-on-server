@@ -36,9 +36,15 @@
     </form>
 
     <form class="poster orderdownload" data-path="api/downloadoccurrencesusedinassessments" data-refresh="true">
-        <h2>Tabela de todas as ocorrências actuais usadas nas avaliações publicadas</h2>
-        <p>Descarregar uma tabela com todas as ocorrências que foram usadas nos mapas de distribuição actual, das espécies com avaliações publicadas.</p>
+        <h2>Tabela de todas as ocorrências usadas nos taxa avaliados</h2>
+        <p>Descarregar uma tabela com todas as ocorrências que foram de facto usadas nos mapas de distribuição das espécies avaliadas, actuais ou históricos. Exclui registos duvidosos e imprecisos.</p>
         <input type="hidden" name="territory" value="${territory}"/>
+        <div class="multiplechooser left inlineflex">
+            <input type="radio" name="currentOrHistorical" value="current" id="butCurrent" checked="checked"/>
+            <label for="butCurrent" class="wordtag togglebutton"> Current records</label>
+            <input type="radio" name="currentOrHistorical" value="historical" id="butHistorical"/>
+            <label for="butHistorical" class="wordtag togglebutton"> Historical records</label>
+        </div>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
 
