@@ -60,6 +60,15 @@ public class OccurrenceApi extends FloraOnServlet {
                 thisRequest.success("Ok");
                 break;
 
+            case "removeduplicatetaxa":
+/*
+                String inventoryId;
+                errorIfAllNull(inventoryId = thisRequest.getParameterAsString("id"));
+                Inventory inventory = driver.getOccurrenceDriver().getInventoriesByIds(new String[] {inventoryId}).next();
+                inventory._getTaxa()
+*/
+                break;
+
             case "savetable":
                 fileName = thisRequest.getParameterAsString("file");
                 errorIfAnyNull(fileName);

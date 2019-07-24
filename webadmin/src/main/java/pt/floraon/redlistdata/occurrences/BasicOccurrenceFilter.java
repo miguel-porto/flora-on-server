@@ -82,6 +82,11 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         return this;
     }
 
+    public BasicOccurrenceFilter withInsidePolygonTheme(IPolygonTheme polygonTheme) {
+        this.clippingPolygon = polygonTheme;
+        return this;
+    }
+
     /**
      * Include only the records used to make the published current maps.
      * @param driver

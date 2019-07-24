@@ -147,7 +147,7 @@ public final class Common {
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
                 , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
-                , Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
+                , oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
         );
 
     }

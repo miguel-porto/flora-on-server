@@ -297,6 +297,10 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         this.taxEntMatch = taxEntMatch;
     }
 
+    /**
+     * NOTE: this is not saved in the document, it must be fetched during the query.
+     * @return
+     */
     public TaxEnt getTaxEnt() {
         return this.taxEnt;
     }

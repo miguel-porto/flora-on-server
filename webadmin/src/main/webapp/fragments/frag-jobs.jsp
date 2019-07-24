@@ -5,7 +5,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
-<iframe style="visibility: hidden; width:0; height:0" name="trash"></iframe>
+<iframe style="visibility: hidden; width:0; height:0; margin:0; padding:0" name="trash"></iframe>
 <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
     <h1><fmt:message key="Separator.6"/></h1>
     <p><fmt:message key="Downloads.1"/></p>

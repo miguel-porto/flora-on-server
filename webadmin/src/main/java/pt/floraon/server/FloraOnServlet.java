@@ -83,7 +83,7 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk11");
+		request.setAttribute("uuid", "bk12");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -135,6 +135,11 @@ public class FloraOnServlet extends HttpServlet {
 			this.request = request;
 		}
 
+		public boolean isQueryParameterEqualTo(String name, String value) throws IOException, ServletException {
+			if(value == null && getParameterAsString(name) == null)
+				return true;
+			return value != null && value.equals(getParameterAsString(name));
+		}
 		/**
 		 * Gets the parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.
 		 * @param name

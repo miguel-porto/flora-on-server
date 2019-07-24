@@ -643,6 +643,23 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
+     * Checks whether there are duplicated taxa (it only checks the taxa name, not other fields!)
+     * @return
+     */
+    public boolean _hasDuplicatedTaxa() {
+        Set<String> taxa = new HashSet<>();
+        for(OBSERVED_IN oi : this._getTaxa()) {
+            if(taxa.contains(oi.getTaxEntMatch()) || taxa.contains(oi.getVerbTaxon()))
+                return true;
+            if(StringUtils.isStringEmpty(oi.getTaxEntMatch()))
+                taxa.add(oi.getVerbTaxon());
+            else
+                taxa.add(oi.getTaxEntMatch());
+        }
+        return false;
+    }
+
+    /**
      * Gets a textual summary of the taxa.
      * @param nTaxa How many taxa to show
      * @return

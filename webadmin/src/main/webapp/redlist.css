@@ -13,16 +13,26 @@ img.lock+* {vertical-align: middle;}
 #main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
 #left-bar, #title, #title a, #title a:visited {
-/*    background: linear-gradient(135deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px),
-        linear-gradient(225deg, #f44336 5px, #f34335 5px, #f34335 6px, transparent 6px, transparent 16px, #f34335 16px, #f34335 17px, transparent 17px) 0 16px;
-    background-size: 16px 32px;*/
     background-color:#f44336;
     flex: 1 1 auto;
     color:white; font-weight:bold; border:0;
 }
 
+#left-bar {flex: 1 1 0px;}
+
 #left-bar a {color:white}
 .buttonmenu ul li {background-color:rgba(255,255,255,0.15); padding: 0.3em 0.7em; border-radius: 3px; box-shadow: 0 0 6px #a00;}
+
+#main-holder.fixed #left-bar {
+    position:fixed;
+    width:200px;
+    height:100%;
+    overflow:auto;
+}
+
+#main-holder.fixed #main {
+    margin-left:200px;
+}
 /*ul li {
 	list-style-type:none;
 	padding:0.7em;
@@ -32,10 +42,11 @@ span.error {color:red !important; font-weight:bold !important;}
 
 .nopadding {padding:0 !important}
 
-h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px}
+h1 {text-align: left; font-size: 2.4em; color: #1e88e5; padding: 8px; margin: 0 12px 12px 12px; border-bottom: 3px solid #1e88e5}
 h2 {text-align: left; font-size: 1.8em; color: #1565c0; padding: 8px}
 h3 {text-align: left; font-size: 1.5em; color: #1565c0; padding: 8px}
 p {text-align: justify; font-size: 1.2em; color: black; line-height:1.6em; padding: 8px;}
+.redlistcategory h1 {border:none; margin:8px 0 5px 0}
 ul.inlinelistitems li {display:inline-block; margin-right: 12px;}
 table.sortable th:not(.sorttable_sorted):not(.sorttable_sorted_reverse):not(.sorttable_nosort):after {
     content: " \25B4\25BE"
@@ -301,7 +312,7 @@ input.selectionbox:not(:checked) + label {background-color: white;}
     /*transform: scale(0.8, 0.8);*/
     box-shadow: 0 0 16px #600;
 }
-#sheet-header h1 {padding-left: 130px; color: inherit}
+#sheet-header h1 {padding-left: 130px; color: inherit; border:none; margin:8px 0 5px 0}
 
 #panels {   /* the tools below sheet header */
     display:flex;
