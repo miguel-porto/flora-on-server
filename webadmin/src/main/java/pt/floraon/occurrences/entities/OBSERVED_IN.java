@@ -12,9 +12,7 @@ import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * See https://github.com/miguel-porto/flora-on-server/wiki/The-data-model#observed_in
@@ -80,6 +78,9 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @ReadOnly
     @PrettyName(value = "Data de inserção", shortName = "Data ins")
     private Date dateInserted;
+    @SmallField @HideInCompactView @ReadOnly
+    @PrettyName(value = "Data da última actualização", shortName = "Data alt")
+    private Date dateUpdated;
     @SmallField @HideInCompactView @ReadOnly
     @PrettyName(value = "Identificador único", shortName = "UUID")
     private UUID uuid;
@@ -285,8 +286,16 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         return dateInserted;
     }
 
+    public Date getDateUpdated() {
+        return dateUpdated;
+    }
+
     public void setDateInserted(Date dateInserted) {
         this.dateInserted = dateInserted;
+    }
+
+    public void setDateUpdated(Date dateUpdated) {
+        this.dateUpdated = dateUpdated;
     }
 
     public String getTaxEntMatch() {
@@ -386,5 +395,43 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 
     public void setPresenceStatus(OccurrenceConstants.PresenceStatus presenceStatus) {
         this.presenceStatus = presenceStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OBSERVED_IN that = (OBSERVED_IN) o;
+        return Objects.equals(observationLatitude, that.observationLatitude) &&
+                Objects.equals(observationLongitude, that.observationLongitude) &&
+                phenoState == that.phenoState &&
+                naturalization == that.naturalization &&
+                confidence == that.confidence &&
+                Objects.equals(verbTaxon, that.verbTaxon) &&
+                Objects.equals(comment, that.comment) &&
+                Objects.equals(privateComment, that.privateComment) &&
+                Objects.equals(labelData, that.labelData) &&
+                Objects.equals(accession, that.accession) &&
+                Objects.equals(abundance, that.abundance) &&
+                typeOfEstimate == that.typeOfEstimate &&
+                Objects.equals(cover, that.cover) &&
+                Objects.equals(coverIndex, that.coverIndex) &&
+                coverIndexScale == that.coverIndexScale &&
+                hasPhoto == that.hasPhoto &&
+                Objects.equals(hasSpecimen, that.hasSpecimen) &&
+                Objects.equals(institutionCode, that.institutionCode) &&
+                validationStatus == that.validationStatus &&
+                Objects.equals(gpsCode, that.gpsCode) &&
+                Objects.equals(specificThreats, that.specificThreats) &&
+                presenceStatus == that.presenceStatus &&
+                Arrays.equals(images, that.images);
+    }
+
+    @Override
+    public int hashCode() {
+
+        int result = Objects.hash(observationLatitude, observationLongitude, phenoState, naturalization, confidence, verbTaxon, comment, privateComment, labelData, accession, abundance, typeOfEstimate, cover, coverIndex, coverIndexScale, hasPhoto, hasSpecimen, institutionCode, validationStatus, gpsCode, specificThreats, presenceStatus);
+        result = 31 * result + Arrays.hashCode(images);
+        return result;
     }
 }

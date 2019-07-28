@@ -254,7 +254,7 @@ public class BeanUtils {
 
             newProperty = propUtils.getProperty(newBean, propertyName);
 
-            if(newProperty == null)
+            if(newProperty == null) // if null, copy old value
                 bub.setProperty(out, propertyName, propUtils.getProperty(oldBean, propertyName));
             else
                 bub.setProperty(out, propertyName, newProperty);

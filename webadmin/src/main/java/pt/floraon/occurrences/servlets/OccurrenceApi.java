@@ -104,7 +104,8 @@ public class OccurrenceApi extends FloraOnServlet {
             case "addoccurrences":
             case "updateoccurrences":
             case "updateinventory":
-                // NOTE: this expects HTML field names of the form xxxxxx_yyyyyy_latitude, xxxxxx_yyyyyy_taxa, etc. or just xxxxxx_taxa, etc.
+                // NOTE: this expects HTML field names of the form xxxxxx_yyyyyy_latitude, xxxxxx_yyyyyy_taxa, etc.
+                // or just xxxxxx_taxa, etc.
                 // First form is for inventories - 6 uid digits for grouping, other 6 for table rows
                 // Second form for occurrences
                 Pattern ids = Pattern.compile("^(?<id1>[a-zA-Z0-9]{6})_((?<id2>[a-zA-Z0-9]{6})_)?(?<name>[a-zA-Z0-9]+)$");

@@ -294,9 +294,9 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                         updMap.put(newUuid, newOcc);
                     } else {    // update existing occurrence
                         try {
-                            OBSERVED_IN tmpori = origMap.get(eachNewOcc.getUuid());
+                            OBSERVED_IN tmpOriginalOccurrence = origMap.get(eachNewOcc.getUuid());
 //                            System.out.println(original._getLatitude()+", "+original._getLongitude()+", "+tmpori.getObservationLatitude()+", "+tmpori.getObservationLongitude()+", "+eachNewOcc.getObservationLatitude()+", "+eachNewOcc.getObservationLongitude());
-                            if(tmpori.getObservationLatitude() == null || tmpori.getObservationLongitude() == null) {
+                            if(tmpOriginalOccurrence.getObservationLatitude() == null || tmpOriginalOccurrence.getObservationLongitude() == null) {
                                 if(original._getLatitude() != null && original._getLongitude() != null
                                         && eachNewOcc.getObservationLatitude() != null && eachNewOcc.getObservationLongitude() != null) {
                                     eachNewOcc.setCoordinatesChanged(true);
@@ -305,8 +305,12 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                                 if (eachNewOcc.getObservationLatitude() != null && eachNewOcc.getObservationLongitude() != null)
                                     eachNewOcc.setCoordinatesChanged(true);
                             }
+                            // this occurrence is being updated, so leave the dateInserted intact. Only update de dateUpdated.
+                            eachNewOcc.setDateUpdated(eachNewOcc.getDateInserted());
+                            eachNewOcc.setDateInserted(null);
+
                             updMap.put(eachNewOcc.getUuid()
-                                    , BeanUtils.updateBean(OBSERVED_IN.class, null, tmpori, eachNewOcc));
+                                    , BeanUtils.updateBean(OBSERVED_IN.class, null, tmpOriginalOccurrence, eachNewOcc));
                         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                             throw new FloraOnException(e.getMessage());
