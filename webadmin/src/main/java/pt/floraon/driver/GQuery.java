@@ -14,6 +14,7 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 

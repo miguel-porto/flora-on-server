@@ -28,4 +28,9 @@ public class SimpleFlavour extends GeneralOccurrenceFlavour implements IOccurren
         return true;
     }
 
+    @Override
+    public boolean containsInventoryFields() {
+        return true;
+    }
+
 }

@@ -138,7 +138,8 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
     @Override
     public Iterator<Occurrence> getFilteredOccurrences(OccurrenceFilter filter) throws DatabaseException {
         Iterator<Occurrence> tmp =
-                this.driver.getOccurrenceDriver().getOccurrencesOfMaintainer(null, true, null, null);
+                this.driver.getOccurrenceDriver().getOccurrencesOfMaintainer(null, true
+                        , null, null);
         return new OccurrenceIterator(tmp, new OccurrenceFilter[] {filter});
     }
 

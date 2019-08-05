@@ -20,6 +20,7 @@ public final class OccurrenceConstants {
         occurrenceManagerFlavours.put("herbarium", new HerbariumFlavour());
         occurrenceManagerFlavours.put("management", new ManagementFlavour());
         occurrenceManagerFlavours.put("inventory", new InventoryFlavour());
+        occurrenceManagerFlavours.put("inventorySummary", new InventorySummaryFlavour());
     }
     /**
      * Whether the presence of this taxon in a location is wild or cultivated.

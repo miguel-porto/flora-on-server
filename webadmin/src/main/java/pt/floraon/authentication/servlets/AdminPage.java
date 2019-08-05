@@ -5,11 +5,13 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.annotations.HideInInventoryView;
+import pt.floraon.driver.annotations.InventoryField;
 import pt.floraon.driver.annotations.PrettyName;
+import pt.floraon.driver.annotations.SpecialField;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.SpecialFields;
+import pt.floraon.occurrences.fields.flavours.GeneralOccurrenceFlavour;
 import pt.floraon.server.FloraOnServlet;
 
 import javax.servlet.ServletException;
@@ -79,29 +81,31 @@ DEPRECATED
             }
         }
 
-        Map<String, String> occurrenceFieldNames = new HashMap<>();
-        Map<String, String> inventoryFieldNames = new HashMap<>();
-        Map<String, String> specialFieldNames = new HashMap<>();
+        Map<String, String[]> occurrenceFieldNames = new TreeMap<>();
+        Map<String, String[]> inventoryFieldNames = new TreeMap<>();
+        Map<String, String[]> specialFieldNames = new TreeMap<>();
         Field[] fs = OBSERVED_IN.class.getDeclaredFields();
         for(Field f : fs) {
             if(f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                occurrenceFieldNames.put(f.getName(), fpn.value());
+                occurrenceFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
             }
         }
         for(Field f : Inventory.class.getDeclaredFields()) {
             if(f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                inventoryFieldNames.put(f.getName(), fpn.value());
+                inventoryFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
             }
         }
         for(Field f : SpecialFields.class.getDeclaredFields()) {
             if(f.isAnnotationPresent(PrettyName.class)) {
+                if(f.isAnnotationPresent(SpecialField.class) && f.getAnnotation(SpecialField.class).hideFromCustomFlavour())
+                    continue;
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                if(f.isAnnotationPresent(HideInInventoryView.class))
-                    inventoryFieldNames.put(f.getName(), fpn.value());
+                if(f.isAnnotationPresent(InventoryField.class))
+                    inventoryFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
                 else
-                    occurrenceFieldNames.put(f.getName(), fpn.value());
+                    occurrenceFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
             }
         }
 
@@ -109,6 +113,37 @@ DEPRECATED
         thisRequest.request.setAttribute("inventoryfields", inventoryFieldNames);
         thisRequest.request.setAttribute("specialfields", specialFieldNames);
         thisRequest.request.setAttribute("customflavours", thisRequest.getUser().getCustomOccurrenceFlavours());
+        thisRequest.request.setAttribute("fieldData", new GeneralOccurrenceFlavour() {  // a dummy OF for exposing field attributes only
+            @Override
+            public String[] getFields() {
+                return new String[0];
+            }
+
+            @Override
+            public boolean showInOccurrenceView() {
+                return false;
+            }
+
+            @Override
+            public boolean showInInventoryView() {
+                return false;
+            }
+
+            @Override
+            public String getName() {
+                return null;
+            }
+
+            @Override
+            public boolean containsCoordinates() {
+                return false;
+            }
+
+            @Override
+            public boolean containsInventoryFields() {
+                return false;
+            }
+        });
 
         thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
     }

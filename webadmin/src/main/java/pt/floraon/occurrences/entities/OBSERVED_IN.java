@@ -27,13 +27,13 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @PrettyName(value = "Longitude da ocorrência", shortName = "Obs long")
     private Float observationLongitude;
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
-    @PrettyName(value = "Estado fenológico", shortName = "Fen")
+    @PrettyName(value = "Estado fenológico", shortName = "Fen", important = true)
     private Constants.PhenologicalStates phenoState;
     @HideInCompactView @ReadOnly
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
-    @PrettyName(value = "Confiança ID", shortName = "Conf")
+    @PrettyName(value = "Confiança ID", shortName = "Conf", important = true)
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nome original", shortName = "Verb tax")
@@ -51,20 +51,23 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @PrettyName(value = "Código herbário", shortName = "Cód Herb", alias="codHerbario")
     private String accession;
     @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Nº indivíduos", shortName = "Nº", description = "Estimated number of individuals")
+    @PrettyName(value = "Nº de indivíduos", shortName = "Nº", description = "Estimated number of individuals", important = true)
     private Abundance abundance;
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Método da estimativa", shortName = "Met", description = "Estimation method")
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
-    @SmallField @HideInCompactView
+    @SmallField @HideInCompactView @FieldParser(FloatParser.class)
     @PrettyName(value = "Cobertura", shortName = "Cob", description = "Cover")
     private Float cover;
+/*
     @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Escala de cobertura", shortName = "Cob", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
+    @PrettyName(value = "Escala de cobertura", shortName = "Escala", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
+    @Deprecated
     private String coverIndex;
+*/
     private OccurrenceConstants.CoverType coverIndexScale;
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
-    @PrettyName(value = "Foto", shortName = "Foto")
+    @PrettyName(value = "Tem foto", shortName = "Foto")
     private RedListEnums.HasPhoto hasPhoto;
     @SmallField @HideInCompactView @FieldParser(IntegerParser.class)
     @PrettyName(value = "Colheita", shortName = "Colh")
@@ -75,16 +78,16 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 */
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
-    @SmallField @HideInCompactView @ReadOnly
+    @SmallField @HideInCompactView @ReadOnly @FieldType(FieldType.Type.DATE)
     @PrettyName(value = "Data de inserção", shortName = "Data ins")
     private Date dateInserted;
-    @SmallField @HideInCompactView @ReadOnly
+    @SmallField @HideInCompactView @ReadOnly @FieldType(FieldType.Type.DATE)
     @PrettyName(value = "Data da última actualização", shortName = "Data alt")
     private Date dateUpdated;
     @SmallField @HideInCompactView @ReadOnly
     @PrettyName(value = "Identificador único", shortName = "UUID")
     private UUID uuid;
-    @SmallField @FieldParser(GeneralFieldParser.class)
+    @SmallField @FieldParser(GeneralFieldParser.class) @MonospaceFont
     @PrettyName(value = "Código GPS", shortName = "GPS", alias={"gps", "gps code"}
         , description = "The GPS point name for this particular taxon. Usage discouraged: not to be confounded with the inventory code!")
     private String gpsCode;
@@ -94,8 +97,8 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
     private OccurrenceConstants.PresenceStatus presenceStatus;
-    @Image @FieldParser(StringArrayParser.class)
-    @PrettyName(value="Fotografias", shortName = "Fotos")
+    @FieldType(FieldType.Type.IMAGE) @FieldParser(StringArrayParser.class)
+    @PrettyName(value="Fotografias", shortName = "Fotos", important = true)
     private String[] images;
     private Boolean coordinatesChanged;
     /**
@@ -230,6 +233,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         this.cover = cover;
     }
 
+/*
     public String getCoverIndex() {
         return coverIndex;
     }
@@ -237,6 +241,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     public void setCoverIndex(String coverIndex) {
         this.coverIndex = coverIndex;
     }
+*/
 
     public OccurrenceConstants.CoverType getCoverIndexScale() {
         return coverIndexScale;
@@ -415,7 +420,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
                 Objects.equals(abundance, that.abundance) &&
                 typeOfEstimate == that.typeOfEstimate &&
                 Objects.equals(cover, that.cover) &&
-                Objects.equals(coverIndex, that.coverIndex) &&
+//                Objects.equals(coverIndex, that.coverIndex) &&
                 coverIndexScale == that.coverIndexScale &&
                 hasPhoto == that.hasPhoto &&
                 Objects.equals(hasSpecimen, that.hasSpecimen) &&
@@ -430,7 +435,8 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @Override
     public int hashCode() {
 
-        int result = Objects.hash(observationLatitude, observationLongitude, phenoState, naturalization, confidence, verbTaxon, comment, privateComment, labelData, accession, abundance, typeOfEstimate, cover, coverIndex, coverIndexScale, hasPhoto, hasSpecimen, institutionCode, validationStatus, gpsCode, specificThreats, presenceStatus);
+//        int result = Objects.hash(observationLatitude, observationLongitude, phenoState, naturalization, confidence, verbTaxon, comment, privateComment, labelData, accession, abundance, typeOfEstimate, cover, coverIndex, coverIndexScale, hasPhoto, hasSpecimen, institutionCode, validationStatus, gpsCode, specificThreats, presenceStatus);
+        int result = Objects.hash(observationLatitude, observationLongitude, phenoState, naturalization, confidence, verbTaxon, comment, privateComment, labelData, accession, abundance, typeOfEstimate, cover, coverIndexScale, hasPhoto, hasSpecimen, institutionCode, validationStatus, gpsCode, specificThreats, presenceStatus);
         result = 31 * result + Arrays.hashCode(images);
         return result;
     }

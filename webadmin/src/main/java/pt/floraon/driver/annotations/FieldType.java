@@ -5,11 +5,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * Marks fields of the red list sheet that are not subject to automatic processing tasks.
- * See {@link pt.floraon.redlistdata.fieldprocessing.FieldProcessor}
- */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface NoAutomaticProcessing {
+public @interface FieldType {
+    enum Type {AUTHORS, IMAGE, DATE, COORDINATES, GENERAL}
+    Type value() default Type.GENERAL;
 }

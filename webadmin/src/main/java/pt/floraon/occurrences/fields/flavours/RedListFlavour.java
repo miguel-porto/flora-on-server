@@ -29,4 +29,9 @@ public class RedListFlavour extends GeneralOccurrenceFlavour implements IOccurre
         return true;
     }
 
+    @Override
+    public boolean containsInventoryFields() {
+        return true;
+    }
+
 }

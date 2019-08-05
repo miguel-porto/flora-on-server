@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
+<%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 
 <c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
@@ -36,8 +37,8 @@
         </tr></tbody>
     </table>
     <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-        <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
-        <tbody><t:inventoryrow fields="${flavourfields}"/></tbody>
+        <thead><tr><t:occurrenceheader fields="${fields}" noInventory="true"/></tr></thead>
+        <tbody><t:inventoryrow fields="${fields}"/></tbody>
     </table>
     <div class="button newtaxon">Add taxon</div>
 </div>

@@ -6,20 +6,18 @@ import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.driver.Constants;
-import pt.floraon.driver.annotations.HideInInventoryView;
-import pt.floraon.driver.annotations.PrettyName;
+import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.occurrences.entities.*;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxEntMatch;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by miguel on 23-03-2017.
@@ -112,30 +110,46 @@ public final class Common {
         }
     }
 
-    public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream) throws IOException {
+    public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream, IFloraOn driver)
+            throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
         exportOccurrenceHeaderToCSV(csv);
+        Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
+        TaxEnt tmp = null;
         while (occurrenceIterator.hasNext()) {
             Occurrence i2 = occurrenceIterator.next();
-            exportOccurrenceToCSV(i2, csv);
+            if(driver != null) {
+                if (acceptedTaxa.containsKey(i2.getOccurrence().getTaxEntMatch()))
+                    tmp = acceptedTaxa.get(i2.getOccurrence().getTaxEntMatch());
+                else {
+                    Iterator<TaxEntMatch> tem =
+                            driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[] {i2.getOccurrence().getTaxEntMatch()});
+                    tmp = tem.hasNext() ? tem.next().getMatchedTaxEnt() : null;
+                    if(tmp != null)
+                        acceptedTaxa.put(i2.getOccurrence().getTaxEntMatch(), tmp);
+                }
+            }
+            exportOccurrenceToCSV(i2, csv, tmp);
         }
         csv.close();
     }
 
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        csv.printRecord("source", "taxa", "verbTaxa", "confidence", "excludeReason", "phenoState", "date", "observers", "latitude", "longitude"
-                , "precision", "mgrs", "verbLocality", "code", "abundance", "method", "photo", "collected"
+        csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason", "phenoState", "date", "observers", "latitude", "longitude"
+                , "precision", "mgrs", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "comment", "privateComment", "year", "month", "day", "dateInserted");
     }
 
-    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv) throws IOException {
-        OBSERVED_IN oi = occurrence.getOccurrence();// ._getTaxa()[0];
+    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt) throws IOException {
+        OBSERVED_IN oi = occurrence.getOccurrence();
 //                    TaxEnt te = oi.getTaxEnt();
 // TODO use field annotations
         csv.printRecord(
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
+                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getName()
+                , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)
                 , oi.getVerbTaxon()
                 , oi.getConfidence()
                 , oi.getPresenceStatus()
@@ -145,7 +159,7 @@ public final class Common {
                 , occurrence._getLatitude(), occurrence._getLongitude(), occurrence.getPrecision()
                 , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
                 , occurrence.getVerbLocality(), occurrence.getCode()
-                , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getHasPhoto(), oi.getHasSpecimen()
+                , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()
                 , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
                 , oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
         );

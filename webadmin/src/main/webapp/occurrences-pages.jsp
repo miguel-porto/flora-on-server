@@ -28,109 +28,6 @@
 <!--<h1> ${user.getFullName()}</h1>-->
 <!--<div class="button" id="selectpoints">Select</div>-->
 <c:choose>
-<c:when test="${param.w == 'openinventory'}">
-    <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
-    <div>
-        <div class="label"><fmt:message key="button.4a"/></div>
-        <c:forEach var="flv" items="${flavourList}" varStatus="loop">
-        <c:if test="${flv.getValue().showInInventoryView()}">
-            <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>
-            <div class="button anchorbutton ${sel}"><a href="?w=openinventory&flavour=${flv.getKey()}&id=${param.id}">${flv.getValue().getName()}</a></div>
-        </c:if>
-        </c:forEach>
-<%--
-        <fmt:message key="button.4a"/>
-        <div class="button anchorbutton ${(param.flavour == null || param.flavour == '' || param.flavour == 'inventory') ? 'selected' : ''}"><a href="?w=openinventory&flavour=inventory&id=${param.id}"><fmt:message key="button.5"/></a></div>
-        <div class="button anchorbutton ${param.flavour == 'redlist' ? 'selected' : ''}"><a href="?w=openinventory&flavour=redlist&id=${param.id}"><fmt:message key="button.6"/></a></div>
---%>
-    </div>
-    </div>  <!-- top buttons -->
-    <div id="deleteoccurrences" class="hidden">
-        <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
-            <div class="heading2">
-                <h2><fmt:message key="occurrences.5" /></h2>
-                <input type="submit" class="textbutton" value="Delete"/>
-            </div>
-            <table id="deleteoccurrencetable" class="verysmalltext sortable">
-                <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
-                <tbody></tbody>
-            </table>
-        </form>
-    </div>
-
-    <t:inventorymodel />
-
-    <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
-        <div class="heading2">
-            <h2><fmt:message key="inventory.add"/></h2>
-            <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
-            <div class="button" id="deleteselectednew">Delete selected</div>
-            <input type="submit" class="textbutton" value="Save"/>
-        </div>
-    </form>
-
-    <div id="allinventories">
-        <c:if test="${param.id == null}">
-        <h2>Your inventories</h2>
-        </c:if>
-        <c:forEach var="inv" items="${inventories}">
-        <div class="inventory geoelement">
-            <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
-            <c:if test="${inv._getInventoryLatitude() != null}"> ${inv._getInventoryCoordinates()}</c:if>
-            </h3>
-            <form class="poster" data-path="occurrences/api/deleteoccurrences" data-confirm="true" data-callback="?w=main">
-                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
-                <input type="submit" class="textbutton" value="Delete inventory" style="float:left"/>
-            </form>
-            <form class="poster id1holder" data-path="occurrences/api/updateinventory" data-refresh="true">
-                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
-                <input type="submit" class="textbutton onlywhenmodified" value="<fmt:message key="inventory.upd"/>"/>
-                <table class="verysmalltext occurrencetable">
-                    <tr>
-                        <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
-                        <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
-                        <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
-                    </tr>
-                    <tr>
-                        <td class="field editable coordinates" data-name="coordinates" data-lat="${inv._getInventoryLatitude()}" data-lng="${inv._getInventoryLongitude()}">${inv._getInventoryCoordinates()}</td>
-                        <td class="field editable" data-name="precision">${inv.getPrecision().toString()}</td>
-                        <td class="field editable" data-name="code">${inv.getCode()}</td>
-                        <td class="field editable" data-name="locality">${inv.getLocality()}</td>
-                        <td class="field editable" data-name="date" sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
-                        <td class="field editable authors" data-name="observers"><t:usernames idarray="${inv.getObservers()}" usermap="${userMap}"/></td>
-                    </tr>
-                </table>
-                <table class="verysmalltext occurrencetable">
-                    <thead><tr>
-                        <th><fmt:message key="inventory.7"/></th><th><fmt:message key="inventory.8"/></th>
-                    </tr></thead>
-                    <tbody><tr>
-                        <td class="field editable" data-name="habitat">${inv.getHabitat()}</td>
-                        <td class="field editable threats" data-name="threats">${inv.getThreats()}</td>
-                    </tr></tbody>
-                </table>
-                <c:if test="${inv._hasDuplicatedTaxa()}"><div class="warning">There are duplicated taxa in this inventory</div></c:if>
-                <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-                    <t:occurrenceheader fields="${flavourfields}" noInventory="true"/>
-                    <tbody>
-                        <c:forEach var="tax" items="${inv._getTaxa()}">
-                        <t:inventoryrow tax="${tax}" inv="${inv}" fields="${flavourfields}"/>
-                        </c:forEach>
-                        <t:inventoryrow fields="${flavourfields}"/>
-                    </tbody>
-                    <tfoot></tfoot>
-                </table>
-                <div class="button" id="deleteselectedinv">Delete selected taxa</div>
-                <div class="button newtaxon">Add taxon</div>
-            </form>
-        </div>
-        </c:forEach>
-        <div style="height:200px">&nbsp;</div>
-    </div>
-</c:when>
-
 <c:when test="${param.w == 'uploads'}">
     <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
     <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
@@ -317,7 +214,9 @@
     <jsp:include page="fragments/occurrences/frag-occurrenceview.jsp"></jsp:include>
 </c:when>
 <c:when test="${param.w == null || param.w == 'main'}">
-    <jsp:include page="fragments/occurrences/frag-inventoryview.jsp"></jsp:include>
+    <jsp:include page="fragments/occurrences/frag-inventorysummary.jsp"></jsp:include>
 </c:when>
-
+<c:when test="${param.w == 'openinventory'}">
+    <jsp:include page="fragments/occurrences/frag-openinventory.jsp"></jsp:include>
+</c:when>
 </c:choose>

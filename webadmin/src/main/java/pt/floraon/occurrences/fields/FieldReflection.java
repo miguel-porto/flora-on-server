@@ -6,7 +6,6 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.SpecialFields;
-import pt.floraon.occurrences.fields.parsers.IntegerParser;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.lang.reflect.Field;
@@ -15,6 +14,7 @@ import java.lang.reflect.Method;
 
 public final class FieldReflection {
     static public Field findField(String field) {
+        // TODO cache fields upon start
         Field f;
         try {
             f = OBSERVED_IN.class.getDeclaredField(field);
@@ -99,12 +99,25 @@ public final class FieldReflection {
         Method method;
         Object result = null;
         String methodName = "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
-        if(isInventoryField(field)) {
+
+        if(isSpecialField(field)) {
+            try {
+                method = SpecialFields.class.getMethod(methodName, Inventory.class, OBSERVED_IN.class);
+            } catch (NoSuchMethodException e1) {
+                e1.printStackTrace();
+                return "<error>";
+            }
+            try {
+                result = method.invoke(null, inventory, occurrence);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        } else if (isInventoryField(field)) {
             try {
                 method = Inventory.class.getMethod(methodName);
             } catch (NoSuchMethodException e1) {
                 e1.printStackTrace();
-                return "";
+                return "<error>";
             }
             try {
                 result = method.invoke(inventory);
@@ -116,7 +129,7 @@ public final class FieldReflection {
                 method = OBSERVED_IN.class.getMethod(methodName);
             } catch (NoSuchMethodException e1) {
                 e1.printStackTrace();
-                return "";
+                return "<error>";
             }
             try {
                 result = method.invoke(occurrence);
@@ -168,7 +181,14 @@ public final class FieldReflection {
     static public boolean isInventoryField(String field) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(HideInInventoryView.class);
+        return f.isAnnotationPresent(InventoryField.class);
+
+    }
+
+    static public boolean isSpecialField(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(SpecialField.class);
 
     }
 
@@ -181,13 +201,19 @@ public final class FieldReflection {
     static public boolean isImageField(String field) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(Image.class);
+        return f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.IMAGE;
     }
 
     static public boolean isAuthorField(String field) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(Authors.class);
+        return f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.AUTHORS;
+    }
+
+    static public boolean isDateField(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.DATE;
     }
 
     static public boolean isSmallField(String field) {
@@ -195,6 +221,16 @@ public final class FieldReflection {
         if(f == null) return false;
         return f.isAnnotationPresent(SmallField.class);
     }
+
+    static public boolean isImportantField(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        if(f.isAnnotationPresent(PrettyName.class))
+            return f.getAnnotation(PrettyName.class).important();
+        else
+            return false;
+    }
+
 
     static public boolean hideFieldInCompactView(String field) {
         Field f = findField(field);
@@ -217,5 +253,10 @@ public final class FieldReflection {
         return (obsField == null || StringUtils.isStringEmpty(obsField.value())) ? field : obsField.value();
     }
 
+    static public boolean isMonospaceFont(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(MonospaceFont.class);
+    }
 
 }

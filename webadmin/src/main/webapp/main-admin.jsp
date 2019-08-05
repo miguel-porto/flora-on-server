@@ -52,22 +52,30 @@
         <h1><a name="views"></a>Vistas personalizadas</h1>
         <form class="poster" data-path="admin/createcustomoccurrenceflavour" data-refresh="true">
             <h2>Criar nova vista personalizada</h2>
-            <table class="small">
+            <table class="small nohovereffects">
             <tr><td>Nome da vista</td><td><input type="text" name="flavourname"/></td></tr>
             <tr><td>Mostrar a vista em</td><td class="multiplechooser left">
             <input type="checkbox" name="showinoccurrenceview" id="showinoccurrenceview" checked="checked"/><label for="showinoccurrenceview" class="wordtag togglebutton">Vista de ocorrências</label>
-            <input type="checkbox" name="showininventoryview" id="showininventoryview"/><label for="showininventoryview" class="wordtag togglebutton">Vista de inventários</label>
+            <input type="checkbox" name="showininventoryview" id="showininventoryview" checked="checked"/><label for="showininventoryview" class="wordtag togglebutton">Vista de inventários</label>
             </td></tr>
             <tr><td>Incluir na vista os campos</td><td>
-                <div class="filter lilac legend"><div class="light"></div><div>Campos do inventário</div></div><div class="filter beige legend"><div class="light"></div><div>Campos do taxon (ocorrência)</div></div>
-                <div class="multiplechooser left sized">
-                <c:forEach var="entry" items="${occurrencefields}">
-                <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#8bc34a">${entry.key}<div class="info" style="color:black">${entry.value}</div></label>
-                </c:forEach>
-                <c:forEach var="entry" items="${inventoryfields}">
-                <input type="checkbox" name="fields" value="${entry.key}" id="field_${entry.key}"/><label for="field_${entry.key}" class="wordtag togglebutton" style="background-color:#FFC107">${entry.key}<div class="info" style="color:black">${entry.value}</div></label>
-                </c:forEach>
-                </div>
+                <table class="nohovereffects">
+                    <tr><th><div class="filter lilac legend"><div class="light"></div><div>Campos do inventário</div></div></th><th><div class="filter beige legend"><div class="light"></div><div>Campos do taxon (ocorrência)</div></div></th></tr>
+                    <tr>
+                        <td style="vertical-align:top"><table class="sortable smalltext">
+                        <tr><th>Descrição</th><th>Nome do campo</th></tr>
+                        <c:forEach var="entry" items="${inventoryfields}">
+                        <tr class="${fieldData.isImportantField(entry.key) ? 'highlight' : ''}"><td sorttable_customkey="${entry.value[0]}"><label title="${entry.value[1]}"><input type="checkbox" name="fields" value="${entry.key}"/>${entry.value[0]}</label></td><td>${entry.key}</td></tr>
+                        </c:forEach>
+                        </table></td>
+                        <td style="vertical-align:top"><table class="sortable smalltext">
+                        <tr><th>Descrição</th><th>Nome do campo</th></tr>
+                        <c:forEach var="entry" items="${occurrencefields}">
+                        <tr class="${fieldData.isImportantField(entry.key) ? 'highlight' : ''}"><td sorttable_customkey="${entry.value[0]}"><label title="${entry.value[1]}"><input type="checkbox" name="fields" value="${entry.key}"/>${entry.value[0]}</label></td><td>${entry.key}</td></tr>
+                        </c:forEach>
+                        </table></td>
+                    </tr>
+                </table>
             </td></tr>
             <tr><td colspan="2"><input type="submit" value="Criar vista" class="textbutton"/></td></tr>
             </table>

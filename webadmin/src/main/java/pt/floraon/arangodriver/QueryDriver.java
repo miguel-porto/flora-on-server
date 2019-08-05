@@ -21,6 +21,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.taxonomy.entities.TaxEntMatch;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -412,5 +413,20 @@ FOR final IN FLATTEN(FOR v IN base
 			throw new DatabaseException(e.getMessage());
 		}
     }
+
+	@Override
+	public Iterator<TaxEntMatch> getFirstAcceptedTaxonContaining(String[] taxEntIds) throws FloraOnException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("taxEntIDs", taxEntIds);
+		Iterator<TaxEntMatch> it;
+		try {
+			it = database.query(AQLQueries.getString("QueryDriver.5"), bindVars, null, TaxEntMatch.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+
+		return it;
+	}
+
 
 }

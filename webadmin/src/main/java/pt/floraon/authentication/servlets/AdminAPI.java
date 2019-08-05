@@ -22,6 +22,8 @@ import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxEntMatch;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -316,12 +318,14 @@ public class AdminAPI extends FloraOnServlet {
 
             case "downloadallrecords":
                 thisRequest.ensureAdministrator();
+
                 OccurrenceFilter of = thisRequest.isQueryParameterEqualTo("w", "precise")
                         ? BasicOccurrenceFilter.create().withMinimumPrecision(100).withValidTaxaOnly().withSpeciesOrLowerRankOnly()
                         : null;
                 Iterator<Occurrence> it = driver.getOccurrenceDriver().getFilteredOccurrences(of);
                 thisRequest.setDownloadFileName("all-occurrences.csv");
-                Common.exportOccurrencesToCSV(it, thisRequest.response.getWriter());
+
+                Common.exportOccurrencesToCSV(it, thisRequest.response.getWriter(), driver);
                 break;
 
             default:

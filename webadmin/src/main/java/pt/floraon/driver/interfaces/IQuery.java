@@ -16,6 +16,7 @@ import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.queryparser.Match;
 import pt.floraon.driver.results.SimpleTaxonResult;
 import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxEntMatch;
 
 /**
  * Interface defining methods for high-level querying of the database.
@@ -128,4 +129,11 @@ public interface IQuery {
 	 * @throws FloraOnException
 	 */
 	Iterator<Inventory> findInventoriesContainedIn(String geoJsonPolygon, String filter) throws FloraOnException;
+
+    /**
+     * @param taxEntIds
+     * @return The nearest accepted TaxEnt that contains, or is synonym of, given TaxEnts.
+     * @throws FloraOnException
+     */
+	Iterator<TaxEntMatch> getFirstAcceptedTaxonContaining(String[] taxEntIds) throws FloraOnException;
 }

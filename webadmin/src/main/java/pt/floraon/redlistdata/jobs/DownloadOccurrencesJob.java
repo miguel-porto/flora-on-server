@@ -118,7 +118,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             for (Occurrence so : op) {
                 // here we override the matched taxent because we want occurrences to be organized by red list sheets.
                 so.getOccurrence().setTaxEnt(taxEnt);
-                Common.exportOccurrenceToCSV(so, printer);
+                Common.exportOccurrenceToCSV(so, printer, null);
 /*
                 printer.printRecord(
                         so.getDataSource(), taxEnt.getID()

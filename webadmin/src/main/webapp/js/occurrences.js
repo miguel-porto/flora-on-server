@@ -319,11 +319,57 @@ function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
 }
 
 function tabHandler(ev) {
-    if(ev.keyCode == 9) {
+//console.log(parseInt(ev.keyIdentifier.substring(2),16) > 47 && parseInt(ev.keyIdentifier.substring(2),16) < 58);
+    var el = ev.target;
+    switch(ev.keyCode) {
+    case 9:
         ev.preventDefault();
-        var cell = ev.target.parentNode.parentNode;
+        var cell = el.parentNode.parentNode;
         var next = getNextSiblingByClass(cell, 'editable');
         if(next) doMouseClick(next);
+        break;
+
+    case 171:
+        var c = doGetCaretPosition(el);
+        if(el.value.charAt(c) == '+' || el.value.charAt(c - 1) == '+') ev.preventDefault();
+/*
+        var v = el.value.split(separator);
+        var i = 0;
+        var len = 0;
+        while(len < c) {
+            len += v[i].length + 1;
+            i++;
+        }
+        if(i == 0) i = 1;
+        v[i-1] = text;
+        for(i=0; i<v.length; i++) v[i] = v[i].trim();
+        el.value = v.join(separator + '') + separator;*/
+
+        break;
+
+    default:
+        if((ev.keyCode >= 48 && ev.keyCode <= 57)
+            || (96 <= ev.keyCode && ev.keyCode <= 105)) {  // numbers
+            var c = doGetCaretPosition(el);
+            if(el.value.charAt(c - 1) == '+') {
+                ev.preventDefault();
+                console.log(ev.keyCode);
+                el.value = el.value.substring(0, c - 1)
+                    + String.fromCharCode((96 <= ev.keyCode && ev.keyCode <= 105)? ev.keyCode - 48 : ev.keyCode)
+                    + el.value.substring(c - 1);
+            }
+        } else {
+            if(ev.key == '?') {
+                var c = doGetCaretPosition(el);
+                if(el.value.charAt(c - 1) == '+') {
+                    ev.preventDefault();
+                    console.log(ev.keyCode);
+                    el.value = el.value.substring(0, c - 1) + '?'
+                        + el.value.substring(c - 1);
+                }
+            }
+        }
+        break;
     }
 }
 
@@ -443,11 +489,12 @@ function clickButton(ev) {
             if(sel.length == 0) return;
             var tbody = document.querySelector('#updateoccurrencetable tbody');
             for(var i=0; i<sel.length; i++) {
-                var ou = sel[i].querySelector('input[name=occurrenceUuid]').value;
+                var ou = sel[i].querySelector('input[name=occurrenceUuid]');
+                if(ou) ou = ou.value;
                 var iid = sel[i].querySelector('input[name=inventoryId]').value;
                 var cell = sel[i].querySelector('td.selectcol');
                 var did = sel[i].getAttribute('data-id');
-                insertOrReplaceHiddenInput(cell, did + '_occurrenceUuid', ou);
+                if(ou) insertOrReplaceHiddenInput(cell, did + '_occurrenceUuid', ou);
                 insertOrReplaceHiddenInput(cell, did + '_inventoryId', iid);
                 tbody.appendChild(sel[i]);
             }
@@ -850,17 +897,16 @@ function mapClick(ev) {
     if(opt && !opt.classList.contains('selected')) return;
 
     acceptVisibleSearchbox();
-    if(document.getElementById('addoccurrencetable'))
+    var ot = document.getElementById('addoccurrencetable')
+    if(ot)
         addNewOccurrence.call(this, ev);
-    else if(document.getElementById('inventorysummary'))
-//        window.location = '?w=openinventory&lat=' + ev.latlng.lat + '&lng=' + ev.latlng.lng;
-        addNewInventory.call(this, ev);
     else
         addNewInventory.call(this, ev);
 
 }
 
 function addNewInventory(ev) {
+console.log("NOVO");
     var id = randomString(6);
     var inv = document.querySelector('.inventory.dummy').cloneNode(true);
     inv.classList.remove('dummy');

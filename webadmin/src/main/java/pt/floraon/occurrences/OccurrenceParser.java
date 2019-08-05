@@ -9,6 +9,7 @@ import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.SpecialFields;
 import pt.floraon.occurrences.fields.parsers.*;
 
 import java.lang.reflect.Field;
@@ -35,46 +36,21 @@ public class OccurrenceParser implements CSVParser {
 
     public OccurrenceParser(IFloraOn driver) {
         this.driver = driver;
-/*
-        fieldMappings.put("latitude", new LatitudeLongitudeParser());
-        fieldMappings.put("longitude", new LatitudeLongitudeParser());
-*/
-        fieldMappings.put("coordinates", new LatitudeLongitudeParser());
+//        fieldMappings.put("taxa", new TaxaParser());
+//        fieldMappings.put("coordinates", new LatitudeLongitudeParser());
+//        fieldMappings.put("date", new DateParser());
+
         fieldMappings.put("wkt_geom", new LatitudeLongitudeParser());
         fieldMappings.put("x", new UTMCoordinateParser());
         fieldMappings.put("y", new UTMCoordinateParser());
         fieldMappings.put("mgrs", new UTMCoordinateParser());
-        fieldMappings.put("taxa", new TaxaParser());
-        fieldMappings.put("date", new DateParser());
         fieldMappings.put("verblocality", new LocalityParser());
-//        fieldMappings.put("elevation", new IntegerParser());
-//        fieldMappings.put("year", new IntegerParser());
-//        fieldMappings.put("month", new IntegerParser());
-//        fieldMappings.put("day", new IntegerParser());
-//        fieldMappings.put("precision", new LocalityParser());
-//        fieldMappings.put("code", new GeneralFieldParser());
-//        fieldMappings.put("locality", new LocalityParser());
-//        fieldMappings.put("municipality", new LocalityParser());
-//        fieldMappings.put("province", new LocalityParser());
-//        fieldMappings.put("county", new LocalityParser());
-//        fieldMappings.put("habitat", new GeneralFieldParser());
-//        fieldMappings.put("threats", new GeneralFieldParser());
-//        fieldMappings.put("pubNotes", new GeneralFieldParser());
-//        fieldMappings.put("privNotes", new GeneralFieldParser());
 
         // aliases
         fieldMappings.put("observers", new UserListParser(userMap, driver, false));
         fieldMappings.put("collectors", new UserListParser(userMap, driver, false));
         fieldMappings.put("dets", new UserListParser(userMap, driver, false));
 
-//        fieldMappings.put("ano", new AliasFieldParser("year", fieldMappings));
-//        fieldMappings.put("código", new AliasFieldParser("code", fieldMappings));
-//        fieldMappings.put("inventário", new AliasFieldParser("code", fieldMappings));
-//        fieldMappings.put("name", new AliasFieldParser("gpsCode", fieldMappings));
-//        fieldMappings.put("z", new AliasFieldParser("elevation", fieldMappings));
-//        fieldMappings.put("região", new AliasFieldParser("province", fieldMappings));
-//        fieldMappings.put("concelho", new AliasFieldParser("municipality", fieldMappings));
-//        fieldMappings.put("altitude", new AliasFieldParser("elevation", fieldMappings));
         fieldMappings.put("data", new AliasFieldParser("date", fieldMappings));
         fieldMappings.put("time", new AliasFieldParser("date", fieldMappings));
         fieldMappings.put("determiners", new AliasFieldParser("dets", fieldMappings));
@@ -82,34 +58,28 @@ public class OccurrenceParser implements CSVParser {
         fieldMappings.put("inventoryid", new GeneralFieldParser());
 
 
-//        fieldMappingsSecondRound.put("gpscode", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("comment", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("privateComment", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("labeldata", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("specificthreats", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("accession", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("coverIndex", new GeneralFieldParser());
-//        fieldMappingsSecondRound.put("abundance", new NumericIntervalParser());
-//        fieldMappingsSecondRound.put("typeofestimate", new EnumParser());
-//        fieldMappingsSecondRound.put("phenostate", new EnumParser());
-//        fieldMappingsSecondRound.put("confidence", new EnumParser());
-//        fieldMappingsSecondRound.put("presencestatus", new EnumParser());
-//        fieldMappingsSecondRound.put("hasphoto", new EnumParser());
-//        fieldMappingsSecondRound.put("hasspecimen", new IntegerParser());
-/*
-        fieldMappingsSecondRound.put("observationlatitude", new LatitudeLongitudeParser());
-        fieldMappingsSecondRound.put("observationlongitude", new LatitudeLongitudeParser());
-*/
         fieldMappingsSecondRound.put("occurrenceuuid", new UUIDParser());
         fieldMappingsSecondRound.put("observationcoordinates", new LatitudeLongitudeParser());
-//        fieldMappingsSecondRound.put("codHerbario", new AliasFieldParser("accession", fieldMappingsSecondRound));
-//        fieldMappingsSecondRound.put("excludeReason", new AliasFieldParser("presencestatus", fieldMappingsSecondRound));
-//        fieldMappingsSecondRound.put("privatenote", new AliasFieldParser("privateComment", fieldMappingsSecondRound));
-//        fieldMappingsSecondRound.put("gps", new AliasFieldParser("gpsCode", fieldMappingsSecondRound));
-//        fieldMappingsSecondRound.put("gps code", new AliasFieldParser("gpsCode", fieldMappingsSecondRound));
 
         // Add field parsers for the inventory fields, from the annotations.
         for(Field field : Inventory.class.getDeclaredFields()) {
+            if(field.isAnnotationPresent(pt.floraon.driver.annotations.FieldParser.class)) {
+                try {
+                    fieldMappings.put(field.getName()
+                            , field.getAnnotation(pt.floraon.driver.annotations.FieldParser.class).value().newInstance());
+                } catch (IllegalAccessException | InstantiationException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(field.isAnnotationPresent(PrettyName.class)) {
+                String[] aliases = field.getAnnotation(PrettyName.class).alias();
+                for(String alias : aliases)
+                    fieldMappings.put(alias, new AliasFieldParser(field.getName(), fieldMappings));
+            }
+        }
+
+        // Add field parsers for the special fields, from the annotations.
+        for(Field field : SpecialFields.class.getDeclaredFields()) {
             if(field.isAnnotationPresent(pt.floraon.driver.annotations.FieldParser.class)) {
                 try {
                     fieldMappings.put(field.getName()
@@ -141,6 +111,7 @@ public class OccurrenceParser implements CSVParser {
                     fieldMappingsSecondRound.put(alias, new AliasFieldParser(field.getName(), fieldMappingsSecondRound));
             }
         }
+
     }
 
     @Override

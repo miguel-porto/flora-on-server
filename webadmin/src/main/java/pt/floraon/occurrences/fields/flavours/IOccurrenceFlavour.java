@@ -45,7 +45,15 @@ public interface IOccurrenceFlavour {
 
     boolean isSmallField(String field);
 
+    boolean isImportantField(String field);
+
+    boolean isDateField(String field);
+
+    boolean isMonospaceFont(String field);
+
     boolean isImageField(String field);
 
     boolean isAuthorField(String field);
+
+    boolean containsInventoryFields();
 }

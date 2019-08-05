@@ -1,6 +1,10 @@
 package pt.floraon.occurrences.fields.flavours;
 
+import pt.floraon.driver.annotations.FieldType;
+import pt.floraon.occurrences.fields.FieldReflection;
+
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 public class CustomOccurrenceFlavour extends GeneralOccurrenceFlavour implements IOccurrenceFlavour, Serializable {
@@ -60,8 +64,19 @@ public class CustomOccurrenceFlavour extends GeneralOccurrenceFlavour implements
 
     @Override
     public boolean containsCoordinates() {
+        Field f;
         for(String s : fields) {
-            if (s.equals("coordinates")) return true;
+            f = FieldReflection.findField(s);
+            if(f != null && f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.COORDINATES)
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean containsInventoryFields() {
+        for(String s : fields) {
+            if(FieldReflection.isInventoryField(s)) return true;
         }
         return false;
     }

@@ -34,7 +34,6 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
         return FieldReflection.hideFieldInCompactView(field);
     }
 
-
     @Override
     public boolean isInventoryField(String field) {
         return FieldReflection.isInventoryField(field);
@@ -48,6 +47,21 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     @Override
     public boolean isSmallField(String field) {
         return FieldReflection.isSmallField(field);
+    }
+
+    @Override
+    public boolean isImportantField(String field) {
+        return FieldReflection.isImportantField(field);
+    }
+
+    @Override
+    public boolean isDateField(String field) {
+        return FieldReflection.isDateField(field);
+    }
+
+    @Override
+    public boolean isMonospaceFont(String field) {
+        return FieldReflection.isMonospaceFont(field);
     }
 
     @Override

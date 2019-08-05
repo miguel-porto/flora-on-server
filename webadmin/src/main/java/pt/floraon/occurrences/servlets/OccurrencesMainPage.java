@@ -13,6 +13,7 @@ import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
+import pt.floraon.occurrences.fields.flavours.InventorySummaryFlavour;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
@@ -83,7 +84,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
         if(what == null) what = "main";
 
         switch(what) {
-            case "main":
+            case "main":    // this is the inventory summary view
                 INodeKey tu1;
                 if(session.getAttribute("option-allusers") != null && (Boolean) session.getAttribute("option-allusers"))
                     tu1 = null;
@@ -109,23 +110,22 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
                     }
                 }
-                // get the list of fields for the selected flavour
-                Map<String, IOccurrenceFlavour> flv2 = user.getEffectiveOccurrenceFlavours();
-                String flavour2 = thisRequest.getParameterAsString("flavour", "simple");
-                if(StringUtils.isStringEmpty(flavour2) || !flv2.containsKey(flavour2))
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
-                else
-                    request.setAttribute("flavourfields", flv2.get(flavour2));
-                break;
 
-            case "fixissues":
-                InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
-                        driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(driver.asNodeKey(user.getID()))
-                        , false, true);
-                request.setAttribute("nomatchquestions", il.getQuestions());
-                request.setAttribute("matchwarnings", il.getVerboseWarnings());
-                request.setAttribute("nomatches", il.getVerboseErrors());
-                request.setAttribute("parseerrors", il.getParseErrors());
+                // Flavours
+                // Get the list of flavours
+                Map<String, IOccurrenceFlavour> flv2 = user.getEffectiveOccurrenceFlavours();
+                request.setAttribute("flavourList", flv2.entrySet());
+                // the flavour for new inventories
+                request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventory"));
+                request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
+/*
+                // the flavour for the inventory summary
+                String flavour2 = thisRequest.getParameterAsString("flavour", "simple");
+                if(!flv2.containsKey(flavour2))
+                    request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
+                else
+                    request.setAttribute("summaryfields", flv2.get(flavour2));
+*/
                 break;
 
             case "openinventory":
@@ -148,6 +148,16 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 else
                     request.setAttribute("flavourfields", flv.get(flavour1));
 
+                break;
+
+            case "fixissues":
+                InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
+                        driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(driver.asNodeKey(user.getID()))
+                        , false, true);
+                request.setAttribute("nomatchquestions", il.getQuestions());
+                request.setAttribute("matchwarnings", il.getVerboseWarnings());
+                request.setAttribute("nomatches", il.getVerboseErrors());
+                request.setAttribute("parseerrors", il.getParseErrors());
                 break;
 
             case "occurrenceview":  // The main view of occurrences, with many flavours
@@ -278,7 +288,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     }
                 }
 
-                Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter());
+                Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter(), driver);
                 return;
         }
         request.getRequestDispatcher("/main-occurrences.jsp").forward(request, thisRequest.response);

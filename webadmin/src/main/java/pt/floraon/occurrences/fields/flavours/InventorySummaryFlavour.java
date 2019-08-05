@@ -1,10 +1,11 @@
 package pt.floraon.occurrences.fields.flavours;
 
-public class InventoryFlavour extends GeneralOccurrenceFlavour implements IOccurrenceFlavour {
+public class InventorySummaryFlavour extends GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     @Override
     public String[] getFields() {
-        return new String[] {
-                "taxa", "confidence", "phenoState", "abundance", "cover", "coverIndex", "comment", "privateComment"};
+        return new String[]{
+                "code", "locality", "date", "inventoryCoordinates", "taxaSummary"
+        };
     }
 
     @Override
@@ -14,22 +15,22 @@ public class InventoryFlavour extends GeneralOccurrenceFlavour implements IOccur
 
     @Override
     public boolean showInInventoryView() {
-        return true;
+        return false;
     }
 
     @Override
     public String getName() {
-        return "Inventário";
+        return "Resumo inventários";
     }
 
     @Override
     public boolean containsCoordinates() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean containsInventoryFields() {
-        return false;
+        return true;
     }
 
 }

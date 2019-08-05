@@ -21,77 +21,99 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * NOTE: coordinates of the observation have priority over these. Only if observationLatitude and observationLongitude
      * are not set, then we can use these inventory coordinates.
      */
-    @SmallField @HideInInventoryView @FieldParser(LatitudeLongitudeParser.class)
+    @SmallField @InventoryField
+    @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Latitude do inventário", shortName = "Inv lat")
     private Float latitude;
-    @SmallField @HideInInventoryView @FieldParser(LatitudeLongitudeParser.class)
+    @SmallField @InventoryField
+    @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Longitude do inventário", shortName = "Inv long")
     private Float longitude;
     private String spatialRS;
-    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @SmallField @InventoryField
+    @FieldParser(IntegerParser.class)
     @PrettyName(value = "Altitude", shortName = "Alt", alias={"z", "altitude"})
     private Float elevation;
     private String geometry;
-    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @SmallField @InventoryField
+    @FieldParser(IntegerParser.class)
     @PrettyName(value = "Ano", shortName = "Ano", alias="ano")
     private Integer year;
-    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @SmallField @InventoryField
+    @FieldParser(IntegerParser.class)
     @PrettyName(value = "Mês", shortName = "Mês", alias="mês")
     private Integer month;
-    @SmallField @HideInInventoryView @FieldParser(IntegerParser.class)
+    @SmallField @InventoryField
+    @FieldParser(IntegerParser.class)
     @PrettyName(value = "Dia", shortName = "Dia")
     private Integer day;   // TODO: these cannot be erased...
-    @SmallField @HideInInventoryView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Precisão", shortName = "Prec")
+    @SmallField @InventoryField
+    @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Precisão", shortName = "Prec", important = true)
     private Precision precision;
     private Boolean complete;
-    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Habitat", shortName = "Hab")
     private String habitat;
-    @HideInCompactView @HideInInventoryView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
+    @HideInCompactView @InventoryField
+    @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub", important = true)
     private String pubNotes;
-    @HideInCompactView @HideInInventoryView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
+    @HideInCompactView @InventoryField
+    @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv", important = true)
     private String privNotes;
-    @HideInCompactView @HideInInventoryView @FieldParser(StringArrayParser.class)
+    @HideInCompactView @InventoryField
+    @FieldParser(StringArrayParser.class)
     @PrettyName(value = "Etiquetas", shortName = "Tags")
     private String[] tags;
-    @HideInInventoryView
-    @Authors @PrettyName(value = "Observadores", shortName = "Observadores")
+    @InventoryField @FieldType(FieldType.Type.AUTHORS)
+    @PrettyName(value = "Observadores", shortName = "Observadores", important = true)
     private String[] observers;
-    @HideInCompactView @HideInInventoryView
-    @Authors @PrettyName(value = "Colectores", shortName = "Colectores")
+    @HideInCompactView @InventoryField @FieldType(FieldType.Type.AUTHORS)
+    @PrettyName(value = "Colectores", shortName = "Colectores")
     private String[] collectors;
-    @HideInCompactView @HideInInventoryView
-    @Authors @PrettyName(value = "Determinadores", shortName = "Dets")
+    @HideInCompactView @InventoryField @FieldType(FieldType.Type.AUTHORS)
+    @PrettyName(value = "Determinadores", shortName = "Dets")
     private String[] dets;
     @Deprecated
     private String verbLocality;
-    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Local", shortName = "Local")
     private String locality;
-    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Município", shortName = "Município", alias="concelho")
     private String municipality;
-    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Distrito", shortName = "Distrito", alias="distrito")
     private String province;
-    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Região", shortName = "Região", alias="região")
     private String county;
-    @SmallField @HideInInventoryView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Código do inventário", shortName = "Cod", alias={"código", "inventário"})
+    @InventoryField @SmallField
+    @FieldParser(GeneralFieldParser.class) @MonospaceFont
+    @PrettyName(value = "Código do inventário", shortName = "Cod", alias={"código", "inventário"}, important = true)
     private String code;
-    @HideInInventoryView @FieldParser(GeneralFieldParser.class)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Ameaças do local", shortName = "Ameaças", alias="ameaças")
     private String threats;
-    @HideInCompactView @ReadOnly @HideInInventoryView
+    @InventoryField @HideInCompactView @ReadOnly
     @PrettyName(value = "Responsável", shortName = "Resp")
     private String maintainer;
-    @HideInInventoryView @FieldParser(FloatParser.class)
+    @InventoryField
+    @FieldParser(FloatParser.class)
     @PrettyName(value = "Área do inventário", shortName = "Área")
     private Float area;
+    @InventoryField
+    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Escala de cobertura", shortName = "Escala", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
+    private String coverIndex;
     private String geology;
     private Float meanHeight;
     private Float totalCover;
@@ -176,19 +198,16 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
-     * We should get coordinates from observation whenever there's only one taxon and it has coordinantes.
-     * @return
+     * @return Whether we should get coordinates from observation whenever there's only one taxon and it has coordinantes.
      */
     private boolean shouldGetCoordinatesFromObservation() {
         if(_getTaxa() != null && _getTaxa().length == 1) {
-            if(_getTaxa()[0].getObservationLatitude() == null || _getTaxa()[0].getObservationLongitude() == null) return false;
-            return true;
+            return _getTaxa()[0].getObservationLatitude() != null && _getTaxa()[0].getObservationLongitude() != null;
         } else return false;
     }
 
     /**
-     * Returns the latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
-     * @return
+     * @return The latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
      */
     public Float _getLatitude() {
         checkGeographicCoordinates();
@@ -610,6 +629,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.slope = slope;
     }
 
+    public String getCoverIndex() {
+        return coverIndex;
+    }
+
+    public void setCoverIndex(String coverIndex) {
+        this.coverIndex = coverIndex;
+    }
+
     public List<OBSERVED_IN> getUnmatchedOccurrences() {
         return unmatchedOccurrences == null ? (this.unmatchedOccurrences = new ArrayList<>()) : unmatchedOccurrences;
     }
@@ -655,6 +682,22 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
                 taxa.add(oi.getVerbTaxon());
             else
                 taxa.add(oi.getTaxEntMatch());
+        }
+        return false;
+    }
+
+    /**
+     * @return True if this inventory has more than one single coordinate
+     */
+    public boolean _hasMultipleCoordinates() {
+        Set<String> coords = new HashSet<>();
+        if(!Constants.isNullOrNoData(this.getLatitude()) && !Constants.isNullOrNoData(this.getLongitude()))
+            coords.add(String.format("%.6f %.6f", this.getLatitude(), this.getLongitude()));
+
+        for(OBSERVED_IN oi : this._getTaxa()) {
+            if(Constants.isNullOrNoData(oi.getObservationLatitude()) || Constants.isNullOrNoData(oi.getObservationLongitude())) continue;
+            coords.add(String.format("%.6f %.6f", oi.getObservationLatitude(), oi.getObservationLongitude()));
+            if(coords.size() > 1) return true;
         }
         return false;
     }

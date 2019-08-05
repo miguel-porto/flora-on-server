@@ -15,6 +15,9 @@
 }
 
 div.inactive {opacity:0.3; }
+
+.monospace {font-family: "Courier New", Courier, monospace;}
+
 #alloccurrences,#warningpanel {transition: opacity 0.5s, transform 0.5s;}
 
 html.occurrencespage, body.occurrencespage {width:100%; height:100%; overflow:auto;}
@@ -29,8 +32,6 @@ body.occurrencespage a.returntomain {position:static;}
 body.occurrencespage a.returntomain img {height:70px}
 
 body.occurrencespage.compactview .hideincompactview {display:none !important}
-
-tr.highlight td {background-color:#FFECB3}
 
 #alloccurrencetable th {position:sticky; top:0px;}
 
@@ -182,7 +183,7 @@ tr.external td {font-style:italic}
 /*.occurrencetable #taxonsearchwrapper textarea {height:200px;}*/
 
 td.editable:hover {outline:1px dotted #ff6969;}
-td.editable.beingedited {border:3px solid red;background-color:#ff9c9c !important}
+td.editable.beingedited {outline:3px solid red;background-color:#ff9c9c !important}
 
 .occurrencetable textarea, .occurrencetable input[type=text] {
     border: 0px dotted #2979ff;

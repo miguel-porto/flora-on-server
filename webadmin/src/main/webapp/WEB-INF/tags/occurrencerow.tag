@@ -7,6 +7,8 @@
 <%@ attribute name="locked" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="symbol" required="false" %>
 <%@ attribute name="cssclass" required="false" %>
+<%@ attribute name="noInventory" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="noOccurrence" required="false" type="java.lang.Boolean" %>
 
 <%-- This iterates through all the field names and outputs a table cell per each, formatted accordingly --%>
 
@@ -19,7 +21,8 @@
 <tr class="geoelement dummy id1holder">
     <td class="selectcol clickable ${!fields.containsCoordinates() ? 'coordinates nodisplay' : ''}"><div class="selectbutton"></div></td>
     <c:forEach var="flf" items="${fields.getFields()}">
-    <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}" fields="${fields}"/>
+    <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}" fields="${fields}"
+         noInventory="${noInventory}" noOccurrence="${noOccurrence}"/>
     </c:forEach>
 </tr>
 </c:if>
@@ -43,7 +46,8 @@
         </td>
 
         <c:forEach var="flf" items="${fields.getFields()}">
-        <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}" locked="${locked}" symbol="${symbol}" fields="${fields}"/>
+        <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}"
+            locked="${locked}" symbol="${symbol}" fields="${fields}" noInventory="${noInventory}" noOccurrence="${noOccurrence}"/>
         </c:forEach>
     </tr>
 </c:if>

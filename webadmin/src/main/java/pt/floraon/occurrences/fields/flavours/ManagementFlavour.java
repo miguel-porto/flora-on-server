@@ -28,4 +28,10 @@ public class ManagementFlavour extends GeneralOccurrenceFlavour implements IOccu
     public boolean containsCoordinates() {
         return true;
     }
+
+    @Override
+    public boolean containsInventoryFields() {
+        return false;
+    }
+
 }

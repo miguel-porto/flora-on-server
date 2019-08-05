@@ -27,4 +27,10 @@ public class HerbariumFlavour extends GeneralOccurrenceFlavour implements IOccur
     public boolean containsCoordinates() {
         return true;
     }
+
+    @Override
+    public boolean containsInventoryFields() {
+        return false;
+    }
+
 }

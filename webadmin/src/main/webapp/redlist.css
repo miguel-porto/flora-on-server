@@ -502,7 +502,7 @@ table.verysmalltext {font-size:0.8rem;}
 table th, table td.title {background-color:#ffcdd2; font-weight:bold; padding:6px; color:black; border:0;}
 table td {padding:5px; background-color:#f0f0f0;}
 table.smalltext td {padding:0px;}
-table tr:hover:not(.separator) td:not(.title) {background-color:#f0fff0;}
+table:not(.nohovereffects) tr:hover:not(.separator) td:not(.title) {background-color:#f0fff0;}
 
 table.simpleform {width:100%;box-sizing: border-box;max-width:1000px;}
 table.simpleform tr>td:nth-of-type(1) {width:0}

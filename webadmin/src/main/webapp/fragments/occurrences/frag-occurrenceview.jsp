@@ -9,7 +9,7 @@
 <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
 <div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div>
 <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
-<div>
+<div id="flavourlist">
     <div class="label"><fmt:message key="button.4a"/></div>
     <c:forEach var="flv" items="${flavourList}" varStatus="loop">
     <c:if test="${flv.getValue().showInOccurrenceView()}">
@@ -27,7 +27,7 @@
             <div class="button" id="canceldelete"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="deleteoccurrencetable" class="verysmalltext sortable">
-            <t:occurrenceheader fields="${flavourfields}"/>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -43,7 +43,7 @@
             <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-            <t:occurrenceheader fields="${flavourfields}"/>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -61,7 +61,7 @@
         <input type="submit" class="textbutton" value="Save"/>
     </div>
     <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
-        <t:occurrenceheader fields="${flavourfields}"/>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
         <tbody>
             <t:occurrencerow fields="${flavourfields}"/>
         </tbody>
@@ -74,7 +74,7 @@
         <input type="submit" class="textbutton" value="Merge"/>
     </div>
     <table id="mergeoccurrencetable" class="verysmalltext">
-        <t:occurrenceheader fields="${flavourfields}"/>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
         <tbody></tbody>
     </table>
 </form>
@@ -136,7 +136,7 @@
         <t:pager />
     </div>
     <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
-        <t:occurrenceheader fields="${flavourfields}"/>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
         <tbody>
         <c:forEach var="occ" items="${occurrences}">
             <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}"/>

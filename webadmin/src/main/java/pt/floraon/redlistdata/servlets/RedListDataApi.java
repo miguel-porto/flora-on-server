@@ -862,7 +862,7 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences-in-polygon.csv\"");
                 thisRequest.response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
 
-                Common.exportOccurrencesToCSV(itOcc, thisRequest.response.getWriter());
+                Common.exportOccurrencesToCSV(itOcc, thisRequest.response.getWriter(), driver);
 
 /*
                 PrintWriter pw = thisRequest.response.getWriter();
