@@ -460,6 +460,16 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+        // credits filter
+        if(filter.containsKey("proj")) {
+            if(filter.get("proj").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullcredits")).append(" ");
+            } else {
+                bindVars.put("credits", filter.get("proj").replaceAll("\\*", "%"));
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.credits")).append(" ");
+            }
+        }
+
         // code filter
         if(filter.containsKey("code")) {
             if(filter.get("code").toUpperCase().equals("NA")) {
@@ -723,8 +733,6 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         String[] occurrenceFilters = processOccurrenceFilters(filter, bindVars);
         inventoryFilter += occurrenceFilters[0];
         occurrenceFilter += occurrenceFilters[1];
-
-
 /*
         Log.info(AQLOccurrenceQueries.getString(!StringUtils.isStringEmpty(textFilter) ?
                 "occurrencequery.8.withtextfilter" : "occurrencequery.8.withouttextfilter", inventoryFilter, occurrenceFilter));

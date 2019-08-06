@@ -60,6 +60,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub", important = true)
     private String pubNotes;
+    @InventoryField @HideInCompactView
+    @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Projecto ou instituição financiadora", shortName = "Proj", alias = {"project"})
+    private String credits;
     @HideInCompactView @InventoryField
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv", important = true)
@@ -635,6 +639,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public void setCoverIndex(String coverIndex) {
         this.coverIndex = coverIndex;
+    }
+
+    public String getCredits() {
+        return credits;
+    }
+
+    public void setCredits(String credits) {
+        this.credits = credits;
     }
 
     public List<OBSERVED_IN> getUnmatchedOccurrences() {

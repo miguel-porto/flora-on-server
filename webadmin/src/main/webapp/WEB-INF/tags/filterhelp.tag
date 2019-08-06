@@ -2,8 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <h1>Como usar os filtros avançados</h1>
-<p>Pode fazer filtros compostos por vários campos, os quais devolvem os registos que simultaneamente cumprem todas as condições. A estes, pode ser adicionado um filtro textual livre, que procurará em vários campos de texto simultaneamente.</p>
-<p>Para definir um filtro para um campo concreto, escreva o nome do campo seguido de <code>:</code>, e em seguida o filtro que pretende. Por exemplo: <code>date:12-8-2009</code></p>
+<p>Pode fazer filtros compostos por vários campos, os quais devolvem os registos que simultaneamente cumprem todas as condições. Em alternativa, pode usar um filtro simples textual livre, que procurará em vários campos de texto simultaneamente.</p>
+<p>Para definir um filtro para um campo concreto, escreva o nome do campo seguido de <code>:</code>, e em seguida o filtro que pretende (pode incluir espaços). Por exemplo: <code>date:12-8-2009</code></p>
 <p>Pode combinar quantos filtros quiser, por exemplo <code>date:?-8-2017 phen:f lat:&lt;38.4</code> devolve todos os registos marcados como em floração, observados em qualquer dia de Agosto de 2017 numa latitude menor que 38.4º.</p>
 <p>Os nomes de campos permitidos de momento são:</p>
 <table class="smalltext">
@@ -20,6 +20,7 @@
         <tr><td><code>local:</code></td><td>Nome do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>code:</code></td><td>Código do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>gps:</code></td><td>Código GPS</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>proj:</code></td><td>Projecto ou instituição</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>priv:</code></td><td>Notas privadas da ocorrência</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>acc:</code></td><td>Código de herbário (<i>accession</i>)</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>obs:</code></td><td>Observador</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
@@ -35,10 +36,10 @@
 <p>Nos filtros textuais (ver tabela supra), use asteriscos <code>*</code> para significar qualquer sequência de caracteres.
 Por exemplo, <code>tax:lavandula</code> irá devolver apenas os registos cujo taxon está definido ao nível do género <i>Lavandula</i> (sem espécie), enquanto que <code>tax:lavandula*</code>
 irá devolver todos os registos das várias espécies de <i>Lavandula</i>. Similarmente, <code>tax:e*wel*</code> ira devolver os registos dos taxa que começam por <code>e</code> e que têm
-a sequência <code>wel</code> algures no nome (género, espécie ou autoria).</p>
+a sequência <code>wel</code> algures no nome (género, espécie ou autoria), por exemplo, <i>Euphorbia welwitschii</i>.</p>
 <h2>Filtrar por datas e intervalos de datas</h2>
 <table class="smalltext">
-    <thead><tr><th>Filtro (n.b. sem espaços)</th><th>Devolve</th></tr></thead>
+    <thead><tr><th>Filtro</th><th>Devolve</th></tr></thead>
     <tbody>
     <tr><td><code>date:na</code></td><td>Registos sem data de observação</td></tr>
     <tr><td><code>date:12/8/2002</code></td><td>Registos observados nesta data concreta</td></tr>
@@ -54,7 +55,7 @@ a sequência <code>wel</code> algures no nome (género, espécie ou autoria).</p
 <p>Aplica-se aos filtros de coordenadas <code>lat:</code> <code>long:</code> e nº de taxa <code>nsp:</code>. Os intervalos numéricos podem ser abertos ou fechados.
 No caso de coordenadas, se for especificada uma coordenada exacta (e não um intervalo), a pesquisa será feita num raio de poucos metros em torno desse ponto.</p>
 <table class="smalltext">
-    <thead><tr><th>Filtro (n.b. sem espaços)</th><th>Devolve</th></tr></thead>
+    <thead><tr><th>Filtro</th><th>Devolve</th></tr></thead>
     <tbody>
     <tr><td><code>lat:38.7-39.1 long:-7.7--8</code></td><td>Registos observados no quadrado definido pelas latitudes 38.7º e 39.1º e as longitudes -7.7º e -8.0º</td></tr>
     <tr><td><code>lat:&gt;40.3</code></td><td>Registos observados acima da latitude 40.3º</td></tr>
