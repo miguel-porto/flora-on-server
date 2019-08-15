@@ -221,9 +221,11 @@ function attachOptionButtonHandler(url) {
             var name = optb.getAttribute('data-option');
             var value = optb.getAttribute('data-value');
             var elid = optb.getAttribute('data-element');
+            var type = optb.getAttribute('data-type');
             var norefresh = optb.getAttribute('data-norefresh');
             var vbool = (value == 'true');
             var el = (elid == '' ? null : document.getElementById(elid));
+            if(type == 'radio' && optb.classList.contains('selected')) return;
             if(norefresh == 'true') {    // TODO this is specific to occurrence manager
                 if(vbool) {
                     if(el) el.classList.remove('hiddenhard');
@@ -236,7 +238,7 @@ function attachOptionButtonHandler(url) {
                 }
                 if (typeof myMap !== 'undefined') myMap.invalidateSize(false);
             }
-            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value), function(rt) {
+            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type, function(rt) {
                 if(norefresh == 'false') window.location.reload();
 //                if(!el)
             });

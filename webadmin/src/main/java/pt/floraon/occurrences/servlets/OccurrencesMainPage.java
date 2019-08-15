@@ -63,10 +63,30 @@ public class OccurrencesMainPage extends FloraOnServlet {
             filter = null;
         }
 
+/*
+        Enumeration<String> attrs = session.getAttributeNames();
+        while(attrs.hasMoreElements()) {
+            String attr = attrs.nextElement();
+            if(attr.startsWith("option-view-")) {
+                if((Boolean) session.getAttribute(attr)) {
+                    String howMany = attr.split("-")[2];
+                    if(howMany.equals("all"))
+                        count = 10000000;
+                    else
+                        count = Integer.parseInt(howMany);
+                }
+            }
+        }
+*/
+        String howMany;
+        if((howMany = (String) session.getAttribute("option-view")) != null)
+            count = Integer.parseInt(howMany);
+/*
         if(session.getAttribute("option-view250") != null && (Boolean) session.getAttribute("option-view250")) count = 250;
         if(session.getAttribute("option-view1000") != null && (Boolean) session.getAttribute("option-view1000")) count = 1000;
         if(session.getAttribute("option-view5000") != null && (Boolean) session.getAttribute("option-view5000")) count = 5000;
         if(session.getAttribute("option-viewall") != null && (Boolean) session.getAttribute("option-viewall")) count = 10000000;
+*/
 
         request.setAttribute("user", user);
         request.setAttribute("occperpage", count);
@@ -112,11 +132,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 }
 
                 // Flavours
-                // Get the list of flavours
-                Map<String, IOccurrenceFlavour> flv2 = user.getEffectiveOccurrenceFlavours();
-                request.setAttribute("flavourList", flv2.entrySet());
                 // the flavour for new inventories
                 request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventory"));
+                // the flavour for the inventory summary
                 request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
 /*
                 // the flavour for the inventory summary
@@ -138,15 +156,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 // Flavours
                 // Get the list of flavours
-                Map<String, IOccurrenceFlavour> flv = user.getEffectiveOccurrenceFlavours();
-                request.setAttribute("flavourList", flv.entrySet());
+                Map<String, IOccurrenceFlavour> flv = user.getEffectiveOccurrenceFlavours(User.FlavourFilter.ONLY_INVENTORY);
+                request.setAttribute("flavourList", user.getEffectiveOccurrenceFlavourNames(flv));
 
                 // get the list of fields for the selected flavour
-                String flavour1 = thisRequest.getParameterAsString("flavour", "simple");
-                if(StringUtils.isStringEmpty(flavour1) || !flv.containsKey(flavour1))
+                String flavour = (String) session.getAttribute("option-flavour");
+                if(StringUtils.isStringEmpty(flavour) || !flv.containsKey(flavour))
                     request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
                 else
-                    request.setAttribute("flavourfields", flv.get(flavour1));
+                    request.setAttribute("flavourfields", flv.get(flavour));
 
                 break;
 
@@ -207,15 +225,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 // Flavours
                 // Get the list of flavours
-                Map<String, IOccurrenceFlavour> flv1 = user.getEffectiveOccurrenceFlavours();
-                request.setAttribute("flavourList", flv1.entrySet());
+                Map<String, IOccurrenceFlavour> flv1 = user.getEffectiveOccurrenceFlavours(User.FlavourFilter.ONLY_OCCURRENCE);
+                request.setAttribute("flavourList", user.getEffectiveOccurrenceFlavourNames(flv1));
 
                 // get the list of fields for the selected flavour
-                String flavour = thisRequest.getParameterAsString("flavour", "simple");
-                if(StringUtils.isStringEmpty(flavour) || !flv1.containsKey(flavour))
+                String flavour1 = (String) session.getAttribute("option-flavour");
+                if(StringUtils.isStringEmpty(flavour1) || !flv1.containsKey(flavour1))
                     request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
                 else
-                    request.setAttribute("flavourfields", flv1.get(flavour));
+                    request.setAttribute("flavourfields", flv1.get(flavour1));
                 break;
 
             case "uploads":
@@ -250,8 +268,29 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "setoption":
-//                    System.out.println("SET " + "option-" + thisRequest.getParameterAsString("n")+ " to "+thisRequest.getParameterAsBooleanNoNull("v"));
+//                System.out.println("SET " + "option-" + thisRequest.getParameterAsString("n")+ " to "+thisRequest.getParameterAsBooleanNoNull("v"));
                 String optionName = thisRequest.getParameterAsString("n");
+                switch(thisRequest.getParameterAsString("t", "boolean")) {
+                    case "boolean":
+                        session.setAttribute("option-" + optionName
+                                , thisRequest.getParameterAsBooleanNoNull("v"));
+                        break;
+
+                    case "radio":
+/*
+                        // NOTE: format is option-prefix-name don't use -
+                        String prefix = "option-" + optionName.split("-")[0];
+                        Enumeration<String> attributeNames = session.getAttributeNames();
+                        while(attributeNames.hasMoreElements()) {
+                            String opt = attributeNames.nextElement();
+                            if(opt.startsWith(prefix))
+                                session.setAttribute(opt, false);
+                        }
+*/
+                        session.setAttribute("option-" + optionName, thisRequest.getParameterAsString("v"));
+                        break;
+                }
+/*
                 if(optionName.startsWith("view")) {
                     session.setAttribute("option-view250", false);
                     session.setAttribute("option-view1000", false);
@@ -262,6 +301,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     session.setAttribute("option-" + optionName
                             , thisRequest.getParameterAsBooleanNoNull("v"));
                 }
+*/
                 thisRequest.success("Set");
                 break;
 

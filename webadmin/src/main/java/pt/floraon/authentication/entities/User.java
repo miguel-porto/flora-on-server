@@ -1,6 +1,7 @@
 package pt.floraon.authentication.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
+import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
@@ -13,6 +14,9 @@ import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
 import pt.floraon.occurrences.fields.flavours.CustomOccurrenceFlavour;
 
+import javax.servlet.annotation.WebListener;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +27,8 @@ import static pt.floraon.authentication.Privileges.*;
 /**
  * Represents a user of the Flora-On Server, who can be an observer, collector, etc.
  */
-public class User extends NamedDBNode implements Comparable<User> {
+@WebListener
+public class User extends NamedDBNode implements Comparable<User>, HttpSessionBindingListener {
 	private String userName, password;
 	private UserType userType;
 	private Set<Privileges> privileges = new HashSet<>();
@@ -32,10 +37,33 @@ public class User extends NamedDBNode implements Comparable<User> {
 	private String userPolygons;
 	private boolean isGuest;
 	private Set<CustomOccurrenceFlavour> customOccurrenceFlavours;
+	public enum FlavourFilter {ONLY_OCCURRENCE, ONLY_INVENTORY}
 
 	@Override
 	public int compareTo(User user) {
 		return this.getName().compareTo(user.getName());
+	}
+
+	@Override
+	public void valueBound(HttpSessionBindingEvent event) {
+		if(!event.getName().equals("user")) return;
+		Set<User> logins = (Set<User>) event.getSession().getServletContext().getAttribute("logins");
+		if(logins == null) {
+			logins = new HashSet<>();
+			event.getSession().getServletContext().setAttribute("logins", logins);
+		}
+		logins.add(this);
+	}
+
+	@Override
+	public void valueUnbound(HttpSessionBindingEvent event) {
+		if(!event.getName().equals("user")) return;
+		Set<User> logins = (Set<User>) event.getSession().getServletContext().getAttribute("logins");
+		if(logins == null) {
+			logins = new HashSet<>();
+			event.getSession().getServletContext().setAttribute("logins", logins);
+		}
+		logins.remove(this);
 	}
 
 	public enum UserType {ADMINISTRATOR, REGULAR}
@@ -151,16 +179,45 @@ public class User extends NamedDBNode implements Comparable<User> {
 
     /**
      * Merge the pre-defined flavours with the custom
-     * @return
+	 * @param filter Optional filter.
+     * @return All the flavours available for this view, including built-in flavours
      */
-	public Map<String, IOccurrenceFlavour> getEffectiveOccurrenceFlavours() {
-        Map<String, IOccurrenceFlavour> flv1 = new LinkedHashMap<>(OccurrenceConstants.occurrenceManagerFlavours);
-        if(getCustomOccurrenceFlavours() != null) {
-            for (CustomOccurrenceFlavour of : getCustomOccurrenceFlavours())
-                flv1.put(of.getName(), of);
-        }
+	public Map<String, IOccurrenceFlavour> getEffectiveOccurrenceFlavours(FlavourFilter filter) {
+		Map<String, IOccurrenceFlavour> flv1;
+		if(filter == null) {
+			flv1 = new LinkedHashMap<>(OccurrenceConstants.occurrenceManagerFlavours);
+			if (getCustomOccurrenceFlavours() != null) {
+				for (CustomOccurrenceFlavour of : getCustomOccurrenceFlavours())
+					flv1.put(of.getName(), of);
+			}
+		} else {	// filter
+			flv1 = new LinkedHashMap<>();
+			for(Map.Entry<String, IOccurrenceFlavour> e : OccurrenceConstants.occurrenceManagerFlavours.entrySet()) {
+				if((filter == FlavourFilter.ONLY_INVENTORY && e.getValue().showInInventoryView())
+					|| (filter == FlavourFilter.ONLY_OCCURRENCE && e.getValue().showInOccurrenceView()))
+					flv1.put(e.getKey(), e.getValue());
+			}
+			if (getCustomOccurrenceFlavours() != null) {
+				for (CustomOccurrenceFlavour of : getCustomOccurrenceFlavours()) {
+					if((filter == FlavourFilter.ONLY_INVENTORY && of.showInInventoryView())
+							|| (filter == FlavourFilter.ONLY_OCCURRENCE && of.showInOccurrenceView()))
+					flv1.put(of.getName(), of);
+				}
+			}
+		}
         return flv1;
     }
+
+	/**
+	 * @return All the flavour names and labels for this view, including built-in flavours
+	 */
+	public Map<String, String> getEffectiveOccurrenceFlavourNames(Map<String, IOccurrenceFlavour> flavourMap) {
+		Map<String, String> out = new HashMap<>();
+		for(Map.Entry<String, IOccurrenceFlavour> of : flavourMap.entrySet())
+			out.put(of.getKey(), of.getValue().getName());
+		return out;
+	}
+
 
 	public void setCustomOccurrenceFlavours(Set<CustomOccurrenceFlavour> customOccurrenceFlavours) {
 		this.customOccurrenceFlavours = customOccurrenceFlavours;

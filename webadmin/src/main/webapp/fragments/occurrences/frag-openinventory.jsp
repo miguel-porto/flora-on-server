@@ -7,6 +7,7 @@
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
 <div class="button anchorbutton"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
+<%--
 <div id="flavourlist">
     <div class="label"><fmt:message key="button.4a"/></div>
     <c:forEach var="flv" items="${flavourList}" varStatus="loop">
@@ -15,6 +16,11 @@
         <div class="button anchorbutton ${sel}"><a href="?w=openinventory&flavour=${flv.getKey()}&id=${param.id}">${flv.getValue().getName()}</a></div>
     </c:if>
     </c:forEach>
+</div>
+--%>
+<div id="flavourlist">
+    <div class="label"><fmt:message key="button.4a"/></div>
+    <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
 </div>
 </div>  <!-- top buttons -->
 <div id="deleteoccurrences" class="hidden">

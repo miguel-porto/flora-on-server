@@ -29,7 +29,8 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
      * Uploads a tab-separated CSV taxonomy file.
      * The file can have as many columns as needed, the hierarchy goes form left to right.
      * Authority of a name goes in front of the name between braces {}
-     * Multiple files can be uploaded, as they are merged. In this case, the <u>last column</u> of the new file <b>must match</b> the <u>orphan nodes</u> in the DB
+     * Multiple files can be uploaded, as they are merged. In this case, the <u>last column</u> of the new file
+     * <b>must match</b> the <u>orphan nodes</u> in the DB
      * <p>Optionally, the last column may be an ID (if you want to match with old IDs)</p>
      * @param stream
      * @param simulate

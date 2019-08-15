@@ -284,6 +284,8 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                     if(alreadUpdated.contains(eachNewOcc.getUuid())) { // this occurrence was already updated, so add new and copy
                         UUID newUuid = UUID.randomUUID();
                         OBSERVED_IN newOcc;
+                        eachNewOcc.setDateUpdated(new Date());
+                        eachNewOcc.setDateInserted(null);
                         try {
                             newOcc = BeanUtils.updateBean(OBSERVED_IN.class, null, origMap.get(eachNewOcc.getUuid()), eachNewOcc);
                             newOcc.setUuid(newUuid);
@@ -305,8 +307,8 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                                 if (eachNewOcc.getObservationLatitude() != null && eachNewOcc.getObservationLongitude() != null)
                                     eachNewOcc.setCoordinatesChanged(true);
                             }
+                            eachNewOcc.setDateUpdated(new Date());
                             // this occurrence is being updated, so leave the dateInserted intact. Only update de dateUpdated.
-                            eachNewOcc.setDateUpdated(eachNewOcc.getDateInserted());
                             eachNewOcc.setDateInserted(null);
 
                             updMap.put(eachNewOcc.getUuid()

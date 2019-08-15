@@ -11,6 +11,7 @@ import pt.floraon.authentication.RandomString;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.PolygonTheme;
@@ -225,6 +226,19 @@ public class AdminAPI extends FloraOnServlet {
 
                 u1.getTaxonPrivileges().get(ps).setApplicableTaxa(newTaxa);
                 thisRequest.success(driver.getAdministration().updateUser(thisRequest.getParameterAsKey("userId"), u1).getID());
+                break;
+
+            case "setglobaloptions":
+                thisRequest.ensureAdministrator();
+                String option = thisRequest.getParameterAsString("option");
+                GlobalSettings globalSettings = driver.getGlobalSettings();
+                switch(option) {
+                    case "lockediting":
+                        globalSettings.setClosedForAdminTasks(thisRequest.getParameterAsBoolean("value"));
+                        driver.updateGlobalSettings(globalSettings);
+                        break;
+                }
+                thisRequest.success("ok");
                 break;
 
             default:

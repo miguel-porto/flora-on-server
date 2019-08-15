@@ -46,7 +46,7 @@ public class FloraOnShell {
 		}
 
     	try {
-			graph=new FloraOnArangoDriver("flora", properties);
+			graph=new FloraOnArangoDriver(properties);
 		} catch (FloraOnException e2) {
 			e2.printStackTrace();
 			return;

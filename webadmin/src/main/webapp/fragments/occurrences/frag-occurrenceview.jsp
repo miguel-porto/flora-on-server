@@ -11,6 +11,11 @@
 <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
 <div id="flavourlist">
     <div class="label"><fmt:message key="button.4a"/></div>
+    <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
+</div>
+<%--
+<div id="flavourlist">
+    <div class="label"><fmt:message key="button.4a"/></div>
     <c:forEach var="flv" items="${flavourList}" varStatus="loop">
     <c:if test="${flv.getValue().showInOccurrenceView()}">
         <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>
@@ -18,6 +23,7 @@
     </c:if>
     </c:forEach>
 </div>
+--%>
 </div>  <!-- top buttons -->
 <div id="deleteoccurrences" class="hidden">
     <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
@@ -52,7 +58,7 @@
 <form id="addnewoccurrences" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
     <div class="heading2">
         <h2><fmt:message key="inventory.add1"/></h2>
-        <c:if test="${param.flavour != 'herbarium'}">
+        <c:if test="${sessionScope['option-flavour'] != 'herbarium'}">
         <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
         </c:if>
         <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
@@ -96,13 +102,12 @@
         <div class="button" id="deleteselected"><fmt:message key="occurrences.1b"/></div>
         <div class="button hideincompactview" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
         <div class="button" id="updatemodified"><fmt:message key="inventory.upd"/></div>
-        <c:if test="${param.flavour == 'redlist'}">
+        <c:if test="${sessionScope['option-flavour'] == 'redlist'}">
         <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
         </c:if>
         <div id="occurrencefilter">
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
-                <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
                 <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
                 <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
@@ -110,14 +115,12 @@
             </form>
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
-                <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
                 <input type="hidden" name="filter" value="date:na" />
                 <input type="submit" class="button" value="Sem data" />
             </form>
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
-                <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
                 <input type="hidden" name="filter" value="tag:lista*alvo" />
                 <input type="submit" class="button" value="Lista Alvo" />
@@ -126,7 +129,6 @@
             <c:if test="${filter != null && filter != ''}">
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
-                <input type="hidden" name="flavour" value="${param.flavour}" />
                 <input type="hidden" name="p" value="1" />
                 <input type="hidden" name="filter" value="" />
                 <input type="submit" class="button" value="Show all" />

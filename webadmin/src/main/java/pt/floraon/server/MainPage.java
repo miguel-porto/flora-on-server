@@ -31,10 +31,7 @@ public class MainPage extends FloraOnServlet {
 */
 
         thisRequest.request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
-        if(driver.getListDriver().getAllOrphanTaxa().hasNext())
-            thisRequest.request.setAttribute("orphan", true);
-
-        thisRequest.request.setAttribute("errors", driver.getListDriver().getTaxonomicErrors());
+        thisRequest.request.setAttribute("globalSettings", driver.getGlobalSettings());
         thisRequest.request.getRequestDispatcher("/main.jsp").forward(thisRequest.request, thisRequest.response);
     }
 }

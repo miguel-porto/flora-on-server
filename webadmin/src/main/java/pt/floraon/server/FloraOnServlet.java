@@ -83,7 +83,7 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk15");
+		request.setAttribute("uuid", "bk18");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -134,6 +134,13 @@ public class FloraOnServlet extends HttpServlet {
 			this.response = response;
 			this.request = request;
 		}
+
+/*
+		public String getOptionValue(String optionPrefix) {
+            HttpSession session = request.getSession(false);
+            session.getAttribute("option-" + optionPrefix);
+        }
+*/
 
 		public boolean isQueryParameterEqualTo(String name, String value) throws IOException, ServletException {
 			if(value == null && getParameterAsString(name) == null)

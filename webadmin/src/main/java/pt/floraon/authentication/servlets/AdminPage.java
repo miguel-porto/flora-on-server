@@ -30,7 +30,7 @@ public class AdminPage extends FloraOnServlet {
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         String what;
 
-        if(thisRequest.getUser().isGuest()) {
+        if (thisRequest.getUser().isGuest()) {
             thisRequest.response.setStatus(HttpServletResponse.SC_FOUND);
             thisRequest.response.setHeader("Location", "./main");
             return;
@@ -39,7 +39,19 @@ public class AdminPage extends FloraOnServlet {
         thisRequest.refreshUser();
         thisRequest.request.setAttribute("what", what = thisRequest.getParameterAsString("w", "main"));
 
-        if(thisRequest.getUser().isAdministrator()) {
+        if (thisRequest.getUser().isAdministrator()) {
+            if(driver.getListDriver().getAllOrphanTaxa().hasNext())
+                thisRequest.request.setAttribute("orphan", true);
+
+            thisRequest.request.setAttribute("errors", driver.getListDriver().getTaxonomicErrors());
+            thisRequest.request.setAttribute("globalSettings", driver.getGlobalSettings());
+
+            Set<User> logins = (Set<User>) this.getServletContext().getAttribute("logins");
+
+            if (logins == null)
+                logins = new HashSet<>();
+            thisRequest.request.setAttribute("logins", logins);
+
 /*
             // fetch unmatched occurrences and try to match interactively
             InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
@@ -71,8 +83,8 @@ DEPRECATED
 */
         }
 
-        for(TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
-            if(tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
+        for (TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
+            if (tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
                 thisRequest.request.setAttribute("showDownload", true);
                 List<User> allusers = driver.getAdministration().getAllUsers(true);
                 Collections.sort(allusers);
@@ -85,27 +97,27 @@ DEPRECATED
         Map<String, String[]> inventoryFieldNames = new TreeMap<>();
         Map<String, String[]> specialFieldNames = new TreeMap<>();
         Field[] fs = OBSERVED_IN.class.getDeclaredFields();
-        for(Field f : fs) {
-            if(f.isAnnotationPresent(PrettyName.class)) {
+        for (Field f : fs) {
+            if (f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                occurrenceFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
+                occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
             }
         }
-        for(Field f : Inventory.class.getDeclaredFields()) {
-            if(f.isAnnotationPresent(PrettyName.class)) {
+        for (Field f : Inventory.class.getDeclaredFields()) {
+            if (f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                inventoryFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
+                inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
             }
         }
-        for(Field f : SpecialFields.class.getDeclaredFields()) {
-            if(f.isAnnotationPresent(PrettyName.class)) {
-                if(f.isAnnotationPresent(SpecialField.class) && f.getAnnotation(SpecialField.class).hideFromCustomFlavour())
+        for (Field f : SpecialFields.class.getDeclaredFields()) {
+            if (f.isAnnotationPresent(PrettyName.class)) {
+                if (f.isAnnotationPresent(SpecialField.class) && f.getAnnotation(SpecialField.class).hideFromCustomFlavour())
                     continue;
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                if(f.isAnnotationPresent(InventoryField.class))
-                    inventoryFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
+                if (f.isAnnotationPresent(InventoryField.class))
+                    inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
                 else
-                    occurrenceFieldNames.put(f.getName(), new String[] {fpn.value(), fpn.description()});
+                    occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
             }
         }
 
@@ -144,6 +156,7 @@ DEPRECATED
                 return false;
             }
         });
+
 
         thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
     }

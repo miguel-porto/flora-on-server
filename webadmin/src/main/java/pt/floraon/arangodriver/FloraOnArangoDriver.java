@@ -8,9 +8,7 @@ import java.util.*;
 import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.ArangoDBException;
-import com.arangodb.entity.CollectionType;
-import com.arangodb.entity.EdgeDefinition;
-import com.arangodb.entity.UserEntity;
+import com.arangodb.entity.*;
 
 import com.arangodb.model.*;
 import jline.internal.Log;
@@ -18,6 +16,7 @@ import pt.floraon.arangodriver.serializers.*;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.Rectangle;
+import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.geometry.Polygon;
 import pt.floraon.images.ImageManagementArangoDriver;
 import pt.floraon.occurrences.Abundance;
@@ -74,10 +73,14 @@ public class FloraOnArangoDriver implements IFloraOn {
         originalImageFolder = null;
     }
 
-	public FloraOnArangoDriver(String dbname, Properties properties) throws FloraOnException {
+	public FloraOnArangoDriver(Properties properties) throws FloraOnException {
 		this.properties = properties;
 		String username = properties.getProperty("arango.user");
 		String pass = properties.getProperty("arango.password");
+		String dbname = properties.getProperty("arango.database");
+
+		if(dbname == null)
+			throw new FloraOnException("You must provide the database name in the floraon.properties file (arango.database)");
 
 		if(username == null || pass == null)
 			throw new FloraOnException("You must provide login details for ArangoDB in the floraon.properties file (arango.user and arango.password)");
@@ -184,7 +187,29 @@ public class FloraOnArangoDriver implements IFloraOn {
 		return out;
 	}
 
-	@Override
+    @Override
+    public GlobalSettings getGlobalSettings() {
+	    if(database.collection(NodeTypes.global_settings.toString()) == null)
+	        database.createCollection(NodeTypes.global_settings.toString());
+
+        Iterator<GlobalSettings> it = database.query(String.format("FOR s IN %s RETURN s", NodeTypes.global_settings.toString()), null
+                , null, GlobalSettings.class);
+        if(it.hasNext())
+            return it.next();
+        else {
+            DocumentCreateEntity<GlobalSettings> out
+                    = database.collection(NodeTypes.global_settings.toString()).insertDocument(new GlobalSettings()
+                    , new DocumentCreateOptions().returnNew(true));
+            return out.getNew();
+        }
+    }
+
+    @Override
+    public void updateGlobalSettings(GlobalSettings newSettings) {
+	    database.collection(NodeTypes.global_settings.toString()).updateDocument(newSettings.getKey(), newSettings);
+    }
+
+    @Override
 	public Properties getProperties() {
 		return this.properties;
 	}

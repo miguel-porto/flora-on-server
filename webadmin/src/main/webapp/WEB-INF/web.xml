@@ -23,10 +23,11 @@
       </user-data-constraint>
    </security-constraint>
 
+<!--
    <listener>
        <listener-class>pt.floraon.server.Startup</listener-class>
    </listener>
-
+-->
    <welcome-file-list>
        <welcome-file>main</welcome-file>
    </welcome-file-list>

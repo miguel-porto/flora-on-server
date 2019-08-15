@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
@@ -48,6 +49,10 @@ public interface IFloraOn {
 	void reloadSettings();
 
 	RedListSettings getRedListSettings(String territory);
+
+	GlobalSettings getGlobalSettings();
+
+	void updateGlobalSettings(GlobalSettings newSettings);
 
 	Properties getProperties();
 

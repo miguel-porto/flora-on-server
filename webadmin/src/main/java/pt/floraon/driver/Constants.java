@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import pt.floraon.bibliography.entities.Reference;
+import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
@@ -516,6 +517,7 @@ public final class Constants {
 		habitat(Habitat.class),				// a species habitat
 		reference(Reference.class),			// a bibliographic reference
 		redlist_settings(RedListSettings.class),	// the user options for a given red list dataset (i.e. for a territory)
+		global_settings(GlobalSettings.class),	// Settings for the whole installation
 		toponym(Toponym.class);				// a name of a place
     	
     	Class<? extends GeneralDBNode> nodeClass;

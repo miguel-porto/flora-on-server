@@ -50,8 +50,9 @@
         --%>
 
         <h1><a name="views"></a>Vistas personalizadas</h1>
+        <h2>Criar nova vista personalizada</h2>
+        <div class="block">
         <form class="poster" data-path="admin/createcustomoccurrenceflavour" data-refresh="true">
-            <h2>Criar nova vista personalizada</h2>
             <table class="small nohovereffects">
             <tr><td>Nome da vista</td><td><input type="text" name="flavourname"/></td></tr>
             <tr><td>Mostrar a vista em</td><td class="multiplechooser left">
@@ -80,66 +81,65 @@
             <tr><td colspan="2"><input type="submit" value="Criar vista" class="textbutton"/></td></tr>
             </table>
         </form>
-
+        </div>
         <h2>Vistas personalizadas existentes</h2>
-        <table class="small">
-        <tr><th>Nome</th><th>Show in occurrence view</th><th>Show in inventory view</th><th>Fields (click arrows to reorder)</th><th></th></tr>
-        <c:forEach var="flv" items="${customflavours}">
-        <tr>
-            <td>${flv.getName()}</td><td><t:yesno test="${flv.showInOccurrenceView()}"/></td><td><t:yesno test="${flv.showInInventoryView()}"/></td>
-            <td>
-            <c:forEach var="field" items="${flv.getFields()}" varStatus="loop">
-            <div class="filter legend nopadding">
-                <c:if test="${!loop.isFirst()}">
-                    <div class="light"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
+        <div class="block">
+            <table class="small">
+            <tr><th>Nome</th><th>Show in occurrence view</th><th>Show in inventory view</th><th>Fields (click arrows to reorder)</th><th></th></tr>
+            <c:forEach var="flv" items="${customflavours}">
+            <tr>
+                <td>${flv.getName()}</td><td><t:yesno test="${flv.showInOccurrenceView()}"/></td><td><t:yesno test="${flv.showInInventoryView()}"/></td>
+                <td>
+                <c:forEach var="field" items="${flv.getFields()}" varStatus="loop">
+                <div class="filter legend nopadding">
+                    <c:if test="${!loop.isFirst()}">
+                        <div class="light"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
+                        <input type="hidden" name="flavourname" value="${flv.getName()}"/>
+                        <input type="hidden" name="index" value="${loop.index}"/>
+                        <input type="hidden" name="action" value="decrease"/>
+                        <input type="submit" class="light" value="&lt;"/>
+                        </form></div></c:if><div>${field}</div><c:if test="${!loop.isLast()}">
+                        <div class="light right"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
+                        <input type="hidden" name="flavourname" value="${flv.getName()}"/>
+                        <input type="hidden" name="index" value="${loop.index}"/>
+                        <input type="hidden" name="action" value="increase"/>
+                        <input type="submit" class="light" value="&gt;"/>
+                        </form></div>
+                    </c:if>
+                </div>
+                </c:forEach>
+                </td>
+                <td>
+                    <form class="poster" data-path="admin/deletecustomoccurrenceflavour" data-refresh="true">
                     <input type="hidden" name="flavourname" value="${flv.getName()}"/>
-                    <input type="hidden" name="index" value="${loop.index}"/>
-                    <input type="hidden" name="action" value="decrease"/>
-                    <input type="submit" class="light" value="&lt;"/>
-                    </form></div>
-                </c:if>
-                ${field}
-                <c:if test="${!loop.isLast()}">
-                    <div class="light right"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
-                    <input type="hidden" name="flavourname" value="${flv.getName()}"/>
-                    <input type="hidden" name="index" value="${loop.index}"/>
-                    <input type="hidden" name="action" value="increase"/>
-                    <input type="submit" class="light" value="&gt;"/>
-                    </form></div>
-                </c:if>
-            </div>
+                    <input type="submit" value="Apagar" class="textbutton"/>
+                    </form>
+                </td>
+            </tr>
             </c:forEach>
-            </td>
-            <td>
-                <form class="poster" data-path="admin/deletecustomoccurrenceflavour" data-refresh="true">
-                <input type="hidden" name="flavourname" value="${flv.getName()}"/>
-                <input type="submit" value="Apagar" class="textbutton"/>
-                </form>
-            </td>
-        </tr>
-        </c:forEach>
-        </table>
-
-
+            </table>
+        </div>
         <c:if test="${showDownload}">
         <h1><a name="downloads"></a>Downloads</h1>
         <h2>Download occurrence records</h2>
-        <table>
-        <tr>
-            <td>Descarregar todas as ocorrências de todos os taxa que lhe estão atribuídos</td>
-            <td><div class="button anchorbutton"><a href="admin/downloadallkml" target="_blank">Download KML</a></div></td>
-        </tr>
-        <tr>
-            <td>Descarregar ocorrências LVF de todos os taxa que lhe estão atribuídos filtrando por autores</td>
-            <td>
-                <form action="admin/downloadallkml" method="post" enctype="multipart/form-data">
-                    <c:forEach var="user" items="${allusers}">
-                    <label><input type="checkbox" value="${user.getID()}" name="filterusers">${user.getName()}</input></label> | </c:forEach>
-                    <br/><input type="submit" class="textbutton" value="Download KML"/>
-                </form>
-            </td>
-        </tr>
-        </table>
+        <div class="block">
+            <table>
+            <tr>
+                <td>Descarregar todas as ocorrências de todos os taxa que lhe estão atribuídos</td>
+                <td><div class="button anchorbutton"><a href="admin/downloadallkml" target="_blank">Download KML</a></div></td>
+            </tr>
+            <tr>
+                <td>Descarregar ocorrências LVF de todos os taxa que lhe estão atribuídos filtrando por autores</td>
+                <td>
+                    <form action="admin/downloadallkml" method="post" enctype="multipart/form-data">
+                        <c:forEach var="user" items="${allusers}">
+                        <label><input type="checkbox" value="${user.getID()}" name="filterusers">${user.getName()}</input></label> | </c:forEach>
+                        <br/><input type="submit" class="textbutton" value="Download KML"/>
+                    </form>
+                </td>
+            </tr>
+            </table>
+        </div>
         </c:if>
 
         <c:if test="${user.isAdministrator()}">
@@ -167,14 +167,59 @@
     --%>
         <h1><a name="admin"></a>Administrative tasks</h1>
         <h2>Occurrence database</h2>
-        <h3><a href="admin/downloadallrecords"><img class="lock" src="../images/download.png"/> Download all records</a></h3>
-        <h3><a href="admin/downloadallrecords?w=precise"><img class="lock" src="../images/download.png"/> Download all valid and precise records at the species level</a></h3>
+        <div class="block">
+            <h3><a href="admin/downloadallrecords"><img class="lock" src="../images/download.png"/> Download all records</a></h3>
+            <h3><a href="admin/downloadallrecords?w=precise"><img class="lock" src="../images/download.png"/> Download all valid and precise records at the species level</a></h3>
+        </div>
+        <h2>Online users</h2>
+        <div class="block">
+            <table class="sortable">
+            <tr><th>Name</th><th>User ID</th></tr>
+            <c:forEach var="user" items="${logins}"><tr><td>${user.getName()}</td><td>${user.getID()}</td></tr></c:forEach>
+            </table>
+        </div>
+        <h2>Taxonomic issues</h2>
+        <div class="block">
+            <c:if test="${orphan}">
+            <p>Caro administrador, há táxones não ligados ao grafo principal.</p>
+            <div class="button anchorbutton"><a href="checklist?w=graph&show=orphan">Ver táxones</a></div>
+            </c:if>
+            <c:if test="${errors.hasNext()}">
+            <p>Os seguintes taxa estão incorrectamente ligados no grafo:</p>
+            <ul>
+            <c:forEach var="err" items="${errors}">
+                <li><a href="checklist?w=graph&depth=1&q=${err._getNameURLEncoded()}">${err.getName()}</a></li>
+            </c:forEach>
+            </ul>
+            </c:if>
+        </div>
         <h2>Toponomy</h2>
-        <form action="upload/toponyms" method="post" enctype="multipart/form-data" class="poster" data-path="upload/toponyms">
-            <input type="hidden" name="type" value="kml"/>
-            <input type="file" name="toponymTable" />
-            <input type="submit" class="textbutton" value="Upload"/>
-        </form>
+        <p>Upload a toponomy table for the georreferencer</p>
+        <div class="block">
+            <form action="upload/toponyms" method="post" enctype="multipart/form-data" class="poster" data-path="upload/toponyms">
+                <input type="hidden" name="type" value="kml"/>
+                <input type="file" name="toponymTable" />
+                <input type="submit" class="textbutton" value="Upload"/>
+            </form>
+        </div>
+        <h2>Global settings</h2>
+        <div class="block">
+            <h3>Block user logins</h3>
+            <p>Blocks login for all users except administrators.</p>
+            <form class="poster" data-path="admin/setglobaloptions" data-refresh="true">
+                <input type="hidden" name="option" value="lockediting"/>
+                <c:if test="${globalSettings.isClosedForAdminTasks()}">
+                <input type="hidden" name="value" value="false"/>
+                <input type="submit" value="Desbloquear" class="textbutton"/>
+                <div class="button inactive"><img src="../images/locked.png" class="lock"/>Bloqueado</div>
+                </c:if>
+                <c:if test="${!globalSettings.isClosedForAdminTasks()}">
+                <input type="hidden" name="value" value="true"/>
+                <div class="button inactive"><img src="../images/unlocked.png" class="lock"/>Desbloqueado</div>
+                <input type="submit" value="Bloquear" class="textbutton"/>
+                </c:if>
+            </form>
+        </div>
         </c:if>
 
         </c:if>
