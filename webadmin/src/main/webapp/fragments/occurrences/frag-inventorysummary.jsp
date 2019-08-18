@@ -9,6 +9,10 @@
 <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
 <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users inventories" defaultvalue="false"/></c:if>
 </div>  <!-- top buttons -->
+<div id="flavourlist">
+    <div class="label"><fmt:message key="button.4a"/></div>
+    <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
+</div>
 <t:inventorymodel fields="${flavourfields}"/>
 
 <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
@@ -29,6 +33,7 @@
             <input type="submit" class="textbutton" value="Update"/>
             <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
         </div>
+<%--
         <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
             <tr>
                 <th class="sorttable_nosort selectcol clickable"><div class="selectbutton"></div></th>
@@ -38,9 +43,15 @@
             </tr>
             <tbody></tbody>
         </table>
+--%>
+        <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
+            <thead><tr>
+                <t:occurrenceheader fields="${summaryfields}" view="inventorySummary"/>
+            </tr></thead>
+            <tbody></tbody>
+        </table>
     </form>
 </div>
-
 <div class="heading2">
     <h2>Your inventories - ${nrtotaloccurrences}</h2>
     <%--<t:isoptionselected optionname="allusers" value="false"><div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div></t:isoptionselected>--%>
@@ -81,11 +92,11 @@
 <div id="alloccurrences">
     <table id="alloccurrencetable" class="occurrencetable verysmalltext sortable inventorysummary">
         <thead><tr>
-            <t:occurrenceheader fields="${summaryfields}" noOccurrence="true"/>
+            <t:occurrenceheader fields="${summaryfields}" view="inventorySummary"/>
         </tr></thead>
         <tbody>
         <c:forEach var="inv" items="${inventories}">
-            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" noOccurrence="true" />
+            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" view="inventorySummary" />
         </c:forEach>
         </tbody>
     </table>

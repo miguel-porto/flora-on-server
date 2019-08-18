@@ -24,6 +24,7 @@ public class EnumParser implements FieldParser {
             case "phenostate":
             case "confidence":
             case "presencestatus":
+            case "naturalization":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
 
@@ -47,6 +48,10 @@ public class EnumParser implements FieldParser {
 
                         case "presencestatus":
                             obs.setPresenceStatus(OccurrenceConstants.PresenceStatus.getValueFromAcronym(inputValue.toLowerCase()));
+                            break;
+
+                        case "naturalization":
+                            obs.setNaturalization(OccurrenceConstants.OccurrenceNaturalization.getValueFromAcronym(inputValue.toLowerCase()));
                             break;
                     }
 

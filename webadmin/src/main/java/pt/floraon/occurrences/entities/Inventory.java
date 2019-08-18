@@ -1,11 +1,14 @@
 package pt.floraon.occurrences.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
+import com.sun.tools.jxc.apt.Const;
+import jline.internal.Log;
 import pt.floraon.driver.*;
 import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.*;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.fields.parsers.*;
 
 import java.io.Serializable;
@@ -202,22 +205,29 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
-     * @return Whether we should get coordinates from observation whenever there's only one taxon and it has coordinantes.
+     * @return True if there's only one taxon AND it has valid coordinates.
      */
-    private boolean shouldGetCoordinatesFromObservation() {
+    public boolean shouldGetCoordinatesFromObservation() {
+        return _getTaxa() != null && this._getUniqueCoordinate(false) != null;
+
+/*
         if(_getTaxa() != null && _getTaxa().length == 1) {
-            return _getTaxa()[0].getObservationLatitude() != null && _getTaxa()[0].getObservationLongitude() != null;
+            return !Constants.isNullOrNoData(_getTaxa()[0].getObservationLatitude())
+                    && !Constants.isNullOrNoData(_getTaxa()[0].getObservationLongitude());
         } else return false;
+*/
     }
 
     /**
-     * @return The latitude of the inventory, OR, if there is only one observation, returns latitude of that observation, if set.
+     * @return
+     * - If there is only one observation with coordinates, the latitude of that observation, OR if not
+     * - the latitude of the inventory, OR if null,
+     * - the average latitude of all the observations.
      */
     public Float _getLatitude() {
         checkGeographicCoordinates();
         if(shouldGetCoordinatesFromObservation()) {
-            Float olat = _getTaxa()[0].getObservationLatitude();
-            return (Constants.isNoData(olat) ? null : olat);
+            return _getUniqueCoordinate(false).getLatitude();
         } else {
             if(Constants.isNullOrNoData(latitude)) {
                 Float olat = 0f;
@@ -236,8 +246,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     public Float _getLongitude() {
         checkGeographicCoordinates();
         if(shouldGetCoordinatesFromObservation()) {
-            Float olng = _getTaxa()[0].getObservationLongitude();
-            return (Constants.isNoData(olng) ? null : olng);
+            return _getUniqueCoordinate(false).getLongitude();
         } else {
             if(Constants.isNullOrNoData(longitude)) {
                 Float olng = 0f;
@@ -253,12 +262,20 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String _getCoordinates() {
-        if(this._getLatitude() == null || this._getLongitude() == null)
+        Float lat, lng;
+        if(Constants.isNullOrNoData(lat = this._getLatitude()) || Constants.isNullOrNoData(lng = this._getLongitude()))
             return "*";
         else
-            return String.format(Locale.ROOT, "%.5f, %.5f", this._getLatitude(), this._getLongitude());
+            return String.format(Locale.ROOT, "%.5f, %.5f", lat, lng);
     }
 
+    /**
+     * Similar to _getLatitude but gives priority to inventory coordinates.
+     * @return
+     * - The latitude of the inventory, OR if null,
+     * - If there is only one observation with coordinates, the latitude of that observation, OR if not
+     * - the average latitude of all the observations.
+     */
     public Float _getInventoryLatitude() {
         checkGeographicCoordinates();
         return latitude == null ? _getLatitude() : latitude;
@@ -270,19 +287,18 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
-     * This gets the coordinates of the Inventory. If they are null, and the inventory has only one observation, returns
+     * This gets the coordinates of the Inventory. If they are null, and the inventory <b>has only one observation</b>, returns
      * the coordinates of that observation in parenthesis.
      * @return
      */
     public String _getInventoryCoordinates() {
         if(this.latitude == null || this.longitude == null) {
-            if(this._getLatitude() == null || this._getLongitude() == null)
+            if(Constants.isNullOrNoData(this._getLatitude()) || Constants.isNullOrNoData(this._getLongitude()))
                 return "*";
             else
                 return "* (" + this._getCoordinates() + ")";
-        } else {
+        } else
             return String.format(Locale.ROOT, "%.5f, %.5f", this._getInventoryLatitude(), this._getInventoryLongitude());
-        }
     }
 
     @Override
@@ -672,7 +688,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     public OBSERVED_IN[] _getTaxa() {
         return StringUtils.isArrayEmpty(this.taxa) ?
                 (unmatchedOccurrences == null ?
-                        new OBSERVED_IN[0] : unmatchedOccurrences.toArray(new OBSERVED_IN[unmatchedOccurrences.size()]))
+                        new OBSERVED_IN[0] : unmatchedOccurrences.toArray(new OBSERVED_IN[0]))
                 : this.taxa;
     }
 
@@ -699,7 +715,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
-     * @return True if this inventory has more than one single coordinate
+     * @return True if this inventory has more than one single coordinate (including the inventory's)
      */
     public boolean _hasMultipleCoordinates() {
         Set<String> coords = new HashSet<>();
@@ -715,6 +731,30 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
+     * @return The unique coordinate of the occurrences, if it is unique. In all other cases, returns NULL.
+     * Occurrences without coordinates are ignored.
+     */
+    public LatLongCoordinate _getUniqueCoordinate(boolean accountForInventory) {
+        Set<String> coords = new HashSet<>();
+        float lat = Constants.NODATA, lng = Constants.NODATA;
+        if(accountForInventory) {
+            if (!Constants.isNullOrNoData(this.getLatitude()) && !Constants.isNullOrNoData(this.getLongitude())) {
+                coords.add(String.format("%.6f %.6f", lat = this.getLatitude(), lng = this.getLongitude()));
+//            Log.info(String.format("INV: %.6f %.6f", lat = this.getLatitude(), lng = this.getLongitude()));
+            }
+        }
+        for(OBSERVED_IN oi : this._getTaxa()) {
+            if(Constants.isNullOrNoData(oi.getObservationLatitude()) || Constants.isNullOrNoData(oi.getObservationLongitude())) continue;
+            coords.add(String.format("%.6f %.6f", lat = oi.getObservationLatitude(), lng = oi.getObservationLongitude()));
+//            Log.info(String.format("OCC: %.6f %.6f", lat = oi.getObservationLatitude(), lng = oi.getObservationLongitude()));
+            if(coords.size() > 1) return null;
+        }
+        if(coords.size() == 0) return null;
+
+        return new LatLongCoordinate(lat, lng);
+    }
+
+    /**
      * Gets a textual summary of the taxa.
      * @param nTaxa How many taxa to show
      * @return
@@ -724,14 +764,20 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         if(tmp.length == 0) return "[sem taxa]";
         List<String> tmp1 = new ArrayList<>();
         int i;
+        StringBuilder suffix = new StringBuilder();
         for (i = 0; i < nTaxa && i < tmp.length; i++) {
+            if(tmp[i].getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL)
+                suffix.append("?");
+            if(tmp[i].getNaturalization() != null && tmp[i].getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
+                suffix.append("*");
             if(tmp[i].getTaxEnt() == null) {
                 if(tmp[i].getVerbTaxon() == null || tmp[i].getVerbTaxon().equals(""))
                     tmp1.add("[sem nome]");
                 else
-                    tmp1.add(tmp[i].getVerbTaxon());
+                    tmp1.add(tmp[i].getVerbTaxon() + suffix);
             } else
-                tmp1.add("<i>" + tmp[i].getTaxEnt().getName() + "</i>");
+                tmp1.add("<i>" + tmp[i].getTaxEnt().getName() + suffix + "</i>");
+            suffix.setLength(0);
         }
         if(i < tmp.length) tmp1.add("... e mais " + (tmp.length - i));
         return StringUtils.implode(", ", tmp1.toArray(new String[tmp1.size()]));

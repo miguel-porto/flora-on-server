@@ -32,6 +32,7 @@ body.occurrencespage a.returntomain {position:static;}
 body.occurrencespage a.returntomain img {height:70px}
 
 body.occurrencespage.compactview .hideincompactview {display:none !important}
+body.occurrencespage.compactview table {font-size:0.6rem;}
 
 #alloccurrencetable th {position:sticky; top:0px;}
 
@@ -148,9 +149,9 @@ td.grouper {
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable th {background-color: #8bc34a; word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
 .occurrencetable th.inventoryfield {background-color: #FFC107}
-.occurrencetable th.selectcol, .occurrencetable td.selectcol {width:1%;}
+.occurrencetable th.selectcol, .occurrencetable td.selectcol, .occurrencetable th.tinycol {width:1%;}
 .occurrencetable th.bigcol {min-width:150px;}
-.occurrencetable th.smallcol {width:10%;}
+.occurrencetable th.smallcol {width:10%;}000
 tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified {outline: 1px dashed #b931ff; box-shadow: 0 0 3px #b931ff;}
 tr.active {outline: 1px solid #63c2ff;}

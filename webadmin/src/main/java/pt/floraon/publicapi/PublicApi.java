@@ -1,7 +1,7 @@
 package pt.floraon.publicapi;
 
+import jline.internal.Log;
 import org.apache.commons.io.IOUtils;
-import org.jfree.util.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;

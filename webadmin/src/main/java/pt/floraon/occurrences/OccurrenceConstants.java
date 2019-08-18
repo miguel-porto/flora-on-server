@@ -20,12 +20,55 @@ public final class OccurrenceConstants {
         occurrenceManagerFlavours.put("herbarium", new HerbariumFlavour());
         occurrenceManagerFlavours.put("management", new ManagementFlavour());
         occurrenceManagerFlavours.put("inventory", new InventoryFlavour());
-        occurrenceManagerFlavours.put("inventorySummary", new InventorySummaryFlavour());
     }
     /**
      * Whether the presence of this taxon in a location is wild or cultivated.
      */
-    public enum OccurrenceNaturalization {WILD, CULTIVATED, ESCAPED}
+    public enum OccurrenceNaturalization implements RedListEnums.LabelledEnum {
+        WILD("Wild"),
+        CULTIVATED("Cultivated"),
+        ESCAPED("Escaped");
+
+        private String label;
+        private static Map<String, OccurrenceNaturalization> acronymMap = new HashMap<>();
+        static {
+            acronymMap.put("w", OccurrenceNaturalization.WILD);
+            acronymMap.put("c", OccurrenceNaturalization.CULTIVATED);
+            acronymMap.put("e", OccurrenceNaturalization.ESCAPED);
+            acronymMap.put("", OccurrenceNaturalization.WILD);
+        }
+
+        OccurrenceNaturalization(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String getLabel() {
+            return this.label;
+        }
+
+        static public OccurrenceNaturalization getValueFromAcronym(String acronym) throws IllegalArgumentException {
+            OccurrenceNaturalization value1;
+            acronym = acronym.toLowerCase();
+            if(OccurrenceNaturalization.acronymMap.containsKey(acronym))
+                value1 = OccurrenceNaturalization.acronymMap.get(acronym);
+            else {
+                try {
+                    value1 = OccurrenceNaturalization.valueOf(acronym.toUpperCase());
+                } catch(IllegalArgumentException e) {
+                    for(OccurrenceNaturalization ce : OccurrenceNaturalization.values()) {
+                        if(ce.toString().toLowerCase().startsWith(acronym))
+                            return ce;
+                    }
+                    throw new IllegalArgumentException(acronym + " not understood, possible options: "
+                            + StringUtils.implode(", ", OccurrenceNaturalization.acronymMap.keySet().toArray(new String[0])));
+                }
+            }
+
+            return value1;
+        }
+
+    }
     public enum ConfidenceInIdentifiction implements RedListEnums.LabelledEnum {
         CERTAIN("Certain")
         , ALMOST_SURE("Almost sure")

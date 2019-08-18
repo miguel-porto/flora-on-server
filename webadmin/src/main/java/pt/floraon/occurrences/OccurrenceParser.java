@@ -1,6 +1,6 @@
 package pt.floraon.occurrences;
 
-import org.jfree.util.Log;
+import jline.internal.Log;
 import pt.floraon.driver.annotations.PrettyName;
 import pt.floraon.driver.parsers.CSVParser;
 import pt.floraon.driver.parsers.FieldParser;

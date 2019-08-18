@@ -7,8 +7,7 @@
 <%@ attribute name="locked" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="symbol" required="false" %>
 <%@ attribute name="cssclass" required="false" %>
-<%@ attribute name="noInventory" required="false" type="java.lang.Boolean" %>
-<%@ attribute name="noOccurrence" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="view" required="true" type="java.lang.String" %>
 
 <%-- This iterates through all the field names and outputs a table cell per each, formatted accordingly --%>
 
@@ -20,9 +19,10 @@
 <c:if test="${occ == null}">
 <tr class="geoelement dummy id1holder">
     <td class="selectcol clickable ${!fields.containsCoordinates() ? 'coordinates nodisplay' : ''}"><div class="selectbutton"></div></td>
+    <c:if test="${view == 'inventorySummary'}"><td></td></c:if>
     <c:forEach var="flf" items="${fields.getFields()}">
     <t:occurrence-cell field="${flf}" collapsed="${collapseField[flf]}" symbol="${symbol}" fields="${fields}"
-         noInventory="${noInventory}" noOccurrence="${noOccurrence}"/>
+         view="${view}"/>
     </c:forEach>
 </tr>
 </c:if>
@@ -35,7 +35,12 @@
 
     <tr class="${unmatched} geoelement id1holder ${cssclass}">
         <c:if test="${!fields.containsCoordinates()}">
-        <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="observationCoordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}" data-symbol="${symbol}">
+            <c:if test="${view == 'inventorySummary'}">
+            <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="inventoryCoordinates" data-lat="${occ._getInventoryLatitude()}" data-lng="${occ._getInventoryLongitude()}" data-symbol="${symbol}">
+            </c:if>
+            <c:if test="${view != 'inventorySummary'}">
+            <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="observationCoordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}" data-symbol="${symbol}">
+            </c:if>
         </c:if>
         <c:if test="${fields.containsCoordinates()}">
         <td class="selectcol clickable">
@@ -44,10 +49,12 @@
             <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
             <div class="selectbutton"></div>
         </td>
-
+        <c:if test="${view == 'inventorySummary'}">
+        <td><a href="?w=openinventory&id=${occ._getIDURLEncoded()}">open</a></td>
+        </c:if>
         <c:forEach var="flf" items="${fields.getFields()}">
         <t:occurrence-cell inventory="${occ}" field="${flf}" collapsed="${collapseField[flf]}" userMap="${userMap}"
-            locked="${locked}" symbol="${symbol}" fields="${fields}" noInventory="${noInventory}" noOccurrence="${noOccurrence}"/>
+            locked="${locked}" symbol="${symbol}" fields="${fields}" view="${view}"/>
         </c:forEach>
     </tr>
 </c:if>

@@ -4,7 +4,7 @@ public class InventoryFlavour extends GeneralOccurrenceFlavour implements IOccur
     @Override
     public String[] getFields() {
         return new String[] {
-                "taxa", "confidence", "phenoState", "abundance", "cover", "coverIndex", "comment", "privateComment"};
+                "code", "locality", "date", "coordinates", "taxa", "confidence", "phenoState", "abundance", "cover", "comment", "privateComment"};
     }
 
     @Override
@@ -24,7 +24,7 @@ public class InventoryFlavour extends GeneralOccurrenceFlavour implements IOccur
 
     @Override
     public boolean containsCoordinates() {
-        return false;
+        return true;
     }
 
     @Override

@@ -33,7 +33,7 @@
             <div class="button" id="canceldelete"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="deleteoccurrencetable" class="verysmalltext sortable">
-            <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -49,7 +49,7 @@
             <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-            <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -67,9 +67,9 @@
         <input type="submit" class="textbutton" value="Save"/>
     </div>
     <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
-        <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
         <tbody>
-            <t:occurrencerow fields="${flavourfields}"/>
+            <t:occurrencerow fields="${flavourfields}" view="occurrence"/>
         </tbody>
     </table>
 </form>
@@ -80,7 +80,7 @@
         <input type="submit" class="textbutton" value="Merge"/>
     </div>
     <table id="mergeoccurrencetable" class="verysmalltext">
-        <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
         <tbody></tbody>
     </table>
 </form>
@@ -138,13 +138,13 @@
         <t:pager />
     </div>
     <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
-        <thead><tr><t:occurrenceheader fields="${flavourfields}"/></tr></thead>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
         <tbody>
         <c:forEach var="occ" items="${occurrences}">
-            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}"/>
+            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" view="occurrence"/>
         </c:forEach>
         <c:forEach var="occ" items="${externaloccurrences}">
-            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" locked="true" cssclass="external"
+            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" locked="true" cssclass="external" view="occurrence"
                 symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"/>
             <%--<tr class="geoelement hidden">
                 <td class="coordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}"

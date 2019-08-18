@@ -290,11 +290,14 @@ function createHiddenInputElement(name, value) {
 
 function insertOrReplaceHiddenInput(parent, name, value) {
     var el = parent.querySelector('input[type=hidden][name=\'' + name +'\']');
-    console.log(name+" : "+value);
+    console.log(name + ": " + value);
     if(!el)
         parent.appendChild(createHiddenInputElement(name, value));
-    else
-        el.setAttribute(name, value);
+    else {  // NOTE: BEWARE! this core func has been changed recently. Any SIDE EFFECTS?
+        el.setAttribute('name', name);
+        el.setAttribute('value', value);
+    }
+//        el.setAttribute(name, value);
 }
 
 function getSelectedText(el) {

@@ -15,6 +15,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.LatLongCoordinate;
 import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.TaxonomicChange;
@@ -42,6 +43,16 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
     @Override
     public void createInventory(Inventory inventory) {
+        if(inventory.shouldGetCoordinatesFromObservation()) {
+            LatLongCoordinate llc = inventory._getUniqueCoordinate(false);
+            inventory.setLatitude(llc.getLatitude());
+            inventory.setLongitude(llc.getLongitude());
+            for (OBSERVED_IN oi : inventory._getTaxa()) {
+                oi.setObservationLatitude(null);
+                oi.setObservationLongitude(null);
+            }
+        }
+
         database.collection(Constants.NodeTypes.inventory.toString()).insertDocument(inventory);
     }
 
@@ -324,6 +335,22 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
 
             newinv.setUnmatchedOccurrences(new ArrayList<>(updMap.values()));
+//            System.out.println(new Gson().toJson(newinv));
+            // if the occurrences share the same coordinate, then move it to the inventory and clean the occurrences'
+            if(newinv.shouldGetCoordinatesFromObservation()) {
+                LatLongCoordinate llc = newinv._getUniqueCoordinate(false);
+                if(Constants.isNullOrNoData(original.getLatitude()) || Constants.isNullOrNoData(original.getLongitude())
+                        || new LatLongCoordinate(original.getLatitude(), original.getLongitude()).equals(llc)) {
+                    Log.info("Move coord to inv");
+                    newinv.setLatitude(llc.getLatitude());
+                    newinv.setLongitude(llc.getLongitude());
+                    for (OBSERVED_IN oi : newinv._getTaxa()) {
+                        oi.setObservationLatitude(null);
+                        oi.setObservationLongitude(null);
+                    }
+                }
+            }
+
             return driver.getNodeWorkerDriver().updateDocument(driver.asNodeKey(newinv.getID()), newinv, false, Inventory.class);
        // }
     }

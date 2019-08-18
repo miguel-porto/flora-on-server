@@ -22,17 +22,10 @@ import pt.floraon.driver.interfaces.IFloraOn;
  */
 @WebListener
 public class Startup implements ServletContextListener {
-	// The page size to display in occurrence manager
-	private static final Map<String, String> PAGEROPTIONS =
-			ImmutableMap.of("250", "250", "1000", "1000", "5000", "5000", "10000000", "all");
-
-	//public static FloraOnInt FloraOnDriver;
 
 	public void contextInitialized(ServletContextEvent event) {
 		IFloraOn FloraOnDriver;
         ServletContext servletContext = event.getServletContext();
-
-        servletContext.setAttribute("pagerOptions", PAGEROPTIONS);
 
 		File dir = new File(servletContext.getRealPath("/")).getParentFile();
 		Properties properties = new Properties();

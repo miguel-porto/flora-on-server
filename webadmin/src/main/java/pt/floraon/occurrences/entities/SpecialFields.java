@@ -9,7 +9,7 @@ import pt.floraon.occurrences.fields.parsers.TaxaParser;
  * This is a dummy class, just serving as placeholder for special Inventory and OBSERVED_IN fields.
  */
 public class SpecialFields {
-    @SpecialField @FieldParser(TaxaParser.class)
+    @SpecialField @InventoryField @FieldParser(TaxaParser.class)
     @PrettyName(value = "Taxon", shortName = "Taxon", important = true)
     private String taxa;
     @SpecialField @InventoryField @FieldParser(LatitudeLongitudeParser.class) @FieldType(FieldType.Type.COORDINATES)
@@ -22,9 +22,11 @@ public class SpecialFields {
     @PrettyName(value = "Coordenadas do inventário", shortName = "Coord inv")
     private String inventoryCoordinates;
 
+/*
     @SpecialField(hideFromCustomFlavour = true) @InventoryField @ReadOnly
     @PrettyName(value = "Taxon summary", shortName = "Taxa")
     private String taxaSummary;
+*/
 
     @SpecialField @ReadOnly
     @PrettyName(value = "GPS/Código herbário", shortName = "Code+Acc")

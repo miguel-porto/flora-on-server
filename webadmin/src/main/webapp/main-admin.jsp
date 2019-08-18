@@ -66,13 +66,13 @@
                         <td style="vertical-align:top"><table class="sortable smalltext">
                         <tr><th>Descrição</th><th>Nome do campo</th></tr>
                         <c:forEach var="entry" items="${inventoryfields}">
-                        <tr class="${fieldData.isImportantField(entry.key) ? 'highlight' : ''}"><td sorttable_customkey="${entry.value[0]}"><label title="${entry.value[1]}"><input type="checkbox" name="fields" value="${entry.key}"/>${entry.value[0]}</label></td><td>${entry.key}</td></tr>
+                        <tr class="${fieldData.isImportantField(entry.key) ? 'highlight' : ''}"><td sorttable_customkey="${entry.value[0]}"><label title="${entry.value[1]}"><input type="checkbox" name="fields" value="${entry.key}"/>${entry.value[0]}<c:if test="${entry.value[2] == 'RO'}"><span class="info" style="color:red"> read only</span></c:if></label></td><td>${entry.key}</td></tr>
                         </c:forEach>
                         </table></td>
                         <td style="vertical-align:top"><table class="sortable smalltext">
                         <tr><th>Descrição</th><th>Nome do campo</th></tr>
                         <c:forEach var="entry" items="${occurrencefields}">
-                        <tr class="${fieldData.isImportantField(entry.key) ? 'highlight' : ''}"><td sorttable_customkey="${entry.value[0]}"><label title="${entry.value[1]}"><input type="checkbox" name="fields" value="${entry.key}"/>${entry.value[0]}</label></td><td>${entry.key}</td></tr>
+                        <tr class="${fieldData.isImportantField(entry.key) ? 'highlight' : ''}"><td sorttable_customkey="${entry.value[0]}"><label title="${entry.value[1]}"><input type="checkbox" name="fields" value="${entry.key}"/>${entry.value[0]}<c:if test="${entry.value[2] == 'RO'}"><span class="info" style="color:red"> read only</span></c:if></label></td><td>${entry.key}</td></tr>
                         </c:forEach>
                         </table></td>
                     </tr>

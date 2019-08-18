@@ -7,6 +7,7 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.annotations.InventoryField;
 import pt.floraon.driver.annotations.PrettyName;
+import pt.floraon.driver.annotations.ReadOnly;
 import pt.floraon.driver.annotations.SpecialField;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
@@ -95,18 +96,20 @@ DEPRECATED
 
         Map<String, String[]> occurrenceFieldNames = new TreeMap<>();
         Map<String, String[]> inventoryFieldNames = new TreeMap<>();
-        Map<String, String[]> specialFieldNames = new TreeMap<>();
+//        Map<String, String[]> specialFieldNames = new TreeMap<>();
         Field[] fs = OBSERVED_IN.class.getDeclaredFields();
         for (Field f : fs) {
             if (f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
+                boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
+                occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
             }
         }
         for (Field f : Inventory.class.getDeclaredFields()) {
             if (f.isAnnotationPresent(PrettyName.class)) {
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
-                inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
+                boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
+                inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
             }
         }
         for (Field f : SpecialFields.class.getDeclaredFields()) {
@@ -114,16 +117,17 @@ DEPRECATED
                 if (f.isAnnotationPresent(SpecialField.class) && f.getAnnotation(SpecialField.class).hideFromCustomFlavour())
                     continue;
                 PrettyName fpn = f.getAnnotation(PrettyName.class);
+                boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
                 if (f.isAnnotationPresent(InventoryField.class))
-                    inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
+                    inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
                 else
-                    occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description()});
+                    occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
             }
         }
 
         thisRequest.request.setAttribute("occurrencefields", occurrenceFieldNames);
         thisRequest.request.setAttribute("inventoryfields", inventoryFieldNames);
-        thisRequest.request.setAttribute("specialfields", specialFieldNames);
+//        thisRequest.request.setAttribute("specialfields", specialFieldNames);
         thisRequest.request.setAttribute("customflavours", thisRequest.getUser().getCustomOccurrenceFlavours());
         thisRequest.request.setAttribute("fieldData", new GeneralOccurrenceFlavour() {  // a dummy OF for exposing field attributes only
             @Override

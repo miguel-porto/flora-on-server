@@ -906,7 +906,6 @@ function mapClick(ev) {
 }
 
 function addNewInventory(ev) {
-console.log("NOVO");
     var id = randomString(6);
     var inv = document.querySelector('.inventory.dummy').cloneNode(true);
     inv.classList.remove('dummy');

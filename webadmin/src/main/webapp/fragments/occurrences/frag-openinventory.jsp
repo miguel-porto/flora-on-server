@@ -30,7 +30,7 @@
             <input type="submit" class="textbutton" value="Delete"/>
         </div>
         <table id="deleteoccurrencetable" class="verysmalltext sortable">
-            <thead><tr><t:occurrenceheader fields="${flavourfields}" noInventory="true"/></tr></thead>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="inventory"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -91,7 +91,7 @@
             </table>
             <c:if test="${inv._hasDuplicatedTaxa()}"><div class="warning">There are duplicated taxa in this inventory</div></c:if>
             <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-                <thead><tr><t:occurrenceheader fields="${flavourfields}" noInventory="true"/></tr></thead>
+                <thead><tr><t:occurrenceheader fields="${flavourfields}" view="inventory"/></tr></thead>
                 <tbody>
                     <c:forEach var="tax" items="${inv._getTaxa()}">
                     <t:inventoryrow tax="${tax}" inv="${inv}" fields="${flavourfields}"/>

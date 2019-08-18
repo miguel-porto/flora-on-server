@@ -193,7 +193,7 @@ public class OccurrenceApi extends FloraOnServlet {
                                 Set<String> obs = new LinkedHashSet<>();
                                 obs.add(thisRequest.getUser().getID());
                                 obs.addAll(Arrays.asList(inv1.getObservers()));
-                                inv1.setObservers(obs.toArray(new String[obs.size()]));
+                                inv1.setObservers(obs.toArray(new String[0]));
                             }/* else {
                                 if (StringUtils.isArrayEmpty(inv1.getObservers()))
                                     inv1.setObservers(new String[]{getUser().getID()});

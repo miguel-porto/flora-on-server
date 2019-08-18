@@ -37,7 +37,7 @@
         </tr></tbody>
     </table>
     <table class="verysmalltext occurrencetable sortable newoccurrencetable">
-        <thead><tr><t:occurrenceheader fields="${fields}" noInventory="true"/></tr></thead>
+        <thead><tr><t:occurrenceheader fields="${fields}" view="inventory"/></tr></thead>
         <tbody><t:inventoryrow fields="${fields}"/></tbody>
     </table>
     <div class="button newtaxon">Add taxon</div>

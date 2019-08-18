@@ -13,7 +13,6 @@ import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
-import pt.floraon.occurrences.fields.flavours.InventorySummaryFlavour;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
@@ -135,15 +134,16 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 // the flavour for new inventories
                 request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventory"));
                 // the flavour for the inventory summary
-                request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
-/*
+//                request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
+
                 // the flavour for the inventory summary
-                String flavour2 = thisRequest.getParameterAsString("flavour", "simple");
+                Map<String, IOccurrenceFlavour> flv2 = user.getEffectiveOccurrenceFlavours(User.FlavourFilter.ONLY_INVENTORY);
+                request.setAttribute("flavourList", user.getEffectiveOccurrenceFlavourNames(flv2));
+                String flavour2 = (String) session.getAttribute("option-flavour");
                 if(!flv2.containsKey(flavour2))
-                    request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
-                else
-                    request.setAttribute("summaryfields", flv2.get(flavour2));
-*/
+                    session.setAttribute("option-flavour", flavour2 = "inventory");
+
+                request.setAttribute("summaryfields", flv2.get(flavour2));
                 break;
 
             case "openinventory":
@@ -162,10 +162,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 // get the list of fields for the selected flavour
                 String flavour = (String) session.getAttribute("option-flavour");
                 if(StringUtils.isStringEmpty(flavour) || !flv.containsKey(flavour))
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
-                else
-                    request.setAttribute("flavourfields", flv.get(flavour));
+                    session.setAttribute("option-flavour", flavour = "inventory");
 
+                request.setAttribute("flavourfields", flv.get(flavour));
                 break;
 
             case "fixissues":
@@ -231,9 +230,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 // get the list of fields for the selected flavour
                 String flavour1 = (String) session.getAttribute("option-flavour");
                 if(StringUtils.isStringEmpty(flavour1) || !flv1.containsKey(flavour1))
-                    request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("simple"));
-                else
-                    request.setAttribute("flavourfields", flv1.get(flavour1));
+                    session.setAttribute("option-flavour", flavour1 = "simple");
+
+                request.setAttribute("flavourfields", flv1.get(flavour1));
                 break;
 
             case "uploads":
