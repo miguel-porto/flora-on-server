@@ -238,6 +238,7 @@ function attachOptionButtonHandler(url) {
                 }
                 if (typeof myMap !== 'undefined') myMap.invalidateSize(false);
             }
+            console.log(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type);
             fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type, function(rt) {
                 if(norefresh == 'false') window.location.reload();
 //                if(!el)

@@ -123,18 +123,20 @@ function hideLoader() {
 
 function fetchAJAX(addr, callback, onerror) {
 	//showLoader();
-	return loadXMLDoc(addr,function() {
-		if(this.readyState == 4) {
-			if(this.status == 200) {
-			    callback(this.responseText);
+	return loadXMLDoc(addr,function(event) {
+		var xmlObj = event.target;
+		console.log(xmlObj);
+		if(xmlObj.readyState == 4) {
+			if(xmlObj.status == 200) {
+			    callback(xmlObj.responseText);
             } else {
                 if(onerror) {
                     console.log(rt);
-                    onerror(this.responseText);
+                    onerror(xmlObj.responseText);
                 } else {
-                    if(this.responseText == '') return;
-                    console.log(this.responseText);
-                    var rt=JSON.parse(this.responseText);
+                    if(xmlObj.responseText == '') return;
+                    console.log(xmlObj.responseText);
+                    var rt=JSON.parse(xmlObj.responseText);
                     alert('ERROR: '+rt.msg);
                 }
 			}

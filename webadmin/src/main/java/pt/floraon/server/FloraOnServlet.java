@@ -409,6 +409,7 @@ public class FloraOnServlet extends HttpServlet {
 			}
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
+			response.setStatus(HttpServletResponse.SC_OK);
 			PrintWriter pw = response.getWriter();
 			JsonObject resp = new JsonObject();
 			resp.addProperty("success", true);
@@ -424,6 +425,7 @@ public class FloraOnServlet extends HttpServlet {
 		protected void success(JsonElement obj) throws IOException {
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
+			response.setStatus(HttpServletResponse.SC_OK);
 			PrintWriter pw = response.getWriter();
 			JsonObject resp = new JsonObject();
 			resp.addProperty("success", true);
@@ -438,6 +440,7 @@ public class FloraOnServlet extends HttpServlet {
 			else {
 				response.setContentType("application/json");
 				response.setCharacterEncoding("UTF-8");
+				response.setStatus(HttpServletResponse.SC_OK);
 				JsonObject resp = new JsonObject();
 				JsonObject obj1 = new JsonObject();
 				resp.addProperty("success", true);

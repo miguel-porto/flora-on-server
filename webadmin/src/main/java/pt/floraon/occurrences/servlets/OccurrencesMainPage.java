@@ -302,7 +302,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 }
 */
                 thisRequest.success("Set");
-                break;
+                return;
 
             case "downloadoccurrencetable":
                 thisRequest.response.setContentType("text/csv; charset=utf-8");
