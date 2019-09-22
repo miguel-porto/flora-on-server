@@ -27,10 +27,12 @@
     <%--                THE MAIN MENU ON THE LEFT               --%>
     <div id="left-bar" class="buttonmenu">
         <ul>
+            <li><a href="./">Home</a></li>
             <li><a href="#personal">Personal</a></li>
             <li><a href="#views">Custom views</a></li>
             <li><a href="#downloads">Downloads</a></li>
             <li><a href="#admin">Administrative tasks</a></li>
+            <li><a href="?w=usermng">User management</a></li>
         </ul>
     </div>
     <div id="main">

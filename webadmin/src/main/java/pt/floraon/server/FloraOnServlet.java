@@ -135,13 +135,40 @@ public class FloraOnServlet extends HttpServlet {
 			this.request = request;
 		}
 
-/*
-		public String getOptionValue(String optionPrefix) {
-            HttpSession session = request.getSession(false);
-            session.getAttribute("option-" + optionPrefix);
-        }
-*/
+		public void setOption(String optionName, Object value) throws FloraOnException {
+			HttpSession session = request.getSession(false);
+			if(session != null) {
+//                    System.out.println("SET " + "option-" + optionName + " to "+thisRequest.getParameterAsBooleanNoNull("v"));
+				session.setAttribute("option-" + optionName, value);
+			} else
+				throw new FloraOnException("Not logged in");
 
+		}
+
+		public boolean isOptionSet(String optionName) throws FloraOnException {
+			HttpSession session = request.getSession(false);
+			if(session != null)
+				return session.getAttribute("option-" + optionName) != null;
+			else
+				throw new FloraOnException("Not logged in");
+		}
+
+		public Object getOption(String optionName) throws FloraOnException {
+            HttpSession session = request.getSession(false);
+			if(session != null)
+            	return session.getAttribute("option-" + optionName);
+			else
+				throw new FloraOnException("Not logged in");
+        }
+
+		public boolean isOptionTrue(String optionName) throws FloraOnException {
+			HttpSession session = request.getSession(false);
+			if(session != null)
+				return session.getAttribute("option-" + optionName) != null
+						&& (Boolean) session.getAttribute("option-" + optionName);
+			else
+				throw new FloraOnException("Not logged in");
+		}
 		public boolean isQueryParameterEqualTo(String name, String value) throws IOException, ServletException {
 			if(value == null && getParameterAsString(name) == null)
 				return true;

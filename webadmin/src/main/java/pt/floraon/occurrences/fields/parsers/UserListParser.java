@@ -36,44 +36,46 @@ public class UserListParser implements FieldParser {
 
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException, FloraOnException {
-        if(inputValue == null || inputValue.trim().equals("")) return;
+        if(inputValue == null) return;
         Inventory occurrence = (Inventory) bean;
-
-        String[] spl = inputValue.split("\\+");
-        if(spl.length == 1) spl = inputValue.split(",");
+        String[] ids = new String[0];
+        List<String> errors = new ArrayList<>();
+        if(!inputValue.trim().equals("")) {
+            String[] spl = inputValue.split("\\+");
+            if(spl.length == 1) spl = inputValue.split(",");
 /*
         if(spl.length == 1)
             spl[0] = spl[0].replaceAll("\\+,", "");
 */
 
-        String cleanUserName;
-        List<String> userIds = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
+            String cleanUserName;
+            List<String> userIds = new ArrayList<>();
 
-        for(String username : spl) {
-            cleanUserName = username.trim().replaceAll("[+,]", "");
-            if(userMap.containsKey(cleanUserName))
-                userIds.add(userMap.get(cleanUserName));
-            else {
-                User user = driver.getAdministration().getUser(cleanUserName);
-                if(user == null) {
-                    if(createUsers == null)
-                        continue;
-                    else if(!createUsers) {
-                        errors.add(Messages.getString("error.2", cleanUserName));
-                        continue;
+            for(String username : spl) {
+                cleanUserName = username.trim().replaceAll("[+,]", "");
+                if(userMap.containsKey(cleanUserName))
+                    userIds.add(userMap.get(cleanUserName));
+                else {
+                    User user = driver.getAdministration().getUser(cleanUserName);
+                    if(user == null) {
+                        if(createUsers == null)
+                            continue;
+                        else if(!createUsers) {
+                            errors.add(Messages.getString("error.2", cleanUserName));
+                            continue;
+                        }
+                        user = new User();
+                        user.setName(cleanUserName);
+                        String id = driver.getAdministration().createUser(user).getID();
+                        user.setID(id);
                     }
-                    user = new User();
-                    user.setName(cleanUserName);
-                    String id = driver.getAdministration().createUser(user).getID();
-                    user.setID(id);
+                    userMap.put(user.getName().toLowerCase(), user.getID());
+                    userIds.add(user.getID());
                 }
-                userMap.put(user.getName().toLowerCase(), user.getID());
-                userIds.add(user.getID());
             }
+            ids = userIds.toArray(new String[0]);
         }
 
-        String[] ids = userIds.toArray(new String[userIds.size()]);
         switch (inputFieldName.toLowerCase()) {
             case "observers":
                 occurrence.setObservers(ids);

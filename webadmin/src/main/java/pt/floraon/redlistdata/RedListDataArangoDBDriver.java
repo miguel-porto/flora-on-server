@@ -291,7 +291,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
         } catch (ArangoDBException e) {
             try {
                 database.createCollection(collectionName, new CollectionCreateOptions().type(CollectionType.DOCUMENT));
-                database.collection(collectionName).createHashIndex(Arrays.asList("taxEntID"), new HashIndexOptions().unique(true).sparse(false));
+                database.collection(collectionName).ensureHashIndex(Collections.singletonList("taxEntID"), new HashIndexOptions().unique(true).sparse(false));
             } catch (ArangoDBException e1) {
                 throw new FloraOnException(e1.getMessage());
             }

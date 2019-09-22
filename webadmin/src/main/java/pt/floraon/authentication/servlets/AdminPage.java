@@ -77,91 +77,104 @@ DEPRECATED
 
 //        driver.getOccurrenceDriver().getUnmatchedOccurrences().next().getUnmatchedOccurrences().get(0).getVerbTaxon()
 
-/*
+        }
+
         switch (what) {
+            case "main":
+                // Show occurrence download button?
+                for (TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
+                    if (tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
+                        thisRequest.request.setAttribute("showDownload", true);
+                        List<User> allusers = driver.getAdministration().getAllUsers(true);
+                        Collections.sort(allusers);
+                        thisRequest.request.setAttribute("allusers", allusers);
+                        break;
+                    }
+                }
 
-        }
-*/
-        }
+                // Get inventory and occurrence fields to populate the custom views table
+                Map<String, String[]> occurrenceFieldNames = new TreeMap<>();
+                Map<String, String[]> inventoryFieldNames = new TreeMap<>();
+                Field[] fs = OBSERVED_IN.class.getDeclaredFields();
+                for (Field f : fs) {
+                    if (f.isAnnotationPresent(PrettyName.class)) {
+                        PrettyName fpn = f.getAnnotation(PrettyName.class);
+                        boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
+                        occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
+                    }
+                }
+                for (Field f : Inventory.class.getDeclaredFields()) {
+                    if (f.isAnnotationPresent(PrettyName.class)) {
+                        PrettyName fpn = f.getAnnotation(PrettyName.class);
+                        boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
+                        inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
+                    }
+                }
+                for (Field f : SpecialFields.class.getDeclaredFields()) {
+                    if (f.isAnnotationPresent(PrettyName.class)) {
+                        if (f.isAnnotationPresent(SpecialField.class) && f.getAnnotation(SpecialField.class).hideFromCustomFlavour())
+                            continue;
+                        PrettyName fpn = f.getAnnotation(PrettyName.class);
+                        boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
+                        if (f.isAnnotationPresent(InventoryField.class))
+                            inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
+                        else
+                            occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
+                    }
+                }
 
-        for (TaxonPrivileges tp : thisRequest.getUser().getTaxonPrivileges()) {
-            if (tp.getPrivileges().contains(Privileges.DOWNLOAD_OCCURRENCES)) {
-                thisRequest.request.setAttribute("showDownload", true);
-                List<User> allusers = driver.getAdministration().getAllUsers(true);
+                thisRequest.request.setAttribute("occurrencefields", occurrenceFieldNames);
+                thisRequest.request.setAttribute("inventoryfields", inventoryFieldNames);
+//        thisRequest.request.setAttribute("specialfields", specialFieldNames);
+                thisRequest.request.setAttribute("customflavours", thisRequest.getUser().getCustomOccurrenceFlavours());
+                thisRequest.request.setAttribute("fieldData", new GeneralOccurrenceFlavour() {  // a dummy OF for exposing field attributes only
+                    @Override
+                    public String[] getFields() {
+                        return new String[0];
+                    }
+
+                    @Override
+                    public boolean showInOccurrenceView() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean showInInventoryView() {
+                        return false;
+                    }
+
+                    @Override
+                    public String getName() {
+                        return null;
+                    }
+
+                    @Override
+                    public boolean containsCoordinates() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean containsInventoryFields() {
+                        return false;
+                    }
+                });
+                thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
+                break;
+
+            case "usermng":
+                thisRequest.ensureAdministrator();
+                List<User> allusers = driver.getAdministration().getAllUsers(false);
                 Collections.sort(allusers);
                 thisRequest.request.setAttribute("allusers", allusers);
+//                allusers.get(0).getUserName()
+                Map<String, Integer> nrOccurrences = new HashMap<>();
+                for(User u : allusers) {
+                    nrOccurrences.put(u.getID(), driver.getAdministration().getNumberOfOccurrencesOfUser(driver.asNodeKey(u.getID())));
+                }
+                thisRequest.request.setAttribute("nrOccurrencesMap", nrOccurrences);
+                thisRequest.request.getRequestDispatcher("/user-mng.jsp").forward(thisRequest.request, thisRequest.response);
                 break;
-            }
         }
 
-        Map<String, String[]> occurrenceFieldNames = new TreeMap<>();
-        Map<String, String[]> inventoryFieldNames = new TreeMap<>();
-//        Map<String, String[]> specialFieldNames = new TreeMap<>();
-        Field[] fs = OBSERVED_IN.class.getDeclaredFields();
-        for (Field f : fs) {
-            if (f.isAnnotationPresent(PrettyName.class)) {
-                PrettyName fpn = f.getAnnotation(PrettyName.class);
-                boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
-                occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
-            }
-        }
-        for (Field f : Inventory.class.getDeclaredFields()) {
-            if (f.isAnnotationPresent(PrettyName.class)) {
-                PrettyName fpn = f.getAnnotation(PrettyName.class);
-                boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
-                inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
-            }
-        }
-        for (Field f : SpecialFields.class.getDeclaredFields()) {
-            if (f.isAnnotationPresent(PrettyName.class)) {
-                if (f.isAnnotationPresent(SpecialField.class) && f.getAnnotation(SpecialField.class).hideFromCustomFlavour())
-                    continue;
-                PrettyName fpn = f.getAnnotation(PrettyName.class);
-                boolean readOnly = f.isAnnotationPresent(ReadOnly.class);
-                if (f.isAnnotationPresent(InventoryField.class))
-                    inventoryFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
-                else
-                    occurrenceFieldNames.put(f.getName(), new String[]{fpn.value(), fpn.description(), readOnly ? "RO" : ""});
-            }
-        }
-
-        thisRequest.request.setAttribute("occurrencefields", occurrenceFieldNames);
-        thisRequest.request.setAttribute("inventoryfields", inventoryFieldNames);
-//        thisRequest.request.setAttribute("specialfields", specialFieldNames);
-        thisRequest.request.setAttribute("customflavours", thisRequest.getUser().getCustomOccurrenceFlavours());
-        thisRequest.request.setAttribute("fieldData", new GeneralOccurrenceFlavour() {  // a dummy OF for exposing field attributes only
-            @Override
-            public String[] getFields() {
-                return new String[0];
-            }
-
-            @Override
-            public boolean showInOccurrenceView() {
-                return false;
-            }
-
-            @Override
-            public boolean showInInventoryView() {
-                return false;
-            }
-
-            @Override
-            public String getName() {
-                return null;
-            }
-
-            @Override
-            public boolean containsCoordinates() {
-                return false;
-            }
-
-            @Override
-            public boolean containsInventoryFields() {
-                return false;
-            }
-        });
-
-
-        thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
     }
 }

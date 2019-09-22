@@ -6,6 +6,8 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
+import com.sun.istack.NotNull;
+import org.graalvm.compiler.graph.Node;
 import pt.floraon.driver.*;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.authentication.entities.User;
@@ -171,6 +173,17 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
                 return out;
             else
                 return null;
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
+    public int getNumberOfOccurrencesOfUser(INodeKey userId) throws FloraOnException {
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("user", userId.toString());
+        try {
+            return database.query(AQLQueries.getString("Administration.9"), bind, null, Integer.class).next();
         } catch (ArangoDBException e) {
             throw new FloraOnException(e.getMessage());
         }

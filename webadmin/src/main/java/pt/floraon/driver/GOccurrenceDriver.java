@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOccurrenceDriver {
 //    private static Pattern filterPattern = Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?.,;<>*-]+))");
     private static Pattern filterPattern =
-        Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?.,;<>* -]+?)(?= +[a-zA-Z]+:| *$))");
+        Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?ºª&.,;<>* -]+?)(?= +[a-zA-Z]+:| *$))");
 
     public GOccurrenceDriver(IFloraOn driver) {
         super(driver);

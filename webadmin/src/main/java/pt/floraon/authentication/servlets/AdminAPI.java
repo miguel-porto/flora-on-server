@@ -334,7 +334,7 @@ public class AdminAPI extends FloraOnServlet {
                 thisRequest.ensureAdministrator();
 
                 OccurrenceFilter of = thisRequest.isQueryParameterEqualTo("w", "precise")
-                        ? BasicOccurrenceFilter.create().withMinimumPrecision(100).withValidTaxaOnly().withSpeciesOrLowerRankOnly()
+                        ? BasicOccurrenceFilter.create().withMinimumPrecision(100).withValidTaxaOnly().withSpeciesOrLowerRankOnly().withNotDoubtful()
                         : null;
                 Iterator<Occurrence> it = driver.getOccurrenceDriver().getFilteredOccurrences(of);
                 thisRequest.setDownloadFileName("all-occurrences.csv");

@@ -87,6 +87,11 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         return this;
     }
 
+    public BasicOccurrenceFilter withNotDoubtful() {
+        this.includeDoubtful = false;
+        return this;
+    }
+
     /**
      * Include only the records used to make the published current maps.
      * @param driver

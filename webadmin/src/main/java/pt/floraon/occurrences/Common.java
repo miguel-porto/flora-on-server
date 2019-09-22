@@ -5,11 +5,13 @@ import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.occurrences.entities.*;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.TaxEntMatch;
@@ -116,10 +118,19 @@ public final class Common {
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
         exportOccurrenceHeaderToCSV(csv);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
+        Map<String, String> userMap = new HashMap<>();
         TaxEnt tmp = null;
+        if(driver != null) {
+            // build the user map
+            List<User> allUsers = driver.getAdministration().getAllUsers(false);
+            for (User u : allUsers)
+                userMap.put(u.getID(), u.getName());
+        }
+
         while (occurrenceIterator.hasNext()) {
             Occurrence i2 = occurrenceIterator.next();
             if(driver != null) {
+                // fill in accepted taxa
                 if (acceptedTaxa.containsKey(i2.getOccurrence().getTaxEntMatch()))
                     tmp = acceptedTaxa.get(i2.getOccurrence().getTaxEntMatch());
                 else {
@@ -130,21 +141,24 @@ public final class Common {
                         acceptedTaxa.put(i2.getOccurrence().getTaxEntMatch(), tmp);
                 }
             }
-            exportOccurrenceToCSV(i2, csv, tmp);
+            exportOccurrenceToCSV(i2, csv, tmp, userMap);
         }
         csv.close();
     }
 
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason", "phenoState", "date", "observers", "latitude", "longitude"
+        csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
+                , "phenoState", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
-                , "specificThreats", "comment", "privateComment", "year", "month", "day", "dateInserted");
+                , "specificThreats", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
+                , "credits", "maintainer");
     }
 
-    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt) throws IOException {
+    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap) throws IOException {
         OBSERVED_IN oi = occurrence.getOccurrence();
 //                    TaxEnt te = oi.getTaxEnt();
 // TODO use field annotations
+        UTMCoordinate utm = CoordinateConversion.LatLonToUtmWGS84(occurrence._getLatitude(), occurrence._getLongitude(), 0);
         csv.printRecord(
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
@@ -156,12 +170,19 @@ public final class Common {
                 , oi.getPhenoState()
                 , occurrence._getDateYMD()
                 , StringUtils.implode(", ", occurrence._getObserverNames())
-                , occurrence._getLatitude(), occurrence._getLongitude(), occurrence.getPrecision()
+                , StringUtils.implode(", ", userMap, occurrence.getCollectors())
+                , occurrence._getLatitude(), occurrence._getLongitude()
+                , ((Integer) utm.getXZone()).toString() + utm.getYZone(), utm.getX(), utm.getY()
+                , occurrence.getPrecision()
                 , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()
                 , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
                 , oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
+                , oi.getUuid().toString()
+                , oi.getAccession()
+                , occurrence.getCredits()
+                , occurrence._getMaintainerName()
         );
 
     }

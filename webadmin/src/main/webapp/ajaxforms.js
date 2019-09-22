@@ -45,7 +45,7 @@ function formPoster(ev, callback, beforePost) {
 			    return;
             }
 		} else
-			alert(rt1.msg);
+			console.log(rt1.msg);
         isFormSubmitting = false;
 
         if(loader) loader.style.display = 'none';

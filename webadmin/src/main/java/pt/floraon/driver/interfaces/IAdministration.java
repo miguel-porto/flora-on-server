@@ -1,5 +1,6 @@
 package pt.floraon.driver.interfaces;
 
+import com.sun.istack.NotNull;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 
@@ -28,4 +29,12 @@ public interface IAdministration {
 
     User changeCustomOccurrenceFlavourFieldOrder(INodeKey userId, String flavourName, int index, boolean decrease)
         throws FloraOnException;
+
+    /**
+     * @param userId
+     * @return The number of occurrences where this user is involved. This searched in the fields observers, collectors
+     * , dets and maintainer
+     * @throws FloraOnException
+     */
+    int getNumberOfOccurrencesOfUser(INodeKey userId) throws FloraOnException;
 }

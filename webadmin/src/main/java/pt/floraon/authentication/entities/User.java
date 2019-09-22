@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static pt.floraon.authentication.Privileges.*;
 
@@ -38,9 +39,12 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	private boolean isGuest;
 	private Set<CustomOccurrenceFlavour> customOccurrenceFlavours;
 	public enum FlavourFilter {ONLY_OCCURRENCE, ONLY_INVENTORY}
+	private static Pattern nonStandardName = Pattern.compile("[&.0-9()/-]+");
 
 	@Override
 	public int compareTo(User user) {
+		if(this.getName() == null) return -1;
+		if(user.getName() == null) return 1;
 		return this.getName().compareTo(user.getName());
 	}
 
@@ -673,6 +677,10 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		tmp.retainAll(this.effectivePrivileges);
 		revokeAllPrivileges();
 		this.effectivePrivileges.addAll(tmp);
+	}
+
+	public boolean hasNonStandardName() {
+		return this.getName() == null || nonStandardName.matcher(this.getName()).find();
 	}
 
 	@Override

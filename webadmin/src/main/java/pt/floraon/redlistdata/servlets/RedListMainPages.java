@@ -235,8 +235,8 @@ System.out.println(gs.toJson(getUser()));
                 for(String s : at)
                     ate.put(sanitizeHtmlId(s), s);
 
-                if(thisRequest.request.getSession().getAttribute("option-onlynative") == null)
-                    thisRequest.request.getSession().setAttribute("option-onlynative", true);
+                if(!thisRequest.isOptionSet("onlynative"))
+                    thisRequest.setOption("onlynative", true);
 
                 Iterator<RedListDataEntity> taxEntList =
                         driver.getRedListData().getAllRedListData(territory, true, null); //new String[] {"Lista preliminar", "Lista Alvo", "Lista B"}
@@ -260,15 +260,9 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "setoption":
-                String optionName = thisRequest.getParameterAsString("n");
-                HttpSession session = thisRequest.request.getSession(false);
-                if(session != null) {
-//                    System.out.println("SET " + "option-" + optionName + " to "+thisRequest.getParameterAsBooleanNoNull("v"));
-                    session.setAttribute("option-" + optionName
-                            , thisRequest.getParameterAsBooleanNoNull("v"));
-                    thisRequest.success("Set");
-                } else
-                    thisRequest.error("Not logged in");
+                thisRequest.setOption(
+                        thisRequest.getParameterAsString("n"),
+                        thisRequest.getParameterAsBooleanNoNull("v"));
                 return;
 
             case "sheet":   // read-only sheet

@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.results.GraphUpdateResult;

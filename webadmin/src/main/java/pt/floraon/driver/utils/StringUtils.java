@@ -135,6 +135,23 @@ public class StringUtils {
     	return any ? sb.toString() : "";
     }
 
+    @NotNull
+    public static String implode(String separator, Map<String, String> map, String... data) {
+        if(data == null || data.length == 0) return "";
+        if(map == null)
+            map = new HashMap<>();
+        StringBuilder sb = new StringBuilder();
+        boolean any = false;
+        for (int i = 0; i < data.length; i++) {
+            if(data[i] != null && !data[i].matches(" *")) {
+                sb.append(map.get(data[i]) == null ? data[i] : map.get(data[i]));
+                any = true;
+                if(i < data.length-1 && data[i+1] != null && !data[i+1].matches(" *")) sb.append(separator);
+            }
+        }
+        return any ? sb.toString() : "";
+    }
+
     @SafeVarargs
 	public static <E extends Enum<E>> String implode(String separator, E... data) {
         if(data == null || data.length == 0) return "";

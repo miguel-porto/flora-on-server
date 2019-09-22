@@ -479,6 +479,12 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             inventoryFilter.append(AQLOccurrenceQueries.getString("filter.inventoryId")).append(" ");
         }
 
+        // user filter, checks if user is mentioned in observers, collectors, dets or maintainer
+        if(filter.containsKey("uid")) {
+            bindVars.put("userId", filter.get("uid"));
+            inventoryFilter.append(AQLOccurrenceQueries.getString("filter.userId")).append(" ");
+        }
+
         // verbLocality filter
         if(filter.containsKey("local")) {
             if(filter.get("local").toUpperCase().equals("NA")) {

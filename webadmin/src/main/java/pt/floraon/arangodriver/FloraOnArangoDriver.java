@@ -399,7 +399,10 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("maintainer"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("year", "month", "day"), new SkiplistIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].confidence"), new HashIndexOptions().unique(false).sparse(false));
-		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].phenoState"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].confidence"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("observers[*]"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("collectors[*]"), new HashIndexOptions().unique(false).sparse(false));
+		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("dets[*]"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.image.toString()).ensureHashIndex(Collections.singleton("uuid"), new HashIndexOptions().unique(true).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("latitude", "longitude"), new SkiplistIndexOptions().unique(false).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Collections.singleton("month"), new SkiplistIndexOptions().unique(false).sparse(false));

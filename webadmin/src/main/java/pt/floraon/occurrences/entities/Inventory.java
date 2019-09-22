@@ -149,6 +149,9 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String[] observerNames;
 
     @Expose(serialize = false)
+    private String maintainerName;
+
+    @Expose(serialize = false)
     private Float utmX, utmY;
 
     public Inventory(Inventory other) {
@@ -683,6 +686,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public void _setObserverNames(String[] observerNames) {
         this.observerNames = observerNames;
+    }
+
+    public String _getMaintainerName() {
+        return StringUtils.isStringEmpty(maintainerName) ? "" : maintainerName;
+    }
+
+    public void _setMaintainerName(String maintainerName) {
+        this.maintainerName = maintainerName;
     }
 
     public OBSERVED_IN[] _getTaxa() {

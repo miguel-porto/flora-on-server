@@ -13,6 +13,7 @@ import com.arangodb.entity.VertexEntity;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
+import com.arangodb.util.ArangoSerializer;
 import com.arangodb.velocypack.VPackSlice;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.*;
@@ -339,7 +340,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public GraphUpdateResult updateTaxEntNode(INodeKey node, TaxEnt newTaxEnt, boolean replace) throws FloraOnException {
 		if(replace && newTaxEnt.getRank() == null) throw new TaxonomyException("Taxon must have a rank");
 
-		VPackSlice value = dbDriver.util().serialize(newTaxEnt, replace);
+		VPackSlice value = dbDriver.util().serialize(newTaxEnt, new ArangoSerializer.Options().serializeNullValues(replace));
 
     	try {
 			database.collection(node.getCollection())
