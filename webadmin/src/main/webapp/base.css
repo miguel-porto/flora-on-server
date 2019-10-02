@@ -159,9 +159,10 @@ div.newfeature {
 	font-size:0.75em;
 	text-transform:none !important;
 	vertical-align:middle;
+	overflow:hidden;
 }
 
-.button:hover {
+.button:hover .button:hover * {
 	background-color:#7c7 !important;
 }
 
@@ -320,15 +321,23 @@ ul.suggestions li.selected {
 .mainmenu li.section3 .bullet {background-color: #2196f3;}
 .mainmenu li.section4 .bullet {background-color: black;}
 
-.button.help {
-    background-image: url(images/ic_menu_help.png);
+.button.round {
     background-size: 32px 32px;
     width:32px;
     height:32px;
     border-radius:50%;
     vertical-align: middle;
-    padding: 0;
+    padding: 5px;
+}
+
+.button.round img {width:100%;height:100%;}
+
+.button.red {background-color: #ff4081;}
+
+.button.help {
+    background-image: url(images/ic_menu_help.png);
     background-color: #FFC107;
+    padding: 0px;
 }
 
 .floatinghelp {

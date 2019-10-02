@@ -26,7 +26,6 @@
 <div id="topbuttons" class="hideincompactview">
 <a class="returntomain" href="./"><img src="images/cap-cor.png" alt="logo"/></a>
 <!--<h1> ${user.getFullName()}</h1>-->
-<!--<div class="button" id="selectpoints">Select</div>-->
 <c:choose>
 <c:when test="${param.w == 'uploads'}">
     <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>

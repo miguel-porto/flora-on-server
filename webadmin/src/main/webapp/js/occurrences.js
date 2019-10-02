@@ -1,4 +1,5 @@
 var myMap = null;
+var mapLocationFilter = null;
 var filterTimeout = null;
 var showPointsOnMap;
 var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
@@ -75,7 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var togglebuttons = document.querySelectorAll('.togglebutton');
     for(var i = 0; i < togglebuttons.length; i++) {
-        addEvent('click', togglebuttons[i], function(ev) {ev.target.classList.toggle('selected')});
+        addEvent('click', togglebuttons[i], function(ev) {
+            var b = getParentbyClass(ev.target, 'button');
+            b.classList.toggle('selected');
+        });
     }
 
     var inventories = document.querySelectorAll('.inventory:not(.dummy)');
@@ -435,8 +439,27 @@ function clickButton(ev) {
             break;
 
         case 'selectpoints':
-            var areaSelect = L.areaSelect({width:200, height:300});
-            areaSelect.addTo(myMap);
+            if(!b.classList.contains('selected')) {
+                mapLocationFilter = myMap.selectAreaFeature.enable();
+                L.setOptions(mapLocationFilter, {color:'yellow', onMouseUp: function(el, ev) {
+                    // select points and deactivate select area
+                    mapLocationFilter.disable();
+                    var selMarkers = mapLocationFilter.getFeaturesSelected('marker');
+                    if(selMarkers) {
+                        if(selMarkers.length > 0)
+                            selectGeoElement(selMarkers[0].tableRow, true, true);
+                        if(selMarkers.length > 1) {
+                            for(var i=1; i<selMarkers.length; i++) {
+                                selectGeoElement(selMarkers[i].tableRow, true, false);
+                            }
+                        }
+                    } else
+                        deselectGeoElements();
+                    mapLocationFilter.removeAllArea();
+                    b.classList.toggle('selected');
+                }});
+            } else
+                if(mapLocationFilter) mapLocationFilter.disable();
             break;
 
         case 'mergeocc':
@@ -620,8 +643,13 @@ function clickOccurrenceTable(ev) {
     }
 }
 
-function deselectGeoElements(par) {
-    var selected = par.querySelectorAll('.geoelement.selected');
+function deselectGeoElements(parent) {
+    if(!parent) {
+        var onesel = document.querySelector('.geoelement.selected');
+        if(!onesel) return;
+        parent = onesel.parentNode;
+    }
+    var selected = parent.querySelectorAll('.geoelement.selected');
     for(var i=0; i<selected.length; i++) {
         selected[i].classList.remove('selected');
         if(selected[i].querySelector('.selectbutton'))
@@ -874,7 +902,16 @@ function markerClick(ev) {
 
 function mapClick(ev) {
     var opt = document.getElementById('addpointstoggle');
-
+    var sp = document.getElementById('selectpoints');
+    if(sp.classList.contains('selected')) {
+        sp.classList.toggle('selected');
+        if(mapLocationFilter) {
+            mapLocationFilter.removeAllArea();
+            mapLocationFilter.disable();
+            deselectGeoElements();
+        }
+        return;
+    }
     var editboxes = document.querySelectorAll('.editbox');
     for(var i = 0; i < editboxes.length; i++) {
         if(editboxes[i].offsetParent !== null) {

@@ -4,7 +4,7 @@
 <%@ attribute name="msgid" required="true" %>
 
 <jsp:doBody var="message" />
-<div class="button help" data-msgid="${msgid}"></div>
+<div class="button round help" data-msgid="${msgid}"></div>
 <div id="${msgid}" class="floatinghelp hidden">
 <div class="button close"></div>
 ${message}

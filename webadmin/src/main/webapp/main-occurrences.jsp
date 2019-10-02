@@ -17,7 +17,7 @@
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="occurrences.css?nocache=${uuid}"/>
-	<link rel="stylesheet" type="text/css" href="js/leaflet-areaselect.css"/>
+	<!-- <link rel="stylesheet" type="text/css" href="js/leaflet-areaselect.css"/> -->
 
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
 	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
@@ -27,6 +27,7 @@
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
 	<!--<script src="js/leaflet-areaselect.js"></script>-->
+	<script src="js/Leaflet.SelectAreaFeature.js"></script>
 	<script src="js/getcursorxy.js"></script>
 	<script type="text/javascript" src="sorttable.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>
@@ -64,7 +65,10 @@
     <c:set var="maphidden" value="${sessionScope['option-showmap'] == false ? true : (nroccurrences > 1000 ? true : false)}" />
     <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
         <div id="mapcontainer"></div>
-        <div class="button togglebutton" id="addpointstoggle">Adicionar ocorrências</div>
+        <div class="mapbuttons">
+            <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
+            <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
+        </div>
     </div>
     <div id="floatingswitches">
         <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />
