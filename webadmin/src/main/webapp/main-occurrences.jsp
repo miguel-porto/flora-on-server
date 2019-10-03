@@ -17,17 +17,19 @@
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="occurrences.css?nocache=${uuid}"/>
-	<!-- <link rel="stylesheet" type="text/css" href="js/leaflet-areaselect.css"/> -->
+	<link rel="stylesheet" type="text/css" href="js/leaflet.draw.css" />
 
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+       integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+       crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+       integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+       crossorigin=""></script>
 
-	<!--<link rel="stylesheet" type="text/css" href="js/leaflet.css"/>
-	<script src="js/leaflet.js"></script>-->
 	<script src="js/leaflet-providers.js"></script>
 	<script src="js/leaflet-bing-layer.min.js"></script>
-	<!--<script src="js/leaflet-areaselect.js"></script>-->
 	<script src="js/Leaflet.SelectAreaFeature.js"></script>
+	<script src="js/leaflet.draw.js"></script>
 	<script src="js/getcursorxy.js"></script>
 	<script type="text/javascript" src="sorttable.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>
@@ -66,6 +68,7 @@
     <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
         <div id="mapcontainer"></div>
         <div class="mapbuttons">
+            <div class="button togglebutton round" id="queryrect" title="Realizar consulta de dados em rectângulo"><img src="images/queryrect.png"/></div>
             <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
             <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
         </div>

@@ -1,6 +1,8 @@
 var myMap = null;
 var mapLocationFilter = null;
+var mapRectSelect = null;
 var filterTimeout = null;
+var loader;
 var showPointsOnMap;
 var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
 var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
@@ -403,7 +405,7 @@ function clickButton(ev) {
 
         case 'georref-search':
             var q = document.getElementById('georref-query').value;
-            var loader = document.getElementById('loader');
+            loader = document.getElementById('loader');
             if(loader) loader.style.display = 'block';
 
             fetchAJAX('checklist/api/suggestions?what=toponym&q=' + encodeURIComponent(q), function(rt) {
@@ -460,6 +462,29 @@ function clickButton(ev) {
                 }});
             } else
                 if(mapLocationFilter) mapLocationFilter.disable();
+            break;
+
+        case 'queryrect':
+            if(!b.classList.contains('selected')) {
+                mapRectSelect = new L.Draw.Rectangle(myMap);
+                mapRectSelect.enable();
+                myMap.on(L.Draw.Event.CREATED, function (e) {
+                    loader = document.getElementById('loader');
+                    if(loader) loader.style.display = 'block';
+
+                    var type = e.layerType,
+                    layer = e.layer;
+                    if (type === 'rectangle') {
+                        var bnd = layer.getBounds();
+                        document.querySelector('input[name=filter]').value =
+                            'long:' + Math.round(bnd.getWest() * 10000) / 10000 + '-' + Math.round(bnd.getEast() * 10000) / 10000
+                            + ' lat:' + Math.round(bnd.getSouth() * 10000) / 10000 + '-' + Math.round(bnd.getNorth() * 10000) / 10000;
+                        document.getElementById('occurrencefilter').firstElementChild.submit();
+                    }
+                });
+            } else {
+                if(mapRectSelect) mapRectSelect.disable();
+            }
             break;
 
         case 'mergeocc':
