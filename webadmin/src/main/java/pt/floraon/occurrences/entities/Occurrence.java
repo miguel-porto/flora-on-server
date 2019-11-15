@@ -121,4 +121,8 @@ public class Occurrence extends Inventory {
             return this.getOccurrence().getObservationLongitude();
     }
 
+    public boolean hasCoordinate() {
+        return !Constants.isNullOrNoData(this._getLatitude())
+                && !Constants.isNullOrNoData(this._getLongitude());
+    }
 }

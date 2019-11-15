@@ -150,15 +150,17 @@ public final class Common {
         csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
-                , "specificThreats", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
+                , "specificThreats", "habitat", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
                 , "credits", "maintainer");
     }
 
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap) throws IOException {
         OBSERVED_IN oi = occurrence.getOccurrence();
+        UTMCoordinate utm = occurrence.hasCoordinate()
+                ? CoordinateConversion.LatLonToUtmWGS84(occurrence._getLatitude(), occurrence._getLongitude(), 0)
+                : null;
 //                    TaxEnt te = oi.getTaxEnt();
 // TODO use field annotations
-        UTMCoordinate utm = CoordinateConversion.LatLonToUtmWGS84(occurrence._getLatitude(), occurrence._getLongitude(), 0);
         csv.printRecord(
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
@@ -172,12 +174,14 @@ public final class Common {
                 , StringUtils.implode(", ", occurrence._getObserverNames())
                 , StringUtils.implode(", ", userMap, occurrence.getCollectors())
                 , occurrence._getLatitude(), occurrence._getLongitude()
-                , ((Integer) utm.getXZone()).toString() + utm.getYZone(), utm.getX(), utm.getY()
+                , utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()
+                , utm == null ? "" : utm.getX()
+                , utm == null ? "" : utm.getY()
                 , occurrence.getPrecision()
                 , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()
-                , oi.getSpecificThreats(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
+                , oi.getSpecificThreats(), occurrence.getHabitat(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
                 , oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
                 , oi.getUuid().toString()
                 , oi.getAccession()
