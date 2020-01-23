@@ -63,7 +63,9 @@ public class GraphReader extends FloraOnServlet {
 			case "ranks":
 				rk.append("<select name=\"taxonrank\">");
 				for(TaxonRanks e : Constants.TaxonRanks.values()) {
-					rk.append("<option value=\""+e.getValue().toString()+"\">"+e.getName()+"</option>");
+					if(!e.isSpeciesOrInferior())
+						rk.append("<option value=\"").append(e.getValue().toString()).append("\">").append(e.getName())
+								.append("</option>");
 				}
 				rk.append("</select>");
 				pw = thisRequest.response.getWriter();
@@ -74,7 +76,7 @@ public class GraphReader extends FloraOnServlet {
 			case "territorytypes":
 				rk.append("<select name=\"territorytype\"><option value=\"NOT_SET\">undefined</option>");
 				for(TerritoryTypes e : Constants.TerritoryTypes.values()) {
-					rk.append("<option value=\""+e.toString()+"\">"+e.toString()+"</option>");
+					rk.append("<option value=\"").append(e.toString()).append("\">").append(e.toString()).append("</option>");
 				}
 				rk.append("</select>");
 				pw = thisRequest.response.getWriter();
@@ -105,7 +107,7 @@ public class GraphReader extends FloraOnServlet {
 			if(id==null) {
 //				System.out.println(TaxEnt.parse(query).toJson().toString());
 //				TaxEnt te=driver.getNodeWorkerDriver().getSingleTaxEntOrNull(TaxEnt.parse(query));
-				List<TaxEnt> te = driver.getNodeWorkerDriver().getTaxEnt(TaxEnt.parse(query), null);
+				List<TaxEnt> te = driver.getNodeWorkerDriver().getTaxEnt(TaxEnt.parse(query), null, false);
 				if(te == null || te.size() == 0)
 					thisRequest.success(driver.getNodeWorkerDriver().getNeighbors(null,fac,depth).toJsonObject());
 				else {

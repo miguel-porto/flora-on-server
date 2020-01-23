@@ -13,7 +13,7 @@
 <html>
 <head>
 	<title>Flora-On Admin</title>
-	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
 	<script type="text/javascript" src="sorttable.js"></script>
@@ -32,7 +32,7 @@
             <li><a href="#views">Custom views</a></li>
             <li><a href="#downloads">Downloads</a></li>
             <li><a href="#admin">Administrative tasks</a></li>
-            <li><a href="?w=usermng">User management</a></li>
+            <li><a href="?w=users">User management</a></li>
         </ul>
     </div>
     <div id="main">

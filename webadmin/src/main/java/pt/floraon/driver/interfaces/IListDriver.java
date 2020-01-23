@@ -26,7 +26,7 @@ public interface IListDriver {
 	 * Gets the complete list of taxa in the DB
 	 * @return
 	 */
-	Iterator<ChecklistEntry> getCheckList() throws FloraOnException;
+	Iterator<ChecklistEntry> getCheckList(boolean withParentSpecies) throws FloraOnException;
 
     GraphUpdateResult getGraphWholeCollection(Constants.NodeTypes nodeType, Constants.Facets[] facets) throws FloraOnException;
 
@@ -149,6 +149,10 @@ public interface IListDriver {
 	 */
 	Iterator<TaxEnt> getAllOrphanTaxa() throws FloraOnException;
 
+	/**
+	 * @return All taxa which have no parent node.
+	 * @throws FloraOnException
+	 */
 	GraphUpdateResult getAllOrphanTaxaAsGUR() throws FloraOnException;
 
 	/**

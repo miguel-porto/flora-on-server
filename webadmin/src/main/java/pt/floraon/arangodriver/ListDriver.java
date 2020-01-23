@@ -37,8 +37,8 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	}
 
 	@Override
-	public Iterator<ChecklistEntry> getCheckList() throws FloraOnException {
-		String query = AQLQueries.getString("Checklist", true);
+	public Iterator<ChecklistEntry> getCheckList(boolean withParentSpecies) throws FloraOnException {
+		String query = AQLQueries.getString(withParentSpecies ? "Checklist.1" : "Checklist", true);
 		try {
 			return database.query(query, null, null, ChecklistEntry.class);
 		} catch (ArangoDBException e) {

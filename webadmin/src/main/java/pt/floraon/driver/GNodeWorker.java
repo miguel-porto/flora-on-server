@@ -20,19 +20,15 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 		super(driver);
 	}
 
-    @Override
-	public TaxEnt createTaxEntFromTaxEnt(TaxEnt te) throws TaxonomyException, FloraOnException {
-		return createTaxEntFromName(te.getName(), te.getAuthor(), te.getRank(), te.getSensu(), te.getAnnotation(), te.getCurrent());
-	}
-
 	@Override
-    public List<TaxEnt> getTaxEntByName(String q) throws FloraOnException {
-		return getTaxEnt(TaxEnt.parse(q), null);
+    public List<TaxEnt> getTaxEntByName(String q, boolean strict) throws FloraOnException {
+		return getTaxEnt(TaxEnt.parse(q), null, strict);
     }
 
 	@Override
-    public List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion) {
+    public List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt query, Iterator<TaxEnt> nodes, MutableBoolean askQuestion, boolean strict) {
 		// TODO: think better about this match. When no Sensu is given, choose by default the accepted name?
+		// FIXME: infrataxa do not work!
 		TaxEnt tmp;
 		List<TaxEnt> out = new ArrayList<>();
 		boolean ask = true;
@@ -43,27 +39,27 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			boolean tmpask = false;
 			tmp = nodes.next();
 //			Log.info("    trying: " + tmp.getFullName());
-/*
-			System.out.println(q.getRankValue() + " : " + tmp.getRankValue());
-			System.out.println(q.getAuthor() + " : " + tmp.getAuthor());
-			System.out.println(q.getAnnotation() + " : " + tmp.getAnnotation());
-			System.out.println(q.getSensu() + " : " + tmp.getSensu());
-*/
-			if (!q.getName().equals(tmp.getName())) {
-				if ((levenName = Common.levenshteinDistance(q.getName(), tmp.getName())) >= 3)
+			System.out.println("COMPARE");
+			System.out.println(query.getName() + " <-> " + tmp.getName());
+			System.out.println(query.getRankValue() + " <-> " + tmp.getRankValue());
+			System.out.println(query.getAuthor() + " <-> " + tmp.getAuthor());
+			System.out.println(query.getAnnotation() + " <-> " + tmp.getAnnotation());
+			System.out.println(query.getSensu() + " <-> " + tmp.getSensu());
+			if (!query.getName().equals(tmp.getName())) {
+				if ((levenName = Common.levenshteinDistance(query.getName(), tmp.getName())) >= (strict ? 1 : 3))
 					continue;
 				else
 					tmpask = true;
 			} else
 				levenName = 0;
 
-			if (q.getRankValue() != null && !q.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
-					&& !q.getRankValue().equals(tmp.getRankValue())) {
+			if (query.getRankValue() != null && !query.getRankValue().equals(Constants.TaxonRanks.NORANK.getValue())
+					&& !query.getRankValue().equals(tmp.getRankValue())) {
 //				nodes.remove();
 				continue;
 			}
 
-			if (q.getAuthor() != null && !q.getAuthor().equals(tmp.getAuthor()) && levenName < 3) {
+			if (query.getAuthor() != null && !query.getAuthor().equals(tmp.getAuthor()) && levenName < 3) {
 				tmpask = true;
 /*
 				if(Common.levenshteinDistance(q.getAuthor(), tmp.getAuthor()) >= 5)
@@ -79,12 +75,12 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			}
 */
 
-			if (q.getAnnotation() != null && !q.getAnnotation().equals(tmp.getAnnotation())
-					|| (q.getAnnotation() == null && tmp.getAnnotation() != null)) {
+			if (query.getAnnotation() != null && !query.getAnnotation().equals(tmp.getAnnotation())
+					|| (query.getAnnotation() == null && tmp.getAnnotation() != null)) {
 			 	continue;
 			}
 
-			if ((q.getSensu() != null && !q.getSensu().equals(tmp.getSensu()))) {
+			if ((query.getSensu() != null && !query.getSensu().equals(tmp.getSensu()))) {
 //					|| (q.getSensu() == null && tmp.getSensu() != null)) {
 //				nodes.remove();
 				continue;
@@ -96,7 +92,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 		int nrExactMatches = 0;
 		TaxEnt exactMatch = null;
 		for(TaxEnt te : out) {
-			if(te.getName().equals(q.getName())) {
+			if(te.getName().equals(query.getName())) {
 				exactMatch = te;
 				nrExactMatches++;
 			}

@@ -92,7 +92,7 @@ public interface INodeWorker {
 	 * @throws QueryException
 	 * @throws TaxonomyException
 	 */
-	List<TaxEnt> getTaxEntByName(String q) throws FloraOnException;
+	List<TaxEnt> getTaxEntByName(String q, boolean strict) throws FloraOnException;
 
 	/**
 	 * Matches a name of the form
@@ -104,19 +104,19 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException if more than one node is found
 	 */
-	List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion) throws FloraOnException;
-//	boolean getTaxEnt(TaxEnt q, List<TaxEnt> output) throws FloraOnException;
+	List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion, boolean strict) throws FloraOnException;
 
-	TaxEnt getSingleTaxEntOrNull(TaxEnt q) throws FloraOnException;
+	TaxEnt getSingleTaxEntOrNull(TaxEnt q, boolean strict) throws FloraOnException;
 
 	/**
 	 * Matches a given TaxEnt with the name, annotation, author and sensu, with a List of TaxEnt.
 	 * @param q Query
 	 * @param nodes The list of taxa to compare to
 	 * @param askQuestion [out] if provided, its value will be set to true in case this query returns more than one possibility
+	 * @param strict if true, tests for strict equality of the name. If false, levenshtein distance is computed, and fuzzy equality allowed.
 	 * @return
 	 */
-	List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion);
+	List<TaxEnt> matchTaxEntToTaxEntList(TaxEnt q, Iterator<TaxEnt> nodes, MutableBoolean askQuestion, boolean strict);
 //	boolean matchTaxEntToTaxEntList(TaxEnt q, List<TaxEnt> nodes) throws FloraOnException;
 
 	Attribute getAttributeByName(String name) throws FloraOnException;

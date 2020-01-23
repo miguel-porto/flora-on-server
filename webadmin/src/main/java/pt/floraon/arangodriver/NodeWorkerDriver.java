@@ -47,7 +47,22 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		this.dbDriver = (ArangoDB) driver.getDatabaseDriver();
 		this.database = (ArangoDatabase) driver.getDatabase();
 	}
-	
+
+	@Override
+	public TaxEnt createTaxEntFromTaxEnt(TaxEnt taxEnt) throws TaxonomyException, FloraOnException {
+		try {
+			//VertexEntity<TaxEnt> ve=dbDriver.graphCreateVertex(OccurrenceConstants.TAXONOMICGRAPHNAME, NodeTypes.taxent.toString(), out, false);
+			DocumentCreateEntity<TaxEnt> ve = database.collection(NodeTypes.taxent.toString())
+					.insertDocument(taxEnt, new DocumentCreateOptions().returnNew(true));
+			taxEnt = ve.getNew();
+			taxEnt.setID(ve.getId());
+			taxEnt.setKey(ve.getKey());
+			return taxEnt;
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+	}
+
 	@Override
 	public TaxEnt createTaxEntFromName(String name,String author,TaxonRanks rank,String sensu, String annotation,Boolean current) throws FloraOnException {
 		TaxEnt out=new TaxEnt(name, rank == null ? null : rank.getValue(), author, sensu, annotation, current, null, null, null);
@@ -434,7 +449,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-	public List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion) throws FloraOnException {
+	public List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion, boolean strict) throws FloraOnException {
 		// TODO when imported name has not subsp., doesn't work, e.g. cistus ladanifer sulcatus
     	if(q.getName() == null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 		ArangoCursor<TaxEnt> cursor;
@@ -449,12 +464,12 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
     	} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
-		return matchTaxEntToTaxEntList(q, cursor, askQuestion);
+		return matchTaxEntToTaxEntList(q, cursor, askQuestion, strict);
 	}
 
 	@Override
-	public TaxEnt getSingleTaxEntOrNull(TaxEnt q) throws FloraOnException {
-		List<TaxEnt> nodes = getTaxEnt(q, null);
+	public TaxEnt getSingleTaxEntOrNull(TaxEnt q, boolean strict) throws FloraOnException {
+		List<TaxEnt> nodes = getTaxEnt(q, null, strict);
 
 		switch(nodes.size()) {
 			case 0:

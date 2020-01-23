@@ -13,7 +13,7 @@
 <head>
 	<title><fmt:message key="page.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="occurrences.css?nocache=${uuid}"/>

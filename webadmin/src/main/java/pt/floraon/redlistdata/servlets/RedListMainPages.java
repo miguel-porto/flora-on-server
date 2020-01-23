@@ -1265,6 +1265,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("redlisttaxonprivileges", Privileges.getAllPrivilegesOfTypeAndScope(
                         thisRequest.getUser().getUserType() == User.UserType.ADMINISTRATOR ? null : Privileges.PrivilegeType.REDLISTDATA
                         , Privileges.PrivilegeScope.PER_SPECIES));
+                thisRequest.request.setAttribute("context", "redlist");
                 break;
 
             case "jobs":

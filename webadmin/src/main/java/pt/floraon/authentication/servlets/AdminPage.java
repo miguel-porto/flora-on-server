@@ -13,7 +13,9 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.SpecialFields;
 import pt.floraon.occurrences.fields.flavours.GeneralOccurrenceFlavour;
+import pt.floraon.redlistdata.entities.AtomicTaxonPrivilege;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -161,17 +163,30 @@ DEPRECATED
                 thisRequest.request.getRequestDispatcher("/main-admin.jsp").forward(thisRequest.request, thisRequest.response);
                 break;
 
-            case "usermng":
+            case "users":
                 thisRequest.ensureAdministrator();
-                List<User> allusers = driver.getAdministration().getAllUsers(false);
-                Collections.sort(allusers);
-                thisRequest.request.setAttribute("allusers", allusers);
+                List<User> allusers1 = driver.getAdministration().getAllUsers(false);
+                Collections.sort(allusers1);
+                thisRequest.request.setAttribute("allusers", allusers1);
 //                allusers.get(0).getUserName()
                 Map<String, Integer> nrOccurrences = new HashMap<>();
-                for(User u : allusers) {
+                for(User u : allusers1) {
                     nrOccurrences.put(u.getID(), driver.getAdministration().getNumberOfOccurrencesOfUser(driver.asNodeKey(u.getID())));
                 }
                 thisRequest.request.setAttribute("nrOccurrencesMap", nrOccurrences);
+                thisRequest.request.getRequestDispatcher("/user-mng.jsp").forward(thisRequest.request, thisRequest.response);
+                break;
+
+            case "edituser":
+                thisRequest.ensureAdministrator();
+                User tmp = driver.getAdministration().getUser(thisRequest.getParameterAsKey("user"));
+                thisRequest.request.setAttribute("requesteduser", tmp);
+                List<Privileges> privileges = Privileges.getAllPrivilegesOfTypeAndScope(
+                        Privileges.PrivilegeType.GLOBAL, Privileges.PrivilegeScope.GLOBAL);
+                privileges.addAll(Privileges.getAllPrivilegesOfTypeAndScope(
+                        Privileges.PrivilegeType.CHECKLIST, Privileges.PrivilegeScope.GLOBAL));
+                thisRequest.request.setAttribute("redlistprivileges", privileges);
+                thisRequest.request.setAttribute("context", "global");
                 thisRequest.request.getRequestDispatcher("/user-mng.jsp").forward(thisRequest.request, thisRequest.response);
                 break;
         }

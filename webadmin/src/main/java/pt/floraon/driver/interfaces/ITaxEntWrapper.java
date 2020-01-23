@@ -124,7 +124,7 @@ public interface ITaxEntWrapper {
 	
 	/**
 	 * Adds one territory to the list of those with complete distribution
-	 * @param id
+	 * @param id The ID of the territory to add
 	 * @return
 	 * @throws DatabaseException 
 	 */

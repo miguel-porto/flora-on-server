@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Flora-On error</title>
-	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 </head>
 <body style="text-align:center" class="enterpage">

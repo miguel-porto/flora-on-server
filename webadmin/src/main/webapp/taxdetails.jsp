@@ -25,7 +25,7 @@
 		${catchException.printStackTrace()}</p>
 	</c:if>
 	<div id="taxoninfo">
-		<div id="generalinfo">
+		<div class="generalinfo">
 			<h3>General info</h3>
 			<table>
 				<tr><td>ID</td><td><c:out value="${taxent.getID().toString() }"></c:out></td></tr>
@@ -59,6 +59,19 @@
 		<c:if test="${!taxent.getComment().equals('')}">
 		<div id="taxonnotes"><h3>Taxonomic notes</h3>
 		    <p>${fn:replace(taxent.getComment(), newLineChar, '<br/>')}</p>
+		</div>
+		</c:if>
+		<c:if test="${taxent.isSpeciesOrInferior()}">
+		<div class="generalinfo">
+		    <h3>Name hierarchy</h3>
+		    <c:set var="taxonName" value="${taxent.getTaxonName()}"/>
+		    <table>
+		        <tr><th>Rank</th><th>Name</th><th>Author</th><th>Annotation</th><th><i>sensu</i></th></tr>
+		        <tr><td>&lt;base&gt;</td><td>${taxonName.getGenus()} ${taxonName.getSpecificEpithet()}</td><td>${taxonName.getAuthor(0)}</td><td>${taxonName.getAnnotation()}</td><td>${taxonName.getSensu()}</td></tr>
+		        <c:forEach var="name" items="${taxonName.getInfraRanks()}">
+		        <tr><td>${name.getInfraRank()}</td><td>${name.getInfraTaxon()}</td><td>${name.getInfraAuthor()}</td><td>${name.getInfraAnnotation()}</td><td>${name.getInfraSensu()}</td></tr>
+		        </c:forEach>
+		    </table>
 		</div>
 		</c:if>
 		<c:if test="${taxentWrapper.getSynonyms().size() > 0}">
@@ -164,10 +177,15 @@
 					<div class="content">
 						<form class="poster" data-path="checklist/api/update/update/taxent">
 							<table>
+							    <c:if test="${taxent.isSpeciesOrInferior()}">
+								<tr><td>New name (fully qualified)</td><td><input type="text" name="fullName" style="width:100%" value="${taxent.getFullName()}"/></td></tr>
+								</c:if>
+								<c:if test="${!taxent.isSpeciesOrInferior()}">
 								<tr><td>New name</td><td><input type="text" name="name" value="${taxent.getName()}"/></td></tr>
 								<tr><td>New author</td><td><input type="text" name="author" value="${taxent.getAuthor()==null ? '' : taxent.getAuthor()}"/></td></tr>
 								<tr><td>New <i>sensu</i></td><td><input type="text" name="sensu" value="${taxent.getSensu() == null ? '' : taxent.getSensu()}"/></td></tr>
 								<tr><td>New annotation</td><td><input type="text" name="annotation" value="${taxent.getAnnotation() == null ? '' : taxent.getAnnotation()}"/></td></tr>
+								</c:if>
 								<tr><td>New legacy ID</td><td><input type="text" name="oldId" value="${taxent.getOldId() == null ? '' : taxent.getOldId()}"/></td></tr>
 								<tr><td>New comment</td><td><textarea name="comment" style="width:100%; min-height:150px;"><c:out value="${taxent.getComment()}"/></textarea></td></tr>
 							</table>

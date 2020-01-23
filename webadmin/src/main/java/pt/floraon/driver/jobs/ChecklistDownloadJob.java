@@ -18,7 +18,14 @@ import pt.floraon.driver.results.ResultProcessor;
 
 public class ChecklistDownloadJob implements JobFileDownload {
 	private boolean finished = false;
+	private boolean withParentSpecies;
 
+	/**
+	 * @param withParentSpecies True to always download all taxonomic hierarchy up to species, when there are infrataxa.
+	 */
+	public ChecklistDownloadJob(boolean withParentSpecies) {
+		this.withParentSpecies = withParentSpecies;
+	}
 	@Override
 	public Charset getCharset() {
 		return StandardCharsets.UTF_8;
@@ -33,7 +40,7 @@ public class ChecklistDownloadJob implements JobFileDownload {
 			terr.add(tv.getShortName());
 
 		ResultProcessor<ChecklistEntry> rpchk1;
-		Iterator<ChecklistEntry> chklst = driver.getListDriver().getCheckList();
+		Iterator<ChecklistEntry> chklst = driver.getListDriver().getCheckList(withParentSpecies);
 		rpchk1 = new ResultProcessor<>(chklst);
 		out.write(rpchk1.toCSVTable(terr));
 		out.close();

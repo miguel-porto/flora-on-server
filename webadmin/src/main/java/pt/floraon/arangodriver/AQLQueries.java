@@ -25,7 +25,6 @@ public class AQLQueries {
 		}
 	}
 
-	@Deprecated
 	public static String getString(String key, boolean fragments) {
 		String msg = RESOURCE_BUNDLE.getString(key);
 		if(fragments) {

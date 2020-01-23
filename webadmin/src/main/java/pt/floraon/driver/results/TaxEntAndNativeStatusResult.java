@@ -136,7 +136,9 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		List<String> allTerritories=(List<String>) obj;
 		rec.print(this.taxent.getCurrent() ? "yes" : "no");
 		rec.print(this.taxent.getID());
-		rec.print((this.isLeaf ==null ? "" : (this.isLeaf ? "" : "+")) + this.taxent.getNameWithAnnotationOnly(false));
+		rec.print(this.taxent.getOldId());
+		rec.print((this.isLeaf == null ? "" : (this.isLeaf ? "" : "+")) + this.taxent.getNameWithAnnotationOnly(false));
+		rec.print(this.taxent.getFullName());
 		rec.print(this.taxent.getAuthor());
 		if(this.territories==null) return;
 
@@ -155,7 +157,9 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		List<String> territories=(List<String>) obj;
 		rec.print("accepted");
 		rec.print("id");
+		rec.print("oldId");
 		rec.print("canonicalName");
+		rec.print("fullName");
 		rec.print("authority");
 		for(String t : territories) {
 			rec.print(t);

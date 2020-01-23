@@ -50,10 +50,17 @@ public interface IFloraOn {
 
 	RedListSettings getRedListSettings(String territory);
 
+	/**
+	 * @return The global settings set in the database by the administrator
+	 */
 	GlobalSettings getGlobalSettings();
 
 	void updateGlobalSettings(GlobalSettings newSettings);
 
+	/**
+	 * @return A reference to the properties file, where installation properties are defined (e.g. path to the image
+	 * folder, database name and password, etc.)
+	 */
 	Properties getProperties();
 
 	boolean hasFailed();
@@ -61,9 +68,7 @@ public interface IFloraOn {
 	String getErrorMessage();
 
 	/**
-	 * Gets a reference to the folder where images are stored.
-	 *
-	 * @return
+	 * @return A reference to the folder where images are stored.
 	 * @throws FloraOnException
 	 */
 	File getImageFolder();
@@ -71,4 +76,9 @@ public interface IFloraOn {
 	File getThumbsFolder();
 
 	File getOriginalImageFolder();
+
+	/**
+	 * @return The context path where the webapp was deployed.
+	 */
+	String getContextPath();
 }

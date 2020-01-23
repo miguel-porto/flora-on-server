@@ -32,7 +32,7 @@ import static pt.floraon.authentication.Privileges.*;
 public class User extends NamedDBNode implements Comparable<User>, HttpSessionBindingListener {
 	private String userName, password;
 	private UserType userType;
-	private Set<Privileges> privileges = new HashSet<>();
+	private Set<Privileges> privileges;
 	private List<TaxonPrivileges> taxonPrivileges;
 	private List<String> uploadedTables;
 	private String userPolygons;
@@ -40,40 +40,10 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	private Set<CustomOccurrenceFlavour> customOccurrenceFlavours;
 	public enum FlavourFilter {ONLY_OCCURRENCE, ONLY_INVENTORY}
 	private static Pattern nonStandardName = Pattern.compile("[&.0-9()/-]+");
-
-	@Override
-	public int compareTo(User user) {
-		if(this.getName() == null) return -1;
-		if(user.getName() == null) return 1;
-		return this.getName().compareTo(user.getName());
-	}
-
-	@Override
-	public void valueBound(HttpSessionBindingEvent event) {
-		if(!event.getName().equals("user")) return;
-		Set<User> logins = (Set<User>) event.getSession().getServletContext().getAttribute("logins");
-		if(logins == null) {
-			logins = new HashSet<>();
-			event.getSession().getServletContext().setAttribute("logins", logins);
-		}
-		logins.add(this);
-	}
-
-	@Override
-	public void valueUnbound(HttpSessionBindingEvent event) {
-		if(!event.getName().equals("user")) return;
-		Set<User> logins = (Set<User>) event.getSession().getServletContext().getAttribute("logins");
-		if(logins == null) {
-			logins = new HashSet<>();
-			event.getSession().getServletContext().setAttribute("logins", logins);
-		}
-		logins.remove(this);
-	}
-
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)
-	private transient Set<Privileges> effectivePrivileges;
+	private transient Set<Privileges> effectivePrivileges = new HashSet<>();;
 
 	@Expose(serialize = false, deserialize = false)
 	private transient PolygonTheme userPolygonsTheme;
@@ -119,8 +89,14 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		this(username, fullName, new HashSet<>(Arrays.asList(privileges)));
 	}
 
-	public static User guest() throws DatabaseException {
-		User u = new User("guest", "Guest", new Privileges[] {});
+	public static User guest() {
+		User u = null;
+		try {
+			u = new User("guest", "Guest", new Privileges[] {});
+		} catch (DatabaseException e) {
+			e.printStackTrace();
+			return null;
+		}
 		u.isGuest = true;
 		return u;
 	}
@@ -227,7 +203,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		this.customOccurrenceFlavours = customOccurrenceFlavours;
 	}
 
-	public Set<Privileges> getPrivileges() {return privileges;}
+	public Set<Privileges> getPrivileges() {return privileges == null ? new HashSet<Privileges>() : privileges;}
 
 	public String getPassword() {
 		return password;
@@ -245,6 +221,9 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	}
 
 	public void setPrivilege(Privileges privilege, boolean value) {
+		if(this.privileges == null)
+			 this.privileges = new HashSet<>();
+
 		if(value) {
 			this.privileges.add(privilege);
 			this.effectivePrivileges.add(privilege);
@@ -591,7 +570,10 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	 */
 	public void setEffectivePrivilegesFor(IFloraOn driver, INodeKey taxonID, Set<Privileges> ignorePrivileges) throws FloraOnException {
 		if(ignorePrivileges == null && (this.taxonPrivileges == null || this.taxonPrivileges.size() == 0)) {	// privileges are the same as for all taxa
-			this.effectivePrivileges = this.privileges;
+			if(this.privileges == null)
+				this.effectivePrivileges = new HashSet<>();
+			else
+				this.effectivePrivileges = this.privileges;
 			return;
 		}
 
@@ -632,6 +614,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		// add global privileges (those that are not taxon-wise by construction)
 		//			if(p.getPrivilegeScope() == PrivilegeScope.GLOBAL)
 		if(ignorePrivileges != null && ignorePrivileges.size() > 0) {
+			if(this.privileges == null) this.privileges = new HashSet<>();
 			itp = this.privileges.iterator();
 			while (itp.hasNext()) {
 				Privileges p = itp.next();
@@ -681,6 +664,35 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 
 	public boolean hasNonStandardName() {
 		return this.getName() == null || nonStandardName.matcher(this.getName()).find();
+	}
+
+	@Override
+	public int compareTo(User user) {
+		if(this.getName() == null) return -1;
+		if(user.getName() == null) return 1;
+		return this.getName().compareTo(user.getName());
+	}
+
+	@Override
+	public void valueBound(HttpSessionBindingEvent event) {
+		if(!event.getName().equals("user")) return;
+		Set<User> logins = (Set<User>) event.getSession().getServletContext().getAttribute("logins");
+		if(logins == null) {
+			logins = new HashSet<>();
+			event.getSession().getServletContext().setAttribute("logins", logins);
+		}
+		logins.add(this);
+	}
+
+	@Override
+	public void valueUnbound(HttpSessionBindingEvent event) {
+		if(!event.getName().equals("user")) return;
+		Set<User> logins = (Set<User>) event.getSession().getServletContext().getAttribute("logins");
+		if(logins == null) {
+			logins = new HashSet<>();
+			event.getSession().getServletContext().setAttribute("logins", logins);
+		}
+		logins.remove(this);
 	}
 
 	@Override

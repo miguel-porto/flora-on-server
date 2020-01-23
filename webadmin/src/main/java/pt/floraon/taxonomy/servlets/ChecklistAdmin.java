@@ -1,17 +1,31 @@
 package pt.floraon.taxonomy.servlets;
 import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import javax.servlet.*;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
+import com.google.gson.Gson;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.jobs.JobSubmitter;
+import pt.floraon.occurrences.CSVFileProcessor;
+import pt.floraon.redlistdata.FieldValues;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
+import pt.floraon.redlistdata.jobs.SearchAndReplaceDryJob;
+import pt.floraon.redlistdata.jobs.SearchAndReplaceJob;
+import pt.floraon.taxonomy.TaxonomyImporter;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 import pt.floraon.server.FloraOnServlet;
 
+@MultipartConfig
 public class ChecklistAdmin extends FloraOnServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -68,5 +82,31 @@ public class ChecklistAdmin extends FloraOnServlet {
 		}
 		
 		request.getRequestDispatcher("/main-checklist.jsp").forward(request, thisRequest.response);
+	}
+
+	public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
+		Part filePart;
+		InputStream fileContent = null;
+
+		String what = thisRequest.getParameterAsString("w");
+		switch(what) {
+			case "uploadChecklist":
+				try {
+					filePart = thisRequest.request.getPart("checklistTable");
+					System.out.println("File size: " + filePart.getSize());
+
+					if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
+					fileContent = filePart.getInputStream();
+				} catch (IOException e) {
+					e.printStackTrace();
+					throw new FloraOnException("Some error.");
+				}
+
+				if(fileContent != null) {
+					driver.getCSVFileProcessor().getTaxonomyImporter().uploadTaxonomyListFromStream2(fileContent, true);
+					thisRequest.request.getRequestDispatcher("/main-checklist.jsp").forward(thisRequest.request, thisRequest.response);
+				}
+				break;
+		}
 	}
 }

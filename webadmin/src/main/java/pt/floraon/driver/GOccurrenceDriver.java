@@ -59,7 +59,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
                 continue;
             }
 //            Log.info("    Parsed name: "+ te.getFullName(false));
-            matched = nwd.getTaxEnt(te, ask);
+            matched = nwd.getTaxEnt(te, ask, false);
 
             switch(matched.size()) {
             case 0:

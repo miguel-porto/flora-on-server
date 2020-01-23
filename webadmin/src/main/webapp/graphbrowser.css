@@ -73,6 +73,13 @@ span.label.selected {background-color:#7f7;box-shadow:0 0 3px #444 inset;}
 	color:#06f;
 }
 
+.window h2 {
+	margin:0;
+	font-size:1.1em;
+	font-weight:normal;
+	color:#06f;
+}
+
 .window .closebutton {
 	box-shadow:0 0 5px #999;
 	border-radius:5px;

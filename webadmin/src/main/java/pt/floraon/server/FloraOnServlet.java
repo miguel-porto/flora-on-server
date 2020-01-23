@@ -36,28 +36,6 @@ public class FloraOnServlet extends HttpServlet {
 	protected IFloraOn driver;
 	private static final long serialVersionUID = 2390926316338894377L;
 
-	public final void init() throws ServletException {
-		this.driver = (IFloraOn) this.getServletContext().getAttribute("driver");
-		if(this.driver != null) {
-			this.NWD = this.driver.getNodeWorkerDriver();
-			this.LD = this.driver.getListDriver();
-		}
-	}
-
-	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
-		for(Object o : pars) {
-			if(o == null) throw new FloraOnException("Missing parameter.");
-		}
-	}
-
-	protected void errorIfAllNull(Object... pars) throws FloraOnException {
-		Boolean resp=true;
-		for(Object o : pars) {
-			resp = resp && (o==null);
-		}
-		if(resp) throw new FloraOnException("Missing parameter.");
-	}
-
 	@Override
 	public final void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -84,6 +62,8 @@ public class FloraOnServlet extends HttpServlet {
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
 		request.setAttribute("uuid", "bk21");
+		request.setAttribute("contextPath", driver.getContextPath());
+		request.setAttribute("offline", false);
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -113,6 +93,7 @@ public class FloraOnServlet extends HttpServlet {
 
 		ThisRequest thisRequest = new ThisRequest(request, response);
 //		thisRequest.getUser().resetEffectivePrivileges();
+		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("user", thisRequest.getUser());
 		try {
 			doFloraOnPost(thisRequest);
@@ -122,9 +103,31 @@ public class FloraOnServlet extends HttpServlet {
 		}
 	}
 
-
 	public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {}
 	public void doFloraOnPost(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {}
+
+	public final void init() {
+		this.driver = (IFloraOn) this.getServletContext().getAttribute("driver");
+		if(this.driver != null) {
+			this.NWD = this.driver.getNodeWorkerDriver();
+			this.LD = this.driver.getListDriver();
+		}
+	}
+
+	protected void errorIfAnyNull(Object... pars) throws FloraOnException {
+		for(Object o : pars) {
+			if(o == null) throw new FloraOnException("Missing parameter.");
+		}
+	}
+
+	protected void errorIfAllNull(Object... pars) throws FloraOnException {
+		boolean resp = true;
+		for(Object o : pars) {
+			resp = resp && (o==null);
+		}
+		if(resp) throw new FloraOnException("Missing parameter.");
+	}
+
 
 	protected class ThisRequest {
 		public final HttpServletResponse response;
@@ -175,9 +178,8 @@ public class FloraOnServlet extends HttpServlet {
 			return value != null && value.equals(getParameterAsString(name));
 		}
 		/**
-		 * Gets the parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.
 		 * @param name
-		 * @return
+		 * @return The parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.
 		 * @throws IOException
 		 * @throws ServletException
 		 */
@@ -360,12 +362,7 @@ public class FloraOnServlet extends HttpServlet {
 			HttpSession session = request.getSession(false);
 
 			if(session == null || session.getAttribute("user") == null) {
-				try {
-					return User.guest();
-				} catch (DatabaseException e) {
-					e.printStackTrace();
-					return null;
-				}
+				return User.guest();
 			} else
 				return (User) session.getAttribute("user");
 		}

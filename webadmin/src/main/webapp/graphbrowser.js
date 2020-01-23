@@ -212,6 +212,15 @@ function updateTaxNode(d,name,rank,author,sensu,comment,current,oldId) {
 		,afterUpdateNode);
 }
 
+function updateTaxNodeFullyQualified(d,fullName,current,oldId) {
+	fetchAJAX('checklist/api/update/update/taxent?id='+d._id
+		+'&fullName='+encodeURIComponent(fullName)
+		+'&current='+current
+		+'&oldId='+encodeURIComponent(oldId)
+		+'&replace=false'
+		,afterUpdateNode);
+}
+
 function updateTerritoryNode(d,name,shortname,type,theme,checklist) {
 	fetchAJAX('checklist/api/update/update/territory?id='+d._id
 		+'&name='+encodeURIComponent(name)
@@ -435,32 +444,48 @@ function clickToolbar(ev) {
 
 			case 'taxent':
 				var tt=document.getElementById('taxonranks');
-				var html='<div class="window float" id="changename"><h1>Edit node</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
-					+'<tr><td>Rank</td><td>'+tt.innerHTML+'</td></tr>'
-					+'<tr><td>Author</td><td><input type="text" name="author" value="'+(d.author ? d.author : '')+'"/></td></tr>'
-					+'<tr><td><i>Sensu</i></td><td><input type="text" name="sensu" value="'+(d.sensu ? d.sensu : '')+'"/></td></tr>'
-					+'<tr><td>Annotation<br/>(e.g. <i>yellow flowers</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
-					+'<tr><td>Legacy ID</td><td><input type="text" name="oldId" value="'+(d.oldId ? d.oldId : '')+'"/></td></tr>'
-					+'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
-					+'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
-					//<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
+			    if(d.isSpeciesOrInf) {
+                    var html='<div class="window float" id="changename"><h1>Edit node</h1><table><tr><td>Name</td><td><input type="text" name="fullName" value="'+d.fullName+'"/></td></tr>'
+                        +'<tr><td>Legacy ID</td><td><input type="text" name="oldId" value="'+(d.oldId ? d.oldId : '')+'"/></td></tr>'
+                        +'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
+                        +'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
+                        //<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
+                    var callback=function(ev) {
+                        var wnd=getParentbyClass(ev.target,'float');
+                        var fullName=wnd.querySelector('input[name=fullName]').value;
+                        var oldId=wnd.querySelector('input[name=oldId]').value;
+                        var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
+                        d.fixed=false;
+                        updateTaxNodeFullyQualified(d, fullName, current, oldId)
+                    };
+			    } else {
+                    var html='<div class="window float" id="changename"><h1>Edit node</h1><table><tr><td>Name</td><td><input type="text" name="name" value="'+d.name+'"/></td></tr>'
+                        +'<tr><td>Rank</td><td>'+tt.innerHTML+'</td></tr>'
+                        +'<tr><td>Author</td><td><input type="text" name="author" value="'+(d.author ? d.author : '')+'"/></td></tr>'
+                        +'<tr><td><i>Sensu</i></td><td><input type="text" name="sensu" value="'+(d.sensu ? d.sensu : '')+'"/></td></tr>'
+                        +'<tr><td>Annotation<br/>(e.g. <i>yellow flowers</i>)</td><td><input type="text" name="comment" value="'+(d.annotation ? d.annotation : '')+'"/></td></tr>'
+                        +'<tr><td>Legacy ID</td><td><input type="text" name="oldId" value="'+(d.oldId ? d.oldId : '')+'"/></td></tr>'
+                        +'<tr><td>Status</td><td class="status"><span data-value="1" class="label'+(d.current ? ' selected' : '')+'">current</span> | <span data-value="0" class="label'+(d.current ? '' : ' selected')+'">not current</span></td></tr>'
+                        +'<tr><td colspan="2" style="text-align:center"><div class="button save">Save</div><div class="button cancel">Cancel</div></td></tr></table></div>';
+                        //<tr><td>Labels</td><td><span class="label">'+d.l.join('</span><span class="label">')+'</span></td></tr>'
+                    var callback=function(ev) {
+                        var wnd=getParentbyClass(ev.target,'float');
+                        var name=wnd.querySelector('input[name=name]').value;
+                        var rank=wnd.querySelector('select[name=taxonrank]').value;
+                        var author=wnd.querySelector('input[name=author]').value;
+                        var sensu=wnd.querySelector('input[name=sensu]').value;
+                        var comment=wnd.querySelector('input[name=comment]').value;
+                        var oldId=wnd.querySelector('input[name=oldId]').value;
+                        //var worldDistributionCompleteness=wnd.querySelector('input[name=worldDistributionCompleteness]').value;
+                        //var lbls=[].map.call(wnd.querySelectorAll('span.label'),function(x) {return x.textContent;});
+                        var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
+                        d.fixed=false;
+                        updateTaxNode(d,name,rank,author,sensu,comment,current,oldId);
+                    };
+                }
 				var el=createHTML(html);
 				var r=el.querySelector('option[value="'+d.rank+'"]');
 				if(r) r.setAttribute('selected','selected');
-				var callback=function(ev) {
-					var wnd=getParentbyClass(ev.target,'float');
-					var name=wnd.querySelector('input[name=name]').value;
-					var rank=wnd.querySelector('select[name=taxonrank]').value;
-					var author=wnd.querySelector('input[name=author]').value;
-					var sensu=wnd.querySelector('input[name=sensu]').value;
-					var comment=wnd.querySelector('input[name=comment]').value;
-					var oldId=wnd.querySelector('input[name=oldId]').value;
-					//var worldDistributionCompleteness=wnd.querySelector('input[name=worldDistributionCompleteness]').value;
-					//var lbls=[].map.call(wnd.querySelectorAll('span.label'),function(x) {return x.textContent;});
-					var current=parseInt(wnd.querySelector('.status span.label.selected').getAttribute('data-value'));
-					d.fixed=false;
-					updateTaxNode(d,name,rank,author,sensu,comment,current,oldId);
-				};
 				break;
 
 			case 'habitat':
@@ -585,8 +610,18 @@ function clickToolbar(ev) {
 		switch(el.getAttribute('data-type')) {
 		case 'taxent':
 			var tt=document.getElementById('taxonranks');
-			var wnd=showWindow('<h1>Add new taxon</h1><p>Taxon name: <input type="text" name="taxonname"/> Authority: <input type="text" name="taxonauth"/> Rank: '+tt.innerHTML+' <input type="button" value="Add"/></p><p class="info">If adding a species or an inferior rank, include the whole name (genus, epithets). Note that you can only connect a species to a genus if the genus part of species name matches the genus.</p>',{close:true});
-			addEvent('click',wnd.querySelector('input[type=button]'),function(ev) {
+//			var wnd=showWindow('<h1>Add new taxon</h1><p>Taxon name: <input type="text" name="taxonname"/> Authority: <input type="text" name="taxonauth"/> Rank: '+tt.innerHTML+' <input type="button" value="Add"/></p><p class="info">If adding a species or an inferior rank, include the whole name (genus, epithets). Note that you can only connect a species to a genus if the genus part of species name matches the genus.</p>',{close:true});
+			var wnd=showWindow('<h1>Add new taxon</h1><h2>Higher than species</h2><p>Taxon name (no author): <input type="text" name="taxonname"/> Authority: <input type="text" name="taxonauth"/> Rank: '+tt.innerHTML+' <input type="button" id="addsup" value="Add"/></p><h2>Species or inferior</h2><p>Taxon name (fully qualified with authors): <input type="text" name="fullName" style="width:30em"/> <input type="button" id="addinf" value="Add"/></p><p class="info">When adding a species or an inferior rank, include everything (names, authors and ranks), e.g. Cistus ladanifer L. subsp. sulcatus (Demoly) P.Monts.</p>',{close:true});
+			addEvent('click',wnd.querySelector('input#addinf'),function(ev) {
+				var tname=wnd.querySelector('input[name=fullName]').value;
+				fetchAJAX('checklist/api/update/add/taxent?fullName='+encodeURIComponent(tname),function(rt) {
+					rt=JSON.parse(rt);
+					console.log(rt.msg);
+					updateData(rt.msg.nodes,null);
+				});
+				hideWindow({target:wnd});
+			});
+			addEvent('click',wnd.querySelector('input#addsup'),function(ev) {
 				var tname=wnd.querySelector('input[name=taxonname]').value;
 				var tauth=wnd.querySelector('input[name=taxonauth]').value;
 				var trank=wnd.querySelector('select[name=taxonrank]').value;

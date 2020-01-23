@@ -130,13 +130,20 @@ public class ApiUpdate extends FloraOnServlet {
 				return;
 				
 			case "taxent":	// this only adds a free taxent
-				thisRequest.success(
-	    			new GraphUpdateResult(driver
-    					, NWD.createTaxEntFromName(
-							thisRequest.getParameterAsString("name")
-							,thisRequest.getParameterAsString("author")
-							,TaxonRanks.getRankFromValue(thisRequest.getParameterAsInteger("rank",null)),null,null,true).getID()).toJsonObject()
-				);
+				if(thisRequest.getParameterAsString("fullName") == null) {
+					thisRequest.success(
+						new GraphUpdateResult(driver
+							, NWD.createTaxEntFromName(
+								thisRequest.getParameterAsString("name")
+								,thisRequest.getParameterAsString("author")
+								,TaxonRanks.getRankFromValue(thisRequest.getParameterAsInteger("rank",null)),null,null,true).getID()).toJsonObject()
+					);
+				} else {
+					thisRequest.success(
+							new GraphUpdateResult(driver
+									, NWD.createTaxEntFromTaxEnt(TaxEnt.parse2(thisRequest.getParameterAsString("fullName"))).getID()).toJsonObject()
+					);
+				}
 				//success(output, graph.dbNodeWorker.createTaxEntNode(name, author, TaxonRanks.getRankFromValue(Integer.parseInt(rank)), null, true).toJsonObject(), includeHeaders);
 				return;
 			
@@ -192,17 +199,25 @@ public class ApiUpdate extends FloraOnServlet {
 				return;*/
 
 			case "taxent":
-				TaxEnt te = new TaxEnt(
-						thisRequest.getParameterAsString("name")
-						,thisRequest.getParameterAsInteger("rank",null)
-						,thisRequest.getParameterAsString("author")
-						,thisRequest.getParameterAsString("sensu")
-						,thisRequest.getParameterAsString("annotation")
-						,thisRequest.getParameterAsBoolean("current")
-						,null
-						,thisRequest.getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
-						,thisRequest.getParameterAsInteger("oldId", null)
-				);
+				TaxEnt te;
+				if(thisRequest.getParameterAsString("fullName") != null)
+					te = TaxEnt.parse2(thisRequest.getParameterAsString("fullName"));
+				else {
+					te = new TaxEnt(
+							thisRequest.getParameterAsString("name")
+							,thisRequest.getParameterAsInteger("rank",null)
+							,thisRequest.getParameterAsString("author")
+							,thisRequest.getParameterAsString("sensu")
+							,thisRequest.getParameterAsString("annotation")
+							,thisRequest.getParameterAsBoolean("current")
+							,null
+							,thisRequest.getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
+							,thisRequest.getParameterAsInteger("oldId", null)
+					);
+				}
+				te.setCurrent(thisRequest.getParameterAsBoolean("current"));
+				te.setWorldDistributionCompleteness(thisRequest.getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class));
+				te.setOldId(thisRequest.getParameterAsInteger("oldId", null));
 				te.setComment(thisRequest.getParameterAsString("comment"));
 				thisRequest.success(NWD.updateTaxEntNode(thisRequest.getParameterAsKey("id"), te
 						, thisRequest.getParameterAsBooleanNoNull("replace")).toJsonObject());

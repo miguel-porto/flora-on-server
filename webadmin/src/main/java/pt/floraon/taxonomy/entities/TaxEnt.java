@@ -8,9 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import jline.internal.Log;
 import org.apache.commons.csv.CSVPrinter;
 
-import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -36,12 +36,23 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	 * Matches a taxon name of the form:
 	 * Genus species rank infrataxa Author [annotation] sensu somework
 	 */
-	private transient static Pattern taxonName = Pattern.compile("^ *(?<subrank>subgen.? +)?(?<genus>[a-zçA-Z]+)(?: +(?<species>[a-zç-]+))?" +
+	@Deprecated
+	private transient static Pattern taxonNamePattern = Pattern.compile(
+			"^ *(?<subrank>subgen.? +)?(?<genus>[a-zçA-Z]+)(?: +(?<species>[a-zç-]+))?" +
 			"((?: +\\{?(?<author1> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?}?)?" +
 			"(?<infras>(?: +((subsp)|(ssp)|(var)|(f)|(forma))\\.? +[a-z-]+)+))?" +
-			"(?: +\\{?(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?}?)?(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
+			"(?: +\\{?(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?}?)?" +
+			"(?:(?:(?: +\\[(?<annot1>[\\w çãõáàâéêíóôú]+)])?" +
 			"(?: +sensu +(?<sensu1>[^\\[\\]]+))?)|(?:(?: +sensu +(?<sensu2>[^\\[\\]]+))?(?: +\\[(?<annot2>[\\w çãõáàâéêíóôú]+)])?)) *$");
 
+	private transient static Pattern uninomialName = Pattern.compile(
+			"^ *(?<name>[A-Z][a-zç]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
+					"(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?$");
+
+	/**
+	 * The complete name with all chain of authorships, annotations and sensu
+	 */
+	protected String fullName;
 	protected Integer rank;
 	/**
 	 * Some character that distinguishes these populations from the parent taxon
@@ -51,6 +62,9 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	 * The reference of which the interpretation of this name follows
 	 */
 	protected String sensu;		// TODO: this should come from a reference list
+	/**
+	 * The author of this taxon, i.e. the last author in the chain of infrataxa.
+	 */
 	protected String author;
 	protected String in;
 	/**
@@ -61,11 +75,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	protected Boolean isSpeciesOrInf;
 	protected Integer oldId;
 	/**
-	 * Comments about what this taxon is, e.g. this taxon
+	 * Comments about what this taxon corresponds to
 	 */
 	protected String comment;
 	/**
 	 * This tells whether the world <b>native</b> distribution is complete, regardless of incompleteness in the exotic distribution.
+	 * Used to express endemism.
 	 */
 	protected WorldNativeDistributionCompleteness worldDistributionCompleteness = WorldNativeDistributionCompleteness.NOT_KNOWN;
 	/**
@@ -80,6 +95,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	 * Just a temporary storage for the parsed name
 	 */
 	private transient CanonicalName canonicalName;
+	private transient TaxonName taxonName;
 
 	public TaxEnt() {
 		super();
@@ -88,12 +104,13 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	public TaxEnt(TaxEnt te) throws DatabaseException {
 		super(te);
 		this.rank=te.rank;
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+		this.isSpeciesOrInf=this.rank==null ? null : this.rank >= TaxonRanks.SPECIES.getValue();
 		this.annotation=te.annotation;
 		this.author=te.author;
 		this.current=te.current;
 		this.gbifKey=te.gbifKey;
 		this.oldId=te.oldId;
+		this.fullName = te.fullName;
 	}
 
 	public TaxEnt(String name, Integer rank, String author, String sensu, String annotation, Boolean current, Integer gbifKey, WorldNativeDistributionCompleteness worldDistributionCompleteness, Integer oldId) throws DatabaseException {
@@ -124,11 +141,40 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	}
 
 	/**
+	 * A constructor that wraps the species (or inferior) in a general TaxEnt.
+	 * Note that the general TaxEnt only supports one author (the last).
+	 * @param parsedName The parsed species (or inferior) name.
+	 * @throws DatabaseException
+	 */
+	public TaxEnt(TaxonName parsedName) throws DatabaseException {
+		this.taxonName = parsedName;
+		this.setFullName(this.taxonName.toString());
+//		Log.info("New taxent: ", this.taxonName.toString());
+		this.setName(this.taxonName.getCanonicalName());
+		if(this.taxonName.getTaxonRank() != null) {
+			this.setRank(this.taxonName.getTaxonRank().getValue());
+			this.isSpeciesOrInf = this.rank >= TaxonRanks.SPECIES.getValue();
+		}
+		this.setAuthor(this.taxonName.getLastAuthor());
+		this.setAnnotation(this.taxonName.getLastAnnotation());
+		this.setSensu(this.taxonName.getLastSensu());
+	}
+
+	/**
 	 * Gets the parsed canonical name
 	 * @return
 	 */
 	public CanonicalName getCanonicalName() {
 		return this.canonicalName == null ? (this.canonicalName = new CanonicalName(this.getName())) : this.canonicalName;
+	}
+
+	public TaxonName getTaxonName() throws TaxonomyException {
+		return this.taxonName == null ?
+				(this.taxonName = new TaxonName(this.fullName == null ?		// for backwards compatibility
+					(this.name + (StringUtils.isStringEmpty(this.author) ? "" : (" " + this.author)) +
+						(StringUtils.isStringEmpty(this.annotation) ? "" : (" [" + this.annotation + "]")) +
+						(StringUtils.isStringEmpty(this.sensu) ? "" : (" sensu " + this.sensu))) : this.fullName)) :
+				this.taxonName;
 	}
 
 	/**
@@ -138,13 +184,14 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	 * @return
 	 * @throws TaxonomyException
 	 */
+	@Deprecated
 	public static TaxEnt parse(String name) throws FloraOnException {
 		if(name == null) throw new DatabaseException(Messages.getString("error.3"));
 		name = name.replaceAll(" +", " ").trim();
 		if(name.equals(""))
 			throw new DatabaseException(Messages.getString("error.3"));
 
-		Matcher m = taxonName.matcher(name);
+		Matcher m = taxonNamePattern.matcher(name);
 		TaxEnt out = new TaxEnt();
 
 		if(m.find()) {
@@ -178,7 +225,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 			else if (m.group("author") == null && m.group("author1") != null)
 				out.setAuthor(m.group("author1"));
 			else if (m.group("author") != null && m.group("author1") != null)
-				out.setAuthor(m.group("author"));
+				out.setAuthor(m.group("author"));	// TODO: more than one author
 			out.setAnnotation((m.group("annot1") == null ? m.group("annot2") : m.group("annot1")));
 			out.setSensu((m.group("sensu1") == null ? m.group("sensu2") : m.group("sensu1")));
 		} else throw new FloraOnException(Messages.getString("error.2", name));
@@ -199,6 +246,38 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 		return new TaxEnt(name1, null, author, null);*/
 	}
 
+	public static TaxEnt parse2(String name) throws FloraOnException {
+		if(name == null) throw new DatabaseException(Messages.getString("error.3"));
+		name = name.replaceAll(" +", " ").trim();
+		if(name.equals(""))
+			throw new DatabaseException(Messages.getString("error.3"));
+		try {
+			TaxonName newTN = new TaxonName(name);
+			return new TaxEnt(newTN);
+		} catch(TaxonomyException e) {
+			Matcher m = uninomialName.matcher(name);
+			Log.info("Simple parsing name: " + name);
+			if(m.find()) {
+				return new TaxEnt(m.group("name"), null, m.group("author"), m.group("sensu"), m.group("annot"),
+						false, null, null, null);
+			} else
+				throw new TaxonomyException("Could not understand name: " + name);
+		}
+
+		/*
+		TaxEnt out = new TaxEnt();
+		out.taxonName = new TaxonName(name);
+		out.isSpeciesOrInf = out.taxonName.getTaxonRank() != null && out.taxonName.getTaxonRank().isSpeciesOrInferior();
+		out.setFullName(out.taxonName.toString());
+		out.setName(out.taxonName.getCanonicalName());
+		if(out.taxonName.getTaxonRank() != null) out.setRank(out.taxonName.getTaxonRank().getValue());
+		out.setAuthor(out.taxonName.getLastAuthor());
+		out.setAnnotation(out.taxonName.getLastAnnotation());
+		out.setSensu(out.taxonName.getLastSensu());
+		return out;
+*/
+	}
+
 	/**
 	 * Constructor for a JSON document
 	 * @param doc JSON document, as returned by Arango driver
@@ -209,7 +288,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 
 		this.name=doc.get("name").toString();
 		this.rank=((Float)Float.parseFloat(doc.get("rank").toString())).intValue();
-		this.isSpeciesOrInf=this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
+		this.isSpeciesOrInf = this.rank==null ? null : this.rank>=TaxonRanks.SPECIES.getValue();
 		this.annotation=doc.get("annotation")==null ? null : doc.get("annotation").toString();
 		this.author=doc.get("author")==null ? null : doc.get("author").toString();
 		this.current=Boolean.parseBoolean(doc.get("current").toString());
@@ -244,25 +323,42 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 	 * @return
 	 */
 	public String getFullName(boolean htmlFormatted) {
-		if(htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())	// genus or inferior
-			return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
-				+ this.getCanonicalName().toString(true) + (this.getAuthor() != null ?
-					" " + StringEscapeUtils.escapeHtml(this.getAuthor()) : "")
+		if(this.fullName == null) {	// to maintain backwards compatibility
+			if (htmlFormatted && getRankValue() >= TaxonRanks.GENUS.getValue())    // genus or inferior
+				return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
+						+ this.getCanonicalName().toString(true) + (this.getAuthor() != null ?
+						" " + StringEscapeUtils.escapeHtml(this.getAuthor()) : "")
 //				+ "<i>"+this.getName()+"</i>"+(this.getAuthor() != null ? " "+this.getAuthor() : "")
-				+ (this.getSensu() != null ? " <i>sensu</i> " + StringEscapeUtils.escapeHtml(this.getSensu()) : "")
-				+ (this.getAnnotation() != null ? " [" + StringEscapeUtils.escapeHtml(this.getAnnotation()) + "]" : "");
-		else
-			return this.getName() + (this.getAuthor() != null ? " "+this.getAuthor() : "")
-				+ (this.getSensu() != null ? " sensu "+this.getSensu() : "")
-				+ (this.getAnnotation() != null ? " ["+this.getAnnotation()+"]" : "");
+						+ (this.getSensu() != null ? " <i>sensu</i> " + StringEscapeUtils.escapeHtml(this.getSensu()) : "")
+						+ (this.getAnnotation() != null ? " [" + StringEscapeUtils.escapeHtml(this.getAnnotation()) + "]" : "");
+			else
+				return this.getName() + (this.getAuthor() != null ? " " + this.getAuthor() : "")
+						+ (this.getSensu() != null ? " sensu " + this.getSensu() : "")
+						+ (this.getAnnotation() != null ? " [" + this.getAnnotation() + "]" : "");
+		} else {
+			try {
+				return htmlFormatted ? this.getTaxonName().toString(true) : this.fullName;
+			} catch (TaxonomyException e) {
+				e.printStackTrace();
+				return "";
+			}
+		}
 	}
 
 	public String getFullName() {
 		return getFullName(false);
 	}
 
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
+
 	public WorldNativeDistributionCompleteness getWorldDistributionCompleteness() {
 		return this.worldDistributionCompleteness == null ? WorldNativeDistributionCompleteness.NOT_KNOWN : this.worldDistributionCompleteness;
+	}
+
+	public void setWorldDistributionCompleteness(WorldNativeDistributionCompleteness worldDistributionCompleteness) {
+		this.worldDistributionCompleteness = worldDistributionCompleteness;
 	}
 	
 	public String[] getTerritoriesWithCompleteDistribution() {

@@ -52,7 +52,9 @@ public class Lists extends FloraOnServlet {
 
 		case "checklist":
 			if(format.equals("csv")) {
-				JobRunnerFileDownload job=JobSubmitter.newJobFileDownload(new ChecklistDownloadJob(), "checklist.csv", driver);
+				JobRunnerFileDownload job=JobSubmitter.newJobFileDownload(
+						new ChecklistDownloadJob(thisRequest.getParameterAsBoolean("withsp", false))
+						,"checklist.csv", driver);
 				thisRequest.success(job.getID());
 			} else {
 				thisRequest.error("Not implemented");

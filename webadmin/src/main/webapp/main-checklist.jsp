@@ -5,7 +5,7 @@
 <head>
 	<title>Taxonomy &amp; Checklist Manager</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="checklist.css?nocache=${uuid}"/>
 	<script type="text/javascript" src="basefunctions.js"></script>
@@ -25,6 +25,7 @@
 <ul class="menu">
     <c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
     <li id="download-checklist">Download checklist</li>
+    <li id="download-checklist2">Download checklist w/ all species</li>
     </c:if>
     <li><a href="?w=graph&depth=3">Graphical taxonomy explorer</a></li>
 </ul>
@@ -32,6 +33,7 @@
 	<div id="left-bar" class="buttonmenu">
 		<ul>
 			<li><a href="?w=login">Login</a></li>
+			<c:if test="${user.canEDIT_FULL_CHECKLIST()}"><li><a href="?w=upload">Upload checklist</a></li></c:if>
 			<li><a href="?w=main">Taxon list</a></li>
 			<li><a href="?w=families">Family tree</a></li>
 			<li><a href="?w=tree">Whole tree</a></li>
@@ -155,7 +157,6 @@
 		<div class="taxdetails"><h2>Click a taxon on the tree to edit</h2></div>
 		</div>
 	</c:when>
-
 	<c:when test="${what=='query'}">
 		<div id="main"><h2>Enter your query</h2>
 		<form id="freequery">
@@ -167,9 +168,17 @@
 		</c:if>
 		</div>
 	</c:when>
+	<c:when test="${what=='upload'}">
+        <form action="${contextPath}/checklist" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="w" value="uploadChecklist"/>
+            <input type="file" name="checklistTable" />
+            <input type="submit" class="textbutton" value="Upload"/>
+        </form>
+
+	</c:when>
 	</c:choose>
 </div>
 <div id="loader"><div id="loadermsg">Loading...</div></div>
-<a href="https://github.com/miguel-porto/flora-on-server"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+<!--<a href="https://github.com/miguel-porto/flora-on-server"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>-->
 </body>
 </html>

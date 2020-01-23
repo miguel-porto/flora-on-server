@@ -154,6 +154,10 @@ public final class Constants {
 
 			return null;
 		}
+
+		public boolean isSpeciesOrInferior() {
+    		return this.value >= SPECIES.value;
+		}
 	}
 	
 	public enum Facets {	// supertypes of relationships
