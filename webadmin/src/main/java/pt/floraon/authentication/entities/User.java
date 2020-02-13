@@ -234,7 +234,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	}
 
 	public boolean isGuest() {
-		return privileges.size() == 0 && this.isGuest;
+		return (privileges == null || privileges.size() == 0) && this.isGuest;
 	}
 
 	public void setPrivileges(Privileges[] assignedPrivileges) {

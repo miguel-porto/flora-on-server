@@ -236,8 +236,8 @@
                     </td>
                 <td>
                 <c:if test="${taxon.getAssessment().getCategory() != null}">
-                    <div class="redlistcategory assess_${taxon.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
-                        ${taxon.getAssessment().getAdjustedCategory().getShortTag()}
+                    <div class="redlistcategory assess_${taxon.getAssessment().getFinalCategory().getEffectiveCategory().toString()}"><h1>
+                        ${taxon.getAssessment().getFinalCategory().getShortTag()}
                         <c:if test="${taxon.getAssessment().getCategory().toString().equals('CR') && !taxon.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${taxon.getAssessment().getSubCategory().toString()}</sup></c:if>
                     </h1></div>
                 </c:if>

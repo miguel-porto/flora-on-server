@@ -1,7 +1,6 @@
 package pt.floraon.redlistdata;
 
 import pt.floraon.driver.utils.StringUtils;
-import pt.floraon.occurrences.OccurrenceConstants;
 
 import java.util.*;
 
@@ -444,55 +443,99 @@ public class RedListEnums {
         }
     }
 
+    public enum ThreatTypes implements LabelledEnum {
+        CLIMATIC("ThreatTypes.1", "A")
+        , CATTLE("ThreatTypes.2", "B")
+        , DYNAMICS("ThreatTypes.3", "C")
+        , BIOLOGICAL("ThreatTypes.4", "D")
+        , EROSION("ThreatTypes.5", "E")
+        , RESOURCES("ThreatTypes.6", "F")
+        , HYDRIC_RESOURCES("ThreatTypes.7", "G")
+        , EXOTIC_SPECIES("ThreatTypes.8", "H")
+        , FIRE("ThreatTypes.9", "I")
+        , AGRICULTURE("ThreatTypes.10", "J")
+        , FORESTRY("ThreatTypes.11", "K")
+        , MANAGEMENT("ThreatTypes.12", "L")
+        , OTHER("ThreatTypes.13", "M")
+        , OTHER_HUMAN("ThreatTypes.14", "N")
+        , RESIDUALS("ThreatTypes.15", "O")
+        , CONSTRUCTION("ThreatTypes.16", "P")
+        , STOCHASTIC_UNKNOWN("ThreatTypes.17", "Q")
+        , NONSIGNIFICANT("ThreatTypes.18", "R");
+
+        private String label;
+        private String letter;
+
+        ThreatTypes(String label, String letter) {
+            this.label = label;
+            this.letter = letter;
+        }
+
+        public String getLetter() {
+            return this.letter;
+        }
+
+        @Override
+        public String getLabel() {
+            return this.label;
+        }
+    }
+
     public enum Threats implements LabelledEnumWithDescription {
-        CURBI("Threats.1", "Threats.1.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , CTRAN("Threats.2", "Threats.2.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , CCOST("Threats.3", "Threats.3.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , CBARR("Threats.4", "Threats.4.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , CEOLS("Threats.5", "Threats.5.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , CLINE("Threats.6", "Threats.6.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , COUTR("Threats.7", "Threats.7.desc", ThreatCategories.HUMAN_CONSTRUCTION)
-        , AAGRO("Threats.8", "Threats.8.desc", ThreatCategories.VEGETATION_MANAGEMENT)
-        , AFLOR("Threats.9", "Threats.9.desc", ThreatCategories.VEGETATION_MANAGEMENT)
-        , APECU("Threats.10", "Threats.10.desc", ThreatCategories.VEGETATION_MANAGEMENT)
-        , ACULT("Threats.11", "Threats.11.desc", ThreatCategories.VEGETATION_MANAGEMENT)
-        , ADESF("Threats.12", "Threats.12.desc", ThreatCategories.VEGETATION_MANAGEMENT)
-        , EXGEO("Threats.13", "Threats.13.desc", ThreatCategories.RESOURCES)
-        , EXHID("Threats.14", "Threats.14.desc", ThreatCategories.RESOURCES)
-        , EXSAL("Threats.15", "Threats.15.desc", ThreatCategories.RESOURCES)
-        , EXAQU("Threats.16", "Threats.16.desc", ThreatCategories.RESOURCES)
-        , EXREC("Threats.17", "Threats.17.desc", ThreatCategories.RESOURCES)
-        , HLAZE("Threats.18", "Threats.18.desc", ThreatCategories.OTHER_HUMAN)
-        , HPOLU("Threats.19", "Threats.19.desc", ThreatCategories.OTHER_HUMAN)
-        , HRESI("Threats.20", "Threats.20.desc", ThreatCategories.OTHER_HUMAN)
-        , HLITO("Threats.21", "Threats.21.desc", ThreatCategories.OTHER_HUMAN)
-        , HFOGO("Threats.22", "Threats.22.desc", ThreatCategories.OTHER_HUMAN)
-        , HDREN("Threats.23", "Threats.23.desc", ThreatCategories.OTHER_HUMAN)
-        , BNATU("Threats.24", "Threats.24.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BEROS("Threats.25", "Threats.25.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BNEVE("Threats.26", "Threats.26.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BHIDR("Threats.27", "Threats.27.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BEXOT("Threats.28", "Threats.28.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BHERB("Threats.29", "Threats.29.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BREPR("Threats.30", "Threats.30.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BDOEN("Threats.31", "Threats.31.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , BPOLG("Threats.32", "Threats.32.desc", ThreatCategories.NATURAL_DYNAMICS)
-        , STOCA("Threats.33", "Threats.33.desc", ThreatCategories.STOCHASTIC)
-        , UNKN("Threats.34", "Threats.34.desc", ThreatCategories.UNKNOWN)
-        , INEXT("Threats.35", "Threats.35.desc", ThreatCategories.UNKNOWN)
-        , OTHER("Threats.36", "Threats.36.desc", ThreatCategories.OTHER);
+        CURBI("Threats.1", "Threats.1.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
+        , CTRAN("Threats.2", "Threats.2.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
+        , CCOST("Threats.3", "Threats.3.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.OTHER)
+        , CBARR("Threats.4", "Threats.4.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.HYDRIC_RESOURCES)
+        , CEOLS("Threats.5", "Threats.5.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
+        , CLINE("Threats.6", "Threats.6.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
+        , COUTR("Threats.7", "Threats.7.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
+        , AAGRO("Threats.8", "Threats.8.desc", ThreatCategories.VEGETATION_MANAGEMENT, ThreatTypes.AGRICULTURE)
+        , AFLOR("Threats.9", "Threats.9.desc", ThreatCategories.VEGETATION_MANAGEMENT, ThreatTypes.FORESTRY)
+        , APECU("Threats.10", "Threats.10.desc", ThreatCategories.VEGETATION_MANAGEMENT, ThreatTypes.CATTLE)
+        , ACULT("Threats.11", "Threats.11.desc", ThreatCategories.VEGETATION_MANAGEMENT, ThreatTypes.MANAGEMENT)
+        , ADESF("Threats.12", "Threats.12.desc", ThreatCategories.VEGETATION_MANAGEMENT, ThreatTypes.MANAGEMENT)
+        , EXGEO("Threats.13", "Threats.13.desc", ThreatCategories.RESOURCES, ThreatTypes.RESOURCES)
+        , EXHID("Threats.14", "Threats.14.desc", ThreatCategories.RESOURCES, ThreatTypes.HYDRIC_RESOURCES)
+        , EXSAL("Threats.15", "Threats.15.desc", ThreatCategories.RESOURCES, ThreatTypes.OTHER)
+        , EXAQU("Threats.16", "Threats.16.desc", ThreatCategories.RESOURCES, ThreatTypes.OTHER)
+        , EXREC("Threats.17", "Threats.17.desc", ThreatCategories.RESOURCES, ThreatTypes.OTHER)
+        , HLAZE("Threats.18", "Threats.18.desc", ThreatCategories.OTHER_HUMAN, ThreatTypes.OTHER_HUMAN)
+        , HPOLU("Threats.19", "Threats.19.desc", ThreatCategories.OTHER_HUMAN, ThreatTypes.RESIDUALS)
+        , HRESI("Threats.20", "Threats.20.desc", ThreatCategories.OTHER_HUMAN, ThreatTypes.RESIDUALS)
+        , HLITO("Threats.21", "Threats.21.desc", ThreatCategories.OTHER_HUMAN, ThreatTypes.OTHER_HUMAN)
+        , HFOGO("Threats.22", "Threats.22.desc", ThreatCategories.OTHER_HUMAN, ThreatTypes.FIRE)
+        , HDREN("Threats.23", "Threats.23.desc", ThreatCategories.OTHER_HUMAN, ThreatTypes.HYDRIC_RESOURCES)
+        , BNATU("Threats.24", "Threats.24.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.DYNAMICS)
+        , BEROS("Threats.25", "Threats.25.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.EROSION)
+        , BNEVE("Threats.26", "Threats.26.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.CLIMATIC)
+        , BHIDR("Threats.27", "Threats.27.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.CLIMATIC)
+        , BEXOT("Threats.28", "Threats.28.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.EXOTIC_SPECIES)
+        , BHERB("Threats.29", "Threats.29.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.OTHER)
+        , BREPR("Threats.30", "Threats.30.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.BIOLOGICAL)
+        , BDOEN("Threats.31", "Threats.31.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.BIOLOGICAL)
+        , BPOLG("Threats.32", "Threats.32.desc", ThreatCategories.NATURAL_DYNAMICS, ThreatTypes.BIOLOGICAL)
+        , STOCA("Threats.33", "Threats.33.desc", ThreatCategories.STOCHASTIC, ThreatTypes.STOCHASTIC_UNKNOWN)
+        , UNKN("Threats.34", "Threats.34.desc", ThreatCategories.UNKNOWN, ThreatTypes.STOCHASTIC_UNKNOWN)
+        , INEXT("Threats.35", "Threats.35.desc", ThreatCategories.UNKNOWN, ThreatTypes.NONSIGNIFICANT)
+        , OTHER("Threats.36", "Threats.36.desc", ThreatCategories.OTHER, ThreatTypes.OTHER);
 
         private String label, description;
         private ThreatCategories category;
+        private ThreatTypes type;
 
-        Threats(String label, String description, ThreatCategories category) {
+        Threats(String label, String description, ThreatCategories category, ThreatTypes type) {
             this.label = label;
             this.description = description;
             this.category = category;
+            this.type = type;
         }
 
         public ThreatCategories getCategory() {
             return this.category;
+        }
+
+        public ThreatTypes getType() {
+            return this.type;
         }
 
         @Override

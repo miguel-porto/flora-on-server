@@ -45,12 +45,12 @@
             <img class="lock" style="height:auto" src="../images/unlocked.png"/> <span class="warning">Esta ficha está desbloqueada!</span>
         </c:if>
     </h1>
-    <div class="redlistcategory assess_${rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}">
+    <div class="redlistcategory assess_${rlde.getAssessment().getFinalCategory().getEffectiveCategory().toString()}">
         <h1>
-            ${rlde.getAssessment().getAdjustedCategory().getShortTag()}
+            ${rlde.getAssessment().getFinalCategory().getShortTag()}
             <c:if test="${rlde.getAssessment().getCategory().toString().equals('CR') && !rlde.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${rlde.getAssessment().getSubCategory().toString()}</sup></c:if>
         </h1>
-        <p>${rlde.getAssessment().getAdjustedCategory().getLabel()}</p>
+        <p>${rlde.getAssessment().getFinalCategory().getLabel()}</p>
     </div>
     <div id="panels">
         <div id="header-buttons">

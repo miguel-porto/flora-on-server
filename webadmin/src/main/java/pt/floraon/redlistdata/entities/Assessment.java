@@ -69,7 +69,7 @@ public class Assessment implements DiffableBean {
      * @return The HTML-formatted fully qualified IUCN category and subcategory
      */
     public String _getCategoryAsString() {
-        if(this.getAdjustedCategory() == null) return "";
+        if(this.getFinalCategory() == null) return "";
         String subcat = "";
         if(this.getCategory() != null
                 && this.getCategory() == RedListEnums.RedListCategories.CR
@@ -77,14 +77,14 @@ public class Assessment implements DiffableBean {
                 && this.getSubCategory() != RedListEnums.CRTags.NO_TAG) {
             subcat = "<sup>*" + this.getSubCategory().toString() + "</sup>";
         }
-        return this.getAdjustedCategory().getShortTag() + subcat;
+        return this.getFinalCategory().getShortTag() + subcat;
     }
 
     /**
      * @return The fully qualified IUCN category and subcategory in verbose format
      */
     public String _getCategoryVerboseAsString(boolean htmlFormatted) {
-        if(this.getAdjustedCategory() == null) return "";
+        if(this.getFinalCategory() == null) return "";
         String subcat = "";
         if(this.getCategory() != null
                 && this.getCategory() == RedListEnums.RedListCategories.CR
@@ -95,7 +95,7 @@ public class Assessment implements DiffableBean {
             else
                 subcat = " (" + this.getSubCategory().getLabel() + ")";
         }
-        return this.getAdjustedCategory().getLabel() + subcat;
+        return this.getFinalCategory().getLabel() + subcat;
     }
 
     /**
@@ -343,7 +343,7 @@ public class Assessment implements DiffableBean {
      * Gets the category after being adjusted by the uplist/downlist choice
      * @return
      */
-    public RedListEnums.RedListCategories getAdjustedCategory() {
+    public RedListEnums.RedListCategories getFinalCategory() {
         if(category == null) return null;
         if(upDownListing == null) return category;
         switch(upDownListing) {

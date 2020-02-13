@@ -34,7 +34,7 @@ public class PublicApi extends FloraOnServlet {
     static Pattern svgURL = Pattern.compile("^[a-zçA-Z]+_[a-zç-]+_(?<id>[0-9]+).svg$");
     @Override
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
-        PrintWriter writer;
+        PrintWriter writer = null;
         ListIterator<String> path;
         String territory = "lu";    // TODO variable
         List<SimpleOccurrenceDataProvider> sodps;
@@ -51,12 +51,14 @@ public class PublicApi extends FloraOnServlet {
             case "svgmap":
                 INodeKey key;
                 String category = null;
+                String threatType = null, mapFileName = "";
                 Integer squareSize;
                 Float borderWidth;
                 String squareFill = null;
-                boolean standAlone;
+                boolean standAlone, searchForCached;
                 boolean viewAll, showProtectedAreas;
                 Matcher m;
+                Set<TaxEnt> filteredTaxa = new HashSet<>();
 
                 // a kind of mod_rewrite
                 if(path.hasNext() && (m = svgURL.matcher(path.next())).find()) {
@@ -69,6 +71,7 @@ public class PublicApi extends FloraOnServlet {
                 } else {
                     key = thisRequest.getParameterAsKey("taxon");
                     category = thisRequest.getParameterAsString("category");
+                    threatType = thisRequest.getParameterAsString("threatType");
                     squareSize = thisRequest.getParameterAsInteger("size", 10000);
                     borderWidth = thisRequest.getParameterAsFloat("border", 2f);
                     viewAll = "all".equals(thisRequest.getParameterAsString("view"));
@@ -83,7 +86,7 @@ public class PublicApi extends FloraOnServlet {
                 }
 
                 sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
-                if(key == null && category == null) return;
+                if(key == null && category == null && threatType == null) return;
 
                 thisRequest.response.setContentType("image/svg+xml; charset=utf-8");
                 thisRequest.response.setCharacterEncoding("UTF-8");
@@ -92,7 +95,7 @@ public class PublicApi extends FloraOnServlet {
 
                 PolygonTheme protectedAreas = showProtectedAreas ? rls.getProtectedAreas() : null;
 
-                GridMapExporter processor;
+                GridMapExporter processor = null;
                 OccurrenceFilter occurrenceFilter;
 
                 if("maybeextinct".equals(category))
@@ -115,17 +118,18 @@ public class PublicApi extends FloraOnServlet {
                     processor = new OccurrenceProcessor(sodps, protectedAreas, squareSize, occurrenceFilter);
                     // we output directly to page
                     writer = thisRequest.response.getWriter();
+                    searchForCached = false;
                 } else if(category != null) {   // we want a threat category
                     List<String> dosOlivais = rls.getTaxonGroup("olivais");
 
                     Iterator<RedListDataEntity> it =
                             driver.getRedListData().getAllRedListData(territory, false, null);
-                    Set<TaxEnt> filteredTaxa = new HashSet<>();
                     RedListDataEntity rlde;
                     while(it.hasNext()) {
                         rlde = it.next();
-                        if(rlde.getAssessment().getAdjustedCategory() == null) continue;
-                        RedListEnums.RedListCategories cat = rlde.getAssessment().getAdjustedCategory().getEffectiveCategory();
+                        if(rlde.getAssessment().getFinalCategory() == null) continue;
+
+                        RedListEnums.RedListCategories cat = rlde.getAssessment().getFinalCategory().getEffectiveCategory();
                         switch(category) {
                             case "CR":
                                 if(cat.equals(RedListEnums.RedListCategories.CR)) filteredTaxa.add(rlde.getTaxEnt());
@@ -144,20 +148,45 @@ public class PublicApi extends FloraOnServlet {
                                         && rlde.getAssessment().getSubCategory() != null && !rlde.getAssessment().getSubCategory().equals(RedListEnums.CRTags.NO_TAG)))
                                     filteredTaxa.add(rlde.getTaxEnt());
                                 break;
-
                             case "olivais":
                                 if(dosOlivais.contains(rlde.getTaxEnt().getID()))
                                     filteredTaxa.add(rlde.getTaxEnt());
                                 break;
                         }
                     }
+                    mapFileName = "map-" + category + ".svg";
+                    searchForCached = true;
+                    if(thisRequest.getParameterAsBoolean("download", false))
+                        thisRequest.setDownloadFileName(mapFileName);
+                } else {   // we want per threat types
+                    threatType = threatType.toUpperCase();
+                    Iterator<RedListDataEntity> it =
+                            driver.getRedListData().getAllRedListData(territory, false, null);
+                    RedListDataEntity rlde;
+                    while(it.hasNext()) {
+                        rlde = it.next();
+                        // only include threatened species
+                        if(rlde.getAssessment().getFinalCategory() == null || !rlde.getAssessment().getFinalCategory().isThreatened()) continue;
+                        for(RedListEnums.Threats thr : rlde.getThreats().getThreats()) {
+                            if(threatType.contains(thr.getType().getLetter())) {
+                                filteredTaxa.add(rlde.getTaxEnt());
+                                break;
+                            }
+                        }
+                    }
+                    mapFileName = "map-threats-" + threatType + ".svg";
+                    searchForCached = true;
+                    if(thisRequest.getParameterAsBoolean("download", false))
+                        thisRequest.setDownloadFileName(mapFileName);
+                }
 
+                if(searchForCached) {
                     if(driver.getProperties().getProperty("folder") == null) {
                         Log.info("Temporary folder is not defined in floraon.properties");
                         writer = thisRequest.response.getWriter();
                     } else {
                         // use cached map if possible
-                        File outfile = new File(driver.getProperties().getProperty("folder"), "map-" + category + ".svg");
+                        File outfile = new File(driver.getProperties().getProperty("folder"), mapFileName);
 
                         if (thisRequest.getParameterAsBoolean("refresh", false)) {
                             outfile.delete();
@@ -173,10 +202,10 @@ public class PublicApi extends FloraOnServlet {
                         }
                     }
                     processor = new TaxonOccurrenceProcessor(sodps, filteredTaxa.iterator(), squareSize, occurrenceFilter);
-                } else break;
-
+                }
 //                thisRequest.includeSVGMap(processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
 //                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true);
+                if(writer == null) break;
 
                 thisRequest.exportSVGMap(writer, processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
                         , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas
@@ -237,4 +266,5 @@ public class PublicApi extends FloraOnServlet {
                 break;
         }
     }
+
 }

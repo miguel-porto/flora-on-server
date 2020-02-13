@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -116,6 +115,11 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("Severely fragmented");
         csvp.print("Extreme fluctuations");
         csvp.print("Number of locations");
+        csvp.print("7.2 Conservation plans");
+        csvp.print("7.2 Conservation plans justification");
+        csvp.print("7.3 Ex-situ");
+        csvp.print("7.3 Ex-situ justification");
+
 /*
         csvp.print("Threats");
         csvp.print("Conservation measures");
@@ -151,8 +155,8 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 //            csvp.print(endemic ? ("Endemic from " + territory) : "No");
 
             csvp.print(StringUtils.isStringEmpty(endemicFrom) ? "No info" : ("Endemic from " + endemicFrom));
-            if(rlde.getAssessment().getAdjustedCategory() != null) {
-                csvp.print(rlde.getAssessment().getAdjustedCategory().getLabel());
+            if(rlde.getAssessment().getFinalCategory() != null) {
+                csvp.print(rlde.getAssessment().getFinalCategory().getLabel());
                 csvp.print(rlde.getAssessment()._getCriteriaAsString());
             } else {
                 csvp.print("");
@@ -200,6 +204,11 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             csvp.print(rlde.getPopulation().getSeverelyFragmented().getLabel());
             csvp.print(rlde.getPopulation().getExtremeFluctuations().getLabel());
             csvp.print(rlde.getThreats().getNumberOfLocations());
+
+            csvp.print(rlde.getConservation().getConservationPlans().getLabel());
+            csvp.print(rlde.getConservation().getConservationPlansJustification().toCleanString());
+            csvp.print(rlde.getConservation().getExSituConservation().getLabel());
+            csvp.print(rlde.getConservation().getExSituConservationJustification().toCleanString());
 
 /*
             csvp.print(StringUtils.implode("; ", "pt.floraon.redlistdata.fieldValues", rlde.getThreats().getThreats()));

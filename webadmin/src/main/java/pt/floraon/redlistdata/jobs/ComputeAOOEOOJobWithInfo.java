@@ -16,7 +16,6 @@ import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -82,8 +81,8 @@ public class ComputeAOOEOOJobWithInfo extends ComputeAOOEOOJob {
                 csvp.print(rlde.getTaxEnt().getID());
                 csvp.print(rlde.getTaxEnt().getName());
                 csvp.print(endemic ? ("Endemic from " + territory) : "No");
-                if (rlde.getAssessment().getAdjustedCategory() != null)
-                    csvp.print(rlde.getAssessment().getAdjustedCategory().getLabel());
+                if (rlde.getAssessment().getFinalCategory() != null)
+                    csvp.print(rlde.getAssessment().getFinalCategory().getLabel());
                 else
                     csvp.print("");
                 csvp.print(op.getAOO());

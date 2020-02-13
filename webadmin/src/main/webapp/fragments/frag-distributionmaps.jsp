@@ -42,11 +42,49 @@
     <div>
         <h3>Vulnerável (VU)</h3>
         <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=VU${refresh}" width="400px" height="200px"/>
+        <a href="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=VU&download=1">download</a>
     </div>
-
     <div>
         <h3>Olivais tradicionais de sequeiro</h3>
         <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=olivais${refresh}" width="400px" height="200px"/>
+    </div>
+</div>
+</c:when>
+
+<c:when test="${param.maps=='threatTypes'}">
+<h1>Distribuição das plantas por tipo de ameaça</h1>
+<p>Coloque o rato numa quadrícula para ver as plantas aí existentes, com a respectiva categoria de ameaça.</p>
+<div id="allmapholder" class="big interactive">
+    <c:set var="refresh" value="${user.isGuest() ? '' : '&refresh=1'}"/>
+    <div>
+        <h3>Agricultura</h3>
+        <t:ajaxloadhtml url="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=J${refresh}" width="400px" height="200px"/>
+        <a href="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=J&download=1">download</a>
+    </div>
+    <div>
+        <h3>Climáticas</h3>
+        <t:ajaxloadhtml url="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=A${refresh}" width="400px" height="200px"/>
+        <a href="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=A&download=1">download</a>
+    </div>
+    <div>
+        <h3>Espécies exóticas</h3>
+        <t:ajaxloadhtml url="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=H${refresh}" width="400px" height="200px"/>
+        <a href="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=H&download=1">download</a>
+    </div>
+    <div>
+        <h3>Construção</h3>
+        <t:ajaxloadhtml url="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=P${refresh}" width="400px" height="200px"/>
+        <a href="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=P&download=1">download</a>
+    </div>
+    <div>
+        <h3>Dinâmicas</h3>
+        <t:ajaxloadhtml url="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=C${refresh}" width="400px" height="200px"/>
+        <a href="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=C&download=1">download</a>
+    </div>
+    <div>
+        <h3>Hídricas</h3>
+        <t:ajaxloadhtml url="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=G${refresh}" width="400px" height="200px"/>
+        <a href="${contextPath}/api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&threatType=G&download=1">download</a>
     </div>
 </div>
 </c:when>
@@ -59,6 +97,9 @@
     </div>
     <div class="bigbutton section3">
         <h1><a href="?w=allmaps&maps=threats">By threat category</a></h1>
+    </div>
+    <div class="bigbutton section4">
+        <h1><a href="?w=allmaps&maps=threatTypes">By threat type</a></h1>
     </div>
 </div>
 </c:otherwise>

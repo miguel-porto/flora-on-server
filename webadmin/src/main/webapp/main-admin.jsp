@@ -30,9 +30,13 @@
             <li><a href="./">Home</a></li>
             <li><a href="#personal">Personal</a></li>
             <li><a href="#views">Custom views</a></li>
+            <c:if test="${showDownload}">
             <li><a href="#downloads">Downloads</a></li>
+            </c:if>
+            <c:if test="${user.isAdministrator()}">
             <li><a href="#admin">Administrative tasks</a></li>
             <li><a href="?w=users">User management</a></li>
+            </c:if>
         </ul>
     </div>
     <div id="main">

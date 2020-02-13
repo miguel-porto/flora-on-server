@@ -16,7 +16,7 @@
     <input type="submit" class="textbutton" value="Upload"/>
 </form>
 </c:if>
-<c:if test="${param.w != 'edit'}">
+<c:if test="${param.w != 'edit' && user.canVIEW_OCCURRENCES()}">
 <form class="poster" data-path="../references/" data-refresh="true">
     <h2><fmt:message key="biblio.2" /></h2>
     <input type="hidden" name="what" value="addreference"/>

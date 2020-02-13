@@ -54,8 +54,6 @@
             <c:if test="${user.canVIEW_OCCURRENCES()}">
                 <li><a href="?w=stats"><fmt:message key="Separator.11"/></a></li>
                 <li><a href="?w=allmaps">Todos os mapas</a></li>
-            </c:if>
-            <c:if test="${!user.isGuest()}">
                 <li><a href="?w=references">Bibliografia</a></li>
                 <li><a href="?w=report">Relatório</a></li>
                 <li><a href="?w=alleditions"><fmt:message key="Separator.10"/></a></li>
@@ -97,8 +95,8 @@
                     <td><a href="?w=sheet&id=${snapshot.getKey()}">${snapshot.getTaxEnt().getFullName(true)}</a></td>
                     <td>
                         <c:if test="${snapshot.getAssessment().getCategory() != null}">
-                            <div class="redlistcategory assess_${snapshot.getAssessment().getAdjustedCategory().getEffectiveCategory().toString()}"><h1>
-                                ${snapshot.getAssessment().getAdjustedCategory().getShortTag()}
+                            <div class="redlistcategory assess_${snapshot.getAssessment().getFinalCategory().getEffectiveCategory().toString()}"><h1>
+                                ${snapshot.getAssessment().getFinalCategory().getShortTag()}
                                 <c:if test="${snapshot.getAssessment().getCategory().toString().equals('CR') && !snapshot.getAssessment().getSubCategory().toString().equals('NO_TAG')}"><sup>${snapshot.getAssessment().getSubCategory().toString()}</sup></c:if>
                             </h1></div>
                         </c:if>

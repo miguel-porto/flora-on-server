@@ -1,6 +1,5 @@
 package pt.floraon.redlistdata.servlets;
 
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Multimap;
@@ -47,7 +46,6 @@ import pt.floraon.server.FloraOnServlet;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,23 +54,17 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.List;
 
 import static java.nio.file.Files.readAllLines;
-import static pt.floraon.authentication.Privileges.DOWNLOAD_OCCURRENCES;
-import static pt.floraon.authentication.Privileges.EDIT_ALL_FIELDS;
-import static pt.floraon.authentication.Privileges.MANAGE_VERSIONS;
+import static pt.floraon.authentication.Privileges.*;
 import static pt.floraon.driver.utils.StringUtils.cleanArray;
 import static pt.floraon.driver.utils.StringUtils.sanitizeHtmlId;
 
@@ -191,6 +183,7 @@ System.out.println(gs.toJson(getUser()));
                 break;
 
             case "alleditions": // displays all editions made in the last days (user setting)
+                thisRequest.ensurePrivilege(VIEW_OCCURRENCES);
                 RedListDataEntity rldetmp;
                 Set<RevisionWithTaxEnt> editsall = new TreeSet<>(Collections.reverseOrder(new RevisionWithTaxEnt.RevisionWithTaxEntComparator()));
                 RevisionWithTaxEnt daywiserev;
@@ -877,7 +870,7 @@ System.out.println(gs.toJson(getUser()));
                         RedListDataEntity rlde1 = rldeIt.next();
 //                        if (Collections.disjoint(Collections.singleton("Diretiva"), Arrays.asList(rlde1.getTags()))) continue;
 
-                        if(rlde1.getAssessment().getAdjustedCategory() != RedListEnums.RedListCategories.NA) {
+                        if(rlde1.getAssessment().getFinalCategory() != RedListEnums.RedListCategories.NA) {
                             if (rlde1.getAssessment().getAssessmentStatus().isAssessed()) count1++;
                             if (rlde1.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING)
                                 count2++;
@@ -885,7 +878,7 @@ System.out.println(gs.toJson(getUser()));
                                 count3++;
                         }
                         if (rlde1.getAssessment().getAssessmentStatus().isAssessed() && rlde1.getAssessment().getCategory() != null) {
-                            RedListEnums.RedListCategories cat = rlde1.getAssessment().getAdjustedCategory();
+                            RedListEnums.RedListCategories cat = rlde1.getAssessment().getFinalCategory();
                             if(cat.isThreatened()) count4++;
                             if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.CR) countCR++;
                             if(cat.getEffectiveCategory() == RedListEnums.RedListCategories.EN) countEN++;
@@ -1043,13 +1036,13 @@ System.out.println(gs.toJson(getUser()));
                         assesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString()));
 
                         Element effectiveCategory = doc.createElement("effectiveCategory");
-                        if(rlde.getAssessment().getAdjustedCategory() != null)
-                            effectiveCategory.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().getShortTag()
-                                    + ", " + rlde.getAssessment().getAdjustedCategory().getEffectiveCategory().getLabel()));
+                        if(rlde.getAssessment().getFinalCategory() != null)
+                            effectiveCategory.appendChild(doc.createTextNode(rlde.getAssessment().getFinalCategory().getEffectiveCategory().getShortTag()
+                                    + ", " + rlde.getAssessment().getFinalCategory().getEffectiveCategory().getLabel()));
 
                         Element isThreatened = doc.createElement("isThreatened");
-                        isThreatened.appendChild(doc.createTextNode(rlde.getAssessment().getAdjustedCategory() == null ? ""
-                                        : (rlde.getAssessment().getAdjustedCategory().isThreatened() ? "Ameaçadas" : "")));
+                        isThreatened.appendChild(doc.createTextNode(rlde.getAssessment().getFinalCategory() == null ? ""
+                                        : (rlde.getAssessment().getFinalCategory().isThreatened() ? "Ameaçadas" : "")));
 
                         Element assesscatcrit = doc.createElement("assessmentCategoryAndCriteria");
                         assesscatcrit.appendChild(doc.createTextNode((rlde.getAssessment()._getCategoryAsString()
@@ -1059,7 +1052,7 @@ System.out.println(gs.toJson(getUser()));
                         assesscatverb.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryVerboseAsString(true)));
 
                         Element fullassesscat = doc.createElement("fullAssessmentCategory");
-                        if(rlde.getAssessment().getAdjustedCategory() != null)
+                        if(rlde.getAssessment().getFinalCategory() != null)
                             fullassesscat.appendChild(doc.createTextNode(rlde.getAssessment()._getCategoryAsString() + ", " + rlde.getAssessment()._getCategoryVerboseAsString(true)));
 
                         BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc1 = new BibliographyCompiler<>(Collections.singletonList(rlde).iterator(), SafeHTMLString.class, driver);
@@ -1368,11 +1361,11 @@ System.out.println(gs.toJson(getUser()));
                                 boolean endemic = is != null && is.isEndemic();
 
                                 rlde = driver.getRedListData().getRedListDataEntity(territory, tKey);
-                                if(rlde != null && rlde.getAssessment().getAdjustedCategory() != null) {
-                                    if(rlde.getAssessment().getAdjustedCategory().isThreatened())
+                                if(rlde != null && rlde.getAssessment().getFinalCategory() != null) {
+                                    if(rlde.getAssessment().getFinalCategory().isThreatened())
                                         nThreatened.increment();
 
-                                    en.getValue().put("category", rlde.getAssessment().getAdjustedCategory().getLabel());
+                                    en.getValue().put("category", rlde.getAssessment().getFinalCategory().getLabel());
                                 }
 
 
