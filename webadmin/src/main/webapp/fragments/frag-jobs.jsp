@@ -24,7 +24,7 @@
 
     <form class="poster orderdownload" data-path="api/downloadalloccurrences" data-refresh="true">
         <h2>Tabela de todas as ocorrências</h2>
-        <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas).</p>
+        <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas), incluindo as duvidosas.</p>
         <input type="hidden" name="territory" value="${territory}"/>
         <div class="multiplechooser left">
         <c:forEach var="tmp" items="${allTags}">
@@ -48,19 +48,6 @@
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
 
-    <form class="poster orderdownload" data-path="api/downloadalloccurrences" data-refresh="true">
-        <h2>Tabela de todas as ocorrências</h2>
-        <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas).</p>
-        <input type="hidden" name="territory" value="${territory}"/>
-        <div class="multiplechooser left">
-        <c:forEach var="tmp" items="${allTags}">
-            <input type="checkbox" name="tags" value="${tmp}" id="tags1_${tmp}"/>
-            <label for="tags1_${tmp}" class="wordtag togglebutton"> ${tmp}</label>
-        </c:forEach>
-        </div>
-        <input type="submit" value="Descarregar" class="textbutton"/>
-    </form>
-
     <form class="poster orderdownload" data-path="api/downloadtaxainpolygon" data-refresh="true">
         <h2>Tabela de taxa numa área</h2>
         <p>Descarregar uma tabela com os taxa existentes dentro do polígono fornecido, e o respectivo EOO e AOO.</p>
@@ -69,6 +56,16 @@
         <textarea style="width: 98%; height: 150px; border: 2px solid #1e88e5; margin: 0 1%; padding: 4px; font-size: 0.75em; border-radius: 3px;" name="polygon"></textarea>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
+
+    <form class="orderdownload" action="api/downloadallsummaries" method="post">
+        <h2>Documento de texto com todos os sumários (9.3)</h2>
+        <input type="hidden" name="territory" value="${territory}"/>
+        <p>Para filtrar por TaxEntID, introduzir os IDs separados por vírgulas<p>
+        <textarea style="width: 98%; height: 150px; border: 2px solid #1e88e5; margin: 0 1%; padding: 4px; font-size: 0.75em; border-radius: 3px;" name="texentids"></textarea>
+        <input type="submit" value="Descarregar" class="textbutton"/>
+    </form>
+
+
 
     <c:if test="${jobs.size() > 0}">
         <a name="jobs"></a>

@@ -133,15 +133,49 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.success(JobSubmitter.newJobTask(new UpdateNativeStatusJob(territory), driver).getID());
                 break;
 
+            case "downloadallsummaries":
+                thisRequest.setDownloadFileName("assessments.txt");
+                thisRequest.response.setContentType("text/plain; charset=" + StandardCharsets.UTF_8.name());
+                String taxEntIds = thisRequest.getParameterAsString("texentids");
+                List<String> taxEntIdArray = null;
+                if(!StringUtils.isStringEmpty(taxEntIds)) {
+                    taxEntIdArray = Arrays.asList(taxEntIds.replace(" ", "").split(","));
+                }
+
+                PrintWriter ps = new PrintWriter(thisRequest.response.getOutputStream());
+
+                Iterator<RedListDataEntity> it1a = driver.getRedListData().getAllRedListData(thisRequest.getParameterAsString("territory"),
+                        false, null);
+                while (it1a.hasNext()) {
+                    rlde = it1a.next();
+                    if(taxEntIdArray != null && !taxEntIdArray.contains(rlde.getTaxEntID())) continue;
+                    if(taxEntIdArray == null) {
+                        if (rlde.getAssessment().getFinalJustification() == null || rlde.getAssessment().getFinalJustification().isEmpty())
+                            continue;
+                        if (rlde.getAssessment().getFinalCategory() == null || !(rlde.getAssessment().getFinalCategory().isThreatened()
+                                || rlde.getAssessment().getFinalCategory().isPossiblyExtinct())) continue;
+                    }
+                    ps.println(rlde.getTaxEnt().getNameWithAnnotationOnly(false) + " (" + rlde.getAssessment().getFinalCategory().getShortTag() + ")");
+                    ps.println(rlde.getAssessment().getFinalJustification().toCleanString());
+                    ps.println("");
+                }
+                ps.close();
+                return;
+
             case "downloadalloccurrences":
                 territory = thisRequest.getParameterAsString("territory");
                 String[] filter1 = thisRequest.getParameterAsStringArray("tags");
 //                PolygonTheme clippingPolygon1 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-                rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(
+/*
                         new DownloadOccurrencesJob(territory, rls.getClippingPolygon(), (rls.getHistoricalThreshold() + 1)
                                 , filter1 == null ? null : new HashSet<>(Arrays.asList(filter1)))
+*/
+                            new DownloadOccurrencesJob(territory,
+                                    filter1 == null ? null : RedListDataFilterFactory.filterByTags(new HashSet<>(Arrays.asList(filter1))),
+                                    BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory).withDoubtful())
                         , "all-occurrences.csv", driver).getID());
+
                 break;
 
             case "downloadoccurrencesusedinassessments":

@@ -247,7 +247,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
             Iterator<RedListDataEntity> rldeIt;
             try {
                 rldeIt = database.query(AQLRedListQueries.getString(query), bindVars
-                        , new AqlQueryOptions().ttl(8 * 60), RedListDataEntity.class);
+                        , new AqlQueryOptions().ttl(35 * 60), RedListDataEntity.class);
             } catch (ArangoDBException e) {
                 throw new DatabaseException(e.getMessage());
             }
@@ -256,7 +256,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
         } else {
             try {
                 return database.query(AQLRedListQueries.getString(query), bindVars
-                        , new AqlQueryOptions().ttl(8 * 60), RedListDataEntity.class);
+                        , new AqlQueryOptions().ttl(35 * 60), RedListDataEntity.class);
             } catch (ArangoDBException e) {
                 throw new DatabaseException(e.getMessage());
             }

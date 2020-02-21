@@ -3,7 +3,8 @@ package pt.floraon.occurrences;
 import pt.floraon.driver.datatypes.IntegerInterval;
 
 /**
- * Represents the abundance of a taxon in an observation
+ * Represents the abundance of a taxon in an observation.
+ * If the texti is ND or 0, wasDetected() returns false.
  */
 public class Abundance extends IntegerInterval {
     public Abundance(String text) {
