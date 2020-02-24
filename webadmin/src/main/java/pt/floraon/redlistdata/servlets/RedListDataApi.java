@@ -195,7 +195,8 @@ public class RedListDataApi extends FloraOnServlet {
                 territory = thisRequest.getParameterAsString("territory");
                 String polygonWKT = thisRequest.getParameterAsString("polygon");
                 rls = driver.getRedListSettings(territory);
-                thisRequest.success(JobSubmitter.newJobFileDownload(new DownloadTaxaInPolygonJob(territory, polygonWKT, rls.getClippingPolygon())
+                thisRequest.success(JobSubmitter.newJobFileDownload(new DownloadTaxaInPolygonJob(
+                        territory, polygonWKT, rls.getClippingPolygon())
                         ,"taxa-in-polygon.csv", driver).getID());
 /*
                 Map<INodeKey, Object> taxaSet = new HashMap<>();

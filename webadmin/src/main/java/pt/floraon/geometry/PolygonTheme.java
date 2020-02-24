@@ -41,7 +41,7 @@ public class PolygonTheme implements IPolygonTheme {
             pt.floraon.geometry.Polygon pol = new pt.floraon.geometry.Polygon();
             mat = wktCoordinate.matcher(WKTString);
             while(mat.find()) {
-                Float lng, lat;
+                float lng, lat;
                 lng = Float.parseFloat(mat.group("lng"));
                 lat = Float.parseFloat(mat.group("lat"));
                 pol.add(new Point2D(lng, lat));

@@ -149,7 +149,7 @@ public final class Common {
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
         csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
-                , "precision", "mgrs", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
+                , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
                 , "credits", "maintainer");
     }
@@ -179,6 +179,7 @@ public final class Common {
                 , utm == null ? "" : utm.getY()
                 , occurrence.getPrecision()
                 , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
+                , occurrence.getLocality()
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()
                 , oi.getSpecificThreats(), occurrence.getHabitat(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()

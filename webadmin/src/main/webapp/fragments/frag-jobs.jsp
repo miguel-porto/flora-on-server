@@ -52,6 +52,7 @@
         <h2>Tabela de taxa numa área</h2>
         <p>Descarregar uma tabela com os taxa existentes dentro do polígono fornecido, e o respectivo EOO e AOO.</p>
         <p>Paste a polygon in WKT format here, in latitude longitude coordinates, for example:<br/><code>Polygon ((-7.6167 37.9335, -7.6221 37.9320, -7.6228 37.9285, -7.6185 37.9256, -7.6144 37.9249, -7.6128 37.9287, -7.6127 37.9304, -7.6146 37.9325, -7.6167 37.9335))</code><br/><span class="info">You can copy a polygon from QGIS and paste it!</span></p>
+        <p>NOTE: polygons with holes and multipart polygons are NOT supported.</p>
         <input type="hidden" name="territory" value="${territory}"/>
         <textarea style="width: 98%; height: 150px; border: 2px solid #1e88e5; margin: 0 1%; padding: 4px; font-size: 0.75em; border-radius: 3px;" name="polygon"></textarea>
         <input type="submit" value="Descarregar" class="textbutton"/>

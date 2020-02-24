@@ -1152,7 +1152,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
                         case "1":
                             if (alc.contains("D1")) break;
                             Boolean D1 = pop.getNrMatureIndividualsCategory().isLessThanOrEqual(RedListEnums.NrMatureIndividuals.BET_250_1000);
-                            if ((D1 != null && !D1) || (nr1 != null && nr1 > 1000)) {
+                            if ((D1 != null && !D1) || (D1 == null && nr1 == null) || (nr1 != null && nr1 > 1000)) {
                                 warns.add("DataSheet.msg.warning.10");
                                 alc.add("D1");
                             }
