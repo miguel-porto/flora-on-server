@@ -48,7 +48,7 @@ public class TaxonOccurrenceProcessor implements GridMapExporter {
 
                 Occurrence so;
                 UTMCoordinate tmp;
-                Point2D tmp1;
+                Point2D pt;
                 // iterate through all occurrences of this taxon
                 while(it.hasNext()) {
                     so = it.next();
@@ -58,11 +58,10 @@ public class TaxonOccurrenceProcessor implements GridMapExporter {
                     if(tmp == null) continue;
                     if(tmp.getXZone() != 29) continue;  // TODO: must check if within the map in other way!
 
-                    tmp1 = new Point2D(tmp.getX(), tmp.getY());
+                    pt = new Point2D(tmp.getX(), tmp.getY(), so._getLatitude(), so._getLongitude());
 
                     // compute in which UTM square it falls
-                    ColoredSquare square = new ColoredSquare(tmp1, sizeOfSquare);
-
+                    ColoredSquare square = new ColoredSquare(pt, sizeOfSquare);
                     // add this taxon to the UTM square map
                     if(squares.containsKey(square)) {
                         squares.get(square).add(te.getNameWithAnnotationOnly(true));

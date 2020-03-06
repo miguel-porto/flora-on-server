@@ -262,7 +262,7 @@ System.out.println(gs.toJson(getUser()));
                 INodeKey idSnap = driver.asNodeKey("redlist_snapshots_" + territory + "/" + thisRequest.getParameterAsString("id"));
                 rldeSnap = driver.getNodeWorkerDriver().getDocument(idSnap, RedListDataEntitySnapshot.class);
 
-            case "taxon":
+            case "taxon":   // this is the entry point for a red list sheet
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
                 request.setAttribute("geographicalDistribution_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());

@@ -732,7 +732,7 @@ table.sheet .section11>td:nth-of-type(2) {background-color:rgba(  0, 150, 136, 0
 }
 #allmapholder .svgmap {float:none;}
 #allmapholder .header {height:2.2rem; line-height:1.1rem; font-size:1rem; font-style:italic}
-#allmapholder .svgmap path.portugal {stroke:black; stroke-width: 8px;}
+#allmapholder .svgmap path.portugal {stroke:black; stroke-width: 1px;}
 #allmapholder .svgmap rect {fill: #f55145; stroke:white;stroke-width: 1px;}
 #allmapholder.big .svgmap {width:350px}
 #allmapholder.interactive .svgmap rect {transition: fill 0.2s;}

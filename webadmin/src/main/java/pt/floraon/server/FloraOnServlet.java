@@ -527,6 +527,14 @@ public class FloraOnServlet extends HttpServlet {
                     .include(this.request, this.response);
         }
 
+		public void exportSVGMapAsCSV(PrintWriter writer, GridMapExporter processor, String territory) throws ServletException, IOException {
+			setSVGMapVariables(processor, territory, false, 0, false, null, false
+					, false, false, null);
+			HttpServletResponse2Writer customResponse = new HttpServletResponse2Writer(this.response, writer);
+			this.request.getRequestDispatcher("/fragments/frag-baseMapAsCSV.jsp").forward(this.request, customResponse);
+//			return customResponse.getOutput();
+		}
+
 		/**
 		 * Exports an SVG map to the given writer.
 		 * @param writer

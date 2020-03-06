@@ -35,6 +35,10 @@ public class ListOfTaxa implements SquareData {
 */
     }
 
+    public String getText(String separator) {
+        return StringUtils.implode(separator, this.taxa.toArray(new String[0])).replace("&", "&amp;");
+    }
+
     @Override
     public void add(Object o) {
         this.taxa.add((String) o);

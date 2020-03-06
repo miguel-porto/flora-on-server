@@ -872,8 +872,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
         if(getAssessment().getJustification().getLength() > 1700)
             warns.add("DataSheet.msg.warning.justification.length");
 
+/*
         if(!getTaxEnt().getCurrent())
             warns.add("DataSheet.msg.warning.notcurrent");
+*/
 
         // check if declines are justified
         if((dist.getDeclineDistribution().isTrigger() && dist.getDeclineDistributionJustification().isAlmostEmpty())
@@ -1200,6 +1202,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
             warns.add("DataSheet.msg.warning.nocriteria");
 
         // now validade the category taking into account the criteria and the thresholds
+        // NOTE: this validation does not issue a warning if the chosen category is lower than it could be, only if it is higher.
         alc.clear();
         for(RedListEnums.AssessmentCriteria cr : getAssessment().getCriteria()) {
             switch(cr.getCriteria()) {

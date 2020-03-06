@@ -50,6 +50,7 @@ public class PublicApi extends FloraOnServlet {
         switch(path.next()) {
             case "svgmap":
                 INodeKey key;
+                String format = "." + thisRequest.getParameterAsString("fmt", "svg").toLowerCase();
                 String category = null;
                 String threatType = null, mapFileName = "";
                 Integer squareSize;
@@ -88,7 +89,18 @@ public class PublicApi extends FloraOnServlet {
                 sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                 if(key == null && category == null && threatType == null) return;
 
-                thisRequest.response.setContentType("image/svg+xml; charset=utf-8");
+                switch(format) {
+                    case ".svg":
+                        thisRequest.response.setContentType("image/svg+xml; charset=utf-8");
+                        break;
+
+                    case ".csv":
+                        thisRequest.response.setContentType("text/csv; charset=utf-8");
+                        break;
+
+                    default:
+                        thisRequest.error("Format unknown.");
+                }
                 thisRequest.response.setCharacterEncoding("UTF-8");
                 thisRequest.setCacheHeaders(60 * 10);
 //                thisRequest.response.addHeader("Access-Control-Allow-Origin", "*");
@@ -110,7 +122,7 @@ public class PublicApi extends FloraOnServlet {
                     if(te2 == null) return;
 
                     if(thisRequest.getParameterAsBoolean("download", false))
-                        thisRequest.setDownloadFileName(String.format("map-%s.svg", te2._getNameURLEncoded()));
+                        thisRequest.setDownloadFileName(String.format("map-%s%s", te2._getNameURLEncoded(), format));
 
                     for(SimpleOccurrenceDataProvider edp : sodps)
                         edp.executeOccurrenceQuery(te2);
@@ -154,7 +166,7 @@ public class PublicApi extends FloraOnServlet {
                                 break;
                         }
                     }
-                    mapFileName = "map-" + category + ".svg";
+                    mapFileName = "map-" + category + format;
                     searchForCached = true;
                     if(thisRequest.getParameterAsBoolean("download", false))
                         thisRequest.setDownloadFileName(mapFileName);
@@ -174,7 +186,7 @@ public class PublicApi extends FloraOnServlet {
                             }
                         }
                     }
-                    mapFileName = "map-threats-" + threatType + ".svg";
+                    mapFileName = "map-threats-" + threatType + format;
                     searchForCached = true;
                     if(thisRequest.getParameterAsBoolean("download", false))
                         thisRequest.setDownloadFileName(mapFileName);
@@ -207,9 +219,18 @@ public class PublicApi extends FloraOnServlet {
 //                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas, standAlone, true);
                 if(writer == null) break;
 
-                thisRequest.exportSVGMap(writer, processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
-                        , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas
-                        , standAlone, true, thisRequest.getParameterAsBoolean("stroke", false), squareFill);
+                switch(format) {
+                    case ".svg":
+                        thisRequest.exportSVGMap(writer, processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
+                                , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas
+                                , standAlone, true, thisRequest.getParameterAsBoolean("stroke", false), squareFill);
+                        break;
+
+                    case ".csv":
+                        thisRequest.exportSVGMapAsCSV(writer, processor, territory);
+                        break;
+                }
+
 /*
                 processor.exportSVG(writer, true, false
                         , thisRequest.getParameterAsBoolean("basemap", false)
@@ -223,7 +244,7 @@ public class PublicApi extends FloraOnServlet {
                     writer.close();
 
                 if(writer != thisRequest.response.getWriter()) {
-                    File outfile = new File(driver.getProperties().getProperty("folder"), "map-" + category + ".svg");
+                    File outfile = new File(driver.getProperties().getProperty("folder"), "map-" + category + format);
                     if(outfile.exists())
                         IOUtils.copy(new FileReader(outfile), thisRequest.response.getWriter());
                 }

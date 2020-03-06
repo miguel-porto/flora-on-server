@@ -25,7 +25,8 @@
     <c:set var="refresh" value="${user.isGuest() ? '' : '&refresh=1'}"/>
     <div>
         <h3>Ameaçadas</h3>
-        <t:ajaxloadhtml url="../api/svgmap?0000basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=threatened${refresh}" width="400px" height="200px"/>
+        <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=threatened${refresh}" width="400px" height="200px"/>
+        <a href="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=threatened&download=1&fmt=csv">download CSV</a>
     </div>
     <div>
         <h3>Potencialmente extintas</h3>
@@ -34,6 +35,7 @@
     <div>
         <h3>Criticamente Em Perigo (CR)</h3>
         <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=CR${refresh}" width="400px" height="200px"/>
+        <a href="../api/svgmap?basemap=1&size=10000&border=2&shadow=0&pa=0&sa=0&category=CR&download=1&fmt=csv">download CSV</a>
     </div>
     <div>
         <h3>Em Perigo (EN)</h3>
