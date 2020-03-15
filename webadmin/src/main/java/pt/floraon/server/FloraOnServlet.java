@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.io.IOUtils;
 
 import com.google.gson.JsonElement;
@@ -25,6 +27,9 @@ import pt.floraon.driver.interfaces.IListDriver;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.INodeWorker;
 import pt.floraon.geometry.IPolygonTheme;
+import pt.floraon.geometry.gridmaps.ISquare;
+import pt.floraon.geometry.gridmaps.ListOfTaxa;
+import pt.floraon.geometry.gridmaps.SquareData;
 import pt.floraon.redlistdata.GridMapExporter;
 import pt.floraon.redlistdata.entities.RedListSettings;
 
@@ -527,12 +532,20 @@ public class FloraOnServlet extends HttpServlet {
                     .include(this.request, this.response);
         }
 
-		public void exportSVGMapAsCSV(PrintWriter writer, GridMapExporter processor, String territory) throws ServletException, IOException {
-			setSVGMapVariables(processor, territory, false, 0, false, null, false
-					, false, false, null);
-			HttpServletResponse2Writer customResponse = new HttpServletResponse2Writer(this.response, writer);
-			this.request.getRequestDispatcher("/fragments/frag-baseMapAsCSV.jsp").forward(this.request, customResponse);
-//			return customResponse.getOutput();
+		/**
+		 * Export a map in CSV, aggregated by MGRS squares
+		 * @param writer
+		 * @param processor
+		 * @throws ServletException
+		 * @throws IOException
+		 */
+		public void exportSVGMapAsCSV(PrintWriter writer, GridMapExporter processor) throws ServletException, IOException {
+			CSVPrinter csvp = new CSVPrinter(writer, CSVFormat.DEFAULT);
+			csvp.printRecord("MGRS", "WKT", "Taxa", "NrTaxa");
+			for (Map.Entry<? extends ISquare, SquareData> sq : processor.squares()) {
+				csvp.printRecord(sq.getKey().getMGRS(), sq.getKey().toWKT(), ((ListOfTaxa) sq.getValue()).getText("+"), sq.getValue().getNumber());
+			}
+			csvp.close();
 		}
 
 		/**

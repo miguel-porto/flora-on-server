@@ -227,7 +227,7 @@ public class PublicApi extends FloraOnServlet {
                         break;
 
                     case ".csv":
-                        thisRequest.exportSVGMapAsCSV(writer, processor, territory);
+                        thisRequest.exportSVGMapAsCSV(writer, processor);
                         break;
                 }
 
