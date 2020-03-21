@@ -37,7 +37,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     protected String curSpeciesName = "";
     protected OccurrenceFilter occurrenceFilter;
     private Iterator<RedListDataEntity> itRLDE;
-    private boolean realTime;
+    private boolean recalculate;
     protected RedListDataFilter redListDataFilter;
 
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
@@ -45,13 +45,21 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter, true);
     }
 
+    /**
+     *
+     * @param territory
+     * @param sizeOfSquare
+     * @param occurrenceFilter
+     * @param redListDataFilter
+     * @param recalculate Recompute AOO and EOO?
+     */
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
-            , RedListDataFilter redListDataFilter, boolean realTime) {
+            , RedListDataFilter redListDataFilter, boolean recalculate) {
         this.sizeOfSquare = sizeOfSquare;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
         this.territory = territory;
-        this.realTime = realTime;
+        this.recalculate = recalculate;
     }
 /*
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
@@ -165,7 +173,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 
             csvp.print(StringUtils.implode(", ", rlde.getConservation().getLegalProtection()));
 
-            if(this.realTime) {
+            if(this.recalculate) {
                 List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                 for (SimpleOccurrenceDataProvider edp : sodps) {
                     edp.executeOccurrenceQuery(rlde.getTaxEnt());

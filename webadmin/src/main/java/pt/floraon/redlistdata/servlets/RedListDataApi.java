@@ -15,6 +15,7 @@ import org.apache.commons.io.IOUtils;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
+import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.jobs.JobSubmitter;
@@ -281,21 +282,20 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "downloadtable":
                 territory = thisRequest.getParameterAsString("territory");
+                rls = driver.getRedListSettings(territory);
                 String[] filter = thisRequest.getParameterAsStringArray("tags");
-//                PolygonTheme clippingPolygon = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
-//                rls = driver.getRedListSettings(territory);
+                OccurrenceFilter of = thisRequest.getParameterAsBoolean("historical", false)
+                        ? new BasicOccurrenceFilter(null, null,false, rls.getClippingPolygon())
+                        : new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null,
+                        false, rls.getClippingPolygon());
+
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-/*
-                        new ComputeAOOEOOJob(territory, 2000
-                                , new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, clippingPolygon)
-                                , new RedListDataFilterTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
-                        )
-*/
-                        new ComputeAOOEOOJob(territory, null
-                                , null, RedListDataFilterFactory.filterByTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
-                                , false
+                        new ComputeAOOEOOJob(territory, 2000    // TODO user config
+                                , of, RedListDataFilterFactory.filterByTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
+                                , thisRequest.getParameterAsBoolean("recalc", false)
                         )
                         , "AOO.csv", driver).getID());
+
                 break;
 
             case "addnewtaxent":

@@ -13,6 +13,8 @@
         <input type="hidden" name="territory" value="${territory}"/>
         <h2>Tabela de taxa</h2>
         <p>Descarregar uma tabela com um taxon por linha (opcionalmente filtrada por etiquetas), e com o respectivo EOO, AOO, etc.</p>
+            <label><input type="checkbox" name="recalc"/> Recalcular AOO e EOO com base em todos os registos até ao momento<br/><span class="info">se desactivado, os valores corresponderão aos que estão nas fichas de avaliação</span></label><br/>
+            <label><input type="checkbox" name="historical"/> Incluir registos históricos nos cálculos (só aplicável se a opção anterior estiver seleccionada)</label>
             <div class="multiplechooser left">
             <c:forEach var="tmp" items="${allTags}">
                 <input type="checkbox" name="tags" value="${tmp}" id="tags_${tmp}"/>
