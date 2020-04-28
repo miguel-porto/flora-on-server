@@ -11,6 +11,7 @@ import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.*;
 import pt.floraon.geometry.gridmaps.GridMap;
 import pt.floraon.geometry.gridmaps.Square;
+import pt.floraon.geometry.gridmaps.SquareData;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.GridMapExporter;
@@ -345,8 +346,15 @@ public class OccurrenceProcessor implements Iterable<Occurrence>, GridMapExporte
                 request.setAttribute("warning", "EOO computation is inaccurate for data " +
                         "pointsUTM spreading more than one UTM zone.");
 */
-
-            convexHull = (Stack<Point2D>) new GrahamScan(pointsInPolygons.keySet().toArray(new Point2D[0])).hull();
+            if(sizeOfSquare > 2000) {
+                List<Point2D> squareVertices = new ArrayList<>();
+                for (Map.Entry<Square, SquareData> square : squares) {
+                    Square sq = square.getKey();
+                    squareVertices.addAll(sq.getVertices());
+                }
+                convexHull = (Stack<Point2D>) new GrahamScan(squareVertices.toArray(new Point2D[0])).hull();
+            } else
+                convexHull = (Stack<Point2D>) new GrahamScan(pointsInPolygons.keySet().toArray(new Point2D[0])).hull();
             convexHull.add(convexHull.get(0));
 
             // compute area of convex hull

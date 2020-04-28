@@ -89,7 +89,7 @@ public class RedListMainPages extends FloraOnServlet {
         Iterator<TaxEnt> iTaxEnt;
         Iterator<RedListDataEntity> rldeIt;
         RedListDataEntity rlde;
-        long sizeOfSquare = 2000;
+        long sizeOfSquare;
 /*
 Gson gs = new GsonBuilder().setPrettyPrinting().create();
 System.out.println(gs.toJson(getUser()));
@@ -128,6 +128,8 @@ System.out.println(gs.toJson(getUser()));
         List<String> warnings = new ArrayList<>();
 
         thisRequest.getUser().resetEffectivePrivileges();
+
+        sizeOfSquare = thisRequest.getUser().canVIEW_OCCURRENCES() ? 2000 : 10000;
 
         switch (what) {
             case "search":
@@ -370,8 +372,7 @@ System.out.println(gs.toJson(getUser()));
 
                         historicalOccurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, historicalFilter);
                         occurrenceProcessor = new OccurrenceProcessor(sodps, protectedAreas, sizeOfSquare, currentFilter);
-                        publicOccurrenceProcessor = thisRequest.getUser().canVIEW_FULL_SHEET() ? occurrenceProcessor :
-                            new OccurrenceProcessor(sodps, protectedAreas, 10000, currentFilter);
+                        publicOccurrenceProcessor = occurrenceProcessor;
                     } else { // we want it read-only
                         thisRequest.getUser().revokeAllPrivilegesExcept(new Privileges[]{MANAGE_VERSIONS});
 
@@ -381,9 +382,7 @@ System.out.println(gs.toJson(getUser()));
                         occurrenceProcessor = OccurrenceProcessor.createFromOccurrences(
                                 rldeSnap.getOccurrences(), protectedAreas, sizeOfSquare, currentFilter);
 
-                        publicOccurrenceProcessor = thisRequest.getUser().canVIEW_FULL_SHEET() ? occurrenceProcessor :
-                                OccurrenceProcessor.createFromOccurrences(
-                                        rldeSnap.getOccurrences(), protectedAreas, 10000, currentFilter);
+                        publicOccurrenceProcessor = occurrenceProcessor;
                     }
 
                     if(occurrenceProcessor.size() > 0 || historicalOccurrenceProcessor.size() > 0) {
@@ -413,8 +412,9 @@ System.out.println(gs.toJson(getUser()));
                         request.setAttribute("hnquads", historicalOccurrenceProcessor.getNQuads());
                         request.setAttribute("nclusters", occurrenceProcessor.getNLocations());
 
-                        if(!AOO.equals(rlde.getGeographicalDistribution().getAOO())
+                        if((!AOO.equals(rlde.getGeographicalDistribution().getAOO())
                                 || !EOO.equals(rlde.getGeographicalDistribution().getEOO()))
+                                && thisRequest.getUser().canVIEW_OCCURRENCES())
                             warnings.add("DataSheet.msg.warning.AOOEOOnotuptodate");
 
                         Double[] lAreas = occurrenceProcessor.getLocationAreas();
