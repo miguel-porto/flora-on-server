@@ -2,7 +2,9 @@ package pt.floraon.redlistdata.jobs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.arangodriver.FloraOnArangoDriver;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.BaseFloraOnDriver;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
@@ -38,11 +40,12 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     protected OccurrenceFilter occurrenceFilter;
     private Iterator<RedListDataEntity> itRLDE;
     private boolean recalculate;
+    Map<String, String> userMap;
     protected RedListDataFilter redListDataFilter;
 
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
             , RedListDataFilter redListDataFilter) {
-        this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter, true);
+        this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter, true, null);
     }
 
     /**
@@ -54,12 +57,26 @@ public class ComputeAOOEOOJob implements JobFileDownload {
      * @param recalculate Recompute AOO and EOO?
      */
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
-            , RedListDataFilter redListDataFilter, boolean recalculate) {
+            , RedListDataFilter redListDataFilter, boolean recalculate, IFloraOn driver) {
         this.sizeOfSquare = sizeOfSquare;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
         this.territory = territory;
         this.recalculate = recalculate;
+
+        if(driver != null) {
+            List<User> allUsers = null;
+            userMap = new HashMap<>();
+            try {
+                allUsers = driver.getAdministration().getAllUsers(false);
+                for (User u : allUsers) {
+                    userMap.put(u.getID(), u.getName());
+                }
+            } catch (FloraOnException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 /*
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
@@ -104,6 +121,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("TaxEnt ID");
         csvp.print("Family");
         csvp.print("Taxon");
+        csvp.print("Fully qualified taxon");
         csvp.print("Tags");
         csvp.print("Endemic?");
         csvp.print("Threat category");
@@ -114,6 +132,10 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("Real EOO (km2)");
         csvp.print("Number of sites");
         csvp.print("Number of occurrence records");
+        csvp.print("Authors");
+        csvp.print("Assessors");
+        csvp.print("Reviewers");
+        csvp.print("Collaborators");
         csvp.print("Decline AOO EOO");
         csvp.print("Decline nr individuals");
         csvp.print("Decline habitat");
@@ -159,6 +181,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             csvp.print(rlde.getTaxEnt().getID());
             csvp.print(family);
             csvp.print(rlde.getTaxEnt().getName());
+            csvp.print(rlde.getTaxEnt().getFullName(false));
             csvp.print(StringUtils.implode(", ", rlde.getTags()));
 //            csvp.print(endemic ? ("Endemic from " + territory) : "No");
 
@@ -201,6 +224,11 @@ public class ComputeAOOEOOJob implements JobFileDownload {
                 csvp.print("-");
             }
 
+            // Authors, collaborators, etc.
+            csvp.print(StringUtils.implode(", ", userMap, rlde.getAssessment().getAuthors()));
+            csvp.print(StringUtils.implode(", ", userMap, rlde.getAssessment().getEvaluator()));
+            csvp.print(StringUtils.implode(", ", userMap, rlde.getAssessment().getReviewer()));
+            csvp.print(rlde.getAssessment().getCollaborators());
 
             csvp.print(rlde.getGeographicalDistribution().getDeclineDistribution() == null ? "" : rlde.getGeographicalDistribution().getDeclineDistribution().getLabel());
             csvp.print(rlde.getPopulation().getPopulationDecline() == null ? "" : rlde.getPopulation().getPopulationDecline().getLabel());

@@ -293,6 +293,7 @@ public class RedListDataApi extends FloraOnServlet {
                         new ComputeAOOEOOJob(territory, 2000    // TODO user config
                                 , of, RedListDataFilterFactory.filterByTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
                                 , thisRequest.getParameterAsBoolean("recalc", false)
+                                , driver
                         )
                         , "AOO.csv", driver).getID());
 

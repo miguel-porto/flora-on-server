@@ -30,7 +30,7 @@ import static pt.floraon.authentication.Privileges.*;
  */
 @WebListener
 public class User extends NamedDBNode implements Comparable<User>, HttpSessionBindingListener {
-	private String userName, password;
+	private String userName, password, email;
 	private UserType userType;
 	private Set<Privileges> privileges;
 	private List<TaxonPrivileges> taxonPrivileges;
@@ -70,6 +70,12 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getEmail() {return this.email;}
 
 	public User() {
 		super();
@@ -238,7 +244,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	}
 
 	public void setPrivileges(Privileges[] assignedPrivileges) {
-		this.privileges.addAll(Arrays.asList(assignedPrivileges));
+		this.getPrivileges().addAll(Arrays.asList(assignedPrivileges));
 	}
 
 	public void setVIEW_FULL_SHEET(boolean value) {
@@ -401,7 +407,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	 * @return
 	 */
 	public boolean hasAssignedPrivilege(Privileges privilege) {
-		return this.privileges.contains(privilege);
+		return this.getPrivileges().contains(privilege);
 	}
 
 	public boolean hasAnyPrivilege(Privileges[] privileges) {
