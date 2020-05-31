@@ -71,22 +71,6 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
         Common.exportOccurrenceHeaderToCSV(csvp);
-/*
-        csvp.print("Source");
-        csvp.print("TaxEnt ID");
-        csvp.print("taxon");
-        csvp.print("verbTaxon");
-        csvp.print("latitude");
-        csvp.print("longitude");
-        csvp.print("date");
-        csvp.print("observers");
-        csvp.print("precision");
-        csvp.print("confidence");
-        csvp.print("code");
-        csvp.print("local");
-        csvp.print("pubNotes");
-        csvp.println();
-*/
         if(this.taxEntIterator == null) {
             Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
             while (it.hasNext()) {
@@ -119,17 +103,6 @@ public class DownloadOccurrencesJob implements JobFileDownload {
                 // here we override the matched taxent because we want occurrences to be organized by red list sheets.
                 so.getOccurrence().setTaxEnt(taxEnt);
                 Common.exportOccurrenceToCSV(so, printer, null, null);
-/*
-                printer.printRecord(
-                        so.getDataSource(), taxEnt.getID()
-                        , taxEnt.getNameWithAnnotationOnly(false)
-                        , so.getOccurrence().getVerbTaxon(), so._getLatitude(), so._getLongitude(), so._getDate()
-                        , StringUtils.implode(", ", so._getObserverNames())
-                        , so.getPrecision(), so.getOccurrence().getConfidence()
-                        , so.getCode(), so.getLocality()
-                        , so.getPubNotes()
-                );
-*/
             }
         }
 

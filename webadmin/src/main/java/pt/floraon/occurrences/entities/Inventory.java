@@ -188,6 +188,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.aspect = other.aspect;
         this.slope = other.slope;
         this.observerNames = other.observerNames;
+        this.maintainerName = other.maintainerName;
     }
 
     public Inventory() { }

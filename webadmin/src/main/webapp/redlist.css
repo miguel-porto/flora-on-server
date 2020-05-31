@@ -165,6 +165,7 @@ span.reference {font-family: mono; font-size: 0.8em; color:blue;}
 /********** SPECIES INDEX ***********/
 #speciesindex {margin-bottom: 60px;}
 #speciesindex td {padding:4px;}
+#speciesindex th {position:sticky; top:0; z-index:1}
 /*#speciesindex tr.species td:nth-of-type(2) {font-weight:bold}*/
 /*#speciesindex td {transition: background-color 0.3s;}*/
 #speciesindex tr.responsible td {background-color: #b2ff59 !important;}

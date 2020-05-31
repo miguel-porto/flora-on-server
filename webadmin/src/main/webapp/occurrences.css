@@ -34,7 +34,7 @@ body.occurrencespage a.returntomain img {height:70px}
 body.occurrencespage.compactview .hideincompactview {display:none !important}
 body.occurrencespage.compactview table {font-size:0.6rem;}
 
-#alloccurrencetable th {position:sticky; top:0px;}
+#alloccurrencetable th {position:sticky; top:0px; z-index:1}
 
 td.grouper {
     border-right:3px solid black;

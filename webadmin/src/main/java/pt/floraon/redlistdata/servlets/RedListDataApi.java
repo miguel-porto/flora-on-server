@@ -285,9 +285,9 @@ public class RedListDataApi extends FloraOnServlet {
                 rls = driver.getRedListSettings(territory);
                 String[] filter = thisRequest.getParameterAsStringArray("tags");
                 OccurrenceFilter of = thisRequest.getParameterAsBoolean("historical", false)
-                        ? new BasicOccurrenceFilter(null, null,false, rls.getClippingPolygon())
-                        : new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null,
-                        false, rls.getClippingPolygon());
+                        ? new BasicOccurrenceFilter(null, null,false, rls.getClippingPolygon()).cutRecordsAfter(rls.getCutRecordsInsertedAfter())
+                        : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+//                        : new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, rls.getClippingPolygon());
 
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                         new ComputeAOOEOOJob(territory, 2000    // TODO user config

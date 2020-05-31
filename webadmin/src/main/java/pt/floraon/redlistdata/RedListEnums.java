@@ -671,14 +671,14 @@ public class RedListEnums {
         , NA(FieldValues.getString("category.NA"), false, false, "NA")
         , NE(FieldValues.getString("category.NE"), false, false, "NE")
         , NOT_ASSIGNED(FieldValues.getString("category.notassigned"), false, false, "?")
-        , CR_UP(FieldValues.getString("category.CR"), true, true, "CRº")
-        , EN_UP(FieldValues.getString("category.EN"), false, true, "ENº")
-        , VU_UP(FieldValues.getString("category.VU"), false, true, "VUº")
-        , NT_UP(FieldValues.getString("category.NT"), false, true, "NTº")
-        , LC_DOWN(FieldValues.getString("category.LC"), false, true, "LCº")
-        , NT_DOWN(FieldValues.getString("category.NT"), false, true, "NTº")
-        , VU_DOWN(FieldValues.getString("category.VU"), false, true, "VUº")
-        , EN_DOWN(FieldValues.getString("category.EN"), false, true, "ENº");
+        , CR_UP(FieldValues.getString("category.CR") + "º", true, true, "CRº")
+        , EN_UP(FieldValues.getString("category.EN") + "º", false, true, "ENº")
+        , VU_UP(FieldValues.getString("category.VU") + "º", false, true, "VUº")
+        , NT_UP(FieldValues.getString("category.NT") + "º", false, true, "NTº")
+        , LC_DOWN(FieldValues.getString("category.LC") + "º", false, true, "LCº")
+        , NT_DOWN(FieldValues.getString("category.NT") + "º", false, true, "NTº")
+        , VU_DOWN(FieldValues.getString("category.VU") + "º", false, true, "VUº")
+        , EN_DOWN(FieldValues.getString("category.EN") + "º", false, true, "ENº");
 
         private String label;
         private String shortTag;

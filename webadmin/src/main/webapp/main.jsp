@@ -58,8 +58,7 @@
         <div style="width:100%"></div>
         <%--<c:if test="${user.isGuest()}"><p style="font-size:3em">portal de trabalho</p></c:if>
         <c:if test="${!user.isGuest()}">--%>
-        <%--<p style="font-size:0.7em">Este portal está ainda em desenvolvimento, pelo que sofre actualizações frequentes. Por segurança, não deverá trabalhar no portal depois da meia noite, pois pode perder os seus dados se houver uma actualização.</p>--%>
-        <c:if test="${globalSettings.isClosedForAdminTasks()}"><div class="warning"><p><img class="exclamation" src="./images/exclamation.png"/><span>Portal temporariamente fechado para tarefas administrativas</span></p>Por favor volte novamente amanhã.</div></c:if>
+        <c:if test="${globalSettings.isClosedForAdminTasks()}"><div class="warning"><p><img class="exclamation" src="./images/exclamation.png"/><span>Portal temporariamente fechado para actualização</span></p>Por favor volte novamente um pouco mais tarde (normalmente é rápido).</div></c:if>
         <div style="width:100%"></div>
         <ul id="mainmenu" class="mainmenu">
             <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>

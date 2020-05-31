@@ -31,7 +31,6 @@ public class AppTest
     }
 
     public void testApp() {
-    	// TODO: record upload test!!!
     	/*FloraOnArangoDriver fog=null;
     	try {
 			fog=new FloraOnArangoDriver("flora");

@@ -151,7 +151,7 @@ public final class Common {
                 , "phenoState", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-                , "credits", "maintainer");
+                , "credits", "maintainer", "maintainerName");
     }
 
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap) throws IOException {
@@ -187,6 +187,7 @@ public final class Common {
                 , oi.getUuid().toString()
                 , oi.getAccession()
                 , occurrence.getCredits()
+                , occurrence.getMaintainer()
                 , occurrence._getMaintainerName()
         );
 

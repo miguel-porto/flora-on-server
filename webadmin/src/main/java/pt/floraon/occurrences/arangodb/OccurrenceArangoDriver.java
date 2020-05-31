@@ -399,7 +399,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         String occurrenceFilter = "";
 
         if(userId != null) {
-            bindVars.put("user", userId.toString());
+            bindVars.put("user", new String[] {userId.toString()});
             inventoryFilter += AQLOccurrenceQueries.getString("filter.maintainer") + " ";
         }
 
@@ -543,6 +543,15 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+        // maintainer filter
+        if(filter.containsKey("maint")) {
+            Iterator<User> it = this.driver.getAdministration().findUserByName(filter.get("maint").replaceAll("\\*", "%"));
+            List<String> uid = new ArrayList<>();
+            while(it.hasNext())
+                uid.add(it.next().getID());
+            bindVars.put("user", uid.toArray(new String[0]));
+            inventoryFilter.append(AQLOccurrenceQueries.getString("filter.maintainer")).append(" ");
+        }
 
         // number of taxa filter
         if(filter.containsKey("nsp")) {
@@ -759,7 +768,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         String occurrenceFilter = "";
 
         if(userId != null) {
-            bindVars.put("user", userId.toString());
+            bindVars.put("user", new String[] {userId.toString()});
             inventoryFilter += AQLOccurrenceQueries.getString("filter.maintainer") + " ";
         }
 
@@ -774,6 +783,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         Log.info(new Gson().toJson(bindVars));
 */
 
+        // TODO must fetch observer and maintainer names!
         try {
             return database.query(
                     AQLOccurrenceQueries.getString(!StringUtils.isStringEmpty(textFilter) ?
