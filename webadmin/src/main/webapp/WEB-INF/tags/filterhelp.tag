@@ -11,7 +11,7 @@
     <tbody>
         <tr><td><code>date:</code></td><td>Data de observação</td><td>Data e intervalo de datas (ver em baixo)</td></tr>
         <tr><td><code>conf:</code></td><td>Confiança na identificação</td><td>Valores pré-definidos: <code>c</code> certo <code>a</code> quase certo <code>d</code> duvidoso</td></tr>
-        <tr><td><code>phen:</code></td><td>Estado fenológico</td><td>Valores pré-definidos: <code>f</code> floração <code>d</code> dispersão <code>fd</code> floração+dispersão <code>v</code> vegetativo <code>r</code> dormência <code>c</code> fruto imaturo <code>fc</code> flor+fruto imaturo</td></tr>
+        <tr><td><code>phen:</code></td><td>Estado fenológico</td><td>Valores pré-definidos: <code>f</code> floração <code>d</code> dispersão <code>fd</code> floração+dispersão <code>v</code> vegetativo <code>r</code> dormência <code>c</code> fruto imaturo <code>fc</code> flor+fruto imaturo <code>b</code> em botão</td></tr>
         <tr><td><code>prec:</code></td><td>Precisão da coordenada</td><td>Numérico com unidade</td></tr>
         <tr><td><code>lat:</code></td><td>Latitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>long:</code></td><td>Longitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>

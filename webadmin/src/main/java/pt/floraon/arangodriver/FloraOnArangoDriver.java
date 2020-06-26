@@ -76,7 +76,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 	public FloraOnArangoDriver(Properties properties) throws FloraOnException {
 		this.properties = properties;
-		this.contextPath = (String) properties.getOrDefault("contextPath", "");
+		this.contextPath = (String) properties.getProperty("contextPath", "");
 		if(!this.contextPath.equals("") && !this.contextPath.startsWith("/")) this.contextPath = "/" + this.contextPath;
 		String username = properties.getProperty("arango.user");
 		String pass = properties.getProperty("arango.password");

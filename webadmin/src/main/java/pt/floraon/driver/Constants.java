@@ -12,7 +12,6 @@ import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.geocoding.entities.Toponym;
-import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.entities.RedListSettings;
@@ -176,7 +175,8 @@ public final class Constants {
 		, FLOWER_DISPERSION("Flower+Dispersion")
 		, FRUIT("Immature fruit")
 		, RESTING("Resting")
-		, FLOWER_FRUIT("Flower+Fruit");
+		, FLOWER_FRUIT("Flower+Fruit")
+		, BUD("Flower buds");
 
 		private String label;
 		private static Map<String, PhenologicalStates> acronymMap = new HashMap<>();
@@ -198,6 +198,8 @@ public final class Constants {
 			acronymMap.put("fruto", Constants.PhenologicalStates.FRUIT);
 			acronymMap.put("fruit", Constants.PhenologicalStates.FRUIT);
 			acronymMap.put("fc", Constants.PhenologicalStates.FLOWER_FRUIT);
+			acronymMap.put("b", Constants.PhenologicalStates.BUD);
+			acronymMap.put("buds", Constants.PhenologicalStates.BUD);
 			acronymMap.put("", Constants.PhenologicalStates.NULL);
 		}
 

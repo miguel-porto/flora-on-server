@@ -6,8 +6,6 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
-import com.sun.istack.NotNull;
-import org.graalvm.compiler.graph.Node;
 import pt.floraon.driver.*;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.authentication.entities.User;
