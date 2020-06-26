@@ -51,6 +51,14 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Dia", shortName = "Dia")
     private Integer day;   // TODO: these cannot be erased...
     @SmallField @InventoryField
+    @FieldParser(IntegerParser.class)
+    @PrettyName(value = "Hora", shortName = "Hora")
+    private Integer hour;
+    @SmallField @InventoryField
+    @FieldParser(IntegerParser.class)
+    @PrettyName(value = "Minuto", shortName = "Min")
+    private Integer minute;
+    @SmallField @InventoryField
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
     private Precision precision;
@@ -420,6 +428,26 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.day = day;
     }
 
+    public void setHour(Integer hour) {
+        if(!Constants.isNoData(hour) && (hour < 0 || hour > 24))
+            return;
+        this.hour = hour;
+    }
+
+    public void setMinute(Integer minute) {
+        if(!Constants.isNoData(minute) && (minute < 0 || minute > 59))
+            return;
+        this.minute = minute;
+    }
+
+    public Integer getHour() {
+        return Constants.isNoData(hour) ? null : hour;
+    }
+
+    public Integer getMinute() {
+        return Constants.isNoData(minute) ? null : minute;
+    }
+
     public String _getDate() {
 /*
         Calendar c = new GregorianCalendar();
@@ -432,6 +460,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         sb.append(Constants.isNullOrNoData(day) ? "--" : day).append("/")
                 .append(Constants.isNullOrNoData(month) ? "--" : month).append("/")
                 .append(Constants.isNullOrNoData(year) ? "----" : year);
+        if(!Constants.isNullOrNoData(hour) && !Constants.isNullOrNoData(minute))
+            sb.append(" ").append(String.format("%02d", hour)).append(":").append(String.format("%02d", minute));
         return sb.toString();
     }
 
@@ -441,20 +471,22 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String _getDateYMD() {
-        return formatDateYMD(this.day, this.month, this.year);
+        return formatDateYMD(this.day, this.month, this.year, this.hour, this.minute);
     }
 
-    static public String formatDateYMD(Integer day, Integer month, Integer year) {
-        return formatDateYMD(day, month, year, "-");
+    static public String formatDateYMD(Integer day, Integer month, Integer year, Integer hour, Integer minute) {
+        return formatDateYMD(day, month, year, hour, minute, "-");
     }
 
-    static public String formatDateYMD(Integer day, Integer month, Integer year, String nullPlaceholder) {
+    static public String formatDateYMD(Integer day, Integer month, Integer year, Integer hour, Integer minute, String nullPlaceholder) {
         String yp = new String(new char[4]).replace("\0", nullPlaceholder);
         String dp = new String(new char[2]).replace("\0", nullPlaceholder);
         StringBuilder sb = new StringBuilder();
         sb.append(Constants.isNullOrNoData(year) ? yp : year).append("/")
                 .append(Constants.isNullOrNoData(month) ? dp : String.format("%02d", month)).append("/")
                 .append(Constants.isNullOrNoData(day) ? dp : String.format("%02d", day));
+        if(!Constants.isNullOrNoData(hour) && !Constants.isNullOrNoData(minute))
+            sb.append(" ").append(String.format("%02d", hour)).append(":").append(String.format("%02d", minute));
         return sb.toString();
     }
 

@@ -432,7 +432,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                     throw new FloraOnException(e.getMessage());
                 }
                 Log.info("DATE: "+ new Gson().toJson(date));
-                if(date.length == 3) {  // single date
+                if(date.length == 5) {  // single date
                     if (!Constants.isNullOrNoData(date[0])) {
                         inventoryFilter.append(AQLOccurrenceQueries.getString("filter.day")).append(" ");
                         bindVars.put("day", date[0]);
@@ -454,8 +454,8 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                         throw new FloraOnException("Date ranges must be defined in relation to a precise day, month or year. Disjoint intervals are not supported.");
                     if(Constants.isNullOrNoData(date[3]) && Constants.isNullOrNoData(date[5]))
                         throw new FloraOnException("Date ranges must be defined in relation to a precise day, month or year. Disjoint intervals are not supported.");
-                    String fromDate = Inventory.formatDateYMD(date[0], date[1], date[2], "0");
-                    String toDate = Inventory.formatDateYMD(date[3], date[4], date[5], "9");
+                    String fromDate = Inventory.formatDateYMD(date[0], date[1], date[2], null, null, "0");
+                    String toDate = Inventory.formatDateYMD(date[3], date[4], date[5], null, null, "9");
                     inventoryFilter.append(AQLOccurrenceQueries.getString("filter.daterange")).append(" ");
                     bindVars.put("fromDate", fromDate);
                     bindVars.put("toDate", toDate);

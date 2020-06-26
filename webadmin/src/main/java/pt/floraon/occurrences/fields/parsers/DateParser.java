@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
  */
 public class DateParser implements FieldParser {
     static final private Pattern singleDatePattern =
-            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{1,4})) *$");
+            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{1,4})) *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-9]{1,2}))? *$");
     static final private Pattern singleDatePatternInverse =
-            Pattern.compile("^ *(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>(?:[0-9?-]{2})|(?:[a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{2}) *$");
+            Pattern.compile("^ *(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>(?:[0-9?-]{2})|(?:[a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{2}) *((?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-9]{1,2}))? *$");
     static final private Pattern dateRangePattern =
             Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{4})|([-?]{1,4})) *" +
                     "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{4})|([-?]{1,4})) *$");
@@ -80,6 +80,8 @@ public class DateParser implements FieldParser {
         occurrence.setDay(date[0]);
         occurrence.setMonth(date[1]);
         occurrence.setYear(date[2]);
+        occurrence.setHour(date[3]);
+        occurrence.setMinute(date[4]);
     }
 
     /**
@@ -89,7 +91,7 @@ public class DateParser implements FieldParser {
      */
     static public Integer[] parseDate(String inputValue) {
         if(inputValue == null) return null;
-        Integer[] outdate = new Integer[3];
+        Integer[] outdate = new Integer[5];
 
 //        System.out.println("***** INPUT: "+ inputValue);
 
@@ -114,12 +116,12 @@ public class DateParser implements FieldParser {
                         outdate = new Integer[] {
                                 c1.get(Calendar.DAY_OF_MONTH)
                                 , c1.get(Calendar.MONTH) + 1
-                                , c1.get(Calendar.YEAR)};
+                                , c1.get(Calendar.YEAR), null, null};
                         System.out.println(Constants.dateFormat.get().format(grp.getDates().get(0)));
                     }
                 } else {    // a date range
-                    Integer[] startdate = extractDateFromMatcher(matcherRange, "day1", "month1", "year1");
-                    Integer[] enddate = extractDateFromMatcher(matcherRange, "day2", "month2", "year2");
+                    Integer[] startdate = extractDateFromMatcher(matcherRange, "day1", "month1", "year1", null, null);
+                    Integer[] enddate = extractDateFromMatcher(matcherRange, "day2", "month2", "year2", null, null);
                     validateDate(startdate[0], startdate[1], startdate[2]);
                     validateDate(enddate[0], enddate[1], enddate[2]);
 
@@ -129,12 +131,12 @@ public class DateParser implements FieldParser {
                     };
                 }
             } else {
-                outdate = extractDateFromMatcher(matcher, "day", "month", "year");
+                outdate = extractDateFromMatcher(matcher, "day", "month", "year", "hour", "minute");
                 // make some validity checks
                 validateDate(outdate[0], outdate[1], outdate[2]);
             }
         } else {
-            outdate = extractDateFromMatcher(matcher, "day", "month", "year");
+            outdate = extractDateFromMatcher(matcher, "day", "month", "year", "hour", "minute");
             // make some validity checks
             validateDate(outdate[0], outdate[1], outdate[2]);
         }
@@ -164,11 +166,14 @@ public class DateParser implements FieldParser {
         }
     }
 
-    static private Integer[] extractDateFromMatcher(Matcher matcher, String dayGroup, String monthGroup, String yearGroup) {
-        Integer[] out = new Integer[3];
-        Integer day = null, month = null, year = null;
+    static private Integer[] extractDateFromMatcher(Matcher matcher, String dayGroup, String monthGroup, String yearGroup,
+                                                    String hourGroup, String minuteGroup) {
+        Integer[] out = new Integer[5];
+        Integer day = null, month = null, year = null, hour = null, minute = null;
         String dayS = matcher.group(dayGroup);
         String monthS = matcher.group(monthGroup);
+        String hourS = hourGroup == null ? null : matcher.group(hourGroup);
+        String minuteS = minuteGroup == null ? null : matcher.group(minuteGroup);
         if(dayS != null && monthS == null) {
             String tmpS = dayS;
             dayS = monthS;
@@ -178,8 +183,7 @@ public class DateParser implements FieldParser {
         if(dayS != null) {
             try {
                 day = Integer.parseInt(dayS);
-            } catch (NumberFormatException e) {
-                day = null;
+            } catch (NumberFormatException ignored) {
             }
         }
 
@@ -189,8 +193,7 @@ public class DateParser implements FieldParser {
             else {
                 try {
                     month = Integer.parseInt(monthS);
-                } catch (NumberFormatException e) {
-                    month = null;
+                } catch (NumberFormatException ignored) {
                 }
             }
         }
@@ -202,9 +205,26 @@ public class DateParser implements FieldParser {
         } catch (NumberFormatException e) {
             year = null;
         }
+
+        if(hourS != null) {
+            try {
+                hour = Integer.parseInt(hourS);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        if(minuteS != null) {
+            try {
+                minute = Integer.parseInt(minuteS);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
         out[0] = day;
         out[1] = month;
         out[2] = year;
+        out[3] = hour;
+        out[4] = minute;
         return out;
     }
 
