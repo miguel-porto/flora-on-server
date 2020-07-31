@@ -158,7 +158,7 @@ tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified {outline: 1px dashed #b931ff; box-shadow: 0 0 3px #b931ff;}
 tr.active {outline: 1px solid #63c2ff;}
 tr.external td {font-style:italic}
-.occurrencetable td.collapsed, .occurrencetable th.collapsed {min-width:12px; width:16px; max-width:16px; overflow: hidden; font-size:0.6em; padding:0}
+.occurrencetable td.collapsed, .occurrencetable th.collapsed {min-width:16px; width:24px; max-width:24px; overflow: hidden; font-size:0.6em; padding:0}
 .occurrencetable td.collapsed {text-overflow: ellipsis; white-space: nowrap;}
 .occurrencetable .expandbutton {padding:0; background:transparent; text-align:center; background-size:auto 100%; height:8px;position:absolute; width:100%; top:1px; filter:invert(100%);}
 .occurrencetable .expandbutton:hover {filter:none;}
@@ -176,7 +176,7 @@ tr.external td {font-style:italic}
     min-width: 40%;
     margin-top: 20px;
     box-shadow: 0 0 20px 3px black;
-    z-index:1;
+    z-index:2;
     border-radius:6px;
     left:30%;
     border:2px solid black;

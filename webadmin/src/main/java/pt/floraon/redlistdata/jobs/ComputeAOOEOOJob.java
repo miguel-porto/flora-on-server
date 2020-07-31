@@ -149,6 +149,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("7.2 Conservation plans justification");
         csvp.print("7.3 Ex-situ");
         csvp.print("7.3 Ex-situ justification");
+        csvp.print("Uses");
 
 /*
         csvp.print("Threats");
@@ -246,6 +247,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             csvp.print(rlde.getConservation().getExSituConservation().getLabel());
             csvp.print(rlde.getConservation().getExSituConservationJustification().toCleanString());
 
+            csvp.print(StringUtils.implode("; ", rlde.getUsesAndTrade().getUses()));
 /*
             csvp.print(StringUtils.implode("; ", "pt.floraon.redlistdata.fieldValues", rlde.getThreats().getThreats()));
             csvp.print(StringUtils.implode("; ", "pt.floraon.redlistdata.fieldValues", rlde.getConservation().getProposedConservationActions()));

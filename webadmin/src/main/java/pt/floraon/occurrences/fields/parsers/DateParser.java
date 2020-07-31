@@ -73,7 +73,7 @@ public class DateParser implements FieldParser {
         Integer[] date;
 
         if(inputValue.trim().equals("")) {
-            date = new Integer[] {Constants.NODATA_INT, Constants.NODATA_INT, Constants.NODATA_INT};
+            date = new Integer[] {Constants.NODATA_INT, Constants.NODATA_INT, Constants.NODATA_INT, Constants.NODATA_INT, Constants.NODATA_INT};
         } else
             date = parseDate(inputValue);
 

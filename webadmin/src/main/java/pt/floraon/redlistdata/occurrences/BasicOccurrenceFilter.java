@@ -87,6 +87,10 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         return this;
     }
 
+    /**
+     * Only include ConfidenceInIdentifiction.CERTAIN
+     * @return
+     */
     public BasicOccurrenceFilter withNotDoubtful() {
         this.includeDoubtful = false;
         return this;
