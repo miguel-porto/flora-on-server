@@ -24,8 +24,8 @@
 <h1>Taxonomy &amp; Checklist Manager</h1>
 <ul class="menu">
     <c:if test="${user.canMODIFY_TAXA_TERRITORIES()}">
-    <li id="download-checklist">Download checklist</li>
-    <li id="download-checklist2">Download checklist w/ all species</li>
+    <li id="download-checklist">Download checklist (leaf nodes only)</li>
+    <li id="download-checklist2">Download checklist (always w/ the species)</li>
     </c:if>
     <li><a href="?w=graph&depth=3">Graphical taxonomy explorer</a></li>
 </ul>
