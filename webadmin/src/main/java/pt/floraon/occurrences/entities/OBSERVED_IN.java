@@ -39,10 +39,10 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @PrettyName(value = "Nome original", shortName = "Verb tax")
     private String verbTaxon;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas públicas do taxon", shortName = "Notas pub")
+    @PrettyName(value = "Notas públicas do taxon", shortName = "Notas pub", important = true)
     private String comment;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote")
+    @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote", important = true)
     private String privateComment;
     @SmallField @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Etiqueta herbário", shortName = "Etiq")

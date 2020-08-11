@@ -20,7 +20,6 @@ public class UserLogin extends FloraOnServlet {
 				session.removeAttribute("user");
 				session.invalidate();
 				thisRequest.response.sendRedirect("main");
-				return;
 			}
 		} else {
 			String username=thisRequest.getParameterAsString("username");
@@ -30,8 +29,10 @@ public class UserLogin extends FloraOnServlet {
 			if(user == null) {
 				thisRequest.response.sendRedirect("main?w=login&reason=notfound");
 			} else {
-			    if(driver.getGlobalSettings().isClosedForAdminTasks() && !user.isAdministrator())
-                    thisRequest.error("Site temporarily closed for administrative tasks");
+			    if(driver.getGlobalSettings().isClosedForAdminTasks() && !user.isAdministrator()) {
+					thisRequest.error("Site temporarily closed for administrative tasks");
+					return;
+				}
 
 				user.clearPassword();
 				user.resetEffectivePrivileges();

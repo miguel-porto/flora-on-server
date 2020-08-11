@@ -69,7 +69,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String habitat;
     @HideInCompactView @InventoryField
     @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub", important = true)
+    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
     private String pubNotes;
     @InventoryField @HideInCompactView
     @FieldParser(GeneralFieldParser.class)
@@ -77,7 +77,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String credits;
     @HideInCompactView @InventoryField
     @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv", important = true)
+    @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
     private String privNotes;
     @HideInCompactView @InventoryField
     @FieldParser(StringArrayParser.class)
@@ -96,7 +96,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String verbLocality;
     @InventoryField
     @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Local", shortName = "Local")
+    @PrettyName(value = "Local", shortName = "Local", important = true)
     private String locality;
     @InventoryField
     @FieldParser(GeneralFieldParser.class)
