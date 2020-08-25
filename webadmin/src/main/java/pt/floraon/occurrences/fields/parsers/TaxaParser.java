@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * Created by miguel on 08-02-2017.
  */
 public class TaxaParser implements FieldParser {
-    private static final Pattern coverValue = Pattern.compile("(?<cover>[0-9]{1,2}([.,][0-9]+)?)");
+    private static final Pattern coverValue = Pattern.compile("(?<cover>(?<![0-9])[0-9]{1,2}([.][0-9]+)?)$");
 
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {

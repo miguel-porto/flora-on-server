@@ -25,6 +25,7 @@
 			<div id="but-depth" data-depth="3" class="button round">3</div>
 			<div id="but-depth" data-depth="4" class="button round">4</div>
 			<p style="clear:both"/>
+		    <div id="but-downloadSVG" class="button">Download SVG</div>
 		</div>
 		<div class="box">
 			<div id="but-clean" class="button">Clean</div>

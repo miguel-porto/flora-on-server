@@ -17,6 +17,71 @@ var w = window,
     winwid = w.innerWidth || e.clientWidth || g.clientWidth,
     winhei = w.innerHeight|| e.clientHeight|| g.clientHeight;
 
+// this is only for downloading inline SVG
+var ContainerElements = ["svg","g"];
+var RelevantStyles = {"rect":["fill","stroke","stroke-width"],"path":["fill","stroke","stroke-width"],"circle":["fill","stroke","stroke-width"],"line":["stroke","stroke-width"],"text":["fill","font-size","text-anchor"],"polygon":["stroke","fill"]};
+
+function read_Element(ParentNode, OrigData){
+    var Children = ParentNode.childNodes;
+    var OrigChildDat = OrigData.childNodes;
+
+    for (var cd = 0; cd < Children.length; cd++){
+        var Child = Children[cd];
+
+        var TagName = Child.tagName;
+        if (ContainerElements.indexOf(TagName) != -1){
+            read_Element(Child, OrigChildDat[cd])
+        } else if (TagName in RelevantStyles){
+            var StyleDef = window.getComputedStyle(OrigChildDat[cd]);
+
+            var StyleString = "";
+            for (var st = 0; st < RelevantStyles[TagName].length; st++){
+                StyleString += RelevantStyles[TagName][st] + ":" + StyleDef.getPropertyValue(RelevantStyles[TagName][st]) + "; ";
+            }
+
+            Child.setAttribute("style",StyleString);
+        }
+    }
+}
+
+function export_StyledSVG(SVGElem){
+    var oDOM = SVGElem.cloneNode(true)
+    read_Element(oDOM, SVGElem)
+
+    var data = new XMLSerializer().serializeToString(oDOM);
+    var svg = new Blob([data], { type: "image/svg+xml;charset=utf-8" });
+    var url = URL.createObjectURL(svg);
+
+    // Create a new anchor element
+    const a = document.createElement('a');
+
+    // Set the href and download attributes for the anchor element
+    // You can optionally set other attributes like `title`, etc
+    // Especially, if the anchor element will be attached to the DOM
+    a.href = url;
+    a.download = 'graph.svg' || 'download';
+
+    // Click handler that releases the object URL after the element has been clicked
+    // This is required for one-off downloads of the blob content
+    const clickHandler = () => {
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          this.removeEventListener('click', clickHandler);
+        }, 150);
+    };
+
+    // Add the click event listener on the anchor element
+    // Comment out this line if you don't want a one-off download of the blob content
+    a.addEventListener('click', clickHandler, false);
+
+    // Programmatically trigger a click on the anchor element
+    // Useful if you want the download to happen automatically
+    // Without attaching the anchor element to the DOM
+    // Comment out this line if you don't want an automatic download of the blob content
+    a.click();
+}
+/***********************/
+
 function zoomed() {
 	if(d3.event.sourceEvent) {	// user has manually zoomed or panned
 		d3.event.sourceEvent.stopPropagation();
@@ -760,6 +825,10 @@ function clickToolbar(ev) {
 				'<p class="info">Creating '+linktype+' link from '+srcdatum.name+'</p><p>Select destination node</p>',{close:true});
 		}
 		break;
+
+    case 'but-downloadSVG':
+        export_StyledSVG(document.querySelector('#taxbrowser svg'));
+		break;
 	}
 }
 
@@ -841,7 +910,7 @@ function forceTick(e) {
 		case 'PART_OF':
 		case 'BELONGS_TO':
 		case 'TYPE_OF':
-			return('M'+(d.target.x+dy/40)+' '+(d.target.y-dx/40)+'l'+(-dy/20)+' '+(dx/20)+'L'+d.source.x+' '+d.source.y+'Z');
+			return('M'+(d.target.x+dy/40)+' '+(d.target.y-dx/40)+'l'+(-dy/35)+' '+(dx/35)+'L'+d.source.x+' '+d.source.y+'Z');
 		case 'SYNONYM':
 		case 'SAME_AS':
 			return('M'+(d.target.x+dy/30)+' '+(d.target.y-dx/30)+'L'+(d.source.x+dy/30)+' '+(d.source.y-dx/30)+'L'+(d.source.x-dy/30)+' '+(d.source.y+dx/30)+'L'+(d.target.x-dy/30)+' '+(d.target.y+dx/30)+'Z');
@@ -947,9 +1016,8 @@ function loadData(d,add,facets,depth) {
 	if(!facets) facets=['TAXONOMY'];
 //	d3.json('worker.php?w=neigh&f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : ''), function(error, graph) {
 	d3.json('graph/getneighbors?f='+facets.join(',')+'&'+qs+(depth!==undefined ? '&d='+parseInt(depth) : '0'), function(error, graph) {
-console.log(graph);
 		if(!graph || !graph.success) return;
-		if(graph.msg.nodes.length>500) {
+		if(graph.msg.nodes.length>1500) {
 			showRelationships(d);
 			showWindow('<p>Sorry, this would result in '+graph.msg.nodes.length+' nodes. I won\'t do it.</p>',{timer:2000});
 			return;
@@ -1039,7 +1107,7 @@ function onUpdateData() {
 		return el;
 	});//.attr("r",10);
 	tmp.append("text").attr("dx", 0).attr("dy", ".35em").text(function(d) { return d.name; });
-	
+
 	tmp=link.enter();
 	tmp=tmp.insert('path','svg g').attr('class',function(d) {
 		return('link '+d.type);		// +(d.current ? ' current' : '')
