@@ -136,6 +136,21 @@ public class StringUtils {
     }
 
     @NotNull
+    public static String implode(String separator, Object... data) {
+        if(data == null || data.length == 0) return "";
+        StringBuilder sb = new StringBuilder();
+        boolean any = false;
+        for (int i = 0; i < data.length; i++) {
+            if(data[i] != null && !data[i].toString().matches(" *")) {
+                sb.append(data[i].toString());
+                any = true;
+                if(i < data.length-1 && data[i+1] != null && !data[i+1].toString().matches(" *")) sb.append(separator);
+            }
+        }
+        return any ? sb.toString() : "";
+    }
+
+    @NotNull
     public static String implode(String separator, Map<String, String> map, String... data) {
         if(data == null || data.length == 0) return "";
         if(map == null)

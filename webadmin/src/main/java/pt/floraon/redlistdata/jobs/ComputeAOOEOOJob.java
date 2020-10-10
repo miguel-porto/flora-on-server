@@ -1,5 +1,6 @@
 package pt.floraon.redlistdata.jobs;
 
+import com.google.common.collect.Iterators;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.arangodriver.FloraOnArangoDriver;
@@ -12,6 +13,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.FieldValues;
 import pt.floraon.redlistdata.RedListDataFilter;
 import pt.floraon.redlistdata.RedListEnums;
@@ -150,6 +152,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("7.3 Ex-situ");
         csvp.print("7.3 Ex-situ justification");
         csvp.print("Uses");
+        csvp.print("Habitats");
 
 /*
         csvp.print("Threats");
@@ -248,6 +251,14 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             csvp.print(rlde.getConservation().getExSituConservationJustification().toCleanString());
 
             csvp.print(StringUtils.implode("; ", rlde.getUsesAndTrade().getUses()));
+            Iterator<Habitat> itHab = driver.getNodeWorkerDriver().getDocuments(new HashSet<>(Arrays.asList(rlde.getEcology().getHabitatTypes())), Habitat.class);
+            ArrayList<String> habs = new ArrayList<>();
+            while(itHab.hasNext()) {
+                habs.add(itHab.next().getFullName());
+            }
+
+            csvp.print(StringUtils.implode("; ", habs.toArray(new String[0])));
+
 /*
             csvp.print(StringUtils.implode("; ", "pt.floraon.redlistdata.fieldValues", rlde.getThreats().getThreats()));
             csvp.print(StringUtils.implode("; ", "pt.floraon.redlistdata.fieldValues", rlde.getConservation().getProposedConservationActions()));
