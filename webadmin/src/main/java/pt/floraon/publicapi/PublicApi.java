@@ -51,6 +51,7 @@ public class PublicApi extends FloraOnServlet {
             case "svgmap":
                 INodeKey key;
                 String format = "." + thisRequest.getParameterAsString("fmt", "svg").toLowerCase();
+                boolean historical = false;
                 String category = null;
                 String threatType = null, mapFileName = "";
                 Integer squareSize;
@@ -76,6 +77,7 @@ public class PublicApi extends FloraOnServlet {
                     squareSize = thisRequest.getParameterAsInteger("size", 10000);
                     borderWidth = thisRequest.getParameterAsFloat("border", 2f);
                     viewAll = "all".equals(thisRequest.getParameterAsString("view"));
+                    historical = thisRequest.getParameterAsBoolean("historical", false);
                     standAlone = thisRequest.getParameterAsBoolean("sa", true);
                     squareFill = "#" + thisRequest.getParameterAsString("squareFill");
                     showProtectedAreas = thisRequest.getParameterAsBoolean("pa", true);
@@ -115,7 +117,8 @@ public class PublicApi extends FloraOnServlet {
                 else
                     occurrenceFilter = viewAll
                             ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
-                            : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+                            : (historical ? BasicOccurrenceFilter.OnlyHistoricalAndCertainRecords(driver, territory)
+                            : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory));
 
                 if(key != null) {   // we want one taxon
                     TaxEnt te2 = driver.getNodeWorkerDriver().getTaxEntById(key);
