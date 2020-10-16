@@ -179,7 +179,8 @@ public class BeanUtils {
             count = 0;
             average = false;
             String propertyName = (String) propNameObject;
-            if (ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
+            if ((ignoreProperties != null && ignoreProperties.contains(propertyName))
+                    || "class".equals(propertyName)) continue;
 
             Object property = null, newProperty;
 
