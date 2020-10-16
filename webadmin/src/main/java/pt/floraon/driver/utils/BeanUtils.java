@@ -244,11 +244,12 @@ public class BeanUtils {
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
         BeanUtilsBean bub = createBeanUtilsNull();
 
-        T out = cls.newInstance();
+        T out = cls.getDeclaredConstructor().newInstance();
 
         for (Object propNameObject : propertyMap.keySet()) {
             String propertyName = (String) propNameObject;
-            if(ignoreProperties != null && ignoreProperties.contains(propertyName)) continue;
+            if((ignoreProperties != null && ignoreProperties.contains(propertyName))
+                    || "class".equals(propertyName)) continue;
             System.out.println("PROP: " + propertyName);
             Object newProperty;
 
