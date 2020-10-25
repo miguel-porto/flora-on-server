@@ -20,6 +20,7 @@ public class UUIDParser implements FieldParser {
 
         switch (inputFieldName.toLowerCase()) {
             case "occurrenceuuid":
+            case "uuid":
                 if(occurrence.getUnmatchedOccurrences().size() == 0)
                     occurrence.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
 

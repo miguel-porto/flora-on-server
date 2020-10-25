@@ -39,12 +39,13 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			boolean tmpask = false;
 			tmp = nodes.next();
 //			Log.info("    trying: " + tmp.getFullName());
-			System.out.println("COMPARE");
+/*			System.out.println("COMPARE");
 			System.out.println(query.getName() + " <-> " + tmp.getName());
 			System.out.println(query.getRankValue() + " <-> " + tmp.getRankValue());
 			System.out.println(query.getAuthor() + " <-> " + tmp.getAuthor());
 			System.out.println(query.getAnnotation() + " <-> " + tmp.getAnnotation());
-			System.out.println(query.getSensu() + " <-> " + tmp.getSensu());
+			System.out.println(query.getSensu() + " <-> " + tmp.getSensu());*/
+
 			if (!query.getName().equals(tmp.getName())) {
 				if ((levenName = Common.levenshteinDistance(query.getName(), tmp.getName())) >= (strict ? 1 : 3))
 					continue;

@@ -505,6 +505,16 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             }
         }
 
+        // habitat filter
+        if(filter.containsKey("hab")) {
+            if(filter.get("hab").toUpperCase().equals("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullhabitat")).append(" ");
+            } else {
+                bindVars.put("habitat", filter.get("hab").replaceAll("\\*", "%"));
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.habitat")).append(" ");
+            }
+        }
+
         // code filter
         if(filter.containsKey("code")) {
             if(filter.get("code").toUpperCase().equals("NA")) {

@@ -95,6 +95,7 @@ public class BeanUtils {
         LongConverter longConverter = new LongConverter(null);
         FloatConverter floatConverter = new FloatConverter(null);
         DoubleConverter doubleConverter = new DoubleConverter(null);
+        DateConverter dateConverter = new DateConverter(null);
         NumericIntervalConverter numericIntervalConverter = new NumericIntervalConverter(null);
         AbundanceConverter abundanceConverter = new AbundanceConverter(null);
         //ArrayConverter arrayConverter = new ArrayConverter(String[].class, new StringConverter(null));
@@ -103,6 +104,7 @@ public class BeanUtils {
         out.getConvertUtils().register(longConverter, Long.class);
         out.getConvertUtils().register(floatConverter, Float.class);
         out.getConvertUtils().register(doubleConverter, Double.class);
+        out.getConvertUtils().register(dateConverter, Date.class);
         out.getConvertUtils().register(arrayConverter, Integer[].class);
         out.getConvertUtils().register(numericIntervalConverter, IntegerInterval.class);
         out.getConvertUtils().register(abundanceConverter, Abundance.class);

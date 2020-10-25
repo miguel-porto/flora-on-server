@@ -65,8 +65,18 @@
 <c:otherwise>
     <c:if test="${(fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary')}">
         <c:if test="${fields.isDateField(field)}">
-        <fmt:formatDate value="${taxon == null ? '' : fields.getFieldValueRaw(taxon, inventory, field)}" var="formattedDateSortKey" type="date" pattern="yyyy-MM-dd HH:mm:ss" />
-        <td class="${fields.isReadOnly(field) ? '' : editable} ${collapsedClass} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}"><fmt:formatDate value="${taxon == null ? '' : fields.getFieldValueRaw(taxon, inventory, field)}" var="formattedDate" type="date" pattern="dd-MM-yyyy HH:mm" />${formattedDate}</td>
+            <c:if test="${taxon != null}">
+                <c:set var="thisdate" value="${fields.getFieldValueRaw(taxon, inventory, field)}"/>
+                <c:if test="${thisdate != null}">
+                <fmt:formatDate value="${thisdate}" var="formattedDateSortKey" type="date" pattern="yyyy-MM-dd HH:mm:ss" />
+                <fmt:formatDate value="${thisdate}" var="formattedDate" type="date" pattern="dd-MM-yyyy HH:mm" />
+                </c:if>
+                <c:if test="${thisdate == null}">
+                <c:set var="formattedDateSortKey" value=""/>
+                <c:set var="formattedDate" value=""/>
+                </c:if>
+            </c:if>
+        <td class="${fields.isReadOnly(field) ? '' : editable} ${collapsedClass} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}">${formattedDate}</td>
         </c:if>
         <c:if test="${!fields.isDateField(field)}">
         <td class="${fields.isReadOnly(field) ? '' : editable} ${collapsedClass} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>

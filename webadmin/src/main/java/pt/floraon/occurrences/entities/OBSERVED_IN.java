@@ -78,14 +78,14 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
 */
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
-    @SmallField @HideInCompactView @ReadOnly @FieldType(FieldType.Type.DATE)
+    @SmallField @HideInCompactView @ReadOnly @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
     @PrettyName(value = "Data de inserção", shortName = "Data ins")
     private Date dateInserted;
     @SmallField @HideInCompactView @ReadOnly @FieldType(FieldType.Type.DATE)
     @PrettyName(value = "Data da última actualização", shortName = "Data alt")
     private Date dateUpdated;
-    @SmallField @HideInCompactView @ReadOnly
-    @PrettyName(value = "Identificador único", shortName = "UUID")
+    @SmallField @HideInCompactView @FieldParser(UUIDParser.class) @ReadOnly
+    @PrettyName(value = "Identificador único", shortName = "UUID", alias={"occurrenceuuid"})
     private UUID uuid;
     @SmallField @FieldParser(GeneralFieldParser.class) @MonospaceFont
     @PrettyName(value = "Código GPS", shortName = "GPS", alias={"gps", "gps code"}

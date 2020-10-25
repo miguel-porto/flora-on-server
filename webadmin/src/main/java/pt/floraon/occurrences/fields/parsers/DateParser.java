@@ -7,6 +7,7 @@ import pt.floraon.driver.Constants;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
+import pt.floraon.occurrences.entities.OBSERVED_IN;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -69,7 +70,7 @@ public class DateParser implements FieldParser {
     @Override
     public void parseValue(String inputValue, String inputFieldName, Object bean) throws IllegalArgumentException {
         if(inputValue == null) return;
-        Inventory occurrence = (Inventory) bean;
+        Inventory inventory = (Inventory) bean;
         Integer[] date;
 
         if(inputValue.trim().equals("")) {
@@ -77,11 +78,48 @@ public class DateParser implements FieldParser {
         } else
             date = parseDate(inputValue);
 
-        occurrence.setDay(date[0]);
-        occurrence.setMonth(date[1]);
-        occurrence.setYear(date[2]);
-        occurrence.setHour(date[3]);
-        occurrence.setMinute(date[4]);
+        switch(inputFieldName.toLowerCase()) {
+            case "date":
+                inventory.setDay(date[0]);
+                inventory.setMonth(date[1]);
+                inventory.setYear(date[2]);
+                inventory.setHour(date[3]);
+                inventory.setMinute(date[4]);
+                break;
+
+            case "dateinserted":
+                if(inventory.getUnmatchedOccurrences().size() == 0)
+                    inventory.getUnmatchedOccurrences().add(new OBSERVED_IN(true));
+
+                if(Constants.isNullOrNoData(date[2])) {
+                    for(OBSERVED_IN obs : inventory.getUnmatchedOccurrences()) {
+                        obs.setDateInserted(null);
+                    }
+                    break;
+                } else {
+                    Calendar c = Calendar.getInstance();
+                    if (!Constants.isNullOrNoData(date[2]))
+                        c.set(Calendar.YEAR, date[2]);
+                    if (!Constants.isNullOrNoData(date[1]))
+                        c.set(Calendar.MONTH, date[1] - 1);
+                    if (!Constants.isNullOrNoData(date[0]))
+                        c.set(Calendar.DAY_OF_MONTH, date[0]);
+                    if (!Constants.isNullOrNoData(date[0]))
+                        c.set(Calendar.DAY_OF_MONTH, date[0]);
+                    if (!Constants.isNullOrNoData(date[3]))
+                        c.set(Calendar.HOUR_OF_DAY, date[3]);
+                    if (!Constants.isNullOrNoData(date[4]))
+                        c.set(Calendar.MINUTE, date[4]);
+                    
+                    for(OBSERVED_IN obs : inventory.getUnmatchedOccurrences()) {
+                        obs.setDateInserted(c.getTime());
+                    }
+                }
+                break;
+
+            default:
+                throw new IllegalArgumentException("Field " + inputFieldName + " not understood.");
+        }
     }
 
     /**

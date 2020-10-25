@@ -148,6 +148,7 @@
         <tr><td></td><td></td><td><code>municipality</code></td><td>Inventory</td><td>The municipality of the locality.</td></tr>
         <tr><td></td><td></td><td><code>province</code></td><td>Inventory</td><td>The province of the locality.</td></tr>
         <tr><td></td><td></td><td><code>county</code></td><td>Inventory</td><td>The county of the locality.</td></tr>
+        <tr><td></td><td></td><td><code>project</code></td><td>Inventory</td><td>The acronym of the project where this inventory was conducted.</td></tr>
         <tr><td></td><td></td><td><code>code</code> <code>código</code> <code>inventário</code></td><td>Inventory</td><td>The short code of the inventory. <b>All records with the same value in this field will be merged in the same inventory.</b></td></tr>
         <tr><td></td><td></td><td><code>habitat</code></td><td>Inventory</td><td>The habitat applicable to all taxa in this inventory.</td></tr>
         <tr><td></td><td></td><td><code>threats</code></td><td>Inventory</td><td>The threats applicable to all taxa in this inventory.</td></tr>
@@ -162,6 +163,7 @@
         <tr><td></td><td></td><td><code>privatenote</code> <code>privateComment</code></td><td>Occurrence</td><td>Private notes about this occurrence.</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>phenostate</code></td><td>Occurrence</td><td>The phenological state of this taxon. One of: <code>f</code> Flower <code>d</code> Dispersion <code>fd</code> Flower+Dispersion <code>v</code> Vegetative <code>r</code> Resting <code>c</code> Immature fruit <code>fc</code> Flower+Immature fruit</td></tr>
         <tr class="highlight"><td></td><td></td><td><code>confidence</code></td><td>Occurrence</td><td>The confidence in the identification by the observers. One of: <code>c</code> Quite certain <code>a</code> Almost sure <code>d</code> Doubtful</td></tr>
+        <tr><td></td><td></td><td><code>naturalization</code></td><td>Occurrence</td><td>If this specimen is wild, cultivated or escaped from culture. One of: <code>w</code> Wild <code>e</code> Escaped <code>c</code> Cultivated</td></tr>
         <tr><td></td><td></td><td><code>excludeReason</code></td><td>Occurrence</td><td>If this occurrence is to be excluded from analyses, for what reason. One of: <code>d</code> Destroyed <code>m</code> Probably misidentified <code>w</code> Wrong coordinates <code>e</code> Escaped from cultivation <code>i</code> Introduced <code>o</code> Other reason</td></tr>
         <tr><td></td><td></td><td><code>hasphoto</code></td><td>Occurrence</td><td>Whether and which photos were taken. One of: <code>s</code> Specimen photo <code>a</code> Threat photo <code>sa</code> Specimen+Threat photo</td></tr>
         <tr><td></td><td></td><td><code>hasspecimen</code></td><td>Occurrence</td><td>How many specimens were collected, if any.</td></tr>

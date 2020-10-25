@@ -1,12 +1,6 @@
 package pt.floraon.occurrences.fields.parsers;
 
-import pt.floraon.driver.parsers.FieldParser;
-import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.entities.Inventory;
-import pt.floraon.occurrences.entities.OBSERVED_IN;
-import pt.floraon.occurrences.fields.FieldReflection;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by miguel on 12-02-2017.

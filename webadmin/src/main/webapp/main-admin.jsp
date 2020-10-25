@@ -174,8 +174,8 @@
         <h1><a name="admin"></a>Administrative tasks</h1>
         <h2>Occurrence database</h2>
         <div class="block">
-            <h3><a href="admin/downloadallrecords"><img class="lock" src="../images/download.png"/> Download all records</a></h3>
-            <h3><a href="admin/downloadallrecords?w=precise"><img class="lock" src="../images/download.png"/> Download all valid and precise records at the species level</a></h3>
+            <h3><a href="admin/downloadallrecords"><img class="lock" src="${contextPath}/images/download.png"/> Download all records</a></h3>
+            <h3><a href="admin/downloadallrecords?w=precise"><img class="lock" src="${contextPath}/images/download.png"/> Download all valid and precise records at the species level</a></h3>
         </div>
         <h2>Online users</h2>
         <div class="block">
