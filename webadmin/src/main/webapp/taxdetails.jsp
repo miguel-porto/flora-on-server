@@ -193,6 +193,12 @@
 							<input type="hidden" name="replace" value="0"/>
 							<input type="submit" value="Update"/>
 						</form>
+						<c:if test="${!taxent.isSpeciesOrInferior()}">
+						<form class="poster" data-path="checklist/api/update/update/setasspecies">
+						    <input type="hidden" name="id" value="${taxent.getID()}"/>
+						    <input type="submit" value="Set this taxon as species or inferior"/>
+						</form>
+						</c:if>
 					</div>
 				</div>
 			

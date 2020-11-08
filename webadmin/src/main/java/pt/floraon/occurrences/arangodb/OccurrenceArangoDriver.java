@@ -24,6 +24,7 @@ import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.parsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxonName;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
@@ -369,7 +370,13 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             if(change.getValue().getTargetTaxEntId().equals("NM"))
                 tmp = "";
             else if(change.getValue().getTargetTaxEntId().equals("NA")) {
-                TaxEnt te = driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(TaxEnt.parse(change.getKey()));
+                //TaxEnt te = driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(TaxEnt.parse(change.getKey()));
+                TaxEnt te;
+                try {   // try to parse species or inferior
+                    te = driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(new TaxEnt(new TaxonName(change.getKey())));
+                } catch (TaxonomyException tex) {   // if not, fall back to old parser
+                    te = driver.getNodeWorkerDriver().createTaxEntFromTaxEnt(TaxEnt.parse(change.getKey()));
+                }
                 tmp = te.getID();
             } else
                 tmp = change.getValue().getTargetTaxEntId();
