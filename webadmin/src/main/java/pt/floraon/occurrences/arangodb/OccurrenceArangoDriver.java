@@ -364,7 +364,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
         for(Map.Entry<String, TaxonomicChange> change : changes.entrySet()) {
             bindVars = new HashMap<>();
-            bindVars.put("user", change.getValue().getUserId());
+            if(change.getValue().getUserId() != null) bindVars.put("user", change.getValue().getUserId());
             bindVars.put("uuids", change.getValue().getUuids());
             if(change.getValue().getTargetTaxEntId().equals("NM"))
                 tmp = "";

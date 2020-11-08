@@ -10,6 +10,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.OccurrenceImporterJob;
+import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
@@ -37,6 +38,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
         Integer page = thisRequest.getParameterAsInteger("p", null);
         Integer count = 250;    // how many occurrences or inventories per page
         String filter;
+        INodeKey maintainer;
         int tmp;
         HttpSession session = request.getSession(false);
         if(user.isAdministrator() && !thisRequest.isOptionSet("allusers"))
@@ -170,9 +172,13 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "fixissues":
-                InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(
-                        driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(driver.asNodeKey(user.getID()))
-                        , false, true);
+                if(thisRequest.isOptionTrue("allusers"))
+                    maintainer = null;
+                else
+                    maintainer = driver.asNodeKey(user.getID());
+                Iterator<Inventory> itInv = driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainer(maintainer);
+                InventoryList il = driver.getOccurrenceDriver().matchTaxEntNames(itInv, false, true);
+
                 request.setAttribute("nomatchquestions", il.getQuestions());
                 request.setAttribute("matchwarnings", il.getVerboseWarnings());
                 request.setAttribute("nomatches", il.getVerboseErrors());
@@ -180,19 +186,18 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "occurrenceview":  // The main view of occurrences, with many flavours
-                INodeKey tu;
                 if(thisRequest.isOptionTrue("allusers"))
-                    tu = null;
+                    maintainer = null;
                 else
-                    tu = driver.asNodeKey(user.getID());
+                    maintainer = driver.asNodeKey(user.getID());
 
-                tmp = driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(tu);
+                tmp = driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(maintainer);
 
                 if (filter == null) {
                     request.setAttribute("nroccurrences", count > tmp ? tmp : count);
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
-                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(tu,false,(page - 1) * count, count));
+                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(maintainer,false,(page - 1) * count, count));
                 } else {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);   // TODO this should be the number after filtering, but we don't know it by now
@@ -201,13 +206,13 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     try {
                         parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("occurrences"
-                                , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, tu, (page - 1) * count, count));
+                                , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, maintainer, (page - 1) * count, count));
                     } catch(FloraOnException e) {
                         request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
                     }
 
 
-                    if(tu == null && parsedFilter.containsKey("NA")) {
+                    if(maintainer == null && parsedFilter.containsKey("NA")) {
                         List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                         for (SimpleOccurrenceDataProvider edp : sodps) {
                             if (edp.canQueryText()) {
@@ -220,8 +225,11 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     }
                 }
 
-                if(tu != null)  // if it is all occurrences, we skip this check cause it takes a few seconds
-                    request.setAttribute("nproblems", driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(tu));
+                if(maintainer != null)  // if it is all occurrences, we skip this check cause it takes a few seconds
+                    request.setAttribute("nproblems", driver.getOccurrenceDriver().getUnmatchedOccurrencesOfMaintainerCount(maintainer));
+                else
+                    request.setAttribute("nproblems", 1);
+
                 request.setAttribute("historicalYear", 1991);   // TODO this should be user configuration
 
                 // Flavours
