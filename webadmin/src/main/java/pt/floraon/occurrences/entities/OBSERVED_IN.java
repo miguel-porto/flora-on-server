@@ -29,7 +29,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Estado fenológico", shortName = "Fen", important = true)
     private Constants.PhenologicalStates phenoState;
-    @HideInCompactView @FieldParser(EnumParser.class)
+    @HideInCompactView @SmallField @FieldParser(EnumParser.class)
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     @SmallField @HideInCompactView @FieldParser(EnumParser.class)

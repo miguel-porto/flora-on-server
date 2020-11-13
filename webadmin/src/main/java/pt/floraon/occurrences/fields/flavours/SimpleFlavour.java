@@ -4,7 +4,8 @@ public class SimpleFlavour extends GeneralOccurrenceFlavour implements IOccurren
     @Override
     public String[] getFields() {
         return new String[]{
-                "taxa", "confidence", "coordinates", "precision", "comment", "privateComment", "date", "phenoState", "observers"
+                "taxa", "confidence", "coordinates", "precision", "comment", "privateComment", "date", "phenoState",
+                "observers", "naturalization"
         };
     }
 

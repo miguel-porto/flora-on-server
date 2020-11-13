@@ -148,7 +148,7 @@ public final class Common {
 
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
         csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
-                , "phenoState", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
+                , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
                 , "credits", "maintainer", "maintainerName");
@@ -170,6 +170,7 @@ public final class Common {
                 , oi.getConfidence()
                 , oi.getPresenceStatus()
                 , oi.getPhenoState()
+                , oi.getNaturalization()
                 , occurrence._getDateYMD()
                 , StringUtils.implode(", ", occurrence._getObserverNames())
                 , StringUtils.implode(", ", userMap, occurrence.getCollectors())
