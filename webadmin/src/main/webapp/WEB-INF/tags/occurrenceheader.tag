@@ -24,7 +24,7 @@
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><th class="smallcol ${collapsed}"><t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>verbLocal</th></c:when>
 
 <c:otherwise>
-<c:if test="${field == 'taxa' || (fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary')}">
+<c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && (field == 'taxa' || (fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
 <th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
     title="${fields.getFieldName(field)}">
     <t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>

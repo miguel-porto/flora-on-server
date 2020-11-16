@@ -74,4 +74,9 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
         return FieldReflection.isAuthorField(field);
     }
 
+    @Override
+    public boolean isAdminField(String field) {
+        return FieldReflection.isAdminField(field);
+    }
+
 }

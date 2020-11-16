@@ -63,7 +63,7 @@
 <c:when test="${fields.isImageField(field) && view != 'inventorySummary'}"><td class="${editable} ${collapsedClass} imageupload" data-name="${field}"><c:if test="${taxon != null}"><c:forEach var="image" items="${fields.getFieldValueRaw(taxon, inventory, field)}"><c:if test="${image != null}"><img src="photos/${image}.jpg"/></c:if></c:forEach></c:if></td></c:when>
 
 <c:otherwise>
-    <c:if test="${(fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary')}">
+    <c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && ((fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
         <c:if test="${fields.isDateField(field)}">
             <c:if test="${taxon != null}">
                 <c:set var="thisdate" value="${fields.getFieldValueRaw(taxon, inventory, field)}"/>

@@ -201,7 +201,7 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
             enter &= !(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.ALMOST_SURE
                     || so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
             enter &= !(so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed);
-            enter &= !(so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD);
+//            enter &= !(so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD);
             enter &= !(so.getOccurrence().getAbundance() != null && !so.getOccurrence().getAbundance().wasDetected());
             enter &= !(so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty());
         }

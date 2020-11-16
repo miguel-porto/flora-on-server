@@ -94,7 +94,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
-    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
+    @SmallField @HideInCompactView @AdminOnly @FieldParser(EnumParser.class)
     @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
     private OccurrenceConstants.PresenceStatus presenceStatus;
     @FieldType(FieldType.Type.IMAGE) @FieldParser(StringArrayParser.class)

@@ -55,5 +55,7 @@ public interface IOccurrenceFlavour {
 
     boolean isAuthorField(String field);
 
+    boolean isAdminField(String field);
+
     boolean containsInventoryFields();
 }
