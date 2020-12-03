@@ -25,6 +25,11 @@ document.addEventListener('DOMContentLoaded', function() {
     myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
     L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
+    //L.tileLayer.bing({imagerySet:'Aerial', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
+
+/*    L.gridLayer.googleMutant({
+        type: 'satellite'	// valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
+    }).addTo(myMap);*/
 
     myMap.on('click', mapClick);
 

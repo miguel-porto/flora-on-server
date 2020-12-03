@@ -21,6 +21,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -32,7 +34,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     final private IFloraOn driver;
 
     private class FloraOnOccurrence {
-        String autor, genero, especie, subespecie, notas;
+        String autor, genero, especie, subespecie, notas, dateinserted;
         int id_reg, id_ent, ano, mes, dia, precisao, espontanea;
         float latitude, longitude;
         boolean duvida, validado, destroyed;
@@ -45,6 +47,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     }
 
     private void readBigJsonFromStream(InputStream stream) throws IOException {
+        DateFormat df = Constants.dateFormatYMD.get();
         occurrenceList = new ArrayList<>();
         Gson gson = new Gson();
         JsonReader jr;
@@ -62,6 +65,15 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
                             , o.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
                             , o.floracao == null ? null : Constants.PhenologicalStates.FLOWER
                             , o.espontanea == 1);
+
+                    if(o.dateinserted != null) {
+                        try {
+                            so.getOccurrence().setDateInserted(df.parse(o.dateinserted));
+                        } catch (ParseException e) {
+                            // just ignore
+                        }
+                    }
+
                     if(!o.validado)
                         so.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
                     else if(o.destroyed)

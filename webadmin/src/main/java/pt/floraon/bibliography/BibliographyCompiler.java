@@ -133,6 +133,8 @@ public class BibliographyCompiler<T, C> {
         BeanMap propertyMap = new BeanMap(bean);    // beans are all same class! so we take the first as a model
         for (Object propNameObject : propertyMap.keySet()) {
             String propertyName = (String) propNameObject;
+            if ("class".equals(propertyName)) continue;
+
             Object property;
             try {
                 property = propUtils.getProperty(bean, propertyName);

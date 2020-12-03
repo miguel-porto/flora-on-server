@@ -27,14 +27,18 @@ public final class OccurrenceConstants {
     public enum OccurrenceNaturalization implements RedListEnums.LabelledEnum {
         WILD("Wild"),
         CULTIVATED("Cultivated"),
-        ESCAPED("Escaped");
+        ESCAPED("Escaped"),
+        REINTRODUCTION("Reintroduction"),
+        TRANSLOCATION("Translocation");
 
-        private String label;
-        private static Map<String, OccurrenceNaturalization> acronymMap = new HashMap<>();
+        private final String label;
+        private static final Map<String, OccurrenceNaturalization> acronymMap = new HashMap<>();
         static {
             acronymMap.put("w", OccurrenceNaturalization.WILD);
             acronymMap.put("c", OccurrenceNaturalization.CULTIVATED);
             acronymMap.put("e", OccurrenceNaturalization.ESCAPED);
+            acronymMap.put("r", OccurrenceNaturalization.REINTRODUCTION);
+            acronymMap.put("t", OccurrenceNaturalization.TRANSLOCATION);
             acronymMap.put("", OccurrenceNaturalization.WILD);
         }
 
