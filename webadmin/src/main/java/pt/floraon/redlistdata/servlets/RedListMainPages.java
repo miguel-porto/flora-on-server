@@ -344,8 +344,8 @@ System.out.println(gs.toJson(getUser()));
                     RedListSettings rls = driver.getRedListSettings(territory);
                     PolygonTheme clippingPolygon = rls.getClippingPolygon();
 
-                    OccurrenceFilter historicalFilter = BasicOccurrenceFilter.OnlyHistoricalAndCertainRecords(driver, territory);
-                    OccurrenceFilter currentFilter = BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+                    OccurrenceFilter historicalFilter = BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory);
+                    OccurrenceFilter currentFilter = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory);
 
                     if(rldeSnap == null) {
                         // set privileges for this taxon
@@ -609,8 +609,8 @@ System.out.println(gs.toJson(getUser()));
                 boolean viewAll = "all".equals(thisRequest.getParameterAsString("view"));
 
                 OccurrenceFilter of = viewAll ?
-                        BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
-                        : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+                        BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withoutDateFilter()
+                        : BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory);
 
                 OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps, of);
 
@@ -665,8 +665,8 @@ System.out.println(gs.toJson(getUser()));
                 else {
                     OccurrenceProcessor.iterableOf(sodps1
                             , "all".equals(thisRequest.getParameterAsString("view"))
-                                    ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
-                                    : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory)
+                                    ? BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withoutDateFilter()
+                                    : BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory)
                     ).exportKML(wr);
                 }
                 wr.flush();

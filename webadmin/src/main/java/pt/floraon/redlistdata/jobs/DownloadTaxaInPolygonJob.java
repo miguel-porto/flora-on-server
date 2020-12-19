@@ -63,7 +63,7 @@ public class DownloadTaxaInPolygonJob implements JobFileDownload {
                 edp.executeOccurrenceQuery(taxEnt);
 
             OccurrenceProcessor op = OccurrenceProcessor.iterableOf(sodps
-                    , BasicOccurrenceFilter.OnlyCurrentAndCertainRecordsInPolygon(driver, territory, polygonWKT));
+                    , BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT));
 
             for (Occurrence occ : op) {
                 // this adds the taxa and records the most recent year of observation of this taxon, in the polygon
@@ -85,7 +85,7 @@ public class DownloadTaxaInPolygonJob implements JobFileDownload {
         finalPhase = true;
         new ComputeAOOEOOJobWithInfo(territory, 2000
                 // NOTE this filter is for computing AOO & EOO only!
-                , BasicOccurrenceFilter.OnlyCurrentAndCertainRecordsInPolygon(driver, territory, clippingPolygon)
+                , BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, clippingPolygon)
                 , null, taxaSet).run(driver, out);
     }
 

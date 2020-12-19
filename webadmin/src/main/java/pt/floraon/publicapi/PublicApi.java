@@ -113,12 +113,12 @@ public class PublicApi extends FloraOnServlet {
                 OccurrenceFilter occurrenceFilter;
 
                 if("maybeextinct".equals(category))
-                    occurrenceFilter = BasicOccurrenceFilter.OnlyCertainRecords(driver, territory);
+                    occurrenceFilter = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withoutDateFilter();//  OnlyCertainRecords(driver, territory);
                 else
                     occurrenceFilter = viewAll
-                            ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
-                            : (historical ? BasicOccurrenceFilter.OnlyHistoricalAndCertainRecords(driver, territory)
-                            : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory));
+                            ? BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withoutDateFilter()
+                            : (historical ? BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory)
+                            : BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory));
 
                 if(key != null) {   // we want one taxon
                     TaxEnt te2 = driver.getNodeWorkerDriver().getTaxEntById(key);
@@ -279,10 +279,10 @@ public class PublicApi extends FloraOnServlet {
 
                 for(SimpleOccurrenceDataProvider edp : sodps)
                     edp.executeOccurrenceQuery(te3);
-
                 occurrenceFilter = viewAll
-                        ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
-                        : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+//                        ? BasicOccurrenceFilter.OnlyCertainRecords(driver, territory)
+                        ? BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withoutDateFilter()
+                        : BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory);
 
                 processor = new OccurrenceProcessor(sodps, null, squareSize, occurrenceFilter);
 

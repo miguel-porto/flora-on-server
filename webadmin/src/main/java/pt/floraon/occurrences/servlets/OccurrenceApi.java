@@ -251,7 +251,7 @@ public class OccurrenceApi extends FloraOnServlet {
                     e.printStackTrace();
                     throw new FloraOnException(e.getMessage());
                 } catch (FloraOnException e) {
-                    throw new FloraOnException(Messages.getString("error.3"));
+                    throw new FloraOnException(e.getMessage());
                 }
 
                 // assemble all species found in these inventories into the merged one, and set the codes from respective inventories

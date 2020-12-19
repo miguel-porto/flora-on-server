@@ -5,7 +5,6 @@ import jline.internal.Log;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.authentication.RandomString;
 import pt.floraon.authentication.entities.TaxonPrivileges;
@@ -16,6 +15,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.Common;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilterWithAuthors;
@@ -23,8 +23,6 @@ import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.dataproviders.InternalDataProvider;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
-import pt.floraon.taxonomy.entities.TaxEnt;
-import pt.floraon.taxonomy.entities.TaxEntMatch;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -311,8 +309,7 @@ public class AdminAPI extends FloraOnServlet {
                     for(SimpleOccurrenceDataProvider edp : sodps1)
                         edp.executeOccurrenceQuery(driver.getNodeWorkerDriver().getTaxEntByIds(taxaToDl.toArray(new String[taxaToDl.size()])));
 
-                    op = OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter(
-                            null, null, true, (clip == null || clip.size() == 0) ? null : clip));
+                    op = OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilter((clip == null || clip.size() == 0) ? null : clip));
                 } else {
                     for(SimpleOccurrenceDataProvider edp : sodps1) {
                         if (edp instanceof InternalDataProvider)
@@ -320,8 +317,7 @@ public class AdminAPI extends FloraOnServlet {
                     }
 
                     Set<String> maintainers = new HashSet<>(Arrays.asList(filterByUsers));
-                    op = OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilterWithAuthors(
-                            null, null, true, (clip == null || clip.size() == 0) ? null : clip
+                    op = OccurrenceProcessor.iterableOf(sodps1, new BasicOccurrenceFilterWithAuthors((clip == null || clip.size() == 0) ? null : clip
                             , maintainers));
                 }
                 Log.info("End query");
@@ -332,11 +328,22 @@ public class AdminAPI extends FloraOnServlet {
 
             case "downloadallrecords":
                 thisRequest.ensureAdministrator();
+                List<OccurrenceConstants.ConfidenceInIdentifiction> allowed = new ArrayList<>();
+                if(thisRequest.isQueryParameterSet("certain")) allowed.add(OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN);
+                if(thisRequest.isQueryParameterSet("doubtful")) allowed.add(OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
+                if(thisRequest.isQueryParameterSet("almostsure")) allowed.add(OccurrenceConstants.ConfidenceInIdentifiction.ALMOST_SURE);
+                OccurrenceFilter of = thisRequest.isQueryParameterSet("all") ? null
+                        : BasicOccurrenceFilter.create().withValidTaxaOnly().withSpeciesOrLowerRankOnly()
+                        .withEnsureCurrentlyExisting().withoutExcluded()
+                        .withMinimumPrecision(thisRequest.getParameterAsInteger("precision", 100))
+                        .withOnlyAllowConfidenceLevels(allowed.toArray(new OccurrenceConstants.ConfidenceInIdentifiction[0]));
 
+/*
                 OccurrenceFilter of = thisRequest.isQueryParameterEqualTo("w", "certain")
                         ? BasicOccurrenceFilter.create().withMinimumPrecision(thisRequest.getParameterAsInteger("precision", 100))
-                            .withValidTaxaOnly().withSpeciesOrLowerRankOnly().withNotDoubtful()
+                            .withValidTaxaOnly().withSpeciesOrLowerRankOnly().withOnlyCertain().withEnsureCurrentlyExisting().withoutExcluded()
                         : null;
+*/
                 Iterator<Occurrence> it = driver.getOccurrenceDriver().getFilteredOccurrences(of);
                 thisRequest.setDownloadFileName("all-occurrences.csv");
 

@@ -164,17 +164,13 @@ public class RedListDataApi extends FloraOnServlet {
                 return;
 
             case "downloadalloccurrences":
+                // this downloads from all data providers
                 territory = thisRequest.getParameterAsString("territory");
                 String[] filter1 = thisRequest.getParameterAsStringArray("tags");
-//                PolygonTheme clippingPolygon1 = new PolygonTheme(this.getClass().getResourceAsStream("PT_buffer.geojson"), null);
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-/*
-                        new DownloadOccurrencesJob(territory, rls.getClippingPolygon(), (rls.getHistoricalThreshold() + 1)
-                                , filter1 == null ? null : new HashSet<>(Arrays.asList(filter1)))
-*/
                             new DownloadOccurrencesJob(territory,
                                     filter1 == null ? null : RedListDataFilterFactory.filterByTags(new HashSet<>(Arrays.asList(filter1))),
-                                    BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory).withDoubtful())
+                                    BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withDoubtful().withExcluded().withoutEnsureCurrentlyExisting())
                         , "all-occurrences.csv", driver).getID());
 
                 break;
@@ -186,8 +182,8 @@ public class RedListDataApi extends FloraOnServlet {
                         new DownloadOccurrencesJob(territory
                                 , RedListDataFilterFactory.onlyAssessed()
                                 , "current".equals(thisRequest.getParameterAsString("currentOrHistorical"))
-                                    ? BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory)
-                                    : BasicOccurrenceFilter.OnlyHistoricalAndCertainRecords(driver, territory)
+                                    ? BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory)
+                                    : BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory)
                             )
                         , "used-occurrences.csv", driver).getID());
                 break;
@@ -285,8 +281,9 @@ public class RedListDataApi extends FloraOnServlet {
                 rls = driver.getRedListSettings(territory);
                 String[] filter = thisRequest.getParameterAsStringArray("tags");
                 OccurrenceFilter of = thisRequest.getParameterAsBoolean("historical", false)
-                        ? new BasicOccurrenceFilter(null, null,false, rls.getClippingPolygon()).cutRecordsAfter(rls.getCutRecordsInsertedAfter())
-                        : BasicOccurrenceFilter.OnlyCurrentAndCertainRecords(driver, territory);
+//                        ? new BasicOccurrenceFilter(null, null,false, rls.getClippingPolygon()).cutRecordsAfter(rls.getCutRecordsInsertedAfter())
+                        ? BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withoutDateFilter()
+                        : BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory);
 //                        : new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1, null, false, rls.getClippingPolygon());
 
                 thisRequest.success(JobSubmitter.newJobFileDownload(
@@ -927,7 +924,7 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                         new DownloadOccurrencesJob(
                                 driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, false, territory, null, null)
-                                , BasicOccurrenceFilter.OnlyCurrentAndCertainRecordsInPolygon(driver, territory, polygonWKT2))
+                                , BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT2))
                         , "occurrences-in-polygon.csv", driver
                 ));
                 break;

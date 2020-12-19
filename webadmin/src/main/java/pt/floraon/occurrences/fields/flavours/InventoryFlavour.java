@@ -4,7 +4,7 @@ public class InventoryFlavour extends GeneralOccurrenceFlavour implements IOccur
     @Override
     public String[] getFields() {
         return new String[] {
-                "code", "locality", "date", "coordinates", "taxa", "confidence", "phenoState", "abundance", "cover", "comment", "privateComment"};
+                "code", "locality", "habitat", "pubNotes", "date", "coordinates", "taxa", "confidence", "phenoState", "abundance", "cover", "comment", "privateComment"};
     }
 
     @Override

@@ -177,11 +177,17 @@ public class FloraOnServlet extends HttpServlet {
 			else
 				throw new FloraOnException("Not logged in");
 		}
+
 		public boolean isQueryParameterEqualTo(String name, String value) throws IOException, ServletException {
 			if(value == null && getParameterAsString(name) == null)
 				return true;
 			return value != null && value.equals(getParameterAsString(name));
 		}
+
+		public boolean isQueryParameterSet(String name) throws IOException, ServletException {
+			return getParameterAsString(name) != null;
+		}
+
 		/**
 		 * @param name
 		 * @return The parameter as a String or null if the parameter is not present. If the parameter is present but empty, returns an empty string.

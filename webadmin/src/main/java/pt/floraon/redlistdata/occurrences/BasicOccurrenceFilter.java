@@ -12,8 +12,7 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.entities.RedListSettings;
 
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A filter to filter out the occurrences without coordinates and optionally with other predicates.
@@ -21,36 +20,32 @@ import java.util.Map;
 public class BasicOccurrenceFilter implements OccurrenceFilter {
     /**
      * The minimum and maximum years considered for including occurrences
+     * Note that records without a year are treated specially.
      */
-    private Integer minimumYear, maximumYear;
+    private Integer minimumYear = null, maximumYear = null;
     /**
      * Do not consider any occurrence inserted after this date
      */
     private Date cutRecordsAfter = null;
-    private boolean includeDoubtful = true;
+//    private boolean includeDoubtful = true;
+    private boolean ensureCurrentlyExisting = false;
     private Integer minimumPrecision;
     private boolean includeUnmatchedTaxa = true;
     private boolean includeHigherRanks = true;
+    private boolean includeExcludedRecords = true;
+    private boolean onlyWild = false;
+    private final List<OccurrenceConstants.ConfidenceInIdentifiction> allowedConfidence = new ArrayList<>(
+            Arrays.asList(OccurrenceConstants.ConfidenceInIdentifiction.values()));
     /**
      * A polygon theme to clip occurrences. May have any number of polygons.
      */
     private IPolygonTheme clippingPolygon;
 
-    public BasicOccurrenceFilter(IPolygonTheme clippingPolygon) {
-        this(null, null, true, clippingPolygon);
-    }
-
     /**
-     *
-     * @param minimumYear The minimum year to be considered for inclusion. Note that records without a year are treated specially.
-     * @param maximumYear
-     * @param includeDoubtful
-     * @param clippingPolygon A set of polygons, all the occurrences lying outside are excluded.
+     * Create a filter that only filters out those outside polygon.
+     * @param clippingPolygon A set of polygons, all the occurrences lying outside are excluded. Pass NULL to not exclude anything.
      */
-    public BasicOccurrenceFilter(Integer minimumYear, Integer maximumYear, boolean includeDoubtful, IPolygonTheme clippingPolygon) {
-        this.minimumYear = minimumYear;
-        this.maximumYear = maximumYear;
-        this.includeDoubtful = includeDoubtful;
+    public BasicOccurrenceFilter(IPolygonTheme clippingPolygon) {
         this.clippingPolygon = clippingPolygon;
     }
 
@@ -67,6 +62,11 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         return this;
     }
 
+    /**
+     * Exclude records inserted after the given date
+     * @param cutRecordsAfter
+     * @return
+     */
     public BasicOccurrenceFilter cutRecordsAfter(Date cutRecordsAfter) {
         this.cutRecordsAfter = cutRecordsAfter;
         return this;
@@ -91,25 +91,87 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      * Only include ConfidenceInIdentifiction.CERTAIN
      * @return
      */
-    public BasicOccurrenceFilter withNotDoubtful() {
-        this.includeDoubtful = false;
-        return this;
-    }
-
-    public BasicOccurrenceFilter withDoubtful() {
-        this.includeDoubtful = true;
+    public BasicOccurrenceFilter withOnlyCertain() {
+//        this.includeDoubtful = false;
+        this.allowedConfidence.clear();
+        this.allowedConfidence.add(OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN);
+        this.allowedConfidence.add(OccurrenceConstants.ConfidenceInIdentifiction.NULL); // we assume NULL is certain
         return this;
     }
 
     /**
-     * Include only the records used to make the published current maps.
+     * Include all confidence levels
+     * @return
+     */
+    public BasicOccurrenceFilter withDoubtful() {
+//        this.includeDoubtful = true;
+        this.allowedConfidence.clear();
+        this.allowedConfidence.addAll(Arrays.asList(OccurrenceConstants.ConfidenceInIdentifiction.values()));
+        return this;
+    }
+
+    public BasicOccurrenceFilter withOnlyAllowConfidenceLevels(OccurrenceConstants.ConfidenceInIdentifiction[] confidence) {
+        this.allowedConfidence.clear();
+        this.allowedConfidence.addAll(Arrays.asList(confidence));
+        this.allowedConfidence.add(OccurrenceConstants.ConfidenceInIdentifiction.NULL); // we assume NULL is certain
+        return this;
+    }
+
+    /**
+     * Ensure that it was not destroyed, it was detected, and it has reasonable precision
+     * @return
+     */
+    public BasicOccurrenceFilter withEnsureCurrentlyExisting() {
+        this.ensureCurrentlyExisting = true;
+        return this;
+    }
+
+    /**
+     * Include destroyed, imprecise and absence records.
+     * @return
+     */
+    public BasicOccurrenceFilter withoutEnsureCurrentlyExisting() {
+        this.ensureCurrentlyExisting = false;
+        return this;
+    }
+
+    /**
+     * Only include those that were not marked for exclusion (field excludeReason)
+     * @return
+     */
+    public BasicOccurrenceFilter withoutExcluded() {
+        this.includeExcludedRecords = false;
+        return this;
+    }
+
+    /**
+     * Include those marked for exclusion
+     * @return
+     */
+    public BasicOccurrenceFilter withExcluded() {
+        this.includeExcludedRecords = true;
+        return this;
+    }
+
+    /**
+     * Include records of any date
+     * @return
+     */
+    public BasicOccurrenceFilter withoutDateFilter() {
+        this.minimumYear = null;
+        this.maximumYear = null;
+        return this;
+    }
+
+    /**
+     * Include only the records used to make the published current maps and using the user set clipping polygon
      * @param driver
      * @param territory
      * @return
      */
-    public static BasicOccurrenceFilter OnlyCurrentAndCertainRecords(IFloraOn driver, String territory) {
+    public static BasicOccurrenceFilter RedListCurrentMapFilter(IFloraOn driver, String territory) {
         RedListSettings rls = driver.getRedListSettings(territory);
-        return OnlyCurrentAndCertainRecordsInPolygon(driver, territory, rls.getClippingPolygon());
+        return RedListCurrentMapFilter(driver, territory, rls.getClippingPolygon());
      }
 
     /**
@@ -119,8 +181,8 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      * @param polygonWKT
      * @return
      */
-    public static BasicOccurrenceFilter OnlyCurrentAndCertainRecordsInPolygon(IFloraOn driver, String territory, String polygonWKT) {
-        return OnlyCurrentAndCertainRecordsInPolygon(driver, territory, new PolygonTheme(polygonWKT));
+    public static BasicOccurrenceFilter RedListCurrentMapFilter(IFloraOn driver, String territory, String polygonWKT) {
+        return RedListCurrentMapFilter(driver, territory, new PolygonTheme(polygonWKT));
     }
 
     /**
@@ -130,30 +192,26 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      * @param polygon
      * @return
      */
-    public static BasicOccurrenceFilter OnlyCurrentAndCertainRecordsInPolygon(IFloraOn driver, String territory, PolygonTheme polygon) {
+    public static BasicOccurrenceFilter RedListCurrentMapFilter(IFloraOn driver, String territory, PolygonTheme polygon) {
         RedListSettings rls = driver.getRedListSettings(territory);
-        BasicOccurrenceFilter out = new BasicOccurrenceFilter(rls.getHistoricalThreshold() + 1
-                , null, false, polygon);
+        BasicOccurrenceFilter out = new BasicOccurrenceFilter(polygon);
+        out.minimumYear = rls.getHistoricalThreshold() + 1;
+//        out.includeDoubtful = false;
+        out.withOnlyCertain();
+        out.includeExcludedRecords = false;
+        out.ensureCurrentlyExisting = true;
         out.cutRecordsAfter = rls.getCutRecordsInsertedAfter();
         return out;
     }
 
-    public static BasicOccurrenceFilter OnlyCertainRecords(IFloraOn driver, String territory) {
+    public static BasicOccurrenceFilter RedListHistoricalMapFilter(IFloraOn driver, String territory, PolygonTheme polygon) {
         RedListSettings rls = driver.getRedListSettings(territory);
-        return OnlyCertainRecordsInPolygon(driver, territory, rls.getClippingPolygon());
-    }
-
-    public static BasicOccurrenceFilter OnlyCertainRecordsInPolygon(IFloraOn driver, String territory, PolygonTheme polygon) {
-        RedListSettings rls = driver.getRedListSettings(territory);
-        BasicOccurrenceFilter out = new BasicOccurrenceFilter(null, null, false, polygon);
-        out.cutRecordsAfter = rls.getCutRecordsInsertedAfter();
-        return out;
-    }
-
-    public static BasicOccurrenceFilter OnlyHistoricalAndCertainRecordsInPolygon(IFloraOn driver, String territory, PolygonTheme polygon) {
-        RedListSettings rls = driver.getRedListSettings(territory);
-        BasicOccurrenceFilter out = new BasicOccurrenceFilter(null, rls.getHistoricalThreshold()
-                , false, polygon);
+        BasicOccurrenceFilter out = new BasicOccurrenceFilter(polygon);
+        out.maximumYear = rls.getHistoricalThreshold();
+//        out.includeDoubtful = false;
+        out.withOnlyCertain();
+        out.includeExcludedRecords = false;
+        out.ensureCurrentlyExisting = true;
         out.cutRecordsAfter = rls.getCutRecordsInsertedAfter();
         return out;
     }
@@ -164,9 +222,9 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      * @param territory
      * @return
      */
-    public static BasicOccurrenceFilter OnlyHistoricalAndCertainRecords(IFloraOn driver, String territory) {
+    public static BasicOccurrenceFilter RedListHistoricalMapFilter(IFloraOn driver, String territory) {
         RedListSettings rls = driver.getRedListSettings(territory);
-        return BasicOccurrenceFilter.OnlyHistoricalAndCertainRecordsInPolygon(driver, territory, rls.getClippingPolygon());
+        return BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory, rls.getClippingPolygon());
     }
 
     @Override
@@ -178,14 +236,19 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
 //System.out.println("Enter? "+ so._getLatitude()+", "+so._getLongitude()+" Y:"+so.getYear());
         if(Constants.isNullOrNoData(so._getLatitude()) || Constants.isNullOrNoData(so._getLongitude())) return false;
 
-        boolean enter;
-//        if(minimumYear == null && maximumYear == null && clippingPolygon == null) return true;
-        // if it was destroyed, then this will go forced into historical record
+        boolean enter = true;
         wasDestroyed = so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() == OccurrenceConstants.PresenceStatus.DESTROYED;
 
-        enter = !(wasDestroyed && !includeDoubtful && minimumYear != null && maximumYear == null);
-        // format: enter &= !(<excluding condition>);
+        if(ensureCurrentlyExisting) {
+            // if it was destroyed, then this will not appear in current records
+            enter &= !(wasDestroyed && minimumYear != null && maximumYear == null);
+            // ensure it is a presence record (not an absence record)
+            enter &= !(so.getOccurrence().getAbundance() != null && !so.getOccurrence().getAbundance().wasDetected());
+            // if precision is bad and date is empty, it's too uncertain, so exclude
+            enter &= !(so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty());
+        }
 
+        // format: enter &= !(<excluding condition>);
         if(cutRecordsAfter != null && so.getOccurrence().getDateInserted() != null)
             enter &= !(so.getOccurrence().getDateInserted().after(cutRecordsAfter));
 
@@ -197,14 +260,20 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
 
         enter &= !(minimumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() < minimumYear);
         enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear && !wasDestroyed);
+
+        if(!includeExcludedRecords)
+            enter &= !(so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed);
+
+        // only include allowed confidence levels
+        enter &= !(so.getOccurrence().getConfidence() != null && !allowedConfidence.contains(so.getOccurrence().getConfidence()));
+/*
         if(!includeDoubtful) {
             enter &= !(so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.ALMOST_SURE
                     || so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
-            enter &= !(so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed);
-//            enter &= !(so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD);
-            enter &= !(so.getOccurrence().getAbundance() != null && !so.getOccurrence().getAbundance().wasDetected());
-            enter &= !(so.getPrecision() != null && so.getPrecision()._isPrecisionWorseThan(100) && so._isDateEmpty());
         }
+*/
+        enter &= !(onlyWild && so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD);
+
         // Records that do not have a year are excluded from historical datasets except if marked as destroyed.
         // They're only included in the current dataset.
         enter &= !(maximumYear != null && (so.getYear() == null || so.getYear() == 0) && !wasDestroyed);

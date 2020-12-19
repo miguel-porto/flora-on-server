@@ -11,16 +11,10 @@ import java.util.Set;
  * Adds ability to filter occurrences from givn maintainers.
  */
 public class BasicOccurrenceFilterWithAuthors extends BasicOccurrenceFilter {
-    private Set<String> fromAuthors;
+    private final Set<String> fromAuthors;
 
-    public BasicOccurrenceFilterWithAuthors(Integer minimumYear, Integer maximumYear, boolean includeDoubtful
-            , IPolygonTheme clippingPolygon) {
-        super(minimumYear, maximumYear, includeDoubtful, clippingPolygon);
-    }
-
-    public BasicOccurrenceFilterWithAuthors(Integer minimumYear, Integer maximumYear, boolean includeDoubtful
-            , IPolygonTheme clippingPolygon, Set<String> fromAuthors) {
-        super(minimumYear, maximumYear, includeDoubtful, clippingPolygon);
+    public BasicOccurrenceFilterWithAuthors(IPolygonTheme clippingPolygon, Set<String> fromAuthors) {
+        super(clippingPolygon);
         this.fromAuthors = new HashSet<>();
         for(String author : fromAuthors)
             if(author != null) this.fromAuthors.add(author.trim().toLowerCase());

@@ -36,12 +36,6 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     private RedListDataFilter redListDataFilter;
     private Iterator<TaxEnt> taxEntIterator;
 
-    public DownloadOccurrencesJob(String territory, PolygonTheme clippingPolygon, Integer minimumYear, Set<String> filterTags) {
-        this.territory = territory;
-        this.occurrenceFilter = new BasicOccurrenceFilter(minimumYear, null, true, clippingPolygon);
-        this.redListDataFilter = RedListDataFilterFactory.filterByTags(filterTags);
-    }
-
     public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter) {
         this.territory = territory;
         this.occurrenceFilter = occurrenceFilter;

@@ -26,7 +26,7 @@
 
     <form class="poster orderdownload" data-path="api/downloadalloccurrences" data-refresh="true">
         <h2>Tabela de todas as ocorrências</h2>
-        <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas), incluindo as duvidosas.</p>
+        <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas), incluindo as duvidosas. Esta tabela inclui ocorrências de todos os provedores de dados.</p>
         <input type="hidden" name="territory" value="${territory}"/>
         <div class="multiplechooser left">
         <c:forEach var="tmp" items="${allTags}">
@@ -39,7 +39,7 @@
 
     <form class="poster orderdownload" data-path="api/downloadoccurrencesusedinassessments" data-refresh="true">
         <h2>Tabela de todas as ocorrências usadas nos taxa avaliados</h2>
-        <p>Descarregar uma tabela com todas as ocorrências que foram de facto usadas nos mapas de distribuição das espécies avaliadas, actuais ou históricos. Exclui registos duvidosos e imprecisos.</p>
+        <p>Descarregar uma tabela com todas as ocorrências que foram de facto usadas nos mapas de distribuição das espécies avaliadas, actuais ou históricos. Exclui registos duvidosos e imprecisos. Esta tabela inclui ocorrências de todos os provedores de dados.</p>
         <input type="hidden" name="territory" value="${territory}"/>
         <div class="multiplechooser left inlineflex">
             <input type="radio" name="currentOrHistorical" value="current" id="butCurrent" checked="checked"/>

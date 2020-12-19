@@ -174,9 +174,20 @@
         <h1><a name="admin"></a>Administrative tasks</h1>
         <h2>Occurrence database</h2>
         <div class="block">
-            <h3><a href="admin/downloadallrecords"><img class="lock" src="${contextPath}/images/download.png"/> Download all records</a></h3>
-            <h3><a href="admin/downloadallrecords?w=certain&precision=100"><img class="lock" src="${contextPath}/images/download.png"/> Download all valid records at the species level with a precision of 100m or better</a></h3>
-            <h3><a href="admin/downloadallrecords?w=certain&precision=1000"><img class="lock" src="${contextPath}/images/download.png"/> Download all valid records at the species level with a precision of 1000m or better</a></h3>
+        <form action="admin/downloadallrecords" method="get">
+            <h3><img class="lock" src="${contextPath}/images/download.png"/> Download internal records</h3>
+            <p>This downloads internal records which are of valid species, identified to species level.</p>
+            <p>Minimum precision ${contextPath}</p>
+            <p><label><input type="radio" name="precision" value="100" checked="1"/>100m</label>
+            <label><input type="radio" name="precision" value="1000"/>1000m</label></p>
+            <p>Include:</p>
+            <p><label><input type="checkbox" name="certain" checked="checked"/>Certain</label>
+            <label><input type="checkbox" name="almostsure" checked="checked"/>Almost sure</label>
+            <label><input type="checkbox" name="doubtful"/>Doubtful</label></p>
+            <input type="submit" class="textbutton" value="Download"/>
+        </form>
+        <hr/>
+        <h3><a href="admin/downloadallrecords?all=1"><img class="lock" src="${contextPath}/images/download.png"/> Download all records</a></h3>
         </div>
         <h2>Online users</h2>
         <div class="block">
