@@ -66,7 +66,7 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk21");
+		request.setAttribute("uuid", "bk22");
 		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("offline", false);
 

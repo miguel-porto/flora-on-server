@@ -51,6 +51,8 @@ public interface IOccurrenceFlavour {
 
     boolean isMonospaceFont(String field);
 
+    boolean isBigEditWidget(String field);
+
     boolean isImageField(String field);
 
     boolean isAuthorField(String field);

@@ -11,9 +11,10 @@
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 
 <div id="taxonsearchwrapper-holder" class="editbox-home hidden">
-    <div class="withsuggestions editbox" id="taxonsearchwrapper"><textarea id="taxonsearchbox" name="query" rows="7" placeholder="type taxon and Enter, or Esc to cancel | you can use taxon abbreviations like Clad and enter multiple taxa separated by +"></textarea><div id="suggestionstaxon"></div></div>
-    <div class="withsuggestions editbox" id="authorsearchwrapper"><textarea id="authorsearchbox" name="query" rows="2" placeholder="start typing author name, or Esc to cancel | separate multiple authors with +"></textarea><div id="suggestionsauthor"></div></div>
-    <div class="withsuggestions editbox" id="threatsearchwrapper"><textarea id="threatsearchbox" name="query" rows="2" placeholder="type cell value and Enter, or Esc to cancel"></textarea><div id="suggestionsthreat"></div></div>
+    <div class="withsuggestions editbox large" id="taxonsearchwrapper"><textarea id="taxonsearchbox" name="query" rows="7" placeholder="type taxon and Enter, or Esc to cancel | you can use taxon abbreviations like Clad and enter multiple taxa separated by +"></textarea><div id="suggestionstaxon"></div></div>
+    <div class="withsuggestions editbox large" id="authorsearchwrapper"><textarea id="authorsearchbox" name="query" rows="2" placeholder="start typing author name, or Esc to cancel | separate multiple authors with +"></textarea><div id="suggestionsauthor"></div></div>
+    <div class="withsuggestions editbox large" id="threatsearchwrapper"><textarea id="threatsearchbox" name="query" rows="2" placeholder="type cell value and Enter, or Esc to cancel"></textarea><div id="suggestionsthreat"></div></div>
+    <div class="withsuggestions editbox large" id="multilinefieldwrapper"><textarea id="multilinefield" name="query" rows="4" placeholder="type cell value and Enter, or Esc to cancel"></textarea></div>
     <div class="withsuggestions editbox" id="editfieldwrapper"><input id="editfield" type="text" name="query" autocomplete="off" placeholder="type cell value and Enter, or Esc to cancel"/></div>
     <div class="withsuggestions editbox" id="uploadfilewrapper">
         <input id="imageidfield" type="text" name="query"/>

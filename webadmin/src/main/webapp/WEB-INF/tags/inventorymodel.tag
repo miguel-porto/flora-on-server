@@ -29,11 +29,12 @@
     </table>
     <table class="verysmalltext occurrencetable">
         <thead><tr>
-            <th><fmt:message key="inventory.7"/></th><th>Notes</th><th><fmt:message key="inventory.8"/></th>
+            <th><fmt:message key="inventory.7"/></th><th>Public notes</th><th>Private notes</th><th><fmt:message key="inventory.8"/></th>
         </tr></thead>
         <tbody><tr>
-            <td class="field editable" data-name="habitat"></td>
-            <td class="field editable" data-name="pubNotes"></td>
+            <td class="field editable multiline" data-name="habitat"></td>
+            <td class="field editable multiline" data-name="pubNotes"></td>
+            <td class="field editable multiline" data-name="privNotes"></td>
             <td class="field editable" data-name="threats"></td>
         </tr></tbody>
     </table>

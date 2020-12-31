@@ -38,10 +38,10 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nome original", shortName = "Verb tax")
     private String verbTaxon;
-    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Notas públicas do taxon", shortName = "Notas pub", important = true)
     private String comment;
-    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote", important = true)
     private String privateComment;
     @SmallField @FieldParser(GeneralFieldParser.class)
@@ -91,7 +91,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @PrettyName(value = "Código GPS", shortName = "GPS", alias={"gps", "gps code"}
         , description = "The GPS point name for this particular taxon. Usage discouraged: not to be confounded with the inventory code!")
     private String gpsCode;
-    @FieldParser(GeneralFieldParser.class)
+    @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
     @SmallField @HideInCompactView @AdminOnly @FieldParser(EnumParser.class)

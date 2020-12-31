@@ -150,7 +150,7 @@ public final class Common {
         csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
-                , "specificThreats", "habitat", "comment", "privateComment", "year", "month", "day", "dateInserted", "uuid", "accession"
+                , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
                 , "credits", "maintainer", "maintainerName");
     }
 
@@ -183,7 +183,8 @@ public final class Common {
                 , occurrence.getLocality()
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()
-                , oi.getSpecificThreats(), occurrence.getHabitat(), oi.getComment(), oi.getPrivateComment(), occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
+                , oi.getSpecificThreats(), occurrence.getHabitat(), oi.getComment(), oi.getPrivateComment(), occurrence.getPubNotes()
+                , occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
                 , oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
                 , oi.getUuid().toString()
                 , oi.getAccession()

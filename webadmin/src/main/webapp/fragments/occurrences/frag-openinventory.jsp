@@ -82,11 +82,12 @@
             </table>
             <table class="verysmalltext occurrencetable">
                 <thead><tr>
-                    <th><fmt:message key="inventory.7"/></th><th>Notes</th><th><fmt:message key="inventory.8"/></th>
+                    <th><fmt:message key="inventory.7"/></th><th>Public notes</th><th>Private notes</th><th><fmt:message key="inventory.8"/></th>
                 </tr></thead>
                 <tbody><tr>
-                    <td class="field editable" data-name="habitat">${inv.getHabitat()}</td>
-                    <td class="field editable" data-name="pubNotes">${inv.getPubNotes()}</td>
+                    <td class="field editable multiline" data-name="habitat">${inv.getHabitat()}</td>
+                    <td class="field editable multiline" data-name="pubNotes">${inv.getPubNotes()}</td>
+                    <td class="field editable multiline" data-name="privNotes">${inv.getPrivNotes()}</td>
                     <td class="field editable threats" data-name="threats">${inv.getThreats()}</td>
                 </tr></tbody>
             </table>

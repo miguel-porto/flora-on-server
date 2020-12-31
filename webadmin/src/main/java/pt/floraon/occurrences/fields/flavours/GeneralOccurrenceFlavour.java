@@ -65,6 +65,11 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
+    public boolean isBigEditWidget(String field) {
+        return FieldReflection.isBigEditWidget(field);
+    }
+
+    @Override
     public boolean isImageField(String field) {
         return FieldReflection.isImageField(field);
     }

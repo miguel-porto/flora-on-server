@@ -259,6 +259,12 @@ public final class FieldReflection {
         return f.isAnnotationPresent(MonospaceFont.class);
     }
 
+    static public boolean isBigEditWidget(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(BigEditWidget.class);
+    }
+
     static public boolean isAdminField(String field) {
         Field f = findField(field);
         if(f == null) return false;

@@ -63,11 +63,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
     private Precision precision;
     private Boolean complete;
-    @InventoryField
+    @InventoryField @BigEditWidget
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Habitat", shortName = "Hab")
     private String habitat;
-    @HideInCompactView @InventoryField
+    @HideInCompactView @InventoryField @BigEditWidget
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
     private String pubNotes;
@@ -75,7 +75,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Projecto ou instituição financiadora", shortName = "Proj", alias = {"project"})
     private String credits;
-    @HideInCompactView @InventoryField
+    @HideInCompactView @InventoryField @BigEditWidget
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
     private String privNotes;
@@ -114,7 +114,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class) @MonospaceFont
     @PrettyName(value = "Código do inventário", shortName = "Cod", alias={"código", "inventário"}, important = true)
     private String code;
-    @InventoryField
+    @InventoryField @BigEditWidget
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Ameaças do local", shortName = "Ameaças", alias="ameaças")
     private String threats;
@@ -845,6 +845,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         Inventory that = (Inventory) o;
 
         if(code != null) return code.equals(that.code);
+        // TODO: this precision filter is too rigorous!
         if ((precision != null && precision._isImprecise()) || (that.precision != null && that.precision._isImprecise())
             || (precision != null ? !precision.equals(that.precision) : that.precision != null) || getLatitude() == null
                 || getLongitude() == null || that.getLatitude() == null || that.getLongitude() == null) return false;

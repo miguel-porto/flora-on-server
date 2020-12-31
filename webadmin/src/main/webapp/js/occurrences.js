@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     attachSuggestionHandler('taxonsearchbox', 'checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('authorsearchbox', 'checklist/api/suggestions?what=user&limit=20&q=', 'suggestionsauthor', onConfirmEdit, true, '+', tabHandler);
     attachSuggestionHandler('threatsearchbox', 'checklist/api/suggestions?what=threats&limit=20&q=', 'suggestionsthreat', onConfirmEdit, true, '+', tabHandler);
+    attachSuggestionHandler('multilinefield', null, null, onConfirmEdit, true, null, tabHandler);
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
     attachSuggestionHandler('imageidfield', null, null, onConfirmEdit, true, null, tabHandler);
 
@@ -614,22 +615,22 @@ function clickOccurrenceTable(ev) {
         if(cell.querySelector('#taxonsearchwrapper')) return;
 //        selectGeoElement(cell, true, true);
         var txt = cell.innerHTML;
-        cell.textContent = '';
+//        cell.textContent = '';
         displaySearchbox(cell, txt, 'taxonsearchwrapper');
     } else if(cell.classList.contains('authors')) { // clicked authors cell
         if(cell.querySelector('#authorsearchwrapper')) return;
         var txt = cell.innerHTML;
-        cell.textContent = '';
+//        cell.textContent = '';
         displaySearchbox(cell, txt, 'authorsearchwrapper');
     } else if(cell.classList.contains('threats')) { // clicked threats cell
          if(cell.querySelector('#threatsearchwrapper')) return;
          var txt = cell.innerHTML;
-         cell.textContent = '';
+//         cell.textContent = '';
          displaySearchbox(cell, txt, 'threatsearchwrapper');
     } else if(cell.classList.contains('imageupload')) { // clicked image cell
          if(cell.querySelector('#uploadfilewrapper')) return;
          var txt = cell.innerHTML;
-         cell.textContent = '';
+//         cell.textContent = '';
          displayFileUploadField(cell, txt);
     } else if(cell.classList.contains('selectcol') && cell.tagName == 'TD') {    // select row
         if(ev.shiftKey && !cell.parentNode.classList.contains('active')) {
@@ -665,11 +666,12 @@ function clickOccurrenceTable(ev) {
             }
         }
     } else if(cell.classList.contains('editable')) {    // editable as plain text
-        if(cell.querySelector('#editfieldwrapper')) return;
+        if(cell.classList.contains('multiline') && cell.querySelector('#multilinefieldwrapper')) return;
+        if(!cell.classList.contains('multiline') && cell.querySelector('#editfieldwrapper')) return;
 //        selectGeoElement(cell, true, true);
         var txt = cell.innerHTML;
-        cell.textContent = '';
-        displayEditField(cell, txt);
+//        cell.textContent = '';
+        displayEditField(cell, txt, cell.classList.contains('multiline'));
     }
 }
 
@@ -861,16 +863,27 @@ function displaySearchbox(el, text, whichBox) {
     inp.focus();
 }
 
-function displayEditField(el, text) {
+function displayEditField(el, text, multiline) {
     acceptVisibleSearchbox();
-    var old = document.getElementById('editfieldwrapper');
-    el.appendChild(old);
-    el.setAttribute('data-original', text);
-    el.classList.add('beingedited');
-    var inp = old.querySelector('input');
-    inp.value = createHTML(text).textContent;
-    inp.setSelectionRange(0, inp.value.length);
-    inp.focus();
+    if(multiline) {
+        var old = document.getElementById('multilinefieldwrapper');
+        el.appendChild(old);
+        el.setAttribute('data-original', text);
+        el.classList.add('beingedited');
+        var inp = old.querySelector('textarea');
+        inp.value = createHTML(text).textContent;
+        inp.setSelectionRange(0, inp.value.length);
+        inp.focus();
+    } else {
+        var old = document.getElementById('editfieldwrapper');
+        el.appendChild(old);
+        el.setAttribute('data-original', text);
+        el.classList.add('beingedited');
+        var inp = old.querySelector('input');
+        inp.value = createHTML(text).textContent;
+        inp.setSelectionRange(0, inp.value.length);
+        inp.focus();
+    }
 }
 
 
