@@ -104,8 +104,6 @@ public class DateParser implements FieldParser {
                         c.set(Calendar.MONTH, date[1] - 1);
                     if (!Constants.isNullOrNoData(date[0]))
                         c.set(Calendar.DAY_OF_MONTH, date[0]);
-                    if (!Constants.isNullOrNoData(date[0]))
-                        c.set(Calendar.DAY_OF_MONTH, date[0]);
                     if (!Constants.isNullOrNoData(date[3]))
                         c.set(Calendar.HOUR_OF_DAY, date[3]);
                     if (!Constants.isNullOrNoData(date[4]))

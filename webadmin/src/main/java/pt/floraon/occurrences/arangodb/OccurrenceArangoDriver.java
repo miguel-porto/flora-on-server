@@ -468,6 +468,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                     bindVars.put("toDate", toDate);
                 }
             }
+            filter.remove("date");
         }
 
         // precision filter
@@ -478,18 +479,21 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("precision", new Precision(filter.get("prec")));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.precision")).append(" ");
             }
+            filter.remove("prec");
         }
 
         // inventory ID filter
         if(filter.containsKey("iid")) {
             bindVars.put("inventoryId", filter.get("iid"));
             inventoryFilter.append(AQLOccurrenceQueries.getString("filter.inventoryId")).append(" ");
+            filter.remove("iid");
         }
 
         // user filter, checks if user is mentioned in observers, collectors, dets or maintainer
         if(filter.containsKey("uid")) {
             bindVars.put("userId", filter.get("uid"));
             inventoryFilter.append(AQLOccurrenceQueries.getString("filter.userId")).append(" ");
+            filter.remove("uid");
         }
 
         // verbLocality filter
@@ -500,6 +504,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("verbLocality", filter.get("local").replaceAll("\\*", "%"));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.verblocality")).append(" ");
             }
+            filter.remove("local");
         }
 
         // credits filter
@@ -510,6 +515,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("credits", filter.get("proj").replaceAll("\\*", "%"));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.credits")).append(" ");
             }
+            filter.remove("proj");
         }
 
         // habitat filter
@@ -520,6 +526,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("habitat", filter.get("hab").replaceAll("\\*", "%"));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.habitat")).append(" ");
             }
+            filter.remove("hab");
         }
 
         // code filter
@@ -530,6 +537,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("code", filter.get("code").replaceAll("\\*", "%"));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.code")).append(" ");
             }
+            filter.remove("code");
         }
 
         // observers filter
@@ -544,6 +552,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("observer", uid.toArray(new String[0]));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.observer")).append(" ");
             }
+            filter.remove("obs");
         }
 
         // collectors filter
@@ -558,6 +567,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("collector", uid.toArray(new String[0]));
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.collector")).append(" ");
             }
+            filter.remove("coll");
         }
 
         // maintainer filter
@@ -568,6 +578,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 uid.add(it.next().getID());
             bindVars.put("user", uid.toArray(new String[0]));
             inventoryFilter.append(AQLOccurrenceQueries.getString("filter.maintainer")).append(" ");
+            filter.remove("maint");
         }
 
         // number of taxa filter
@@ -590,6 +601,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                     inventoryFilter.append(AQLOccurrenceQueries.getString("filter.numberOfSpecies")).append(" ");
                 }
             }
+            filter.remove("nsp");
         }
         return inventoryFilter.toString();
     }
@@ -604,6 +616,60 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     private String[] processOccurrenceFilters(Map<String, String> filter, Map<String, Object> bindVars) throws FloraOnException {
         StringBuilder inventoryFilter = new StringBuilder();
         StringBuilder occurrenceFilter = new StringBuilder();
+
+        if(filter.containsKey("dateinserted")) {
+            if(filter.get("dateinserted").equalsIgnoreCase("NA"))
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulldateinserted")).append(" ");
+            else {
+                Integer[] dateInserted;
+                try {
+                    dateInserted = DateParser.parseDate(filter.get("dateinserted"));
+                } catch (IllegalArgumentException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                Log.info("DATEINSERTED: "+ new Gson().toJson(dateInserted));
+                Calendar c = Calendar.getInstance();
+                if(dateInserted.length == 5) {  // single date
+                    if (!Constants.isNullOrNoData(dateInserted[0]) && !Constants.isNullOrNoData(dateInserted[1]) && !Constants.isNullOrNoData(dateInserted[2])) {
+                        occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.dateInsertedRange")).append(" ");
+
+                        c.set(Calendar.YEAR, dateInserted[2]);
+                        c.set(Calendar.MONTH, dateInserted[1] - 1);
+                        c.set(Calendar.DAY_OF_MONTH, dateInserted[0]);
+                        c.set(Calendar.HOUR_OF_DAY, 0);
+                        c.set(Calendar.MINUTE, 0);
+                        bindVars.put("fromDateInserted", c.getTime());
+                        c.set(Calendar.HOUR_OF_DAY, 23);
+                        c.set(Calendar.MINUTE, 59);
+                        bindVars.put("toDateInserted", c.getTime());
+                    } else
+                        throw new FloraOnException("Invalid exact date");
+                }
+
+                if(dateInserted.length == 6) {  // date range
+                    if (Constants.isNullOrNoData(dateInserted[0]) || Constants.isNullOrNoData(dateInserted[1]) || Constants.isNullOrNoData(dateInserted[2])
+                        || Constants.isNullOrNoData(dateInserted[3]) || Constants.isNullOrNoData(dateInserted[4]) || Constants.isNullOrNoData(dateInserted[5]))
+                        throw new FloraOnException("Date inserted ranges must be defined in relation to precise dates.");
+
+                    occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.dateInsertedRange")).append(" ");
+
+                    c.set(Calendar.YEAR, dateInserted[2]);
+                    c.set(Calendar.MONTH, dateInserted[1] - 1);
+                    c.set(Calendar.DAY_OF_MONTH, dateInserted[0]);
+                    c.set(Calendar.HOUR_OF_DAY, 0);
+                    c.set(Calendar.MINUTE, 0);
+                    bindVars.put("fromDateInserted", c.getTime());
+                    c.set(Calendar.YEAR, dateInserted[5]);
+                    c.set(Calendar.MONTH, dateInserted[4] - 1);
+                    c.set(Calendar.DAY_OF_MONTH, dateInserted[3]);
+                    c.set(Calendar.HOUR_OF_DAY, 23);
+                    c.set(Calendar.MINUTE, 59);
+                    bindVars.put("toDateInserted", c.getTime());
+                }
+            }
+
+            filter.remove("dateinserted");
+        }
 
         // confidence filter
         if(filter.containsKey("conf")) {
@@ -620,6 +686,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.confidence")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.confidence.2")).append(" ");
             }
+            filter.remove("conf");
         }
 
         // phenology filter
@@ -637,6 +704,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.phenology")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.phenology.2")).append(" ");
             }
+            filter.remove("phen");
         }
 
         // inventory latitude filter
@@ -655,6 +723,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.ilatitude")).append(" ");
             }
+            filter.remove("ilat");
         }
 
         // inventory longitude filter
@@ -673,6 +742,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.ilongitude")).append(" ");
             }
+            filter.remove("ilong");
         }
 
         // latitude filter
@@ -693,6 +763,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.latitude")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.latitude.2")).append(" ");
             }
+            filter.remove("lat");
         }
 
         // longitude filter
@@ -713,6 +784,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.longitude")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.longitude.2")).append(" ");
             }
+            filter.remove("long");
         }
 
         // taxon filter
@@ -723,6 +795,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("taxon", filter.get("tax").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.taxon")).append(" ");
             }
+            filter.remove("tax");
         }
 
         // tag filter
@@ -733,6 +806,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("tag", filter.get("tag").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.tag")).append(" ");
             }
+            filter.remove("tag");
         }
 
         // gpsCode filter
@@ -743,6 +817,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("gpscode", filter.get("gps").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.gpsCode")).append(" ");
             }
+            filter.remove("gps");
         }
 
         // privateComment filter
@@ -753,6 +828,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("privateComment", filter.get("priv").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.privateComment")).append(" ");
             }
+            filter.remove("priv");
         }
 
         // accession filter
@@ -763,8 +839,12 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 bindVars.put("accession", filter.get("acc").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.accession")).append(" ");
             }
+            filter.remove("acc");
         }
 
+        if(filter.size() > 0) {
+            throw new FloraOnException("These filters were not understood: " + StringUtils.implode(", ", filter.keySet().toArray(new String[0])));
+        }
         return new String[] {inventoryFilter.toString(), occurrenceFilter.toString()};
     }
 
