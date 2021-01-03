@@ -96,7 +96,7 @@
 <div id="alloccurrences">
     <div class="heading2">
         <h2 class="hideincompactview"><fmt:message key="${sessionScope['option-allusers'] ? 'occurrences.6' : 'occurrences.1'}"/> - ${nrtotaloccurrences}
-        <c:if test="${filter != null && filter != ''}"> [filtered ${filter}]</c:if>
+        <c:if test="${filter != null && filter != ''}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences" classes="inlineblock"/>]</c:if>
         </h2>
         <div class="button" id="newoccurrence"><fmt:message key="occurrences.1a"/></div>
         <div class="button" id="deleteselected"><fmt:message key="occurrences.1b"/></div>

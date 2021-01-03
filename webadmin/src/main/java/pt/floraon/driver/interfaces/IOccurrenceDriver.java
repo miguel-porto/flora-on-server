@@ -205,8 +205,14 @@ public interface IOccurrenceDriver {
      */
     Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
-    @Deprecated
-    int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException;
+    /**
+     * Applies the same occurrence filter as findOccurrencesByFilter but returns only the count
+     * @param filter
+     * @param userId
+     * @return
+     * @throws FloraOnException
+     */
+    int findOccurrencesByFilterCount(Map<String, String> filter, INodeKey userId) throws FloraOnException;
 
     /**
      * Parses a compound occurrence filter into a Map.

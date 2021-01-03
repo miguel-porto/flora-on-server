@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.Messages;
@@ -23,6 +24,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -30,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * This is the endpoint for a registered user conducting operations on its occurrences.
  * Created by miguel on 23-03-2017.
  */
 @MultipartConfig
@@ -296,6 +299,7 @@ public class OccurrenceApi extends FloraOnServlet {
 
                 break;
 
+            // export to PDF
             case "exportinventory":
                 String ids1 = thisRequest.getParameterAsString("ids");
                 if(ids1 == null) break;
@@ -304,6 +308,33 @@ public class OccurrenceApi extends FloraOnServlet {
                 thisRequest.request.setAttribute("inventories", itInv);
 //                itInv.next()._getTaxa()[0].getTaxEnt().getFullName(true)
                 thisRequest.request.getRequestDispatcher("/pdf/inventory-layout.jsp").forward(thisRequest.request, thisRequest.response);
+                break;
+
+            case "countNumberFilteredOccurrences":
+                HttpSession session = thisRequest.request.getSession(false);
+                INodeKey maintainer = thisRequest.isOptionTrue("allusers") ? null : driver.asNodeKey(user.getID());
+
+                // fetch filter from querystring or session
+                String filter = thisRequest.getParameterAsString("filter");
+                if(filter == null) {
+                    filter = (String) session.getAttribute("filter");
+                } else if(filter.equals("")) {
+                    session.removeAttribute("filter");
+                    filter = null;
+                }
+
+                if(filter == null) {
+                    thisRequest.response.getWriter().print("no filter");
+                    break;
+                }
+
+                Map<String, String> parsedFilter;
+                try {
+                    parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                    thisRequest.response.getWriter().print(driver.getOccurrenceDriver().findOccurrencesByFilterCount(parsedFilter, maintainer));
+                } catch(FloraOnException e) {
+                    thisRequest.response.getWriter().print("O filtro não foi compreendido: " + e.getMessage());
+                }
                 break;
         }
     }

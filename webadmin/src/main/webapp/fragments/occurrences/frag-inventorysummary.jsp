@@ -88,7 +88,7 @@
     </div>
     <t:pager />
 </div>
-<div class="newfeature">NOVO! Esta tabela agora é directamente editável!</div>
+<%-- <div class="newfeature">NOVO! Esta tabela agora é directamente editável!</div> --%>
 <div id="alloccurrences">
     <table id="alloccurrencetable" class="occurrencetable verysmalltext sortable inventorysummary">
         <thead><tr>

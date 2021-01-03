@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
     attachSuggestionHandler('imageidfield', null, null, onConfirmEdit, true, null, tabHandler);
 
+    attachAJAXContent();
+
     addEvent('mouseup', document.body, function(ev) {
         if(!document.getElementById('georreferencer')) return;
         if(!document.getElementById('georreferencer').classList.contains('hidden')) {

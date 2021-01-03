@@ -892,15 +892,26 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public int findOccurrencesByFilterCount(String filter, INodeKey userId) throws FloraOnException {
+    public int findOccurrencesByFilterCount(Map<String, String> filter, INodeKey userId) throws FloraOnException {
         Map<String, Object> bindVars = new HashMap<>();
-        bindVars.put("query", "%" + filter + "%");
-        if(userId != null)
-            bindVars.put("user", userId.toString());
+        String inventoryFilter = "";
+        String occurrenceFilter = "";
 
+        if(userId != null) {
+            bindVars.put("user", new String[] {userId.toString()});
+            inventoryFilter += AQLOccurrenceQueries.getString("filter.maintainer") + " ";
+        }
+
+        inventoryFilter += processInventoryFilters(filter, bindVars);
+
+        String[] occurrenceFilters = processOccurrenceFilters(filter, bindVars);
+        inventoryFilter += occurrenceFilters[0];
+        occurrenceFilter += occurrenceFilters[1];
+
+        // TODO must fetch observer and maintainer names!
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString(userId == null ? "occurrencequery.8a.count" : "occurrencequery.8.count")
+                    AQLOccurrenceQueries.getString("occurrencequery.8.count", inventoryFilter, occurrenceFilter)
                     , bindVars, null, Integer.class).next();
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
