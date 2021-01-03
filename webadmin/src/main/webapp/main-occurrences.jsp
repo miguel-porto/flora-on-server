@@ -39,8 +39,13 @@
 	<!-- <script type="text/javascript" src="js/ajax_nav.js?nocache=${uuid}"></script> -->
 </head>
 <body class="occurrencespage ${sessionScope['option-compactview'] ? 'compactview' : ''}">
-    <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">
-        <jsp:include page="occurrences-pages.jsp"></jsp:include>
+    <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
+        <div id="mapcontainer"></div>
+        <div class="mapbuttons">
+            <div class="button togglebutton round" id="queryrect" title="Realizar consulta de dados em rectângulo"><img src="images/queryrect.png"/></div>
+            <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
+            <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
+        </div>
     </div>
     <div id="georreferencer" class="${sessionScope['option-showgeo'] == true ? '' : 'hiddenhard'}">
         <div class="head">
@@ -65,13 +70,8 @@
         </div>
     </div>
     <c:set var="maphidden" value="${sessionScope['option-showmap'] == false ? true : (nroccurrences > 1000 ? true : false)}" />
-    <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
-        <div id="mapcontainer"></div>
-        <div class="mapbuttons">
-            <div class="button togglebutton round" id="queryrect" title="Realizar consulta de dados em rectângulo"><img src="images/queryrect.png"/></div>
-            <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
-            <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
-        </div>
+    <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">
+        <jsp:include page="occurrences-pages.jsp"></jsp:include>
     </div>
     <div id="floatingswitches">
         <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />

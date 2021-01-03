@@ -65,25 +65,31 @@
             <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
             <input type="submit" class="button" value="Filter" />
         </form>
-        <form method="get" action="occurrences" class="inlineblock">
-            <input type="hidden" name="w" value="${param.w}" />
-            <input type="hidden" name="p" value="1" />
-            <input type="hidden" name="filter" value="date:na" />
-            <input type="submit" class="button" value="Sem data" />
-        </form>
-        <form method="get" action="occurrences" class="inlineblock">
-            <input type="hidden" name="w" value="${param.w}" />
-            <input type="hidden" name="p" value="1" />
-            <input type="hidden" name="filter" value="tag:lista*alvo" />
-            <input type="submit" class="button" value="Lista Alvo" />
-        </form>
+        <c:url value="" var="url1">
+            <c:param name="w" value="${param.w}" />
+            <c:param name="p" value="1" />
+            <c:param name="filter" value="${filter} date:na" />
+        </c:url>
+        <div class="button anchorbutton"><a href="${url1}">Sem data</a></div>
+        <c:url value="" var="url2">
+            <c:param name="w" value="${param.w}" />
+            <c:param name="p" value="1" />
+            <c:param name="filter" value="${filter} detected:1" />
+        </c:url>
+        <div class="button anchorbutton"><a href="${url2}">Só detectados</a></div>
+        <c:url value="" var="url3">
+            <c:param name="w" value="${param.w}" />
+            <c:param name="p" value="1" />
+            <c:param name="filter" value="tag:lista alvo" />
+        </c:url>
+        <div class="button anchorbutton"><a href="${url3}">Lista Alvo</a></div>
         <c:if test="${filter != null && filter != ''}">
-        <form method="get" action="occurrences" class="inlineblock">
-            <input type="hidden" name="w" value="${param.w}" />
-            <input type="hidden" name="p" value="1" />
-            <input type="hidden" name="filter" value="" />
-            <input type="submit" class="button" value="Show all" />
-        </form>
+        <c:url value="" var="url4">
+            <c:param name="w" value="${param.w}" />
+            <c:param name="p" value="1" />
+            <c:param name="filter" value="" />
+        </c:url>
+        <div class="button anchorbutton"><a href="${url4}">Clear filter</a></div>
         </c:if>
     </div>
     <t:pager />
