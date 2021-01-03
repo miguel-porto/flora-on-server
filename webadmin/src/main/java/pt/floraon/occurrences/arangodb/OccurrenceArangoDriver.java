@@ -617,6 +617,15 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         StringBuilder inventoryFilter = new StringBuilder();
         StringBuilder occurrenceFilter = new StringBuilder();
 
+        // count filter
+        if(filter.containsKey("detected")) {
+            if(filter.get("detected").equalsIgnoreCase("NA") || filter.get("detected").equalsIgnoreCase("no") || filter.get("detected").equalsIgnoreCase("0"))
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.notDetected")).append(" ");
+            else
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.detected")).append(" ");
+            filter.remove("detected");
+        }
+
         if(filter.containsKey("dateinserted")) {
             if(filter.get("dateinserted").equalsIgnoreCase("NA"))
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulldateinserted")).append(" ");

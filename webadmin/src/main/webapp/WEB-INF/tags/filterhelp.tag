@@ -16,6 +16,7 @@
         <tr><td><code>lat:</code></td><td>Latitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>long:</code></td><td>Longitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>tax:</code></td><td>Taxon</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>detected:</code></td><td>Taxon foi detectado?</td><td>0 (não detectado) ou 1 (detectado)</td></tr>
         <tr><td><code>tag:</code></td><td>Etiquetas</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>local:</code></td><td>Nome do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>hab:</code></td><td>Habitat</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
@@ -30,6 +31,7 @@
         <tr><td><code>uid:</code></td><td>Responsável, observador, colector ou determinador</td><td>Identificador de utilizador</td></tr>
         <tr><td><code>ilat:</code></td><td>Latitude do inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>ilong:</code></td><td>Longitude do inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
+        <tr><td><code>dateinserted:</code></td><td>Data de inserção da ocorrência</td><td>Data exacta ou intervalo de datas exactas (ver em baixo)</td></tr>
         <tr><th colspan="3">Filtros especiais</th></tr>
         <tr><td><code>nsp:</code></td><td>Nº de taxa registados por inventário</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
     </tbody>
