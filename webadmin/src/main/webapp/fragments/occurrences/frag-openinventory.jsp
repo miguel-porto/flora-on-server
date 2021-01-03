@@ -53,9 +53,7 @@
     </c:if>
     <c:forEach var="inv" items="${inventories}">
     <div class="inventory geoelement">
-        <h3><fmt:message key="inventory.1"/> ${inv.getCode()}
-        <c:if test="${inv._getInventoryLatitude() != null}"> ${inv._getInventoryCoordinates()}</c:if>
-        </h3>
+        <h3><fmt:message key="inventory.1"/> ${inv.getCode()} <c:if test="${inv._getInventoryLatitude() != null}">${inv._getInventoryCoordinates()}</c:if> - ${inv._getNumberOfTaxa()} taxa</h3>
         <form class="poster" data-path="occurrences/api/deleteoccurrences" data-confirm="true" data-callback="?w=main">
             <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
             <input type="submit" class="textbutton" value="Delete inventory" style="float:left"/>

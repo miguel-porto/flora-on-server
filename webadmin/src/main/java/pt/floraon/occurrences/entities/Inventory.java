@@ -759,6 +759,15 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     /**
+     * @return The number of taxa in this inventory (counting duplicates)
+     */
+    public int _getNumberOfTaxa() {
+        return StringUtils.isArrayEmpty(this.taxa) ?
+                (unmatchedOccurrences == null ? 0 : unmatchedOccurrences.size())
+                : this.taxa.length;
+    }
+
+    /**
      * @return True if this inventory has more than one single coordinate (including the inventory's)
      */
     public boolean _hasMultipleCoordinates() {
