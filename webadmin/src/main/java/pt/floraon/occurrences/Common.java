@@ -155,12 +155,19 @@ public final class Common {
     }
 
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap) throws IOException {
+        // TODO use field annotations
         OBSERVED_IN oi = occurrence.getOccurrence();
         UTMCoordinate utm = occurrence.hasCoordinate()
                 ? CoordinateConversion.LatLonToUtmWGS84(occurrence._getLatitude(), occurrence._getLongitude(), 0)
                 : null;
 //                    TaxEnt te = oi.getTaxEnt();
-// TODO use field annotations
+        String MGRS;
+        try {
+            MGRS = CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000);
+        } catch (IllegalArgumentException e) {
+            MGRS = "<invalid>";
+        }
+
         csv.printRecord(
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
@@ -179,7 +186,7 @@ public final class Common {
                 , utm == null ? "" : utm.getX()
                 , utm == null ? "" : utm.getY()
                 , occurrence.getPrecision()
-                , CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000)
+                , MGRS
                 , occurrence.getLocality()
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()

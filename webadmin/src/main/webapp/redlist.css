@@ -237,8 +237,11 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 .filter[data-option=onlyassessor] {background: linear-gradient(270deg, #64ffda 0, #64ffda 20px, #3949ab 20px, #3949ab 100%);}
 .filter[data-option=onlyreviewer] {background: linear-gradient(270deg, #ffab40 0, #ffab40 20px, #3949ab 20px, #3949ab 100%);}
 
-.filter.lilac .light {background-color: #FFC107}
-.filter.beige .light {background-color: #8bc34a}
+.occurrencefield {background-color: #8bc34a !important}
+.inventoryfield {background-color: #FFC107 !important}
+
+/*.filter.lilac .light {background-color: #FFC107}
+.filter.beige .light {background-color: #8bc34a}*/
 .filter.legend {
     border-radius: 0;
     cursor: auto;
@@ -336,7 +339,7 @@ input.selectionbox:not(:checked) + label {background-color: white;}
 #panels>div h3 {padding:2px}
 #versions * {vertical-align:middle;}
 
-input, textarea, select {font-size: 16px; vertical-align: middle;}
+input, textarea, select {font-size: 14px; vertical-align: middle;}
 select {max-width: 400px; text-overflow: ellipsis;}
 
 input[type=submit]:not(.button), .floatingtoolbar>div {

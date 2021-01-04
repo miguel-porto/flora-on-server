@@ -617,6 +617,24 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         StringBuilder inventoryFilter = new StringBuilder();
         StringBuilder occurrenceFilter = new StringBuilder();
 
+        // excludeReason filter
+        if(filter.containsKey("excl")) {
+            if(filter.get("excl").equalsIgnoreCase("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullExcludeReason")).append(" ");
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullExcludeReason.2")).append(" ");
+            } else {
+                try {
+                    bindVars.put("excludeReason"
+                            , OccurrenceConstants.PresenceStatus.getValueFromAcronym(filter.get("excl")).toString());
+                } catch (IllegalArgumentException e) {
+                    throw new FloraOnException(e.getMessage());
+                }
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.excludeReason")).append(" ");
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.excludeReason.2")).append(" ");
+            }
+            filter.remove("excl");
+        }
+
         // count filter
         if(filter.containsKey("detected")) {
             if(filter.get("detected").equalsIgnoreCase("NA") || filter.get("detected").equalsIgnoreCase("no") || filter.get("detected").equalsIgnoreCase("0"))

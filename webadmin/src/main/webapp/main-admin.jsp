@@ -67,7 +67,7 @@
             </td></tr>
             <tr><td>Incluir na vista os campos</td><td>
                 <table class="nohovereffects">
-                    <tr><th><div class="filter lilac legend"><div class="light"></div><div>Campos do inventário</div></div></th><th><div class="filter beige legend"><div class="light"></div><div>Campos do taxon (ocorrência)</div></div></th></tr>
+                    <tr><th><div class="filter legend"><div class="light inventoryfield"></div><div>Campos do inventário</div></div></th><th><div class="filter legend"><div class="light occurrencefield"></div><div>Campos do taxon (ocorrência)</div></div></th></tr>
                     <tr>
                         <td style="vertical-align:top"><table class="sortable smalltext">
                         <tr><th>Descrição</th><th>Nome do campo</th></tr>
@@ -97,7 +97,8 @@
                 <td>${flv.getName()}</td><td><t:yesno test="${flv.showInOccurrenceView()}"/></td><td><t:yesno test="${flv.showInInventoryView()}"/></td>
                 <td>
                 <c:forEach var="field" items="${flv.getFields()}" varStatus="loop">
-                <div class="filter legend nopadding">
+                <c:set var="fieldColor" value="${fieldData.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"/>
+                <div class="filter legend nopadding ${fieldColor}">
                     <c:if test="${!loop.isFirst()}">
                         <div class="light"><form class="poster" data-path="admin/changefieldorder" data-refresh="true">
                         <input type="hidden" name="flavourname" value="${flv.getName()}"/>
