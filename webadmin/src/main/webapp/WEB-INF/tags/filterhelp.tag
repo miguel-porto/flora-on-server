@@ -24,7 +24,8 @@
         <tr><td><code>code:</code></td><td>Código do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>gps:</code></td><td>Código GPS</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>proj:</code></td><td>Projecto ou instituição</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
-        <tr><td><code>priv:</code></td><td>Notas privadas da ocorrência</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>priv:</code></td><td>Notas privadas da ocorrência ou do inventário</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>pub:</code></td><td>Notas públicas da ocorrência ou do inventário</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>acc:</code></td><td>Código de herbário (<i>accession</i>)</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>obs:</code></td><td>Observador</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>coll:</code></td><td>Colector</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>

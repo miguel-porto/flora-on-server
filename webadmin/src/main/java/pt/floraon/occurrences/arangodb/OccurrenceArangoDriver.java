@@ -396,6 +396,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     @Override
     public Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
         String textFilter = filter.get("NA");
+        filter.remove("NA");
         Map<String, Object> bindVars = new HashMap<>();
         if(offset == null) offset = 0;
         if(count == null) count = 999999;
@@ -847,7 +848,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("gps");
         }
 
-        // privateComment filter
+        // privateComment filter (both of inventory and of occurrence)
         if(filter.containsKey("priv")) {
             if(filter.get("priv").toUpperCase().equals("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullPrivateComment")).append(" ");
@@ -856,6 +857,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.privateComment")).append(" ");
             }
             filter.remove("priv");
+        }
+
+        // public comment filter (both of inventory and of occurrence)
+        if(filter.containsKey("pub")) {
+            if(filter.get("pub").toUpperCase().equals("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullPublicComment")).append(" ");
+            } else {
+                bindVars.put("publicComment", filter.get("pub").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.publicComment")).append(" ");
+            }
+            filter.remove("pub");
         }
 
         // accession filter
@@ -879,6 +891,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     @Override
     public Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException {
         String textFilter = filter.get("NA");
+        filter.remove("NA");
 //        System.out.println(new Gson().toJson(filter));
 
         Map<String, Object> bindVars = new HashMap<>();
