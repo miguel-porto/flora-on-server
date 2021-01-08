@@ -46,6 +46,8 @@
             <label for="butCurrent" class="wordtag togglebutton"> Current records</label>
             <input type="radio" name="currentOrHistorical" value="historical" id="butHistorical"/>
             <label for="butHistorical" class="wordtag togglebutton"> Historical records</label>
+            <input type="radio" name="currentOrHistorical" value="both" id="butBoth"/>
+            <label for="butBoth" class="wordtag togglebutton"> Both sets</label>
         </div>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>

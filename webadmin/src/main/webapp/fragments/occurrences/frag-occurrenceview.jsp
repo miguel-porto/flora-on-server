@@ -140,6 +140,7 @@
             <div class="button anchorbutton"><a href="${url4}">Clear filter</a></div>
             </c:if>
         </div>
+        <div class="newfeature">NOVO! Filtro pub: para procurar nos comentários públicos (tanto da ocorrência como do inventário) e filtro priv: para procurar nos comentários privados (tanto da ocorrência como do inventário)</div>
         <t:pager />
     </div>
     <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">

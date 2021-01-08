@@ -112,6 +112,14 @@ public final class Common {
         }
     }
 
+    /**
+     * The main function for exporting any occurrence set to stream, as CSV.
+     * @param occurrenceIterator
+     * @param stream
+     * @param driver
+     * @throws IOException
+     * @throws FloraOnException
+     */
     public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream, IFloraOn driver)
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
@@ -170,8 +178,8 @@ public final class Common {
 
         csv.printRecord(
                 occurrence.getDataSource()
-                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
-                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getName()
+                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()
+                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()
                 , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)
                 , oi.getVerbTaxon()
                 , oi.getConfidence()
@@ -179,7 +187,8 @@ public final class Common {
                 , oi.getPhenoState()
                 , oi.getNaturalization()
                 , occurrence._getDateYMD()
-                , StringUtils.implode(", ", occurrence._getObserverNames())
+//                , StringUtils.implode(", ", occurrence._getObserverNames())
+                , StringUtils.implode(", ", userMap, occurrence.getObservers())
                 , StringUtils.implode(", ", userMap, occurrence.getCollectors())
                 , occurrence._getLatitude(), occurrence._getLongitude()
                 , utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()
@@ -197,7 +206,8 @@ public final class Common {
                 , oi.getAccession()
                 , occurrence.getCredits()
                 , occurrence.getMaintainer()
-                , occurrence._getMaintainerName()
+                , userMap.get(occurrence.getMaintainer())
+//                , occurrence._getMaintainerName()
         );
 
     }

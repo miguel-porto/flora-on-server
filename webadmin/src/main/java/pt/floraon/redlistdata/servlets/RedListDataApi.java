@@ -177,14 +177,20 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "downloadoccurrencesusedinassessments":
                 territory = thisRequest.getParameterAsString("territory");
-
+                OccurrenceFilter of1 = null;
+                switch(thisRequest.getParameterAsString("currentOrHistorical")) {
+                    case "current":
+                        of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory);
+                        break;
+                    case "historical":
+                        of1 = BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory);
+                        break;
+                    case "both":
+                        of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withMaximumYear(null).withMinimumYear(null);
+                        break;
+                }
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new DownloadOccurrencesJob(territory
-                                , RedListDataFilterFactory.onlyAssessed()
-                                , "current".equals(thisRequest.getParameterAsString("currentOrHistorical"))
-                                    ? BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory)
-                                    : BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory)
-                            )
+                        new DownloadOccurrencesJob(territory, RedListDataFilterFactory.onlyAssessed(), of1)
                         , "used-occurrences.csv", driver).getID());
                 break;
 

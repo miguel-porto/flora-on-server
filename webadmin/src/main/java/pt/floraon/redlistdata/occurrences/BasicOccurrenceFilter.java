@@ -82,6 +82,16 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         return this;
     }
 
+    public BasicOccurrenceFilter withMaximumYear(Integer maxYear) {
+        this.maximumYear = maxYear;
+        return this;
+    }
+
+    public BasicOccurrenceFilter withMinimumYear(Integer minYear) {
+        this.minimumYear = minYear;
+        return this;
+    }
+
     public BasicOccurrenceFilter withInsidePolygonTheme(IPolygonTheme polygonTheme) {
         this.clippingPolygon = polygonTheme;
         return this;
