@@ -33,7 +33,7 @@
             <div class="button" id="canceldelete"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="deleteoccurrencetable" class="verysmalltext sortable">
-            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence" noSortButton="true"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -49,7 +49,7 @@
             <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
+            <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence" noSortButton="true"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
@@ -67,7 +67,7 @@
         <input type="submit" class="textbutton" value="Save"/>
     </div>
     <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
-        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence" noSortButton="true"/></tr></thead>
         <tbody>
             <t:occurrencerow fields="${flavourfields}" view="occurrence"/>
         </tbody>
@@ -80,7 +80,7 @@
         <input type="submit" class="textbutton" value="Merge"/>
     </div>
     <table id="mergeoccurrencetable" class="verysmalltext">
-        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
+        <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence" noSortButton="true"/></tr></thead>
         <tbody></tbody>
     </table>
 </form>

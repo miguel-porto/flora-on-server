@@ -33,20 +33,9 @@
             <input type="submit" class="textbutton" value="Update"/>
             <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
         </div>
-<%--
-        <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-            <tr>
-                <th class="sorttable_nosort selectcol clickable"><div class="selectbutton"></div></th>
-                <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
-                <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2c"/></th>
-                <th>Species</th>
-            </tr>
-            <tbody></tbody>
-        </table>
---%>
         <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
             <thead><tr>
-                <t:occurrenceheader fields="${summaryfields}" view="inventorySummary"/>
+                <t:occurrenceheader fields="${summaryfields}" view="inventorySummary" noSortButton="true"/>
             </tr></thead>
             <tbody></tbody>
         </table>
@@ -107,44 +96,3 @@
         </tbody>
     </table>
 </div>
-
-<%--
-<div id="alloccurrences">
-    <table id="alloccurrencetable" class="occurrencetable verysmalltext sortable inventorysummary">
-        <tr>
-            <th class="sorttable_nosort selectcol clickable"><div class="selectbutton"></div></th>
-            <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
-            <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2c"/></th>
-            <th>Species</th>
-        </tr>
-        <c:forEach var="inv" items="${inventories}">
-        <tr class="geoelement id1holder">
-            <td class="selectcol clickable">
-                <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
-                <div class="selectbutton"></div>
-            </td>
-            <td data-name="code" class="editable">${inv.getCode()}</td>
-            <td data-name="locality" class="editable">${inv.getLocality()}</td>
-            <td sorttable_customkey="${inv._getDateYMD()}" data-name="date" class="editable">${inv._getDate()}</td>
-            <td class="coordinates editable" data-lat="${inv._getLatitude()}" data-lng="${inv._getLongitude()}" data-name="coordinates">${inv._getInventoryCoordinates()}</td>
-            <td class="taxon"><a href="?w=openinventory&id=${inv._getIDURLEncoded()}"><c:if test="${inv._hasDuplicatedTaxa()}"><span class="warning">duplicated taxa</span> </c:if>${inv._getSampleTaxa(100)}</a></td>
-        </tr>
-        </c:forEach>
-    </table>
-</div>
---%>
-<%--
-<table id="inventorysummary" class="occurrencetable verysmalltext sortable">
-    <tr><th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
-    <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.2c"/></th><th>Species</th></tr>
-    <c:forEach var="inv" items="${inventories}">
-    <tr class="geoelement">
-        <td data-name="code">${inv.getCode()}</td>
-        <td data-name="locality">${inv.getLocality()}</td>
-        <td sorttable_customkey="${inv._getDateYMD()}" data-name="date">${inv._getDate()}</td>
-        <td class="coordinates" data-lat="${inv._getLatitude()}" data-lng="${inv._getLongitude()}">${inv._getInventoryCoordinates()}</td>
-        <td class="taxon"><a href="?w=openinventory&id=${inv._getIDURLEncoded()}"><c:if test="${inv._hasDuplicatedTaxa()}"><span class="warning">duplicated taxa</span> </c:if>${inv._getSampleTaxa(100)}</a></td>
-    </tr>
-</c:forEach>
-</table>
---%>

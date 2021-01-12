@@ -3,6 +3,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="view" required="true" type="java.lang.String" %>
+<%@ attribute name="noSortButton" required="false" type="java.lang.Boolean" %>
 
 <jsp:useBean id="collapseField" class="java.util.HashMap"/>
 <c:forEach var="flf" items="${fields.getFields()}">
@@ -30,12 +31,12 @@
     <c:param name="p" value="${param.p}" />
     <c:param name="filter" value="${filter}" />
 </c:url>
-<c:set var="sortedCol" value="${view != 'inventory' && (occurrenceOrder == field || occurrenceOrder == field.concat('_d')) ? 'sorted' : ''}"/>
+<c:set var="sortedCol" value="${view != 'inventory' && !noSortButton && (occurrenceOrder == field || occurrenceOrder == field.concat('_d')) ? 'sorted' : ''}"/>
 <th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${sortedCol} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
     title="${fields.getFieldName(field)}" data-field="${field}">
     <t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>
     <c:set var="butsel" value="${occurrenceOrder == field ? 'selected' : ''}"/>
-    <c:if test="${view != 'inventory'}">
+    <c:if test="${view != 'inventory' && !noSortButton}">
     <c:choose>
     <c:when test="${occurrenceOrder == field}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=${field}_d">&blacktriangle;</a></div></c:when>
     <c:when test="${occurrenceOrder == field.concat('_d')}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=">&blacktriangledown;</a></div></c:when>
