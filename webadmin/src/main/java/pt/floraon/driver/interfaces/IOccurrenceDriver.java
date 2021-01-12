@@ -7,6 +7,7 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
 
+import java.util.AbstractMap;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
@@ -101,7 +102,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Occurrence> getOccurrencesOfMaintainer(INodeKey authorId, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
+    Iterator<Occurrence> getOccurrencesOfMaintainer(INodeKey authorId, AbstractMap.SimpleEntry<String, Boolean> orderField, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets the number of occurrences of the maintainer (inventories are disaggregated into single occurrences).
@@ -130,9 +131,9 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
-    Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
+    Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, AbstractMap.SimpleEntry<String, Boolean> orderField, Integer offset, Integer count) throws DatabaseException;
 
-    Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
     int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
 
@@ -203,7 +204,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws FloraOnException
      */
-    Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
 
     /**
      * Applies the same occurrence filter as findOccurrencesByFilter but returns only the count

@@ -55,8 +55,8 @@
 <div class="heading2">
     <h2>Your inventories - ${nrtotaloccurrences}</h2>
     <%--<t:isoptionselected optionname="allusers" value="false"><div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div></t:isoptionselected>--%>
-    <div class="button" id="addemptyinventory">Novo</div>
-    <div class="button" id="updatemodified"><fmt:message key="inventory.upd"/></div>
+    <div class="button icon" id="addemptyinventory"><img src="${contextPath}/images/add.png"/><span>Novo</span></div>
+    <div class="button icon" id="updatemodified"><img src="${contextPath}/images/ic_menu_save.png"/><span><fmt:message key="inventory.upd"/></span></div>
     <div id="occurrencefilter">
         <form method="get" action="occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />
@@ -96,7 +96,7 @@
 </div>
 <%-- <div class="newfeature">NOVO! Esta tabela agora é directamente editável!</div> --%>
 <div id="alloccurrences">
-    <table id="alloccurrencetable" class="occurrencetable verysmalltext sortable inventorysummary">
+    <table id="alloccurrencetable" class="occurrencetable verysmalltext inventorysummary">
         <thead><tr>
             <t:occurrenceheader fields="${summaryfields}" view="inventorySummary"/>
         </tr></thead>

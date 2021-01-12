@@ -231,6 +231,14 @@ public final class FieldReflection {
             return false;
     }
 
+    static public String[] getDatabaseFields(String field) {
+        Field f = findField(field);
+        if(f == null) return new String[0];
+        if(f.isAnnotationPresent(DatabaseFields.class)) {
+            return f.getAnnotation(DatabaseFields.class).value();
+        } else
+            return new String[] {field};
+    }
 
     static public boolean hideFieldInCompactView(String field) {
         Field f = findField(field);
@@ -269,6 +277,14 @@ public final class FieldReflection {
         Field f = findField(field);
         if(f == null) return false;
         return f.isAnnotationPresent(AdminOnly.class);
+    }
+
+    static public Class<? extends pt.floraon.driver.parsers.FieldParser> getFieldParser(String field) {
+        Field f = findField(field);
+        if(f == null) return null;
+        if(f.isAnnotationPresent(pt.floraon.driver.annotations.FieldParser.class)) {
+            return f.getAnnotation(FieldParser.class).value();
+        } else return null;
     }
 
 }

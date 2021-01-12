@@ -25,9 +25,23 @@
 
 <c:otherwise>
 <c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && (field == 'taxa' || (fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
-<th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
-    title="${fields.getFieldName(field)}">
+<c:url value="" var="url">
+    <c:param name="w" value="${param.w}" />
+    <c:param name="p" value="${param.p}" />
+    <c:param name="filter" value="${filter}" />
+</c:url>
+<c:set var="sortedCol" value="${view != 'inventory' && (occurrenceOrder == field || occurrenceOrder == field.concat('_d')) ? 'sorted' : ''}"/>
+<th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${sortedCol} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
+    title="${fields.getFieldName(field)}" data-field="${field}">
     <t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>
+    <c:set var="butsel" value="${occurrenceOrder == field ? 'selected' : ''}"/>
+    <c:if test="${view != 'inventory'}">
+    <c:choose>
+    <c:when test="${occurrenceOrder == field}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=${field}_d">&blacktriangle;</a></div></c:when>
+    <c:when test="${occurrenceOrder == field.concat('_d')}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=">&blacktriangledown;</a></div></c:when>
+    <c:otherwise><div class="anchorbutton sortbutton button"><a href="${url}&order=${field}">&blacktriangle;</a></div></c:otherwise>
+    </c:choose>
+    </c:if>
     ${fields.getFieldShortName(field)}
 </th>
 </c:if>

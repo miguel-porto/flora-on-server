@@ -59,7 +59,7 @@ public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 		};
 
 		parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
-		out = driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, null, null, null);
+		out = driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, null, null, null, null);
 		return new InventoryIterator(out, new OccurrenceFilter[] {geoFilter});
 	}
 
@@ -82,7 +82,7 @@ public abstract class GQuery extends BaseFloraOnDriver implements IQuery {
 		};
 
 		parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filterExpression);
-		out = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, null, null, null);
+		out = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, null, null, null, null);
 		return new OccurrenceIterator(out, new OccurrenceFilter[] {geoFilter, filter});
 	}
 

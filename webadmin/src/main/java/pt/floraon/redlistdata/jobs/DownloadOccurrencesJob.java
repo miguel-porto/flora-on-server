@@ -64,25 +64,25 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
-        Common.exportOccurrenceHeaderToCSV(csvp);
+        Common.exportOccurrenceHeaderToCSV(csvp, true);
         if(this.taxEntIterator == null) {
             Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
             while (it.hasNext()) {
                 RedListDataEntity rlde = it.next();
                 if (redListDataFilter != null && !this.redListDataFilter.enter(rlde)) continue;
                 TaxEnt te = rlde.getTaxEnt();
-                querySpecies(driver, te, csvp);
+                querySpecies(driver, te, rlde, csvp);
             }
         } else {
             while(taxEntIterator.hasNext()) {
-                querySpecies(driver, taxEntIterator.next(), csvp);
+                querySpecies(driver, taxEntIterator.next(), null, csvp);
             }
         }
 
         csvp.close();
     }
 
-    private void querySpecies(IFloraOn driver, TaxEnt taxEnt, CSVPrinter printer) throws IOException, FloraOnException {
+    private void querySpecies(IFloraOn driver, TaxEnt taxEnt, RedListDataEntity rlde, CSVPrinter printer) throws IOException, FloraOnException {
         OccurrenceProcessor op;
         curSpeciesI++;
         curSpeciesName = taxEnt.getName();
@@ -96,7 +96,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             for (Occurrence so : op) {
                 // here we override the matched taxent because we want occurrences to be organized by red list sheets.
                 so.getOccurrence().setTaxEnt(taxEnt);
-                Common.exportOccurrenceToCSV(so, printer, null, null);
+                Common.exportOccurrenceToCSV(so, printer, null, null, rlde);
             }
         }
 

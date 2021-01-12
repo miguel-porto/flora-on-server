@@ -37,7 +37,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
         User user = thisRequest.getUser();
         Integer page = thisRequest.getParameterAsInteger("p", null);
         Integer count = 250;    // how many occurrences or inventories per page
-        String filter;
+        String filter, order;
         INodeKey maintainer;
         int tmp;
         HttpSession session = request.getSession(false);
@@ -59,11 +59,21 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
         // fetch filter from querystring or session
         filter = thisRequest.getParameterAsString("filter");
+
         if(filter == null) {
             filter = (String) session.getAttribute("filter");
         } else if(filter.equals("")) {
             session.removeAttribute("filter");
             filter = null;
+        }
+
+        // fetch order from querystring or session
+        order = thisRequest.getParameterAsString("order");
+        if(order == null) {
+            order = (String) session.getAttribute("occurrenceOrder");
+        } else if(order.equals("")) {
+            session.removeAttribute("occurrenceOrder");
+            order = null;
         }
 
 /*
@@ -115,11 +125,19 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     tu1 = driver.asNodeKey(user.getID());
 
                 tmp = driver.getOccurrenceDriver().getInventoriesOfMaintainerCount(tu1);
+
+                session.setAttribute("occurrenceOrder", order);
+                boolean orderDirection = false;
+                if(order != null && order.endsWith("_d")) {
+                    orderDirection = true;
+                    order = order.substring(0, order.length() - 2);
+                }
+
                 if (filter == null) {
                     request.setAttribute("nroccurrences", count > tmp ? tmp : count);
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("inventories"
-                            , driver.getOccurrenceDriver().getInventoriesOfMaintainer(tu1, (page - 1) * count, count));
+                            , driver.getOccurrenceDriver().getInventoriesOfMaintainer(tu1, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection), (page - 1) * count, count));
                 } else {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);
@@ -128,7 +146,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     try {
                         parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("inventories"
-                                , driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, tu1, (page - 1) * count, count));
+                                , driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection), tu1, (page - 1) * count, count));
                     } catch(FloraOnException e) {
                         request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
                     }
@@ -156,7 +174,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                             , driver.getOccurrenceDriver().getInventoriesByIds(new String[] {thisRequest.getParameterAsString("id")}));
                 } else
                     request.setAttribute("inventories"
-                            , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null));
+                            , driver.getOccurrenceDriver().getInventoriesOfMaintainer(driver.asNodeKey(user.getID()), null, null, null));
 
                 // Flavours
                 // Get the list of flavours
@@ -185,7 +203,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 request.setAttribute("parseerrors", il.getParseErrors());
                 break;
 
-            case "occurrenceview":  // The main view of occurrences, with many flavours
+            case "fetchOccurrenceRows": // TODO: occurrence table as AJAX
                 if(thisRequest.isOptionTrue("allusers"))
                     maintainer = null;
                 else
@@ -194,10 +212,66 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 tmp = driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(maintainer);
 
                 if (filter == null) {
+                    request.setAttribute("occurrences"
+                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(maintainer, null,false,(page - 1) * count, count));
+                } else {
+                    session.setAttribute("filter", filter);
+                    Map<String, String> parsedFilter = new HashMap<>();
+                    try {
+                        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                        request.setAttribute("occurrences"
+                                , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, null, maintainer, (page - 1) * count, count));
+                    } catch(FloraOnException e) {
+                        request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
+                    }
+
+                    if(maintainer == null && parsedFilter.containsKey("NA")) {
+                        List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
+                        for (SimpleOccurrenceDataProvider edp : sodps) {
+                            if (edp.canQueryText()) {
+                                // TODO: only works for one provider
+                                edp.executeOccurrenceTextQuery(parsedFilter.get("NA"));
+                                request.setAttribute("externaloccurrences", edp.iterator());
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Flavours
+                // Get the list of flavours
+                Map<String, IOccurrenceFlavour> flv3 = user.getEffectiveOccurrenceFlavours(User.FlavourFilter.ONLY_OCCURRENCE);
+
+                // get the list of fields for the selected flavour
+                String flavour3 = (String) thisRequest.getOption("flavour");
+                if(StringUtils.isStringEmpty(flavour3) || !flv3.containsKey(flavour3))
+                    thisRequest.setOption("flavour", flavour3 = "simple");
+
+                request.setAttribute("flavourfields", flv3.get(flavour3));
+                request.getRequestDispatcher("/fragments/occurrences/frag-occurrenceTableRows.jsp").forward(request, thisRequest.response);
+                return;
+
+            case "occurrenceview":  // The main view of occurrences, with many flavours
+                if(thisRequest.isOptionTrue("allusers"))
+                    maintainer = null;
+                else
+                    maintainer = driver.asNodeKey(user.getID());
+
+                tmp = driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(maintainer);
+
+                session.setAttribute("occurrenceOrder", order);
+                boolean orderDirection1 = false;
+                if(order != null && order.endsWith("_d")) {
+                    orderDirection1 = true;
+                    order = order.substring(0, order.length() - 2);
+                }
+                if (filter == null) {
                     request.setAttribute("nroccurrences", count > tmp ? tmp : count);
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
-                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(maintainer,false,(page - 1) * count, count));
+                            , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(
+                                    maintainer, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection1),
+                                    false,(page - 1) * count, count));
                 } else {
                     session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", count);   // TODO this should be the number after filtering, but we don't know it by now
@@ -206,11 +280,10 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     try {
                         parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("occurrences"
-                                , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, maintainer, (page - 1) * count, count));
+                                , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection1), maintainer, (page - 1) * count, count));
                     } catch(FloraOnException e) {
                         request.setAttribute("warning", "O filtro não foi compreendido: " + e.getMessage());
                     }
-
 
                     if(maintainer == null && parsedFilter.containsKey("NA")) {
                         List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
@@ -324,12 +397,12 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 Iterator<Occurrence> it1;
                 if(filter == null) {
-                    it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, true,null, null);
+                    it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, null, true,null, null);
                 } else {
                     Map<String, String> parsedFilter3;
                     try {
                         parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
-                        it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter3, u, null, null);
+                        it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter3, null, u, null, null);
                     } catch (FloraOnException e) {
                         thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
                         return;

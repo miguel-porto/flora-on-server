@@ -157,6 +157,7 @@ tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified {outline: 1px dashed #b931ff; box-shadow: 0 0 3px #b931ff;}
 tr.active {outline: 1px solid #63c2ff;}
 tr.external td {font-style:italic}
+.occurrencetable th.sorted {outline:2px dashed red}
 .occurrencetable td.collapsed, .occurrencetable th.collapsed {min-width:16px; width:24px; max-width:24px; overflow: hidden; font-size:0.6em; padding:0}
 .occurrencetable td.collapsed {text-overflow: ellipsis; white-space: nowrap;}
 .occurrencetable .expandbutton {padding:0; background:transparent; text-align:center; background-size:auto 100%; height:8px;position:absolute; width:100%; top:1px; filter:invert(100%);}
@@ -166,6 +167,16 @@ tr.external td {font-style:italic}
 .occurrencetable td img.photo {width:200px}
 
 .expandbutton-clicker {width:100%; height:10px; margin:0;}
+
+.occurrencetable .sortbutton {
+    padding:0px;
+    margin:2px;
+    box-shadow:none;
+    background-color:transparent;
+    float:right;
+}
+.occurrencetable .sortbutton a, .occurrencetable .sortbutton a:visited {color:black; padding:0 4px;}
+.occurrencetable .sortbutton.selected a, .occurrencetable .sortbutton.selected a:visited {color:red;}
 
 #suggestionstaxon {position:relative; width:0; height:0;}
 /*#taxonsearchwrapper {width: 100%;}*/

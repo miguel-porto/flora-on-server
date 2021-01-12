@@ -85,6 +85,7 @@
     </table>
 </form>
 
+<%--
 <c:if test="${nproblems > 0}">
 <div id="warningpanel" class="warning">
     <p><fmt:message key="error.7"/></p>
@@ -92,19 +93,20 @@
     <div class="button anchorbutton"><a href="?w=fixissues"><fmt:message key="button.3"/></a></div>
 </div>
 </c:if>
+--%>
 
 <div id="alloccurrences">
     <div class="heading2">
         <h2 class="hideincompactview"><fmt:message key="${sessionScope['option-allusers'] ? 'occurrences.6' : 'occurrences.1'}"/> - ${nrtotaloccurrences}
         <c:if test="${filter != null && filter != ''}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences" classes="inlineblock"/>]</c:if>
         </h2>
-        <div class="button" id="newoccurrence"><fmt:message key="occurrences.1a"/></div>
-        <div class="button" id="deleteselected"><fmt:message key="occurrences.1b"/></div>
+        <div class="button icon" id="newoccurrence"><img src="${contextPath}/images/add.png"/><span><fmt:message key="occurrences.1a"/></span></div>
+        <div class="button icon" id="deleteselected"><img src="${contextPath}/images/delete.png"/><span><fmt:message key="occurrences.1b"/></span></div>
         <div class="button hideincompactview" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
-        <div class="button" id="updatemodified"><fmt:message key="inventory.upd"/></div>
-        <c:if test="${sessionScope['option-flavour'] == 'redlist'}">
+        <div class="button icon" id="updatemodified"><img src="${contextPath}/images/ic_menu_save.png"/><span><fmt:message key="inventory.upd"/></span></div>
+        <%-- <c:if test="${sessionScope['option-flavour'] == 'redlist'}"></c:if> --%>
         <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
-        </c:if>
+        <c:if test="${nproblems > 0}"><div class="button anchorbutton"><a href="?w=fixissues"><fmt:message key="button.3"/></a></div></c:if>
         <div id="occurrencefilter">
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
@@ -140,10 +142,11 @@
             <div class="button anchorbutton"><a href="${url4}">Clear filter</a></div>
             </c:if>
         </div>
-        <div class="newfeature">NOVO! Filtro pub: para procurar nos comentários públicos (tanto da ocorrência como do inventário) e filtro priv: para procurar nos comentários privados (tanto da ocorrência como do inventário)</div>
+        <c:if test="${occurrenceNewFeature != null}"><div class="newfeature">${occurrenceNewFeature}</div></c:if>
         <t:pager />
     </div>
-    <table id="alloccurrencetable" class="verysmalltext occurrencetable sortable">
+    <%--TODO: AJAX <t:ajaxloadhtml url="${contextPath}/occurrences?w=fetchOccurrenceRows"/>--%>
+    <table id="alloccurrencetable" class="verysmalltext occurrencetable">
         <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
         <tbody>
         <c:forEach var="occ" items="${occurrences}">
@@ -152,10 +155,6 @@
         <c:forEach var="occ" items="${externaloccurrences}">
             <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" locked="true" cssclass="external" view="occurrence"
                 symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"/>
-            <%--<tr class="geoelement hidden">
-                <td class="coordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}"
-                    data-symbol="${occ.getOccurrence().getConfidence().toString() == 'DOUBTFUL' ? 1 : (occ.getOccurrence().getPresenceStatus() == null || occ.getOccurrence().getPresenceStatus().toString() == 'ASSUMED_PRESENT' ? 2 : 1)}"></td>
-            </tr>--%>
         </c:forEach>
         </tbody>
     </table>

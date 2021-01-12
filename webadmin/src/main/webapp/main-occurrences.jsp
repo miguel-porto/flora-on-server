@@ -39,6 +39,7 @@
 	<!-- <script type="text/javascript" src="js/ajax_nav.js?nocache=${uuid}"></script> -->
 </head>
 <body class="occurrencespage ${sessionScope['option-compactview'] ? 'compactview' : ''}">
+    <c:set var="maphidden" value="${sessionScope['option-showmap'] == false ? true : (nroccurrences > 1000 ? true : false)}" />
     <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
         <div id="mapcontainer"></div>
         <div class="mapbuttons">
@@ -69,7 +70,6 @@
             </ol>
         </div>
     </div>
-    <c:set var="maphidden" value="${sessionScope['option-showmap'] == false ? true : (nroccurrences > 1000 ? true : false)}" />
     <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">
         <jsp:include page="occurrences-pages.jsp"></jsp:include>
     </div>

@@ -13,6 +13,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.occurrences.entities.*;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.TaxEntMatch;
 
@@ -124,7 +125,7 @@ public final class Common {
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
-        exportOccurrenceHeaderToCSV(csv);
+        exportOccurrenceHeaderToCSV(csv, false);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
         Map<String, String> userMap = new HashMap<>();
         TaxEnt tmp = null;
@@ -149,20 +150,22 @@ public final class Common {
                         acceptedTaxa.put(i2.getOccurrence().getTaxEntMatch(), tmp);
                 }
             }
-            exportOccurrenceToCSV(i2, csv, tmp, userMap);
+            exportOccurrenceToCSV(i2, csv, tmp, userMap, null);
         }
         csv.close();
     }
 
-    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        csv.printRecord("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
+    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv, boolean includeRedListData) throws IOException {
+        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-                , "credits", "maintainer", "maintainerName");
+                , "credits", "maintainer", "maintainerName"));
+        if(includeRedListData) fields.addAll(Arrays.asList("redListCategory"));
+        csv.printRecord(fields);
     }
 
-    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap) throws IOException {
+    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap, RedListDataEntity rlde) throws IOException {
         // TODO use field annotations
         OBSERVED_IN oi = occurrence.getOccurrence();
         UTMCoordinate utm = occurrence.hasCoordinate()
@@ -188,7 +191,7 @@ public final class Common {
                 , oi.getNaturalization()
                 , occurrence._getDateYMD()
 //                , StringUtils.implode(", ", occurrence._getObserverNames())
-                , StringUtils.implode(", ", userMap, occurrence.getObservers())
+                , userMap == null ? StringUtils.implode(", ", occurrence._getObserverNames()) : StringUtils.implode(", ", userMap, occurrence.getObservers())
                 , StringUtils.implode(", ", userMap, occurrence.getCollectors())
                 , occurrence._getLatitude(), occurrence._getLongitude()
                 , utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()
@@ -206,7 +209,8 @@ public final class Common {
                 , oi.getAccession()
                 , occurrence.getCredits()
                 , occurrence.getMaintainer()
-                , userMap.get(occurrence.getMaintainer())
+                , occurrence.getMaintainer() == null || userMap == null ? "" : userMap.get(occurrence.getMaintainer())
+                , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
 //                , occurrence._getMaintainerName()
         );
 

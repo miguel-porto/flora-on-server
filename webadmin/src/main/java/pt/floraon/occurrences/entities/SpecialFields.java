@@ -11,11 +11,14 @@ import pt.floraon.occurrences.fields.parsers.TaxaParser;
 public class SpecialFields {
     @SpecialField @InventoryField @FieldParser(TaxaParser.class)
     @PrettyName(value = "Taxon", shortName = "Taxon", important = true)
+    @DatabaseFields({"verbTaxon"})
     private String taxa;
     @SpecialField @InventoryField @FieldParser(LatitudeLongitudeParser.class) @FieldType(FieldType.Type.COORDINATES)
     @PrettyName(value = "Coordenadas", shortName = "Coord", important = true)
+    @DatabaseFields({"observationLatitude", "observationLongitude"})
     private String coordinates;
-    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
+    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @SmallField
+    @DatabaseFields({"year", "month", "day", "hour", "minute"})
     @PrettyName(value = "Data de observação", shortName = "Data", important = true)
     private String date;
     @SpecialField(hideFromCustomFlavour = true) @InventoryField @FieldParser(LatitudeLongitudeParser.class) @FieldType(FieldType.Type.COORDINATES)

@@ -12,6 +12,8 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.fields.FieldReflection;
+import pt.floraon.occurrences.fields.parsers.EnumParser;
 import pt.floraon.occurrences.iterators.OccurrenceIterator;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -141,9 +143,33 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
     @Override
     public Iterator<Occurrence> getFilteredOccurrences(OccurrenceFilter filter) throws DatabaseException {
         Iterator<Occurrence> tmp =
-                this.driver.getOccurrenceDriver().getOccurrencesOfMaintainer(null, true
+                this.driver.getOccurrenceDriver().getOccurrencesOfMaintainer(null, null, true
                         , null, null);
         return new OccurrenceIterator(tmp, new OccurrenceFilter[] {filter});
     }
 
+    protected String buildSortOrderExpression(AbstractMap.SimpleEntry<String, Boolean> orderField) {
+        StringBuilder sortFields = new StringBuilder();
+
+        if (orderField == null || orderField.getKey() == null || FieldReflection.findField(orderField.getKey()) == null)
+            sortFields.append("o.dateInserted DESC");
+        else if(orderField.getKey().equals("coordinates")) {
+            sortFields.append("(i.latitude == null ? o.observationLatitude : i.latitude)")
+                    .append(orderField.getValue() ? " DESC" : "");
+        } else {
+            String[] dbOrderFields = FieldReflection.getDatabaseFields(orderField.getKey());
+            String direction = orderField.getValue() ? " DESC" : "";
+            for (String f : dbOrderFields) {
+                String io = FieldReflection.isInventoryField(f) ? "i." : "o.";
+                sortFields.append(io);
+                Class<? extends pt.floraon.driver.parsers.FieldParser> fp = FieldReflection.getFieldParser(f);
+                if(fp != null && fp.equals(EnumParser.class)) {
+                    sortFields.append(f).append(" == 'NULL' ? '' : ").append(io).append(f).append(direction).append(", ");
+                } else
+                    sortFields.append(f).append(direction).append(", ");
+            }
+            sortFields.setLength(sortFields.length() - 2);
+        }
+        return sortFields.toString();
+    }
 }

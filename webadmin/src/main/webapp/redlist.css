@@ -408,6 +408,12 @@ input[type=submit].textbutton.compact {
 .button.anchorbutton a, .button.anchorbutton a:visited {padding:8px 14px; display: inline-block; color:white; line-height:1em;}
 .button.anchorbutton.selected a, .button.anchorbutton.selected a:visited {color:green;}
 .button.smallround {padding: 3px 5px; font-style:italic; font-size: 0.75rem; background-color: rgba(255,255,255,0.5); color: black; box-shadow: 0 0 3px gray; margin: 0 0 3px 0;}
+.button.icon {padding: 2px 14px 2px 3px}
+.button.icon img {
+    vertical-align: middle;
+    height:1.5em;
+}
+.button.icon span {vertical-align: middle;}
 
 .button-section {
     display: inline-block;

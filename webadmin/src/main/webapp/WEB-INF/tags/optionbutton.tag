@@ -1,7 +1,7 @@
 <%@ tag description="Session option button" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ attribute name="optionname" required="true" %>
-<%@ attribute name="title" required="true" %>
+<%@ attribute name="title" required="false" %>
 <%@ attribute name="defaultvalue" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="element" required="false" %>
 <%@ attribute name="norefresh" required="false" type="java.lang.Boolean" %>

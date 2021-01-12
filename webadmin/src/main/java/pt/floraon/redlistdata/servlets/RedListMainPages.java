@@ -1226,7 +1226,11 @@ System.out.println(gs.toJson(getUser()));
 
             case "edituser":
                 User tmp = driver.getAdministration().getUser(thisRequest.getParameterAsKey("user"));
-                List<TaxEnt> applTax = new ArrayList<>();
+//                List<TaxEnt> applTax = new ArrayList<>();
+                if(tmp == null) {
+                    thisRequest.error("User not found. Check user ID.");
+                    return;
+                }
 /*
                 for(String i : tmp.getApplicableTaxa()) {
                     applTax.add(driver.getNodeWorkerDriver().getTaxEntById(driver.asNodeKey(i)));
