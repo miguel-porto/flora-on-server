@@ -125,7 +125,7 @@ public final class Common {
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
 //                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
-        exportOccurrenceHeaderToCSV(csv, false);
+        exportOccurrenceHeaderToCSV(csv);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
         Map<String, String> userMap = new HashMap<>();
         TaxEnt tmp = null;
@@ -155,13 +155,12 @@ public final class Common {
         csv.close();
     }
 
-    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv, boolean includeRedListData) throws IOException {
+    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
         final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-                , "credits", "maintainer", "maintainerName"));
-        if(includeRedListData) fields.addAll(Arrays.asList("redListCategory"));
+                , "credits", "maintainer", "maintainerName", "redListCategory"));
         csv.printRecord(fields);
     }
 
@@ -209,7 +208,7 @@ public final class Common {
                 , oi.getAccession()
                 , occurrence.getCredits()
                 , occurrence.getMaintainer()
-                , occurrence.getMaintainer() == null || userMap == null ? "" : userMap.get(occurrence.getMaintainer())
+                , occurrence.getMaintainer() == null || userMap == null ? "" : (userMap.get(occurrence.getMaintainer()) == null ? "" : occurrence._getMaintainerName())
                 , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
 //                , occurrence._getMaintainerName()
         );

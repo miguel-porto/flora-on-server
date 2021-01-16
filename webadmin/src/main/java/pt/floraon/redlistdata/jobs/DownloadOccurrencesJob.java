@@ -63,26 +63,31 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
     @Override
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
+        Map<String, String> userMap = new HashMap<>();
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
-        Common.exportOccurrenceHeaderToCSV(csvp, true);
+        Common.exportOccurrenceHeaderToCSV(csvp);
+        List<User> allUsers = driver.getAdministration().getAllUsers(false);
+        for (User u : allUsers)
+            userMap.put(u.getID(), u.getName());
+
         if(this.taxEntIterator == null) {
             Iterator<RedListDataEntity> it = driver.getRedListData().getAllRedListData(territory, false, null);
             while (it.hasNext()) {
                 RedListDataEntity rlde = it.next();
                 if (redListDataFilter != null && !this.redListDataFilter.enter(rlde)) continue;
                 TaxEnt te = rlde.getTaxEnt();
-                querySpecies(driver, te, rlde, csvp);
+                querySpecies(driver, te, rlde, userMap, csvp);
             }
         } else {
             while(taxEntIterator.hasNext()) {
-                querySpecies(driver, taxEntIterator.next(), null, csvp);
+                querySpecies(driver, taxEntIterator.next(), null, userMap, csvp);
             }
         }
 
         csvp.close();
     }
 
-    private void querySpecies(IFloraOn driver, TaxEnt taxEnt, RedListDataEntity rlde, CSVPrinter printer) throws IOException, FloraOnException {
+    private void querySpecies(IFloraOn driver, TaxEnt taxEnt, RedListDataEntity rlde, Map<String, String> userMap, CSVPrinter printer) throws IOException, FloraOnException {
         OccurrenceProcessor op;
         curSpeciesI++;
         curSpeciesName = taxEnt.getName();
@@ -96,7 +101,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             for (Occurrence so : op) {
                 // here we override the matched taxent because we want occurrences to be organized by red list sheets.
                 so.getOccurrence().setTaxEnt(taxEnt);
-                Common.exportOccurrenceToCSV(so, printer, null, null, rlde);
+                Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde);
             }
         }
 

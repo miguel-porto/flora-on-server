@@ -352,7 +352,7 @@ public final class CoordinateConversion {
 			utmYZone = cArray[19];
 		} else if (lat >= 84.0 || lat < -80.0) {
 			// Invalid coordinate; the vertical zone is set to the invalid
-			utmYZone = '\0';
+			utmYZone = '-';
 		} else {
 			utmYZone =cArray[(int)((lat + 80.0) / 8.0)];
 		}
