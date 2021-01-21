@@ -89,6 +89,10 @@ public class UserListParser implements FieldParser {
                 occurrence.setDets(ids);
                 break;
 
+            case "maintainer":
+                occurrence.setMaintainer(ids[0]);
+                break;
+
             default:
                 errors.add(Messages.getString("error.1", inputFieldName));
         }

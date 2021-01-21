@@ -41,7 +41,7 @@ public interface IOccurrenceFlavour {
 
     boolean isInventoryField(String field);
 
-    boolean isReadOnly(String field);
+    boolean isReadOnly(String field, boolean isAdmin);
 
     boolean isSmallField(String field);
 

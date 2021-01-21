@@ -192,10 +192,14 @@ public final class FieldReflection {
 
     }
 
-    static public boolean isReadOnly(String field) {
+    static public boolean isReadOnly(String field, boolean isAdmin) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(ReadOnly.class);
+        if(f.isAnnotationPresent(ReadOnly.class)) {
+            return !f.getAnnotation(ReadOnly.class).adminCanEdit() || !isAdmin;
+        }
+            else return false;
+//        return f.isAnnotationPresent(ReadOnly.class);
     }
 
     static public boolean isImageField(String field) {

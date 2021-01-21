@@ -118,7 +118,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Ameaças do local", shortName = "Ameaças", alias="ameaças")
     private String threats;
-    @InventoryField @HideInCompactView @ReadOnly
+    @InventoryField @HideInCompactView @ReadOnly(adminCanEdit = true) @FieldType(FieldType.Type.AUTHORS)
     @PrettyName(value = "Responsável", shortName = "Resp")
     private String maintainer;
     @InventoryField

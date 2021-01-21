@@ -49,6 +49,7 @@ public class OccurrenceParser implements CSVParser {
         // aliases
         fieldMappings.put("observers", new UserListParser(userMap, driver, false));
         fieldMappings.put("collectors", new UserListParser(userMap, driver, false));
+        fieldMappings.put("maintainer", new UserListParser(userMap, driver, false));
         fieldMappings.put("dets", new UserListParser(userMap, driver, false));
 
         fieldMappings.put("data", new AliasFieldParser("date", fieldMappings));

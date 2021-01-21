@@ -190,7 +190,7 @@ public final class Common {
                 , oi.getNaturalization()
                 , occurrence._getDateYMD()
 //                , StringUtils.implode(", ", occurrence._getObserverNames())
-                , userMap == null ? StringUtils.implode(", ", occurrence._getObserverNames()) : StringUtils.implode(", ", userMap, occurrence.getObservers())
+                , userMap == null || StringUtils.isArrayEmpty(occurrence.getObservers()) ? StringUtils.implode(", ", occurrence._getObserverNames()) : StringUtils.implode(", ", userMap, occurrence.getObservers())
                 , StringUtils.implode(", ", userMap, occurrence.getCollectors())
                 , occurrence._getLatitude(), occurrence._getLongitude()
                 , utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()

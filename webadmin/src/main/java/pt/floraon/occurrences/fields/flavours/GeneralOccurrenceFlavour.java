@@ -40,8 +40,8 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
-    public boolean isReadOnly(String field) {
-        return FieldReflection.isReadOnly(field);
+    public boolean isReadOnly(String field, boolean isAdmin) {
+        return FieldReflection.isReadOnly(field, isAdmin);
     }
 
     @Override

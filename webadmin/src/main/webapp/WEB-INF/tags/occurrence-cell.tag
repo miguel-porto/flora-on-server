@@ -52,7 +52,7 @@
 <c:when test="${field == 'date' && view != 'inventory'}"><td class="${editable} ${collapsedClass} ${multiline} ${monospace}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>
 <c:when test="${field == 'tags' && view != 'inventory'}"><td class="${editable} ${collapsedClass} ${multiline} ${monospace} hideincompactview" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}"/></td></c:when>
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
-<c:when test="${field == 'maintainer'}"><td class="${collapsedClass} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}"><t:usernames id="${inventory == null ? null : fields.getFieldValueRaw(taxon, inventory, field)}" usermap="${userMap}"/></td></c:when>
+<c:when test="${field == 'maintainer'}"><td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} authors" data-name="${field}"><t:usernames id="${inventory == null ? null : fields.getFieldValueRaw(taxon, inventory, field)}" usermap="${userMap}"/></td></c:when>
 
 <%-- <c:when test="${field == 'taxaSummary' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace} taxon"><a href="?w=openinventory&id=${inventory._getIDURLEncoded()}"><c:if test="${inventory._hasDuplicatedTaxa()}"><span class="warning">duplicated taxa</span> </c:if>${inventory._getSampleTaxa(100)}</a></td></c:when> --%>
 
@@ -77,10 +77,10 @@
                 <c:set var="formattedDate" value=""/>
                 </c:if>
             </c:if>
-        <td class="${fields.isReadOnly(field) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}">${formattedDate}</td>
+        <td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}">${formattedDate}</td>
         </c:if>
         <c:if test="${!fields.isDateField(field)}">
-        <td class="${fields.isReadOnly(field) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
+        <td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
         </c:if>
     </c:if>
 </c:otherwise>
