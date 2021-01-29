@@ -149,6 +149,7 @@ td.grouper {
 }
 .occurrencetable td.editable {cursor: pointer;}
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
+.occurrencetable tr.locked {font-style:italic}
 .occurrencetable th {word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
 .occurrencetable th.selectcol, .occurrencetable td.selectcol, .occurrencetable th.tinycol {width:1%;}
 .occurrencetable th.bigcol {min-width:150px;}

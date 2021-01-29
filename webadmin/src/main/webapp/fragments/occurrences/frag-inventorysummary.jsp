@@ -42,10 +42,13 @@
     </form>
 </div>
 <div class="heading2">
-    <h2>Your inventories - ${nrtotaloccurrences}</h2>
+    <h2>${sessionScope['option-allusers'] ? 'All inventories' : (sessionScope['option-viewAsObserver'] ? "Inventories where you're listed as observer"  : 'Your inventories')} - ${nrtotaloccurrences}
+    <c:if test="${filter != null && filter != ''}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences?w=inventories" classes="inlineblock"/>]</c:if>
+    </h2>
     <%--<t:isoptionselected optionname="allusers" value="false"><div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div></t:isoptionselected>--%>
     <div class="button icon" id="addemptyinventory"><img src="${contextPath}/images/add.png"/><span>Novo</span></div>
     <div class="button icon" id="updatemodified"><img src="${contextPath}/images/ic_menu_save.png"/><span><fmt:message key="inventory.upd"/></span></div>
+    <t:isoptionselected optionname="allusers" value="false"><t:optionbutton optionname="viewAsObserver" title="As observer" defaultvalue="false" /></t:isoptionselected>
     <div id="occurrencefilter">
         <form method="get" action="occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />

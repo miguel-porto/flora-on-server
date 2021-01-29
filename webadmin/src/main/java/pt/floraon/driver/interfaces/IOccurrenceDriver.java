@@ -68,18 +68,6 @@ public interface IOccurrenceDriver {
 
     /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
-     * observer). Inventories as disaggregated into individual occurrences. NOTE: in case of empty inventories, one
-     * (empty) occurrence is returned, to allow the user to populate the empty inventory with taxa.
-     * @param authorId Set to NULL to return all
-     * @param offset
-     * @param count
-     * @return
-     * @throws DatabaseException
-     */
-    Iterator<Occurrence> getOccurrencesOfObserver(INodeKey authorId, Integer offset, Integer count) throws DatabaseException;
-
-    /**
-     * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
      * observer), within specified dates. Inventories as disaggregated into individual occurrences. NOTE: in case of
      * empty inventories, one (empty) occurrence is returned, to allow the user to populate the empty inventory with taxa.
      * @param authorId
@@ -91,6 +79,18 @@ public interface IOccurrenceDriver {
      * @throws DatabaseException
      */
     Iterator<Occurrence> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException;
+
+    /**
+     * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
+     * observer). Inventories as disaggregated into individual occurrences. NOTE: in case of empty inventories, one
+     * (empty) occurrence is returned, to allow the user to populate the empty inventory with taxa.
+     * @param authorId Set to NULL to return all
+     * @param offset
+     * @param count
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Occurrence> getOccurrencesOfObserver(INodeKey authorId, AbstractMap.SimpleEntry<String, Boolean> orderField, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
 
     /**
      * Gets all or part of the occurrences maintained by the given user. Inventories as disaggregated into individual
@@ -105,12 +105,27 @@ public interface IOccurrenceDriver {
     Iterator<Occurrence> getOccurrencesOfMaintainer(INodeKey authorId, AbstractMap.SimpleEntry<String, Boolean> orderField, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
 
     /**
+     * Gets all or part of the occurrences either maintained by, or where the given user is listed as observer.
+     * Inventories as disaggregated into individual occurrences.
+     * NOTE: in case of empty inventories, one (empty) occurrence is returned, to allow the user to
+     * populate the empty inventory with taxa.
+     * @param authorId Set to NULL to return all occurrences
+     * @param offset
+     * @param count
+     * @return
+     * @throws DatabaseException
+     */
+    Iterator<Occurrence> getOccurrencesOfUser(INodeKey authorId, boolean asObserver, AbstractMap.SimpleEntry<String, Boolean> orderField, boolean returnObserverNames, Integer offset, Integer count) throws DatabaseException;
+
+    /**
      * Gets the number of occurrences of the maintainer (inventories are disaggregated into single occurrences).
      * @param authorId
      * @return
      * @throws DatabaseException
      */
     int getOccurrencesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
+
+    int getOccurrencesOfUserCount(INodeKey authorId, boolean asObserver) throws DatabaseException;
 
     /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
@@ -133,7 +148,11 @@ public interface IOccurrenceDriver {
      */
     Iterator<Inventory> getInventoriesOfMaintainer(INodeKey authorId, AbstractMap.SimpleEntry<String, Boolean> orderField, Integer offset, Integer count) throws DatabaseException;
 
-    Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, boolean asObserver, Integer offset, Integer count) throws FloraOnException;
+
+    Iterator<Inventory> getInventoriesOfUser(INodeKey authorId, boolean asObserver, AbstractMap.SimpleEntry<String, Boolean> orderField, Integer offset, Integer count) throws DatabaseException;
+
+    int getInventoriesOfUserCount(INodeKey authorId, boolean asObserver) throws DatabaseException;
 
     int getInventoriesOfMaintainerCount(INodeKey authorId) throws DatabaseException;
 
@@ -204,7 +223,9 @@ public interface IOccurrenceDriver {
      * @return
      * @throws FloraOnException
      */
-    Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, Integer offset, Integer count) throws FloraOnException;
+    Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, boolean asObserver, Integer offset, Integer count) throws FloraOnException;
+
+    <T> int findAnyByFilterCount(Class<T> type, Map<String, String> filter, INodeKey userId, boolean asObserver) throws FloraOnException;
 
     /**
      * Applies the same occurrence filter as findOccurrencesByFilter but returns only the count
@@ -213,7 +234,7 @@ public interface IOccurrenceDriver {
      * @return
      * @throws FloraOnException
      */
-    int findOccurrencesByFilterCount(Map<String, String> filter, INodeKey userId) throws FloraOnException;
+    int findOccurrencesByFilterCount(Map<String, String> filter, INodeKey userId, boolean asObserver) throws FloraOnException;
 
     /**
      * Parses a compound occurrence filter into a Map.

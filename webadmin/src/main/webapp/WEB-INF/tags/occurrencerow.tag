@@ -32,8 +32,7 @@
     <c:if test="${!fields.containsCoordinates()}">
     <c:set var="symbol" value="${((symbol == null || symbol == '') && occ != null) ? (occ.getYear() != null && occ.getYear() >= historicalYear ? 0 : 1) : symbol}"/>
     </c:if>
-
-    <tr class="${unmatched} geoelement id1holder ${cssclass}">
+    <tr class="${unmatched} geoelement id1holder ${locked ? 'locked' : ''} ${cssclass}">
         <c:if test="${!fields.containsCoordinates()}">
             <c:if test="${view == 'inventorySummary'}">
             <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="inventoryCoordinates" data-lat="${occ._getInventoryLatitude()}" data-lng="${occ._getInventoryLongitude()}" data-symbol="${symbol}">

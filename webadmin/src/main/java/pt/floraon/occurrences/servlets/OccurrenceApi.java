@@ -17,6 +17,7 @@ import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
+import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.parsers.UserListParser;
 import pt.floraon.server.FloraOnServlet;
 
@@ -311,6 +312,7 @@ public class OccurrenceApi extends FloraOnServlet {
                 break;
 
             case "countNumberFilteredOccurrences":
+                String w = thisRequest.getParameterAsString("w");
                 HttpSession session = thisRequest.request.getSession(false);
                 INodeKey maintainer = thisRequest.isOptionTrue("allusers") ? null : driver.asNodeKey(user.getID());
 
@@ -331,7 +333,11 @@ public class OccurrenceApi extends FloraOnServlet {
                 Map<String, String> parsedFilter;
                 try {
                     parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
-                    thisRequest.response.getWriter().print(driver.getOccurrenceDriver().findOccurrencesByFilterCount(parsedFilter, maintainer));
+                    thisRequest.response.getWriter().print(driver.getOccurrenceDriver().findAnyByFilterCount(
+                            w.equals("inventories") ? Inventory.class : Occurrence.class,
+                            parsedFilter, maintainer, thisRequest.isOptionTrue("viewAsObserver")));
+//                    thisRequest.response.getWriter().print(driver.getOccurrenceDriver().findOccurrencesByFilterCount(
+//                            parsedFilter, maintainer, thisRequest.isOptionTrue("viewAsObserver")));
                 } catch(FloraOnException e) {
                     thisRequest.response.getWriter().print("O filtro não foi compreendido: " + e.getMessage());
                 }

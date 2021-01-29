@@ -97,8 +97,8 @@
 
 <div id="alloccurrences">
     <div class="heading2">
-        <h2 class="hideincompactview"><fmt:message key="${sessionScope['option-allusers'] ? 'occurrences.6' : 'occurrences.1'}"/> - ${nrtotaloccurrences}
-        <c:if test="${filter != null && filter != ''}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences" classes="inlineblock"/>]</c:if>
+        <h2 class="hideincompactview"><fmt:message key="${sessionScope['option-allusers'] ? 'occurrences.6' : (sessionScope['option-viewAsObserver'] ? 'occurrences.7' : 'occurrences.1')}"/> - ${nrtotaloccurrences}
+        <c:if test="${filter != null && filter != ''}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences?w=occurrences" classes="inlineblock"/>]</c:if>
         </h2>
         <div class="button icon" id="newoccurrence"><img src="${contextPath}/images/add.png"/><span><fmt:message key="occurrences.1a"/></span></div>
         <div class="button icon" id="deleteselected"><img src="${contextPath}/images/delete.png"/><span><fmt:message key="occurrences.1b"/></span></div>
@@ -106,6 +106,7 @@
         <div class="button icon" id="updatemodified"><img src="${contextPath}/images/ic_menu_save.png"/><span><fmt:message key="inventory.upd"/></span></div>
         <%-- <c:if test="${sessionScope['option-flavour'] == 'redlist'}"></c:if> --%>
         <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
+        <t:isoptionselected optionname="allusers" value="false"><t:optionbutton optionname="viewAsObserver" title="As observer" defaultvalue="false" /></t:isoptionselected>
         <c:if test="${nproblems > 0}"><div class="button anchorbutton"><a href="?w=fixissues"><fmt:message key="button.3"/></a></div></c:if>
         <div id="occurrencefilter">
             <form method="get" action="occurrences" class="inlineblock">
@@ -150,7 +151,7 @@
         <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
         <tbody>
         <c:forEach var="occ" items="${occurrences}">
-            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" view="occurrence"/>
+            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" view="occurrence" locked="${occ.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()}"/>
         </c:forEach>
         <c:forEach var="occ" items="${externaloccurrences}">
             <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" locked="true" cssclass="external" view="occurrence"

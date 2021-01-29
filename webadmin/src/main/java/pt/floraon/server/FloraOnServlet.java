@@ -66,10 +66,10 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk27");
+		request.setAttribute("uuid", "bk28");
 		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("offline", false);
-		request.setAttribute("occurrenceNewFeature", "NOVO! Ordenação é agora persistente e é feita no servidor, previamente à paginação");
+//		request.setAttribute("occurrenceNewFeature", "NOVO! Ordenação é agora persistente e é feita no servidor, previamente à paginação");
 
 		try {
 			doFloraOnGet(thisRequest);
