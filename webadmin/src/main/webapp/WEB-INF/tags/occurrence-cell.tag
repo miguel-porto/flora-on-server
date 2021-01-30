@@ -65,7 +65,8 @@
 
 <c:otherwise>
     <c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && ((fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
-        <c:if test="${fields.isDateField(field)}">
+        <c:choose>
+        <c:when test="${fields.isDateField(field)}">
             <c:if test="${taxon != null}">
                 <c:set var="thisdate" value="${fields.getFieldValueRaw(taxon, inventory, field)}"/>
                 <c:if test="${thisdate != null}">
@@ -78,10 +79,11 @@
                 </c:if>
             </c:if>
         <td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}">${formattedDate}</td>
-        </c:if>
-        <c:if test="${!fields.isDateField(field)}">
+        </c:when>
+        <c:otherwise>
         <td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
-        </c:if>
+        </c:otherwise>
+        </c:choose>
     </c:if>
 </c:otherwise>
 </c:choose>

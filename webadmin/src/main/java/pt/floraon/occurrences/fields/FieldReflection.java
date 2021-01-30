@@ -6,6 +6,7 @@ import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.SpecialFields;
+import pt.floraon.occurrences.fields.parsers.BooleanParser;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.lang.reflect.Field;
@@ -153,15 +154,17 @@ public final class FieldReflection {
         if(result == null) return "";
 
         // Some processing of the result, in special cases.
-        if(RedListEnums.LabelledEnum.class.isInstance(result))
+        if(result instanceof RedListEnums.LabelledEnum)
             return ((RedListEnums.LabelledEnum) result).getLabel();
-        else if(IntegerInterval.class.isInstance(result)) {
+        else if(result instanceof IntegerInterval) {
             if(((IntegerInterval) result).getError() != null)
                 return "<span class=\"error\">" + result.toString() + "</span>";
             else
                 return result.toString();
-        } else if(String[].class.isInstance(result)) {
+        } else if(result instanceof String[]) {
             return StringUtils.implode(", ", (String[]) result);
+        } else if(result instanceof Boolean) {
+            return ((Boolean) result) ? "Yes" : "No";
         } else
             return result.toString();
     }
@@ -218,6 +221,12 @@ public final class FieldReflection {
         Field f = findField(field);
         if(f == null) return false;
         return f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.DATE;
+    }
+
+    static public boolean isBooleanField(String field) {
+        Field f = findField(field);
+        if(f == null) return false;
+        return f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.BOOLEAN;
     }
 
     static public boolean isSmallField(String field) {

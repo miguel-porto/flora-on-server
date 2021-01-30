@@ -152,15 +152,15 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         StringBuilder sortFields = new StringBuilder();
 
         if (orderField == null || orderField.getKey() == null || FieldReflection.findField(orderField.getKey()) == null)
-            sortFields.append("o.dateInserted DESC");
+            sortFields.append("osort.dateInserted DESC");
         else if(orderField.getKey().equals("coordinates")) {
-            sortFields.append("(i.latitude == null ? o.observationLatitude : i.latitude)")
+            sortFields.append("(i.latitude == null ? osort.observationLatitude : i.latitude)")
                     .append(orderField.getValue() ? " DESC" : "");
         } else {
             String[] dbOrderFields = FieldReflection.getDatabaseFields(orderField.getKey());
             String direction = orderField.getValue() ? " DESC" : "";
             for (String f : dbOrderFields) {
-                String io = FieldReflection.isInventoryField(f) ? "i." : "o.";
+                String io = FieldReflection.isInventoryField(f) ? "i." : "osort.";
                 sortFields.append(io);
                 Class<? extends pt.floraon.driver.parsers.FieldParser> fp = FieldReflection.getFieldParser(f);
                 if(fp != null && fp.equals(EnumParser.class)) {

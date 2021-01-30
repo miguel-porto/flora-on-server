@@ -62,7 +62,9 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
     private Precision precision;
-    private Boolean complete;
+    @SmallField @InventoryField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Inventário completo", shortName = "Compl")
+    private String complete;
     @InventoryField @BigEditWidget
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Habitat", shortName = "Hab")
@@ -500,10 +502,10 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public Boolean getComplete() {
-        return complete;
+        return (Boolean) (new BooleanParser()).preProcessValue(complete);
     }
 
-    public void setComplete(Boolean complete) {
+    public void setComplete(String complete) {
         this.complete = complete;
     }
 

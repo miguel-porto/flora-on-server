@@ -17,6 +17,7 @@
             <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
             <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
             <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
+            <th>Complete</th>
         </tr>
         <tr>
             <td class="field editable coordinates" data-name="coordinates"></td>
@@ -25,6 +26,7 @@
             <td class="field editable" data-name="locality"></td>
             <td class="field editable" data-name="date"></td>
             <td class="field editable authors" data-name="observers"></td>
+            <td class="field editable" data-name="complete"></td>
         </tr>
     </table>
     <table class="verysmalltext occurrencetable">

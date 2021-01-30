@@ -68,6 +68,7 @@
                     <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
                     <th><fmt:message key="inventory.2a"/></th><th><fmt:message key="inventory.3"/></th>
                     <th><fmt:message key="inventory.4"/></th><th><fmt:message key="inventory.5"/></th>
+                    <th>Complete</th>
                 </tr>
                 <tr>
                     <td class="field editable coordinates" data-name="coordinates" data-lat="${inv._getInventoryLatitude()}" data-lng="${inv._getInventoryLongitude()}">${inv._getInventoryCoordinates()}</td>
@@ -76,6 +77,7 @@
                     <td class="field editable" data-name="locality">${inv.getLocality()}</td>
                     <td class="field editable" data-name="date" sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
                     <td class="field editable authors" data-name="observers"><t:usernames idarray="${inv.getObservers()}" usermap="${userMap}"/></td>
+                    <td class="field editable" data-name="complete"><t:yesno test="${inv.getComplete()}"/></td>
                 </tr>
             </table>
             <table class="verysmalltext occurrencetable">

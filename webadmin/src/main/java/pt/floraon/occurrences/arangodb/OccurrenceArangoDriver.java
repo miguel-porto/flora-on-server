@@ -808,17 +808,6 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("long");
         }
 
-        // taxon filter
-        if(filter.containsKey("tax")) {
-            if(filter.get("tax").toUpperCase().equals("NA")) {
-                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulltaxon")).append(" ");
-            } else {
-                bindVars.put("taxon", filter.get("tax").replaceAll("\\*", "%"));
-                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.taxon")).append(" ");
-            }
-            filter.remove("tax");
-        }
-
         // tag filter
         if(filter.containsKey("tag")) {
             if(filter.get("tag").toUpperCase().equals("NA")) {
@@ -872,6 +861,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.accession")).append(" ");
             }
             filter.remove("acc");
+        }
+
+        // taxon filter
+        if(filter.containsKey("tax")) {
+            if(filter.get("tax").toUpperCase().equals("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulltaxon")).append(" ");
+            } else {
+                bindVars.put("taxon", filter.get("tax").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.taxon")).append(" ");
+            }
+            filter.remove("tax");
         }
 
         if(filter.size() > 0) {
@@ -955,7 +955,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         occurrenceFilter += occurrenceFilters[1];
 
         if(type.equals(Inventory.class)) {
-            query = AQLOccurrenceQueries.getString("occurrencequery.9.count", inventoryFilter, preliminaryFilter);
+            query = AQLOccurrenceQueries.getString("occurrencequery.9.count", inventoryFilter, occurrenceFilter, preliminaryFilter);
         } else if(type.equals(Occurrence.class)) {
             query = AQLOccurrenceQueries.getString("occurrencequery.8.count", inventoryFilter, occurrenceFilter, preliminaryFilter);
         } else throw new FloraOnException("Unknown class");

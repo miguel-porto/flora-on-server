@@ -60,6 +60,11 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
+    public boolean isBooleanField(String field) {
+        return FieldReflection.isBooleanField(field);
+    }
+
+    @Override
     public boolean isMonospaceFont(String field) {
         return FieldReflection.isMonospaceFont(field);
     }

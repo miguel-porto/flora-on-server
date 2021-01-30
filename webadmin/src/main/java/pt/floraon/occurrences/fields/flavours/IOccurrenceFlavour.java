@@ -49,6 +49,8 @@ public interface IOccurrenceFlavour {
 
     boolean isDateField(String field);
 
+    boolean isBooleanField(String field);
+
     boolean isMonospaceFont(String field);
 
     boolean isBigEditWidget(String field);

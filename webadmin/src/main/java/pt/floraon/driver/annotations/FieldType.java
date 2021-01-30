@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface FieldType {
-    enum Type {AUTHORS, IMAGE, DATE, COORDINATES, GENERAL}
+    enum Type {AUTHORS, IMAGE, DATE, COORDINATES, BOOLEAN, GENERAL}
     Type value() default Type.GENERAL;
 }
