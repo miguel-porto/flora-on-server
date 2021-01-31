@@ -11,7 +11,10 @@ import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
+import pt.floraon.geometry.LatLongCoordinate;
+import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.UTMCoordinate;
+import pt.floraon.geometry.gridmaps.Square;
 import pt.floraon.occurrences.entities.*;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -158,7 +161,7 @@ public final class Common {
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
         final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
-                , "precision", "mgrs", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
+                , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
                 , "credits", "maintainer", "maintainerName", "redListCategory"));
         csv.printRecord(fields);
@@ -171,12 +174,16 @@ public final class Common {
                 ? CoordinateConversion.LatLonToUtmWGS84(occurrence._getLatitude(), occurrence._getLongitude(), 0)
                 : null;
 //                    TaxEnt te = oi.getTaxEnt();
-        String MGRS;
+        String MGRS, WKT;
         try {
             MGRS = CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000);
         } catch (IllegalArgumentException e) {
             MGRS = "<invalid>";
         }
+        if(utm != null) {
+            Point2D tmp1 = new Point2D(utm.getX(), utm.getY());
+            WKT = new Square(tmp1, 10000).toWKT();
+        } else WKT = "<invalid>";
 
         csv.printRecord(
                 occurrence.getDataSource()
@@ -197,7 +204,7 @@ public final class Common {
                 , utm == null ? "" : utm.getX()
                 , utm == null ? "" : utm.getY()
                 , occurrence.getPrecision()
-                , MGRS
+                , MGRS, WKT
                 , occurrence.getLocality()
                 , occurrence.getVerbLocality(), occurrence.getCode()
                 , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()

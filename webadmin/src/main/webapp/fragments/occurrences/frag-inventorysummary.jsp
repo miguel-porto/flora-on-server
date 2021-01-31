@@ -94,7 +94,7 @@
         </tr></thead>
         <tbody>
         <c:forEach var="inv" items="${inventories}">
-            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" view="inventorySummary" />
+            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" view="inventorySummary" locked="${inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()}" />
         </c:forEach>
         </tbody>
     </table>

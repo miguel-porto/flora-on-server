@@ -99,6 +99,7 @@ public class RedListDataApi extends FloraOnServlet {
         PrintWriter pw;
         String what;
         RedListSettings rls;
+        String polygonWKT;
 
         switch(what = path.next()) {
             case "newdataset":
@@ -177,26 +178,33 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "downloadoccurrencesusedinassessments":
                 territory = thisRequest.getParameterAsString("territory");
-                OccurrenceFilter of1 = null;
+                polygonWKT = thisRequest.getParameterAsString("polygon");
+                boolean useUpToDateData = thisRequest.getParameterAsBoolean("useUpToDate", false);
+                BasicOccurrenceFilter of1 = null;
                 switch(thisRequest.getParameterAsString("currentOrHistorical")) {
+                    default:
                     case "current":
-                        of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory);
+                        of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT);
                         break;
                     case "historical":
                         of1 = BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory);
                         break;
                     case "both":
-                        of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withMaximumYear(null).withMinimumYear(null);
+                        of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT).withMaximumYear(null).withMinimumYear(null);
                         break;
                 }
+
+                if(useUpToDateData)
+                    of1 = of1.cutRecordsAfter(null);
+
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                         new DownloadOccurrencesJob(territory, RedListDataFilterFactory.onlyAssessed(), of1)
-                        , "used-occurrences.csv", driver).getID());
+                        , String.format("occurrences-%s-%s.csv", useUpToDateData ? "uptodate" : "onlyused", thisRequest.getParameterAsString("currentOrHistorical")), driver).getID());
                 break;
 
             case "downloadtaxainpolygon":
                 territory = thisRequest.getParameterAsString("territory");
-                String polygonWKT = thisRequest.getParameterAsString("polygon");
+                polygonWKT = thisRequest.getParameterAsString("polygon");
                 rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(new DownloadTaxaInPolygonJob(
                         territory, polygonWKT, rls.getClippingPolygon())

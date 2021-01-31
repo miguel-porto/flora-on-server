@@ -96,6 +96,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             edp.executeOccurrenceQuery(taxEnt);
 
         op = OccurrenceProcessor.iterableOf(sodps, occurrenceFilter);
+//        op = new OccurrenceProcessor(sodps, null, 10000, occurrenceFilter);
 
         if (op.size() > 0) {
             for (Occurrence so : op) {
@@ -104,7 +105,6 @@ public class DownloadOccurrencesJob implements JobFileDownload {
                 Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde);
             }
         }
-
     }
 
     @Override

@@ -3,6 +3,7 @@ package pt.floraon.redlistdata.occurrences;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.IPolygonTheme;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.Polygon;
@@ -192,7 +193,7 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
      * @return
      */
     public static BasicOccurrenceFilter RedListCurrentMapFilter(IFloraOn driver, String territory, String polygonWKT) {
-        return RedListCurrentMapFilter(driver, territory, new PolygonTheme(polygonWKT));
+        return RedListCurrentMapFilter(driver, territory, StringUtils.isStringEmpty(polygonWKT) ? null : new PolygonTheme(polygonWKT));
     }
 
     /**
