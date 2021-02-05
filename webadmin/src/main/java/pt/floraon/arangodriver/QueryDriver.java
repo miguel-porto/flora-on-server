@@ -325,10 +325,25 @@ FOR final IN FLATTEN(FOR v IN base
 	@Override
 	public Iterator<User> findUserSuggestions(String query, Integer limit) throws FloraOnException {
 		String limitQ;
+		String _query = null;
+		Map<String, Object> bindVars = new HashMap<>();
 		if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
-		String _query = AQLQueries.getString("QueryDriver.2", query, limitQ);
+
+		if(query.length() == 1) {
+			bindVars.put("q1", query);
+			_query = AQLQueries.getString("QueryDriver.2", limitQ);
+		} else if(query.length() > 1) {
+			String first = query.substring(0, 1);
+			String last = query.substring(1);
+			bindVars.put("q1", query);
+			bindVars.put("first", first);
+			bindVars.put("last", last);
+			_query = AQLQueries.getString("QueryDriver.2a", limitQ);
+		}
+		if(_query == null) return Collections.emptyIterator();
+
 		try {
-			return database.query(_query, null, null, User.class);
+			return database.query(_query, bindVars, null, User.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}
