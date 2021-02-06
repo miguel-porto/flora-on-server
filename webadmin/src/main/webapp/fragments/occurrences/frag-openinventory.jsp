@@ -74,7 +74,7 @@
                     <td class="field ${editable} coordinates" data-name="coordinates" data-lat="${inv._getInventoryLatitude()}" data-lng="${inv._getInventoryLongitude()}">${inv._getInventoryCoordinates()}</td>
                     <td class="field ${editable}" data-name="precision">${inv.getPrecision().toString()}</td>
                     <td class="field ${editable}" data-name="date" sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
-                    <td class="field ${editable}" data-name="complete"><t:yesno test="${inv.getComplete()}"/></td>
+                    <td class="field ${editable}" data-name="complete"><t:yesno test="${inv._getComplete()}"/></td>
                     <td class="field ${editable}" data-name="area">${inv.getArea()}</td>
                 </tr>
             </table>

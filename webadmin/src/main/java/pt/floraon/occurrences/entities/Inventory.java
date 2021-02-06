@@ -501,7 +501,11 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return CoordinateConversion.LatLongToMGRS(this._getLatitude(), this._getLongitude(), sizeOfSquare);
     }
 
-    public Boolean getComplete() {
+    public String getComplete() {
+        return complete;
+    }
+
+    public Boolean _getComplete() {
         return (Boolean) (new BooleanParser()).preProcessValue(complete);
     }
 

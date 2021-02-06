@@ -8,7 +8,7 @@ import pt.floraon.occurrences.entities.Inventory;
 public class IntegerParser extends GlobalFieldParser {
     @Override
     public Object preProcessValue(String inputValue) throws IllegalArgumentException {
-        if(inputValue == null || inputValue.trim().equals("")) return null;
+        if(inputValue == null || inputValue.trim().equals("") || inputValue.trim().equalsIgnoreCase("na")) return null;
         Integer v;
         try {
             v = ((Float) Float.parseFloat(inputValue)).intValue();
