@@ -638,6 +638,15 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("detected");
         }
 
+        // hasPhoto filter
+        if(filter.containsKey("photo")) {
+            if(filter.get("photo").equalsIgnoreCase("NA") || filter.get("photo").equalsIgnoreCase("no") || filter.get("photo").equalsIgnoreCase("0"))
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.notHasPhoto")).append(" ");
+            else
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.hasPhoto")).append(" ");
+            filter.remove("photo");
+        }
+
         if(filter.containsKey("dateinserted")) {
             if(filter.get("dateinserted").equalsIgnoreCase("NA"))
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulldateinserted")).append(" ");

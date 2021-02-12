@@ -35,7 +35,6 @@ public abstract class GlobalFieldParser implements FieldParser {
         if(processedValue == null) return;
         try {
             FieldReflection.setFieldValueAny(inventory, inputFieldName, getType(inputFieldName), processedValue);
-System.out.println(inputFieldName+": "+processedValue.toString());
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             if(!processSpecialCases(inventory, inputFieldName, processedValue)) {
                 e.printStackTrace();

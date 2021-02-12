@@ -165,6 +165,9 @@ public final class FieldReflection {
             return StringUtils.implode(", ", (String[]) result);
         } else if(result instanceof Boolean) {
             return ((Boolean) result) ? "Yes" : "No";
+        } else if(isBooleanField(field)) {
+            Object o = (new BooleanParser()).preProcessValue(result.toString());
+            return o == null ? "" : ((Boolean) o ? "Yes" : "No");
         } else
             return result.toString();
     }

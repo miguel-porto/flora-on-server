@@ -63,6 +63,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
     private Precision precision;
     @SmallField @InventoryField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @FieldType(FieldType.Type.BOOLEAN)
     @PrettyName(value = "Inventário completo", shortName = "Compl")
     private String complete;
     @InventoryField @BigEditWidget
