@@ -451,10 +451,12 @@ function clickButton(ev) {
         case 'selectpoints':
             if(!b.classList.contains('selected')) {
                 mapLocationFilter = myMap.selectAreaFeature.enable();
-                L.setOptions(mapLocationFilter, {color:'yellow', onMouseUp: function(el, ev) {
+                //L.setOptions(mapLocationFilter, {color:'yellow', onMouseUp: function(el, ev) {
+                L.setOptions(mapLocationFilter, {color:'yellow'});
+                myMap.on('mouseup', function(el, ev) {
                     // select points and deactivate select area
-                    mapLocationFilter.disable();
                     var selMarkers = mapLocationFilter.getFeaturesSelected('marker');
+                    mapLocationFilter.disable();
                     if(selMarkers) {
                         if(selMarkers.length > 0)
                             selectGeoElement(selMarkers[0].tableRow, true, true);
@@ -467,7 +469,7 @@ function clickButton(ev) {
                         deselectGeoElements();
                     mapLocationFilter.removeAllArea();
                     b.classList.toggle('selected');
-                }});
+                });
             } else
                 if(mapLocationFilter) mapLocationFilter.disable();
             break;
