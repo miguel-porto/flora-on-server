@@ -29,7 +29,11 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<Occurrenc
      * @throws IOException
      */
     public void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException {
-        executeOccurrenceQuery(Arrays.asList(taxon).iterator());
+        executeOccurrenceQuery(java.util.Collections.singletonList(taxon).iterator());
+    }
+
+    public void executeOccurrenceQuery(TaxEnt taxon, Object flags) throws FloraOnException, IOException {
+        executeOccurrenceQuery(java.util.Collections.singletonList(taxon).iterator(), flags);
     }
 
     /**
@@ -39,6 +43,10 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<Occurrenc
      * @throws IOException
      */
     public abstract void executeOccurrenceQuery(Iterator<TaxEnt> taxon) throws FloraOnException, IOException;
+
+    public void executeOccurrenceQuery(Iterator<TaxEnt> taxon, Object flags) throws FloraOnException, IOException {
+        executeOccurrenceQuery(taxon);
+    }
 
     public abstract boolean canQueryText();
 

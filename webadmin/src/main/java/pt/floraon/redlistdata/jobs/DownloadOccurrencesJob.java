@@ -31,15 +31,21 @@ import java.util.*;
 public class DownloadOccurrencesJob implements JobFileDownload {
     private String territory;
     private int curSpeciesI = 0;
+    private Object flag;
     private String curSpeciesName = "";
     private OccurrenceFilter occurrenceFilter;
     private RedListDataFilter redListDataFilter;
     private Iterator<TaxEnt> taxEntIterator;
 
     public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter) {
+        this(territory, redListDataFilter, occurrenceFilter, false);
+    }
+
+    public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter, Object flag) {
         this.territory = territory;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
+        this.flag = flag;
     }
 
     /**
@@ -93,7 +99,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
         curSpeciesName = taxEnt.getName();
         List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
         for (SimpleOccurrenceDataProvider edp : sodps)
-            edp.executeOccurrenceQuery(taxEnt);
+            edp.executeOccurrenceQuery(taxEnt, flag);
 
         op = OccurrenceProcessor.iterableOf(sodps, occurrenceFilter);
 //        op = new OccurrenceProcessor(sodps, null, 10000, occurrenceFilter);

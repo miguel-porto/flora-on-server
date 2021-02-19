@@ -181,6 +181,7 @@ public class RedListDataApi extends FloraOnServlet {
                 polygonWKT = thisRequest.getParameterAsString("polygon");
                 boolean useUpToDateData = thisRequest.getParameterAsBoolean("useUpToDate", false);
                 BasicOccurrenceFilter of1 = null;
+                Boolean includeAllAuthors = false;
                 switch(thisRequest.getParameterAsString("currentOrHistorical")) {
                     default:
                     case "current":
@@ -191,6 +192,7 @@ public class RedListDataApi extends FloraOnServlet {
                         break;
                     case "both":
                         of1 = BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT).withMaximumYear(null).withMinimumYear(null);
+                        includeAllAuthors = true;
                         break;
                 }
 
@@ -198,7 +200,7 @@ public class RedListDataApi extends FloraOnServlet {
                     of1 = of1.cutRecordsAfter(null);
 
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new DownloadOccurrencesJob(territory, RedListDataFilterFactory.onlyAssessed(), of1)
+                        new DownloadOccurrencesJob(territory, RedListDataFilterFactory.onlyAssessed(), of1, includeAllAuthors)
                         , String.format("occurrences-%s-%s.csv", useUpToDateData ? "uptodate" : "onlyused", thisRequest.getParameterAsString("currentOrHistorical")), driver).getID());
                 break;
 

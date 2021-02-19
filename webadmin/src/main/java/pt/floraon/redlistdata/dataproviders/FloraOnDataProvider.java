@@ -32,6 +32,7 @@ import java.util.*;
 public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     final private URL floraOnURL;
     final private IFloraOn driver;
+    private boolean includeAllAuthors = false;
 
     private class FloraOnOccurrence {
         String autor, genero, especie, subespecie, notas, dateinserted;
@@ -91,6 +92,14 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     }
 
     @Override
+    public void executeOccurrenceQuery(Iterator<TaxEnt> taxa, Object flags) throws FloraOnException, IOException {
+        if(flags instanceof Boolean && (Boolean) flags)
+            includeAllAuthors = true;
+        executeOccurrenceQuery(taxa);
+        includeAllAuthors = false;
+    }
+
+    @Override
     public void executeOccurrenceQuery(Iterator<TaxEnt> taxa) throws FloraOnException, IOException {
         // FIXME when all records!
         String legacyID;
@@ -127,6 +136,9 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         } else {
             newQuery += "&what=occurrences&id=" + legacyID;
         }
+
+        if(includeAllAuthors)
+            newQuery += "&allauthors=1";
 
         Log.info("Executing Flora-On query");
         URI newUri;
