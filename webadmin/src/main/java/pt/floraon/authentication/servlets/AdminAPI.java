@@ -3,6 +3,8 @@ package pt.floraon.authentication.servlets;
 import com.google.gson.Gson;
 import jline.internal.Log;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.converters.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.authentication.Privileges;
@@ -10,12 +12,15 @@ import pt.floraon.authentication.RandomString;
 import pt.floraon.authentication.entities.TaxonPrivileges;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.datatypes.TrimmedStringConverter;
 import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.dataproviders.iNaturalistFilter;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilterWithAuthors;
@@ -53,9 +58,7 @@ public class AdminAPI extends FloraOnServlet {
                 user = readUserBean(thisRequest);
                 if(user == null) break;
                 char[] pass = new char[0];
-                if(user.getUserName() == null)
-                    user.setUserName("user_" + new RandomString(8).nextString());
-                else
+                if(user.getUserName() != null)
                     pass = generatePassword(user);
 
                 driver.getAdministration().createUser(user);
@@ -94,9 +97,6 @@ public class AdminAPI extends FloraOnServlet {
                 thisRequest.ensurePrivilege(Privileges.MANAGE_REDLIST_USERS);
                 user = readUserBean(thisRequest);
                 if(user == null) break;
-
-                if(user.getUserName() == null || user.getUserName().trim().equals(""))
-                    user.setUserName("user_" + new RandomString(8).nextString());
 
                 if(user.getUserType() == null) user.setUserType(User.UserType.REGULAR.toString());
 
@@ -244,21 +244,39 @@ public class AdminAPI extends FloraOnServlet {
         }
     }
 
+    /**
+     * Populates a user class with the parameters of the request
+     * @param thisRequest
+     * @return
+     * @throws IOException
+     */
     private User readUserBean(ThisRequest thisRequest) throws IOException {
         User user = new User();
+
         HashMap<String, String[]> map = new HashMap<>();
-        Enumeration names = thisRequest.request.getParameterNames();
+        HashMap<String, Object> iNatFilterMap = new HashMap<>();
+        Enumeration<String> names = thisRequest.request.getParameterNames();
+
+        BeanUtilsBean bub = BeanUtilsBean.getInstance();
+        ArrayConverter stringArrayConverter = new ArrayConverter(String[].class, new TrimmedStringConverter(null));
+        stringArrayConverter.setDelimiter(',');
+        stringArrayConverter.setAllowedChars(new char[]{' ', '.', '-'});
+        bub.getConvertUtils().register(stringArrayConverter, String[].class);
+        bub.getConvertUtils().register(new TrimmedStringConverter(null), String.class) ;
+
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
-/*
-            System.out.println(name);
-            System.out.println(request.getParameterValues(name).toString());
-*/
-            map.put(name, thisRequest.request.getParameterValues(name));
+            String name = names.nextElement();
+            if(name.startsWith("iNatFilter_")) {
+                iNatFilterMap.put(name.replace("iNatFilter_", ""), thisRequest.request.getParameter(name).replace('\n', ','));
+            } else
+                map.put(name, thisRequest.request.getParameterValues(name));
         }
 
         try {
-            BeanUtils.populate(user, map);
+            bub.populate(user, map);
+            if(iNatFilterMap.size() > 0) {
+                bub.populate(user.getiNaturalistFilter(), iNatFilterMap);
+            }
         } catch (InvocationTargetException | IllegalAccessException e) {
             e.printStackTrace();
             if(e.getCause() != null)

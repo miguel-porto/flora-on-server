@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
  * Created by miguel on 08-02-2017.
  */
 public class LatitudeLongitudeParser implements FieldParser {
-    private static Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+(\\.[0-9]+)?)[\\s,;]+(?<lng>[0-9-]+(\\.[0-9]+)?)$");
-    private static Pattern DMSParseSingle = Pattern.compile("^ *(?<deg>[0-9-]+). *(?<min>[0-9]+). *(?<sec>[0-9.]+)..? *(?<let>[nsNSewoEWO]) *$");
-    private static Pattern DMSParse = Pattern.compile("^ *(?<latdeg>[0-9-]+). *(?<latmin>[0-9]+). *(?<latsec>[0-9.]+)..? *" +
+    private static final Pattern coordParse = Pattern.compile("^(?<lat>[0-9-]+(\\.[0-9]+)?)[\\s,;]+(?<lng>[0-9-]+(\\.[0-9]+)?)$");
+    private static final Pattern DMSParseSingle = Pattern.compile("^ *(?<deg>[0-9-]+). *(?<min>[0-9]+). *(?<sec>[0-9.]+)..? *(?<let>[nsNSewoEWO]) *$");
+    private static final Pattern DMSParse = Pattern.compile("^ *(?<latdeg>[0-9-]+). *(?<latmin>[0-9]+). *(?<latsec>[0-9.]+)..? *" +
             "(?<latlet>[nsNS])[ ,;]+(?<lngdeg>[0-9-]+). *(?<lngmin>[0-9]+). *(?<lngsec>[0-9.]+)..? *(?<lnglet>[ewoEWO]) *$");
-    private static Pattern wktParse = Pattern.compile("pointz? *\\( *(?<lng>[0-9-]+(\\.[0-9]+)?) (?<lat>[0-9-]+(\\.[0-9]+)?)( [0-9.-]+)? *\\)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern wktParse = Pattern.compile("pointz? *\\( *(?<lng>[0-9-]+(\\.[0-9]+)?) (?<lat>[0-9-]+(\\.[0-9]+)?)( [0-9.-]+)? *\\)", Pattern.CASE_INSENSITIVE);
 
     static private Float[] getFromDMS(Matcher mat) {
         float latdeg = Float.parseFloat(mat.group("latdeg"));

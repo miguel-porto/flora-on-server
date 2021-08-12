@@ -6,6 +6,9 @@ import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.model.DocumentCreateOptions;
 import com.arangodb.model.DocumentUpdateOptions;
+import com.google.gson.Gson;
+import jline.internal.Log;
+import pt.floraon.authentication.RandomString;
 import pt.floraon.driver.*;
 import pt.floraon.authentication.PasswordAuthentication;
 import pt.floraon.authentication.entities.User;
@@ -40,6 +43,8 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
 
     @Override
     public INodeKey createUser(User user) throws FloraOnException {
+        if(StringUtils.isStringEmpty(user.getUserName()))
+            user.setUserName("user_" + new RandomString(8).nextString());
         try {
             user = database.collection(Constants.NodeTypes.user.toString()).insertDocument(user, new DocumentCreateOptions().returnNew(true)).getNew();
         } catch (ArangoDBException e) {
@@ -59,7 +64,7 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
     }
 
     @Override
-    public User getUser(String name) throws FloraOnException {
+    public User getUserByName(String name) throws FloraOnException {
         if(name == null) return null;
         ArangoCursor<User> cur;
         Map<String, Object> bind = new HashMap<>();
@@ -69,6 +74,23 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
                     , new AqlQueryOptions().count(true), User.class);
             if(!cur.hasNext()) return null;
             if(cur.getCount() > 1) throw new FloraOnException(Messages.getString("error.1", name));
+            return cur.next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
+    @Override
+    public User getUserByINaturalistName(String iNaturalistName) throws FloraOnException {
+        if(iNaturalistName == null) return null;
+        ArangoCursor<User> cur;
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("iNaturalistName", iNaturalistName);
+        try {
+            cur = database.query(AQLQueries.getString("Administration.4b"), bind
+                    , new AqlQueryOptions().count(true), User.class);
+            if(!cur.hasNext()) return null;
+            if(cur.getCount() > 1) throw new FloraOnException(Messages.getString("error.1", iNaturalistName));
             return cur.next();
         } catch (ArangoDBException e) {
             throw new FloraOnException(e.getMessage());
@@ -91,6 +113,9 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
 
     @Override
     public User updateUser(INodeKey id, User user) throws FloraOnException {
+        if(StringUtils.isStringEmpty(user.getUserName()))
+            user.setUserName("user_" + new RandomString(8).nextString());
+        Log.info(new Gson().toJson(user));
         try {
             return database.collection(Constants.NodeTypes.user.toString()).updateDocument(id.getDBKey(), user
                     , new DocumentUpdateOptions().serializeNull(false).returnNew(true)).getNew();

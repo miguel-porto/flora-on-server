@@ -50,7 +50,7 @@
 <div id="allinventories">
     <c:if test="${param.id == null}"><h2>Your inventories</h2></c:if>
     <c:forEach var="inv" items="${inventories}">
-    <c:set var="locked" value="${inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()}"/>
+    <c:set var="locked" value="${(inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()) || inv.getReadOnly()}"/>
     <c:set var="editable" value="${locked ? '' : 'editable'}"/>
     <div class="inventory geoelement">
         <h3><fmt:message key="inventory.1"/> ${inv.getCode()} <c:if test="${inv._getInventoryLatitude() != null}">${inv._getInventoryCoordinates()}</c:if> - ${inv._getNumberOfTaxa()} taxa</h3>

@@ -159,7 +159,7 @@ public final class Common {
     }
 
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
+        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
@@ -189,6 +189,7 @@ public final class Common {
                 occurrence.getDataSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()
+                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
                 , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)
                 , oi.getVerbTaxon()
                 , oi.getConfidence()

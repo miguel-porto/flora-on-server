@@ -1,16 +1,19 @@
 package pt.floraon.redlistdata.dataproviders;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import edu.emory.mathcs.backport.java.util.Collections;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.dataproviders.DataProviderTranslator;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 
 /**
  * Created by miguel on 02-11-2016.
@@ -29,7 +32,10 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<Occurrenc
      * @throws IOException
      */
     public void executeOccurrenceQuery(TaxEnt taxon) throws FloraOnException, IOException {
-        executeOccurrenceQuery(java.util.Collections.singletonList(taxon).iterator());
+        if(taxon == null)
+            executeOccurrenceQuery((Iterator<TaxEnt>) null);
+        else
+            executeOccurrenceQuery(java.util.Collections.singletonList(taxon).iterator());
     }
 
     public void executeOccurrenceQuery(TaxEnt taxon, Object flags) throws FloraOnException, IOException {
@@ -104,4 +110,26 @@ public abstract class SimpleOccurrenceDataProvider implements Iterable<Occurrenc
         }
     }
 
+    protected <T> void readBigJsonFromStream(JsonReader jsonReader, Class<T> type, DataProviderTranslator translator) throws IOException {
+        occurrenceList = new ArrayList<>();
+        Gson gson = new Gson();
+        jsonReader.beginObject();
+        while (jsonReader.hasNext()) {
+            if(jsonReader.peek() == JsonToken.BEGIN_ARRAY) {
+                jsonReader.beginArray();
+                while (jsonReader.hasNext()) {
+                    T o = gson.fromJson(jsonReader, type);
+                    Occurrence so = translator.translate(o);
+                    occurrenceList.add(so);
+                }
+                jsonReader.endArray();
+            } else jsonReader.skipValue();
+        }
+        jsonReader.endObject();
+        jsonReader.close();
+    }
+
+    protected <T> void readBigJsonFromStream(InputStream stream, Class<T> type, DataProviderTranslator translator) throws IOException {
+        readBigJsonFromStream(new JsonReader(new InputStreamReader(stream)), type, translator);
+    }
 }

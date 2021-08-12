@@ -64,6 +64,7 @@
 <c:when test="${fields.isImageField(field) && view != 'inventorySummary'}"><td class="${editable} ${collapsedClass} imageupload" data-name="${field}"><c:if test="${taxon != null}"><c:forEach var="image" items="${fields.getFieldValueRaw(taxon, inventory, field)}"><c:if test="${image != null}"><img src="photos/${image}.jpg"/></c:if></c:forEach></c:if></td></c:when>
 
 <c:otherwise>
+    <c:set var="thisfieldeditable" value="${fields.isAdminField(field) && user.canMODIFY_OCCURRENCES() ? 'editable' : ((fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) || inventory.getReadOnly()) ? '' : editable)}"/>
     <c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && ((fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
         <c:choose>
         <c:when test="${fields.isDateField(field)}">
@@ -78,10 +79,13 @@
                 <c:set var="formattedDate" value=""/>
                 </c:if>
             </c:if>
-        <td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}">${formattedDate}</td>
+        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}" sorttable_customkey="${formattedDateSortKey}">${formattedDate}</td>
+        </c:when>
+        <c:when test="${field == 'uri'}">
+        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}"><a target="_blank" href="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</a></td>
         </c:when>
         <c:otherwise>
-        <td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : editable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
+        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
         </c:otherwise>
         </c:choose>
     </c:if>

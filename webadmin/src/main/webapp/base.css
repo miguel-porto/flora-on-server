@@ -32,6 +32,8 @@ img.lock+* {vertical-align: middle;}
 .inlineflex {display: inline-flex !important}
 .hidden {display: none !important;}
 .hiddenhard {display: none !important;}
+.newrecord::before {content:''; position:absolute; display:block; width:6px; height:6px; background-color:red; border-radius:50%;}
+
 div.block {
     box-shadow:0 0 3px #7d7d7d;
     margin:0 16px 16px 16px;

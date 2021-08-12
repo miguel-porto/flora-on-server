@@ -1,9 +1,11 @@
 package pt.floraon.occurrences.arangodb;
 
 import com.arangodb.ArangoCursor;
+import com.arangodb.ArangoDB;
 import com.arangodb.ArangoDBException;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
+import com.arangodb.util.ArangoSerializer;
 import com.google.gson.Gson;
 import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
@@ -54,7 +56,6 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 oi.setObservationLongitude(null);
             }
         }
-
         database.collection(Constants.NodeTypes.inventory.toString()).insertDocument(inventory);
     }
 
@@ -122,6 +123,20 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         }
     }
 
+    @Override
+    public Inventory getOccurrenceByUuid(String uuid) throws DatabaseException {
+        if(StringUtils.isStringEmpty(uuid)) return null;
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("uuid", uuid);
+        try {
+            Iterator<Inventory> it = database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.2b")
+                    , bindVars, null, Inventory.class);
+            if(it.hasNext()) return it.next(); else return null;
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
 
     @Override
     public Iterator<Occurrence> getOccurrencesOfObserverWithinDates(INodeKey authorId, Date from, Date to, Integer offset, Integer count) throws DatabaseException {
@@ -300,6 +315,26 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             count++;
         }
         return count;
+    }
+
+    @Override
+    public Inventory updateOccurrence(String uuid, Inventory inv) throws FloraOnException {
+        if(inv._getTaxa().length > 1) throw new FloraOnException("Inventory to update has more than one occurrence");
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("uuid", uuid);
+        // we have to serialize manually so we can opt out from serializing null values
+        bindVars.put("json", ((ArangoDB) driver.getDatabaseDriver()).util().serialize(inv, new ArangoSerializer.Options().serializeNullValues(false)));
+        String query = AQLOccurrenceQueries.getString("occurrencequery.8");
+//Log.info(new Gson().toJson(inv));
+        try {
+/*
+            Log.info(query);
+            Log.info(new Gson().toJson(bindVars));
+*/
+            return database.query(query, bindVars, null, Inventory.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
     }
 
     @Override
@@ -501,6 +536,15 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("local");
         }
 
+        // new record filter
+        if(filter.containsKey("new")) {
+            if(filter.get("new").equalsIgnoreCase("NA") || filter.get("new").equalsIgnoreCase("no") || filter.get("new").equalsIgnoreCase("0"))
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.notNew")).append(" ");
+            else
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.new")).append(" ");
+            filter.remove("new");
+        }
+
         // credits filter
         if(filter.containsKey("proj")) {
             if(filter.get("proj").toUpperCase().equals("NA")) {
@@ -510,6 +554,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.credits")).append(" ");
             }
             filter.remove("proj");
+        }
+
+        // source filter
+        if(filter.containsKey("source")) {
+            if(filter.get("source").equalsIgnoreCase("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullsource")).append(" ");
+            } else {
+                bindVars.put("source", filter.get("source").replaceAll("\\*", "%"));
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.source")).append(" ");
+            }
+            filter.remove("source");
         }
 
         // habitat filter
@@ -904,7 +959,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         String occurrenceFilter = "";
         String preliminaryFilter = "";
         String sortExpression = this.buildSortOrderExpression(orderField);
-
+// TODO: filters by phenoState, etc. are not using indexes! Must go to preliminary filters: filter 'FLOWER' IN i.unmatchedOccurrences[*].phenoState
         if(userId != null) {
             bindVars.put("preliminary", userId.toString());
             preliminaryFilter += asObserver ? "FILTER i.observers ANY == @preliminary" : "FILTER i.maintainer == @preliminary";

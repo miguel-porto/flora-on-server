@@ -17,9 +17,11 @@
         <tr><td><code>long:</code></td><td>Longitude</td><td>Numérico e intervalos numéricos (ver em baixo)</td></tr>
         <tr><td><code>tax:</code></td><td>Taxon</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>detected:</code></td><td>Taxon foi detectado?</td><td>0 (não detectado) ou 1 (detectado)</td></tr>
+        <tr><td><code>new:</code></td><td>É um novo registo? Aplica-se apenas a dados externos (e.g. iNaturalist)</td><td>0 (só não novos) ou 1 (só novos)</td></tr>
         <tr><td><code>excl:</code></td><td>Razão de exclusão</td><td>Valores pré-definidos: <code>d</code> destruído <code>m</code> provavelmente mal identificado <code>g</code> provavelmente mal georreferenciado <code>e</code> escapado de cultivo <code>i</code> introduzido <code>o</code> outra razão de exclusão</td></tr>
         <tr><td><code>tag:</code></td><td>Etiquetas</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>local:</code></td><td>Nome do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
+        <tr><td><code>source:</code></td><td>Origem do registo</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>hab:</code></td><td>Habitat</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>code:</code></td><td>Código do local</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>
         <tr><td><code>gps:</code></td><td>Código GPS</td><td>Texto livre com <i>wildcards</i> (<code>*</code>)</td></tr>

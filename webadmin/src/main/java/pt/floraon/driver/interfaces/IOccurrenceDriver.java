@@ -66,6 +66,8 @@ public interface IOccurrenceDriver {
      */
     Iterator<Inventory> getOccurrencesByUuid(INodeKey authorId, String[] uuid) throws DatabaseException;
 
+    Inventory getOccurrenceByUuid(String uuid) throws DatabaseException;
+
     /**
      * Gets all or part of the occurrences where the given observer has participated (either as the main or secondary
      * observer), within specified dates. Inventories as disaggregated into individual occurrences. NOTE: in case of
@@ -206,6 +208,8 @@ public interface IOccurrenceDriver {
      * @throws FloraOnException
      */
     Inventory updateInventory(Inventory inv) throws FloraOnException;
+
+    Inventory updateOccurrence(String uuid, Inventory inv) throws FloraOnException;
 
     /**
      * Replaces the taxon match of the given occurrences

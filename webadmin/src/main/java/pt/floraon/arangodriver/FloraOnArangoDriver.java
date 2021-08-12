@@ -411,6 +411,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("observers[*]"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("collectors[*]"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("dets[*]"), new HashIndexOptions().unique(false).sparse(false));
+//		database.collection(NodeTypes.inventory.toString()).ensurePersistentIndex(Collections.singleton("unmatchedOccurrences[*].uuid"), new PersistentIndexOptions().unique(true).sparse(true));	// sparse because there may be inventories without occurrences
+//		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].uuid"), new HashIndexOptions().unique(true).sparse(true));	// sparse because there may be inventories without occurrences
 		database.collection(NodeTypes.image.toString()).ensureHashIndex(Collections.singleton("uuid"), new HashIndexOptions().unique(true).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("latitude", "longitude"), new SkiplistIndexOptions().unique(false).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Collections.singleton("month"), new SkiplistIndexOptions().unique(false).sparse(false));

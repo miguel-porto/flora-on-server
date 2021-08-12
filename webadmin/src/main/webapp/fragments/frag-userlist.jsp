@@ -51,6 +51,7 @@
         <table>
             <tr><td class="title">Username</td><td><input type="text" name="userName"/></td></tr>
             <tr><td class="title">Person name</td><td><input type="text" name="name"/></td></tr>
+            <tr><td class="title">iNaturalist username (login name)</td><td><input type="text" name="iNaturalistUserName"/></td></tr>
             <tr><td class="title">Email</td><td><input type="text" name="email"/></td></tr>
             <tr>
                 <td class="title">Global privileges</td>

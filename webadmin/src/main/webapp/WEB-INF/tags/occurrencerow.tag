@@ -29,20 +29,21 @@
 
 <c:if test="${occ != null}">
     <c:set var="unmatched" value="${occ._getTaxa()[0].getTaxEnt() == null ? 'unmatched' : ''}"/>
+    <c:set var="newrecord" value="${(occ.getNewRecord() == null || !occ.getNewRecord()) ? '' : 'newrecord'}"/>
     <c:if test="${!fields.containsCoordinates()}">
     <c:set var="symbol" value="${((symbol == null || symbol == '') && occ != null) ? (occ.getYear() != null && occ.getYear() >= historicalYear ? 0 : 1) : symbol}"/>
     </c:if>
     <tr class="${unmatched} geoelement id1holder ${locked ? 'locked' : ''} ${cssclass}">
         <c:if test="${!fields.containsCoordinates()}">
             <c:if test="${view == 'inventorySummary'}">
-            <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="inventoryCoordinates" data-lat="${occ._getInventoryLatitude()}" data-lng="${occ._getInventoryLongitude()}" data-symbol="${symbol}">
+            <td class="selectcol ${newrecord} clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="inventoryCoordinates" data-lat="${occ._getInventoryLatitude()}" data-lng="${occ._getInventoryLongitude()}" data-symbol="${symbol}">
             </c:if>
             <c:if test="${view != 'inventorySummary'}">
-            <td class="selectcol clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="observationCoordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}" data-symbol="${symbol}">
+            <td class="selectcol ${newrecord} clickable coordinates ${locked ? '' : 'editable nodisplay'}" data-name="observationCoordinates" data-lat="${occ._getLatitude()}" data-lng="${occ._getLongitude()}" data-symbol="${symbol}">
             </c:if>
         </c:if>
         <c:if test="${fields.containsCoordinates()}">
-        <td class="selectcol clickable">
+        <td class="selectcol ${newrecord} clickable">
         </c:if>
             <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
             <input type="hidden" name="inventoryId" value="${occ.getID()}"/>

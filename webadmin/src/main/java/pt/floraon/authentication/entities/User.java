@@ -1,7 +1,6 @@
 package pt.floraon.authentication.entities;
 
 import com.arangodb.velocypack.annotations.Expose;
-import jline.internal.Log;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.entities.NamedDBNode;
@@ -11,6 +10,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.OccurrenceConstants;
+import pt.floraon.occurrences.dataproviders.iNaturalistFilter;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
 import pt.floraon.occurrences.fields.flavours.CustomOccurrenceFlavour;
 
@@ -30,20 +30,21 @@ import static pt.floraon.authentication.Privileges.*;
  */
 @WebListener
 public class User extends NamedDBNode implements Comparable<User>, HttpSessionBindingListener {
-	private String userName, password, email;
+	private String userName, password, email, iNaturalistUserName;
 	private UserType userType;
 	private Set<Privileges> privileges;
 	private List<TaxonPrivileges> taxonPrivileges;
 	private List<String> uploadedTables;
+	private iNaturalistFilter iNaturalistFilter;
 	private String userPolygons;
 	private boolean isGuest;
 	private Set<CustomOccurrenceFlavour> customOccurrenceFlavours;
 	public enum FlavourFilter {ONLY_OCCURRENCE, ONLY_INVENTORY}
-	private static Pattern nonStandardName = Pattern.compile("[&.0-9()/-]+");
+	private static final Pattern nonStandardName = Pattern.compile("[&.0-9()/-]+");
 	public enum UserType {ADMINISTRATOR, REGULAR}
 
 	@Expose(serialize = false, deserialize = false)
-	private transient Set<Privileges> effectivePrivileges = new HashSet<>();;
+	private transient Set<Privileges> effectivePrivileges = new HashSet<>();
 
 	@Expose(serialize = false, deserialize = false)
 	private transient PolygonTheme userPolygonsTheme;
@@ -57,10 +58,22 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		userProfiles.put("REVIEWER", new Privileges[] {EDIT_9_3_9_45, EDIT_9_1_2_3_4});
 	}
 
+	public pt.floraon.occurrences.dataproviders.iNaturalistFilter getiNaturalistFilter() {
+		return iNaturalistFilter == null ? iNaturalistFilter = new iNaturalistFilter() : iNaturalistFilter;
+	}
+
+	public void setiNaturalistFilter(pt.floraon.occurrences.dataproviders.iNaturalistFilter iNaturalistFilter) {
+		this.iNaturalistFilter = iNaturalistFilter;
+	}
+
 	public static Privileges[] DEFAULT_USER_PRIVILEGES = new Privileges[] { VIEW_FULL_SHEET };
 
 	public String getUserName() {
 		return userName;
+	}
+
+	public String getiNaturalistUserName() {
+		return iNaturalistUserName;
 	}
 
 	public String getNameASCii() {
@@ -69,6 +82,10 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public void setiNaturalistUserName(String iNaturalistUserName) {
+		this.iNaturalistUserName = iNaturalistUserName;
 	}
 
 	public void setEmail(String email) {
@@ -96,7 +113,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	}
 
 	public static User guest() {
-		User u = null;
+		User u;
 		try {
 			u = new User("guest", "Guest", new Privileges[] {});
 		} catch (DatabaseException e) {
@@ -393,7 +410,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 
 	/**
 	 * Tests whether the user has given privilege for the current taxon. This should only be used after calling
-	 * {@link User#setEffectivePrivilegesFor(IFloraOn, INodeKey, Set<Privileges>)}
+	 * {@link User#setEffectivePrivilegesFor}
 	 * @param privilege
 	 * @return
 	 */

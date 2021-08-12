@@ -72,8 +72,16 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     private String habitat;
     @HideInCompactView @InventoryField @BigEditWidget
     @FieldParser(GeneralFieldParser.class)
-    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub")
+    @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub", alias = {"inventoryComment"})
     private String pubNotes;
+    @HideInCompactView @InventoryField
+    @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Origem dos dados", shortName = "Origem", alias = {"origem"})
+    private String source;
+    // set to true when the record comes from extrenal sources - only AdminFields can be modified
+    private Boolean readOnly;
+    // set to true when it is a new record coming from an external source
+    private Boolean newRecord;
     @InventoryField @HideInCompactView
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Projecto ou instituição financiadora", shortName = "Proj", alias = {"project"})
@@ -180,6 +188,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.habitat = other.habitat;
         this.pubNotes = other.pubNotes;
         this.privNotes = other.privNotes;
+        this.source = other.source;
         this.geology = other.geology;
         this.tags = other.tags;
         this.observers = other.observers;
@@ -200,6 +209,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         this.slope = other.slope;
         this.observerNames = other.observerNames;
         this.maintainerName = other.maintainerName;
+        this.readOnly = other.readOnly;
+        this.newRecord = other.newRecord;
     }
 
     public Inventory() { }
@@ -536,6 +547,30 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
 
     public void setPrivNotes(String privNotes) {
         this.privNotes = privNotes;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public Boolean getReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(Boolean readOnly) {
+        this.readOnly = readOnly;
+    }
+
+    public Boolean getNewRecord() {
+        return newRecord;
+    }
+
+    public void setNewRecord(Boolean newRecord) {
+        this.newRecord = newRecord;
     }
 
     public String getGeology() {

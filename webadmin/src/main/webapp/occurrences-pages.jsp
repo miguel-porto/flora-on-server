@@ -49,7 +49,28 @@
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
-
+    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster bigoption" data-path="upload/occurrences">
+    <h3>Sincronizar com iNaturalist</h3>
+    <c:choose>
+    <c:when test="${!user.canMODIFY_OCCURRENCES() && (user.getiNaturalistUserName() == null || user.getiNaturalistUserName() == '')}">
+    <p>You must set your iNaturalist login name before, in your <a href="${contextPath}/adminpage">personal area</a>.</p>
+    </c:when>
+    <c:when test="${user.canMODIFY_OCCURRENCES() && (user.getiNaturalistFilter().getProject_id() == null || user.getiNaturalistFilter().getProject_id() == '')}">
+    <p>You must set a project name from which to import records, in your <a href="${contextPath}/adminpage">personal area</a>.</p>
+    </c:when>
+    <c:otherwise>
+    <input type="hidden" name="type" value="iNat"/>
+    <input type="submit" class="textbutton" value="Sincronizar"/>
+    <p>Active filters:<br/><span class="info">you can change filters in your personal area</span></p>
+    <ul>
+        <li>Belonging to this project: ${user.getiNaturalistFilter().getProject_id()}</li>
+        <li>Of these observer(s): ${user.getiNaturalistFilter().getUser_idAsString(", ")}</li>
+        <li>At least with one of these identifiers: ${user.getiNaturalistFilter().getIdent_user_idAsString(", ")}</li>
+        <li>Of these taxa only: ${user.getiNaturalistFilter().getTaxon_namesAsString(", ")}</li>
+    </ul>
+    </c:otherwise>
+    </c:choose>
+    </form>
     <c:if test="${pendingFiles.size() > 0}">
     <h2>Files being processed</h2>
     <table>

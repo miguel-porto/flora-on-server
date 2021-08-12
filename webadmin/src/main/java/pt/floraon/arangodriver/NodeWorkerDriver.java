@@ -15,6 +15,8 @@ import com.arangodb.model.DocumentUpdateOptions;
 import com.arangodb.model.VertexCreateOptions;
 import com.arangodb.util.ArangoSerializer;
 import com.arangodb.velocypack.VPackSlice;
+import com.google.gson.Gson;
+import jline.internal.Log;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.*;
 import pt.floraon.driver.Constants.DocumentType;
@@ -381,10 +383,15 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
 	public <T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean replaceNull, Class<T> tClass) throws FloraOnException {
+		return updateDocument(id, newEntity, replaceNull, false, tClass);
+	}
+
+	@Override
+	public <T extends DBEntity> T updateDocument(INodeKey id, T newEntity, boolean serializeNull, boolean keepNull, Class<T> tClass) throws FloraOnException {
 		DocumentUpdateEntity<T> out;
 		try {
 			out = database.collection(id.getCollection()).updateDocument(id.getDBKey(), newEntity
-					, new DocumentUpdateOptions().serializeNull(replaceNull).keepNull(false).returnNew(true).waitForSync(true));
+					, new DocumentUpdateOptions().serializeNull(serializeNull).keepNull(keepNull).mergeObjects(true).returnNew(true).waitForSync(true));
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

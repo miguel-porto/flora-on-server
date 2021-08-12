@@ -103,7 +103,7 @@ public class FloraOnServlet extends HttpServlet {
 		request.setAttribute("user", thisRequest.getUser());
 		try {
 			doFloraOnPost(thisRequest);
-		} catch (FloraOnException e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			thisRequest.error(e.getMessage());
 		}

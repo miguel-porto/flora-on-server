@@ -44,6 +44,9 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote", important = true)
     private String privateComment;
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "URL", shortName = "URL")
+    private String uri;
     @SmallField @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Etiqueta herbário", shortName = "Etiq")
     private String labelData;
@@ -97,6 +100,9 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @SmallField @HideInCompactView @AdminOnly @FieldParser(EnumParser.class)
     @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
     private OccurrenceConstants.PresenceStatus presenceStatus;
+    @SmallField @HideInCompactView @AdminOnly @FieldParser(GeneralFieldParser.class)
+    @PrettyName(value = "Curator comment", shortName = "Curator", description = "Comments from the curator")
+    private String curatorComment;
     @FieldType(FieldType.Type.IMAGE) @FieldParser(StringArrayParser.class)
     @PrettyName(value="Fotografias", shortName = "Fotos", important = true)
     private String[] images;
@@ -104,6 +110,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     /**
      * Field to hold the matched TaxEnt ID
      */
+    @PrettyName(value = "TaxEnt match", shortName = "TaxEnt", description = "Internal ID of the taxon match")
     private String taxEntMatch;
     /**
      * Field to be populated, if needed, with the TaxEnt that is matched.
@@ -127,6 +134,14 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
             dateInserted = new Date();
             uuid = UUID.randomUUID();
         }
+    }
+
+    public String getCuratorComment() {
+        return curatorComment;
+    }
+
+    public void setCuratorComment(String curatorComment) {
+        this.curatorComment = curatorComment;
     }
 
     public Constants.PhenologicalStates getPhenoState() {
@@ -181,8 +196,16 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
         return comment;
     }
 
+    public String getUri() {
+        return uri;
+    }
+
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     public String getLabelData() {

@@ -14,6 +14,7 @@ import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
+import pt.floraon.occurrences.dataproviders.iNaturalistImporterJob;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 
@@ -121,7 +122,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "main":    // this is the inventory summary view
                 viewAsObserver = thisRequest.isOptionTrue("viewAsObserver");
                 INodeKey tu1;
-                if(thisRequest.isOptionTrue("allusers"))
+                if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
                     tu1 = null;
                 else
                     tu1 = driver.asNodeKey(user.getID());
@@ -192,7 +193,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "fixissues":
-                if(thisRequest.isOptionTrue("allusers"))
+                if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
                     maintainer = null;
                 else
                     maintainer = driver.asNodeKey(user.getID());
@@ -206,7 +207,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 break;
 
             case "fetchOccurrenceRows": // TODO: occurrence table as AJAX
-                if(thisRequest.isOptionTrue("allusers"))
+                if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
                     maintainer = null;
                 else
                     maintainer = driver.asNodeKey(user.getID());
@@ -255,7 +256,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
             case "occurrenceview":  // The main view of occurrences, with many flavours
                 viewAsObserver = thisRequest.isOptionTrue("viewAsObserver");
-                if(thisRequest.isOptionTrue("allusers"))
+                if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
                     maintainer = null;
                 else
                     maintainer = driver.asNodeKey(user.getID());
@@ -344,7 +345,8 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 for(String job : JobSubmitter.getJobList()) {
 //                    jline.internal.Log.info(job + JobSubmitter.getJob(job).getOwner().getName());
                     if(user.equals(JobSubmitter.getJob(job).getOwner())
-                            && OccurrenceImporterJob.class.isAssignableFrom(JobSubmitter.getJob(job).getJob().getClass()))
+                            && (OccurrenceImporterJob.class.isAssignableFrom(JobSubmitter.getJob(job).getJob().getClass())
+                            || iNaturalistImporterJob.class.isAssignableFrom(JobSubmitter.getJob(job).getJob().getClass())))
                         pending.add(JobSubmitter.getJob(job));
                 }
 
@@ -393,7 +395,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 thisRequest.response.setContentType("text/csv; charset=utf-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.csv\"");
                 INodeKey u;
-                if(thisRequest.isOptionTrue("allusers"))
+                if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
                     u = null;
                 else
                     u = driver.asNodeKey(user.getID());

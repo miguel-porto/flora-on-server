@@ -43,17 +43,23 @@
         <c:if test="${!user.isGuest()}">
         <h1><a name="personal"></a>Personal area</h1>
         <p>${user.getID()}</p>
-        <%--
         <form class="poster" data-path="admin/updateuser" data-refresh="true">
         <input type="hidden" name="databaseId" value="${user.getID()}"/>
         <table class="small">
             <tr><th colspan="2">Dados da conta</th></tr>
             <tr><td class="title">Name</td><td><input type="text" name="name" value="${user.getName()}" /></td></tr>
-            <tr><td class="title">Username <span class="info">Este é o nome que usa para fazer login. Não pode conter espaços.</span></td><td><input type="text" name="userName" value="${user.getUserName()}" /></td></tr>
+            <tr><td class="title">Username<br/><span class="info">Este é o nome que usa para fazer login. Não pode conter espaços.</span></td><td><input type="text" name="userName" value="${user.getUserName()}" /></td></tr>
+            <tr><td class="title">iNaturalist login name <span class="info">Este é o nome que usa para fazer login no iNaturalist.${user.canMODIFY_OCCURRENCES() ? '' : ' Se o definir, permite sincronizar os seus dados com os que estiverem no iNaturalist sob este observador.'}</span></td><td><input type="text" name="iNaturalistUserName" value="${user.getiNaturalistUserName()}" /></td></tr>
+            <c:if test="${user.canMODIFY_OCCURRENCES()}">
+            <tr><th colspan="2">Sincronização com iNaturalist - filtros cumulativos</th></tr>
+            <tr><td class="title">Projecto do iNaturalist</td><td><input type="text" name="iNatFilter_project_id" value="${user.getiNaturalistFilter().getProject_id()}" /></td></tr>
+            <tr><td class="title">Must be observed by one of these observers<br/><span class="info">introduza uma lista de login names do iNaturalist, um por linha</span></td><td><textarea style="width:100%; box-sizing:border-box;" name="iNatFilter_user_id" rows="5">${user.getiNaturalistFilter().getUser_idAsString()}</textarea></td></tr>
+            <tr><td class="title">Must be validated by one of these observers<br/><span class="info">introduza uma lista de login names do iNaturalist, um por linha</span></td><td><textarea style="width:100%; box-sizing:border-box;" name="iNatFilter_ident_user_id" rows="5">${user.getiNaturalistFilter().getIdent_user_idAsString()}</textarea></td></tr>
+            <tr><td class="title">Must belong to these taxa<br/><span class="info">introduza uma lista de espécies, uma por linha</span></td><td><textarea style="width:100%; box-sizing:border-box;" name="iNatFilter_taxon_names" rows="5">${user.getiNaturalistFilter().getTaxon_namesAsString()}</textarea></td></tr>
+            </c:if>
             <tr><td colspan="2"><input type="submit" class="textbutton" value="Gravar alterações" /></td></tr>
         </table>
         </form>
-        --%>
 
         <h1><a name="views"></a>Vistas personalizadas</h1>
         <h2>Criar nova vista personalizada</h2>

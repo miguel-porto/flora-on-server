@@ -2,12 +2,11 @@ package pt.floraon.redlistdata.dataproviders;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import jline.internal.Log;
 import org.apache.http.client.utils.URIBuilder;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.dataproviders.DataProviderTranslator;
 import pt.floraon.occurrences.entities.Occurrence;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.occurrences.OccurrenceConstants;
@@ -20,7 +19,6 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
@@ -33,6 +31,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
     final private URL floraOnURL;
     final private IFloraOn driver;
     private boolean includeAllAuthors = false;
+    final private FloraOnTranslate floraOnTranslator = new FloraOnTranslate();
 
     private class FloraOnOccurrence {
         String autor, genero, especie, subespecie, notas, dateinserted;
@@ -42,12 +41,44 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         Boolean floracao;
     }
 
+    public class FloraOnTranslate implements DataProviderTranslator {
+        @Override
+        public Occurrence translate(Object o) {
+            DateFormat df = Constants.dateFormatYMD.get();
+            FloraOnOccurrence fo = (FloraOnOccurrence) o;
+            Occurrence so = new Occurrence(FloraOnDataProvider.this.getDataSource(), fo.latitude, fo.longitude, fo.ano, fo.mes, fo.dia, fo.autor, fo.genero
+                    , fo.especie, fo.subespecie, fo.notas, fo.id_reg, fo.id_ent
+                    , fo.precisao == 0 ? "1" : (fo.precisao == 1 ? "100" : (fo.precisao == 2 ? "1000x1000" : "10000x10000"))
+                    , fo.duvida ? OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL : OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
+                    , fo.floracao == null ? null : Constants.PhenologicalStates.FLOWER
+                    , fo.espontanea == 1);
+
+            if(fo.dateinserted != null) {
+                try {
+                    so.getOccurrence().setDateInserted(df.parse(fo.dateinserted));
+                } catch (ParseException e) {
+                    // just ignore
+                }
+            }
+
+            if(!fo.validado)
+                so.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
+            else if(fo.destroyed)
+                so.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.DESTROYED);
+
+            return so;
+        }
+    }
+
     public FloraOnDataProvider(URL url, IFloraOn driver) {
         this.floraOnURL = url;
         this.driver = driver;
     }
 
+
     private void readBigJsonFromStream(InputStream stream) throws IOException {
+        readBigJsonFromStream(stream, FloraOnOccurrence.class, floraOnTranslator);
+/*
         DateFormat df = Constants.dateFormatYMD.get();
         occurrenceList = new ArrayList<>();
         Gson gson = new Gson();
@@ -87,6 +118,7 @@ public class FloraOnDataProvider extends SimpleOccurrenceDataProvider {
         }
         jr.endObject();
         jr.close();
+*/
 
 //        this.occurrences = occurrenceList.iterator();
     }

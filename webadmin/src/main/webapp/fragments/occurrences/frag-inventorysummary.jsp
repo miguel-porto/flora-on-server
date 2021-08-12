@@ -53,7 +53,7 @@
         <form method="get" action="occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />
             <input type="hidden" name="p" value="1" />
-            <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
+            <input type="text" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
             <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
             <input type="submit" class="button" value="Filter" />
         </form>
@@ -94,7 +94,7 @@
         </tr></thead>
         <tbody>
         <c:forEach var="inv" items="${inventories}">
-            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" view="inventorySummary" locked="${inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()}" />
+            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" view="inventorySummary" locked="${(inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()) || inv.getReadOnly()}" />
         </c:forEach>
         </tbody>
     </table>

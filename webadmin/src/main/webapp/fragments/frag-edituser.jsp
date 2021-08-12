@@ -31,6 +31,7 @@
             <table>
                 <tr><td class="title">Username</td><td><input type="text" name="userName" value="${requesteduser.getUserName()}"/></td></tr>
                 <tr><td class="title">Person name</td><td><input type="text" name="name" value="${requesteduser.getFullName()}"/></td></tr>
+                <tr><td class="title">iNaturalist username (login name)</td><td><input type="text" name="iNaturalistUserName" value="${requesteduser.getiNaturalistUserName()}"/></td></tr>
                 <tr><td class="title">Email</td><td><input type="text" name="email" value="${requesteduser.getEmail()}"/></td></tr>
                 <tr>
                     <td class="title">Global privileges (apply to all taxa)</td>

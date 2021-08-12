@@ -112,7 +112,7 @@
             <form method="get" action="occurrences" class="inlineblock">
                 <input type="hidden" name="w" value="${param.w}" />
                 <input type="hidden" name="p" value="1" />
-                <input type="text" name="filter" style="width:250px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
+                <input type="text" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
                 <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
                 <input type="submit" class="button" value="Filter" />
             </form>
@@ -151,7 +151,7 @@
         <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence"/></tr></thead>
         <tbody>
         <c:forEach var="occ" items="${occurrences}">
-            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" view="occurrence" locked="${occ.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()}"/>
+            <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" view="occurrence" locked="${(occ.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()) || occ.getReadOnly()}"/>
         </c:forEach>
         <c:forEach var="occ" items="${externaloccurrences}">
             <t:occurrencerow fields="${flavourfields}" occ="${occ}" userMap="${userMap}" locked="true" cssclass="external" view="occurrence"

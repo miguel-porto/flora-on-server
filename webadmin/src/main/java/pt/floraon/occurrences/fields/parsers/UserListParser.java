@@ -56,7 +56,7 @@ public class UserListParser implements FieldParser {
                 if(userMap.containsKey(cleanUserName))
                     userIds.add(userMap.get(cleanUserName));
                 else {
-                    User user = driver.getAdministration().getUser(cleanUserName);
+                    User user = driver.getAdministration().getUserByName(cleanUserName);
                     if(user == null) {
                         if(createUsers == null)
                             continue;

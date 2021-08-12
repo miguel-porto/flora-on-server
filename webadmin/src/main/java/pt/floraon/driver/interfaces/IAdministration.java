@@ -14,7 +14,8 @@ public interface IAdministration {
     List<User> getAllUsers(boolean onlyWithPassword) throws FloraOnException;
     INodeKey createUser(User user) throws FloraOnException;
     User getUser(INodeKey id) throws FloraOnException;
-    User getUser(String name) throws FloraOnException;
+    User getUserByName(String name) throws FloraOnException;
+    User getUserByINaturalistName(String iNaturalistName) throws FloraOnException;
 
     Iterator<User> findUserByName(String substr) throws FloraOnException;
 

@@ -22,6 +22,7 @@ import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.bibliography.entities.Reference;
 import pt.floraon.driver.entities.Image;
 import pt.floraon.driver.jobs.JobRunnerTask;
@@ -29,8 +30,8 @@ import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.geocoding.ToponomyParser;
 import pt.floraon.geocoding.entities.Toponym;
-import pt.floraon.images.filters.UnsharpMaskFilter;
 import pt.floraon.occurrences.OccurrenceImporterJob;
+import pt.floraon.occurrences.dataproviders.iNaturalistImporterJob;
 import pt.floraon.server.FloraOnServlet;
 
 @MultipartConfig
@@ -61,9 +62,9 @@ public class FileUploader extends FloraOnServlet {
 			break;
 		
 		case "occurrences":
+			String type = thisRequest.getParameterAsString("type");
 			File file = new File(thisRequest.getParameterAsString("file"));
 			if(!file.canRead()) throw new IOException("Cannot read file "+thisRequest.getParameterAsString("file"));
-			String type = thisRequest.getParameterAsString("type");
 			JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(new FileInputStream(file), driver, thisRequest.getUser(), type, true, false, false, null), driver);
 			thisRequest.success(job.getID());
 /*
@@ -146,24 +147,46 @@ public class FileUploader extends FloraOnServlet {
             break;
 
 		case "occurrences":
-			boolean main = thisRequest.getParameterAsBoolean("mainobserver", false);
-			boolean create = thisRequest.getParameterAsBoolean("createUsers", false);
-			boolean createTaxa = thisRequest.getParameterAsBoolean("createTaxa", false);
-
-			try {
-				filePart = thisRequest.request.getPart("occurrenceTable");
-//				System.out.println(filePart.getSize());
-
-				if(filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
-				fileContent = filePart.getInputStream();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			if(fileContent != null) {
-				JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(
-						fileContent, driver, thisRequest.getUser(), type, main, create, createTaxa, thisRequest.getUser()), driver);
+			if("iNat".equals(type)) {
+/*
+				iNaturalistDataProvider iNat = new iNaturalistDataProvider();
+				iNat.executeOccurrenceQuery((TaxEnt) null);
+				System.out.println(iNat.size());
+				for (Occurrence o : iNat) {
+					System.out.println(o._getCoordinates() + o.getPubNotes());
+				}
+				for(Inventory inv : iNat) {
+					inv.setMaintainer(thisRequest.getUser().getID());
+					driver.getOccurrenceDriver().matchTaxEntNames(inv, false, false, null);
+					driver.getOccurrenceDriver().createInventory(inv);
+				}
+*/
+				User user = thisRequest.getUser();
+				JobRunnerTask job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user,
+						user.getiNaturalistFilter().getTaxon_names(), user.getiNaturalistFilter().getIdent_user_id(),
+						user.getiNaturalistFilter().getProject_id(), user.getiNaturalistFilter().getUser_id()), driver);
 				thisRequest.success(job.getID());
+			} else {
+
+				boolean main = thisRequest.getParameterAsBoolean("mainobserver", false);
+				boolean create = thisRequest.getParameterAsBoolean("createUsers", false);
+				boolean createTaxa = thisRequest.getParameterAsBoolean("createTaxa", false);
+
+				try {
+					filePart = thisRequest.request.getPart("occurrenceTable");
+					//				System.out.println(filePart.getSize());
+
+					if (filePart.getSize() == 0) throw new FloraOnException("You must select a file.");
+					fileContent = filePart.getInputStream();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				if (fileContent != null) {
+					JobRunnerTask job = JobSubmitter.newJobTask(new OccurrenceImporterJob(
+							fileContent, driver, thisRequest.getUser(), type, main, create, createTaxa, thisRequest.getUser()), driver);
+					thisRequest.success(job.getID());
+				}
 			}
 			break;
 
