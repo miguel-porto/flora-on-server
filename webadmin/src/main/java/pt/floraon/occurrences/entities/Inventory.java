@@ -664,7 +664,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     }
 
     public String getCode() {
-        return code == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getGpsCode() : null) : code;
+//        return code == null ? ((_getTaxa() != null && _getTaxa().length == 1) ? _getTaxa()[0].getGpsCode() : null) : code;
+        return code;
     }
 
     public void setCode(String code) {

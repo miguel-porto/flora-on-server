@@ -55,6 +55,9 @@
     <c:when test="${!user.canMODIFY_OCCURRENCES() && (user.getiNaturalistUserName() == null || user.getiNaturalistUserName() == '')}">
     <p>You must set your iNaturalist login name before, in your <a href="${contextPath}/adminpage">personal area</a>.</p>
     </c:when>
+    <c:when test="${!user.canMODIFY_OCCURRENCES() && !(user.getiNaturalistUserName() == null || user.getiNaturalistUserName() == '')}">
+    <p>This feature is yet being tested, and will be released as soon as possible.</p>
+    </c:when>
     <c:when test="${user.canMODIFY_OCCURRENCES() && (user.getiNaturalistFilter().getProject_id() == null || user.getiNaturalistFilter().getProject_id() == '')}">
     <p>You must set a project name from which to import records, in your <a href="${contextPath}/adminpage">personal area</a>.</p>
     </c:when>

@@ -44,7 +44,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote", important = true)
     private String privateComment;
-    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "URL", shortName = "URL")
     private String uri;
     @SmallField @FieldParser(GeneralFieldParser.class)

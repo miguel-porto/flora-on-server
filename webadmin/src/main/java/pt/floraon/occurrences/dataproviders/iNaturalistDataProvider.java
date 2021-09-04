@@ -3,10 +3,12 @@ package pt.floraon.occurrences.dataproviders;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import jline.internal.Log;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.http.client.utils.URIBuilder;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
 
@@ -211,7 +213,14 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
         public Occurrence next() {
             if(reader == null) return null;
             if(lastOccurrence != null) {
-                Occurrence o= iNaturalistTranslator.translate(lastOccurrence);
+                Occurrence o = iNaturalistTranslator.translate(lastOccurrence);
+                // if one of the trusted identifiers disagrees with the identification, mark as PROBABLY_MISIDENTIFIED
+                for(iNaturalistDataProvider.iNaturalistIdentification i : lastOccurrence.identifications) {
+                    if(ArrayUtils.contains(iNaturalistFilter.getIdent_user_id(), i.user.login)) {
+                        if(!i.taxon.name.equals(o.getOccurrence().getVerbTaxon()))
+                            o.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
+                    }
+                }
                 return o;
             } else return null;
 //            lastOccurrence = gson.fromJson(reader, iNaturalistOccurrence.class);
@@ -265,13 +274,6 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
             so.setObservers(new String[]{iNaturalistOccurrence.user.login, iNaturalistOccurrence.user.name});
             //so.setPubNotes("ID: " + iNaturalistOccurrence.id);
 
-            StringBuilder sb = new StringBuilder();
-            for(iNaturalistIdentification i : iNaturalistOccurrence.identifications) {
-                sb.append(i.user.login).append(": ").append(i.taxon.name).append("; ");
-            }
-
-            so.setPubNotes("ID: " + sb.toString());
-
 //            if(iNaturalistOccurrence.time_observed_at != null) {
             if(iNaturalistOccurrence.observed_on_details != null && iNaturalistOccurrence.observed_on_details.date != null) {
                 Calendar calendar = Calendar.getInstance();
@@ -288,7 +290,14 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                     so.setLongitude(Float.parseFloat(mat.group("lng")));
                 }
             }
+            // fill in the occurrence data
             so.setOccurrence(new OBSERVED_IN());
+            StringBuilder sb = new StringBuilder();
+            for(iNaturalistIdentification i : iNaturalistOccurrence.identifications) {
+                sb.append(i.user.login).append(": ").append(i.taxon.name).append("; ");
+            }
+            so.getOccurrence().setPrivateComment("IDs: " + sb);
+
             so.getOccurrence().setDateInserted(new Date());
             so.getOccurrence().setUuid(iNaturalistOccurrence.uuid);
             so.getOccurrence().setUri(iNaturalistOccurrence.uri);
