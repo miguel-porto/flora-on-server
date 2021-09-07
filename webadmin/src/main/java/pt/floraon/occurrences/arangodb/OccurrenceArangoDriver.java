@@ -132,7 +132,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         bindVars.put("uuid", uuid);
         try {
             Iterator<Inventory> it = database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.2b")
+                    AQLOccurrenceQueries.getString("occurrencequery.2b")    // TODO: optimize with index
                     , bindVars, null, Inventory.class);
             if(it.hasNext()) return it.next(); else return null;
         } catch (ArangoDBException e) {

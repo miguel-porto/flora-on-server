@@ -1,36 +1,51 @@
 package pt.floraon.server;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import pt.floraon.arangodriver.FloraOnArangoDriver;
-import pt.floraon.driver.FloraOnException;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import pt.floraon.driver.TaxonomyException;
+import pt.floraon.taxonomy.entities.TaxonName;
 
 /**
  * Unit test for simple App.
  */
 public class AppTest 
-    extends TestCase
 {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+    @Test
+    public void taxonNameParsingTest() throws TaxonomyException {
+        TaxonName te;
+        te = new TaxonName("Cistus ladanifer subsp. sulcatus");
+        assertEquals("Cistus", te.getGenus());
+        assertEquals("ladanifer", te.getSpecificEpithet());
+        assertEquals(1, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
+        te = new TaxonName("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart");
+        assertEquals("Klasea", te.getGenus());
+        assertEquals("boetica", te.getSpecificEpithet());
+        assertEquals("(Boiss. ex DC.) Holub", te.getAuthor(0));
+        assertEquals(1, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("lusitanica", te.getInfraRanks().get(0).getInfraTaxon());
+        assertEquals("(Cantó) Cantó & Rivas Mart", te.getInfraRanks().get(0).getInfraAuthor());
 
+        te = new TaxonName("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart var. sampaiana (Cantó) Cantó");
+        assertEquals("Klasea", te.getGenus());
+        assertEquals("boetica", te.getSpecificEpithet());
+        assertEquals("(Boiss. ex DC.) Holub", te.getAuthor(0));
+        assertEquals(2, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("lusitanica", te.getInfraRanks().get(0).getInfraTaxon());
+        assertEquals("(Cantó) Cantó & Rivas Mart", te.getInfraRanks().get(0).getInfraAuthor());
+        assertEquals("var.", te.getInfraRanks().get(1).getInfraRank());
+        assertEquals("sampaiana", te.getInfraRanks().get(1).getInfraTaxon());
+        assertEquals("(Cantó) Cantó", te.getInfraRanks().get(1).getInfraAuthor());
+
+//        te = new TaxonName("Cistus ladanifer sulcatus");
+
+    }
     public void testApp() {
+
     	/*FloraOnArangoDriver fog=null;
     	try {
 			fog=new FloraOnArangoDriver("flora");

@@ -29,8 +29,21 @@ public class TaxonName {
 
     private transient static Pattern infraTaxa = Pattern.compile(
             " *(?:(?<rank>subsp|var|f|ssp|subvar|forma)\\.? +)(?<infra>[a-zç-]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
+                    "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))?" +
+                    "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.? +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
+
+/*
+    private transient static Pattern completeName = Pattern.compile(
+            "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)(?: +(?<species>[a-zç-]+)" +
+                    "(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
+                    ")?(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
+                    "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.? .*))?$");
+
+    private transient static Pattern infraTaxa = Pattern.compile(
+            " *(?:(?<rank>subsp|var|f|ssp|subvar|forma)\\.? +)?(?<infra>[a-zç-]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
             "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))?" +
             "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.? +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
+*/
 
     public TaxonName() {}
 
@@ -246,7 +259,8 @@ public class TaxonName {
         private final String infraRank, infraTaxon, infraAuthor, infraAnnotation, infraSensu;
 
         public InfraRank(String infraRank, String infraTaxon, String infraAuthor, String infraAnnotation, String infraSensu) {
-            this.infraRank = infraRank.endsWith(".") ? infraRank : (infraRank + ".");
+            // TODO we assume the default infrarank is subsp... is it ok?
+            this.infraRank = infraRank == null ? "subsp." : (infraRank.endsWith(".") ? infraRank : (infraRank + "."));
             this.infraTaxon = infraTaxon;
             this.infraAuthor = infraAuthor;
             this.infraAnnotation = infraAnnotation;

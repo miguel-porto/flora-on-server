@@ -16,6 +16,7 @@ import pt.floraon.occurrences.fields.FieldReflection;
 import pt.floraon.occurrences.fields.parsers.EnumParser;
 import pt.floraon.occurrences.iterators.OccurrenceIterator;
 import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxonName;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -51,7 +52,8 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
             }
 
             try {
-                te = TaxEnt.parse(oi.getVerbTaxon());
+                te = new TaxEnt(new TaxonName(oi.getVerbTaxon()));
+//                te = TaxEnt.parse(oi.getVerbTaxon());
             } catch (FloraOnException e) {  // could not even parse the name
                 if(inventories != null)
 //                    inventories.addQuestion(oi.getVerbTaxon(), oi.getUuid(), null);
