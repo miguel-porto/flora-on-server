@@ -162,9 +162,20 @@ public class FileUploader extends FloraOnServlet {
 				}
 */
 				User user = thisRequest.getUser();
-				JobRunnerTask job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user,
-						user.getiNaturalistFilter().getTaxon_names(), user.getiNaturalistFilter().getIdent_user_id(),
-						user.getiNaturalistFilter().getProject_id(), user.getiNaturalistFilter().getUser_id()), driver);
+				JobRunnerTask job;
+				if(user.canMODIFY_OCCURRENCES()) {
+					job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user,
+							user.getiNaturalistFilter().getTaxon_names(), user.getiNaturalistFilter().getIdent_user_id(),
+							user.getiNaturalistFilter().getProject_id(), user.getiNaturalistFilter().getUser_id()), driver);
+				} else {
+					String pId;
+					if((pId = driver.getDefaultINaturalistProject()) == null)
+						throw new FloraOnException("Default iNaturalist project ID not defined");
+					else {
+						job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user, null, null,
+								pId, new String[]{user.getiNaturalistUserName()}), driver);
+					}
+				}
 				thisRequest.success(job.getID());
 			} else {
 

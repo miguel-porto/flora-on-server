@@ -186,7 +186,7 @@ public final class Common {
         } else WKT = "<invalid>";
 
         csv.printRecord(
-                occurrence.getDataSource()
+                occurrence.getSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)

@@ -51,7 +51,7 @@ public class FloraOnArangoDriver implements IFloraOn {
     private String errorMessage;
     private Properties properties;
     private final File imageFolder, thumbsFolder, originalImageFolder;
-	private String contextPath;
+	private String contextPath, defaultINaturalistProject;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -76,7 +76,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 	public FloraOnArangoDriver(Properties properties) throws FloraOnException {
 		this.properties = properties;
-		this.contextPath = (String) properties.getProperty("contextPath", "");
+		this.contextPath = properties.getProperty("contextPath", "");
+		this.defaultINaturalistProject = properties.getProperty("defaultINaturalistProject", null);
 		if(!this.contextPath.equals("") && !this.contextPath.startsWith("/")) this.contextPath = "/" + this.contextPath;
 		String username = properties.getProperty("arango.user");
 		String pass = properties.getProperty("arango.password");
@@ -245,6 +246,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 	@Override
 	public String getContextPath() {
 		return this.contextPath;
+	}
+
+	@Override
+	public String getDefaultINaturalistProject() {
+		return this.defaultINaturalistProject;
 	}
 
 	@Override

@@ -81,4 +81,9 @@ public interface IFloraOn {
 	 * @return The context path where the webapp was deployed.
 	 */
 	String getContextPath();
+
+	/**
+	 * @return The default iNaturalist project from which to import regular user occurrences
+	 */
+	String getDefaultINaturalistProject();
 }

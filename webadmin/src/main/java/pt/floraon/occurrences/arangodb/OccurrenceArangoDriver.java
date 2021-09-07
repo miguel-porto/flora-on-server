@@ -113,11 +113,13 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     public Iterator<Inventory> getOccurrencesByUuid(INodeKey authorId, String[] uuid) throws DatabaseException {
         // TODO: this should return the OBSERVED_IN graph links, not the unmatched
         if(uuid == null || uuid.length == 0) return Collections.emptyIterator();
+        Map<String, Object> bindVars = new HashMap<>();
+        bindVars.put("uuid", uuid);
+        bindVars.put("user", authorId.getID());
         try {
             return database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.2b", authorId.getID()
-                            , "[\"" + StringUtils.implode("\",\"", uuid) + "\"]")
-                    , null, null, Inventory.class);
+                    AQLOccurrenceQueries.getString("occurrencequery.2ba")
+                    , bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }

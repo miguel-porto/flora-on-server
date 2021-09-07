@@ -15,15 +15,10 @@ public class Occurrence extends Inventory {
     /**
      * The data dataSource.
      */
-    private String dataSource;
     @Expose(serialize = false)
     private OBSERVED_IN occurrence;
     private int id_reg;
     private Integer id_ent;
-
-    public String getDataSource() {
-        return dataSource;
-    }
 
     public int getId_reg() {
         return id_reg;
@@ -53,7 +48,7 @@ public class Occurrence extends Inventory {
 
     public Occurrence(String dataSource, Inventory inv) {
         super(inv);
-        this.dataSource = dataSource;
+        this.setSource(dataSource);
         this.id_reg = 0;
         this.id_ent = null;
         OBSERVED_IN[] taxa = inv._getTaxa();
@@ -70,7 +65,7 @@ public class Occurrence extends Inventory {
     public Occurrence(String dataSource, float latitude, float longitude, Integer year, Integer month, Integer day, String author
             , String genus, String species, String infrataxon, String pubNotes, int id_reg, Integer id_ent, String precision
             , OccurrenceConstants.ConfidenceInIdentifiction confidence, Constants.PhenologicalStates flowering, boolean escaped) {
-        this.dataSource = dataSource;
+        this.setSource(dataSource);
         this.id_reg = id_reg;
         this.id_ent = id_ent;
 

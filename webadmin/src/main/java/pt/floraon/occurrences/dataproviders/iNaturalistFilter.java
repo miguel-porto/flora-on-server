@@ -72,7 +72,22 @@ public class iNaturalistFilter {
     }
 
     public iNaturalistFilter withTaxonNames(String taxonNames) {
-        this.taxon_names = taxonNames.toLowerCase(Locale.ROOT).split("[,\\n]");
+        if(taxonNames == null)
+            this.taxon_names = new String[0];
+        else
+            this.taxon_names = taxonNames.toLowerCase(Locale.ROOT).split("[,\\n]");
+        return (this);
+    }
+
+    public iNaturalistFilter withTaxonNames(String[] taxonNames) {
+        if(taxonNames == null)
+            this.taxon_names = new String[0];
+        else {
+            for (int i = 0; i < taxonNames.length; i++) {
+                taxonNames[i] = taxonNames[i].toLowerCase();
+            }
+            this.taxon_names = taxonNames;
+        }
         return (this);
     }
 
@@ -87,26 +102,26 @@ public class iNaturalistFilter {
     }
 
     public iNaturalistFilter withObservers(String[] observers) {
-        for(int i=0; i<observers.length; i++){
-            observers[i] = observers[i].toLowerCase();
+        if(observers == null)
+            this.user_id = new String[0];
+        else {
+            for (int i = 0; i < observers.length; i++) {
+                observers[i] = observers[i].toLowerCase();
+            }
+            this.user_id = observers;
         }
-        this.user_id = observers;
-        return (this);
-    }
-
-    public iNaturalistFilter withTaxonNames(String[] taxonNames) {
-        for(int i=0; i<taxonNames.length; i++){
-            taxonNames[i] = taxonNames[i].toLowerCase();
-        }
-        this.taxon_names = taxonNames;
         return (this);
     }
 
     public iNaturalistFilter withIdentifiers(String[] identifiers) {
-        for(int i=0; i<identifiers.length; i++){
-            identifiers[i] = identifiers[i].toLowerCase();
+        if(identifiers == null)
+            this.ident_user_id = new String[0];
+        else {
+            for (int i = 0; i < identifiers.length; i++) {
+                identifiers[i] = identifiers[i].toLowerCase();
+            }
+            this.ident_user_id = identifiers;
         }
-        this.ident_user_id = identifiers;
         return (this);
     }
 

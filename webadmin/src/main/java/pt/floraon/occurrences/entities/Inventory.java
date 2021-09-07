@@ -78,7 +78,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Origem dos dados", shortName = "Origem", alias = {"origem"})
     private String source;
-    // set to true when the record comes from extrenal sources - only AdminFields can be modified
+    // set to true when the record comes from external sources - only @AdminFields can be modified
     private Boolean readOnly;
     // set to true when it is a new record coming from an external source
     private Boolean newRecord;

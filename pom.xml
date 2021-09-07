@@ -6,6 +6,9 @@
 	<version>1.0-SNAPSHOT</version>
 	<name>Flora-On Server</name>
 	<packaging>pom</packaging>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<modules>
 		<module>webadmin</module>
 		<module>console</module>
