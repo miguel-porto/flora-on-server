@@ -2,6 +2,9 @@ package pt.floraon.server;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.function.ThrowingRunnable;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.taxonomy.entities.TaxonName;
 
@@ -19,6 +22,42 @@ public class AppTest
         assertEquals(1, te.getInfraRanks().size());
         assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
         assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
+
+        te = new TaxonName("Cistus ladanifer sulcatus");
+        assertEquals("Cistus", te.getGenus());
+        assertEquals("ladanifer", te.getSpecificEpithet());
+        assertEquals(1, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
+
+        assertThrows(TaxonomyException.class, new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                TaxonName te = new TaxonName("Cistus ladanifer sulcatus subsp. dummy");
+            }
+        });
+
+        te = new TaxonName("Cistus ladanifer sulcatus (Demoly) P.Monts. sensu Flora Iberica");
+        assertEquals("Cistus", te.getGenus());
+        assertEquals("ladanifer", te.getSpecificEpithet());
+        assertEquals(1, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
+        assertEquals("(Demoly) P.Monts.", te.getInfraRanks().get(0).getInfraAuthor());
+        assertEquals("Flora Iberica", te.getInfraRanks().get(0).getInfraSensu());
+
+        te = new TaxonName("Cistus ladanifer sulcatus (Demoly) P.Monts. var. dummy sensu Flora Iberica");
+        assertEquals("Cistus", te.getGenus());
+        assertEquals("ladanifer", te.getSpecificEpithet());
+        assertEquals(2, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
+        assertEquals("(Demoly) P.Monts.", te.getInfraRanks().get(0).getInfraAuthor());
+        assertNull(te.getInfraRanks().get(0).getInfraSensu());
+        assertEquals("var.", te.getInfraRanks().get(1).getInfraRank());
+        assertEquals("dummy", te.getInfraRanks().get(1).getInfraTaxon());
+        assertEquals("Flora Iberica", te.getInfraRanks().get(1).getInfraSensu());
+        assertNull(te.getInfraRanks().get(1).getInfraAuthor());
 
         te = new TaxonName("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart");
         assertEquals("Klasea", te.getGenus());
@@ -40,37 +79,7 @@ public class AppTest
         assertEquals("var.", te.getInfraRanks().get(1).getInfraRank());
         assertEquals("sampaiana", te.getInfraRanks().get(1).getInfraTaxon());
         assertEquals("(Cantó) Cantó", te.getInfraRanks().get(1).getInfraAuthor());
+        assertEquals("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart var. sampaiana (Cantó) Cantó", te.toString());
 
-//        te = new TaxonName("Cistus ladanifer sulcatus");
-
-    }
-    public void testApp() {
-
-    	/*FloraOnArangoDriver fog=null;
-    	try {
-			fog=new FloraOnArangoDriver("flora");
-		} catch (FloraOnException e2) {
-			fail(e2.getMessage());
-		}
-
-    	if(fog==null) fail("Unable to create database.");*/
-    	
-/*
-    	try {
-			fog.dbDataUploader.uploadTaxonomyListFromStream(fog.getClass().getResourceAsStream("/taxonomia_full_novo.csv"), false);
-			assertEquals(5593,fog.dbSpecificQueries.getNumberOfNodesInCollection(NodeTypes.taxent));
-		} catch (IOException e) {
-			fail(e.getMessage());
-		} catch (ArangoException e) {
-			fail(e.getErrorMessage());
-		}
-    	*/
-  /*      try {
-        	System.out.println("Importing "+input.getFile());
-        	fog.getDataUploader().uploadTaxonomyListFromFile(input.getFile(),false);
-        	//fog.getDataUploader().uploadTaxonomyListFromFile("/media/miguel/Brutal/SPB/Flora-On/Taxonomia/Grafo/stepping_stones.csv",false);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}*/
     }
 }
