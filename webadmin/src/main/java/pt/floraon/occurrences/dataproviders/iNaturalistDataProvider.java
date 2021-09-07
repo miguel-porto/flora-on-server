@@ -29,7 +29,7 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
     static private long iNaturalistRequestThrottle = 1000;
     private final iNaturalistFilter iNaturalistFilter;
     final private iNaturalistDataProvider.iNaturalistTranslate iNaturalistTranslator = new iNaturalistTranslate();
-    static final private Integer resultsPerPage = 200;
+    private Integer resultsPerPage;
     final private Map<String, String> requestParameters = new HashMap<>();
     private Integer totalCount;
     private StopWatch stopWatch;
@@ -43,15 +43,20 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
     }
 
     {
-        requestParameters.put("per_page", resultsPerPage.toString());
         requestParameters.put("order_by", "id");
         requestParameters.put("page", "1");
     }
 
     public iNaturalistDataProvider(iNaturalistFilter iNaturalistFilter) throws IllegalArgumentException {
+        this(iNaturalistFilter, 200);
+    }
+
+    public iNaturalistDataProvider(iNaturalistFilter iNaturalistFilter, Integer resultsPerPage) throws IllegalArgumentException {
         if(!StringUtils.isArrayEmpty(iNaturalistFilter.getTaxon_names()) && iNaturalistFilter.getTaxon_names().length > 1)
             throw new IllegalArgumentException("Only one taxon is permitted by the current API version");
         this.iNaturalistFilter = iNaturalistFilter;
+        this.resultsPerPage = resultsPerPage;
+        requestParameters.put("per_page", resultsPerPage.toString());
     }
 
     public int size() {
@@ -167,7 +172,7 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                 }
 
                 if (hasNext) {
-                    freshRequest = false;
+//                    freshRequest = false;
                     lastOccurrence = gson.fromJson(reader, iNaturalistOccurrence.class);
                     return true;
 /*

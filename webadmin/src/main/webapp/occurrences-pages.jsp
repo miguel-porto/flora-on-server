@@ -73,6 +73,7 @@
         <li>At least with one of these identifiers: ${user.getiNaturalistFilter().getIdent_user_idAsString(", ")}</li>
         <li>Of these taxa only: ${user.getiNaturalistFilter().getTaxon_namesAsString(", ")}</li>
     </ul>
+    <p>Number of records that will be fetched: <t:ajaxloadhtml url="${contextPath}/upload/getInatCount" classes="inlineblock"/></p>
     </c:otherwise>
     </c:choose>
     </form>
