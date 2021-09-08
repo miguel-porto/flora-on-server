@@ -295,12 +295,18 @@ public class FileUploader extends FloraOnServlet {
 				User user = thisRequest.getUser();
 				if(user.canMODIFY_OCCURRENCES()) {
 					ArrayList<String> sizes = new ArrayList<>();
-					for(String tax : user.getiNaturalistFilter().getTaxon_names()) {
-						iNaturalistFilter copy = new iNaturalistFilter(user.getiNaturalistFilter());
-						copy.setTaxon_names(new String[] {tax});
-						iNaturalistDataProvider idp = new iNaturalistDataProvider(copy, 1);
+					if(StringUtils.isArrayEmpty(user.getiNaturalistFilter().getTaxon_names())) {
+						iNaturalistDataProvider idp = new iNaturalistDataProvider(new iNaturalistFilter(user.getiNaturalistFilter()), 1);
 						Iterator<Occurrence> it = idp.iterator();
 						sizes.add(Integer.toString(idp.size()));
+					} else {
+						for (String tax : user.getiNaturalistFilter().getTaxon_names()) {
+							iNaturalistFilter copy = new iNaturalistFilter(user.getiNaturalistFilter());
+							copy.setTaxon_names(new String[]{tax});
+							iNaturalistDataProvider idp = new iNaturalistDataProvider(copy, 1);
+							Iterator<Occurrence> it = idp.iterator();
+							sizes.add(Integer.toString(idp.size()));
+						}
 					}
 					thisRequest.success("Number of records that will be fetched: " + StringUtils.implode(" + ", sizes.toArray(new String[0])),
 							true);

@@ -163,7 +163,7 @@ public final class Common {
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-                , "credits", "maintainer", "maintainerName", "redListCategory"));
+                , "credits", "maintainer", "maintainerName", "redListCategory", "URL"));
         csv.printRecord(fields);
     }
 
@@ -218,6 +218,7 @@ public final class Common {
                 , occurrence.getMaintainer()
                 , occurrence.getMaintainer() == null || userMap == null ? "" : (userMap.get(occurrence.getMaintainer()) == null ? "" : occurrence._getMaintainerName())
                 , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
+                , occurrence.getOccurrence().getUri()
 //                , occurrence._getMaintainerName()
         );
 
