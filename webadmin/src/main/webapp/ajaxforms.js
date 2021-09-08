@@ -34,7 +34,7 @@ function formPoster(ev, callback, beforePost) {
 
 		    if(ev.target.getAttribute('data-callback') == null) {
 		        if(ev.target.getAttribute('data-refresh') == 'false') {
-                    alert('Ok');
+                    if(!rt1.msg.alert) alert('Ok');     // prevent double alert
                     isFormSubmitting = false;
 		        } else {
                     window.location.reload();

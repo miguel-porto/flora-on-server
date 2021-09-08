@@ -57,21 +57,6 @@ public class FileUploader extends FloraOnServlet {
 		ListIterator<String> partIt=thisRequest.getPathIteratorAfter("upload");
 
 		switch(partIt.next()) {
-		case "getInatCount":
-			User user = thisRequest.getUser();
-			if(user.canMODIFY_OCCURRENCES()) {
-				ArrayList<String> sizes = new ArrayList<>();
-				for(String tax : user.getiNaturalistFilter().getTaxon_names()) {
-					iNaturalistFilter copy = new iNaturalistFilter(user.getiNaturalistFilter());
-					copy.setTaxon_names(new String[] {tax});
-					iNaturalistDataProvider idp = new iNaturalistDataProvider(copy, 1);
-					Iterator<Occurrence> it = idp.iterator();
-					sizes.add(Integer.toString(idp.size()));
-				}
-				thisRequest.response.getWriter().print(StringUtils.implode(" + ", sizes.toArray(new String[0])));
-			}
-			return;
-
 		case "authors":
 /*
 			success(
@@ -304,6 +289,22 @@ public class FileUploader extends FloraOnServlet {
 
 			driver.getNodeWorkerDriver().createDocuments(references);
 			thisRequest.success(filePart.getName());
+			break;
+
+			case "getInatCount":
+				User user = thisRequest.getUser();
+				if(user.canMODIFY_OCCURRENCES()) {
+					ArrayList<String> sizes = new ArrayList<>();
+					for(String tax : user.getiNaturalistFilter().getTaxon_names()) {
+						iNaturalistFilter copy = new iNaturalistFilter(user.getiNaturalistFilter());
+						copy.setTaxon_names(new String[] {tax});
+						iNaturalistDataProvider idp = new iNaturalistDataProvider(copy, 1);
+						Iterator<Occurrence> it = idp.iterator();
+						sizes.add(Integer.toString(idp.size()));
+					}
+					thisRequest.success("Number of records that will be fetched: " + StringUtils.implode(" + ", sizes.toArray(new String[0])),
+							true);
+				}
 		}
 
       // Check that we have a file upload request

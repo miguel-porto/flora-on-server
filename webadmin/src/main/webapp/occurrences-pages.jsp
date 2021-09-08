@@ -49,7 +49,7 @@
         <input type="file" name="occurrenceTable" />
         <input type="submit" class="textbutton" value="Upload"/>
     </form>
-    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster bigoption" data-path="upload/occurrences">
+    <div class="bigoption">
     <h3>Sincronizar com iNaturalist</h3>
     <c:choose>
     <c:when test="${!user.canMODIFY_OCCURRENCES() && (user.getiNaturalistUserName() == null || user.getiNaturalistUserName() == '')}">
@@ -57,26 +57,33 @@
     </c:when>
     <c:when test="${!user.canMODIFY_OCCURRENCES() && !(user.getiNaturalistUserName() == null || user.getiNaturalistUserName() == '')}">
     <p>This feature is yet being tested, don't click the button below.</p>
-    <input type="hidden" name="type" value="iNat"/>
-    <input type="submit" class="textbutton" value="Sincronizar"/>
+    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster" data-path="upload/occurrences">
+        <input type="hidden" name="type" value="iNat"/>
+        <input type="submit" class="textbutton" value="Sincronizar"/>
+    </form>
     </c:when>
     <c:when test="${user.canMODIFY_OCCURRENCES() && (user.getiNaturalistFilter().getProject_id() == null || user.getiNaturalistFilter().getProject_id() == '')}">
     <p>You must set a project name from which to import records, in your <a href="${contextPath}/adminpage">personal area</a>.</p>
     </c:when>
     <c:otherwise>
-    <input type="hidden" name="type" value="iNat"/>
-    <input type="submit" class="textbutton" value="Sincronizar"/>
-    <p>Active filters:<br/><span class="info">you can change filters in your personal area</span></p>
+    <form action="upload/occurrences" method="post" enctype="multipart/form-data" class="poster" data-path="upload/occurrences">
+        <input type="hidden" name="type" value="iNat"/>
+        <input type="submit" class="textbutton" value="Sincronizar"/>
+    </form>
+    <p>Active filters <span class="info">you can change filters in your personal area</span>
     <ul>
         <li>Belonging to this project: ${user.getiNaturalistFilter().getProject_id()}</li>
         <li>Of these observer(s): ${user.getiNaturalistFilter().getUser_idAsString(", ")}</li>
         <li>At least with one of these identifiers: ${user.getiNaturalistFilter().getIdent_user_idAsString(", ")}</li>
         <li>Of these taxa only: ${user.getiNaturalistFilter().getTaxon_namesAsString(", ")}</li>
     </ul>
-    <p>Number of records that will be fetched: <t:ajaxloadhtml url="${contextPath}/upload/getInatCount" classes="inlineblock"/></p>
+    </p>
+    <form class="poster" data-path="${contextPath}/upload/getInatCount" data-refresh="false">
+        <input type="submit" value="Test query" class="textbutton"/>
+    </form>
     </c:otherwise>
     </c:choose>
-    </form>
+    </div>
     <c:if test="${pendingFiles.size() > 0}">
     <h2>Files being processed</h2>
     <table>
