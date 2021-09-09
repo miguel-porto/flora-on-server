@@ -223,7 +223,8 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                 for(iNaturalistDataProvider.iNaturalistIdentification i : lastOccurrence.identifications) {
                     if(ArrayUtils.contains(iNaturalistFilter.getIdent_user_id(), i.user.login)) {
                         if(!i.taxon.name.equals(o.getOccurrence().getVerbTaxon()))
-                            o.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
+                            o.getOccurrence().setPrivateComment("MISIDENTIFIED? " + o.getOccurrence().getPrivateComment());
+//                            o.getOccurrence().setPresenceStatus(OccurrenceConstants.PresenceStatus.PROBABLY_MISIDENTIFIED);
                     }
                 }
                 return o;

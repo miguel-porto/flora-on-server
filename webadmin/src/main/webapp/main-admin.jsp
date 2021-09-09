@@ -50,7 +50,7 @@
             <tr><td class="title">Name</td><td><input type="text" name="name" value="${user.getName()}" /></td></tr>
             <tr><td class="title">Username<br/><span class="info">Este é o nome que usa para fazer login. Não pode conter espaços.</span></td><td><input type="text" name="userName" value="${user.getUserName()}" /></td></tr>
             <tr><td class="title">iNaturalist login name <span class="info">Este é o nome que usa para fazer login no iNaturalist.${user.canMODIFY_OCCURRENCES() ? '' : ' Se o definir, permite sincronizar os seus dados com os que estiverem no iNaturalist sob este observador.'}</span></td><td><input type="text" name="iNaturalistUserName" value="${user.getiNaturalistUserName()}" /></td></tr>
-            <c:if test="${user.canMODIFY_OCCURRENCES()}">
+            <c:if test="${user.canMANAGE_EXTERNAL_DATA()}">
             <tr><th colspan="2">Sincronização com iNaturalist - filtros cumulativos</th></tr>
             <tr><td class="title">Projecto do iNaturalist</td><td><input type="text" name="iNatFilter_project_id" value="${user.getiNaturalistFilter().getProject_id()}" /></td></tr>
             <tr><td class="title">Must be observed by one of these observers<br/><span class="info">introduza uma lista de login names do iNaturalist, um por linha<br/>deixe vazio para incluir todos.</span></td><td><textarea style="width:100%; box-sizing:border-box;" name="iNatFilter_user_id" rows="5">${user.getiNaturalistFilter().getUser_idAsString()}</textarea></td></tr>

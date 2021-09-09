@@ -4,7 +4,7 @@ public class CuratorFlavour extends GeneralOccurrenceFlavour implements IOccurre
     @Override
     public String[] getFields() {
         return new String[] {
-                "taxa", "coordinates", "date", "observers", "date", "privateComment", "uri", "curatorComment", "presenceStatus"};
+                "taxa", "coordinates", "date", "observers", "privateComment", "uri", "curatorComment", "presenceStatus"};
     }
 
     @Override

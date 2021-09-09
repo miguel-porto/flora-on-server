@@ -64,8 +64,8 @@
 <c:when test="${fields.isImageField(field) && view != 'inventorySummary'}"><td class="${editable} ${collapsedClass} imageupload" data-name="${field}"><c:if test="${taxon != null}"><c:forEach var="image" items="${fields.getFieldValueRaw(taxon, inventory, field)}"><c:if test="${image != null}"><img src="photos/${image}.jpg"/></c:if></c:forEach></c:if></td></c:when>
 
 <c:otherwise>
-    <c:set var="thisfieldeditable" value="${fields.isAdminField(field) && user.canMODIFY_OCCURRENCES() ? 'editable' : ((fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) || inventory.getReadOnly()) ? '' : editable)}"/>
-    <c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && ((fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
+    <c:set var="thisfieldeditable" value="${fields.isAdminField(field) && (user.canMODIFY_OCCURRENCES() || user.canMANAGE_EXTERNAL_DATA()) ? 'editable' : ((fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) || inventory.getReadOnly()) ? '' : editable)}"/>
+    <c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES() || user.canMANAGE_EXTERNAL_DATA()) && ((fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
         <c:choose>
         <c:when test="${fields.isDateField(field)}">
             <c:if test="${taxon != null}">

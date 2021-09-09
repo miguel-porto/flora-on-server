@@ -408,6 +408,11 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		setPrivilege(MANAGE_HABITATS, value);
 	}
 
+	public void setMANAGE_EXTERNAL_DATA(boolean value) {
+		setPrivilege(MANAGE_EXTERNAL_DATA, value);
+	}
+
+
 	/**
 	 * Tests whether the user has given privilege for the current taxon. This should only be used after calling
 	 * {@link User#setEffectivePrivilegesFor}
@@ -451,6 +456,10 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 
 	public boolean canEDIT_FULL_CHECKLIST() {
 		return hasPrivilege(Privileges.EDIT_FULL_CHECKLIST);
+	}
+
+	public boolean canMANAGE_EXTERNAL_DATA() {
+		return hasPrivilege(Privileges.MANAGE_EXTERNAL_DATA);
 	}
 
 	public boolean canEDIT_ANY_FIELD() {

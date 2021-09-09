@@ -25,7 +25,7 @@
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><th class="smallcol ${collapsed}"><t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>verbLocal</th></c:when>
 
 <c:otherwise>
-<c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES()) && (field == 'taxa' || (fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
+<c:if test="${(!fields.isAdminField(field) || user.canMODIFY_OCCURRENCES() || user.canMANAGE_EXTERNAL_DATA()) && (field == 'taxa' || (fields.isInventoryField(field) && view != 'inventory') || (!fields.isInventoryField(field) && view != 'inventorySummary'))}">
 <c:url value="" var="url">
     <c:param name="w" value="${param.w}" />
     <c:param name="p" value="${param.p}" />

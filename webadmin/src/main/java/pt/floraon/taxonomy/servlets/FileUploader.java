@@ -167,7 +167,7 @@ public class FileUploader extends FloraOnServlet {
 */
 				User user = thisRequest.getUser();
 				JobRunnerTask job;
-				if(user.canMODIFY_OCCURRENCES()) {
+				if(user.canMANAGE_EXTERNAL_DATA()) {
 					job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user,
 							user.getiNaturalistFilter().getTaxon_names(), user.getiNaturalistFilter().getIdent_user_id(),
 							user.getiNaturalistFilter().getProject_id(), user.getiNaturalistFilter().getUser_id()), driver);
@@ -293,7 +293,7 @@ public class FileUploader extends FloraOnServlet {
 
 			case "getInatCount":
 				User user = thisRequest.getUser();
-				if(user.canMODIFY_OCCURRENCES()) {
+				if(user.canMANAGE_EXTERNAL_DATA()) {
 					ArrayList<String> sizes = new ArrayList<>();
 					if(StringUtils.isArrayEmpty(user.getiNaturalistFilter().getTaxon_names())) {
 						iNaturalistDataProvider idp = new iNaturalistDataProvider(new iNaturalistFilter(user.getiNaturalistFilter()), 1);
