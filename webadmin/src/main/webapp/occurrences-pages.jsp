@@ -76,6 +76,8 @@
         <li>Of these observer(s): ${user.getiNaturalistFilter().getUser_idAsString(", ")}</li>
         <li>At least with one of these identifiers: ${user.getiNaturalistFilter().getIdent_user_idAsString(", ")}</li>
         <li>Of these taxa only: ${user.getiNaturalistFilter().getTaxon_namesAsString(", ")}</li>
+        <li>Created after this date: ${user.getiNaturalistFilter().getCreated_d1()}</li>
+        <li>Exclude these observers: ${user.getiNaturalistFilter().getExclude_user_idAsString(", ")}</li>
     </ul>
     </p>
     <form class="poster" data-path="${contextPath}/upload/getInatCount" data-refresh="false">

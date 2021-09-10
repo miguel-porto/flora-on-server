@@ -168,16 +168,18 @@ public class FileUploader extends FloraOnServlet {
 				User user = thisRequest.getUser();
 				JobRunnerTask job;
 				if(user.canMANAGE_EXTERNAL_DATA()) {
+/*
 					job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user,
 							user.getiNaturalistFilter().getTaxon_names(), user.getiNaturalistFilter().getIdent_user_id(),
 							user.getiNaturalistFilter().getProject_id(), user.getiNaturalistFilter().getUser_id()), driver);
+*/
+					job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user, user.getiNaturalistFilter()), driver);
 				} else {
 					String pId;
 					if((pId = driver.getDefaultINaturalistProject()) == null)
 						throw new FloraOnException("Default iNaturalist project ID not defined");
 					else {
-						job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user, null, null,
-								pId, new String[]{user.getiNaturalistUserName()}), driver);
+						job = JobSubmitter.newJobTask(new iNaturalistImporterJob(user, new iNaturalistFilter().withObservers(user.getiNaturalistUserName()).withProjectId(pId)), driver);
 					}
 				}
 				thisRequest.success(job.getID());
@@ -308,7 +310,7 @@ public class FileUploader extends FloraOnServlet {
 							sizes.add(Integer.toString(idp.size()));
 						}
 					}
-					thisRequest.success("Number of records that will be fetched: " + StringUtils.implode(" + ", sizes.toArray(new String[0])),
+					thisRequest.success("Number of records that will be fetched (before excluding observers): " + StringUtils.implode(" + ", sizes.toArray(new String[0])),
 							true);
 				}
 		}

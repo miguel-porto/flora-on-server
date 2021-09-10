@@ -8,6 +8,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.http.client.utils.URIBuilder;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
@@ -106,7 +107,8 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                     ub.addParameter("user_id", StringUtils.implode(",", iNaturalistFilter.getUser_id()));
                 if(!StringUtils.isArrayEmpty(iNaturalistFilter.getIdent_user_id()))
                     ub.addParameter("ident_user_id", StringUtils.implode(",", iNaturalistFilter.getIdent_user_id()));
-
+                if(!StringUtils.isStringEmpty(iNaturalistFilter.getCreated_d1()))
+                    ub.addParameter("created_d1", iNaturalistFilter.getCreated_d1());
             }
 
             Log.info("Executing iNaturalist query:");
@@ -174,6 +176,14 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                 if (hasNext) {
 //                    freshRequest = false;
                     lastOccurrence = gson.fromJson(reader, iNaturalistOccurrence.class);
+//                    return true;
+
+                    if(!StringUtils.isArrayEmpty(iNaturalistFilter.getExclude_user_id())) {
+                        if(Arrays.asList(iNaturalistFilter.getExclude_user_id()).contains(lastOccurrence.user.login)) {
+                            Log.info("Skipped record", lastOccurrence.id, ", observer excluded by filter");
+                            continue;
+                        }
+                    }
                     return true;
 /*
                     if(iNaturalistFilter.taxon_name_Matches(lastOccurrence))
@@ -259,7 +269,7 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
     static class iNaturalistOccurrence {
         long id;
         UUID uuid;
-        int positional_accuracy;
+        Integer public_positional_accuracy;
         String quality_grade, location, uri;
         Date time_observed_at;
         iNaturalistObservedOnDetails observed_on_details;
@@ -296,6 +306,15 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                     so.setLongitude(Float.parseFloat(mat.group("lng")));
                 }
             }
+
+            if(iNaturalistOccurrence.public_positional_accuracy != null) {
+                try {
+                    so.setPrecision(new Precision(iNaturalistOccurrence.public_positional_accuracy + "m"));
+                } catch (FloraOnException e) {
+                    // ignore precision
+                }
+            }
+
             // fill in the occurrence data
             so.setOccurrence(new OBSERVED_IN());
             StringBuilder sb = new StringBuilder();

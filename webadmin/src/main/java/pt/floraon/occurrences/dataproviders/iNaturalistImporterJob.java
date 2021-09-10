@@ -19,12 +19,11 @@ public class iNaturalistImporterJob  implements JobTask {
     private final User maintainer;
     private Integer progressCreated = 0, progressUpdated = 0;
     private iNaturalistDataProvider iNat;
-    private iNaturalistFilter iNaturalistFilter;
+    private final iNaturalistFilter iNaturalistFilter;
 
-    public iNaturalistImporterJob(User maintainer, String[] taxonNames, String[] identifiers, String project, String[] observers) {
+    public iNaturalistImporterJob(User maintainer, iNaturalistFilter iNaturalistFilter) {
         this.maintainer = maintainer;
-        this.iNaturalistFilter = new iNaturalistFilter().withIdentifiers(identifiers).withObservers(observers)
-                .withTaxonNames(taxonNames).withProjectId(project);
+        this.iNaturalistFilter = iNaturalistFilter;
     }
 
     @Override
@@ -95,8 +94,6 @@ public class iNaturalistImporterJob  implements JobTask {
         Map<String, String> userMap = new HashMap<>();
         for(User u : allUsers)
             userMap.put(u.getiNaturalistUserName(), u.getID());
-
-//        iNat = new iNaturalistDataProvider(new iNaturalistFilter().withProjectId("flora-on").withTaxonNames("cistus libanotis,mandragora autumnalis").withObservers("mjcorreia"));// .withIdentifiers("mjcorreia,pmarques,AAAA"));
 
         if(StringUtils.isArrayEmpty(this.iNaturalistFilter.getTaxon_names())) {
             iNat = new iNaturalistDataProvider(this.iNaturalistFilter);

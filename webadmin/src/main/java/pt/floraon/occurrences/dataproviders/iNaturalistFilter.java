@@ -5,10 +5,11 @@ import pt.floraon.driver.utils.StringUtils;
 import java.util.Locale;
 
 public class iNaturalistFilter {
-    private String project_id;
+    private String project_id, created_d1;
     private String[] taxon_names;
     private String[] ident_user_id;
     private String[] user_id;
+    private String[] exclude_user_id;
 
     public String getProject_id() {
         return project_id;
@@ -16,6 +17,14 @@ public class iNaturalistFilter {
 
     public void setProject_id(String project_id) {
         this.project_id = project_id;
+    }
+
+    public String getCreated_d1() {
+        return created_d1;
+    }
+
+    public void setCreated_d1(String created_d1) {
+        this.created_d1 = created_d1;
     }
 
     public String[] getTaxon_names() {
@@ -50,6 +59,22 @@ public class iNaturalistFilter {
         this.ident_user_id = ident_user_id;
     }
 
+    public String[] getExclude_user_id() {
+        return exclude_user_id;
+    }
+
+    public String getExclude_user_idAsString(String separator) {
+        return StringUtils.implode(separator, exclude_user_id);
+    }
+
+    public String getExclude_user_idAsString() {
+        return getExclude_user_idAsString("\n");
+    }
+
+    public void setExclude_user_id(String[] exclude_user_id) {
+        this.exclude_user_id = exclude_user_id;
+    }
+
     public String[] getUser_id() {
         return user_id;
     }
@@ -68,6 +93,11 @@ public class iNaturalistFilter {
 
     public iNaturalistFilter withProjectId(String project_id) {
         this.project_id = project_id;
+        return (this);
+    }
+
+    public iNaturalistFilter withCreatedAfter(String createdAfter) {
+        this.created_d1 = createdAfter;
         return (this);
     }
 
@@ -130,6 +160,8 @@ public class iNaturalistFilter {
         this.taxon_names = other.taxon_names;
         this.ident_user_id = other.ident_user_id;
         this.user_id = other.user_id;
+        this.created_d1 = other.created_d1;
+        this.exclude_user_id = other.exclude_user_id;
     }
 
     public iNaturalistFilter() {
