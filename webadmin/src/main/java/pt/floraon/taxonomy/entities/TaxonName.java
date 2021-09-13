@@ -23,7 +23,7 @@ public class TaxonName {
      */
     private transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?: +(?<species>[a-zç-]+)(?: +(?<subspecies>[a-zç-]+))?(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?)?" +
+                    "(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.? .*))?$");
 
@@ -106,7 +106,7 @@ public class TaxonName {
                     }
                 }
             } else
-                Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s", genus, specificEpithet, author));
+                Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
         } else
             throw new TaxonomyException("Could not parse this name: " + verbatimName);
     }

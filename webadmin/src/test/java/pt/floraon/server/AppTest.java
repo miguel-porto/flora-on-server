@@ -30,6 +30,20 @@ public class AppTest
         assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
         assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
 
+        te = new TaxonName("Tolpis barbata sensu Franco & Rocha Afonso");
+        assertEquals("Tolpis", te.getGenus());
+        assertEquals("barbata", te.getSpecificEpithet());
+        assertNull(te.getLastAuthor());
+        assertEquals(0, te.getInfraRanks().size());
+        assertEquals("Franco & Rocha Afonso", te.getSensu());
+
+        te = new TaxonName("Tolpis barbata (L.) Gaertn. sensu Franco & Rocha Afonso");
+        assertEquals("Tolpis", te.getGenus());
+        assertEquals("barbata", te.getSpecificEpithet());
+        assertEquals("(L.) Gaertn.", te.getLastAuthor());
+        assertEquals(0, te.getInfraRanks().size());
+        assertEquals("Franco & Rocha Afonso", te.getSensu());
+
         assertThrows(TaxonomyException.class, new ThrowingRunnable() {
             @Override
             public void run() throws Throwable {
