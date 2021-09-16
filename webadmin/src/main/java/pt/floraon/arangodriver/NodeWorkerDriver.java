@@ -457,7 +457,6 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 
 	@Override
 	public List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion, boolean strict) throws FloraOnException {
-		// TODO when imported name has not subsp., doesn't work, e.g. cistus ladanifer sulcatus
     	if(q.getName() == null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 		ArangoCursor<TaxEnt> cursor;
 

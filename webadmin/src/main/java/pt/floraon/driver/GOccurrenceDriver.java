@@ -52,8 +52,8 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
             }
 
             try {
-                te = new TaxEnt(new TaxonName(oi.getVerbTaxon()));
-//                te = TaxEnt.parse(oi.getVerbTaxon());
+//                te = new TaxEnt(new TaxonName(oi.getVerbTaxon()));
+                te = TaxEnt.parse2(oi.getVerbTaxon());      // this allows uninomials
             } catch (FloraOnException e) {  // could not even parse the name
                 if(inventories != null)
 //                    inventories.addQuestion(oi.getVerbTaxon(), oi.getUuid(), null);

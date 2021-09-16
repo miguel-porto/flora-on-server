@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Represents a parsed taxon name with intercalated authorship, annotations and sensu
+ * Represents a parsed _binomial_ taxon name with intercalated authorship, annotations and sensu
  * Created by miguel on 22-12-2019.
  */
 public class TaxonName {

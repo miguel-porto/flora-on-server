@@ -46,7 +46,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 			"(?: +sensu +(?<sensu1>[^\\[\\]]+))?)|(?:(?: +sensu +(?<sensu2>[^\\[\\]]+))?(?: +\\[(?<annot2>[\\w çãõáàâéêíóôú]+)])?)) *$");
 
 	private transient static Pattern uninomialName = Pattern.compile(
-			"^ *(?<name>[A-Z][a-zç]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
+			"^ *(?<name>[A-Z]?[a-zç]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
 					"(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?$");
 
 	/**
@@ -246,6 +246,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 		return new TaxEnt(name1, null, author, null);*/
 	}
 
+	/**
+	 * Parses a binomial or uninomial taxon name
+	 * @param name
+	 * @return
+	 * @throws FloraOnException
+	 */
 	public static TaxEnt parse2(String name) throws FloraOnException {
 		if(name == null) throw new DatabaseException(Messages.getString("error.3"));
 		name = name.replaceAll(" +", " ").trim();

@@ -13,6 +13,7 @@ public class AppTest
     @Test
     public void taxonNameParsingTest() throws TaxonomyException {
         TaxonName te;
+
         te = new TaxonName("Cistus ladanifer subsp. sulcatus");
         assertEquals("Cistus", te.getGenus());
         assertEquals("ladanifer", te.getSpecificEpithet());
@@ -63,6 +64,7 @@ public class AppTest
         assertEquals(0, te.getInfraRanks().size());
         assertEquals("Franco & Rocha Afonso", te.getSensu());
 
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Asphodelus"));
         assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Cistus ladanifer sulcatus subsp. dummy"));
         assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Festuca rubra subsp. arenaria ou ..."));
         assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Olea europaea var. sylvestris, Quercus rotundifolia"));
