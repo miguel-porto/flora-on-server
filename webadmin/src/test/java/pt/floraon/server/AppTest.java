@@ -8,10 +8,7 @@ import org.junit.function.ThrowingRunnable;
 import pt.floraon.driver.TaxonomyException;
 import pt.floraon.taxonomy.entities.TaxonName;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
+public class AppTest
 {
     @Test
     public void taxonNameParsingTest() throws TaxonomyException {
@@ -19,9 +16,21 @@ public class AppTest
         te = new TaxonName("Cistus ladanifer subsp. sulcatus");
         assertEquals("Cistus", te.getGenus());
         assertEquals("ladanifer", te.getSpecificEpithet());
+        assertNull(te.getSensu());
+        assertNull(te.getAnnotation());
         assertEquals(1, te.getInfraRanks().size());
         assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
         assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
+
+        te = new TaxonName("  Armeria   langei  subsp.   langei    [pop. portuguesas]   ");
+        assertEquals("Armeria", te.getGenus());
+        assertEquals("langei", te.getSpecificEpithet());
+        assertNull(te.getSensu());
+        assertEquals("pop. portuguesas", te.getLastAnnotation());
+        assertEquals(1, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("langei", te.getInfraRanks().get(0).getInfraTaxon());
+        assertEquals("pop. portuguesas", te.getInfraRanks().get(0).getInfraAnnotation());
 
         te = new TaxonName("Cistus ladanifer sulcatus");
         assertEquals("Cistus", te.getGenus());
@@ -37,6 +46,16 @@ public class AppTest
         assertEquals(0, te.getInfraRanks().size());
         assertEquals("Franco & Rocha Afonso", te.getSensu());
 
+        te = new TaxonName("Chrysanthemum coronarium var. discolor d'Urv.");
+        assertEquals("Chrysanthemum", te.getGenus());
+        assertEquals("coronarium", te.getSpecificEpithet());
+        assertNull(te.getSensu());
+        assertNull(te.getAnnotation());
+        assertEquals(1, te.getInfraRanks().size());
+        assertEquals("var.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("discolor", te.getInfraRanks().get(0).getInfraTaxon());
+        assertEquals("d'Urv.", te.getLastAuthor());
+
         te = new TaxonName("Tolpis barbata (L.) Gaertn. sensu Franco & Rocha Afonso");
         assertEquals("Tolpis", te.getGenus());
         assertEquals("barbata", te.getSpecificEpithet());
@@ -44,12 +63,10 @@ public class AppTest
         assertEquals(0, te.getInfraRanks().size());
         assertEquals("Franco & Rocha Afonso", te.getSensu());
 
-        assertThrows(TaxonomyException.class, new ThrowingRunnable() {
-            @Override
-            public void run() throws Throwable {
-                TaxonName te = new TaxonName("Cistus ladanifer sulcatus subsp. dummy");
-            }
-        });
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Cistus ladanifer sulcatus subsp. dummy"));
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Festuca rubra subsp. arenaria ou ..."));
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Olea europaea var. sylvestris, Quercus rotundifolia"));
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Quercus robur subsp. estremadurensis x Q. alentejana"));
 
         te = new TaxonName("Cistus ladanifer sulcatus (Demoly) P.Monts. sensu Flora Iberica");
         assertEquals("Cistus", te.getGenus());
@@ -59,6 +76,20 @@ public class AppTest
         assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
         assertEquals("(Demoly) P.Monts.", te.getInfraRanks().get(0).getInfraAuthor());
         assertEquals("Flora Iberica", te.getInfraRanks().get(0).getInfraSensu());
+
+        // ignore minor typos
+        te = new TaxonName("Trifolium pratense subsp.... pratense var.. pratense");
+        assertEquals("Trifolium", te.getGenus());
+        assertEquals("pratense", te.getSpecificEpithet());
+        assertEquals(2, te.getInfraRanks().size());
+        assertEquals("subsp.", te.getInfraRanks().get(0).getInfraRank());
+        assertEquals("pratense", te.getInfraRanks().get(0).getInfraTaxon());
+        assertNull(te.getInfraRanks().get(0).getInfraSensu());
+        assertNull(te.getInfraRanks().get(0).getInfraAuthor());
+        assertEquals("var.", te.getInfraRanks().get(1).getInfraRank());
+        assertEquals("pratense", te.getInfraRanks().get(1).getInfraTaxon());
+        assertNull(te.getInfraRanks().get(1).getInfraSensu());
+        assertNull(te.getInfraRanks().get(1).getInfraAuthor());
 
         te = new TaxonName("Cistus ladanifer sulcatus (Demoly) P.Monts. var. dummy sensu Flora Iberica");
         assertEquals("Cistus", te.getGenus());
@@ -95,5 +126,21 @@ public class AppTest
         assertEquals("(Cantó) Cantó", te.getInfraRanks().get(1).getInfraAuthor());
         assertEquals("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart var. sampaiana (Cantó) Cantó", te.toString());
 
+    }
+
+    /**
+     * Try to throw an exception with given taxon name
+     */
+    static class TaxonNameExceptionThrower implements ThrowingRunnable {
+        private final String name;
+
+        TaxonNameExceptionThrower(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void run() throws Throwable {
+            new TaxonName(this.name);
+        }
     }
 }

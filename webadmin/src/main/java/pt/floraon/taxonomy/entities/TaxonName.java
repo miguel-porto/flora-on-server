@@ -25,7 +25,7 @@ public class TaxonName {
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
                     "(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
-                    "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.? .*))?$");
+                    "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 
 /*
     private transient static Pattern completeName = Pattern.compile(
@@ -36,9 +36,9 @@ public class TaxonName {
 */
 
     private final transient static Pattern infraTaxa = Pattern.compile(
-            " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.? +(?<infra>[a-zç-]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
-                    "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))?" +
-                    "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.? +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
+            " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.* +(?<infra>[a-zç-]+)(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?" +
+                    "(?: +\\[(?<annot>[\\w .çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))? *" +
+                    "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.* +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
 
 /*
     private transient static Pattern completeName = Pattern.compile(
@@ -87,6 +87,7 @@ public class TaxonName {
                 if(this.infraRanks == null)
                     this.infraRanks = new ArrayList<>();
                 Matcher m1 = infraTaxa.matcher(rest);
+
                 while (m1.find()) {
                     if (m1.group("infra") != null) {
                         InfraRank tmp = new InfraRank(m1.group("rank"), m1.group("infra"),
@@ -105,10 +106,16 @@ public class TaxonName {
                         this.infraRanks.add(tmp);
                     }
                 }
+                if(this.infraRanks.size() == 0) {     // has a trailing substring, but could not be parsed
+                    Log.info("      INVALID NAME!");
+                    throw new TaxonomyException("Could not parse this name: " + verbatimName);
+                }
             } else
                 Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
-        } else
+        } else {
+            Log.info("      INVALID NAME!");
             throw new TaxonomyException("Could not parse this name: " + verbatimName);
+        }
     }
 
     /**
