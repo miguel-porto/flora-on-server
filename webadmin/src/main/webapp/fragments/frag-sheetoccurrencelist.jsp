@@ -50,7 +50,7 @@
             <tr><td class="separator" colspan="17">&nbsp;</td></tr>
             <c:forEach var="occ" items="${entr.getValue()}">
             <tr data-mgrs="${occ._getMGRSString(2000)}">
-                <!--<td>${occ.getDataSource()}</td>-->
+                <%--<td>${occ.getDataSource()}</td>--%>
                 <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                 <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
                 <td><fmt:formatNumber value="${occ._getLatitude()}" maxFractionDigits="4"/></td>
@@ -77,7 +77,7 @@
         <c:if test="${param.group == null}">
         <c:forEach var="occ" items="${occurrences.iterator()}">
             <tr data-mgrs="${occ._getMGRSString(2000)}">
-                <!--<td>${occ.getDataSource()}</td>-->
+                <%--<td>${occ.getDataSource()}</td>--%>
                 <td><i>${occ.getOccurrence().getVerbTaxon()}</i></td>
                 <c:if test="${user.canDOWNLOAD_OCCURRENCES()}">
                 <td><fmt:formatNumber value="${occ._getLatitude()}" maxFractionDigits="4"/></td>

@@ -68,7 +68,7 @@
                 <tr>
                     <th><fmt:message key="inventory.2"/></th><th><fmt:message key="inventory.2b"/></th>
                     <th><fmt:message key="inventory.4"/></th>
-                    <th>Complete</th><th>Area (m<sup>2</sup>)</th>
+                    <th>Complete</th><th>Area (m<sup>2</sup>)</th><th>Project</th>
                 </tr>
                 <tr>
                     <td class="field ${editable} coordinates" data-name="coordinates" data-lat="${inv._getInventoryLatitude()}" data-lng="${inv._getInventoryLongitude()}">${inv._getInventoryCoordinates()}</td>
@@ -76,6 +76,7 @@
                     <td class="field ${editable}" data-name="date" sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
                     <td class="field ${editable}" data-name="complete"><t:yesno test="${inv._getComplete()}"/></td>
                     <td class="field ${editable}" data-name="area">${inv.getArea()}</td>
+                    <td class="field ${editable}" data-name="credits">${inv.getCredits()}</td>
                 </tr>
             </table>
             <table class="verysmalltext occurrencetable">
