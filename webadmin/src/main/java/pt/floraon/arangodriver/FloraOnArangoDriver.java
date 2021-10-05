@@ -373,11 +373,10 @@ public class FloraOnArangoDriver implements IFloraOn {
 				if(nt == NodeTypes.user) {	// create administrator account if creating collection of users
 					try {
 						User user = new User("admin", "Administrator", new Privileges[] {
-								Privileges.MANAGE_REDLIST_USERS});
+								Privileges.MANAGE_REDLIST_USERS, Privileges.CREATE_REDLIST_DATASETS, Privileges.EDIT_FULL_CHECKLIST});
 						user.setUserType(User.UserType.ADMINISTRATOR.toString());
 						char[] pass = new RandomString(12).nextString().toCharArray();
 						user.setPassword(pass);
-						System.out.println("Flora-On admin password: " + new String(pass));
 						Log.info("Flora-On admin password: " + new String(pass));
 						ADMIN.createUser(user);
 					} catch (FloraOnException e1) {
@@ -417,7 +416,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("observers[*]"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("collectors[*]"), new HashIndexOptions().unique(false).sparse(false));
 		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("dets[*]"), new HashIndexOptions().unique(false).sparse(false));
-//		database.collection(NodeTypes.inventory.toString()).ensurePersistentIndex(Collections.singleton("unmatchedOccurrences[*].uuid"), new PersistentIndexOptions().unique(true).sparse(true));	// sparse because there may be inventories without occurrences
+		database.collection(NodeTypes.inventory.toString()).ensurePersistentIndex(Collections.singleton("unmatchedOccurrences[*].uuid"), new PersistentIndexOptions().unique(true).sparse(true));	// sparse because there may be inventories without occurrences
 //		database.collection(NodeTypes.inventory.toString()).ensureHashIndex(Collections.singleton("unmatchedOccurrences[*].uuid"), new HashIndexOptions().unique(true).sparse(true));	// sparse because there may be inventories without occurrences
 		database.collection(NodeTypes.image.toString()).ensureHashIndex(Collections.singleton("uuid"), new HashIndexOptions().unique(true).sparse(false));
 //		database.collection(NodeTypes.inventory.toString()).ensureSkiplistIndex(Arrays.asList("latitude", "longitude"), new SkiplistIndexOptions().unique(false).sparse(false));

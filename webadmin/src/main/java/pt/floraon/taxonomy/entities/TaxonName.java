@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a parsed _binomial_ taxon name with intercalated authorship, annotations and sensu
+ * THIS IS THE MAIN CLASS FOR PARSING TAXON NAMES
  * Created by miguel on 22-12-2019.
  */
 public class TaxonName {
@@ -56,6 +57,9 @@ public class TaxonName {
     public TaxonName() {}
 
     public TaxonName(String verbatimName) throws TaxonomyException {
+        // get rid of strange spaces
+        verbatimName = verbatimName.replaceAll("[ \\t\\xA0\\u1680\\u180e\\u2000-\\u200a\\u202f\\u205f\\u3000]", " ");
+
         Matcher m = completeName.matcher(verbatimName);
         Log.info("  Verb: " + verbatimName);
         String previousEpithet, previousAuthor;

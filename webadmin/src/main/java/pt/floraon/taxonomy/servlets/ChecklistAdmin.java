@@ -103,6 +103,7 @@ public class ChecklistAdmin extends FloraOnServlet {
 				}
 
 				if(fileContent != null) {
+					// TODO Display errors
 					driver.getCSVFileProcessor().getTaxonomyImporter().uploadTaxonomyListFromStream2(fileContent, true);
 					thisRequest.request.getRequestDispatcher("/main-checklist.jsp").forward(thisRequest.request, thisRequest.response);
 				}

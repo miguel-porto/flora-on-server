@@ -33,6 +33,12 @@ public class AppTest
         assertEquals("langei", te.getInfraRanks().get(0).getInfraTaxon());
         assertEquals("pop. portuguesas", te.getInfraRanks().get(0).getInfraAnnotation());
 
+        // test non-ASCII space characters
+        te = new TaxonName("Forficula decipiens");
+        assertEquals("Forficula", te.getGenus());
+        assertEquals("decipiens", te.getSpecificEpithet());
+        assertEquals(0, te.getInfraRanks().size());
+
         te = new TaxonName("Cistus ladanifer sulcatus");
         assertEquals("Cistus", te.getGenus());
         assertEquals("ladanifer", te.getSpecificEpithet());

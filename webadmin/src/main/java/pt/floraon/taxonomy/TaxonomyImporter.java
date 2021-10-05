@@ -68,7 +68,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
         String[] rankNames = new String[nRankColumns];
         for(int i=0; i<nRankColumns; i++) rankNames[i] = record.get(i);
 
-        System.out.print("Reading file ");
+        Log.info("Reading file ");
         try {
             TaxEnt curTaxEnt, parentNode;
             TaxEnt parsedName;
@@ -84,6 +84,10 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                         parsedName = TaxEnt.parse2(record.get(i));
                     } catch (DatabaseException e) {
                         // is it an empty cell? skip.
+                        continue;
+                    } catch (TaxonomyException e) {
+                        Log.error("Ignoring name: " + record.get(i));
+                        nerrors++;
                         continue;
                     }
 
