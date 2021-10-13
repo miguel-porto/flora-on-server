@@ -98,7 +98,7 @@ public class ReferenceServlet extends FloraOnServlet {
                 System.out.println("TAR: "+id.toString());
 
                 BibliographyCompiler<RedListDataEntity, SafeHTMLString> bc = new BibliographyCompiler<>(
-                        driver.getRedListData().getAllRedListData("lu", false, null), SafeHTMLString.class, driver);
+                        driver.getRedListData().getAllRedListData(driver.getDefaultRedListTerritory(), false, null), SafeHTMLString.class, driver);
                 // TODO territory above must come from request
                 Iterator<RedListDataEntity> it = bc.replaceCitations(ids, id.toString());
                 RedListDataEntity tmpdoc;

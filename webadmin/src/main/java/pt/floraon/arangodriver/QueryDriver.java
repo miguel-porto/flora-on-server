@@ -12,6 +12,7 @@ import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.GQuery;
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IQuery;
 import pt.floraon.driver.Constants.NodeTypes;
 import pt.floraon.driver.Constants.RelTypes;
@@ -443,5 +444,31 @@ FOR final IN FLATTEN(FOR v IN base
 		return it;
 	}
 
+	@Override
+	public Iterator<TaxEnt[]> getHigherTaxonomy(String[] taxEntIds) throws FloraOnException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("taxEntIDs", taxEntIds);
+		Iterator<TaxEnt[]> it;
+		try {
+			it = database.query(AQLQueries.getString("QueryDriver.6"), bindVars, null, TaxEnt[].class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+		return it;
+	}
+
+	@Override
+	public Iterator<TaxEnt> getHigherTaxonomy(String[] taxEntIds, TaxonRanks rank) throws FloraOnException {
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("taxEntIDs", taxEntIds);
+		bindVars.put("rank", rank.getValue());
+		Iterator<TaxEnt> it;
+		try {
+			it = database.query(AQLQueries.getString("QueryDriver.6r"), bindVars, null, TaxEnt.class);
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}
+		return it;
+	}
 
 }

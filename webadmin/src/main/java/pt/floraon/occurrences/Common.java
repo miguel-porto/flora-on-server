@@ -5,10 +5,13 @@ import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.ITaxEntWrapper;
+import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
 import pt.floraon.geometry.LatLongCoordinate;
@@ -116,6 +119,34 @@ public final class Common {
         }
     }
 
+    public static void exportTaxonListToCSV(Iterator<Map.Entry<TaxEntObservation, MutableInt>> speciesIterator, Writer stream, IFloraOn driver)
+            throws IOException, FloraOnException {
+        CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
+        exportTaxonListHeaderToCSV(csv);
+
+        while (speciesIterator.hasNext()) {
+            Map.Entry<TaxEntObservation, MutableInt> ent = speciesIterator.next();
+            RedListDataEntity rlde = null;
+            ITaxEntWrapper tew = null;
+            String family = null;
+            if(ent.getKey().occurrence.getTaxEntMatch() != null)
+                try {
+                    rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(ent.getKey().occurrence.getTaxEntMatch()));
+                    tew = driver.wrapTaxEnt(driver.asNodeKey(ent.getKey().occurrence.getTaxEntMatch()));
+                    Iterator<TaxEnt> itHigher = driver.getQueryDriver().getHigherTaxonomy(new String[] {ent.getKey().occurrence.getTaxEntMatch()}, Constants.TaxonRanks.FAMILY);
+                    if(itHigher.hasNext()) {
+                        TaxEnt tmp = itHigher.next();
+                        family = tmp == null ? null : tmp.getName();
+                    }
+
+                } catch (FloraOnException e) { }
+            Iterator<TaxEntMatch> tem = driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[] {ent.getKey().occurrence.getTaxEntMatch()});
+            TaxEnt accepted = tem.hasNext() ? tem.next().getMatchedTaxEnt() : null;
+            exportTaxonToCSV(ent.getKey(), csv, accepted, rlde, tew, family, ent.getValue().toInteger());
+        }
+        csv.close();
+    }
+
     /**
      * The main function for exporting any occurrence set to stream, as CSV.
      * @param occurrenceIterator
@@ -127,7 +158,6 @@ public final class Common {
     public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream, IFloraOn driver)
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
-//                csv.printRecord("gpsCode", "verbLocality", "latitude", "longitude", "mgrs", "date", "taxa", "comment", "privateNote");
         exportOccurrenceHeaderToCSV(csv);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
         Map<String, String> userMap = new HashMap<>();
@@ -142,8 +172,9 @@ public final class Common {
         while (occurrenceIterator.hasNext()) {
             Occurrence i2 = occurrenceIterator.next();
             if(driver != null) {
+                String taxEntId = i2.getOccurrence().getTaxEntMatch();
                 // fill in accepted taxa
-                if (acceptedTaxa.containsKey(i2.getOccurrence().getTaxEntMatch()))
+                if (acceptedTaxa.containsKey(taxEntId))
                     tmp = acceptedTaxa.get(i2.getOccurrence().getTaxEntMatch());
                 else {
                     Iterator<TaxEntMatch> tem =
@@ -167,6 +198,12 @@ public final class Common {
         csv.printRecord(fields);
     }
 
+    public static void exportTaxonListHeaderToCSV(CSVPrinter csv) throws IOException {
+        final List<String> fields = new ArrayList<>(Arrays.asList("verbTaxa", "taxon", "acceptedTaxon", "family", "nr. of occurrences", "confidence"
+                , "redListCategory", "legalProtection", "endemicTo", "Lu"));
+        csv.printRecord(fields);
+    }
+
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap, RedListDataEntity rlde) throws IOException {
         // TODO use field annotations
         OBSERVED_IN oi = occurrence.getOccurrence();
@@ -180,7 +217,7 @@ public final class Common {
         } catch (IllegalArgumentException e) {
             MGRS = "<invalid>";
         }
-        if(utm != null) {
+        if (utm != null) {
             Point2D tmp1 = new Point2D(utm.getX(), utm.getY());
             WKT = new Square(tmp1, 10000).toWKT();
         } else WKT = "<invalid>";
@@ -221,6 +258,20 @@ public final class Common {
                 , occurrence.getOccurrence().getUri()
 //                , occurrence._getMaintainerName()
         );
-
+    }
+    public static void exportTaxonToCSV(TaxEntObservation taxon, CSVPrinter csv, TaxEnt acceptedTaxEnt, RedListDataEntity rlde, ITaxEntWrapper tew, String family, Integer number) throws IOException, FloraOnException {
+        InferredStatus ist;
+        csv.printRecord(
+                taxon.occurrence.getVerbTaxon()
+                , taxon.occurrence.getTaxEnt() == null ? "" : taxon.occurrence.getTaxEnt().getFullName()
+                , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getFullName()
+                , family
+                , number.toString()
+                , taxon.occurrence.getConfidence()
+                , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
+                , (rlde == null || rlde.getConservation() == null) ? "" : StringUtils.implode(", ", rlde.getConservation().getLegalProtection())
+                , tew == null ? "" : StringUtils.implode(" ", tew.getEndemismDegree())
+                , tew == null ? "" : (ist = tew.getInferredNativeStatus("lu")) == null ? "" : ist.isEndemic()
+        );
     }
 }

@@ -294,6 +294,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 	}
 
 	@Override
+	public String getDefaultRedListTerritory() {
+		return "lu";	// TODO this must be a user setting
+	}
+
+	@Override
 	public IOccurrenceReportDriver getOccurrenceReportDriver() {
 		return OCRD;
 	}

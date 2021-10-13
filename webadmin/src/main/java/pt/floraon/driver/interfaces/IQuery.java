@@ -30,6 +30,7 @@ public interface IQuery {
 	 * @param filter A textual filter
 	 * @return
 	 */
+	@Deprecated
 	Iterator<Occurrence> findOccurrencesContainedIn(String geoJsonPolygon, String filterExpression, OccurrenceFilter filter) throws FloraOnException;
 
     /**
@@ -40,6 +41,7 @@ public interface IQuery {
 	 * @return
 	 * @throws FloraOnException
 	 */
+	@Deprecated
 	Iterator<Inventory> findInventoriesWithin(Float latitude, Float longitude, Float distance) throws FloraOnException;
 	/**
 	 * Checks whether given inventory already exists (same author, same date, coordinates very close) and returns it.
@@ -136,4 +138,21 @@ public interface IQuery {
      * @throws FloraOnException
      */
 	Iterator<TaxEntMatch> getFirstAcceptedTaxonContaining(String[] taxEntIds) throws FloraOnException;
+
+	/**
+	 * Gets all the higher taxonomic levels above each of the given
+	 * @param taxEntId
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Iterator<TaxEnt[]> getHigherTaxonomy(String[] taxEntId) throws FloraOnException;
+
+	/**
+	 * Gets the specific taxonomic level above each of the given
+	 * @param taxEntIds
+	 * @param rank
+	 * @return
+	 * @throws FloraOnException
+	 */
+	Iterator<TaxEnt> getHigherTaxonomy(String[] taxEntIds, TaxonRanks rank) throws FloraOnException;
 }

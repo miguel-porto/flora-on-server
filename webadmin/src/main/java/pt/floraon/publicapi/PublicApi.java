@@ -36,7 +36,7 @@ public class PublicApi extends FloraOnServlet {
     public void doFloraOnGet(ThisRequest thisRequest) throws ServletException, IOException, FloraOnException {
         PrintWriter writer = null;
         ListIterator<String> path;
-        String territory = "lu";    // TODO variable
+        String territory = driver.getDefaultRedListTerritory();
         List<SimpleOccurrenceDataProvider> sodps;
         RedListSettings rls = driver.getRedListSettings(territory);
         try {

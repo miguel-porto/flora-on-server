@@ -1,6 +1,7 @@
 package pt.floraon.occurrences.servlets;
 
 import jline.internal.Log;
+import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -13,10 +14,12 @@ import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.entities.TaxEntObservation;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
 import pt.floraon.occurrences.dataproviders.iNaturalistImporterJob;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -25,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by miguel on 05-02-2017.
@@ -392,8 +396,10 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 return;
 
             case "downloadoccurrencetable":
-                thisRequest.response.setContentType("text/csv; charset=utf-8");
+            case "downloadspeciestable":
+                thisRequest.response.setContentType("text/csv; charset=Windows-1252");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.csv\"");
+                thisRequest.response.setCharacterEncoding("Windows-1252");
                 INodeKey u;
                 if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
                     u = null;
@@ -413,9 +419,13 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         return;
                     }
                 }
-
-                Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter(), driver);
+                if(what.equals("downloadspeciestable")) {
+                    Map<TaxEntObservation, MutableInt> speciesList = driver.getOccurrenceDriver().getTaxonListFromOccurrences(it1, true);
+                    Common.exportTaxonListToCSV(speciesList.entrySet().iterator(), thisRequest.response.getWriter(), driver);
+                } else
+                    Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter(), driver);
                 return;
+
         }
         request.getRequestDispatcher("/main-occurrences.jsp").forward(request, thisRequest.response);
 

@@ -20,7 +20,7 @@ public class TaxonName {
     private List<InfraRank> infraRanks;
     /**
      * Matches a taxon name, given as a canonical name: no author, no anything else than
-     * Genus species (subsp. infrarank)... (or only one word, for taxa higher than species)
+     * Genus species (subsp. infrarank)... does not accept uninomial names.
      */
     private transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +

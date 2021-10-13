@@ -86,4 +86,9 @@ public interface IFloraOn {
 	 * @return The default iNaturalist project from which to import regular user occurrences
 	 */
 	String getDefaultINaturalistProject();
+
+	/**
+	 * @return The default red list territory to be used as a reference (e.g. for threat categories)
+	 */
+	String getDefaultRedListTerritory();
 }

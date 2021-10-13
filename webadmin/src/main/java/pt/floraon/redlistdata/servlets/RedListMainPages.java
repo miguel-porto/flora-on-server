@@ -847,7 +847,7 @@ System.out.println(gs.toJson(getUser()));
                 return;
 
             case "contentasxml":
-                rldeIt = driver.getRedListData().getAllRedListData("lu", false, null);
+                rldeIt = driver.getRedListData().getAllRedListData(territory == null ? driver.getDefaultRedListTerritory() : territory, false, null);
                 PrintWriter wr2 = thisRequest.response.getWriter();
                 DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder docBuilder;

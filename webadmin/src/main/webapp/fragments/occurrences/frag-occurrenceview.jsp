@@ -8,6 +8,7 @@
 <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
 <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
 <div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div>
+<div class="button anchorbutton"><a href="?w=downloadspeciestable"><fmt:message key="button.10"/></a></div>
 <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users occurrences" defaultvalue="false"/></c:if>
 <div id="flavourlist">
     <div class="label"><fmt:message key="button.4a"/></div>

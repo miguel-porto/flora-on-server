@@ -8,6 +8,7 @@ import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.util.ArangoSerializer;
 import com.google.gson.Gson;
 import jline.internal.Log;
+import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.IntegerInterval;
@@ -24,9 +25,11 @@ import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
+import pt.floraon.occurrences.entities.TaxEntObservation;
 import pt.floraon.occurrences.fields.FieldReflection;
 import pt.floraon.occurrences.fields.parsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.TaxEntMatch;
 import pt.floraon.taxonomy.entities.TaxonName;
 
 import java.lang.reflect.InvocationTargetException;
@@ -1064,5 +1067,40 @@ Log.info(query);
             throw new DatabaseException(e.getMessage());
         }
 */
+    }
+
+    @Override
+    public Map<TaxEntObservation, MutableInt> getTaxonListFromOccurrences(Iterator<Occurrence> occurrences, boolean aggregateByAccepted) throws FloraOnException {
+        Map<TaxEntObservation, MutableInt> speciesList = new HashMap<>();
+        while(occurrences.hasNext()) {
+            Occurrence oc = occurrences.next();
+            if(oc.getOccurrence().getConfidence() != null
+                    && oc.getOccurrence().getConfidence() != OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
+                    && oc.getOccurrence().getConfidence() != OccurrenceConstants.ConfidenceInIdentifiction.NULL)
+                continue;
+            TaxEntObservation te = new TaxEntObservation(oc.getOccurrence());
+            if(speciesList.containsKey(te))
+                speciesList.get(te).increment();
+            else
+                speciesList.put(te, new MutableInt(1));
+        }
+        if(aggregateByAccepted) {
+            Map<TaxEntObservation, MutableInt> tmp = new HashMap<>();
+            for(Map.Entry<TaxEntObservation, MutableInt> ent : speciesList.entrySet()) {
+                if(ent.getKey().occurrence.getTaxEntMatch() != null) {
+                    Iterator<TaxEntMatch> tem = driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[]{ent.getKey().occurrence.getTaxEntMatch()});
+                    if(tem.hasNext()) {
+                        TaxEntObservation accepted = new TaxEntObservation(tem.next().getMatchedTaxEnt(), OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN);
+                        if (tmp.containsKey(accepted))
+                            tmp.get(accepted).add(ent.getValue());
+                        else
+                            tmp.put(accepted, new MutableInt(ent.getValue()));
+                    }
+                }
+            }
+            speciesList = tmp;
+        }
+
+        return speciesList;
     }
 }
