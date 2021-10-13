@@ -63,6 +63,14 @@ public class AppTest
         assertEquals("discolor", te.getInfraRanks().get(0).getInfraTaxon());
         assertEquals("d'Urv.", te.getLastAuthor());
 
+        te = new TaxonName("Leptoneta berlandi Machado & Ribera, 1986");
+        assertEquals("Leptoneta", te.getGenus());
+        assertEquals("berlandi", te.getSpecificEpithet());
+        assertNull(te.getSensu());
+        assertNull(te.getAnnotation());
+        assertEquals(0, te.getInfraRanks().size());
+        assertEquals("Machado & Ribera, 1986", te.getLastAuthor());
+
         te = new TaxonName("Tolpis barbata (L.) Gaertn. sensu Franco & Rocha Afonso");
         assertEquals("Tolpis", te.getGenus());
         assertEquals("barbata", te.getSpecificEpithet());
