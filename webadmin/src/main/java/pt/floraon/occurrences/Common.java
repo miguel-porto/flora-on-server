@@ -119,30 +119,33 @@ public final class Common {
         }
     }
 
-    public static void exportTaxonListToCSV(Iterator<Map.Entry<TaxEntObservation, MutableInt>> speciesIterator, Writer stream, IFloraOn driver)
+    public static void exportTaxonListToCSV(Iterator<Map.Entry<TaxEnt, OBSERVED_IN_summary>> speciesIterator, Writer stream, IFloraOn driver)
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
         exportTaxonListHeaderToCSV(csv);
 
         while (speciesIterator.hasNext()) {
-            Map.Entry<TaxEntObservation, MutableInt> ent = speciesIterator.next();
+            Map.Entry<TaxEnt, OBSERVED_IN_summary> ent = speciesIterator.next();
             RedListDataEntity rlde = null;
             ITaxEntWrapper tew = null;
             String family = null;
-            if(ent.getKey().occurrence.getTaxEntMatch() != null)
+            TaxEnt accepted;
+            if(ent.getKey() != null) {
                 try {
-                    rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(ent.getKey().occurrence.getTaxEntMatch()));
-                    tew = driver.wrapTaxEnt(driver.asNodeKey(ent.getKey().occurrence.getTaxEntMatch()));
-                    Iterator<TaxEnt> itHigher = driver.getQueryDriver().getHigherTaxonomy(new String[] {ent.getKey().occurrence.getTaxEntMatch()}, Constants.TaxonRanks.FAMILY);
-                    if(itHigher.hasNext()) {
+                    rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(ent.getKey().getID()));
+                    tew = driver.wrapTaxEnt(driver.asNodeKey(ent.getKey().getID()));
+                    Iterator<TaxEnt> itHigher = driver.getQueryDriver().getHigherTaxonomy(new String[]{ent.getKey().getID()}, Constants.TaxonRanks.FAMILY);
+                    if (itHigher.hasNext()) {
                         TaxEnt tmp = itHigher.next();
                         family = tmp == null ? null : tmp.getName();
                     }
 
                 } catch (FloraOnException e) { }
-            Iterator<TaxEntMatch> tem = driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[] {ent.getKey().occurrence.getTaxEntMatch()});
-            TaxEnt accepted = tem.hasNext() ? tem.next().getMatchedTaxEnt() : null;
-            exportTaxonToCSV(ent.getKey(), csv, accepted, rlde, tew, family, ent.getValue().toInteger());
+                Iterator<TaxEntMatch> tem = driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[]{ent.getKey().getID()});
+                accepted = tem.hasNext() ? tem.next().getMatchedTaxEnt() : null;
+            } else accepted = null;
+
+            exportTaxonToCSV(csv, accepted, rlde, tew, family, ent.getValue());
         }
         csv.close();
     }
@@ -199,8 +202,8 @@ public final class Common {
     }
 
     public static void exportTaxonListHeaderToCSV(CSVPrinter csv) throws IOException {
-        final List<String> fields = new ArrayList<>(Arrays.asList("verbTaxa", "taxon", "acceptedTaxon", "family", "nr. of occurrences", "confidence"
-                , "redListCategory", "legalProtection", "endemicTo", "Lu"));
+        final List<String> fields = new ArrayList<>(Arrays.asList("Used names", "Accepted Taxon", "Family", "Nr. of occurrences", "Max confidence"
+                , "Red List Category", "Legal Protection", "Endemic to", "Endemic to Lu?"));
         csv.printRecord(fields);
     }
 
@@ -259,15 +262,15 @@ public final class Common {
 //                , occurrence._getMaintainerName()
         );
     }
-    public static void exportTaxonToCSV(TaxEntObservation taxon, CSVPrinter csv, TaxEnt acceptedTaxEnt, RedListDataEntity rlde, ITaxEntWrapper tew, String family, Integer number) throws IOException, FloraOnException {
+    public static void exportTaxonToCSV(CSVPrinter csv, TaxEnt acceptedTaxEnt, RedListDataEntity rlde, ITaxEntWrapper tew, String family, OBSERVED_IN_summary number) throws IOException, FloraOnException {
         InferredStatus ist;
         csv.printRecord(
-                taxon.occurrence.getVerbTaxon()
-                , taxon.occurrence.getTaxEnt() == null ? "" : taxon.occurrence.getTaxEnt().getFullName()
+//                taxon == null ? "" : taxon.getFullName()
+                number.getNames()
                 , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getFullName()
                 , family
-                , number.toString()
-                , taxon.occurrence.getConfidence()
+                , number.count
+                , number.maxConfidence
                 , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
                 , (rlde == null || rlde.getConservation() == null) ? "" : StringUtils.implode(", ", rlde.getConservation().getLegalProtection())
                 , tew == null ? "" : StringUtils.implode(" ", tew.getEndemismDegree())

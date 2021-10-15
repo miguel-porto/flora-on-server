@@ -8,7 +8,6 @@ import com.arangodb.model.AqlQueryOptions;
 import com.arangodb.util.ArangoSerializer;
 import com.google.gson.Gson;
 import jline.internal.Log;
-import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.IntegerInterval;
@@ -20,13 +19,12 @@ import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.LatLongCoordinate;
 import pt.floraon.geometry.Precision;
+import pt.floraon.occurrences.OBSERVED_IN_summary;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.occurrences.entities.TaxEntObservation;
-import pt.floraon.occurrences.fields.FieldReflection;
 import pt.floraon.occurrences.fields.parsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.TaxEntMatch;
@@ -1070,31 +1068,29 @@ Log.info(query);
     }
 
     @Override
-    public Map<TaxEntObservation, MutableInt> getTaxonListFromOccurrences(Iterator<Occurrence> occurrences, boolean aggregateByAccepted) throws FloraOnException {
-        Map<TaxEntObservation, MutableInt> speciesList = new HashMap<>();
+    public Map<TaxEnt, OBSERVED_IN_summary> getTaxonListFromOccurrences(Iterator<Occurrence> occurrences, boolean aggregateByAccepted) throws FloraOnException {
+        Map<TaxEnt, OBSERVED_IN_summary> speciesList = new HashMap<>();
         while(occurrences.hasNext()) {
             Occurrence oc = occurrences.next();
-            if(oc.getOccurrence().getConfidence() != null
-                    && oc.getOccurrence().getConfidence() != OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN
-                    && oc.getOccurrence().getConfidence() != OccurrenceConstants.ConfidenceInIdentifiction.NULL)
-                continue;
-            TaxEntObservation te = new TaxEntObservation(oc.getOccurrence());
-            if(speciesList.containsKey(te))
-                speciesList.get(te).increment();
+
+            if(oc.getOccurrence() == null || (oc.getOccurrence().getAbundance() != null && !oc.getOccurrence().getAbundance().wasDetected()) || oc.getOccurrence().getTaxEnt() == null) continue;
+            OBSERVED_IN_summary newOi = new OBSERVED_IN_summary(oc.getOccurrence().getTaxEnt(), 1, oc.getOccurrence().getConfidence());
+            if(speciesList.containsKey(oc.getOccurrence().getTaxEnt()))
+                speciesList.get(oc.getOccurrence().getTaxEnt()).mergeWith(newOi);
             else
-                speciesList.put(te, new MutableInt(1));
+                speciesList.put(oc.getOccurrence().getTaxEnt(), newOi);
         }
         if(aggregateByAccepted) {
-            Map<TaxEntObservation, MutableInt> tmp = new HashMap<>();
-            for(Map.Entry<TaxEntObservation, MutableInt> ent : speciesList.entrySet()) {
-                if(ent.getKey().occurrence.getTaxEntMatch() != null) {
-                    Iterator<TaxEntMatch> tem = driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[]{ent.getKey().occurrence.getTaxEntMatch()});
+            Map<TaxEnt, OBSERVED_IN_summary> tmp = new HashMap<>();
+            for(Map.Entry<TaxEnt, OBSERVED_IN_summary> ent : speciesList.entrySet()) {
+                if(ent.getKey() != null) {
+                    Iterator<TaxEntMatch> tem = driver.getQueryDriver().getFirstAcceptedTaxonContaining(new String[] {ent.getKey().getID()});
                     if(tem.hasNext()) {
-                        TaxEntObservation accepted = new TaxEntObservation(tem.next().getMatchedTaxEnt(), OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN);
+                        TaxEnt accepted = tem.next().getMatchedTaxEnt();
                         if (tmp.containsKey(accepted))
-                            tmp.get(accepted).add(ent.getValue());
+                            tmp.get(accepted).mergeWith(ent.getValue());
                         else
-                            tmp.put(accepted, new MutableInt(ent.getValue()));
+                            tmp.put(accepted, ent.getValue());
                     }
                 }
             }

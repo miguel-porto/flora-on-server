@@ -1,7 +1,6 @@
 package pt.floraon.occurrences.servlets;
 
 import jline.internal.Log;
-import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -9,12 +8,12 @@ import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.Common;
+import pt.floraon.occurrences.OBSERVED_IN_summary;
 import pt.floraon.occurrences.OccurrenceConstants;
 import pt.floraon.occurrences.OccurrenceImporterJob;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.occurrences.entities.TaxEntObservation;
 import pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour;
 import pt.floraon.occurrences.dataproviders.iNaturalistImporterJob;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by miguel on 05-02-2017.
@@ -420,7 +418,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     }
                 }
                 if(what.equals("downloadspeciestable")) {
-                    Map<TaxEntObservation, MutableInt> speciesList = driver.getOccurrenceDriver().getTaxonListFromOccurrences(it1, true);
+                    Map<TaxEnt, OBSERVED_IN_summary> speciesList = driver.getOccurrenceDriver().getTaxonListFromOccurrences(it1, true);
                     Common.exportTaxonListToCSV(speciesList.entrySet().iterator(), thisRequest.response.getWriter(), driver);
                 } else
                     Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter(), driver);

@@ -1,13 +1,13 @@
 package pt.floraon.driver.interfaces;
 
-import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.driver.DatabaseException;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.occurrences.OBSERVED_IN_summary;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.InventoryList;
 import pt.floraon.occurrences.entities.Occurrence;
-import pt.floraon.occurrences.entities.TaxEntObservation;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 import java.util.AbstractMap;
 import java.util.Date;
@@ -262,5 +262,5 @@ public interface IOccurrenceDriver {
      * @param occurrences
      * @return
      */
-    Map<TaxEntObservation, MutableInt> getTaxonListFromOccurrences(Iterator<Occurrence> occurrences, boolean aggregateByAccepted) throws FloraOnException;
+    Map<TaxEnt, OBSERVED_IN_summary> getTaxonListFromOccurrences(Iterator<Occurrence> occurrences, boolean aggregateByAccepted) throws FloraOnException;
 }
