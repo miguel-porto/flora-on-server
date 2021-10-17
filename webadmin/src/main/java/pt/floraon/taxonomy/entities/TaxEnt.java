@@ -150,7 +150,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 		this.taxonName = parsedName;
 		this.setFullName(this.taxonName.toString());
 //		Log.info("New taxent: ", this.taxonName.toString());
-		this.setName(this.taxonName.getCanonicalName());
+		this.setName(this.taxonName.getCanonicalName(false));
 		if(this.taxonName.getTaxonRank() != null) {
 			this.setRank(this.taxonName.getTaxonRank().getValue());
 			this.isSpeciesOrInf = this.rank >= TaxonRanks.SPECIES.getValue();
@@ -377,6 +377,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 		return TaxonRanks.getRankFromValue(rank);
 	}
 
+	/**
+	 * Use getTaxonName().getCanonicalName() instead
+	 * @param htmlFormatted
+	 * @return The full canonical name (with sensu and annotation), but without authors
+	 */
+	@Deprecated
 	public String getNameWithAnnotationOnly(boolean htmlFormatted) {
 		return (this.getRankValue().equals(TaxonRanks.SUBGENUS.getValue()) ? "subgen. " : "")
 			+ this.getName()

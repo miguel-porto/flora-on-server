@@ -1,5 +1,6 @@
 package pt.floraon.occurrences;
 
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -44,8 +45,13 @@ public class OBSERVED_IN_summary {
 
     public String getNames() {
         Set<String> tmp = new HashSet<>();
-        for(TaxEnt te : this.taxEnts)
-            tmp.add(te.getCanonicalName().toString());
+        for(TaxEnt te : this.taxEnts) {
+            try {
+                tmp.add(te.getTaxonName().getCanonicalName(true));
+            } catch (TaxonomyException e) {
+                tmp.add(te.getNameWithAnnotationOnly(false));
+            }
+        }
         return StringUtils.implode(", ", tmp.toArray());
     }
 }

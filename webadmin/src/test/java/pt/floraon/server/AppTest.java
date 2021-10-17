@@ -52,6 +52,7 @@ public class AppTest
         assertNull(te.getLastAuthor());
         assertEquals(0, te.getInfraRanks().size());
         assertEquals("Franco & Rocha Afonso", te.getSensu());
+        assertEquals("Tolpis barbata sensu Franco & Rocha Afonso", te.getCanonicalName(true));
 
         te = new TaxonName("Chrysanthemum coronarium var. discolor d'Urv.");
         assertEquals("Chrysanthemum", te.getGenus());
@@ -77,6 +78,7 @@ public class AppTest
         assertEquals("(L.) Gaertn.", te.getLastAuthor());
         assertEquals(0, te.getInfraRanks().size());
         assertEquals("Franco & Rocha Afonso", te.getSensu());
+        assertEquals("Tolpis barbata sensu Franco & Rocha Afonso", te.getCanonicalName(true));
 
         assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Asphodelus"));
         assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Cistus ladanifer sulcatus subsp. dummy"));
@@ -92,6 +94,7 @@ public class AppTest
         assertEquals("sulcatus", te.getInfraRanks().get(0).getInfraTaxon());
         assertEquals("(Demoly) P.Monts.", te.getInfraRanks().get(0).getInfraAuthor());
         assertEquals("Flora Iberica", te.getInfraRanks().get(0).getInfraSensu());
+        assertEquals("Cistus ladanifer subsp. sulcatus sensu Flora Iberica", te.getCanonicalName(true));
 
         // ignore minor typos
         te = new TaxonName("Trifolium pratense subsp.... pratense var.. pratense");
@@ -119,6 +122,7 @@ public class AppTest
         assertEquals("dummy", te.getInfraRanks().get(1).getInfraTaxon());
         assertEquals("Flora Iberica", te.getInfraRanks().get(1).getInfraSensu());
         assertNull(te.getInfraRanks().get(1).getInfraAuthor());
+        assertEquals("Cistus ladanifer subsp. sulcatus var. dummy sensu Flora Iberica", te.getCanonicalName(true));
 
         te = new TaxonName("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart");
         assertEquals("Klasea", te.getGenus());
@@ -141,6 +145,7 @@ public class AppTest
         assertEquals("sampaiana", te.getInfraRanks().get(1).getInfraTaxon());
         assertEquals("(Cantó) Cantó", te.getInfraRanks().get(1).getInfraAuthor());
         assertEquals("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart var. sampaiana (Cantó) Cantó", te.toString());
+        assertEquals("Klasea boetica subsp. lusitanica var. sampaiana", te.getCanonicalName(true));
 
     }
 

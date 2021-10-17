@@ -79,8 +79,9 @@ public class TaxonName {
             String rest = m.group("rest");
             previousEpithet = this.specificEpithet;
             previousAuthor = this.author;
-            if(m.group("subspecies") != null) {
+            if(m.group("subspecies") != null) {     // this is a trinomial name, so assume is subspecies
                 InfraRank tmp = new InfraRank("subsp.", m.group("subspecies"), this.author, this.annotation, this.sensu);
+                this.sensu = null;  // we add the sensu to the infrataxon, so remove it from the species.
                 this.infraRanks = new ArrayList<>();
                 this.infraRanks.add(tmp);
                 Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", tmp.getInfraRank(), tmp.getInfraTaxon(), tmp.getInfraAuthor(),
@@ -176,7 +177,7 @@ public class TaxonName {
             );
     }
 
-    public String getInfraRanksAsString(boolean htmlFormatted, boolean canonical) {
+    public String getInfraRanksAsString(boolean htmlFormatted, boolean canonical, boolean withAnnotations) {
         if(infraRanks == null)
             return "";
         else {
@@ -185,7 +186,7 @@ public class TaxonName {
                 if(!canonical)
                     sb.append(" ").append(ir.toString(htmlFormatted));
                 else
-                    sb.append(" ").append(ir.getCanonicalInfrarank(htmlFormatted));
+                    sb.append(" ").append(ir.getCanonicalInfrarank(htmlFormatted, withAnnotations));
             }
             return sb.toString().trim();
         }
@@ -236,12 +237,21 @@ public class TaxonName {
     }
 
     public String getCanonicalName() {
+        return this.getCanonicalName(false);
+    }
+
+    public String getCanonicalName(boolean withAnnotations) {
         StringBuilder sb = new StringBuilder(this.genus);
         if(this.specificEpithet == null) return sb.toString();
         sb.append(" ").append(this.specificEpithet);
 
+        if(withAnnotations) {
+            if(this.sensu != null) sb.append(" sensu ").append(this.sensu);
+            if(this.annotation != null) sb.append(" [").append(this.annotation).append("]");
+        }
+
         if(this.infraRanks != null) {
-            sb.append(" ").append(this.getInfraRanksAsString(false, true));
+            sb.append(" ").append(this.getInfraRanksAsString(false, true, withAnnotations));
         }
         return sb.toString();
     }
@@ -259,7 +269,7 @@ public class TaxonName {
             sb.append(" sensu ").append(this.sensu);
 
         if(this.infraRanks != null) {
-            sb.append(" ").append(this.getInfraRanksAsString(false, false));
+            sb.append(" ").append(this.getInfraRanksAsString(false, false, true));
         }
         return sb.toString();
     }
@@ -280,7 +290,7 @@ public class TaxonName {
             sb.append(" sensu ").append(this.sensu);
 
         if(this.infraRanks != null) {
-            sb.append(" ").append(this.getInfraRanksAsString(true, false));
+            sb.append(" ").append(this.getInfraRanksAsString(true, false, true));
         }
         return sb.toString();
     }
@@ -317,7 +327,7 @@ public class TaxonName {
             return infraSensu;
         }
 
-        public String getCanonicalInfrarank(boolean htmlFormatted) {
+        public String getCanonicalInfrarank(boolean htmlFormatted, boolean withAnnotations) {
             StringBuilder sb = new StringBuilder();
             if(this.infraRank != null)
                 sb.append(this.infraRank).append(this.infraRank.endsWith(".") ? "" : ".").append(" ");
@@ -327,6 +337,10 @@ public class TaxonName {
             else
                 sb.append("<i>").append(this.infraTaxon).append("</i>");
 
+            if(withAnnotations) {
+                if(this.infraSensu != null) sb.append(" sensu ").append(this.infraSensu);
+                if(this.infraAnnotation != null) sb.append(" [").append(this.infraAnnotation).append("]");
+            }
             return sb.toString();
         }
 
