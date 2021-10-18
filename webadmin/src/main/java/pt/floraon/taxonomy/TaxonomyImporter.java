@@ -139,7 +139,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                         if(parsedName.getTaxonName().getInfraRanks().size() > 0) {
                             for(int j=0; j<parsedName.getTaxonName().getInfraRanks().size(); j++) {
                                 TaxEnt infra = new TaxEnt(parsedName.getTaxonName().truncateAtInfraRank(j + 1));
-                                Log.info("Iterate ", j, ": ", infra.getFullName());
+//                                Log.info("Iterate ", j, ": ", infra.getFullName());
                                 infra.setCurrent(true);
                                 curTaxEnt = nwd.getSingleTaxEntOrNull(infra, true);
                                 if(curTaxEnt == null) {
@@ -153,7 +153,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                                 parentNode = curTaxEnt;
                             }
                         }
-                        Log.info("Finished chain");
+//                        Log.info("Finished chain");
                     } else {
                         curTaxEnt = nwd.getSingleTaxEntOrNull(parsedName, true);
 
@@ -169,6 +169,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 }
 
                 if(curTaxEnt == null) {
+                    Log.error("Error in line: " + nrecs);
                     nerrors++;
                     continue;
                 }
@@ -197,6 +198,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                             curTaxEnt.setWorldDistributionCompleteness(Constants.WorldNativeDistributionCompleteness.DISTRIBUTION_COMPLETE);
                             nwd.updateTaxEntNode(driver.asNodeKey(curTaxEnt.getID()), curTaxEnt, false);
                         }
+//                        Log.info(curTaxEnt.getFullName() + ": " + terr.toString() + tmpNS.toVerboseString());
                         driver.wrapTaxEnt(driver.asNodeKey(curTaxEnt.getID())).setNativeStatus(
                                 driver.asNodeKey(terr.getValue().getID()), tmpNS, Constants.OccurrenceStatus.PRESENT,
                                 null, null, null, false);

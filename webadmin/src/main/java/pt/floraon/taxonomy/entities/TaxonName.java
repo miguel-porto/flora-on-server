@@ -24,7 +24,7 @@ public class TaxonName {
      */
     private transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?)?" +
+                    "(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 
@@ -57,11 +57,12 @@ public class TaxonName {
     public TaxonName() {}
 
     public TaxonName(String verbatimName) throws TaxonomyException {
+        boolean debug = false;
         // get rid of strange spaces
         verbatimName = verbatimName.replaceAll("[ \\t\\xA0\\u1680\\u180e\\u2000-\\u200a\\u202f\\u205f\\u3000]", " ");
 
         Matcher m = completeName.matcher(verbatimName);
-        Log.info("  Verb: " + verbatimName);
+        if(debug) Log.info("  Verb: " + verbatimName);
         String previousEpithet, previousAuthor;
         if(m.find()) {
             this.genus = WordUtils.capitalize(m.group("genus"));
@@ -84,11 +85,11 @@ public class TaxonName {
                 this.sensu = null;  // we add the sensu to the infrataxon, so remove it from the species.
                 this.infraRanks = new ArrayList<>();
                 this.infraRanks.add(tmp);
-                Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", tmp.getInfraRank(), tmp.getInfraTaxon(), tmp.getInfraAuthor(),
+                if(debug) Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", tmp.getInfraRank(), tmp.getInfraTaxon(), tmp.getInfraAuthor(),
                         tmp.getInfraAnnotation(), tmp.getInfraSensu()));
             }
             if (rest != null) {
-                Log.info(String.format("      Canonical: G=%s; S=%s; auth=%s; rest=%s", genus, specificEpithet, author, rest));
+                if(debug) Log.info(String.format("      Canonical: G=%s; S=%s; auth=%s; rest=%s", genus, specificEpithet, author, rest));
                 if(this.infraRanks == null)
                     this.infraRanks = new ArrayList<>();
                 Matcher m1 = infraTaxa.matcher(rest);
@@ -106,19 +107,19 @@ public class TaxonName {
                         previousEpithet = tmp.infraTaxon;
                         previousAuthor = tmp.infraAuthor;
 
-                        Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", m1.group("rank"), m1.group("infra"), m1.group("author"),
+                        if(debug) Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", m1.group("rank"), m1.group("infra"), m1.group("author"),
                                 m1.group("annot"), m1.group("sensu")));
                         this.infraRanks.add(tmp);
                     }
                 }
                 if(this.infraRanks.size() == 0) {     // has a trailing substring, but could not be parsed
-                    Log.info("      INVALID NAME!");
+                    Log.info("      INVALID NAME: " + verbatimName);
                     throw new TaxonomyException("Could not parse this name: " + verbatimName);
                 }
             } else
-                Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
+                if(debug) Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
         } else {
-            Log.info("      INVALID NAME!");
+            Log.info("      INVALID NAME: " + verbatimName);
             throw new TaxonomyException("Could not parse this name: " + verbatimName);
         }
     }

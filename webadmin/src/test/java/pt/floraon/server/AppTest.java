@@ -54,6 +54,12 @@ public class AppTest
         assertEquals("Franco & Rocha Afonso", te.getSensu());
         assertEquals("Tolpis barbata sensu Franco & Rocha Afonso", te.getCanonicalName(true));
 
+        te = new TaxonName("Pedipes dohrni d’Ailly");
+        assertEquals("Pedipes", te.getGenus());
+        assertEquals("dohrni", te.getSpecificEpithet());
+        assertEquals(0, te.getInfraRanks().size());
+        assertEquals("d’Ailly", te.getLastAuthor());
+
         te = new TaxonName("Chrysanthemum coronarium var. discolor d'Urv.");
         assertEquals("Chrysanthemum", te.getGenus());
         assertEquals("coronarium", te.getSpecificEpithet());

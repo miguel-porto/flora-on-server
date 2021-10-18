@@ -12,6 +12,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
+import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
@@ -103,10 +104,7 @@ public class RedListDataApi extends FloraOnServlet {
 
         switch(what = path.next()) {
             case "newdataset":
-                if(thisRequest.getUser().isGuest()) {
-                    thisRequest.error("You're not logged in.");
-                    break;
-                }
+                thisRequest.ensurePrivilege(Privileges.CREATE_REDLIST_DATASETS);
                 territory = thisRequest.getParameterAsString("territory");
                 driver.getRedListData().initializeRedListDataForTerritory(territory);
                 thisRequest.success(JobSubmitter.newJobTask(new CreateRedListIndexJob(territory), driver).getID());

@@ -69,7 +69,7 @@
         <h2>Select a territory to create a dataset.</h2>
         <ul>
         <c:forEach var="terr" items="${territories}">
-            <li><a href="redlist/api/newdataset?territory=${terr.getShortName()}">${terr.getName()}</a></li>
+            <li><a href="${contextPath}/redlist/api/newdataset?territory=${terr.getShortName()}">${terr.getName()}</a></li>
         </c:forEach>
         </ul>
         </c:if>

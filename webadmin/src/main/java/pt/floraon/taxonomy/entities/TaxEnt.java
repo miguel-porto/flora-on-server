@@ -262,7 +262,7 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 			return new TaxEnt(newTN);
 		} catch(TaxonomyException e) {
 			Matcher m = uninomialName.matcher(name);
-			Log.info("Simple parsing name: " + name);
+//			Log.info("Simple parsing name: " + name);
 			if(m.find()) {
 				return new TaxEnt(m.group("name"), null, m.group("author"), m.group("sensu"), m.group("annot"),
 						false, null, null, null);
