@@ -42,9 +42,11 @@
         <ul>
             <li><a href="?w=main"><fmt:message key="Separator.1"/></a></li>
             <li><a href="?w=published"><fmt:message key="Separator.9"/></a></li>
-            <c:if test="${user.canMANAGE_REDLIST_USERS() || user.canDOWNLOAD_OCCURRENCES()}">
+            <c:if test="${user.canMANAGE_REDLIST_USERS()}">
                 <li><a href="?w=users"><fmt:message key="Separator.2"/></a></li>
                 <li><a href="?w=settings"><fmt:message key="Separator.8"/></a></li>
+            </c:if>
+            <c:if test="${user.canMANAGE_REDLIST_USERS() || user.canDOWNLOAD_OCCURRENCES()}">
                 <li><a href="?w=admin"><fmt:message key="Separator.12"/></a></li>
                 <li><a href="?w=jobs"><fmt:message key="Separator.6"/></a></li>
             </c:if>

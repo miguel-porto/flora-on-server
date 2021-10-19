@@ -10,8 +10,8 @@ import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.utils.BeanUtils;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.occurrences.Common;
-import pt.floraon.occurrences.Messages;
 import pt.floraon.occurrences.OccurrenceParser;
 import pt.floraon.occurrences.TaxonomicChange;
 import pt.floraon.occurrences.entities.Inventory;
@@ -220,14 +220,22 @@ public class OccurrenceApi extends FloraOnServlet {
                 break;
 
             case "deleteoccurrences":
-                driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(thisRequest.request.getParameterValues("inventoryId")
-                        , thisRequest.request.getParameterValues("occurrenceUuid"));
+                String[] uuids = thisRequest.request.getParameterValues("occurrenceUuid");
+                if(StringUtils.isArrayEmpty(uuids)) {
+                    for(String iid : thisRequest.request.getParameterValues("inventoryId"))
+                        driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(iid));
+                } else
+                    driver.getOccurrenceDriver().deleteOccurrencesByUuid(uuids);
+/*                driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(thisRequest.request.getParameterValues("inventoryId")
+                        , thisRequest.request.getParameterValues("occurrenceUuid"));*/
+
                 thisRequest.success("Ok");
                 break;
 
             case "mergeoccurrences":
                 // merges occurrences into one inventory. this discards the coordinates of the merged inventory and assigns coordinates
                 // to each observation separately
+                // TODO wait for ArangoDB issue to be fixed https://github.com/arangodb/arangodb/issues/14844 and replace query
                 Iterator<Inventory> it = driver.getOccurrenceDriver().getOccurrencesByUuid(driver.asNodeKey(thisRequest.getUser().getID())
                         , thisRequest.request.getParameterValues("occurrenceUuid"));
 
@@ -275,13 +283,22 @@ public class OccurrenceApi extends FloraOnServlet {
                 }
                 merged.setUnmatchedOccurrences(occ);
                 System.out.println(gs.toJson(merged));
-                driver.getOccurrenceDriver().createInventory(merged);
 
+                // first we delete occurrences to avoid UUID duplication
                 for(Inventory tmp1 : tmp) {
+                    driver.getOccurrenceDriver().deleteOccurrencesByUuid(new String[] {tmp1._getOccurrences().size() == 0 ? ""
+                            : tmp1._getOccurrences().get(0).getUuid().toString()});
+
+/*
                     driver.getOccurrenceDriver().deleteInventoriesOrOccurrences(
                             new String[] {tmp1.getID()}, new String[] {tmp1._getOccurrences().size() == 0 ? ""
                                     : tmp1._getOccurrences().get(0).getUuid().toString()});
+*/
                 }
+
+                // now we insert the merged inventory
+                driver.getOccurrenceDriver().createInventory(merged);
+
 /*
 
                 Set<String> toDelete = new HashSet<>();

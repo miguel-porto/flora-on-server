@@ -272,10 +272,6 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 		setPrivilege(Privileges.VIEW_OCCURRENCES, value);
 	}
 
-	public void setEXCLUDE_OCCURRENCES(boolean value) {
-		setPrivilege(EXCLUDE_OCCURRENCES, value);
-	}
-
 	public void setMODIFY_OCCURRENCES(boolean value) {
 		setPrivilege(MODIFY_OCCURRENCES, value);
 	}

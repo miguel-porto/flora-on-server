@@ -3,6 +3,7 @@ package pt.floraon.occurrences.fields.parsers;
 import pt.floraon.driver.GeoBean;
 import pt.floraon.driver.parsers.FieldParser;
 import pt.floraon.geometry.*;
+import pt.floraon.geometry.mgrs.MGRSCoordConverter;
 import pt.floraon.occurrences.Messages;
 
 /**
@@ -50,6 +51,7 @@ public class UTMCoordinateParser implements FieldParser {
                 String utm = cc.latLon2UTM(ll[0], ll[1]);
 */
                 UTMCoordinate utm = CoordinateConversion.MGRSToUTM(inputValue);
+//                MGRSCoordConverter        TODO: use newer MGRS conv
                 if(utm == null)
                     throw new IllegalArgumentException(Messages.getString("error.12", inputValue));
                 LatLongCoordinate ll = CoordinateConversion.UtmToLatLonWGS84(utm.getXZone(), utm.getYZone(), utm.getX(), utm.getY());

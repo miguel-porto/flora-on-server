@@ -66,8 +66,15 @@ public interface IOccurrenceDriver {
      * @return
      * @throws DatabaseException
      */
+    @Deprecated
     Iterator<Inventory> getOccurrencesByUuid(INodeKey authorId, String[] uuid) throws DatabaseException;
 
+    /**
+     * Gets one occurrence by UUID.
+     * @param uuid
+     * @return One occurrence
+     * @throws DatabaseException
+     */
     Inventory getOccurrenceByUuid(String uuid) throws DatabaseException;
 
     /**
@@ -200,7 +207,16 @@ public interface IOccurrenceDriver {
      * @param uuid
      * @throws DatabaseException
      */
+    @Deprecated
     int deleteInventoriesOrOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException;
+
+    /**
+     * Deletes occurrences by their UUID. If the inventory becomes empty after deleting the
+     * occurrences, it is deleted also.
+     * @param uuid The occurrence UUIDs
+     * @throws DatabaseException
+     */
+    int deleteOccurrencesByUuid(String[] uuid) throws DatabaseException;
 
     /**
      * Updates one inventory with the fields present in the passed Inventory. The occurrence array is merged by their

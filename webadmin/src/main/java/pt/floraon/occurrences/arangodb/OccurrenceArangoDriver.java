@@ -133,7 +133,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         bindVars.put("uuid", uuid);
         try {
             Iterator<Inventory> it = database.query(
-                    AQLOccurrenceQueries.getString("occurrencequery.2b")    // TODO: optimize with index
+                    AQLOccurrenceQueries.getString("occurrencequery.2b")
                     , bindVars, null, Inventory.class);
             if(it.hasNext()) return it.next(); else return null;
         } catch (ArangoDBException e) {
@@ -296,6 +296,7 @@ Log.info(query);
     }
 
     @Override
+    @Deprecated
     public int deleteInventoriesOrOccurrences(String[] inventoryId, String[] uuid) throws FloraOnException {
         int count = 0;
         for (int i = 0; i < inventoryId.length; i++) {
@@ -314,6 +315,28 @@ Log.info(query);
             } catch (ArangoDBException e) {
                 e.printStackTrace();
                 continue;
+            }
+            count++;
+        }
+        return count;
+    }
+
+    @Override
+    public int deleteOccurrencesByUuid(String[] uuid) throws DatabaseException {
+        if(StringUtils.isArrayEmpty(uuid)) return 0;
+        int count = 0;
+        Map<String, Object> bindVars = new HashMap<>();
+        for (String s : uuid) {
+            try {
+                bindVars.put("uuid", s);
+                Inventory inv = database.query(
+                        AQLOccurrenceQueries.getString("occurrencequery.3a")
+                        , bindVars, null, Inventory.class).next();
+                // if the inventory became empty, delete the inventory
+                if (inv._getOccurrences().size() == 0)
+                    driver.getNodeWorkerDriver().deleteDocument(driver.asNodeKey(inv.getID()));
+            } catch (ArangoDBException | FloraOnException e) {
+                throw new DatabaseException(e.getMessage());
             }
             count++;
         }
@@ -761,7 +784,7 @@ Log.info(query);
 
         // confidence filter
         if(filter.containsKey("conf")) {
-            if(filter.get("conf").toUpperCase().equals("NA")) {
+            if(filter.get("conf").equalsIgnoreCase("NA")) {
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullconfidence")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullconfidence.2")).append(" ");
             } else {
@@ -779,7 +802,7 @@ Log.info(query);
 
         // phenology filter
         if(filter.containsKey("phen")) {
-            if(filter.get("phen").toUpperCase().equals("NA")) {
+            if(filter.get("phen").equalsIgnoreCase("NA")) {
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nullphenology")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullphenology.2")).append(" ");
             } else {
@@ -797,7 +820,7 @@ Log.info(query);
 
         // inventory latitude filter
         if(filter.containsKey("ilat")) {
-            if(filter.get("ilat").toUpperCase().equals("NA")) {
+            if(filter.get("ilat").equalsIgnoreCase("NA")) {
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulllatitude")).append(" ");
             } else {
                 NumericInterval range = new NumericInterval(filter.get("ilat"));
@@ -816,7 +839,7 @@ Log.info(query);
 
         // inventory longitude filter
         if(filter.containsKey("ilong")) {
-            if(filter.get("ilong").toUpperCase().equals("NA")) {
+            if(filter.get("ilong").equalsIgnoreCase("NA")) {
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulllongitude")).append(" ");
             } else {
                 NumericInterval range = new NumericInterval(filter.get("ilong"));
@@ -835,7 +858,7 @@ Log.info(query);
 
         // latitude filter
         if(filter.containsKey("lat")) {
-            if(filter.get("lat").toUpperCase().equals("NA")) {
+            if(filter.get("lat").equalsIgnoreCase("NA")) {
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulllatitude")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulllatitude.2")).append(" ");
             } else {
@@ -856,7 +879,7 @@ Log.info(query);
 
         // longitude filter
         if(filter.containsKey("long")) {
-            if(filter.get("long").toUpperCase().equals("NA")) {
+            if(filter.get("long").equalsIgnoreCase("NA")) {
                 inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulllongitude")).append(" ");
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulllongitude.2")).append(" ");
             } else {
@@ -877,7 +900,7 @@ Log.info(query);
 
         // tag filter
         if(filter.containsKey("tag")) {
-            if(filter.get("tag").toUpperCase().equals("NA")) {
+            if(filter.get("tag").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulltag")).append(" ");
             } else {
                 bindVars.put("tag", filter.get("tag").replaceAll("\\*", "%"));
@@ -888,7 +911,7 @@ Log.info(query);
 
         // gpsCode filter
         if(filter.containsKey("gps")) {
-            if(filter.get("gps").toUpperCase().equals("NA")) {
+            if(filter.get("gps").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullGpsCode")).append(" ");
             } else {
                 bindVars.put("gpscode", filter.get("gps").replaceAll("\\*", "%"));
@@ -899,7 +922,7 @@ Log.info(query);
 
         // privateComment filter (both of inventory and of occurrence)
         if(filter.containsKey("priv")) {
-            if(filter.get("priv").toUpperCase().equals("NA")) {
+            if(filter.get("priv").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullPrivateComment")).append(" ");
             } else {
                 bindVars.put("privateComment", filter.get("priv").replaceAll("\\*", "%"));
@@ -910,7 +933,7 @@ Log.info(query);
 
         // public comment filter (both of inventory and of occurrence)
         if(filter.containsKey("pub")) {
-            if(filter.get("pub").toUpperCase().equals("NA")) {
+            if(filter.get("pub").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullPublicComment")).append(" ");
             } else {
                 bindVars.put("publicComment", filter.get("pub").replaceAll("\\*", "%"));
@@ -921,7 +944,7 @@ Log.info(query);
 
         // accession filter
         if(filter.containsKey("acc")) {
-            if(filter.get("acc").toUpperCase().equals("NA")) {
+            if(filter.get("acc").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullAccession")).append(" ");
             } else {
                 bindVars.put("accession", filter.get("acc").replaceAll("\\*", "%"));
@@ -932,7 +955,7 @@ Log.info(query);
 
         // taxon filter
         if(filter.containsKey("tax")) {
-            if(filter.get("tax").toUpperCase().equals("NA")) {
+            if(filter.get("tax").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulltaxon")).append(" ");
             } else {
                 bindVars.put("taxon", filter.get("tax").replaceAll("\\*", "%"));
