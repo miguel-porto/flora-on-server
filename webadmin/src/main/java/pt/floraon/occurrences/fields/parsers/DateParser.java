@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
  */
 public class DateParser implements FieldParser {
     static final private Pattern singleDatePattern =
-            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{1,4})) *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-9]{1,2}))? *$");
+            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{1,4})) *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-5][0-9])(?:[:\\-](?:[0-5][0-9]))?)? *$");
     static final private Pattern singleDatePatternInverse =
-            Pattern.compile("^ *(?<year>((1[0-9]{3})|(20[0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>(?:[0-9?-]{2})|(?:[a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{2}) *((?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-9]{1,2}))? *$");
+            Pattern.compile("^ *(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>(?:[0-9?-]{2})|(?:[a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{1,2}) *((?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-5][0-9])(?:[:\\-](?:[0-5][0-9]))?)? *$");
     static final private Pattern dateRangePattern =
             Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{4})|([-?]{1,4})) *" +
                     "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{4})|([-?]{1,4})) *$");
@@ -129,7 +129,7 @@ public class DateParser implements FieldParser {
         if(inputValue == null) return null;
         Integer[] outdate = new Integer[5];
 
-//        System.out.println("***** INPUT: "+ inputValue);
+        System.out.println("***** INPUT: "+ inputValue);
 
         Matcher matcher = singleDatePattern.matcher(inputValue);
         if(!matcher.find()) {
@@ -210,6 +210,10 @@ public class DateParser implements FieldParser {
         String monthS = matcher.group(monthGroup);
         String hourS = hourGroup == null ? null : matcher.group(hourGroup);
         String minuteS = minuteGroup == null ? null : matcher.group(minuteGroup);
+        System.out.println(dayS);
+        System.out.println(monthS);
+        System.out.println(hourS);
+        System.out.println(minuteS);
         if(dayS != null && monthS == null) {
             String tmpS = dayS;
             dayS = monthS;

@@ -5,7 +5,9 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.function.ThrowingRunnable;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.TaxonomyException;
+import pt.floraon.occurrences.fields.parsers.DateParser;
 import pt.floraon.taxonomy.entities.TaxonName;
 
 public class AppTest
@@ -155,9 +157,43 @@ public class AppTest
 
     }
 
-    /**
-     * Try to throw an exception with given taxon name
-     */
+    @Test
+    public void dateParsingTest() throws TaxonomyException {
+        Integer[] date;
+
+        date = DateParser.parseDate("23-5-2013");
+        assertEquals((Integer) 23, date[0]);
+        assertEquals((Integer) 5, date[1]);
+        assertEquals((Integer) 2013, date[2]);
+        assertEquals(Constants.NODATA_INT, date[3]);
+        assertEquals(Constants.NODATA_INT, date[4]);
+
+        date = DateParser.parseDate("2100-12-2");
+        assertEquals((Integer) 2, date[0]);
+        assertEquals((Integer) 12, date[1]);
+        assertEquals((Integer) 2100, date[2]);
+        assertEquals(Constants.NODATA_INT, date[3]);
+        assertEquals(Constants.NODATA_INT, date[4]);
+
+        date = DateParser.parseDate("2100/12/2 15:12");
+        assertEquals((Integer) 2, date[0]);
+        assertEquals((Integer) 12, date[1]);
+        assertEquals((Integer) 2100, date[2]);
+        assertEquals((Integer) 15, date[3]);
+        assertEquals((Integer) 12, date[4]);
+
+        date = DateParser.parseDate("4-1-1980 11:10:59");
+        assertEquals((Integer) 4, date[0]);
+        assertEquals((Integer) 1, date[1]);
+        assertEquals((Integer) 1980, date[2]);
+        assertEquals((Integer) 11, date[3]);
+        assertEquals((Integer) 10, date[4]);
+
+    }
+
+        /**
+         * Try to throw an exception with given taxon name
+         */
     static class TaxonNameExceptionThrower implements ThrowingRunnable {
         private final String name;
 
