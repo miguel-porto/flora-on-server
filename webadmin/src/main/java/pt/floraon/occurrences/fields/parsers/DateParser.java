@@ -129,7 +129,7 @@ public class DateParser implements FieldParser {
         if(inputValue == null) return null;
         Integer[] outdate = new Integer[5];
 
-        System.out.println("***** INPUT: "+ inputValue);
+//        System.out.println("***** INPUT: "+ inputValue);
 
         Matcher matcher = singleDatePattern.matcher(inputValue);
         if(!matcher.find()) {
@@ -210,10 +210,6 @@ public class DateParser implements FieldParser {
         String monthS = matcher.group(monthGroup);
         String hourS = hourGroup == null ? null : matcher.group(hourGroup);
         String minuteS = minuteGroup == null ? null : matcher.group(minuteGroup);
-        System.out.println(dayS);
-        System.out.println(monthS);
-        System.out.println(hourS);
-        System.out.println(minuteS);
         if(dayS != null && monthS == null) {
             String tmpS = dayS;
             dayS = monthS;
