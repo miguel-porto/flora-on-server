@@ -46,7 +46,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			System.out.println(query.getAnnotation() + " <-> " + tmp.getAnnotation());
 			System.out.println(query.getSensu() + " <-> " + tmp.getSensu());*/
 
-			if (!query.getName().equals(tmp.getName())) {
+			if (!query.getName().equalsIgnoreCase(tmp.getName())) {
 				if ((levenName = Common.levenshteinDistance(query.getName(), tmp.getName())) >= (strict ? 1 : 3))
 					continue;
 				else

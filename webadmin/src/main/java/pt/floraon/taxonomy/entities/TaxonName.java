@@ -119,7 +119,7 @@ public class TaxonName {
             } else
                 if(debug) Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
         } else {
-            Log.info("      INVALID NAME: " + verbatimName);
+            Log.info("      INVALID SPECIES NAME: " + verbatimName);
             throw new TaxonomyException("Could not parse this name: " + verbatimName);
         }
     }
