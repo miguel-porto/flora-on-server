@@ -55,6 +55,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
     attachAJAXContent();
 
+    // the mechanism for adding speccies to the taxon edit box
+    new TreeExpander(document.querySelectorAll('.taxtree-holder>ul'), function(ev, key) {
+        var elem = document.getElementById('taxonsearchwrapper');
+        var el = document.querySelector('.taxtree-holder li[data-key="' + key +'"]');
+        var text = '';
+        for (var i = 0; i < el.childNodes.length; ++i) {
+            if (el.childNodes[i].nodeType === Node.TEXT_NODE || (el.childNodes[i].nodeType === Node.ELEMENT_NODE && el.childNodes[i].tagName === 'I')) {
+                text += el.childNodes[i].textContent;
+            }
+        }
+        text = text.trim();
+        if (!!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length )) { // taxon input box is visible
+            if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES'))) {
+                var box = document.getElementById('taxonsearchbox');
+                var outtext;
+                // if it contains exactly, don't add again
+                if(box.value.toLowerCase().indexOf(text.toLowerCase()) != -1) return;
+                const regex = /([a-z]+) ([a-z]+)/i;
+                const match = text.match(regex);
+//                console.log(match[1] + '|' + match[2]);
+                // if it contains a higher taxonomic rank, replace by lower rank
+                var tmp = box.value.toLowerCase().indexOf(match[1].toLowerCase() + ' ' + match[2].toLowerCase());
+                if(tmp != -1) {
+                    const re = new RegExp('(^|\\+) *(' + match[1] + ' ' + match[2] + '[\\w. ]*)($|\\+)');
+                    outtext = box.value.replace(re, '$1 ' + text + ' $3');
+                } else
+                    outtext = document.getElementById('taxonsearchbox').value + ' + ' + text;
+
+                outtext = outtext.replace(/^[ +]*|[ +]*$/, '').trim();
+                box.value = outtext;
+                box.focus();
+            }
+        } else {
+/*
+            if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES')))
+                window.location = '?w=occurrenceview&filter=tax:' + text;
+*/
+        }
+    }, 'checklist/api/lists?w=tree&fmt=htmllist&id={id}').init();
+
+    addEvent('keyup', document.getElementById('taxtree-filter'), function(ev) {
+        var txt = ev.target.value.trim();
+        console.log(txt);
+        var els = document.querySelectorAll('#taxtree li');
+        if(txt.length == 0) {
+            for(var i=0; i<els.length; i++) {
+                els[i].classList.remove('hidden');
+            }
+        } else {
+            for(var i=0; i<els.length; i++) {
+                if(els[i].textContent.toLowerCase().startsWith(txt.toLowerCase()))
+                    els[i].classList.remove('hidden');
+                else
+                    els[i].classList.add('hidden');
+            }
+        }
+    });
+
+
     addEvent('mouseup', document.body, function(ev) {
         if(!document.getElementById('georreferencer')) return;
         if(!document.getElementById('georreferencer').classList.contains('hidden')) {

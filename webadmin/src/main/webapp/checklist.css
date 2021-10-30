@@ -125,38 +125,6 @@ table.taxonlist div.territory {float:left;}
 	align-items:flex-start;
 }
 
-.taxtree-holder {
-	padding-right:5px;
-	border-right:2px solid #09f;
-}
-
-.taxtree-holder ul {
-	list-style-type:none;
-	padding-left:0.6em;
-	margin-top:5px;
-}
-.taxtree-holder ul .tools {position:absolute;top:0;right:0;}
-.taxtree-holder li.loading {font-style:italic;color:grey !important;background-color:#ccc}
-.taxtree-holder li.ORDER {text-transform:uppercase;}
-.taxtree-holder li.ORDER * {text-transform:none;}
-.taxtree-holder li.FAMILY {color:blue;}
-.taxtree-holder li.GENUS {color:#070;}
-.taxtree-holder li.SPECIES {color:#07f;}
-.taxtree-holder li.SUBSPECIES {color:#550;}
-.taxtree-holder li.VARIETY {color:#990;}
-.taxtree-holder ul li {
-	position:relative;
-	cursor:pointer;
-	padding:4px 3px 4px 6px;
-	background-color:white;
-	border-left:1px dashed gray;
-}
-.taxtree-holder ul li:hover {
-	background-color:#fa0;
-}
-
-.taxtree-holder ul li.notcurrent {color:#999 !important}
-
 #taxtree {min-width:300px}
 
 .taxdetails {flex-grow:1;margin:0 8px;padding:3px;}/*background-color:#f4f4f4;*/

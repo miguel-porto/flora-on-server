@@ -179,7 +179,7 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 	@Override
 	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException {
 		String query=String.format(AQLQueries.getString("ListDriver.21") //$NON-NLS-1$
-			,NodeTypes.taxent.toString(),rank.getValue());
+			,rank.getValue());
 		try {
 			return database.query(query, null, null, TaxEnt.class);
 		} catch (ArangoDBException e) {

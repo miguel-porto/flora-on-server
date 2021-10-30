@@ -376,7 +376,7 @@ ul.suggestions li.selected {
 .floatinghelp .close {
     background-image: url(images/close.png);
     background-size: 32px 32px;
-    background-color: transparent;
+    background-color: transparent;rr
     box-shadow: none;
     width:32px;
     height:32px;
@@ -389,3 +389,39 @@ ul.suggestions li.selected {
 }
 
 .floatinghelp .close:hover {background-color: transparent;}
+
+
+.taxtree-holder {
+	padding-right:5px;
+	border-right:2px solid #09f;
+}
+
+.taxtree-holder ul:not(:empty) {
+	list-style-type:none;
+	padding-left:0.6em;
+	margin-top:5px;
+}
+.taxtree-holder ul .tools {position:absolute;top:0;right:0;}
+.taxtree-holder li.loading {font-style:italic;color:grey !important;background-color:#ccc}
+.taxtree-holder li.ORDER {text-transform:uppercase;}
+.taxtree-holder li.ORDER * {text-transform:none;}
+.taxtree-holder li.FAMILY {color:blue;}
+.taxtree-holder li.GENUS {color:#070;}
+.taxtree-holder li.SPECIES {color:#07f;}
+.taxtree-holder li.SUBSPECIES {color:#550;}
+.taxtree-holder li.VARIETY {color:#990;}
+.taxtree-holder ul li {
+	position:relative;
+	cursor:pointer;
+	padding:4px 3px 4px 6px;
+	margin:0;
+	background-color:white;
+	border-left:1px dashed gray;
+}
+
+.taxtree-holder.compact ul li {padding:0 0 2px 0;}
+.taxtree-holder ul li:hover {
+	background-color:#fa0;
+}
+
+.taxtree-holder ul li.notcurrent {color:#999 !important}

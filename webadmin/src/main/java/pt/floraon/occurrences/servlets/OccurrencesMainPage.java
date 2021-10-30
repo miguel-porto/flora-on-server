@@ -117,6 +117,11 @@ public class OccurrencesMainPage extends FloraOnServlet {
         request.setAttribute("allUsers", allUsers);
         request.setAttribute("userMap", userMap);
 
+        Map<String, String> taxonomicRanks = new HashMap<>();
+        taxonomicRanks.put("family", "Family");
+        taxonomicRanks.put("genus", "Genus");
+        request.setAttribute("taxonomicRanks", taxonomicRanks);
+
         String what = thisRequest.getParameterAsString("w");
         if(what == null) what = "main";
 

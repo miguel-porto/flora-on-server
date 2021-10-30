@@ -87,7 +87,7 @@
         </c:when>
         <c:otherwise>
         <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
-        </c:otherwise>editable
+        </c:otherwise>
         </c:choose>
     </c:if>
 </c:otherwise>

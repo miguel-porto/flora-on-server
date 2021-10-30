@@ -55,6 +55,7 @@ td.grouper {
 .pager .imagebutton {line-height:0;}
 
 #occurrencetable-holder {flex: 2 4 auto; overflow: scroll; position:relative;}
+#taxtree {flex: 0 1 240px; overflow: scroll; height:100%}
 #georreferencer {flex: 1 5 auto; overflow: visible; display:flex; flex-direction: column;background-color: #bbdefb; position: relative}
 #occurrencemap {flex: 4 0 30%;position:relative; height:100%;}
 #floatingswitches {

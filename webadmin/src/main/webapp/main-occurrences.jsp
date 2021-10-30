@@ -1,6 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page session="true" %>
+<%@ page buffer="3000kb" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -33,6 +34,7 @@
 	<script src="js/getcursorxy.js"></script>
 	<script type="text/javascript" src="sorttable.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>
+	<script type="text/javascript" src="js/treenavigator.js"></script>
 	<script type="text/javascript" src="basefunctions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="suggestions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="js/occurrences.js?nocache=${uuid}"></script>
@@ -73,10 +75,23 @@
     <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">
         <jsp:include page="occurrences-pages.jsp"></jsp:include>
     </div>
+    <t:isoptionselected optionname="showtax">
+    <div id="taxtree" class="taxtree-holder compact">
+        <input type="text" id="taxtree-filter" style="width:100%; box-sizing: border-box" placeholder="filtrar"/>
+        <t:option-radiobutton optionprefix="rootrank" optionnames="${taxonomicRanks}" defaultvalue="genus" style="light" classes="small"/>
+        <c:url value="checklist/api/lists" var="urltaxtree">
+          <c:param name="w" value="tree" />
+          <c:param name="type" value="taxent" />
+          <c:param name="rank" value="${sessionScope['option-rootrank'] == null ? 'genus' : sessionScope['option-rootrank']}" />
+        </c:url>
+        <jsp:include page="${urltaxtree}"></jsp:include>
+    </div>
+    </t:isoptionselected>
     <div id="floatingswitches">
         <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />
         <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" />
         <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" />
+        <t:optionbutton optionname="showtax" title="Tax" defaultvalue="false" element="taxtree" norefresh="false" />
     </div>
     <c:if test="${warning != null}">
     <div class="warning floating"><b>${warning}</b></div>

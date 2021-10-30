@@ -298,6 +298,7 @@ FOR final IN FLATTEN(FOR v IN base
     public Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
     	String limitQ;
 		String _query = null;
+		// FIXME: use bind vars
 		if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
 
 		if(query.length() == 1)

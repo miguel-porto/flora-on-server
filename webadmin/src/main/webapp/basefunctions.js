@@ -125,7 +125,7 @@ function fetchAJAX(addr, callback, onerror) {
 	//showLoader();
 	return loadXMLDoc(addr,function(event) {
 		var xmlObj = event.target;
-		console.log(xmlObj);
+//		console.log(xmlObj);
 		if(xmlObj.readyState == 4) {
 			if(xmlObj.status == 200) {
 			    callback(xmlObj.responseText);
