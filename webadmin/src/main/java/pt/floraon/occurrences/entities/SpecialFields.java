@@ -21,6 +21,10 @@ public class SpecialFields {
     @DatabaseFields({"year", "month", "day", "hour", "minute"})
     @PrettyName(value = "Data de observação", shortName = "Data", important = true)
     private String date;
+    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @SmallField @ReadOnly
+    @DatabaseFields({"hour", "minute"})
+    @PrettyName(value = "Hora de observação", shortName = "Hora", important = false, alias = {"hour"})
+    private String time;
     @SpecialField(hideFromCustomFlavour = true) @InventoryField @FieldParser(LatitudeLongitudeParser.class) @FieldType(FieldType.Type.COORDINATES)
     @PrettyName(value = "Coordenadas do inventário", shortName = "Coord inv")
     private String inventoryCoordinates;

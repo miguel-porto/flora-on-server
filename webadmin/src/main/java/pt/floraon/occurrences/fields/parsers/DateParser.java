@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
  */
 public class DateParser implements FieldParser {
     static final private Pattern singleDatePattern =
-            Pattern.compile("^ *(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{1,4})) *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-5][0-9])(?:[:\\-](?:[0-5][0-9]))?)? *$");
+            Pattern.compile("^ *(?:(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>([0-9?-]{1,2})|([a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{1,4})))? *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-5][0-9])(?:[:\\-][0-5][0-9])?)? *$");
     static final private Pattern singleDatePatternInverse =
-            Pattern.compile("^ *(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>(?:[0-9?-]{2})|(?:[a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{1,2}) *((?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-5][0-9])(?:[:\\-](?:[0-5][0-9]))?)? *$");
+            Pattern.compile("^ *(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>([0-9?-]{2})|([a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{1,2}) *((?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-5][0-9])(?:[:\\-][0-5][0-9])?)? *$");
     static final private Pattern dateRangePattern =
             Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{4})|([-?]{1,4})) *" +
                     "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{4})|([-?]{1,4})) *$");
@@ -85,6 +85,12 @@ public class DateParser implements FieldParser {
                 inventory.setYear(date[2]);
                 inventory.setHour(date[3]);
                 inventory.setMinute(date[4]);
+                break;
+
+            case "time":
+                // if the hour is blank, we don't want to erase what was eventually input into Date field (above)
+                if(!Constants.isNullOrNoData(date[3])) inventory.setHour(date[3]);
+                if(!Constants.isNullOrNoData(date[4])) inventory.setMinute(date[4]);
                 break;
 
             case "dateinserted":

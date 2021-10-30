@@ -479,6 +479,13 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
         return sb.toString();
     }
 
+    public String _getTime() {
+        StringBuilder sb = new StringBuilder();
+        if(!Constants.isNullOrNoData(hour) && !Constants.isNullOrNoData(minute))
+            sb.append(String.format("%02d", hour)).append(":").append(String.format("%02d", minute));
+        return sb.toString();
+    }
+
     public boolean _isDateEmpty() {
         return (Constants.isNullOrNoData(day) || day == 0) && (Constants.isNullOrNoData(month) || month == 0)
                 && (Constants.isNullOrNoData(year) || year == 0);
