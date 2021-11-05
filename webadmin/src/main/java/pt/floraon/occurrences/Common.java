@@ -203,7 +203,7 @@ public final class Common {
 
     public static void exportTaxonListHeaderToCSV(CSVPrinter csv) throws IOException {
         final List<String> fields = new ArrayList<>(Arrays.asList("Used names", "Accepted Taxon", "Family", "Nr. of occurrences", "Max confidence"
-                , "Red List Category", "Legal Protection", "Endemic to", "Endemic to Lu?"));
+                , "Red List Category", "Legal Protection", "Endemic to", "Native status in Lu"));
         csv.printRecord(fields);
     }
 
@@ -274,7 +274,7 @@ public final class Common {
                 , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
                 , (rlde == null || rlde.getConservation() == null) ? "" : StringUtils.implode(", ", rlde.getConservation().getLegalProtection())
                 , tew == null ? "" : StringUtils.implode(" ", tew.getEndemismDegree())
-                , tew == null ? "" : (ist = tew.getInferredNativeStatus("lu")) == null ? "" : ist.isEndemic()
+                , tew == null ? "" : (ist = tew.getInferredNativeStatus("lu")) == null ? "" : (ist.getNativeStatus() + (ist.isEndemic() ? " (ENDEMIC)" : ""))
         );
     }
 }

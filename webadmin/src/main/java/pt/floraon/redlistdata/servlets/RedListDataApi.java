@@ -1,8 +1,6 @@
 package pt.floraon.redlistdata.servlets;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
@@ -14,6 +12,8 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.io.IOUtils;
 import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.datatypes.IntegerInterval;
+import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.interfaces.IOccurrenceReportDriver;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
@@ -352,8 +352,24 @@ public class RedListDataApi extends FloraOnServlet {
                     thisRequest.error("You're not logged in.");
                     break;
                 }
+                JsonSerializer<SafeHTMLString> serializerSafeHTMLString = new JsonSerializer<SafeHTMLString>() {
+                    @Override
+                    public JsonElement serialize(SafeHTMLString src, Type typeOfSrc, JsonSerializationContext context) {
+                        return new JsonPrimitive(src.toString());
+                    }
+                };
+                JsonSerializer<IntegerInterval> serializerIntegerInterval = new JsonSerializer<IntegerInterval>() {
+                    @Override
+                    public JsonElement serialize(IntegerInterval src, Type typeOfSrc, JsonSerializationContext context) {
+                        return new JsonPrimitive(src.toString());
+                    }
+                };
 
-                gs = new GsonBuilder().setPrettyPrinting().create();
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                gsonBuilder.registerTypeAdapter(SafeHTMLString.class, serializerSafeHTMLString);
+                gsonBuilder.registerTypeAdapter(IntegerInterval.class, serializerIntegerInterval);
+                gs = gsonBuilder.setPrettyPrinting().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.S'Z'").create();
+
                 thisRequest.response.setContentType("application/json; charset=utf-8");
                 thisRequest.response.setCharacterEncoding("UTF-8");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"redlistdata.json\"");
