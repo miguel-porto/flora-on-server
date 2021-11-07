@@ -43,7 +43,6 @@
     <jsp:param name="taxent" value="${param.taxent}" />
     <jsp:param name="hidden" value="${hab.getLevel() >= hideafterlevel ? 1 : 0}" />
 </jsp:include>
-<%--<jsp:include page="checklist/api/lists?w=tree&type=habitat&id=${hab._getIDURLEncoded()}&hidden=${hab.getLevel() >= hideafterlevel ? 1 : 0}"></jsp:include>--%>
 </c:if>
 </li>
 </c:forEach>

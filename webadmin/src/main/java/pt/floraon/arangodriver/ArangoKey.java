@@ -9,7 +9,7 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.Constants.DocumentType;
 
 public class ArangoKey implements INodeKey {
-	private static Pattern keyPattern = Pattern.compile("^([a-zA-Z_]+)/([0-9]+)$");
+	private static Pattern keyPattern = Pattern.compile("^([a-zA-Z_]+)/([0-9a-zA-Z_-]+)$");
 	private String key = null;
 	private String collection = null;
 	private String id = null;

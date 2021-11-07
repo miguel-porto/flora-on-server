@@ -378,7 +378,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 				if(nt == NodeTypes.user) {	// create administrator account if creating collection of users
 					try {
 						User user = new User("admin", "Administrator", new Privileges[] {
-								Privileges.MANAGE_REDLIST_USERS, Privileges.CREATE_REDLIST_DATASETS,
+								Privileges.MANAGE_REDLIST_USERS, Privileges.CREATE_REDLIST_DATASETS, Privileges.VIEW_FULL_SHEET,
 								Privileges.EDIT_FULL_CHECKLIST, Privileges.MODIFY_TAXA, Privileges.MODIFY_TAXA_TERRITORIES});
 						user.setUserType(User.UserType.ADMINISTRATOR.toString());
 						char[] pass = new RandomString(12).nextString().toCharArray();
