@@ -15,6 +15,7 @@ import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.TaxonOccurrenceProcessor;
+import pt.floraon.redlistdata.threats.Threat;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
@@ -182,7 +183,7 @@ public class PublicApi extends FloraOnServlet {
                         rlde = it.next();
                         // only include threatened species
                         if(rlde.getAssessment().getFinalCategory() == null || !rlde.getAssessment().getFinalCategory().isThreatened()) continue;
-                        for(RedListEnums.Threats thr : rlde.getThreats().getThreats()) {
+                        for(Threat thr : rlde.getThreats().getThreats()) {
                             if(threatType.contains(thr.getType().getLetter())) {
                                 filteredTaxa.add(rlde.getTaxEnt());
                                 break;

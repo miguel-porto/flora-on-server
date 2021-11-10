@@ -17,7 +17,6 @@ import pt.floraon.authentication.Privileges;
 import pt.floraon.driver.*;
 import pt.floraon.driver.datatypes.Rectangle;
 import pt.floraon.driver.entities.GlobalSettings;
-import pt.floraon.geometry.Polygon;
 import pt.floraon.images.ImageManagementArangoDriver;
 import pt.floraon.occurrences.Abundance;
 import pt.floraon.driver.datatypes.IntegerInterval;
@@ -28,6 +27,8 @@ import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.Threat;
+import pt.floraon.redlistdata.threats.ThreatEnumeration;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
@@ -52,6 +53,7 @@ public class FloraOnArangoDriver implements IFloraOn {
     private Properties properties;
     private final File imageFolder, thumbsFolder, originalImageFolder;
 	private String contextPath, defaultINaturalistProject;
+	private final ThreatEnumeration threatEnumeration;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -72,6 +74,7 @@ public class FloraOnArangoDriver implements IFloraOn {
         thumbsFolder = null;
         originalImageFolder = null;
         contextPath = "";
+        threatEnumeration = null;
     }
 
 	public FloraOnArangoDriver(Properties properties) throws FloraOnException {
@@ -105,6 +108,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(SafeHTMLString.class, new SafeHTMLStringDeserializer())
 				.registerSerializer(SafeHTMLString.class, new SafeHTMLStringSerializer())
 				.registerDeserializer(Rectangle.class, new RectangleDeserializer())
+				.registerSerializer(Threat.class, new ThreatSerializer())
+				.registerDeserializer(Threat.class, new ThreatDeserializer())
  /*
 				.registerSerializer(Rectangle.class, new RectangleSerializer())
 */
@@ -125,6 +130,14 @@ public class FloraOnArangoDriver implements IFloraOn {
 		OCRD = new OccurrenceReportArangoDriver(this);
 		ADMIN = new Administration(this);
 		IMG = new ImageManagementArangoDriver(this);
+
+		// fetch the threat enumeration, that may depend on the taxonomic group
+		try {
+			threatEnumeration = (ThreatEnumeration) Class.forName("pt.floraon.redlistdata.threats.ThreatsInvertebrates").getDeclaredConstructor().newInstance();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw new FloraOnException("Could not initialize Threats.");
+		}
 
 		// check or create image folders
         String folder;
@@ -510,6 +523,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 		edgeDefinitions.add(edgeDefinition);
 
 		database.createGraph(Constants.TAXONOMICGRAPHNAME, edgeDefinitions, null);
+	}
+
+	@Override
+	public ThreatEnumeration getThreats() {
+		return this.threatEnumeration;
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.Properties;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.occurrences.CSVFileProcessor;
+import pt.floraon.redlistdata.threats.ThreatEnumeration;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 
@@ -91,4 +92,6 @@ public interface IFloraOn {
 	 * @return The default red list territory to be used as a reference (e.g. for threat categories)
 	 */
 	String getDefaultRedListTerritory();
+
+	ThreatEnumeration getThreats();
 }

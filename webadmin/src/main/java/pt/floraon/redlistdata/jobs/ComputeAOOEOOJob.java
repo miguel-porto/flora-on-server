@@ -1,11 +1,8 @@
 package pt.floraon.redlistdata.jobs;
 
-import com.google.common.collect.Iterators;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import pt.floraon.arangodriver.FloraOnArangoDriver;
 import pt.floraon.authentication.entities.User;
-import pt.floraon.driver.BaseFloraOnDriver;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
@@ -17,6 +14,7 @@ import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.FieldValues;
 import pt.floraon.redlistdata.RedListDataFilter;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.Threat;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
@@ -159,7 +157,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("Conservation measures");
         csvp.print("Proposed studies");
 */
-        for(RedListEnums.Threats t : RedListEnums.Threats.values())
+        for(Threat t : driver.getThreats().values())
             csvp.print("Threat: " + FieldValues.getString(t.getLabel()));
         for(RedListEnums.ProposedConservationActions t : RedListEnums.ProposedConservationActions.values())
             csvp.print("Action: " + FieldValues.getString(t.getLabel()));
@@ -266,8 +264,8 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 */
 
             // Columns for multiple selection fields
-            List<RedListEnums.Threats> thr = Arrays.asList(rlde.getThreats().getThreats());
-            for(RedListEnums.Threats t : RedListEnums.Threats.values())
+            List<Threat> thr = Arrays.asList(rlde.getThreats().getThreats());
+            for(Threat t : driver.getThreats().values())
                 csvp.print(thr.contains(t) ? "x" : "");
 
             List<RedListEnums.ProposedConservationActions> cns = Arrays.asList(rlde.getConservation().getProposedConservationActions());

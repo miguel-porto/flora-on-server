@@ -5,6 +5,7 @@ import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.Threat;
 
 /**
  * Created by miguel on 20-11-2016.
@@ -17,7 +18,7 @@ public class Threats implements DiffableBean {
     private SafeHTMLString declineNrLocationsJustification;
     private RedListEnums.YesNoNA extremeFluctuationsNrLocations;
     private SafeHTMLString extremeFluctuationsNrLocationsJustification;
-    private RedListEnums.Threats[] threats;
+    private Threat[] threats;
 
     public RedListEnums.DeclineNrLocations getDeclineNrLocations() {
         return declineNrLocations == null ? RedListEnums.DeclineNrLocations.NO_INFORMATION : declineNrLocations;
@@ -47,9 +48,9 @@ public class Threats implements DiffableBean {
         return extremeFluctuationsNrLocationsJustification == null ? SafeHTMLString.emptyString() : extremeFluctuationsNrLocationsJustification;
     }
 
-    public RedListEnums.Threats[] getThreats() {
+    public Threat[] getThreats() {
         return StringUtils.isArrayEmpty(threats)
-                ? new RedListEnums.Threats[0]
+                ? new Threat[0]
                 : threats;
     }
 
@@ -81,7 +82,7 @@ public class Threats implements DiffableBean {
         this.extremeFluctuationsNrLocationsJustification = extremeFluctuationsNrLocationsJustification;
     }
 
-    public void setThreats(RedListEnums.Threats[] threats) {
+    public void setThreats(Threat[] threats) {
         this.threats = threats;
     }
 }

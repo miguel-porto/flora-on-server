@@ -498,13 +498,17 @@ table.sheet:not(.help) .checkboxes.list:not(.alwaysvisible):not(:focus) input, t
 table.sheet.help .placeholder {display: none !important;}
 
 
-.checkboxes label.HUMAN_CONSTRUCTION, ul.checkboxes .light {background-color: #bbdefb}
-.checkboxes label.VEGETATION_MANAGEMENT, ul.checkboxes ul .light {background-color: #f8bbd0}
-.checkboxes label.RESOURCES, ul.checkboxes ul ul .light {background-color: #f0f4c3}
-.checkboxes label.OTHER_HUMAN, ul.checkboxes ul ul ul .light {background-color: #d1c4e9}
-.checkboxes label.NATURAL_DYNAMICS, ul.checkboxes ul ul ul ul .light {background-color: #c8e6c9}
-.checkboxes label.STOCHASTIC, ul.checkboxes ul ul ul ul ul .light {background-color: #ffccbc}
-.checkboxes label.UNKNOWN {background-color: #ffecb3}
+.checkboxes label.CATEGORY1 , ul.checkboxes .light {background-color: #bbdefb}
+.checkboxes label.CATEGORY2, ul.checkboxes ul .light {background-color: #f8bbd0}
+.checkboxes label.CATEGORY3, ul.checkboxes ul ul .light {background-color: #f0f4c3}
+.checkboxes label.CATEGORY4, ul.checkboxes ul ul ul .light {background-color: #d1c4e9}
+.checkboxes label.CATEGORY5, ul.checkboxes ul ul ul ul .light {background-color: #c8e6c9}
+.checkboxes label.CATEGORY6, ul.checkboxes ul ul ul ul ul .light {background-color: #ffccbc}
+.checkboxes label.CATEGORY7 {background-color: #ffecb3}
+.checkboxes label.CATEGORY8 {background-color: #bbdefb}
+.checkboxes label.CATEGORY9 {background-color: #f8bbd0}
+.checkboxes label.CATEGORY10 {background-color: #f0f4c3}
+.checkboxes label.CATEGORY11 {background-color: #d1c4e9}
 .checkboxes label.OTHER {background-color: #d7ccc8}
 
 .legend {font-size: 0.65em; color:#545454;}

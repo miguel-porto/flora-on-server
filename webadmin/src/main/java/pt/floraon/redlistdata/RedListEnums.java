@@ -421,67 +421,7 @@ public class RedListEnums {
         }
     }
 
-    public enum ThreatCategories implements LabelledEnum {
-        HUMAN_CONSTRUCTION("ThreatCategories.1")
-        , VEGETATION_MANAGEMENT("ThreatCategories.2")
-        , RESOURCES("ThreatCategories.3")
-        , OTHER_HUMAN("ThreatCategories.4")
-        , NATURAL_DYNAMICS("ThreatCategories.5")
-        , STOCHASTIC("ThreatCategories.6")
-        , UNKNOWN("ThreatCategories.7")
-        , OTHER("ThreatCategories.8");
-
-        private String label;
-
-        ThreatCategories(String label) {
-            this.label = label;
-        }
-
-        @Override
-        public String getLabel() {
-            return this.label;
-        }
-    }
-
-    public enum ThreatTypes implements LabelledEnum {
-        CLIMATIC("ThreatTypes.1", "A")
-        , CATTLE("ThreatTypes.2", "B")
-        , DYNAMICS("ThreatTypes.3", "C")
-        , BIOLOGICAL("ThreatTypes.4", "D")
-        , EROSION("ThreatTypes.5", "E")
-        , RESOURCES("ThreatTypes.6", "F")
-        , HYDRIC_RESOURCES("ThreatTypes.7", "G")
-        , EXOTIC_SPECIES("ThreatTypes.8", "H")
-        , FIRE("ThreatTypes.9", "I")
-        , AGRICULTURE("ThreatTypes.10", "J")
-        , FORESTRY("ThreatTypes.11", "K")
-        , MANAGEMENT("ThreatTypes.12", "L")
-        , OTHER("ThreatTypes.13", "M")
-        , OTHER_HUMAN("ThreatTypes.14", "N")
-        , RESIDUALS("ThreatTypes.15", "O")
-        , CONSTRUCTION("ThreatTypes.16", "P")
-        , STOCHASTIC_UNKNOWN("ThreatTypes.17", "Q")
-        , NONSIGNIFICANT("ThreatTypes.18", "R");
-
-        private String label;
-        private String letter;
-
-        ThreatTypes(String label, String letter) {
-            this.label = label;
-            this.letter = letter;
-        }
-
-        public String getLetter() {
-            return this.letter;
-        }
-
-        @Override
-        public String getLabel() {
-            return this.label;
-        }
-    }
-
-    public enum Threats implements LabelledEnumWithDescription {
+    /*    public enum Threats implements LabelledEnumWithDescription {
         CURBI("Threats.1", "Threats.1.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
         , CTRAN("Threats.2", "Threats.2.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.CONSTRUCTION)
         , CCOST("Threats.3", "Threats.3.desc", ThreatCategories.HUMAN_CONSTRUCTION, ThreatTypes.OTHER)
@@ -548,7 +488,7 @@ public class RedListEnums {
             return this.description;
         }
     }
-
+*/
     public enum ProposedConservationActions implements LabelledEnumWithDescription {
         NO_MEASURES("ProposedConservationActions.0", "ProposedConservationActions.0.desc"),
         SITE_PROTECTION("ProposedConservationActions.1", "ProposedConservationActions.1.desc"),

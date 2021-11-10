@@ -38,6 +38,7 @@ import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.SimpleOccurrenceClusterer;
+import pt.floraon.redlistdata.threats.Threat;
 import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.authentication.entities.User;
@@ -279,7 +280,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("ecology_DeclineHabitatQuality", RedListEnums.DeclineHabitatQuality.values());
                 request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
                 request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
-                request.setAttribute("threats_Threats", RedListEnums.Threats.values());
+                request.setAttribute("threats_Threats", driver.getThreats().values());
                 request.setAttribute("threats_DeclineNrLocations", RedListEnums.DeclineNrLocations.values());
                 request.setAttribute("threats_ExtremeFluctuationsNrLocations", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
@@ -780,7 +781,7 @@ System.out.println(gs.toJson(getUser()));
                 wr3.println("### 6.1. Descrição de ameaças e pressões");
                 wr3.println(rlde2.getThreats().getDescription().toMarkDownString());
                 wr3.println("### 6.2. Ameaças");
-                for(RedListEnums.Threats t : rlde2.getThreats().getThreats())
+                for(Threat t : rlde2.getThreats().getThreats())
                     wr3.println(" * " + FieldValues.getString(t.getLabel()));
                 wr3.println("### 6.3. Número do localizações");
                 wr3.println(" * " + rlde2.getThreats().getNumberOfLocations() + " localizações");
@@ -1459,7 +1460,7 @@ System.out.println(gs.toJson(getUser()));
                         if (isFromTag) statsTag.get("nrReadyToPublish").increment();
                     }
 
-                    for (RedListEnums.Threats th : rlde1.getThreats().getThreats()) {
+                    for (Threat th : rlde1.getThreats().getThreats()) {
                         if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
                         if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
@@ -1540,7 +1541,7 @@ System.out.println(gs.toJson(getUser()));
                 Map<String, Map<String, Integer>> statTableTag = new HashMap<>();
                 Map<String, Integer> tableFinalized = new HashMap<>();
                 Map<String, Integer> tableTag = new HashMap<>();
-                for(RedListEnums.Threats th : RedListEnums.Threats.values()) {
+                for(Threat th : driver.getThreats().values()) {
                     tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }

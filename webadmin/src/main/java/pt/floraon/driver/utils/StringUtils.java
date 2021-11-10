@@ -8,14 +8,11 @@ import org.jsoup.safety.Whitelist;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.entities.NamedDBNode;
-import pt.floraon.geocoding.entities.MatchedToponym;
 import pt.floraon.occurrences.Common;
 import pt.floraon.redlistdata.RedListEnums;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by miguel on 14-02-2017.

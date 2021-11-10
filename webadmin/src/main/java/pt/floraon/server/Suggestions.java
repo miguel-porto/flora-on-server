@@ -10,12 +10,9 @@ import javax.servlet.ServletException;
 
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
-import pt.floraon.driver.results.ResultProcessor;
-import pt.floraon.driver.results.SimpleTaxEntResult;
 import pt.floraon.geocoding.entities.MatchedToponym;
-import pt.floraon.geocoding.entities.Toponym;
 import pt.floraon.redlistdata.FieldValues;
-import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.ThreatCategory;
 import pt.floraon.taxonomy.entities.TaxEnt;
 
 public class Suggestions extends FloraOnServlet {
@@ -59,7 +56,7 @@ public class Suggestions extends FloraOnServlet {
 
 			case "threats":
 				List<String> options = new ArrayList<>();
-				for(RedListEnums.ThreatCategories tc : RedListEnums.ThreatCategories.values()) {
+				for(ThreatCategory tc : driver.getThreats().getThreatCategories().values()) {
 					if(FieldValues.getString(tc.getLabel()).toLowerCase().contains(query.toLowerCase()))
 						options.add(FieldValues.getString(tc.getLabel()));
 				}
