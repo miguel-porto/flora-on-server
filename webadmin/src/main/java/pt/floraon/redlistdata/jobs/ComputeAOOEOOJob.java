@@ -157,7 +157,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
         csvp.print("Conservation measures");
         csvp.print("Proposed studies");
 */
-        for(Threat t : driver.getThreats().values())
+        for(Threat t : driver.getThreatEnum().values())
             csvp.print("Threat: " + FieldValues.getString(t.getLabel()));
         for(RedListEnums.ProposedConservationActions t : RedListEnums.ProposedConservationActions.values())
             csvp.print("Action: " + FieldValues.getString(t.getLabel()));
@@ -265,7 +265,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 
             // Columns for multiple selection fields
             List<Threat> thr = Arrays.asList(rlde.getThreats().getThreats());
-            for(Threat t : driver.getThreats().values())
+            for(Threat t : driver.getThreatEnum().values())
                 csvp.print(thr.contains(t) ? "x" : "");
 
             List<RedListEnums.ProposedConservationActions> cns = Arrays.asList(rlde.getConservation().getProposedConservationActions());

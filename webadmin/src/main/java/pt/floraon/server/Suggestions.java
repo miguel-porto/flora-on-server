@@ -56,7 +56,7 @@ public class Suggestions extends FloraOnServlet {
 
 			case "threats":
 				List<String> options = new ArrayList<>();
-				for(ThreatCategory tc : driver.getThreats().getThreatCategories().values()) {
+				for(ThreatCategory tc : driver.getThreatEnum().getEnumerationCategories().values()) {
 					if(FieldValues.getString(tc.getLabel()).toLowerCase().contains(query.toLowerCase()))
 						options.add(FieldValues.getString(tc.getLabel()));
 				}

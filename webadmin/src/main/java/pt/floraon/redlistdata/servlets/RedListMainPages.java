@@ -280,7 +280,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("ecology_DeclineHabitatQuality", RedListEnums.DeclineHabitatQuality.values());
                 request.setAttribute("usesAndTrade_Uses", RedListEnums.Uses.values());
                 request.setAttribute("usesAndTrade_Overexploitation", RedListEnums.Overexploitation.values());
-                request.setAttribute("threats_Threats", driver.getThreats().values());
+                request.setAttribute("threats_Threats", driver.getThreatEnum().values());
                 request.setAttribute("threats_DeclineNrLocations", RedListEnums.DeclineNrLocations.values());
                 request.setAttribute("threats_ExtremeFluctuationsNrLocations", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
@@ -1541,7 +1541,7 @@ System.out.println(gs.toJson(getUser()));
                 Map<String, Map<String, Integer>> statTableTag = new HashMap<>();
                 Map<String, Integer> tableFinalized = new HashMap<>();
                 Map<String, Integer> tableTag = new HashMap<>();
-                for(Threat th : driver.getThreats().values()) {
+                for(Threat th : driver.getThreatEnum().values()) {
                     tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }

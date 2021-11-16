@@ -10,7 +10,7 @@ import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.interfaces.Flaggable;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
-import pt.floraon.redlistdata.threats.ThreatEnumerationBase;
+import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationBase;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
@@ -543,7 +543,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setThreats_Threats(String[] threats) {
-        this.threats.setThreats(ThreatEnumerationBase.valuesOf(threats));
+        this.threats.setThreats(MultipleChoiceEnumerationBase.valuesOf(threats));
 //        this.threats.setThreats(StringUtils.stringArrayToEnumArray(threats, RedListEnums.Threat.class));
     }
 

@@ -1,6 +1,6 @@
 package pt.floraon.redlistdata.threats;
 
-public class ThreatsPlants extends ThreatEnumerationBase implements ThreatEnumeration {
+public class ThreatsPlants extends MultipleChoiceEnumerationBase implements MultipleChoiceEnumeration<Threat, ThreatCategory> {
     static {
         threats.clear();
         threatCategories.clear();

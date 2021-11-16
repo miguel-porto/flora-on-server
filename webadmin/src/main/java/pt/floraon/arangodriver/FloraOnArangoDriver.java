@@ -27,8 +27,10 @@ import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationBase;
 import pt.floraon.redlistdata.threats.Threat;
-import pt.floraon.redlistdata.threats.ThreatEnumeration;
+import pt.floraon.redlistdata.threats.ThreatCategory;
+import pt.floraon.redlistdata.threats.MultipleChoiceEnumeration;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
@@ -53,7 +55,7 @@ public class FloraOnArangoDriver implements IFloraOn {
     private Properties properties;
     private final File imageFolder, thumbsFolder, originalImageFolder;
 	private String contextPath, defaultINaturalistProject;
-	private final ThreatEnumeration threatEnumeration;
+	private final MultipleChoiceEnumeration<Threat, ThreatCategory> threatEnumeration;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -133,7 +135,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 		// fetch the threat enumeration, that may depend on the taxonomic group
 		try {
-			threatEnumeration = (ThreatEnumeration) Class.forName("pt.floraon.redlistdata.threats.ThreatsInvertebrates").getDeclaredConstructor().newInstance();
+			threatEnumeration = (MultipleChoiceEnumerationBase) Class.forName("pt.floraon.redlistdata.threats.ThreatsInvertebrates").getDeclaredConstructor().newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new FloraOnException("Could not initialize Threats.");
@@ -526,7 +528,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 	}
 
 	@Override
-	public ThreatEnumeration getThreats() {
+	public MultipleChoiceEnumeration<Threat, ThreatCategory> getThreatEnum() {
 		return this.threatEnumeration;
 	}
 
