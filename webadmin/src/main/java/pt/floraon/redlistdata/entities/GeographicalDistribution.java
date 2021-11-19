@@ -14,6 +14,7 @@ public class GeographicalDistribution implements DiffableBean {
     private RedListEnums.DeclineDistribution declineDistribution;
     private RedListEnums.ExtremeFluctuations extremeFluctuations;
     private SafeHTMLString declineDistributionJustification;
+    private SafeHTMLString EOOJustification, AOOJustification;
     private Integer[] elevationRange;
 
     public SafeHTMLString getDescription() {
@@ -42,6 +43,14 @@ public class GeographicalDistribution implements DiffableBean {
 
     public SafeHTMLString getDeclineDistributionJustification() {
         return declineDistributionJustification == null ? SafeHTMLString.emptyString() : declineDistributionJustification;
+    }
+
+    public SafeHTMLString getEOOJustification() {
+        return EOOJustification == null ? SafeHTMLString.emptyString() : EOOJustification;
+    }
+
+    public SafeHTMLString getAOOJustification() {
+        return AOOJustification == null ? SafeHTMLString.emptyString() : AOOJustification;
     }
 
     public RedListEnums.ExtremeFluctuations getExtremeFluctuations() {
@@ -86,6 +95,14 @@ public class GeographicalDistribution implements DiffableBean {
 
     public void setDeclineDistributionJustification(SafeHTMLString declineDistributionJustification) {
         this.declineDistributionJustification = declineDistributionJustification;
+    }
+
+    public void setEOOJustification(SafeHTMLString EOOJustification) {
+        this.EOOJustification = EOOJustification;
+    }
+
+    public void setAOOJustification(SafeHTMLString AOOJustification) {
+        this.AOOJustification = AOOJustification;
     }
 
 }

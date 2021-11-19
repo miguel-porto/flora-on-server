@@ -288,6 +288,14 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
         this.geographicalDistribution.setEOO(EOO);
     }
 
+    public void setGeographicalDistribution_EOOJustification(SafeHTMLString EOOJustification) {
+        this.geographicalDistribution.setEOOJustification(EOOJustification);
+    }
+
+    public void setGeographicalDistribution_AOOJustification(SafeHTMLString AOOJustification) {
+        this.geographicalDistribution.setAOOJustification(AOOJustification);
+    }
+
     public void setGeographicalDistribution_AOO(Double AOO) {
         this.geographicalDistribution.setAOO(AOO);
     }

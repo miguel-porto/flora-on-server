@@ -266,6 +266,9 @@ System.out.println(gs.toJson(getUser()));
                 rldeSnap = driver.getNodeWorkerDriver().getDocument(idSnap, RedListDataEntitySnapshot.class);
 
             case "taxon":   // this is the entry point for a red list sheet
+                String redListSheetTemplate = driver.getProperties().getProperty("redListSheetTemplate");
+                if(redListSheetTemplate == null) redListSheetTemplate = "frag-redlistsheet-flora";
+                request.setAttribute("redListSheetTemplate", redListSheetTemplate);
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
                 request.setAttribute("geographicalDistribution_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());

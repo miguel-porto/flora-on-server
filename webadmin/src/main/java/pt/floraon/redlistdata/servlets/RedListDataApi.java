@@ -843,10 +843,10 @@ public class RedListDataApi extends FloraOnServlet {
 
                 if(fileContent != null) {
                     Reader freader;
-                    Gson gs1 = new GsonBuilder().setPrettyPrinting().create();
+//                    Gson gs1 = new GsonBuilder().setPrettyPrinting().create();
 
                     freader = new InputStreamReader(fileContent, StandardCharsets.UTF_8);
-                    CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().parse(freader);
+                    CSVParser records = CSVFormat.TDF.withQuote('\"').withDelimiter('\t').withHeader().withEscape('\\').parse(freader);
                     Map<String, Integer> headers = records.getHeaderMap();
                     Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
 
