@@ -13,6 +13,7 @@ public class GeographicalDistribution implements DiffableBean {
     private Double AOO, historicalAOO;
     private RedListEnums.DeclineDistribution declineDistribution;
     private RedListEnums.ExtremeFluctuations extremeFluctuations;
+    private RedListEnums.DeclineQualifier declineQualifier;
     private SafeHTMLString declineDistributionJustification;
     private SafeHTMLString EOOJustification, AOOJustification;
     private Integer[] elevationRange;
@@ -57,6 +58,10 @@ public class GeographicalDistribution implements DiffableBean {
         return extremeFluctuations == null ? RedListEnums.ExtremeFluctuations.NO_INFORMATION : extremeFluctuations;
     }
 
+    public RedListEnums.DeclineQualifier getDeclineQualifier() {
+        return declineQualifier == null ? RedListEnums.DeclineQualifier.NO_INFORMATION : declineQualifier;
+    }
+
     public Integer[] getElevationRange() {
         return elevationRange == null ? new Integer[] {null, null} : elevationRange;
     }
@@ -83,6 +88,10 @@ public class GeographicalDistribution implements DiffableBean {
 
     public void setExtremeFluctuations(RedListEnums.ExtremeFluctuations extremeFluctuations) {
         this.extremeFluctuations = extremeFluctuations;
+    }
+
+    public void setDeclineQualifier(RedListEnums.DeclineQualifier declineQualifier) {
+        this.declineQualifier = declineQualifier;
     }
 
     public void setElevationRange(Integer[] elevationRange) {

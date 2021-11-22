@@ -242,7 +242,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
 
         String sortExpression = buildSortOrderExpression(orderField);
         String query = AQLOccurrenceQueries.getString("occurrencequery.4a", sortExpression, filter);
-Log.info(query);
+//Log.info(query);
         try {
             return database.query(query, bindVars, null, Inventory.class);
         } catch (ArangoDBException e) {

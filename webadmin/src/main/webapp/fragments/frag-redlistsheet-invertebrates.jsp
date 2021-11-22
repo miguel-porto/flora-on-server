@@ -33,7 +33,7 @@
 <tr class="section2 textual"><t:redlistsheetrow field="2.1" help="true"/><td><%@ include file="/fragments/redlistsheetfields/2.1.jsp" %></td></tr>
 <tr class="section2"><t:redlistsheetrow field="2.2" help="false"/><td><%@ include file="/fragments/redlistsheetfields/2.2.jsp" %><%@ include file="/fragments/redlistsheetfields/2.2a.jsp" %></td></tr>
 <tr class="section2"><t:redlistsheetrow field="2.3" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.3.jsp" %><%@ include file="/fragments/redlistsheetfields/2.3a.jsp" %></td></tr>
-<tr class="section2 declines"><t:redlistsheetrow field="2.4" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.4.jsp" %></td></tr>
+<tr class="section2 declines"><t:redlistsheetrow field="2.4" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.4a.jsp" %></td></tr>
 <tr class="section2"><t:redlistsheetrow field="2.5" help="false"/><td><%@ include file="/fragments/redlistsheetfields/2.5.jsp" %></td></tr>
 <tr class="section2"><t:redlistsheetrow field="2.6" help="true" /><td><%@ include file="/fragments/redlistsheetfields/2.6.jsp" %></td></tr>
 

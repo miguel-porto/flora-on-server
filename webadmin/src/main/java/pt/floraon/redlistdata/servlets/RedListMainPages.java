@@ -271,6 +271,7 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("redListSheetTemplate", redListSheetTemplate);
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
+                request.setAttribute("geographicalDistribution_DeclineQualifier", RedListEnums.DeclineQualifier.values());
                 request.setAttribute("geographicalDistribution_ExtremeFluctuations", RedListEnums.ExtremeFluctuations.values());
                 request.setAttribute("population_NrMatureIndividualsCategory", RedListEnums.NrMatureIndividuals.values());
                 request.setAttribute("population_TypeOfEstimate", RedListEnums.TypeOfPopulationEstimate.values());

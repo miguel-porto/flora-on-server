@@ -48,8 +48,8 @@ public class RedListEnums {
         , POSSIBLE_DECREASE_FUTURE(FieldValues.getString("PopulationSizeReduction.5"), true)
         , DECREASE_PAST_FUTURE(FieldValues.getString("PopulationSizeReduction.6"), true);
 
-        private String label;
-        private boolean trigger;
+        private final String label;
+        private final boolean trigger;
 
         PopulationSizeReduction(String desc, boolean trigger) {
             this.label = desc;
@@ -66,6 +66,25 @@ public class RedListEnums {
             return this.trigger;
         }
 
+    }
+
+    public enum DeclineQualifier implements LabelledEnum {
+        NO_INFORMATION("No information"),
+        OBSERVED("Observed"),
+        ESTIMATED("Estimated"),
+        PROJECTED("Projected"),
+        INFERRED("Inferred"),
+        SUSPECTED("Suspected");
+        private final String label;
+
+        DeclineQualifier(String label) {
+            this.label = label;
+        }
+
+        @Override
+        public String getLabel() {
+            return this.label;
+        }
     }
 
     public enum DeclineDistribution implements TriggerEnum {
