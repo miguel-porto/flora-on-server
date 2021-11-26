@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
  */
 public class DateParser implements FieldParser {
     static final private Pattern singleDatePattern =
-            Pattern.compile("^ *(?:(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>([0-9?-]{1,2})|([a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{1,4})))? *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-5][0-9])(?:[:\\-][0-5][0-9])?)? *$");
+            Pattern.compile("^ *(?:(?:(?<day>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month>([0-9?-]{1,2})|([a-zA-Z?-]+))(?:-|/|( +)))?(?<year>((1[0-9]{3})|(2[012][0-9]{2}))|([-?]{1,4})))? *((?<hour>[0-9]{1,2})[:\\-](?<minute>[0-5][0-9])(?:[:\\-][0-5][0-9])?)? *$");
     static final private Pattern singleDatePatternInverse =
-            Pattern.compile("^ *(?<year>((1[0-9]{3})|(2[01][0-9]{2}))|([-?]{4}))(?:/|( *))(?<month>([0-9?-]{2})|([a-zA-Z?-]+))(?:/|( *))(?<day>[0-9?-]{1,2}) *((?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-5][0-9])(?:[:\\-][0-5][0-9])?)? *$");
+            Pattern.compile("^ *(?<year>((1[0-9]{3})|(2[012][0-9]{2}))|([-?]{4}))(?:-|/|( *))(?<month>([0-9?-]{2})|([a-zA-Z?-]+))(?:-|/|( *))(?<day>[0-9?-]{1,2})( +(?<hour>[0-9]{1,2})([:\\-])(?<minute>[0-5][0-9])(?:[:\\-][0-5][0-9])?)? *$");
     static final private Pattern dateRangePattern =
             Pattern.compile("^ *(?:(?<day1>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month1>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year1>([0-9]{4})|([-?]{1,4})) *" +
                     "- *(?:(?<day2>[0-9?-]{1,2})(?:-|/|( +)))?(?:(?<month2>(?:[0-9?-]{1,2})|(?:[a-zA-Z?-]+))(?:-|/|( +)))?(?<year2>([0-9]{4})|([-?]{1,4})) *$");
@@ -139,7 +139,7 @@ public class DateParser implements FieldParser {
 
         Matcher matcher = singleDatePattern.matcher(inputValue);
         if(!matcher.find()) {
-            Log.info("INVERSE: "+inputValue);
+//            Log.info("INVERSE: "+inputValue);
             matcher = singleDatePatternInverse.matcher(inputValue);
             if(!matcher.find()) {   // not a single date
                 // let's try a date range

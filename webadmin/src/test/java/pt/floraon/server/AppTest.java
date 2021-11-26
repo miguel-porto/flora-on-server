@@ -175,6 +175,13 @@ public class AppTest
         assertEquals(Constants.NODATA_INT, date[3]);
         assertEquals(Constants.NODATA_INT, date[4]);
 
+        date = DateParser.parseDate("2100-12-02 ");
+        assertEquals((Integer) 2, date[0]);
+        assertEquals((Integer) 12, date[1]);
+        assertEquals((Integer) 2100, date[2]);
+        assertEquals(Constants.NODATA_INT, date[3]);
+        assertEquals(Constants.NODATA_INT, date[4]);
+
         date = DateParser.parseDate("2100/12/2 15:12");
         assertEquals((Integer) 2, date[0]);
         assertEquals((Integer) 12, date[1]);
