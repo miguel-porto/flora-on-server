@@ -2,16 +2,7 @@
 <c:if test="${user.canEDIT_SECTION3()}">
     <table>
         <tr><td>Category</td><td>
-            <select name="population_NrMatureIndividualsCategory">
-                <c:forEach var="tmp" items="${population_NrMatureIndividualsCategory}">
-                    <c:if test="${rlde.getPopulation().getNrMatureIndividualsCategory().toString().equals(tmp.toString())}">
-                        <option value="${tmp.toString()}" selected="selected">${tmp.getLabel()}</option>
-                    </c:if>
-                    <c:if test="${!rlde.getPopulation().getNrMatureIndividualsCategory().toString().equals(tmp.toString())}">
-                        <option value="${tmp.toString()}">${tmp.getLabel()}</option>
-                    </c:if>
-                </c:forEach>
-            </select>
+            <t:dropdown name="population_NrMatureIndividualsCategory" values="${population_NrMatureIndividualsCategory}" selectedValue="${rlde.getPopulation().getNrMatureIndividualsCategory()}" trigger="false"/>
         </td></tr>
         <tr><td>Exact number</td><td>
         <input type="text" name="population_NrMatureIndividualsExact" value="${rlde.getPopulation().getNrMatureIndividualsExact()}"/>

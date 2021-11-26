@@ -101,6 +101,11 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
      */
     private List<Revision> revisions;
 
+    /**
+     * How to identify this species
+     */
+    private SafeHTMLString identification;
+
     @NoAutomaticProcessing private SafeHTMLString reviewerComments;
     @NoAutomaticProcessing private SafeHTMLString replyToReviewer;
     @NoAutomaticProcessing private SafeHTMLString otherInformation;
@@ -183,6 +188,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
         return reviewerComments == null ? new SafeHTMLString("") : reviewerComments;
     }
 
+    public SafeHTMLString getIdentification() {
+        return identification == null ? SafeHTMLString.emptyString() : identification;
+    }
+
     public SafeHTMLString getValidationComments() {
         return validationComments == null ? new SafeHTMLString("") : validationComments;
     }
@@ -254,6 +263,10 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
 
     public void setReviewerComments(SafeHTMLString reviewerComments) {
         this.reviewerComments = reviewerComments;
+    }
+
+    public void setIdentification(SafeHTMLString identification) {
+        this.identification = identification;
     }
 
     public void setValidationComments(SafeHTMLString validationComments) {
@@ -400,6 +413,14 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
             this.population.setPopulationDecline(RedListEnums.DeclinePopulation.valueOf(populationDecline));
         } catch (IllegalArgumentException e) {
             this.population.setPopulationDecline(RedListEnums.DeclinePopulation.NO_INFORMATION);
+        }
+    }
+
+    public void setPopulation_PopulationDeclineQualifier(String populationDeclineQualifier) {
+        try {
+            this.population.setPopulationDeclineQualifier(RedListEnums.DeclineQualifier.valueOf(populationDeclineQualifier));
+        } catch (IllegalArgumentException e) {
+            this.population.setPopulationDeclineQualifier(RedListEnums.DeclineQualifier.NO_INFORMATION);
         }
     }
 

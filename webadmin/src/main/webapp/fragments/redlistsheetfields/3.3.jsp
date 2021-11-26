@@ -2,16 +2,7 @@
 <c:if test="${user.canEDIT_SECTION3()}">
     <table class="triggergroup">
         <tr><td>Type</td><td>
-            <select name="population_TypeOfEstimate" class="trigger">
-                <c:forEach var="tmp" items="${population_TypeOfEstimate}">
-                    <c:if test="${rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                        <option value="${tmp.toString()}" selected="selected" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
-                    </c:if>
-                    <c:if test="${!rlde.getPopulation().getTypeOfEstimate().toString().equals(tmp.toString())}">
-                        <option value="${tmp.toString()}" data-trigger="${tmp.isTrigger() ? 1 : 0}">${tmp.getLabel()}</option>
-                    </c:if>
-                </c:forEach>
-            </select>
+            <t:dropdown name="population_TypeOfEstimate" values="${population_TypeOfEstimate}" selectedValue="${rlde.getPopulation().getTypeOfEstimate()}" trigger="true"/>
         </td></tr>
         <tr class="triggered ${rlde.getPopulation().getTypeOfEstimate().isTrigger() ? '' : 'hidden'}"><td>Description</td><td>
             <div contenteditable="true" class="contenteditable">${rlde.getPopulation().getNrMatureIndividualsDescription()}</div>

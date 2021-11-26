@@ -19,6 +19,7 @@ public class Population implements DiffableBean {
     private SafeHTMLString nrMatureIndividualsDescription;
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
     private RedListEnums.DeclinePopulation populationDecline;
+    private RedListEnums.DeclineQualifier populationDeclineQualifier;
     private IntegerInterval populationDeclinePercent;
     private SafeHTMLString populationDeclineJustification;
     // population size reduction
@@ -57,6 +58,10 @@ public class Population implements DiffableBean {
 
     public RedListEnums.DeclinePopulation getPopulationDecline() {
         return populationDecline == null ? RedListEnums.DeclinePopulation.NO_INFORMATION : populationDecline;
+    }
+
+    public RedListEnums.DeclineQualifier getPopulationDeclineQualifier() {
+        return populationDeclineQualifier == null ? RedListEnums.DeclineQualifier.NO_INFORMATION : populationDeclineQualifier;
     }
 
     public IntegerInterval getPopulationTrend() {
@@ -138,6 +143,10 @@ public class Population implements DiffableBean {
 
     public void setPopulationDecline(RedListEnums.DeclinePopulation populationDecline) {
         this.populationDecline = populationDecline;
+    }
+
+    public void setPopulationDeclineQualifier(RedListEnums.DeclineQualifier populationDeclineQualifier) {
+        this.populationDeclineQualifier = populationDeclineQualifier;
     }
 
     public void setPopulationTrend(IntegerInterval populationTrend) {

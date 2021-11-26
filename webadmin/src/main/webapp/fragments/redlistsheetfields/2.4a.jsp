@@ -5,7 +5,7 @@
         <t:dropdown name="geographicalDistribution_DeclineDistribution" values="${geographicalDistribution_DeclineDistribution}" selectedValue="${rlde.getGeographicalDistribution().getDeclineDistribution()}" trigger="true"/>
     </td></tr>
     <tr class="triggered ${rlde.getGeographicalDistribution().getDeclineDistribution().isTrigger() ? '' : 'hidden'}"><td>Qualifier</td><td>
-    <t:dropdown name="geographicalDistribution_DeclineQualifier" values="${geographicalDistribution_DeclineQualifier}" selectedValue="${rlde.getGeographicalDistribution().getDeclineQualifier()}"/>
+    <t:dropdown name="geographicalDistribution_DeclineQualifier" values="${DeclineQualifier}" selectedValue="${rlde.getGeographicalDistribution().getDeclineQualifier()}"/>
     </td></tr>
     <tr class="triggered ${rlde.getGeographicalDistribution().getDeclineDistribution().isTrigger() ? '' : 'hidden'}"><td>Justification</td><td>
         <t:editabletext

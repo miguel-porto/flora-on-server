@@ -29,6 +29,11 @@
 <c:if test="${user.canVIEW_FULL_SHEET()}">
 <tr class="section1"><td class="title">1.6</td><td><fmt:message key="DataSheet.label.1.6" /></td><td><%@ include file="/fragments/redlistsheetfields/1.6.jsp" %></td></tr>
 </c:if>
+<tr class="section1"><t:redlistsheetrow field="1.7" help="true"/><td>
+    <t:editabletext
+        privilege="${user.canEDIT_1_4() || user.canEDIT_ALL_TEXTUAL()}"
+        value="${identification}"
+        name="identification"/></td></tr>
 <tr class="section2"><td class="title" colspan="3"><a name="distribution"></a><fmt:message key="DataSheet.label.section"/> 2 - <fmt:message key="DataSheet.label.2" /></td></tr>
 <tr class="section2 textual"><t:redlistsheetrow field="2.1" help="true"/><td><%@ include file="/fragments/redlistsheetfields/2.1.jsp" %></td></tr>
 <tr class="section2"><t:redlistsheetrow field="2.2" help="false"/><td><%@ include file="/fragments/redlistsheetfields/2.2.jsp" %><%@ include file="/fragments/redlistsheetfields/2.2a.jsp" %></td></tr>
@@ -46,7 +51,7 @@
 </td></tr>
 <tr class="section3"><t:redlistsheetrow field="3.2" help="false"/><td><%@ include file="/fragments/redlistsheetfields/3.2.jsp" %></td></tr>
 <tr class="section3"><t:redlistsheetrow field="3.3"/><td><%@ include file="/fragments/redlistsheetfields/3.3.jsp" %></td></tr>
-<tr class="section3 declines"><t:redlistsheetrow field="3.4"/><td><%@ include file="/fragments/redlistsheetfields/3.4.jsp" %></td></tr>
+<tr class="section3 declines"><t:redlistsheetrow field="3.4"/><td><%@ include file="/fragments/redlistsheetfields/3.4a.jsp" %></td></tr>
 <tr class="section3"><t:redlistsheetrow field="3.5"/><td><%@ include file="/fragments/redlistsheetfields/3.5.jsp" %></td></tr>
 <tr class="section3 declines"><t:redlistsheetrow field="3.6"/><td><%@ include file="/fragments/redlistsheetfields/3.6.jsp" %></td></tr>
 <tr class="section3"><t:redlistsheetrow field="3.7"/><td><%@ include file="/fragments/redlistsheetfields/3.7.jsp" %></td></tr>
