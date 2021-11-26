@@ -192,12 +192,49 @@ public final class Common {
         csv.close();
     }
 
+    /**
+     * The main function for exporting inventory summary table as CSV
+     * @param inventoryIterator
+     * @param stream
+     * @param driver
+     * @throws IOException
+     * @throws FloraOnException
+     */
+    public static void exportInventoriesToCSV(Iterator<Inventory> inventoryIterator, Writer stream, IFloraOn driver)
+            throws IOException, FloraOnException {
+        CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
+        exportInventoryHeaderToCSV(csv);
+        Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
+        Map<String, String> userMap = new HashMap<>();
+        if(driver != null) {
+            // build the user map
+            List<User> allUsers = driver.getAdministration().getAllUsers(false);
+            for (User u : allUsers)
+                userMap.put(u.getID(), u.getName());
+        }
+
+        while (inventoryIterator.hasNext()) {
+            Inventory i2 = inventoryIterator.next();
+            exportInventoryToCSV(i2, csv, userMap);
+        }
+        csv.close();
+    }
+
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
         final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
                 , "credits", "maintainer", "maintainerName", "redListCategory", "URL"));
+        csv.printRecord(fields);
+    }
+
+    public static void exportInventoryHeaderToCSV(CSVPrinter csv) throws IOException {
+        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa"
+                , "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
+                , "precision", "mgrs", "WKT", "locality", "verbLocality", "code"
+                , "threats", "habitat", "privNotes", "inventoryComment", "year", "month", "day"
+                , "credits", "maintainer", "maintainerName"));
         csv.printRecord(fields);
     }
 
@@ -262,6 +299,45 @@ public final class Common {
 //                , occurrence._getMaintainerName()
         );
     }
+
+    public static void exportInventoryToCSV(Inventory inventory, CSVPrinter csv, Map<String, String> userMap) throws IOException {
+        Float lat, lng = null;
+        UTMCoordinate utm = (lat = inventory._getLatitude()) != null && (lng = inventory._getLongitude()) != null
+                ? CoordinateConversion.LatLonToUtmWGS84(lat, lng, 0)
+                : null;
+        String MGRS, WKT;
+        try {
+            MGRS = CoordinateConversion.LatLongToMGRS(lat, lng, 1000);
+        } catch (IllegalArgumentException e) {
+            MGRS = "<invalid>";
+        }
+        if (utm != null) {
+            Point2D tmp1 = new Point2D(utm.getX(), utm.getY());
+            WKT = new Square(tmp1, 10000).toWKT();
+        } else WKT = "<invalid>";
+
+        csv.printRecord(
+                inventory.getSource()
+                , inventory._getSampleTaxa(200, false, true)
+                , inventory._getDateYMD()
+                , userMap == null || StringUtils.isArrayEmpty(inventory.getObservers()) ? StringUtils.implode(", ", inventory._getObserverNames()) : StringUtils.implode(", ", userMap, inventory.getObservers())
+                , StringUtils.implode(", ", userMap, inventory.getCollectors())
+                , lat, lng
+                , utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()
+                , utm == null ? "" : utm.getX()
+                , utm == null ? "" : utm.getY()
+                , inventory.getPrecision()
+                , MGRS, WKT
+                , inventory.getLocality()
+                , inventory.getVerbLocality(), inventory.getCode()
+                , inventory.getThreats(), inventory.getHabitat(), inventory.getPrivNotes(), inventory.getPubNotes()
+                , inventory.getYear(), inventory.getMonth(), inventory.getDay()
+                , inventory.getCredits()
+                , inventory.getMaintainer()
+                , inventory.getMaintainer() == null || userMap == null ? "" : (userMap.get(inventory.getMaintainer()) == null ? "" : inventory._getMaintainerName())
+        );
+    }
+
     public static void exportTaxonToCSV(CSVPrinter csv, TaxEnt acceptedTaxEnt, RedListDataEntity rlde, ITaxEntWrapper tew, String family, OBSERVED_IN_summary number) throws IOException, FloraOnException {
         InferredStatus ist;
         csv.printRecord(

@@ -862,24 +862,29 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * @param nTaxa How many taxa to show
      * @return
      */
-    public String _getSampleTaxa(int nTaxa) {
+    public String _getSampleTaxa(int nTaxa, boolean htmlFormatted, boolean withSuffixes) {
         OBSERVED_IN[] tmp = _getTaxa();
         if(tmp.length == 0) return "[sem taxa]";
         List<String> tmp1 = new ArrayList<>();
         int i;
         StringBuilder suffix = new StringBuilder();
         for (i = 0; i < nTaxa && i < tmp.length; i++) {
-            if(tmp[i].getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL)
-                suffix.append("?");
-            if(tmp[i].getNaturalization() != null && tmp[i].getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
-                suffix.append("*");
+            if(withSuffixes) {
+                if (tmp[i].getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL)
+                    suffix.append("?");
+                if (tmp[i].getNaturalization() != null && tmp[i].getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
+                    suffix.append("*");
+            }
             if(tmp[i].getTaxEnt() == null) {
                 if(tmp[i].getVerbTaxon() == null || tmp[i].getVerbTaxon().equals(""))
                     tmp1.add("[sem nome]");
                 else
                     tmp1.add(tmp[i].getVerbTaxon() + suffix);
             } else
-                tmp1.add("<i>" + tmp[i].getTaxEnt().getName() + suffix + "</i>");
+                if(htmlFormatted)
+                    tmp1.add("<i>" + tmp[i].getTaxEnt().getName() + suffix + "</i>");
+                else
+                    tmp1.add(tmp[i].getTaxEnt().getName() + suffix);
             suffix.setLength(0);
         }
         if(i < tmp.length) tmp1.add("... e mais " + (tmp.length - i));

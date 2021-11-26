@@ -400,6 +400,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
             case "downloadoccurrencetable":
             case "downloadspeciestable":
+            case "downloadinventorytable":
                 thisRequest.response.setContentType("text/csv; charset=Windows-1252");
                 thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.csv\"");
                 thisRequest.response.setCharacterEncoding("Windows-1252");
@@ -409,24 +410,45 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 else
                     u = driver.asNodeKey(user.getID());
 
-                Iterator<Occurrence> it1;
-                if(filter == null) {
-                    it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, null, true,null, null);
+                Iterator<? extends Inventory> it1;
+                Map<String, String> parsedFilter3;
+                if(what.equals("downloadinventorytable")) {
+                    if (filter == null) {
+                        it1 = driver.getOccurrenceDriver().getInventoriesOfMaintainer(u, null, null, null);
+                    } else {
+                        try {
+                            parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                            it1 = driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter3, null, u, false, null, null);
+                        } catch (FloraOnException e) {
+                            thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
+                            return;
+                        }
+                    }
                 } else {
-                    Map<String, String> parsedFilter3;
-                    try {
-                        parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
-                        it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter3, null, u, false, null, null);
-                    } catch (FloraOnException e) {
-                        thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
-                        return;
+                    if (filter == null) {
+                        it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, null, true, null, null);
+                    } else {
+                        try {
+                            parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                            it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter3, null, u, false, null, null);
+                        } catch (FloraOnException e) {
+                            thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
+                            return;
+                        }
                     }
                 }
-                if(what.equals("downloadspeciestable")) {
-                    Map<TaxEnt, OBSERVED_IN_summary> speciesList = driver.getOccurrenceDriver().getTaxonListFromOccurrences(it1, true);
-                    Common.exportTaxonListToCSV(speciesList.entrySet().iterator(), thisRequest.response.getWriter(), driver);
-                } else
-                    Common.exportOccurrencesToCSV(it1, thisRequest.response.getWriter(), driver);
+                switch(what) {
+                    case "downloadspeciestable":
+                        Map<TaxEnt, OBSERVED_IN_summary> speciesList = driver.getOccurrenceDriver().getTaxonListFromOccurrences((Iterator<Occurrence>) it1, true);
+                        Common.exportTaxonListToCSV(speciesList.entrySet().iterator(), thisRequest.response.getWriter(), driver);
+                        break;
+                    case "downloadoccurrencetable":
+                        Common.exportOccurrencesToCSV((Iterator<Occurrence>) it1, thisRequest.response.getWriter(), driver);
+                        break;
+                    case "downloadinventorytable":
+                        Common.exportInventoriesToCSV((Iterator<Inventory>) it1, thisRequest.response.getWriter(), driver);
+                        break;
+                }
                 return;
 
         }

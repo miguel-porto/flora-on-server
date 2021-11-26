@@ -7,6 +7,7 @@
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
 <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
+<div class="button anchorbutton"><a href="?w=downloadinventorytable"><fmt:message key="button.12"/></a></div>
 <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users inventories" defaultvalue="false"/></c:if>
 </div>  <!-- top buttons -->
 <div id="flavourlist">

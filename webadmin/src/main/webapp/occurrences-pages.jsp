@@ -155,7 +155,7 @@
                 <td>${inv.getCode()}</td>
                 <td sorttable_customkey="${inv._getDateYMD()}">${inv._getDate()}</td>
                 <td class="coordinates" data-lat="${inv._getLatitude()}" data-lng="${inv._getLongitude()}">${inv._getCoordinates()}</td>
-                <td>${inv._getSampleTaxa(5)}</td>
+                <td>${inv._getSampleTaxa(5, true, true)}</td>
             </tr>
         </c:forEach>
         </table>

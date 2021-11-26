@@ -135,7 +135,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 
 		// fetch the threat enumeration, that may depend on the taxonomic group
 		try {
-			threatEnumeration = (MultipleChoiceEnumerationBase) Class.forName("pt.floraon.redlistdata.threats.ThreatsInvertebrates").getDeclaredConstructor().newInstance();
+			threatEnumeration = (MultipleChoiceEnumerationBase) Class.forName("pt.floraon.redlistdata.threats.ThreatsPlants").getDeclaredConstructor().newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new FloraOnException("Could not initialize Threats.");

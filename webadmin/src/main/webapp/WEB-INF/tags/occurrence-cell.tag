@@ -38,7 +38,7 @@
 <%--    SPECIAL FIELDS      --%>
 <c:when test="${field == 'taxa'}">
 <c:if test="${view != 'inventorySummary'}"><c:set var="taxa" value="${taxon == null ? '' : (taxon.getTaxEnt() == null ? taxon.getVerbTaxon() : taxon.getTaxEnt().getNameWithAnnotationOnly(false))}" /><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} taxon" data-name="taxa">${taxa}</td></c:if>
-<c:if test="${view == 'inventorySummary'}"><td class="${collapsedClass} ${multiline} ${monospace} taxon"><a href="?w=openinventory&id=${inventory._getIDURLEncoded()}"><c:if test="${inventory._hasDuplicatedTaxa()}"><span class="warning">duplicated taxa</span> </c:if>${inventory._getSampleTaxa(100)}</a></td></c:if>
+<c:if test="${view == 'inventorySummary'}"><td class="${collapsedClass} ${multiline} ${monospace} taxon"><a href="?w=openinventory&id=${inventory._getIDURLEncoded()}"><c:if test="${inventory._hasDuplicatedTaxa()}"><span class="warning">duplicated taxa</span> </c:if>${inventory._getSampleTaxa(100, true, true)}</a></td></c:if>
 </c:when>
 <c:when test="${field == 'coordinates'}">
     <c:set var="coordchanged" value="${taxon == null ? '' : (taxon.getCoordinatesChanged() ? 'textemphasis' : '')}" />
@@ -55,8 +55,6 @@
 <c:when test="${field == 'tags' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} hideincompactview" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}"/></td></c:when>
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
 <c:when test="${field == 'maintainer' && view != 'inventory'}"><td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : thisfieldeditable} ${collapsedClass} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} authors" data-name="${field}"><t:usernames id="${inventory == null ? null : fields.getFieldValueRaw(taxon, inventory, field)}" usermap="${userMap}"/></td></c:when>
-
-<%-- <c:when test="${field == 'taxaSummary' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace} taxon"><a href="?w=openinventory&id=${inventory._getIDURLEncoded()}"><c:if test="${inventory._hasDuplicatedTaxa()}"><span class="warning">duplicated taxa</span> </c:if>${inventory._getSampleTaxa(100)}</a></td></c:when> --%>
 
 <%-- These are concatenated fields, which are read-only --%>
 <c:when test="${field == 'observers_collectors' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace}"><t:usernames idarray="${inventory == null ? null : inventory.getObservers()}" usermap="${userMap}"/> <t:usernames idarray="${inventory == null ? null : inventory.getCollectors()}" usermap="${userMap}"/></td></c:when>
