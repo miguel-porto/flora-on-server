@@ -161,6 +161,12 @@ public final class Common {
     public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream, IFloraOn driver)
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
+        ITaxEntWrapper tew;
+        Map<String, InferredStatus> inferredStatusMap = new HashMap<>();
+        Map<String, String[]> endemismDegreeMap = new HashMap<>();
+        InferredStatus inferredStatus;
+        String[] endemismDegree;
+
         exportOccurrenceHeaderToCSV(csv);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
         Map<String, String> userMap = new HashMap<>();
@@ -174,6 +180,7 @@ public final class Common {
 
         while (occurrenceIterator.hasNext()) {
             Occurrence i2 = occurrenceIterator.next();
+            // if driver is provided, fetch endemism degree and accepted taxon
             if(driver != null) {
                 String taxEntId = i2.getOccurrence().getTaxEntMatch();
                 // fill in accepted taxa
@@ -186,8 +193,26 @@ public final class Common {
                     if(tmp != null)
                         acceptedTaxa.put(i2.getOccurrence().getTaxEntMatch(), tmp);
                 }
+                if(inferredStatusMap.containsKey(taxEntId)) {
+                    inferredStatus = inferredStatusMap.get(taxEntId);
+                    endemismDegree = endemismDegreeMap.get(taxEntId);
+                } else {
+                    try {
+                        tew = driver.wrapTaxEnt(driver.asNodeKey(taxEntId));
+                        inferredStatus = tew.getInferredNativeStatus("lu");   // TODO user config
+                        inferredStatusMap.put(taxEntId, inferredStatus);
+                        endemismDegree = tew.getEndemismDegree();
+                        endemismDegreeMap.put(taxEntId, endemismDegree);
+                    } catch (FloraOnException e) {
+                        inferredStatus = null;
+                        endemismDegree = null;
+                    }
+                }
+            } else {
+                inferredStatus = null;
+                endemismDegree = null;
             }
-            exportOccurrenceToCSV(i2, csv, tmp, userMap, null);
+            exportOccurrenceToCSV(i2, csv, tmp, userMap, null, inferredStatus, endemismDegree);
         }
         csv.close();
     }
@@ -225,7 +250,7 @@ public final class Common {
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-                , "credits", "maintainer", "maintainerName", "redListCategory", "URL"));
+                , "credits", "maintainer", "maintainerName", "redListCategory", "URL", "Endemic to", "Native status in Lu"));
         csv.printRecord(fields);
     }
 
@@ -244,7 +269,8 @@ public final class Common {
         csv.printRecord(fields);
     }
 
-    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt, Map<String, String> userMap, RedListDataEntity rlde) throws IOException {
+    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt,
+                                             Map<String, String> userMap, RedListDataEntity rlde, InferredStatus ist, String[] endemismDegree) throws IOException, FloraOnException {
         // TODO use field annotations
         OBSERVED_IN oi = occurrence.getOccurrence();
         UTMCoordinate utm = occurrence.hasCoordinate()
@@ -296,6 +322,8 @@ public final class Common {
                 , occurrence.getMaintainer() == null || userMap == null ? "" : (userMap.get(occurrence.getMaintainer()) == null ? "" : occurrence._getMaintainerName())
                 , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
                 , occurrence.getOccurrence().getUri()
+                , endemismDegree == null ? "" : StringUtils.implode(" ", endemismDegree)
+                , ist == null ? "" : (ist.getNativeStatus() + (ist.isEndemic() ? " (ENDEMIC)" : ""))
 //                , occurrence._getMaintainerName()
         );
     }

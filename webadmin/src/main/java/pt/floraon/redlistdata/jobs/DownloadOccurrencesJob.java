@@ -5,8 +5,10 @@ import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
+import pt.floraon.driver.interfaces.ITaxEntWrapper;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.driver.jobs.JobFileDownload;
+import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.entities.Occurrence;
@@ -95,6 +97,12 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
     private void querySpecies(IFloraOn driver, TaxEnt taxEnt, RedListDataEntity rlde, Map<String, String> userMap, CSVPrinter printer) throws IOException, FloraOnException {
         OccurrenceProcessor op;
+        ITaxEntWrapper tew;
+        Map<String, InferredStatus> inferredStatusMap = new HashMap<>();
+        Map<String, String[]> endemismDegreeMap = new HashMap<>();
+        InferredStatus inferredStatus;
+        String[] endemismDegree;
+
         curSpeciesI++;
         curSpeciesName = taxEnt.getName();
         List<SimpleOccurrenceDataProvider> sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
@@ -108,7 +116,22 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             for (Occurrence so : op) {
                 // here we override the matched taxent because we want occurrences to be organized by red list sheets.
                 so.getOccurrence().setTaxEnt(taxEnt);
-                Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde);
+                if(inferredStatusMap.containsKey(taxEnt.getID())) {
+                    inferredStatus = inferredStatusMap.get(taxEnt.getID());
+                    endemismDegree = endemismDegreeMap.get(taxEnt.getID());
+                } else {
+                    try {
+                        tew = driver.wrapTaxEnt(driver.asNodeKey(taxEnt.getID()));
+                        inferredStatus = tew.getInferredNativeStatus("lu");   // TODO user config
+                        inferredStatusMap.put(taxEnt.getID(), inferredStatus);
+                        endemismDegree = tew.getEndemismDegree();
+                        endemismDegreeMap.put(taxEnt.getID(), endemismDegree);
+                    } catch (FloraOnException e) {
+                        inferredStatus = null;
+                        endemismDegree = null;
+                    }
+                }
+                Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde, inferredStatus, endemismDegree);
             }
         }
     }
