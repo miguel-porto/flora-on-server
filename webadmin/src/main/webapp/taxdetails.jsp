@@ -1,5 +1,6 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<%@ page session="false" %>
 <% pageContext.setAttribute("newLineChar", "\n"); %>
 <!DOCTYPE html>
 <div class="${user.canMODIFY_TAXA_TERRITORIES() || user.canMODIFY_TAXA() ? 'editable' : '' }">

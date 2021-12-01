@@ -14,7 +14,6 @@ import pt.floraon.driver.interfaces.ITaxEntWrapper;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.CoordinateConversion;
-import pt.floraon.geometry.LatLongCoordinate;
 import pt.floraon.geometry.Point2D;
 import pt.floraon.geometry.UTMCoordinate;
 import pt.floraon.geometry.gridmaps.Square;
@@ -164,8 +163,10 @@ public final class Common {
         ITaxEntWrapper tew;
         Map<String, InferredStatus> inferredStatusMap = new HashMap<>();
         Map<String, String[]> endemismDegreeMap = new HashMap<>();
+        Map<String, TaxEnt[]> higherTaxonomyMap = new HashMap<>();
         InferredStatus inferredStatus;
         String[] endemismDegree;
+        TaxEnt[] higherTaxonomy;
 
         exportOccurrenceHeaderToCSV(csv);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
@@ -196,6 +197,7 @@ public final class Common {
                 if(inferredStatusMap.containsKey(taxEntId)) {
                     inferredStatus = inferredStatusMap.get(taxEntId);
                     endemismDegree = endemismDegreeMap.get(taxEntId);
+                    higherTaxonomy = higherTaxonomyMap.get(taxEntId);
                 } else {
                     try {
                         tew = driver.wrapTaxEnt(driver.asNodeKey(taxEntId));
@@ -203,16 +205,20 @@ public final class Common {
                         inferredStatusMap.put(taxEntId, inferredStatus);
                         endemismDegree = tew.getEndemismDegree();
                         endemismDegreeMap.put(taxEntId, endemismDegree);
+                        higherTaxonomy = driver.getQueryDriver().getHigherTaxonomy(new String[] {taxEntId}).next();
+                        higherTaxonomyMap.put(taxEntId, higherTaxonomy);
                     } catch (FloraOnException e) {
                         inferredStatus = null;
                         endemismDegree = null;
+                        higherTaxonomy = null;
                     }
                 }
             } else {
                 inferredStatus = null;
                 endemismDegree = null;
+                higherTaxonomy = null;
             }
-            exportOccurrenceToCSV(i2, csv, tmp, userMap, null, inferredStatus, endemismDegree);
+            exportOccurrenceToCSV(i2, csv, tmp, userMap, null, inferredStatus, endemismDegree, higherTaxonomy);
         }
         csv.close();
     }
@@ -246,7 +252,7 @@ public final class Common {
     }
 
     public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "confidence", "excludeReason"
+        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "higherTaxonomy", "confidence", "excludeReason"
                 , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
                 , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
                 , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
@@ -270,7 +276,9 @@ public final class Common {
     }
 
     public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt,
-                                             Map<String, String> userMap, RedListDataEntity rlde, InferredStatus ist, String[] endemismDegree) throws IOException, FloraOnException {
+                                             Map<String, String> userMap, RedListDataEntity rlde, InferredStatus ist,
+                                             String[] endemismDegree, TaxEnt[] higherTaxonomy)
+            throws IOException, FloraOnException {
         // TODO use field annotations
         OBSERVED_IN oi = occurrence.getOccurrence();
         UTMCoordinate utm = occurrence.hasCoordinate()
@@ -288,6 +296,12 @@ public final class Common {
             WKT = new Square(tmp1, 10000).toWKT();
         } else WKT = "<invalid>";
 
+        StringBuilder higherTaxonomyString = new StringBuilder();
+        if(higherTaxonomy != null && higherTaxonomy.length > 1) {
+            for(int i=higherTaxonomy.length - 1; i>=1; i--)
+                higherTaxonomyString.append(">").append(higherTaxonomy[i].getName());
+        } else higherTaxonomyString.append(" ");
+
         csv.printRecord(
                 occurrence.getSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()
@@ -295,6 +309,7 @@ public final class Common {
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
                 , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)
                 , oi.getVerbTaxon()
+                , higherTaxonomyString.substring(1).toString()
                 , oi.getConfidence()
                 , oi.getPresenceStatus()
                 , oi.getPhenoState()

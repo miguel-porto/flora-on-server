@@ -100,8 +100,10 @@ public class DownloadOccurrencesJob implements JobFileDownload {
         ITaxEntWrapper tew;
         Map<String, InferredStatus> inferredStatusMap = new HashMap<>();
         Map<String, String[]> endemismDegreeMap = new HashMap<>();
+        Map<String, TaxEnt[]> higherTaxonomyMap = new HashMap<>();
         InferredStatus inferredStatus;
         String[] endemismDegree;
+        TaxEnt[] higherTaxonomy;
 
         curSpeciesI++;
         curSpeciesName = taxEnt.getName();
@@ -116,22 +118,27 @@ public class DownloadOccurrencesJob implements JobFileDownload {
             for (Occurrence so : op) {
                 // here we override the matched taxent because we want occurrences to be organized by red list sheets.
                 so.getOccurrence().setTaxEnt(taxEnt);
+                String taxEntId = taxEnt.getID();
                 if(inferredStatusMap.containsKey(taxEnt.getID())) {
-                    inferredStatus = inferredStatusMap.get(taxEnt.getID());
-                    endemismDegree = endemismDegreeMap.get(taxEnt.getID());
+                    inferredStatus = inferredStatusMap.get(taxEntId);
+                    endemismDegree = endemismDegreeMap.get(taxEntId);
+                    higherTaxonomy = higherTaxonomyMap.get(taxEntId);
                 } else {
                     try {
-                        tew = driver.wrapTaxEnt(driver.asNodeKey(taxEnt.getID()));
+                        tew = driver.wrapTaxEnt(driver.asNodeKey(taxEntId));
                         inferredStatus = tew.getInferredNativeStatus("lu");   // TODO user config
-                        inferredStatusMap.put(taxEnt.getID(), inferredStatus);
+                        inferredStatusMap.put(taxEntId, inferredStatus);
                         endemismDegree = tew.getEndemismDegree();
-                        endemismDegreeMap.put(taxEnt.getID(), endemismDegree);
+                        endemismDegreeMap.put(taxEntId, endemismDegree);
+                        higherTaxonomy = driver.getQueryDriver().getHigherTaxonomy(new String[] {taxEntId}).next();
+                        higherTaxonomyMap.put(taxEntId, higherTaxonomy);
                     } catch (FloraOnException e) {
                         inferredStatus = null;
                         endemismDegree = null;
+                        higherTaxonomy = null;
                     }
                 }
-                Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde, inferredStatus, endemismDegree);
+                Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde, inferredStatus, endemismDegree, higherTaxonomy);
             }
         }
     }
