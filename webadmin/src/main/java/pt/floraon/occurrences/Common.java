@@ -5,7 +5,6 @@ import com.openhtmltopdf.swing.NaiveUserAgent;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.lang.mutable.MutableInt;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -31,11 +30,13 @@ import java.util.*;
  * Created by miguel on 23-03-2017.
  */
 public final class Common {
-    public static final List<String> allOutputFields = Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "higherTaxonomy", "confidence", "excludeReason"
-            , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
-            , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
-            , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-            , "credits", "maintainer", "maintainerName", "redListCategory", "URL", "endemicTo", "nativeStatusLu");
+    public static final List<String> allOutputFields = Arrays.asList(
+            "source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "higherTaxonomy", "class", "subclass",
+            "superorder", "order", "family", "confidence", "excludeReason", "phenoState", "naturalization", "date", "observers",
+            "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY", "precision", "mgrs", "WKT", "locality",
+            "verbLocality", "code", "abundance", "method", "cover", "photo", "collected", "specificThreats", "habitat",
+            "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession",
+            "credits", "maintainer", "maintainerName", "redListCategory", "URL", "endemicTo", "nativeStatusLu");
 
     public static InventoryList readInventoryListFromFile(String fileName) throws IOException, ClassNotFoundException {
         ObjectInputStream oist;
@@ -289,13 +290,14 @@ public final class Common {
                                              Map<String, String> userMap, RedListDataEntity rlde, InferredStatus ist,
                                              String[] endemismDegree, TaxEnt[] higherTaxonomy)
             throws IOException, FloraOnException {
-        // TODO use field annotations
         OBSERVED_IN oi = occurrence.getOccurrence();
         UTMCoordinate utm = occurrence.hasCoordinate()
                 ? CoordinateConversion.LatLonToUtmWGS84(occurrence._getLatitude(), occurrence._getLongitude(), 0)
                 : null;
 //                    TaxEnt te = oi.getTaxEnt();
         String MGRS, WKT;
+        Map<Constants.TaxonRanks, String> taxonomyMap = null;
+
         try {
             MGRS = CoordinateConversion.LatLongToMGRS(occurrence._getLatitude(), occurrence._getLongitude(), 1000);
         } catch (IllegalArgumentException e) {
@@ -308,8 +310,11 @@ public final class Common {
 
         StringBuilder higherTaxonomyString = new StringBuilder();
         if(higherTaxonomy != null && higherTaxonomy.length > 1) {
-            for(int i=higherTaxonomy.length - 1; i>=1; i--)
+            taxonomyMap = new HashMap<>();
+            for(int i=higherTaxonomy.length - 1; i>=1; i--) {
                 higherTaxonomyString.append(">").append(higherTaxonomy[i].getName());
+                taxonomyMap.put(higherTaxonomy[i].getRank(), higherTaxonomy[i].getName());
+            }
         } else higherTaxonomyString.append(" ");
 
         if(fieldsToOutput == null)
@@ -324,6 +329,13 @@ public final class Common {
                 case "acceptedTaxon": csv.print(acceptedTaxEnt == null ? "" : acceptedTaxEnt.getTaxonName().getCanonicalName(true)); break;
                 case "verbTaxa": csv.print(oi.getVerbTaxon()); break;
                 case "higherTaxonomy": csv.print(higherTaxonomyString.substring(1)); break;
+                case "phylum":
+                case "class":
+                case "subclass":
+                case "superorder":
+                case "order":
+                case "family":
+                    csv.print(taxonomyMap == null ? "" : taxonomyMap.get(Constants.TaxonRanks.valueOf(field.toUpperCase(Locale.ROOT)))); break;
                 case "confidence": csv.print(oi.getConfidence()); break;
                 case "excludeReason": csv.print(oi.getPresenceStatus()); break;
                 case "phenoState": csv.print(oi.getPhenoState()); break;
@@ -369,45 +381,6 @@ public final class Common {
             }
         }
         csv.println();
-/*        csv.printRecord(
-                occurrence.getSource()
-                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()
-                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()
-                , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)
-                , acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)
-                , oi.getVerbTaxon()
-                , higherTaxonomyString.substring(1).toString()
-                , oi.getConfidence()
-                , oi.getPresenceStatus()
-                , oi.getPhenoState()
-                , oi.getNaturalization()
-                , occurrence._getDateYMD()
-//                , StringUtils.implode(", ", occurrence._getObserverNames())
-                , userMap == null || StringUtils.isArrayEmpty(occurrence.getObservers()) ? StringUtils.implode(", ", occurrence._getObserverNames()) : StringUtils.implode(", ", userMap, occurrence.getObservers())
-                , StringUtils.implode(", ", userMap, occurrence.getCollectors())
-                , occurrence._getLatitude(), occurrence._getLongitude()
-                , utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()
-                , utm == null ? "" : utm.getX()
-                , utm == null ? "" : utm.getY()
-                , occurrence.getPrecision()
-                , MGRS, WKT
-                , occurrence.getLocality()
-                , occurrence.getVerbLocality(), occurrence.getCode()
-                , oi.getAbundance(), oi.getTypeOfEstimate(), oi.getCover(), oi.getHasPhoto(), oi.getHasSpecimen()
-                , oi.getSpecificThreats(), occurrence.getHabitat(), oi.getComment(), oi.getPrivateComment(), occurrence.getPubNotes()
-                , occurrence.getYear(), occurrence.getMonth(), occurrence.getDay()
-                , oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())
-                , oi.getUuid().toString()
-                , oi.getAccession()
-                , occurrence.getCredits()
-                , occurrence.getMaintainer()
-                , occurrence.getMaintainer() == null || userMap == null ? "" : (userMap.get(occurrence.getMaintainer()) == null ? "" : occurrence._getMaintainerName())
-                , (rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()
-                , occurrence.getOccurrence().getUri()
-                , endemismDegree == null ? "" : StringUtils.implode(" ", endemismDegree)
-                , ist == null ? "" : (ist.getNativeStatus() + (ist.isEndemic() ? " (ENDEMIC)" : ""))
-//                , occurrence._getMaintainerName()
-        );*/
     }
 
     public static void exportInventoryToCSV(Inventory inventory, CSVPrinter csv, Map<String, String> userMap) throws IOException {
