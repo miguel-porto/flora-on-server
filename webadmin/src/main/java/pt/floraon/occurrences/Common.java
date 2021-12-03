@@ -31,6 +31,12 @@ import java.util.*;
  * Created by miguel on 23-03-2017.
  */
 public final class Common {
+    public static final List<String> allOutputFields = Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "higherTaxonomy", "confidence", "excludeReason"
+            , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
+            , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
+            , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
+            , "credits", "maintainer", "maintainerName", "redListCategory", "URL", "endemicTo", "nativeStatusLu");
+
     public static InventoryList readInventoryListFromFile(String fileName) throws IOException, ClassNotFoundException {
         ObjectInputStream oist;
         InventoryList invList;
@@ -157,18 +163,21 @@ public final class Common {
      * @throws IOException
      * @throws FloraOnException
      */
-    public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream, IFloraOn driver)
+    public static void exportOccurrencesToCSV(Iterator<Occurrence> occurrenceIterator, Writer stream, List<String> fieldsToOutput, IFloraOn driver)
             throws IOException, FloraOnException {
         CSVPrinter csv = new CSVPrinter(stream, CSVFormat.EXCEL);
         ITaxEntWrapper tew;
         Map<String, InferredStatus> inferredStatusMap = new HashMap<>();
         Map<String, String[]> endemismDegreeMap = new HashMap<>();
         Map<String, TaxEnt[]> higherTaxonomyMap = new HashMap<>();
-        InferredStatus inferredStatus;
-        String[] endemismDegree;
-        TaxEnt[] higherTaxonomy;
+        InferredStatus inferredStatus = null;
+        String[] endemismDegree = null;
+        TaxEnt[] higherTaxonomy = null;
 
-        exportOccurrenceHeaderToCSV(csv);
+        if(fieldsToOutput == null)
+            fieldsToOutput = allOutputFields;
+
+        exportOccurrenceHeaderToCSV(csv, fieldsToOutput);
         Map<String, TaxEnt> acceptedTaxa = new HashMap<>();
         Map<String, String> userMap = new HashMap<>();
         TaxEnt tmp = null;
@@ -201,12 +210,18 @@ public final class Common {
                 } else {
                     try {
                         tew = driver.wrapTaxEnt(driver.asNodeKey(taxEntId));
-                        inferredStatus = tew.getInferredNativeStatus("lu");   // TODO user config
-                        inferredStatusMap.put(taxEntId, inferredStatus);
-                        endemismDegree = tew.getEndemismDegree();
-                        endemismDegreeMap.put(taxEntId, endemismDegree);
-                        higherTaxonomy = driver.getQueryDriver().getHigherTaxonomy(new String[] {taxEntId}).next();
-                        higherTaxonomyMap.put(taxEntId, higherTaxonomy);
+                        if(fieldsToOutput.contains("nativeStatusLu")) {
+                            inferredStatus = tew.getInferredNativeStatus("lu");   // TODO user config
+                            inferredStatusMap.put(taxEntId, inferredStatus);
+                        }
+                        if(fieldsToOutput.contains("endemicTo")) {
+                            endemismDegree = tew.getEndemismDegree();
+                            endemismDegreeMap.put(taxEntId, endemismDegree);
+                        }
+                        if(fieldsToOutput.contains("higherTaxonomy")) {
+                            higherTaxonomy = driver.getQueryDriver().getHigherTaxonomy(new String[]{taxEntId}).next();
+                            higherTaxonomyMap.put(taxEntId, higherTaxonomy);
+                        }
                     } catch (FloraOnException e) {
                         inferredStatus = null;
                         endemismDegree = null;
@@ -218,7 +233,7 @@ public final class Common {
                 endemismDegree = null;
                 higherTaxonomy = null;
             }
-            exportOccurrenceToCSV(i2, csv, tmp, userMap, null, inferredStatus, endemismDegree, higherTaxonomy);
+            exportOccurrenceToCSV(i2, csv, fieldsToOutput, tmp, userMap, null, inferredStatus, endemismDegree, higherTaxonomy);
         }
         csv.close();
     }
@@ -251,13 +266,8 @@ public final class Common {
         csv.close();
     }
 
-    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv) throws IOException {
-        final List<String> fields = new ArrayList<>(Arrays.asList("source", "taxa", "taxaCanonical", "taxonFull", "acceptedTaxon", "verbTaxa", "higherTaxonomy", "confidence", "excludeReason"
-                , "phenoState", "naturalization", "date", "observers", "collectors", "latitude", "longitude", "utmZone", "utmX", "utmY"
-                , "precision", "mgrs", "WKT", "locality", "verbLocality", "code", "abundance", "method", "cover", "photo", "collected"
-                , "specificThreats", "habitat", "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession"
-                , "credits", "maintainer", "maintainerName", "redListCategory", "URL", "Endemic to", "Native status in Lu"));
-        csv.printRecord(fields);
+    public static void exportOccurrenceHeaderToCSV(CSVPrinter csv, List<String> fieldsToOutput) throws IOException {
+        csv.printRecord(fieldsToOutput);
     }
 
     public static void exportInventoryHeaderToCSV(CSVPrinter csv) throws IOException {
@@ -275,7 +285,7 @@ public final class Common {
         csv.printRecord(fields);
     }
 
-    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, TaxEnt acceptedTaxEnt,
+    public static void exportOccurrenceToCSV(Occurrence occurrence, CSVPrinter csv, List<String> fieldsToOutput, TaxEnt acceptedTaxEnt,
                                              Map<String, String> userMap, RedListDataEntity rlde, InferredStatus ist,
                                              String[] endemismDegree, TaxEnt[] higherTaxonomy)
             throws IOException, FloraOnException {
@@ -302,7 +312,64 @@ public final class Common {
                 higherTaxonomyString.append(">").append(higherTaxonomy[i].getName());
         } else higherTaxonomyString.append(" ");
 
-        csv.printRecord(
+        if(fieldsToOutput == null)
+            fieldsToOutput = allOutputFields;
+
+        for(String field : fieldsToOutput) {
+            switch(field) {
+                case "source": csv.print(occurrence.getSource()); break;
+                case "taxa": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()); break;
+                case "taxaCanonical": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()); break;
+                case "taxonFull": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)); break;
+                case "acceptedTaxon": csv.print(acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)); break;
+                case "verbTaxa": csv.print(oi.getVerbTaxon()); break;
+                case "higherTaxonomy": csv.print(higherTaxonomyString.substring(1)); break;
+                case "confidence": csv.print(oi.getConfidence()); break;
+                case "excludeReason": csv.print(oi.getPresenceStatus()); break;
+                case "phenoState": csv.print(oi.getPhenoState()); break;
+                case "naturalization": csv.print(oi.getNaturalization()); break;
+                case "date": csv.print(occurrence._getDateYMD()); break;
+                case "observers": csv.print(userMap == null || StringUtils.isArrayEmpty(occurrence.getObservers()) ? StringUtils.implode(", ", occurrence._getObserverNames()) : StringUtils.implode(", ", userMap, occurrence.getObservers())); break;
+                case "collectors": csv.print(StringUtils.implode(", ", userMap, occurrence.getCollectors())); break;
+                case "latitude": csv.print(occurrence._getLatitude()); break;
+                case "longitude": csv.print(occurrence._getLongitude()); break;
+                case "utmZone": csv.print(utm == null ? "" : ((Integer) utm.getXZone()).toString() + utm.getYZone()); break;
+                case "utmX": csv.print(utm == null ? "" : utm.getX()); break;
+                case "utmY": csv.print(utm == null ? "" : utm.getY()); break;
+                case "precision": csv.print(occurrence.getPrecision()); break;
+                case "mgrs": csv.print(MGRS); break;
+                case "WKT": csv.print(WKT); break;
+                case "locality": csv.print(occurrence.getLocality()); break;
+                case "verbLocality": csv.print(occurrence.getVerbLocality()); break;
+                case "code": csv.print(occurrence.getCode()); break;
+                case "abundance": csv.print(oi.getAbundance()); break;
+                case "method": csv.print(oi.getTypeOfEstimate()); break;
+                case "cover": csv.print(oi.getCover()); break;
+                case "photo": csv.print(oi.getHasPhoto()); break;
+                case "collected": csv.print(oi.getHasSpecimen()); break;
+                case "specificThreats": csv.print(oi.getSpecificThreats()); break;
+                case "habitat": csv.print(occurrence.getHabitat()); break;
+                case "comment": csv.print(oi.getComment()); break;
+                case "privateComment": csv.print(oi.getPrivateComment()); break;
+                case "inventoryComment": csv.print(occurrence.getPubNotes()); break;
+                case "year": csv.print(occurrence.getYear()); break;
+                case "month": csv.print(occurrence.getMonth()); break;
+                case "day": csv.print(occurrence.getDay()); break;
+                case "dateInserted": csv.print(oi.getDateInserted() == null ? "" : Constants.dateFormatYMDHM.get().format(oi.getDateInserted())); break;
+                case "uuid": csv.print(oi.getUuid().toString()); break;
+                case "accession": csv.print(oi.getAccession()); break;
+                case "credits": csv.print(occurrence.getCredits()); break;
+                case "maintainer": csv.print(occurrence.getMaintainer()); break;
+                case "maintainerName": csv.print(occurrence.getMaintainer() == null || userMap == null ? "" : (userMap.get(occurrence.getMaintainer()) == null ? "" : occurrence._getMaintainerName())); break;
+                case "redListCategory": csv.print((rlde == null || rlde.getAssessment().getFinalCategory() == null) ? "" : rlde.getAssessment().getFinalCategory().getLabel()); break;
+                case "URL": csv.print(oi.getUri()); break;
+                case "endemicTo": csv.print(endemismDegree == null ? "" : StringUtils.implode(" ", endemismDegree)); break;
+                case "nativeStatusLu": csv.print(ist == null ? "" : (ist.getNativeStatus() + (ist.isEndemic() ? " (ENDEMIC)" : ""))); break;
+                default: csv.print("<unrecognized field>");
+            }
+        }
+        csv.println();
+/*        csv.printRecord(
                 occurrence.getSource()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()
                 , oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()
@@ -340,7 +407,7 @@ public final class Common {
                 , endemismDegree == null ? "" : StringUtils.implode(" ", endemismDegree)
                 , ist == null ? "" : (ist.getNativeStatus() + (ist.isEndemic() ? " (ENDEMIC)" : ""))
 //                , occurrence._getMaintainerName()
-        );
+        );*/
     }
 
     public static void exportInventoryToCSV(Inventory inventory, CSVPrinter csv, Map<String, String> userMap) throws IOException {

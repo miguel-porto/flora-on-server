@@ -443,7 +443,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         Common.exportTaxonListToCSV(speciesList.entrySet().iterator(), thisRequest.response.getWriter(), driver);
                         break;
                     case "downloadoccurrencetable":
-                        Common.exportOccurrencesToCSV((Iterator<Occurrence>) it1, thisRequest.response.getWriter(), driver);
+                        Common.exportOccurrencesToCSV((Iterator<Occurrence>) it1, thisRequest.response.getWriter(), Common.allOutputFields, driver);
                         break;
                     case "downloadinventorytable":
                         Common.exportInventoriesToCSV((Iterator<Inventory>) it1, thisRequest.response.getWriter(), driver);

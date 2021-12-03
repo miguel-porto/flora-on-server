@@ -73,7 +73,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     public void run(IFloraOn driver, OutputStream out) throws FloraOnException, IOException {
         Map<String, String> userMap = new HashMap<>();
         CSVPrinter csvp = new CSVPrinter(new OutputStreamWriter(out), CSVFormat.TDF);
-        Common.exportOccurrenceHeaderToCSV(csvp);
+        Common.exportOccurrenceHeaderToCSV(csvp, Common.allOutputFields);
         List<User> allUsers = driver.getAdministration().getAllUsers(false);
         for (User u : allUsers)
             userMap.put(u.getID(), u.getName());
@@ -138,7 +138,7 @@ public class DownloadOccurrencesJob implements JobFileDownload {
                         higherTaxonomy = null;
                     }
                 }
-                Common.exportOccurrenceToCSV(so, printer, null, userMap, rlde, inferredStatus, endemismDegree, higherTaxonomy);
+                Common.exportOccurrenceToCSV(so, printer, Common.allOutputFields,null, userMap, rlde, inferredStatus, endemismDegree, higherTaxonomy);
             }
         }
     }
