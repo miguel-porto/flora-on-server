@@ -230,26 +230,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 			out.setSensu((m.group("sensu1") == null ? m.group("sensu2") : m.group("sensu1")));
 		} else throw new FloraOnException(Messages.getString("error.2", name));
 		return out;
-/*
-		// extract the authority between braces (I don't use regex cause it's too simple)
-		int a=name.indexOf('{');
-		int b=name.indexOf('}');
-		String author=null,name1;
-		if(a>-1 && b>-1) {
-			if(b>a+1) {
-				author=name.substring(a+1, b-0).trim();
-				name1=name.substring(0,a).trim();
-			} else {
-				name1=name.substring(0,a).trim();
-			}
-		} else name1=name;
-		return new TaxEnt(name1, null, author, null);*/
 	}
 
 	/**
 	 * Parses a binomial or uninomial taxon name
 	 * @param name
-	 * @return
+	 * @return The TaxEnt
 	 * @throws FloraOnException
 	 */
 	public static TaxEnt parse2(String name) throws FloraOnException {
@@ -257,31 +243,8 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 		name = name.replaceAll(" +", " ").trim();
 		if(name.equals(""))
 			throw new DatabaseException(Messages.getString("error.3"));
-		try {
-			TaxonName newTN = new TaxonName(name);
-			return new TaxEnt(newTN);
-		} catch(TaxonomyException e) {
-			Matcher m = uninomialName.matcher(name);
-//			Log.info("Simple parsing name: " + name);
-			if(m.find()) {
-				return new TaxEnt(m.group("name"), null, m.group("author"), m.group("sensu"), m.group("annot"),
-						false, null, null, null);
-			} else
-				throw new TaxonomyException("Could not understand name: " + name);
-		}
-
-		/*
-		TaxEnt out = new TaxEnt();
-		out.taxonName = new TaxonName(name);
-		out.isSpeciesOrInf = out.taxonName.getTaxonRank() != null && out.taxonName.getTaxonRank().isSpeciesOrInferior();
-		out.setFullName(out.taxonName.toString());
-		out.setName(out.taxonName.getCanonicalName());
-		if(out.taxonName.getTaxonRank() != null) out.setRank(out.taxonName.getTaxonRank().getValue());
-		out.setAuthor(out.taxonName.getLastAuthor());
-		out.setAnnotation(out.taxonName.getLastAnnotation());
-		out.setSensu(out.taxonName.getLastSensu());
-		return out;
-*/
+		TaxonName newTN = new TaxonName(name);
+		return new TaxEnt(newTN);
 	}
 
 	/**

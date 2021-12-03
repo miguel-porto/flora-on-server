@@ -320,8 +320,8 @@ public final class Common {
                 case "source": csv.print(occurrence.getSource()); break;
                 case "taxa": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()); break;
                 case "taxaCanonical": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()); break;
-                case "taxonFull": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getNameWithAnnotationOnly(false)); break;
-                case "acceptedTaxon": csv.print(acceptedTaxEnt == null ? "" : acceptedTaxEnt.getNameWithAnnotationOnly(false)); break;
+                case "taxonFull": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getTaxonName().getCanonicalName(true)); break;
+                case "acceptedTaxon": csv.print(acceptedTaxEnt == null ? "" : acceptedTaxEnt.getTaxonName().getCanonicalName(true)); break;
                 case "verbTaxa": csv.print(oi.getVerbTaxon()); break;
                 case "higherTaxonomy": csv.print(higherTaxonomyString.substring(1)); break;
                 case "confidence": csv.print(oi.getConfidence()); break;

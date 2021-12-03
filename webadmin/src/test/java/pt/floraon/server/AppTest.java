@@ -88,11 +88,19 @@ public class AppTest
         assertEquals("Franco & Rocha Afonso", te.getSensu());
         assertEquals("Tolpis barbata sensu Franco & Rocha Afonso", te.getCanonicalName(true));
 
-        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Asphodelus"));
-        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Cistus ladanifer sulcatus subsp. dummy"));
-        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Festuca rubra subsp. arenaria ou ..."));
-        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Olea europaea var. sylvestris, Quercus rotundifolia"));
-        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Quercus robur subsp. estremadurensis x Q. alentejana"));
+        te = new TaxonName("Asphodelus L.");
+        assertEquals("Asphodelus", te.getGenus());
+        assertEquals("L.", te.getLastAuthor());
+        assertNull(te.getSpecificEpithet());
+        assertNull(te.getSensu());
+        assertEquals(0, te.getInfraRanks().size());
+
+        te = new TaxonName("Asphodelus L. sensu Franco & Rocha Afonso 1978");
+        assertEquals("Asphodelus", te.getGenus());
+        assertEquals("L.", te.getLastAuthor());
+        assertNull(te.getSpecificEpithet());
+        assertEquals("Franco & Rocha Afonso 1978", te.getSensu());
+        assertEquals(0, te.getInfraRanks().size());
 
         te = new TaxonName("Cistus ladanifer sulcatus (Demoly) P.Monts. sensu Flora Iberica");
         assertEquals("Cistus", te.getGenus());
@@ -155,6 +163,11 @@ public class AppTest
         assertEquals("Klasea boetica (Boiss. ex DC.) Holub subsp. lusitanica (Cantó) Cantó & Rivas Mart var. sampaiana (Cantó) Cantó", te.toString());
         assertEquals("Klasea boetica subsp. lusitanica var. sampaiana", te.getCanonicalName(true));
 
+        // Test exceptions with invalid names
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Cistus ladanifer sulcatus subsp. dummy"));
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Festuca rubra subsp. arenaria ou ..."));
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Olea europaea var. sylvestris, Quercus rotundifolia"));
+        assertThrows(TaxonomyException.class, new TaxonNameExceptionThrower("Quercus robur subsp. estremadurensis x Q. alentejana"));
     }
 
     @Test

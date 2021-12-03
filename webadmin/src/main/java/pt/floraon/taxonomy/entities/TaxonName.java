@@ -12,19 +12,18 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a parsed _binomial_ taxon name with intercalated authorship, annotations and sensu
- * THIS IS THE MAIN CLASS FOR PARSING TAXON NAMES
+ * THIS IS THE MAIN CLASS FOR PARSING TAXON NAMES!
  * Created by miguel on 22-12-2019.
  */
 public class TaxonName {
     private String genus, specificEpithet, author, annotation, sensu;
     private List<InfraRank> infraRanks;
     /**
-     * Matches a taxon name, given as a canonical name: no author, no anything else than
-     * Genus species (subsp. infrarank)... does not accept uninomial names.
+     * Matches a taxon name, including uninomial names.
      */
-    private transient static Pattern completeName = Pattern.compile(
+    private final transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?)?" +
+                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?)?(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 
@@ -40,6 +39,10 @@ public class TaxonName {
             " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.* +(?<infra>[a-zç-]+)(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?" +
                     "(?: +\\[(?<annot>[\\w .çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))? *" +
                     "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.* +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
+
+    private final transient static Pattern uninomialName = Pattern.compile(
+            "^ *(?<name>[A-Z]?[a-zç]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
+                    "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?$");
 
 /*
     private transient static Pattern completeName = Pattern.compile(
@@ -68,56 +71,66 @@ public class TaxonName {
             this.genus = WordUtils.capitalize(m.group("genus"));
             this.specificEpithet = m.group("species");
             if(this.specificEpithet == null) {
-                throw new TaxonomyException(String.format("Name must be, at least, binomial (found for '%s')", verbatimName));
-/*
-                Log.info("    Canonical: G=" + genus);
-                return;
-*/
-            }
-            this.author = m.group("author");
-            this.annotation = m.group("annot");
-            this.sensu = m.group("sensu");
-            String rest = m.group("rest");
-            previousEpithet = this.specificEpithet;
-            previousAuthor = this.author;
-            if(m.group("subspecies") != null) {     // this is a trinomial name, so assume is subspecies
-                InfraRank tmp = new InfraRank("subsp.", m.group("subspecies"), this.author, this.annotation, this.sensu);
-                this.sensu = null;  // we add the sensu to the infrataxon, so remove it from the species.
-                this.infraRanks = new ArrayList<>();
-                this.infraRanks.add(tmp);
-                if(debug) Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", tmp.getInfraRank(), tmp.getInfraTaxon(), tmp.getInfraAuthor(),
-                        tmp.getInfraAnnotation(), tmp.getInfraSensu()));
-            }
-            if (rest != null) {
-                if(debug) Log.info(String.format("      Canonical: G=%s; S=%s; auth=%s; rest=%s", genus, specificEpithet, author, rest));
-                if(this.infraRanks == null)
+                Matcher mu = uninomialName.matcher(verbatimName);
+                if(mu.find()) {
+                    this.author = mu.group("author");
+                    this.sensu = mu.group("sensu");
+                    this.annotation = mu.group("annot");
+                } else
+                    throw new TaxonomyException("Could not understand name: " + verbatimName);
+
+                if(debug) Log.info(String.format("    Canonical: name=%s; auth=%s; annot=%s; sensu=%s", this.genus,
+                        this.author, this.annotation, this.sensu));
+            } else {
+                this.author = m.group("author");
+                this.annotation = m.group("annot");
+                this.sensu = m.group("sensu");
+                String rest = m.group("rest");
+                previousEpithet = this.specificEpithet;
+                previousAuthor = this.author;
+                if (m.group("subspecies") != null) {     // this is a trinomial name, so assume is subspecies
+                    InfraRank tmp = new InfraRank("subsp.", m.group("subspecies"), this.author, this.annotation, this.sensu);
+                    this.sensu = null;  // we add the sensu to the infrataxon, so remove it from the species.
                     this.infraRanks = new ArrayList<>();
-                Matcher m1 = infraTaxa.matcher(rest);
+                    this.infraRanks.add(tmp);
+                    if (debug)
+                        Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", tmp.getInfraRank(), tmp.getInfraTaxon(), tmp.getInfraAuthor(),
+                                tmp.getInfraAnnotation(), tmp.getInfraSensu()));
+                }
+                if (rest != null) {
+                    if (debug)
+                        Log.info(String.format("      Canonical: G=%s; S=%s; auth=%s; rest=%s", genus, specificEpithet, author, rest));
+                    if (this.infraRanks == null)
+                        this.infraRanks = new ArrayList<>();
+                    Matcher m1 = infraTaxa.matcher(rest);
 
-                while (m1.find()) {
-                    if (m1.group("infra") != null) {
-                        InfraRank tmp = new InfraRank(m1.group("rank"), m1.group("infra"),
-                                (m1.group("author") == null && m1.group("infra").equals(previousEpithet)) ?
-                                        previousAuthor : m1.group("author"),
-                                m1.group("annot"), m1.group("sensu"));
+                    while (m1.find()) {
+                        if (m1.group("infra") != null) {
+                            InfraRank tmp = new InfraRank(m1.group("rank"), m1.group("infra"),
+                                    (m1.group("author") == null && m1.group("infra").equals(previousEpithet)) ?
+                                            previousAuthor : m1.group("author"),
+                                    m1.group("annot"), m1.group("sensu"));
 
-                        for(InfraRank ir : this.infraRanks)
-                            if(tmp.getInfraRank().equals(ir.getInfraRank())) throw new TaxonomyException(String.format("Duplicated infrarank: %s", tmp.getInfraRank()));
+                            for (InfraRank ir : this.infraRanks)
+                                if (tmp.getInfraRank().equals(ir.getInfraRank()))
+                                    throw new TaxonomyException(String.format("Duplicated infrarank: %s", tmp.getInfraRank()));
 
-                        previousEpithet = tmp.infraTaxon;
-                        previousAuthor = tmp.infraAuthor;
+                            previousEpithet = tmp.infraTaxon;
+                            previousAuthor = tmp.infraAuthor;
 
-                        if(debug) Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", m1.group("rank"), m1.group("infra"), m1.group("author"),
-                                m1.group("annot"), m1.group("sensu")));
-                        this.infraRanks.add(tmp);
+                            if (debug)
+                                Log.info(String.format("      Infra: rank=%s; infra=%s; auth=%s; annot=%s; sensu=%s", m1.group("rank"), m1.group("infra"), m1.group("author"),
+                                        m1.group("annot"), m1.group("sensu")));
+                            this.infraRanks.add(tmp);
+                        }
                     }
-                }
-                if(this.infraRanks.size() == 0) {     // has a trailing substring, but could not be parsed
-                    Log.info("      INVALID NAME: " + verbatimName);
-                    throw new TaxonomyException("Could not parse this name: " + verbatimName);
-                }
-            } else
-                if(debug) Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
+                    if (this.infraRanks.size() == 0) {     // has a trailing substring, but could not be parsed
+                        Log.info("      INVALID NAME: " + verbatimName);
+                        throw new TaxonomyException("Could not parse this name: " + verbatimName);
+                    }
+                } else if (debug)
+                    Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
+            }
         } else {
             Log.info("      INVALID SPECIES NAME: " + verbatimName);
             throw new TaxonomyException("Could not parse this name: " + verbatimName);
@@ -243,8 +256,8 @@ public class TaxonName {
 
     public String getCanonicalName(boolean withAnnotations) {
         StringBuilder sb = new StringBuilder(this.genus);
-        if(this.specificEpithet == null) return sb.toString();
-        sb.append(" ").append(this.specificEpithet);
+        if(this.specificEpithet != null)
+            sb.append(" ").append(this.specificEpithet);
 
         if(withAnnotations) {
             if(this.sensu != null) sb.append(" sensu ").append(this.sensu);
@@ -260,8 +273,8 @@ public class TaxonName {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(this.genus);
-        if(this.specificEpithet == null) return sb.toString();
-        sb.append(" ").append(this.specificEpithet);
+        if(this.specificEpithet != null)
+            sb.append(" ").append(this.specificEpithet);
         if(this.author != null)
             sb.append(" ").append(this.author);
         if(this.annotation != null)
@@ -280,9 +293,8 @@ public class TaxonName {
         StringBuilder sb = new StringBuilder("<i>" + this.genus);
         if(this.specificEpithet == null) {
             sb.append("</i>");
-            return sb.toString();
-        }
-        sb.append(" ").append(this.specificEpithet).append("</i>");
+        } else
+            sb.append(" ").append(this.specificEpithet).append("</i>");
         if(this.author != null)
             sb.append(" ").append(this.author);
         if(this.annotation != null)
