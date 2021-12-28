@@ -201,6 +201,7 @@ public class ApiUpdate extends FloraOnServlet {
 			case "setasspecies":
 				TaxEnt te1 = NWD.getTaxEntById(thisRequest.getParameterAsKey("id"));
 				te1.setRank(te1.getTaxonName().getTaxonRank().getValue());
+				te1.setIsSpeciesOrInf(true);
 				NWD.updateTaxEntNode(thisRequest.getParameterAsKey("id"), te1, false);
 				return;
 

@@ -272,6 +272,10 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 		return this.getRankValue() >= TaxonRanks.SPECIES.getValue();
 	}
 
+	public void setIsSpeciesOrInf(boolean isSpeciesOrInf) {
+		this.isSpeciesOrInf = isSpeciesOrInf;
+	}
+
 	/**
 	 * Tests whether this taxon can be inserted as a child of given taxon, following the rules of nomenclature.
 	 * @param taxon

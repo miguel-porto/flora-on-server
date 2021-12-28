@@ -65,7 +65,11 @@
 		<c:if test="${taxent.isSpeciesOrInferior()}">
 		<div class="generalinfo">
 		    <h3>Name hierarchy</h3>
+		    <c:catch var="catchException">
 		    <c:set var="taxonName" value="${taxent.getTaxonName()}"/>
+		    </c:catch>
+		    <c:if test = "${catchException != null}"><p>Error parsing name</p></c:if>
+		    <c:if test = "${catchException == null}">
 		    <table>
 		        <tr><th>Rank</th><th>Name</th><th>Author</th><th>Annotation</th><th><i>sensu</i></th></tr>
 		        <tr><td>&lt;base&gt;</td><td>${taxonName.getGenus()} ${taxonName.getSpecificEpithet()}</td><td>${taxonName.getAuthor(0)}</td><td>${taxonName.getAnnotation()}</td><td>${taxonName.getSensu()}</td></tr>
@@ -73,6 +77,7 @@
 		        <tr><td>${name.getInfraRank()}</td><td>${name.getInfraTaxon()}</td><td>${name.getInfraAuthor()}</td><td>${name.getInfraAnnotation()}</td><td>${name.getInfraSensu()}</td></tr>
 		        </c:forEach>
 		    </table>
+		    </c:if>
 		</div>
 		</c:if>
 		<c:if test="${taxentWrapper.getSynonyms().size() > 0}">
