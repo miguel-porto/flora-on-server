@@ -38,16 +38,18 @@ public class DownloadOccurrencesJob implements JobFileDownload {
     private OccurrenceFilter occurrenceFilter;
     private RedListDataFilter redListDataFilter;
     private Iterator<TaxEnt> taxEntIterator;
+    private final User owner;
 
-    public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter) {
-        this(territory, redListDataFilter, occurrenceFilter, false);
+    public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter, User owner) {
+        this(territory, redListDataFilter, occurrenceFilter, false, owner);
     }
 
-    public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter, Object flag) {
+    public DownloadOccurrencesJob(String territory, RedListDataFilter redListDataFilter, OccurrenceFilter occurrenceFilter, Object flag, User owner) {
         this.territory = territory;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
         this.flag = flag;
+        this.owner = owner;
     }
 
     /**
@@ -55,13 +57,14 @@ public class DownloadOccurrencesJob implements JobFileDownload {
      * @param taxEntIterator
      * @param occurrenceFilter
      */
-    public DownloadOccurrencesJob(Iterator<TaxEnt> taxEntIterator, OccurrenceFilter occurrenceFilter) {
+    public DownloadOccurrencesJob(Iterator<TaxEnt> taxEntIterator, OccurrenceFilter occurrenceFilter, User owner) {
         this.occurrenceFilter = occurrenceFilter;
         // this is to prevent the database cursor timeout
         List<TaxEnt> te = new ArrayList<>();
         while(taxEntIterator.hasNext())
             te.add(taxEntIterator.next());
         this.taxEntIterator = te.iterator();
+        this.owner = owner;
     }
 
     @Override
@@ -155,6 +158,6 @@ public class DownloadOccurrencesJob implements JobFileDownload {
 
     @Override
     public User getOwner() {
-        return null;
+        return owner;
     }
 }

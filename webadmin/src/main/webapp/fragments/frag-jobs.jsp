@@ -23,7 +23,7 @@
             </div>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
-
+<%--
     <form class="poster orderdownload" data-path="api/downloadalloccurrences" data-refresh="true">
         <h2>Tabela de todas as ocorrências</h2>
         <p>Descarregar uma tabela com todas as ocorrências (opcionalmente dos taxa filtrados por etiquetas), incluindo as duvidosas. Esta tabela inclui ocorrências de todos os provedores de dados.</p>
@@ -36,12 +36,14 @@
         </div>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
-
+--%>
     <form class="poster orderdownload" data-path="api/downloadoccurrencesusedinassessments" data-refresh="true">
         <h2>Tabela de todas as ocorrências usadas nos taxa avaliados</h2>
         <p>Descarregar uma tabela com todas as ocorrências que foram de facto usadas nos mapas de distribuição das espécies avaliadas, actuais ou históricos. Exclui registos duvidosos e imprecisos. Esta tabela inclui ocorrências de todos os provedores de dados.</p>
         <input type="hidden" name="territory" value="${territory}"/>
+        <c:if test="${user.canMODIFY_OCCURRENCES()}">
         <p><label><input type="checkbox" name="useUpToDate"/> Quero descarregar também os dados mais actuais, e não apenas os que foram usados nas avaliações</label></p>
+        </c:if>
         <div class="multiplechooser left inlineflex">
             <input type="radio" name="currentOrHistorical" value="current" id="butCurrent" checked="checked"/>
             <label for="butCurrent" class="wordtag togglebutton"> Current records</label>
@@ -57,6 +59,7 @@
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
 
+    <c:if test="${user.canMODIFY_OCCURRENCES()}">
     <form class="poster orderdownload" data-path="api/downloadtaxainpolygon" data-refresh="true">
         <h2>Tabela de taxa numa área</h2>
         <p>Descarregar uma tabela com os taxa existentes dentro do polígono fornecido, e o respectivo EOO e AOO.</p>
@@ -66,6 +69,7 @@
         <textarea style="width: 98%; height: 150px; border: 2px solid #1e88e5; margin: 0 1%; padding: 4px; font-size: 0.75em; border-radius: 3px;" name="polygon"></textarea>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
+    </c:if>
 
     <form class="orderdownload" action="api/downloadallsummaries" method="post">
         <h2>Documento de texto com todos os sumários (9.3)</h2>
@@ -74,9 +78,6 @@
         <textarea style="width: 98%; height: 150px; border: 2px solid #1e88e5; margin: 0 1%; padding: 4px; font-size: 0.75em; border-radius: 3px;" name="texentids"></textarea>
         <input type="submit" value="Descarregar" class="textbutton"/>
     </form>
-
-
-
     <c:if test="${jobs.size() > 0}">
         <a name="jobs"></a>
         <h1><fmt:message key="Downloads.2"/></h1>
@@ -84,6 +85,7 @@
             <tr>
                 <th>Download type</th>
                 <th>Date started</th>
+                <th>Owner</th>
                 <th>Ready</th>
                 <th>Status</th>
                 <th>Download</th>
@@ -92,6 +94,7 @@
             <tr>
                 <td>${job.getDescription()}</td>
                 <td>${job.getDateSubmitted()}</td>
+                <td>${job.getOwner() != null ? job.getOwner().getName() : '-'}</td>
                 <td><t:yesno test="${job.isReady()}"/></td>
                 <td>${job.getState()}</td>
                 <td>

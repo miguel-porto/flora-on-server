@@ -2,6 +2,7 @@ package pt.floraon.redlistdata.jobs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -37,15 +38,16 @@ public class ComputeAOOEOOJob implements JobFileDownload {
     protected Integer sizeOfSquare;
     protected int curSpeciesI = 0;
     protected String curSpeciesName = "";
+    private final User owner;
     protected OccurrenceFilter occurrenceFilter;
     private Iterator<RedListDataEntity> itRLDE;
-    private boolean recalculate;
+    private final boolean recalculate;
     Map<String, String> userMap;
     protected RedListDataFilter redListDataFilter;
 
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
-            , RedListDataFilter redListDataFilter) {
-        this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter, true, null);
+            , RedListDataFilter redListDataFilter, User owner) {
+        this(territory, sizeOfSquare, occurrenceFilter, redListDataFilter, true, null, owner);
     }
 
     /**
@@ -57,12 +59,13 @@ public class ComputeAOOEOOJob implements JobFileDownload {
      * @param recalculate Recompute AOO and EOO?
      */
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
-            , RedListDataFilter redListDataFilter, boolean recalculate, IFloraOn driver) {
+            , RedListDataFilter redListDataFilter, boolean recalculate, IFloraOn driver, @NonNull User owner) {
         this.sizeOfSquare = sizeOfSquare;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
         this.territory = territory;
         this.recalculate = recalculate;
+        this.owner = owner;
 
         if(driver != null) {
             List<User> allUsers = null;
@@ -295,6 +298,6 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 
     @Override
     public User getOwner() {
-        return null;
+        return owner;
     }
 }

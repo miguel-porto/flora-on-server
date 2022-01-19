@@ -8,6 +8,7 @@ import org.apache.commons.csv.CSVPrinter;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.ITaxEntWrapper;
 import pt.floraon.driver.results.InferredStatus;
@@ -20,6 +21,7 @@ import pt.floraon.occurrences.entities.*;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.TaxEntMatch;
+import pt.floraon.taxonomy.entities.TaxonName;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -320,13 +322,24 @@ public final class Common {
         if(fieldsToOutput == null)
             fieldsToOutput = allOutputFields;
 
+        String tName, atName;
+        try {
+            tName = oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getTaxonName().getCanonicalName(true);
+        } catch (TaxonomyException e) {
+            tName = oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName();
+        }
+        try {
+            atName = acceptedTaxEnt == null ? "" : acceptedTaxEnt.getTaxonName().getCanonicalName(true);
+        } catch (TaxonomyException e) {
+            atName = oi.getTaxEnt().getFullName();
+        }
         for(String field : fieldsToOutput) {
             switch(field) {
                 case "source": csv.print(occurrence.getSource()); break;
                 case "taxa": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getFullName()); break;
                 case "taxaCanonical": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getCanonicalName().toString()); break;
-                case "taxonFull": csv.print(oi.getTaxEnt() == null ? "" : oi.getTaxEnt().getTaxonName().getCanonicalName(true)); break;
-                case "acceptedTaxon": csv.print(acceptedTaxEnt == null ? "" : acceptedTaxEnt.getTaxonName().getCanonicalName(true)); break;
+                case "taxonFull": csv.print(tName); break;
+                case "acceptedTaxon": csv.print(atName); break;
                 case "verbTaxa": csv.print(oi.getVerbTaxon()); break;
                 case "higherTaxonomy": csv.print(higherTaxonomyString.substring(1)); break;
                 case "phylum":

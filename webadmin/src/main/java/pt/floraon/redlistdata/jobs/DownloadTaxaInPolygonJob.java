@@ -27,11 +27,13 @@ public class DownloadTaxaInPolygonJob implements JobFileDownload {
     private int curSpeciesI = 0;
     private boolean finalPhase = false;
     private String curSpeciesName = "";
+    private final User owner;
 
-    public DownloadTaxaInPolygonJob(String territory, String polygonWKT, PolygonTheme clippingPolygon) {
+    public DownloadTaxaInPolygonJob(String territory, String polygonWKT, PolygonTheme clippingPolygon, User owner) {
         this.territory = territory;
         this.polygonWKT = polygonWKT;
         this.clippingPolygon = clippingPolygon;
+        this.owner = owner;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class DownloadTaxaInPolygonJob implements JobFileDownload {
         new ComputeAOOEOOJobWithInfo(territory, 2000
                 // NOTE this filter is for computing AOO & EOO only!
                 , BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, clippingPolygon)
-                , null, taxaSet).run(driver, out);
+                , null, taxaSet, owner).run(driver, out);
     }
 
     @Override
@@ -103,6 +105,6 @@ public class DownloadTaxaInPolygonJob implements JobFileDownload {
 
     @Override
     public User getOwner() {
-        return null;
+        return owner;
     }
 }

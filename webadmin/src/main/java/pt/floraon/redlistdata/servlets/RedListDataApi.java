@@ -169,7 +169,8 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                             new DownloadOccurrencesJob(territory,
                                     filter1 == null ? null : RedListDataFilterFactory.filterByTags(new HashSet<>(Arrays.asList(filter1))),
-                                    BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withDoubtful().withExcluded().withoutEnsureCurrentlyExisting())
+                                    BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory).withDoubtful().withExcluded().withoutEnsureCurrentlyExisting(),
+                                    thisRequest.getUser())
                         , "all-occurrences.csv", driver).getID());
 
                 break;
@@ -198,7 +199,7 @@ public class RedListDataApi extends FloraOnServlet {
                     of1 = of1.cutRecordsAfter(null);
 
                 thisRequest.success(JobSubmitter.newJobFileDownload(
-                        new DownloadOccurrencesJob(territory, RedListDataFilterFactory.onlyAssessed(), of1, includeAllAuthors)
+                        new DownloadOccurrencesJob(territory, RedListDataFilterFactory.onlyAssessed(), of1, includeAllAuthors, thisRequest.getUser())
                         , String.format("occurrences-%s-%s.csv", useUpToDateData ? "uptodate" : "onlyused", thisRequest.getParameterAsString("currentOrHistorical")), driver).getID());
                 break;
 
@@ -207,7 +208,7 @@ public class RedListDataApi extends FloraOnServlet {
                 polygonWKT = thisRequest.getParameterAsString("polygon");
                 rls = driver.getRedListSettings(territory);
                 thisRequest.success(JobSubmitter.newJobFileDownload(new DownloadTaxaInPolygonJob(
-                        territory, polygonWKT, rls.getClippingPolygon())
+                        territory, polygonWKT, rls.getClippingPolygon(), thisRequest.getUser())
                         ,"taxa-in-polygon.csv", driver).getID());
 /*
                 Map<INodeKey, Object> taxaSet = new HashMap<>();
@@ -292,7 +293,6 @@ public class RedListDataApi extends FloraOnServlet {
 
             case "downloadtable":
                 territory = thisRequest.getParameterAsString("territory");
-                rls = driver.getRedListSettings(territory);
                 String[] filter = thisRequest.getParameterAsStringArray("tags");
                 OccurrenceFilter of = thisRequest.getParameterAsBoolean("historical", false)
 //                        ? new BasicOccurrenceFilter(null, null,false, rls.getClippingPolygon()).cutRecordsAfter(rls.getCutRecordsInsertedAfter())
@@ -304,7 +304,7 @@ public class RedListDataApi extends FloraOnServlet {
                         new ComputeAOOEOOJob(territory, 2000    // TODO user config
                                 , of, RedListDataFilterFactory.filterByTags(filter == null ? null : new HashSet<>(Arrays.asList(filter)))
                                 , thisRequest.getParameterAsBoolean("recalc", false)
-                                , driver
+                                , driver, thisRequest.getUser()
                         )
                         , "AOO.csv", driver).getID());
 
@@ -954,7 +954,7 @@ public class RedListDataApi extends FloraOnServlet {
                 thisRequest.success(JobSubmitter.newJobFileDownload(
                         new DownloadOccurrencesJob(
                                 driver.getListDriver().getAllSpeciesOrInferiorTaxEnt(true, false, territory, null, null)
-                                , BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT2))
+                                , BasicOccurrenceFilter.RedListCurrentMapFilter(driver, territory, polygonWKT2), thisRequest.getUser())
                         , "occurrences-in-polygon.csv", driver
                 ));
                 break;

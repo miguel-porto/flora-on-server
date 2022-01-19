@@ -1277,7 +1277,8 @@ System.out.println(gs.toJson(getUser()));
 
                 List<JobRunner> jobs = new ArrayList<>();
                 for(String jobID : JobSubmitter.getJobList()) {
-                    jobs.add(JobSubmitter.getJob(jobID));
+                    if(JobSubmitter.getJob(jobID).getOwner().equals(thisRequest.getUser()) || thisRequest.getUser().isAdministrator())
+                        jobs.add(JobSubmitter.getJob(jobID));
                 }
                 request.setAttribute("jobs", jobs);
                 request.setAttribute("allTags", allt);

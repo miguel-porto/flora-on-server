@@ -3,6 +3,7 @@ package pt.floraon.redlistdata.jobs;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeKey;
@@ -26,8 +27,8 @@ public class ComputeAOOEOOJobWithInfo extends ComputeAOOEOOJob {
     Map<INodeKey, Object> taxaKeyMap;
 
     public ComputeAOOEOOJobWithInfo(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
-            , RedListDataFilter redListDataFilter, Map<INodeKey, Object> taxaKeyMap) {
-        super(territory, sizeOfSquare, occurrenceFilter, redListDataFilter);
+            , RedListDataFilter redListDataFilter, Map<INodeKey, Object> taxaKeyMap, User owner) {
+        super(territory, sizeOfSquare, occurrenceFilter, redListDataFilter, owner);
         this.taxaKeyMap = taxaKeyMap;
     }
 
