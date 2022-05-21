@@ -4,6 +4,8 @@ import pt.floraon.driver.DiffableBean;
 import pt.floraon.driver.datatypes.SafeHTMLString;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.ConservationAction;
+import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationConservationActions;
 
 /**
  * Created by miguel on 20-11-2016.
@@ -14,7 +16,7 @@ public class Conservation implements DiffableBean {
     private SafeHTMLString conservationPlansJustification;
     private RedListEnums.YesNoNA exSituConservation;
     private SafeHTMLString exSituConservationJustification;
-    private RedListEnums.ProposedConservationActions[] proposedConservationActions;
+    private ConservationAction[] proposedConservationActions;
     private RedListEnums.ProposedStudyMeasures[] proposedStudyMeasures;
     private String[] legalProtection;
 
@@ -38,9 +40,9 @@ public class Conservation implements DiffableBean {
         return exSituConservationJustification == null ? SafeHTMLString.emptyString() : exSituConservationJustification;
     }
 
-    public RedListEnums.ProposedConservationActions[] getProposedConservationActions() {
+    public ConservationAction[] getProposedConservationActions() {
         return StringUtils.isArrayEmpty(proposedConservationActions)
-                ? new RedListEnums.ProposedConservationActions[]{RedListEnums.ProposedConservationActions.NO_MEASURES}
+                ? new ConservationAction[]{MultipleChoiceEnumerationConservationActions.valueOf("NO_MEASURES")}
                 : proposedConservationActions;
     }
 
@@ -68,7 +70,7 @@ public class Conservation implements DiffableBean {
         this.exSituConservation = exSituConservation;
     }
 
-    public void setProposedConservationActions(RedListEnums.ProposedConservationActions[] proposedConservationActions) {
+    public void setProposedConservationActions(ConservationAction[] proposedConservationActions) {
         this.proposedConservationActions = proposedConservationActions;
     }
 

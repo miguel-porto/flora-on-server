@@ -3,7 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page session="false" %>
-<c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
+<c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.request.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.driver.globalMessages" />
 <!DOCTYPE html>
@@ -63,14 +63,13 @@
         <ul id="mainmenu" class="mainmenu">
             <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>
             <c:if test="${!user.isGuest()}">
-            <li class="section2"><div class="bullet"></div><span><a href="redlist/lu"><fmt:message key="Modules.1"/></a>
-            <%--
-                <c:if test="${redlistterritories.size() > 0}">
-                    <c:forEach var="terr" items="${redlistterritories}">
-                        <a href="redlist/${terr}"> | dataset for ${terr}</a>
-                    </c:forEach>
-                </c:if>
-            --%>
+            <%-- <li class="section2"><div class="bullet"></div><span><a href="redlist/lu"><fmt:message key="Modules.1"/></a> --%>
+            <c:if test="${redlistterritories.size() > 0}">
+            <c:forEach var="terr" items="${redlistterritories}">
+                <li class="section2"><div class="bullet"></div><span><a href="redlist/${terr}"><fmt:message key="Modules.1"/> | ${terr}</a>
+
+            </c:forEach>
+            </c:if>
             </span></li>
             <li class="section3"><div class="bullet"></div><span><a href="occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></span></li>
             </c:if>

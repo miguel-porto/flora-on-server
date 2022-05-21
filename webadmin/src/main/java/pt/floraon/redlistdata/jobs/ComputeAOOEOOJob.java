@@ -15,6 +15,7 @@ import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.redlistdata.FieldValues;
 import pt.floraon.redlistdata.RedListDataFilter;
 import pt.floraon.redlistdata.RedListEnums;
+import pt.floraon.redlistdata.threats.ConservationAction;
 import pt.floraon.redlistdata.threats.Threat;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
@@ -162,7 +163,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
 */
         for(Threat t : driver.getThreatEnum().values())
             csvp.print("Threat: " + FieldValues.getString(t.getLabel()));
-        for(RedListEnums.ProposedConservationActions t : RedListEnums.ProposedConservationActions.values())
+        for(ConservationAction t : driver.getConservationActionEnum().values())
             csvp.print("Action: " + FieldValues.getString(t.getLabel()));
         for(RedListEnums.ProposedStudyMeasures t : RedListEnums.ProposedStudyMeasures.values())
             csvp.print("Study: " + FieldValues.getString(t.getLabel()));
@@ -271,8 +272,8 @@ public class ComputeAOOEOOJob implements JobFileDownload {
             for(Threat t : driver.getThreatEnum().values())
                 csvp.print(thr.contains(t) ? "x" : "");
 
-            List<RedListEnums.ProposedConservationActions> cns = Arrays.asList(rlde.getConservation().getProposedConservationActions());
-            for(RedListEnums.ProposedConservationActions t : RedListEnums.ProposedConservationActions.values())
+            List<ConservationAction> cns = Arrays.asList(rlde.getConservation().getProposedConservationActions());
+            for(ConservationAction t : driver.getConservationActionEnum().values())
                 csvp.print(cns.contains(t) ? "x" : "");
 
             List<RedListEnums.ProposedStudyMeasures> std = Arrays.asList(rlde.getConservation().getProposedStudyMeasures());

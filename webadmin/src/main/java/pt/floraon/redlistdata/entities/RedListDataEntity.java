@@ -10,7 +10,8 @@ import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.interfaces.Flaggable;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.redlistdata.RedListEnums;
-import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationBase;
+import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationConservationActions;
+import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationThreats;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.driver.results.InferredStatus;
 
@@ -580,7 +581,7 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
     }
 
     public void setThreats_Threats(String[] threats) {
-        this.threats.setThreats(MultipleChoiceEnumerationBase.valuesOf(threats));
+        this.threats.setThreats(MultipleChoiceEnumerationThreats.valuesOf(threats));
 //        this.threats.setThreats(StringUtils.stringArrayToEnumArray(threats, RedListEnums.Threat.class));
     }
 
@@ -624,7 +625,8 @@ public class RedListDataEntity extends GeneralDBNode implements DiffableBean, Fl
         }
         this.conservation.setProposedConservationActions(tmp.toArray(new RedListEnums.ProposedConservationActions[0]));
 */
-        this.conservation.setProposedConservationActions(StringUtils.stringArrayToEnumArray(proposedConservationActions, RedListEnums.ProposedConservationActions.class));
+        this.conservation.setProposedConservationActions(MultipleChoiceEnumerationConservationActions.valuesOf(proposedConservationActions));
+//        this.conservation.setProposedConservationActions(StringUtils.stringArrayToEnumArray(proposedConservationActions, RedListEnums.ProposedConservationActions.class));
     }
 
     public void setConservation_ProposedStudyMeasures(String[] proposedStudyMeasures) {

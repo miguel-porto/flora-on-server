@@ -27,10 +27,7 @@ import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.occurrences.arangodb.OccurrenceArangoDriver;
 import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
-import pt.floraon.redlistdata.threats.MultipleChoiceEnumerationBase;
-import pt.floraon.redlistdata.threats.Threat;
-import pt.floraon.redlistdata.threats.ThreatCategory;
-import pt.floraon.redlistdata.threats.MultipleChoiceEnumeration;
+import pt.floraon.redlistdata.threats.*;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
@@ -56,6 +53,7 @@ public class FloraOnArangoDriver implements IFloraOn {
     private final File imageFolder, thumbsFolder, originalImageFolder;
 	private String contextPath, defaultINaturalistProject;
 	private final MultipleChoiceEnumeration<Threat, ThreatCategory> threatEnumeration;
+	private final MultipleChoiceEnumeration<ConservationAction, ConservationActionCategory> conservationActionEnumeration;
 
 	/**
 	 * Constructs a dummy driver object to hold error messages
@@ -77,6 +75,7 @@ public class FloraOnArangoDriver implements IFloraOn {
         originalImageFolder = null;
         contextPath = "";
         threatEnumeration = null;
+		conservationActionEnumeration = null;
     }
 
 	public FloraOnArangoDriver(Properties properties) throws FloraOnException {
@@ -99,7 +98,7 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(RedListEnums.DeclineDistribution.class, new SafeEnumDeserializer<>(RedListEnums.DeclineDistribution.class))
 				.registerDeserializer(RedListEnums.PercentMatureOneSubpop.class, new SafeEnumDeserializer<>(RedListEnums.PercentMatureOneSubpop.class))
 				.registerDeserializer(RedListEnums.AssessmentStatus.class, new SafeEnumDeserializer<>(RedListEnums.AssessmentStatus.class))
-				.registerDeserializer(RedListEnums.ProposedConservationActions.class, new SafeEnumDeserializer<>(RedListEnums.ProposedConservationActions.class))
+//				.registerDeserializer(RedListEnums.ProposedConservationActions.class, new SafeEnumDeserializer<>(RedListEnums.ProposedConservationActions.class))
 				.registerDeserializer(RedListEnums.Uses.class, new SafeEnumDeserializer<>(RedListEnums.Uses.class))
 				.registerDeserializer(RedListEnums.PopulationSizeReduction.class, new SafeEnumDeserializer<>(RedListEnums.PopulationSizeReduction.class))
 				.registerDeserializer(Privileges.class, new SafeEnumDeserializer<>(Privileges.class))
@@ -112,6 +111,8 @@ public class FloraOnArangoDriver implements IFloraOn {
 				.registerDeserializer(Rectangle.class, new RectangleDeserializer())
 				.registerSerializer(Threat.class, new ThreatSerializer())
 				.registerDeserializer(Threat.class, new ThreatDeserializer())
+				.registerSerializer(ConservationAction.class, new ConservationActionSerializer())
+				.registerDeserializer(ConservationAction.class, new ConservationActionDeserializer())
  /*
 				.registerSerializer(Rectangle.class, new RectangleSerializer())
 */
@@ -134,8 +135,17 @@ public class FloraOnArangoDriver implements IFloraOn {
 		IMG = new ImageManagementArangoDriver(this);
 
 		// fetch the threat enumeration, that may depend on the taxonomic group
+		String threatEnumerationClass = this.getProperties().getProperty("threatsEnumeration");
+		if(threatEnumerationClass == null) threatEnumerationClass = "ThreatsPlants";
 		try {
-			threatEnumeration = (MultipleChoiceEnumerationBase) Class.forName("pt.floraon.redlistdata.threats.ThreatsPlants").getDeclaredConstructor().newInstance();
+			threatEnumeration = (MultipleChoiceEnumerationThreats) Class.forName("pt.floraon.redlistdata.threats." + threatEnumerationClass).getDeclaredConstructor().newInstance();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			throw new FloraOnException("Could not initialize Threats.");
+		}
+
+		try {
+			conservationActionEnumeration = (MultipleChoiceEnumerationConservationActions) Class.forName("pt.floraon.redlistdata.threats.ConservationActionPlants").getDeclaredConstructor().newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new FloraOnException("Could not initialize Threats.");
@@ -530,6 +540,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 	@Override
 	public MultipleChoiceEnumeration<Threat, ThreatCategory> getThreatEnum() {
 		return this.threatEnumeration;
+	}
+
+	@Override
+	public MultipleChoiceEnumeration<ConservationAction, ConservationActionCategory> getConservationActionEnum() {
+		return this.conservationActionEnumeration;
 	}
 
 }

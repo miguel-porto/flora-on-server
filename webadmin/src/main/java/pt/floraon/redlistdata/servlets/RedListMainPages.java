@@ -38,6 +38,7 @@ import pt.floraon.redlistdata.occurrences.BasicOccurrenceFilter;
 import pt.floraon.driver.interfaces.OccurrenceFilter;
 import pt.floraon.redlistdata.occurrences.OccurrenceProcessor;
 import pt.floraon.redlistdata.occurrences.SimpleOccurrenceClusterer;
+import pt.floraon.redlistdata.threats.ConservationAction;
 import pt.floraon.redlistdata.threats.Threat;
 import pt.floraon.taxonomy.entities.CanonicalName;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -289,7 +290,8 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("threats_ExtremeFluctuationsNrLocations", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ConservationPlans", RedListEnums.YesNoNA.values());
                 request.setAttribute("conservation_ExSituConservation", RedListEnums.YesNoNA.values());
-                request.setAttribute("conservation_ProposedConservationActions", RedListEnums.ProposedConservationActions.values());
+//                request.setAttribute("conservation_ProposedConservationActions", RedListEnums.ProposedConservationActions.values());
+                request.setAttribute("conservation_ProposedConservationActions", driver.getConservationActionEnum().values());
                 request.setAttribute("conservation_ProposedStudyMeasures", RedListEnums.ProposedStudyMeasures.values());
                 request.setAttribute("assessment_Category", RedListEnums.RedListCategories.valuesNotUpDownListed());
                 request.setAttribute("assessment_SubCategory", RedListEnums.CRTags.values());
@@ -787,7 +789,7 @@ System.out.println(gs.toJson(getUser()));
                 wr3.println(rlde2.getThreats().getDescription().toMarkDownString());
                 wr3.println("### 6.2. Ameaças");
                 for(Threat t : rlde2.getThreats().getThreats())
-                    wr3.println(" * " + FieldValues.getString(t.getLabel()));
+                    if(t != null) wr3.println(" * " + FieldValues.getString(t.getLabel()));
                 wr3.println("### 6.3. Número do localizações");
                 wr3.println(" * " + rlde2.getThreats().getNumberOfLocations() + " localizações");
                 wr3.println(" * " + rlde2.getThreats().getNumberOfLocationsJustification().toMarkDownString());
@@ -807,7 +809,7 @@ System.out.println(gs.toJson(getUser()));
                 wr3.println(" * " + rlde2.getConservation().getExSituConservation().getLabel());
                 wr3.println(" * " + rlde2.getConservation().getExSituConservationJustification().toMarkDownString());
                 wr3.println("### 7.5. Proposta de ações de conservação");
-                for(RedListEnums.ProposedConservationActions pc : rlde2.getConservation().getProposedConservationActions())
+                for(ConservationAction pc : rlde2.getConservation().getProposedConservationActions())
                     wr3.println(" * " + FieldValues.getString(pc.getLabel()));
                 wr3.println("### 7.6. Proposta de estudos");
                 for(RedListEnums.ProposedStudyMeasures pc : rlde2.getConservation().getProposedStudyMeasures())
@@ -1471,7 +1473,7 @@ System.out.println(gs.toJson(getUser()));
                         if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
 
-                    for (RedListEnums.ProposedConservationActions th : rlde1.getConservation().getProposedConservationActions()) {
+                    for (ConservationAction th : rlde1.getConservation().getProposedConservationActions()) {
                         if(isPublished) rldeSumFinalized.addForTaxon(rlde1.getTaxEntID(), th);
                         if(isFromTag) rldeSumTag.addForTaxon(rlde1.getTaxEntID(), th);
                     }
@@ -1565,7 +1567,7 @@ System.out.println(gs.toJson(getUser()));
 
                 tableFinalized = new HashMap<>();
                 tableTag = new HashMap<>();
-                for(RedListEnums.ProposedConservationActions th : RedListEnums.ProposedConservationActions.values()) {
+                for(ConservationAction th : driver.getConservationActionEnum().values()) {
                     tableFinalized.put(th.getLabel(), rldeSumFinalized.getCountsForProperty(th));
                     tableTag.put(th.getLabel(), rldeSumTag.getCountsForProperty(th));
                 }

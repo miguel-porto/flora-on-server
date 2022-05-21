@@ -7,9 +7,7 @@ import java.util.Properties;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.occurrences.CSVFileProcessor;
-import pt.floraon.redlistdata.threats.Threat;
-import pt.floraon.redlistdata.threats.ThreatCategory;
-import pt.floraon.redlistdata.threats.MultipleChoiceEnumeration;
+import pt.floraon.redlistdata.threats.*;
 import pt.floraon.redlistdata.entities.RedListSettings;
 import pt.floraon.taxonomy.entities.Territory;
 
@@ -96,4 +94,6 @@ public interface IFloraOn {
 	String getDefaultRedListTerritory();
 
 	MultipleChoiceEnumeration<Threat, ThreatCategory> getThreatEnum();
+
+	MultipleChoiceEnumeration<ConservationAction, ConservationActionCategory> getConservationActionEnum();
 }

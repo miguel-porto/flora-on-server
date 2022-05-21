@@ -47,7 +47,7 @@ public class RedListDataArangoDBDriver extends BaseFloraOnDriver implements IRed
         // each dataset is a collection with the name redlist_<territory>
         // <teritory> is the short name of the territory
         for(CollectionEntity ce : database.getCollections()) {
-            if(ce.getName().startsWith("redlist_")) {
+            if(ce.getName().startsWith("redlist_") && !ce.getName().startsWith("redlist_snapshots") && !ce.getName().equals("redlist_settings")) {
                 String terr = ce.getName().substring(8);
                 redListTerritories.add(terr);
             }

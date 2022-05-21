@@ -5,7 +5,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
-<c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.response.locale}" scope="request" />
+<c:set var="language" value="${not empty param.language ? param.language : not empty language ? language : pageContext.request.locale}" scope="request" />
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
 <!DOCTYPE html>
@@ -55,9 +55,9 @@
             </c:if>
             <c:if test="${user.canVIEW_OCCURRENCES()}">
                 <li><a href="?w=stats"><fmt:message key="Separator.11"/></a></li>
-                <li><a href="?w=allmaps">Todos os mapas</a></li>
-                <li><a href="?w=references">Bibliografia</a></li>
-                <li><a href="?w=report">Relatório</a></li>
+                <li><a href="?w=allmaps"><fmt:message key="Separator.14"/></a></li>
+                <li><a href="?w=references"><fmt:message key="Separator.15"/></a></li>
+                <li><a href="?w=report"><fmt:message key="Separator.16"/></a></li>
                 <li><a href="?w=alleditions"><fmt:message key="Separator.10"/></a></li>
             </c:if>
         </ul>

@@ -202,7 +202,14 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 #speciesindex .redlistcategory sup {font-size: 0.8rem !important; right:2px !important;}
 #speciesindex .redlistcategory p {font-size:0.7rem !important;}
 
-.filterpanel {padding:8px; text-align:left; }
+.filterpanel {
+    padding: 8px;
+    text-align: left;
+    border-left: 4px solid #979797;
+    margin: 8px;
+    border-radius: 4px;
+    background-color: #eee;
+}
 .filterpanel.inactive {opacity:0.3}
 .filterpanel.inactive .button, .filterpanel.inactive .filter {background-color:#999 !important;}
 .filterpanel .filter-section {border-bottom:3px solid #ccc;}

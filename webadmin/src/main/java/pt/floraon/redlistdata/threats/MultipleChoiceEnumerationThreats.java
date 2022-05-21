@@ -2,7 +2,7 @@ package pt.floraon.redlistdata.threats;
 
 import java.util.*;
 
-public abstract class MultipleChoiceEnumerationBase implements MultipleChoiceEnumeration<Threat, ThreatCategory> {
+public abstract class MultipleChoiceEnumerationThreats implements MultipleChoiceEnumeration<Threat, ThreatCategory> {
     static final Map<String, Threat> threats = new LinkedHashMap<>();
     static final Map<String, ThreatCategory> threatCategories = new HashMap<>();
     static final Map<String, ThreatType> threatTypes = new HashMap<>();

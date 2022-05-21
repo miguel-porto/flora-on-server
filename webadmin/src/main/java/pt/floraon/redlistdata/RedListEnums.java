@@ -508,6 +508,7 @@ public class RedListEnums {
         }
     }
 */
+/*
     public enum ProposedConservationActions implements LabelledEnumWithDescription {
         NO_MEASURES("ProposedConservationActions.0", "ProposedConservationActions.0.desc"),
         SITE_PROTECTION("ProposedConservationActions.1", "ProposedConservationActions.1.desc"),
@@ -540,6 +541,7 @@ public class RedListEnums {
             return description;
         }
     }
+*/
 
     public enum ProposedStudyMeasures implements LabelledEnumWithDescription {
         NO_STUDIES("ProposedStudyMeasures.1", "ProposedStudyMeasures.1.desc"),

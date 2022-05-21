@@ -23,27 +23,26 @@
         <input type="hidden" name="territory" value="${territory}"/>
         <input type="submit" value="<fmt:message key="TaxonIndex.admin.2"/>" class="textbutton"/>
     </form>
-    <p></p>
 </div>
 </c:if>
 <div class="filterpanel">
     <h3>Tools</h3>
+    <div style="display:inline-block">
     <form method="GET">
         <input type="hidden" name="w" value="search"/>
         <input type="text" name="s" placeholder="type search text"/>
         <input type="submit" value="Search all data sheets" class="textbutton"/>
-    </form>
-
+    </form></div>
     <c:url value="../redlist/${territory}" var="urldt">
       <c:param name="w" value="downloadtaxawithtag" />
       <c:param name="tag" value="Lista Alvo" />
     </c:url>
-    <div class="button anchorbutton"><a href="${urldt}">Download «Lista Alvo»</a></div>
+    <div style="display:inline-block"><div class="button anchorbutton"><a href="${urldt}">Download «Lista Alvo»</a></div></div>
 </div>
 <c:if test="${user.canEDIT_ANY_FIELD()}">
 <div class="filterpanel inactive">
     <h3><fmt:message key="TaxonIndex.selecting.1"/></h3>
-    <p id="selectedmsg"></p>
+    <p id="selectedmsg" style="padding:0"></p>
     <div class="button" id="selectall"><fmt:message key="TaxonIndex.selecting.4"/></div>
     <div class="button" id="toggleselectedtaxa"><fmt:message key="TaxonIndex.selecting.2"/></div>
     <div class="button" id="selecttaxa"><fmt:message key="TaxonIndex.selecting.3"/></div>

@@ -122,13 +122,13 @@
                 <c:param name="p" value="1" />
                 <c:param name="filter" value="${filter} date:na" />
             </c:url>
-            <div class="button anchorbutton"><a href="${url1}">Sem data</a></div>
+            <div class="button anchorbutton"><a href="${url1}"><fmt:message key="occurrences.1f"/></a></div>
             <c:url value="" var="url2">
                 <c:param name="w" value="${param.w}" />
                 <c:param name="p" value="1" />
                 <c:param name="filter" value="${filter} detected:1" />
             </c:url>
-            <div class="button anchorbutton"><a href="${url2}">Só detectados</a></div>
+            <div class="button anchorbutton"><a href="${url2}"><fmt:message key="occurrences.1g"/></a></div>
             <c:url value="" var="url3">
                 <c:param name="w" value="${param.w}" />
                 <c:param name="p" value="1" />
@@ -141,7 +141,7 @@
                 <c:param name="p" value="1" />
                 <c:param name="filter" value="" />
             </c:url>
-            <div class="button anchorbutton"><a href="${url4}">Clear filter</a></div>
+            <div class="button anchorbutton"><a href="${url4}"><fmt:message key="occurrences.1h"/></a></div>
             </c:if>
         </div>
         <c:if test="${occurrenceNewFeature != null}"><div class="newfeature">${occurrenceNewFeature}</div></c:if>
