@@ -3,7 +3,10 @@ package pt.floraon.taxonomy.entities;
 import jline.internal.Log;
 import org.apache.commons.lang.WordUtils;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.DatabaseException;
+import pt.floraon.driver.Messages;
 import pt.floraon.driver.TaxonomyException;
+import pt.floraon.driver.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +64,7 @@ public class TaxonName {
 
     public TaxonName(String verbatimName) throws TaxonomyException {
         boolean debug = false;
+        if(StringUtils.isStringEmpty(verbatimName)) throw new TaxonomyException(Messages.getString("error.3"));
         // get rid of strange spaces
         verbatimName = verbatimName.replaceAll("[ \\t\\xA0\\u1680\\u180e\\u2000-\\u200a\\u202f\\u205f\\u3000]", " ");
 

@@ -234,10 +234,12 @@ public class TaxEnt extends NamedDBNode implements ResultItem, Serializable, Com
 
 	/**
 	 * Parses a binomial or uninomial taxon name
+	 * Use new TaxEnt(new TaxonName(name)) instead.
 	 * @param name
 	 * @return The TaxEnt
 	 * @throws FloraOnException
 	 */
+	@Deprecated
 	public static TaxEnt parse2(String name) throws FloraOnException {
 		if(name == null) throw new DatabaseException(Messages.getString("error.3"));
 		name = name.replaceAll(" +", " ").trim();

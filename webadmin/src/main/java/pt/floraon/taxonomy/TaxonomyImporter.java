@@ -81,7 +81,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 curTaxEnt = null;
                 for(int i=0; i<rankNames.length; i++) {
                     try {
-                        parsedName = TaxEnt.parse2(record.get(i));
+                        parsedName = new TaxEnt(new TaxonName(record.get(i)));
                     } catch (DatabaseException e) {
                         // is it an empty cell? skip.
                         continue;
@@ -187,7 +187,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 for(Map.Entry<Integer,Territory> terr : territories.entrySet()) {	// bind this taxon with the territories with the given native status
                     String ns = record.get(terr.getKey());
                     if(ns != null && !ns.equals("")) {
-                        if(!ns.toLowerCase().equals("endemic")) {
+                        if(!ns.equalsIgnoreCase("endemic")) {
                             try {
                                 tmpNS = Constants.NativeStatus.valueOf(ns.toUpperCase());
                             } catch (IllegalArgumentException e) {
@@ -219,6 +219,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
     }
 
     /**
+     * USE uploadTaxonomyListFromStream2 instead.
      * Uploads a tab-separated CSV taxonomy file.
      * The file can have as many columns as needed, the hierarchy goes form left to right.
      * Authority of a name goes in front of the name between braces {}
@@ -233,6 +234,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
      * @throws TaxonomyException
      * @throws QueryException
      */
+    @Deprecated
     public Map<String,Integer> uploadTaxonomyListFromStream(InputStream stream, boolean simulate) throws IOException, FloraOnException {
         INodeWorker nwd=driver.getNodeWorkerDriver();
         int nnodes=0,nrels=0,nrecs=0;
