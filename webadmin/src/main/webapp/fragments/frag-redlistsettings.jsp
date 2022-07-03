@@ -9,25 +9,25 @@
 </c:if>
 <c:if test="${user.canMANAGE_REDLIST_USERS()}">
 <h1>Control panel</h1>
-<h2>Bloqueio de edição das fichas</h2>
+<h2><fmt:message key="settings.1"/></h2>
 <table>
-    <tr><td>Corte geral de edição</td><td>
+    <tr><td><fmt:message key="settings.2"/></td><td>
         <form class="poster" data-path="api/setoptions" data-refresh="true">
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="hidden" name="option" value="lockediting"/>
             <c:if test="${lockediting}">
             <input type="hidden" name="value" value="false"/>
-            <input type="submit" value="Desbloquear" class="textbutton"/>
-            <div class="button inactive"><img src="../images/locked.png" class="lock"/>Bloqueado</div>
+            <input type="submit" value="<fmt:message key='settings.2d'/>" class="textbutton"/>
+            <div class="button inactive"><img src="../images/locked.png" class="lock"/><fmt:message key="settings.2b"/></div>
             </c:if>
             <c:if test="${!lockediting}">
             <input type="hidden" name="value" value="true"/>
-            <div class="button inactive"><img src="../images/unlocked.png" class="lock"/>Desbloqueado</div>
-            <input type="submit" value="Bloquear" class="textbutton"/>
+            <div class="button inactive"><img src="../images/unlocked.png" class="lock"/><fmt:message key="settings.2c"/></div>
+            <input type="submit" value="<fmt:message key='settings.2a'/>" class="textbutton"/>
             </c:if>
         </form>
     </td></tr>
-    <tr><td>Corte parcial de edição</td><td>
+    <tr><td><fmt:message key="settings.3"/></td><td>
         <form class="poster" data-path="api/setoptions" data-refresh="true">
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="hidden" name="option" value="lockeditingfortags"/>
@@ -40,16 +40,16 @@
                 </c:if>
             </c:forEach>
             </div>
-            <input type="submit" value="Bloquear tags" class="textbutton"/>
+            <input type="submit" value="<fmt:message key='settings.3a'/>" class="textbutton"/>
         </form>
         <form class="poster" data-path="api/setoptions" data-refresh="true">
             <input type="hidden" name="territory" value="${territory}"/>
             <input type="hidden" name="option" value="unlockeditingforalltags"/>
-            <input type="submit" value="Desbloquear todos" class="textbutton"/>
+            <input type="submit" value="<fmt:message key='settings.3b'/>" class="textbutton"/>
         </form>
     </td></tr>
     <c:if test="${(lockediting || lockedTags.size() > 0) && unlockedSheets.size() > 0}">
-    <tr><td>Excepções (fichas desbloqueadas)</td><td>Atenção! Os seguintes taxa estão desbloqueados:
+    <tr><td><fmt:message key="settings.4"/></td><td><fmt:message key="settings.4a"/>
     <ul>
         <c:forEach items="${unlockedSheets}" var="us">
         <li>
@@ -68,7 +68,7 @@
 <table>
     <tr><th>Option</th><th>Value</th></tr>
     <tr>
-        <td>Ano a partir do qual é considerado registo histórico</td>
+        <td><fmt:message key="settings.5"/></td>
         <td>
             <form class="poster" data-path="api/setoptions" data-refresh="true">
                 <input type="hidden" name="territory" value="${territory}"/>
@@ -79,7 +79,7 @@
         </td>
     </tr>
     <tr>
-        <td>Excluir todos os registos inseridos após a data</td>
+        <td><fmt:message key="settings.6"/></td>
         <td>
             <form class="poster" data-path="api/setoptions" data-refresh="true">
                 <input type="hidden" name="territory" value="${territory}"/>
@@ -90,7 +90,7 @@
         </td>
     </tr>
     <tr>
-        <td>Mostrar edições dos últimos</td>
+        <td><fmt:message key="settings.7"/></td>
         <td>
             <form class="poster" data-path="api/setoptions" data-refresh="true">
                 <input type="hidden" name="territory" value="${territory}"/>
@@ -104,7 +104,7 @@
         <td>Mapas</td>
         <td><table>
             <tr>
-                <td>Mapa base em formato WKT (copy/paste do QGIS de um só polígono)</td>
+                <td><fmt:message key="settings.8"/></td>
                 <td>
                     <form class="poster" data-path="api/setoptions" data-refresh="true">
                         <input type="hidden" name="territory" value="${territory}"/>
@@ -115,7 +115,7 @@
                 </td>
             </tr>
             <tr>
-                <td>Bounding box dos mapas</td>
+                <td><fmt:message key="settings.9"/></td>
                 <td>
                     <form class="poster" data-path="api/setoptions" data-refresh="true">
                         <input type="hidden" name="territory" value="${territory}"/>
@@ -129,7 +129,7 @@
                 </td>
             </tr>
             <tr>
-                <td>Divisor para exportação em SVG</td>
+                <td><fmt:message key="settings.10"/></td>
                 <td>
                     <form class="poster" data-path="api/setoptions" data-refresh="true">
                         <input type="hidden" name="territory" value="${territory}"/>
