@@ -12,6 +12,7 @@
     <div>
     <div class="header">${taxon.getName()}</div>
     <t:ajaxloadhtml url="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&pa=0&sa=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/>
+    <a href="../api/svgmap?basemap=1&size=10000&border=1&shadow=0&pa=0&sa=1&taxon=${taxon._getIDURLEncoded()}&download=1">download SVG</a>
     <%-- <t:ajaxloadhtml url="http://localhost:8080/api/svgmap?basemap=1&size=10000&border=1&shadow=0&taxon=${taxon._getIDURLEncoded()}" width="200px" height="100px"/> --%>
     </div>
 </c:forEach>
