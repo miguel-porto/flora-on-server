@@ -135,20 +135,21 @@ public class FloraOnArangoDriver implements IFloraOn {
 		IMG = new ImageManagementArangoDriver(this);
 
 		// fetch the threat enumeration, that may depend on the taxonomic group
-		String threatEnumerationClass = this.getProperties().getProperty("threatsEnumeration");
-		if(threatEnumerationClass == null) threatEnumerationClass = "ThreatsPlants";
+		String threatEnumerationClass = this.getProperties().getProperty("threatsEnumeration", "ThreatsPlants");
+		String conservationActionEnumerationClass = this.getProperties().getProperty("conservationActionEnumeration", "ConservationActionPlants");
+
 		try {
 			threatEnumeration = (MultipleChoiceEnumerationThreats) Class.forName("pt.floraon.redlistdata.threats." + threatEnumerationClass).getDeclaredConstructor().newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new FloraOnException("Could not initialize Threats.");
+			throw new FloraOnException("Could not initialize Threats enumeration. Check property 'threatsEnumeration'.");
 		}
 
 		try {
-			conservationActionEnumeration = (MultipleChoiceEnumerationConservationActions) Class.forName("pt.floraon.redlistdata.threats.ConservationActionPlants").getDeclaredConstructor().newInstance();
+			conservationActionEnumeration = (MultipleChoiceEnumerationConservationActions) Class.forName("pt.floraon.redlistdata.threats." + conservationActionEnumerationClass).getDeclaredConstructor().newInstance();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new FloraOnException("Could not initialize Threats.");
+			throw new FloraOnException("Could not initialize Conservation Action enumeration. Check property 'conservationActionEnumeration'.");
 		}
 
 		// check or create image folders

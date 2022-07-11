@@ -68,7 +68,7 @@ public class FloraOnServlet extends HttpServlet {
 		request.setAttribute("user", thisRequest.getUser());
 		request.setAttribute("uuid", "bk30");
 		request.setAttribute("contextPath", driver.getContextPath());
-		request.setAttribute("offline", false);		// for working in offline mode (no web fonts, etc.)
+		request.setAttribute("offline", Boolean.parseBoolean(driver.getProperties().getProperty("offline", "false")));		// for working in offline mode (no web fonts)
 //		request.setAttribute("occurrenceNewFeature", "NOVO! Ordenação é agora persistente e é feita no servidor, previamente à paginação");
 
 		try {
