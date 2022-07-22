@@ -7,5 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface MonospaceFont {
+public @interface FieldStyle {
+    enum Size {SMALL, BIG, VERYBIG}
+    FieldStyle.Size value() default Size.BIG;
+    boolean monospaceFont() default false;
 }

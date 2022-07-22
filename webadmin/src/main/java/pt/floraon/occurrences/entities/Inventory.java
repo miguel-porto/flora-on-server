@@ -24,45 +24,55 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
      * NOTE: coordinates of the observation have priority over these. Only if observationLatitude and observationLongitude
      * are not set, then we can use these inventory coordinates.
      */
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Latitude do inventário", shortName = "Inv lat")
     private Float latitude;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Longitude do inventário", shortName = "Inv long")
     private Float longitude;
     private String spatialRS;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Altitude", shortName = "Alt", alias={"z", "altitude"})
     private Float elevation;
     private String geometry;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Ano", shortName = "Ano", alias="ano")
     private Integer year;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Mês", shortName = "Mês", alias="mês")
     private Integer month;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Dia", shortName = "Dia")
     private Integer day;   // TODO: these cannot be erased...
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Hora", shortName = "Hora")
     private Integer hour;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Minuto", shortName = "Min")
     private Integer minute;
-    @SmallField @InventoryField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
     private Precision precision;
-    @SmallField @InventoryField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @InventoryField @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @FieldType(FieldType.Type.BOOLEAN)
     @PrettyName(value = "Inventário completo", shortName = "Compl")
     private String complete;
@@ -121,8 +131,9 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Região", shortName = "Região", alias="região")
     private String county;
-    @InventoryField @SmallField
-    @FieldParser(GeneralFieldParser.class) @MonospaceFont
+    @FieldStyle(value = FieldStyle.Size.SMALL, monospaceFont = true)
+    @InventoryField
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Código do inventário", shortName = "Cod", alias={"código", "inventário"}, important = true)
     private String code;
     @InventoryField @BigEditWidget
@@ -137,7 +148,8 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @PrettyName(value = "Área do inventário", shortName = "Área")
     private Float area;
     @InventoryField
-    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Escala de cobertura", shortName = "Escala", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
     private String coverIndex;
     private String geology;

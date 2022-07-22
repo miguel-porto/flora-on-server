@@ -45,8 +45,8 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
-    public boolean isSmallField(String field) {
-        return FieldReflection.isSmallField(field);
+    public String getFieldSize(String field) {
+        return FieldReflection.getFieldSize(field);
     }
 
     @Override

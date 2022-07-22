@@ -20,19 +20,24 @@ import java.util.*;
  * Created by miguel on 05-02-2017.
  */
 public class OBSERVED_IN extends GeneralDBEdge implements Serializable, DiffableBean {
-    @SmallField @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Latitude da ocorrência", shortName = "Obs lat")
     private Float observationLatitude;
-    @SmallField @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(LatitudeLongitudeParser.class)
     @PrettyName(value = "Longitude da ocorrência", shortName = "Obs long")
     private Float observationLongitude;
-    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Estado fenológico", shortName = "Fen", important = true)
     private Constants.PhenologicalStates phenoState;
-    @HideInCompactView @SmallField @FieldParser(EnumParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
-    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Confiança ID", shortName = "Conf", important = true)
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
@@ -44,63 +49,79 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote", important = true)
     private String privateComment;
-    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "URL", shortName = "URL")
     private String uri;
-    @SmallField @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Etiqueta herbário", shortName = "Etiq")
     private String labelData;
-    @SmallField @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Código herbário", shortName = "Cód Herb", alias="codHerbario")
     private String accession;
-    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nº de indivíduos", shortName = "Nº", description = "Estimated number of individuals", important = true)
     private Abundance abundance;
-    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Método da estimativa", shortName = "Met", description = "Estimation method")
     private RedListEnums.TypeOfPopulationEstimate typeOfEstimate;
-    @SmallField @HideInCompactView @FieldParser(FloatParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(FloatParser.class)
     @PrettyName(value = "Cobertura", shortName = "Cob", description = "Cover")
     private Float cover;
 /*
-    @SmallField @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Escala de cobertura", shortName = "Escala", description = "Custom cover/abundance scale (e.g. Braun-Blanquet, etc.)")
     @Deprecated
     private String coverIndex;
 */
     private OccurrenceConstants.CoverType coverIndexScale;
-    @SmallField @HideInCompactView @FieldParser(EnumParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Tem foto", shortName = "Foto")
     private RedListEnums.HasPhoto hasPhoto;
-    @SmallField @HideInCompactView @FieldParser(IntegerParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(IntegerParser.class)
     @PrettyName(value = "Colheita", shortName = "Colh")
     private Integer hasSpecimen;
 /*
-    @SmallField @HideInCompactView
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView
     @PrettyName(value = "Código Instituição", shortName = "Inst Cod")
 */
     private String institutionCode;
     private OccurrenceConstants.ValidationStatus validationStatus;
-    @SmallField @HideInCompactView @ReadOnly @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @ReadOnly @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
     @PrettyName(value = "Data de inserção", shortName = "Data ins")
     private Date dateInserted;
-    @SmallField @HideInCompactView @ReadOnly @FieldType(FieldType.Type.DATE)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @ReadOnly @FieldType(FieldType.Type.DATE)
     @PrettyName(value = "Data da última actualização", shortName = "Data alt")
     private Date dateUpdated;
-    @SmallField @HideInCompactView @FieldParser(UUIDParser.class) @ReadOnly
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @FieldParser(UUIDParser.class) @ReadOnly
     @PrettyName(value = "Identificador único", shortName = "UUID", alias={"occurrenceuuid"})
     private UUID uuid;
-    @SmallField @FieldParser(GeneralFieldParser.class) @MonospaceFont
+    @FieldStyle(value = FieldStyle.Size.SMALL, monospaceFont = true)
+    @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Código GPS", shortName = "GPS", alias={"gps", "gps code"}
         , description = "The GPS point name for this particular taxon. Usage discouraged: not to be confounded with the inventory code!")
     private String gpsCode;
     @FieldParser(GeneralFieldParser.class) @BigEditWidget
     @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
-    @SmallField @HideInCompactView @AdminOnly @FieldParser(EnumParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @AdminOnly @FieldParser(EnumParser.class)
     @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
     private OccurrenceConstants.PresenceStatus presenceStatus;
-    @SmallField @HideInCompactView @AdminOnly @FieldParser(GeneralFieldParser.class)
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @HideInCompactView @AdminOnly @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Curator comment", shortName = "Curator", description = "Comments from the curator")
     private String curatorComment;
     @FieldType(FieldType.Type.IMAGE) @FieldParser(StringArrayParser.class)

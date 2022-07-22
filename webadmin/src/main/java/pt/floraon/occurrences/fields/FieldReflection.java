@@ -232,10 +232,10 @@ public final class FieldReflection {
         return f.isAnnotationPresent(FieldType.class) && f.getAnnotation(FieldType.class).value() == FieldType.Type.BOOLEAN;
     }
 
-    static public boolean isSmallField(String field) {
+    static public String getFieldSize(String field) {
         Field f = findField(field);
-        if(f == null) return false;
-        return f.isAnnotationPresent(SmallField.class);
+        if(f == null) return FieldStyle.Size.BIG.toString();
+        return f.isAnnotationPresent(FieldStyle.class) ? f.getAnnotation(FieldStyle.class).value().toString() : FieldStyle.Size.BIG.toString();
     }
 
     static public boolean isImportantField(String field) {
@@ -280,7 +280,7 @@ public final class FieldReflection {
     static public boolean isMonospaceFont(String field) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(MonospaceFont.class);
+        return f.isAnnotationPresent(FieldStyle.class) && f.getAnnotation(FieldStyle.class).monospaceFont();
     }
 
     static public boolean isBigEditWidget(String field) {

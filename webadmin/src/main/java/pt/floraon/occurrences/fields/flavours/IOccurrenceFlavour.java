@@ -43,7 +43,7 @@ public interface IOccurrenceFlavour {
 
     boolean isReadOnly(String field, boolean isAdmin);
 
-    boolean isSmallField(String field);
+    String getFieldSize(String field);
 
     boolean isImportantField(String field);
 

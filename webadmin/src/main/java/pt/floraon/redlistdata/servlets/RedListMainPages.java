@@ -268,7 +268,7 @@ System.out.println(gs.toJson(getUser()));
 
             case "taxon":   // this is the entry point for a red list sheet
                 String redListSheetTemplate = driver.getProperties().getProperty("redListSheetTemplate");
-                if(redListSheetTemplate == null) redListSheetTemplate = "frag-redlistsheet-flora";
+                if(redListSheetTemplate == null) redListSheetTemplate = "frag-redlistsheet-flora"; else redListSheetTemplate = "frag-redlistsheet-" + redListSheetTemplate;
                 request.setAttribute("redListSheetTemplate", redListSheetTemplate);
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());

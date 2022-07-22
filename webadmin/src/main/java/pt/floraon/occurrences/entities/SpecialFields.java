@@ -9,6 +9,7 @@ import pt.floraon.occurrences.fields.parsers.TaxaParser;
  * This is a dummy class, just serving as placeholder for special Inventory and OBSERVED_IN fields.
  */
 public class SpecialFields {
+    @FieldStyle(FieldStyle.Size.VERYBIG)
     @SpecialField @InventoryField @FieldParser(TaxaParser.class)
     @PrettyName(value = "Taxon", shortName = "Taxon", important = true)
     @DatabaseFields({"verbTaxon"})
@@ -17,11 +18,13 @@ public class SpecialFields {
     @PrettyName(value = "Coordenadas", shortName = "Coord", important = true)
     @DatabaseFields({"observationLatitude", "observationLongitude"})
     private String coordinates;
-    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @SmallField
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
     @DatabaseFields({"year", "month", "day", "hour", "minute"})
     @PrettyName(value = "Data de observação", shortName = "Data", important = true)
     private String date;
-    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @SmallField @ReadOnly
+    @FieldStyle(FieldStyle.Size.SMALL)
+    @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @ReadOnly
     @DatabaseFields({"hour", "minute"})
     @PrettyName(value = "Hora de observação", shortName = "Hora", important = false, alias = {"hour"})
     private String time;

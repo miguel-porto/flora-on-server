@@ -909,6 +909,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("tag");
         }
 
+        // threat category filter
+        if(filter.containsKey("iucn")) {
+            if(filter.get("iucn").equalsIgnoreCase("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nullthreatcat")).append(" ");
+            } else {
+                bindVars.put("threatcat", filter.get("iucn").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.threatcat")).append(" ");
+            }
+            filter.remove("iucn");
+        }
+
         // gpsCode filter
         if(filter.containsKey("gps")) {
             if(filter.get("gps").equalsIgnoreCase("NA")) {

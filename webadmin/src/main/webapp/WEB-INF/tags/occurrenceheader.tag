@@ -32,7 +32,7 @@
     <c:param name="filter" value="${filter}" />
 </c:url>
 <c:set var="sortedCol" value="${view != 'inventory' && !noSortButton && (occurrenceOrder == field || occurrenceOrder == field.concat('_d')) ? 'sorted' : ''}"/>
-<th class="${fields.isSmallField(field) ? 'smallcol' : 'bigcol'} ${sortedCol} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
+<th class="fieldsize_${fields.getFieldSize(field)} ${sortedCol} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
     title="${fields.getFieldName(field)}" data-field="${field}">
     <t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>
     <c:set var="butsel" value="${occurrenceOrder == field ? 'selected' : ''}"/>
