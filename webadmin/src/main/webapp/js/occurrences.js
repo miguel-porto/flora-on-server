@@ -733,6 +733,7 @@ function clickOccurrenceTable(ev) {
         if(!cell.classList.contains('multiline') && cell.querySelector('#editfieldwrapper')) return;
 //        selectGeoElement(cell, true, true);
         var txt = cell.innerHTML;
+//        var txt = cell.textContent;
 //        cell.textContent = '';
         displayEditField(cell, txt, cell.classList.contains('multiline'));
     }

@@ -562,6 +562,17 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("local");
         }
 
+        // tag filter
+        if(filter.containsKey("tag")) {
+            if(filter.get("tag").equalsIgnoreCase("NA")) {
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.nulltag")).append(" ");
+            } else {
+                bindVars.put("tag", filter.get("tag"));
+                inventoryFilter.append(AQLOccurrenceQueries.getString("filter.tag")).append(" ");
+            }
+            filter.remove("tag");
+        }
+
         // new record filter
         if(filter.containsKey("new")) {
             if(filter.get("new").equalsIgnoreCase("NA") || filter.get("new").equalsIgnoreCase("no") || filter.get("new").equalsIgnoreCase("0"))
@@ -899,14 +910,14 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         }
 
         // tag filter
-        if(filter.containsKey("tag")) {
-            if(filter.get("tag").equalsIgnoreCase("NA")) {
-                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulltag")).append(" ");
+        if(filter.containsKey("lvtag")) {
+            if(filter.get("lvtag").equalsIgnoreCase("NA")) {
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulllvtag")).append(" ");
             } else {
-                bindVars.put("tag", filter.get("tag").replaceAll("\\*", "%"));
-                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.tag")).append(" ");
+                bindVars.put("tag", filter.get("lvtag").replaceAll("\\*", "%"));
+                occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.lvtag")).append(" ");
             }
-            filter.remove("tag");
+            filter.remove("lvtag");
         }
 
         // threat category filter
