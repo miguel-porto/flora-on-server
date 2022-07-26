@@ -101,9 +101,15 @@
         <h2 class="hideincompactview"><fmt:message key="${sessionScope['option-allusers'] ? 'occurrences.6' : (sessionScope['option-viewAsObserver'] ? 'occurrences.7' : 'occurrences.1')}"/> - ${nrtotaloccurrences}
         <c:if test="${(filter != null && filter != '') || baseFilter != null}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences?w=occurrences" classes="inlineblock"/>]
             <c:if test="${baseFilter == null}">
-            <form class="poster" style="display:inline-flex; vertical-align:middle" data-path="occurrences/api/saveFilter" data-refresh="true">
+            <c:url value="" var="urlNofilter">
+                <c:param name="w" value="${param.w}" />
+                <c:param name="p" value="1" />
+                <c:param name="filter" value="" />
+            </c:url>
+            <form class="poster" style="display:inline-flex; vertical-align:middle" data-path="occurrences/api/saveFilter" data-callback="${urlNofilter}">
                 <input type="hidden" name="filter" value="${filter}" />
                 <input type="text" name="filterName" placeholder="name" style="width:100px"/>
+                <input type="hidden" name="refreshURL" value="${filter}" />
                 <input type="submit" class="button singleline" value="<fmt:message key='occurrences.1i'/>" />
             </form>
             </c:if>

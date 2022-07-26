@@ -369,27 +369,26 @@ public class OccurrenceApi extends FloraOnServlet {
             case "saveFilter":
                 String filter1 = thisRequest.getParameterAsString("filter");
                 String name = thisRequest.getParameterAsString("filterName");
-                Map<String, String> sf = user.getSavedOccurrenceFilters();
-                sf.put(name, filter1);
-                thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
-                thisRequest.refreshUser();
-                thisRequest.setOption("baseFilter", filter1);
-                HttpSession session1 = thisRequest.request.getSession(false);
-                session1.removeAttribute("filter");
+                if(StringUtils.isStringEmpty(name))
+                    thisRequest.error("Filter must have a name");
+                else {
+                    Map<String, String> sf = user.getSavedOccurrenceFilters();
+                    sf.put(name, filter1);
+                    thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
+                    thisRequest.refreshUser();
+                    thisRequest.setOption("baseFilter", filter1);
+                }
                 break;
 
             case "deleteSavedFilter":
                 String filter2 = thisRequest.getParameterAsString("filter");
                 Map<String, String> sf1 = user.getSavedOccurrenceFilters();
                 for(Map.Entry<String, String> ent : sf1.entrySet()) {
-                    System.out.println(ent.getValue()+ " ; " + filter2);
                     if (ent.getValue().equals(filter2)) {
-                        System.out.println("REM: " + ent.getKey());
                         thisRequest.success(driver.getAdministration().removeSavedFilter(driver.asNodeKey(user.getID()), ent.getKey()));
                         break;
                     }
                 }
-//                thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
                 thisRequest.setOption("baseFilter", null);
                 thisRequest.refreshUser();
                 break;
