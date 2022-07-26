@@ -168,7 +168,7 @@ div.newfeature {
     margin: 0;
     height: 1.2em;
     line-height: 1.2em;
-    padding: 0.1em 6px;
+    padding: 0.05em 6px;
 }
 
 .button:hover .button:hover * {

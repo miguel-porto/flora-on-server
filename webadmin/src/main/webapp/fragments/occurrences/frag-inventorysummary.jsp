@@ -88,7 +88,7 @@
         <c:url value="" var="url3">
             <c:param name="w" value="${param.w}" />
             <c:param name="p" value="1" />
-            <c:param name="filter" value="tag:lista alvo" />
+            <c:param name="filter" value="lvtag:lista alvo" />
         </c:url>
         <div class="button anchorbutton"><a href="${url3}">Lista Alvo</a></div>
         <c:if test="${filter != null && filter != ''}">
