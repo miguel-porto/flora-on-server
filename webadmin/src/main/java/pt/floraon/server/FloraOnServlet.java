@@ -66,10 +66,10 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk30");
+		request.setAttribute("uuid", "bk31");
 		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("offline", Boolean.parseBoolean(driver.getProperties().getProperty("offline", "false")));		// for working in offline mode (no web fonts)
-		request.setAttribute("occurrenceNewFeature", "NOVO! Filtro iucn: para filtar registos por categoria IUCN");
+		request.setAttribute("occurrenceNewFeature", "NOVO! É possível agora gravar filtros-base que persistem, independentemente do filtro escrito!");
 
 		try {
 			doFloraOnGet(thisRequest);
@@ -148,7 +148,10 @@ public class FloraOnServlet extends HttpServlet {
 			HttpSession session = request.getSession(false);
 			if(session != null) {
 //                    System.out.println("SET " + "option-" + optionName + " to "+thisRequest.getParameterAsBooleanNoNull("v"));
-				session.setAttribute("option-" + optionName, value);
+				if(value != null)
+					session.setAttribute("option-" + optionName, value);
+				else
+					session.removeAttribute("option-" + optionName);
 			} else
 				throw new FloraOnException("Not logged in");
 

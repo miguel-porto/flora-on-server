@@ -144,6 +144,18 @@ public class Administration extends BaseFloraOnDriver implements IAdministration
         }
     }
 
+    public User removeSavedFilter(INodeKey id, String filterName) throws FloraOnException {
+        Map<String, Object> bind = new HashMap<>();
+        bind.put("uid", id.toString());
+        bind.put("filtername", filterName);
+        try {
+            return database.query(AQLQueries.getString("Administration.10"), bind
+                    , null, User.class).next();
+        } catch (ArangoDBException e) {
+            throw new FloraOnException(e.getMessage());
+        }
+    }
+
     @Override
     public User createCustomOccurrenceFlavour(INodeKey id, String[] fields, String name, boolean showInOccurrenceView
             , boolean showInInventoryView) throws FloraOnException {

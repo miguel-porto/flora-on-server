@@ -44,7 +44,21 @@
 </div>
 <div class="heading2">
     <h2>${sessionScope['option-allusers'] ? 'All inventories' : (sessionScope['option-viewAsObserver'] ? "Inventories where you're listed as observer"  : 'Your inventories')} - ${nrtotaloccurrences}
-    <c:if test="${filter != null && filter != ''}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences?w=inventories" classes="inlineblock"/>]</c:if>
+    <c:if test="${(filter != null && filter != '') || baseFilter != null}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences?w=inventories" classes="inlineblock"/>]
+            <c:if test="${baseFilter == null}">
+            <form class="poster" style="display:inline-flex; vertical-align:middle" data-path="occurrences/api/saveFilter" data-refresh="true">
+                <input type="hidden" name="filter" value="${filter}" />
+                <input type="text" name="filterName" placeholder="name" style="width:100px"/>
+                <input type="submit" class="button singleline" value="<fmt:message key='occurrences.1i'/>" />
+            </form>
+            </c:if>
+            <c:if test="${baseFilter != null}">
+            <form class="poster" style="display:inline-flex; vertical-align:middle" data-path="occurrences/api/deleteSavedFilter" data-refresh="true">
+                <input type="hidden" name="filter" value="${baseFilter}" />
+                <input type="submit" class="button singleline" value="<fmt:message key='occurrences.1j'/>" />
+            </form>
+            </c:if>
+    </c:if>
     </h2>
     <%--<t:isoptionselected optionname="allusers" value="false"><div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div></t:isoptionselected>--%>
     <div class="button icon" id="addemptyinventory"><img src="${contextPath}/images/add.png"/><span>Novo</span></div>
@@ -54,7 +68,8 @@
         <form method="get" action="occurrences" class="inlineblock">
             <input type="hidden" name="w" value="${param.w}" />
             <input type="hidden" name="p" value="1" />
-            <input type="text" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/>
+            <%-- <input type="text" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/> --%>
+            <textarea id="filter-textarea" rows="2" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>">${filter}</textarea>
             <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
             <input type="submit" class="button" value="Filter" />
         </form>
@@ -84,6 +99,7 @@
         </c:url>
         <div class="button anchorbutton"><a href="${url4}"><fmt:message key="occurrences.1h"/></a></div>
         </c:if>
+        <t:option-radiobutton optionprefix="baseFilter" optionnames="${savedFilters}" allowdeselect="true"/>
     </div>
     <t:pager />
 </div>

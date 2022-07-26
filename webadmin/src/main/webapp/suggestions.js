@@ -223,9 +223,12 @@ function attachOptionButtonHandler(url) {
             var elid = optb.getAttribute('data-element');
             var type = optb.getAttribute('data-type');
             var norefresh = optb.getAttribute('data-norefresh');
+            var allowdeselect = optb.getAttribute('data-allow-deselect');
             var vbool = (value == 'true');
             var el = (elid == '' ? null : document.getElementById(elid));
-            if(type == 'radio' && optb.classList.contains('selected')) return;
+            if(type == 'radio' && allowdeselect && optb.classList.contains('selected'))
+                value = 'null';
+            if(type == 'radio' && !allowdeselect && optb.classList.contains('selected')) return;
             if(norefresh == 'true') {    // TODO this is specific to occurrence manager
                 if(vbool) {
                     if(el) el.classList.remove('hiddenhard');

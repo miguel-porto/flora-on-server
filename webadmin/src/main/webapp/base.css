@@ -164,6 +164,13 @@ div.newfeature {
 	overflow:hidden;
 }
 
+.button.singleline {
+    margin: 0;
+    height: 1.2em;
+    line-height: 1.2em;
+    padding: 0.1em 6px;
+}
+
 .button:hover .button:hover * {
 	background-color:#7c7 !important;
 }

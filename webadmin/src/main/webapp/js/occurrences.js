@@ -4,34 +4,43 @@ var mapRectSelect = null;
 var filterTimeout = null;
 var loader;
 var showPointsOnMap;
-var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
-var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
-var openCircle = L.divIcon({className: 'opencircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
-var blackCircle = L.divIcon({className: 'blackcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
+if (typeof L !== 'undefined') {
+    var redCircle = L.divIcon({className: 'redcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
+    var greenSquare = L.divIcon({className: 'greensquareicon', bgPos: [-4, -4], iconSize: [8, 8]});
+    var openCircle = L.divIcon({className: 'opencircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
+    var blackCircle = L.divIcon({className: 'blackcircleicon', bgPos: [-4, -4], iconSize: [8, 8]});
+}
 var lastFileUploadCallback = null;
-/*var redCircle = L.icon({
-    iconUrl: 'images/redcircle.png',
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
-});*/
-
 /*
 var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 */
 
+function submitOnEnter(event){
+    if(event.which === 13){
+//        console.log(event.target.form);
+//        event.target.form.dispatchEvent(new Event("submit", {cancelable: true}));
+        event.target.form.submit();
+        event.preventDefault(); // Prevents the addition of a new line in the text field (not needed in a lot of cases)
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
+    if (typeof L !== 'undefined') {
+        myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
+        L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
+        myMap.on('click', mapClick);
+    }
+
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
-    L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
     //L.tileLayer.bing({imagerySet:'Aerial', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
 
 /*    L.gridLayer.googleMutant({
         type: 'satellite'	// valid values are 'roadmap', 'satellite', 'terrain' and 'hybrid'
     }).addTo(myMap);*/
 
-    myMap.on('click', mapClick);
+
 
 //    attachFormPosters(fileUploadCallback);
     attachFormPosters(null, function(ev) {
@@ -53,9 +62,12 @@ document.addEventListener('DOMContentLoaded', function() {
     attachSuggestionHandler('editfield', null, null, onConfirmEdit, true, null, tabHandler);
     attachSuggestionHandler('imageidfield', null, null, onConfirmEdit, true, null, tabHandler);
 
+    if(document.getElementById("filter-textarea"))
+        document.getElementById("filter-textarea").addEventListener("keypress", submitOnEnter);
+
     attachAJAXContent();
 
-    // the mechanism for adding speccies to the taxon edit box
+    // the mechanism for adding species to the taxon edit box
     new TreeExpander(document.querySelectorAll('.taxtree-holder>ul'), function(ev, key) {
         var elem = document.getElementById('taxonsearchwrapper');
         var el = document.querySelector('.taxtree-holder li[data-key="' + key +'"]');
@@ -545,7 +557,7 @@ function clickButton(ev) {
                     layer = e.layer;
                     if (type === 'rectangle') {
                         var bnd = layer.getBounds();
-                        document.querySelector('input[name=filter]').value =
+                        document.querySelector('textarea[name=filter]').value =
                             'long:' + Math.round(bnd.getWest() * 10000) / 10000 + '-' + Math.round(bnd.getEast() * 10000) / 10000
                             + ' lat:' + Math.round(bnd.getSouth() * 10000) / 10000 + '-' + Math.round(bnd.getNorth() * 10000) / 10000;
                         document.getElementById('occurrencefilter').firstElementChild.submit();
@@ -868,7 +880,7 @@ function projectPointsOnMap(ota, markerOptions) {
 }
 
 function addPointMarker(lat, lng, bondEl, draggable, options) {
-    if(isNaN(lat) || isNaN(lng)) return;
+    if(isNaN(lat) || isNaN(lng) || typeof L === 'undefined') return;
     options = Object.assign({icon: redCircle}, options);
     var marker = L.marker([lat, lng], {icon: options.icon, draggable: draggable, keyboard: false});
     if(options.label)

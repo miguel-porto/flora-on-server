@@ -132,7 +132,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         Matcher mat = filterPattern.matcher(filterText);
 
         while(mat.find()) {
-            System.out.println(mat.group("key") + ": "+mat.group("value"));
+//            System.out.println(mat.group("key") + ": "+mat.group("value"));
             if(!pt.floraon.driver.utils.StringUtils.isStringEmpty(mat.group("value")))
                 out.put(mat.group("key").toLowerCase(), mat.group("value"));
         }

@@ -333,6 +333,9 @@ public class OccurrenceApi extends FloraOnServlet {
                 HttpSession session = thisRequest.request.getSession(false);
                 INodeKey maintainer = thisRequest.isOptionTrue("allusers") ? null : driver.asNodeKey(user.getID());
 
+                // fetch base filter from selection option of saved filters
+                String baseFilter = (String) thisRequest.getOption("baseFilter");
+
                 // fetch filter from querystring or session
                 String filter = thisRequest.getParameterAsString("filter");
                 if(filter == null) {
@@ -342,14 +345,17 @@ public class OccurrenceApi extends FloraOnServlet {
                     filter = null;
                 }
 
-                if(filter == null) {
+                if(filter == null && baseFilter == null) {
                     thisRequest.response.getWriter().print("no filter");
                     break;
                 }
 
-                Map<String, String> parsedFilter;
+                Map<String, String> parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
+                Map<String, String> parsedBaseFilter = driver.getOccurrenceDriver().parseFilterExpression(baseFilter);
+                parsedBaseFilter.putAll(parsedFilter);
+                parsedFilter = parsedBaseFilter;
+
                 try {
-                    parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                     thisRequest.response.getWriter().print(driver.getOccurrenceDriver().findAnyByFilterCount(
                             w.equals("inventories") ? Inventory.class : Occurrence.class,
                             parsedFilter, maintainer, thisRequest.isOptionTrue("viewAsObserver")));
@@ -358,6 +364,34 @@ public class OccurrenceApi extends FloraOnServlet {
                 } catch(FloraOnException e) {
                     thisRequest.response.getWriter().print("O filtro não foi compreendido: " + e.getMessage());
                 }
+                break;
+
+            case "saveFilter":
+                String filter1 = thisRequest.getParameterAsString("filter");
+                String name = thisRequest.getParameterAsString("filterName");
+                Map<String, String> sf = user.getSavedOccurrenceFilters();
+                sf.put(name, filter1);
+                thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
+                thisRequest.refreshUser();
+                thisRequest.setOption("baseFilter", filter1);
+                HttpSession session1 = thisRequest.request.getSession(false);
+                session1.removeAttribute("filter");
+                break;
+
+            case "deleteSavedFilter":
+                String filter2 = thisRequest.getParameterAsString("filter");
+                Map<String, String> sf1 = user.getSavedOccurrenceFilters();
+                for(Map.Entry<String, String> ent : sf1.entrySet()) {
+                    System.out.println(ent.getValue()+ " ; " + filter2);
+                    if (ent.getValue().equals(filter2)) {
+                        System.out.println("REM: " + ent.getKey());
+                        thisRequest.success(driver.getAdministration().removeSavedFilter(driver.asNodeKey(user.getID()), ent.getKey()));
+                        break;
+                    }
+                }
+//                thisRequest.success(driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user).getID());
+                thisRequest.setOption("baseFilter", null);
+                thisRequest.refreshUser();
                 break;
         }
     }

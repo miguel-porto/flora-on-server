@@ -40,7 +40,8 @@ public class OccurrencesMainPage extends FloraOnServlet {
         User user = thisRequest.getUser();
         Integer page = thisRequest.getParameterAsInteger("p", null);
         int occPerPage = 250;    // how many occurrences or inventories per page
-        String filter, order;
+        String filter, order, baseFilter;
+        Map<String, String> parsedFilter;
         INodeKey maintainer;
         boolean viewAsObserver;
         int tmp;
@@ -61,6 +62,10 @@ public class OccurrencesMainPage extends FloraOnServlet {
         } else
             session.setAttribute("page", page);
 
+        // fetch base filter from selection option of saved filters
+        baseFilter = (String) thisRequest.getOption("baseFilter");
+        if(baseFilter != null) request.setAttribute("baseFilter", baseFilter);
+
         // fetch filter from querystring or session
         filter = thisRequest.getParameterAsString("filter");
 
@@ -71,6 +76,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
             filter = null;
         }
 
+        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
+
+        if(parsedFilter.size() > 0)
+            session.setAttribute("filter", filter);
+
+        Map<String, String> parsedBaseFilter = driver.getOccurrenceDriver().parseFilterExpression(baseFilter);
+        parsedBaseFilter.putAll(parsedFilter);
+        parsedFilter = parsedBaseFilter;
+
         // fetch order from querystring or session
         order = thisRequest.getParameterAsString("order");
         if(order == null) {
@@ -79,6 +93,12 @@ public class OccurrencesMainPage extends FloraOnServlet {
             session.removeAttribute("occurrenceOrder");
             order = null;
         }
+
+        Map<String, String> tmpSOF = new HashMap<>();
+        for(Map.Entry<String, String> ent : user.getSavedOccurrenceFilters().entrySet()) {
+            tmpSOF.put(ent.getValue(), ent.getKey());
+        }
+        request.setAttribute("savedFilters", tmpSOF);
 
 /*
         Enumeration<String> attrs = session.getAttributeNames();
@@ -143,18 +163,15 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     order = order.substring(0, order.length() - 2);
                 }
 
-                if (filter == null) {
+                if (parsedFilter.size() == 0) {
                     request.setAttribute("nroccurrences", Math.min(occPerPage, tmp));
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("inventories"
                             , driver.getOccurrenceDriver().getInventoriesOfUser(tu1, viewAsObserver, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection), (page - 1) * occPerPage, occPerPage));
                 } else {
-                    session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", occPerPage);
                     request.setAttribute("nrtotaloccurrences", tmp);
-                    Map<String, String> parsedFilter;
                     try {
-                        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("inventories"
                                 , driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection), tu1, viewAsObserver, (page - 1) * occPerPage, occPerPage));
                     } catch(FloraOnException e) {
@@ -221,14 +238,11 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 tmp = driver.getOccurrenceDriver().getOccurrencesOfMaintainerCount(maintainer);
 
-                if (filter == null) {
+                if (parsedFilter.size() == 0) {
                     request.setAttribute("occurrences"
                             , driver.getOccurrenceDriver().getOccurrencesOfMaintainer(maintainer, null,false,(page - 1) * occPerPage, occPerPage));
                 } else {
-                    session.setAttribute("filter", filter);
-                    Map<String, String> parsedFilter = new HashMap<>();
                     try {
-                        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("occurrences"
                                 , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, null, maintainer, false, (page - 1) * occPerPage, occPerPage));
                     } catch(FloraOnException e) {
@@ -276,7 +290,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     orderDirection1 = true;
                     order = order.substring(0, order.length() - 2);
                 }
-                if (filter == null) {
+                if (parsedFilter.size() == 0) {
                     request.setAttribute("nroccurrences", Math.min(occPerPage, tmp));
                     request.setAttribute("nrtotaloccurrences", tmp);
                     request.setAttribute("occurrences"
@@ -284,12 +298,9 @@ public class OccurrencesMainPage extends FloraOnServlet {
                                     new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection1),
                                         false,(page - 1) * occPerPage, occPerPage));
                 } else {
-                    session.setAttribute("filter", filter);
                     request.setAttribute("nroccurrences", occPerPage);
                     request.setAttribute("nrtotaloccurrences", tmp);
-                    Map<String, String> parsedFilter = new HashMap<>();
                     try {
-                        parsedFilter = driver.getOccurrenceDriver().parseFilterExpression(filter);
                         request.setAttribute("occurrences"
                                 , driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, new AbstractMap.SimpleEntry<String, Boolean>(order, orderDirection1), maintainer, viewAsObserver, (page - 1) * occPerPage, occPerPage));
                     } catch(FloraOnException e) {
@@ -380,7 +391,10 @@ public class OccurrencesMainPage extends FloraOnServlet {
                                 session.setAttribute(opt, false);
                         }
 */
-                        thisRequest.setOption(optionName, thisRequest.getParameterAsString("v"));
+                        if("null".equals(thisRequest.getParameterAsString("v")))
+                            thisRequest.setOption(optionName, null);
+                        else
+                            thisRequest.setOption(optionName, thisRequest.getParameterAsString("v"));
                         break;
                 }
 /*
@@ -411,26 +425,23 @@ public class OccurrencesMainPage extends FloraOnServlet {
                     u = driver.asNodeKey(user.getID());
 
                 Iterator<? extends Inventory> it1;
-                Map<String, String> parsedFilter3;
                 if(what.equals("downloadinventorytable")) {
-                    if (filter == null) {
+                    if (parsedFilter.size() == 0) {
                         it1 = driver.getOccurrenceDriver().getInventoriesOfMaintainer(u, null, null, null);
                     } else {
                         try {
-                            parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
-                            it1 = driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter3, null, u, false, null, null);
+                            it1 = driver.getOccurrenceDriver().findInventoriesByFilter(parsedFilter, null, u, false, null, null);
                         } catch (FloraOnException e) {
                             thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
                             return;
                         }
                     }
                 } else {
-                    if (filter == null) {
+                    if (parsedFilter.size() == 0) {
                         it1 = driver.getOccurrenceDriver().getOccurrencesOfMaintainer(u, null, true, null, null);
                     } else {
                         try {
-                            parsedFilter3 = driver.getOccurrenceDriver().parseFilterExpression(filter);
-                            it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter3, null, u, false, null, null);
+                            it1 = driver.getOccurrenceDriver().findOccurrencesByFilter(parsedFilter, null, u, false, null, null);
                         } catch (FloraOnException e) {
                             thisRequest.error("O filtro não foi compreendido: " + e.getMessage());
                             return;
