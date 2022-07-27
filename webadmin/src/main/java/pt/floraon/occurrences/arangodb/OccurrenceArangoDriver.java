@@ -1039,22 +1039,16 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
-    public Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, boolean asObserver, Integer offset, Integer count) throws FloraOnException {
-        return findAnyByFilter(Inventory.class, filter, orderField, userId, asObserver, offset, count);
-    }
-
-    @Override
-    public Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, boolean asObserver, Integer offset, Integer count) throws FloraOnException {
-        return findAnyByFilter(Occurrence.class, filter, orderField, userId, asObserver, offset, count);
-    }
-
-    @Override
     public <T> int findAnyByFilterCount(Class<T> type, Map<String, String> filter, INodeKey userId, boolean asObserver) throws FloraOnException {
+        String textFilter = filter.get("NA");
+        filter.remove("NA");
         Map<String, Object> bindVars = new HashMap<>();
         String query;
         String inventoryFilter = "";
         String occurrenceFilter = "";
         String preliminaryFilter = "";
+
+        if(!StringUtils.isStringEmpty(textFilter)) bindVars.put("query", "%" + textFilter + "%");
 
         if(userId != null) {
             bindVars.put("preliminary", userId.toString());
@@ -1067,9 +1061,11 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         occurrenceFilter += occurrenceFilters[1];
 
         if(type.equals(Inventory.class)) {
-            query = AQLOccurrenceQueries.getString("occurrencequery.9.count", inventoryFilter, occurrenceFilter, preliminaryFilter);
+//            query = AQLOccurrenceQueries.getString("occurrencequery.9.count", inventoryFilter, occurrenceFilter, preliminaryFilter);
+            query = AQLOccurrenceQueries.getString(StringUtils.isStringEmpty(textFilter) ? "occurrencequery.9.count" : "occurrencequery.9.count.withtextfilter", inventoryFilter, occurrenceFilter, preliminaryFilter);
         } else if(type.equals(Occurrence.class)) {
-            query = AQLOccurrenceQueries.getString("occurrencequery.8.count", inventoryFilter, occurrenceFilter, preliminaryFilter);
+//            query = AQLOccurrenceQueries.getString("occurrencequery.8.count", inventoryFilter, occurrenceFilter, preliminaryFilter);
+            query = AQLOccurrenceQueries.getString(StringUtils.isStringEmpty(textFilter) ? "occurrencequery.8.count" : "occurrencequery.8.count.withtextfilter", inventoryFilter, occurrenceFilter, preliminaryFilter);
         } else throw new FloraOnException("Unknown class");
 
         try {
@@ -1077,6 +1073,16 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
+    }
+
+    @Override
+    public Iterator<Inventory> findInventoriesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, boolean asObserver, Integer offset, Integer count) throws FloraOnException {
+        return findAnyByFilter(Inventory.class, filter, orderField, userId, asObserver, offset, count);
+    }
+
+    @Override
+    public Iterator<Occurrence> findOccurrencesByFilter(Map<String, String> filter, AbstractMap.SimpleEntry<String, Boolean> orderField, INodeKey userId, boolean asObserver, Integer offset, Integer count) throws FloraOnException {
+        return findAnyByFilter(Occurrence.class, filter, orderField, userId, asObserver, offset, count);
     }
 
     @Override
