@@ -411,11 +411,11 @@ input[type=submit].textbutton.compact {
     user-select: none;
 }
 
-#occurrencefilter .button {
+/*#occurrencefilter .button {
     background-color: #1db940;
-    /*padding:4px 10px;
-    margin:2px;*/
-}
+    padding:4px 10px;
+    margin:2px;
+}*/
 
 .button.anchorbutton {padding:0;}
 .button.anchorbutton a, .button.anchorbutton a:visited {padding:8px 14px; display: inline-block; color:white; line-height:1em;}
