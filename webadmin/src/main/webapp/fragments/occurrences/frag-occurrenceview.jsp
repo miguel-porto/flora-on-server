@@ -134,7 +134,7 @@
                 <input type="hidden" name="w" value="${param.w}" />
                 <input type="hidden" name="p" value="1" />
                 <%-- <input type="text" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/> --%>
-                <textarea id="filter-textarea" rows="2" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>">${filter}</textarea>
+                <textarea id="filter-textarea" rows="2" name="filter" style="width:400px" placeholder="<fmt:message key="occurrences.1e"/>">${filter}</textarea>
                 <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
                 <input type="submit" class="button" value="Filter" />
             </form>

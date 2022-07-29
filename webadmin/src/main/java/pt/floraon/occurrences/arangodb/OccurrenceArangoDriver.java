@@ -909,12 +909,12 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             filter.remove("long");
         }
 
-        // tag filter
+        // red list tag filter
         if(filter.containsKey("lvtag")) {
             if(filter.get("lvtag").equalsIgnoreCase("NA")) {
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.nulllvtag")).append(" ");
             } else {
-                bindVars.put("tag", filter.get("lvtag").replaceAll("\\*", "%"));
+                bindVars.put("lvtag", filter.get("lvtag").replaceAll("\\*", "%"));
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.lvtag")).append(" ");
             }
             filter.remove("lvtag");

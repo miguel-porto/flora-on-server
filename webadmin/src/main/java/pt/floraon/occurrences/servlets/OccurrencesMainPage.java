@@ -416,7 +416,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "downloadspeciestable":
             case "downloadinventorytable":
                 thisRequest.response.setContentType("text/csv; charset=Windows-1252");
-                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"occurrences.csv\"");
+                thisRequest.response.addHeader("Content-Disposition", "attachment;Filename=\"" + (what.equals("downloadspeciestable") ? "species-list" : "occurrences") + ".csv\"");
                 thisRequest.response.setCharacterEncoding("Windows-1252");
                 INodeKey u;
                 if(thisRequest.isOptionTrue("allusers") && user.canMODIFY_OCCURRENCES())
