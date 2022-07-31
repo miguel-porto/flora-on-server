@@ -49,6 +49,12 @@
             <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
             <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
         </div>
+        <c:if test="${queriedRectangleMinLat != null}">
+        <input type="hidden" name="queriedRectangleMinLat" value="${queriedRectangleMinLat}"/>
+        <input type="hidden" name="queriedRectangleMaxLat" value="${queriedRectangleMaxLat}"/>
+        <input type="hidden" name="queriedRectangleMinLong" value="${queriedRectangleMinLong}"/>
+        <input type="hidden" name="queriedRectangleMaxLong" value="${queriedRectangleMaxLong}"/>
+        </c:if>
     </div>
     <div id="georreferencer" class="${sessionScope['option-showgeo'] == true ? '' : 'hiddenhard'}">
         <div class="head">

@@ -3,6 +3,7 @@ package pt.floraon.occurrences.servlets;
 import jline.internal.Log;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.datatypes.NumericInterval;
 import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
@@ -84,6 +85,19 @@ public class OccurrencesMainPage extends FloraOnServlet {
         Map<String, String> parsedBaseFilter = driver.getOccurrenceDriver().parseFilterExpression(baseFilter);
         parsedBaseFilter.putAll(parsedFilter);
         parsedFilter = parsedBaseFilter;
+
+        if(parsedFilter.containsKey("lat") && parsedFilter.containsKey("long")) {
+            // draw queried rectangle on map
+            NumericInterval latRange = new NumericInterval(parsedFilter.get("lat"));
+            NumericInterval longRange = new NumericInterval(parsedFilter.get("long"));
+            if(latRange.getMinValue() != null && latRange.getMaxValue() != null
+                && longRange.getMinValue() != null && longRange.getMaxValue() != null) {
+                request.setAttribute("queriedRectangleMinLat", latRange.getMinValue());
+                request.setAttribute("queriedRectangleMaxLat", latRange.getMaxValue());
+                request.setAttribute("queriedRectangleMinLong", longRange.getMinValue());
+                request.setAttribute("queriedRectangleMaxLong", longRange.getMaxValue());
+            }
+        }
 
         // fetch order from querystring or session
         order = thisRequest.getParameterAsString("order");

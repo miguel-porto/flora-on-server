@@ -31,6 +31,15 @@ document.addEventListener('DOMContentLoaded', function() {
         myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
         L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
         myMap.on('click', mapClick);
+
+        if(document.querySelector('input[name=queriedRectangleMinLat]')) {
+            var bounds = [[document.querySelector('input[name=queriedRectangleMaxLat]').value, document.querySelector('input[name=queriedRectangleMinLong]').value],
+                [document.querySelector('input[name=queriedRectangleMinLat]').value, document.querySelector('input[name=queriedRectangleMaxLong]').value]];
+
+            // create an orange rectangle
+            L.rectangle(bounds, {color: "#ff7800", weight: 3, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);
+        }
+
     }
 
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);
