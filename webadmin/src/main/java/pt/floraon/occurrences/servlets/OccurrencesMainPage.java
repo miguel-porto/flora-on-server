@@ -8,6 +8,8 @@ import pt.floraon.driver.interfaces.INodeKey;
 import pt.floraon.driver.jobs.JobRunner;
 import pt.floraon.driver.jobs.JobSubmitter;
 import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.geometry.Polygon;
+import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.occurrences.Common;
 import pt.floraon.occurrences.OBSERVED_IN_summary;
 import pt.floraon.occurrences.OccurrenceConstants;
@@ -96,6 +98,18 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 request.setAttribute("queriedRectangleMaxLat", latRange.getMaxValue());
                 request.setAttribute("queriedRectangleMinLong", longRange.getMinValue());
                 request.setAttribute("queriedRectangleMaxLong", longRange.getMaxValue());
+            }
+        }
+
+        if(parsedFilter.containsKey("wkt")) {
+            PolygonTheme pt;
+            try {
+                pt = new PolygonTheme(parsedFilter.get("wkt"));
+                Polygon poly = pt.iterator().next().getValue();
+                String coo = poly.toCoordinatesArrayLatLong();
+                request.setAttribute("queriedPolygon", "[" + coo + "]");
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
             }
         }
 

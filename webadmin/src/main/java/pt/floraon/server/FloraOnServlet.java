@@ -66,7 +66,7 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk31");
+		request.setAttribute("uuid", "bk32");
 		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("offline", Boolean.parseBoolean(driver.getProperties().getProperty("offline", "false")));		// for working in offline mode (no web fonts)
 		request.setAttribute("occurrenceNewFeature", "NOVO! É possível agora gravar filtros-base que persistem, independentemente do filtro escrito!");

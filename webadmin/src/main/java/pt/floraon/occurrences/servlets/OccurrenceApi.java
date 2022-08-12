@@ -282,9 +282,22 @@ public class OccurrenceApi extends FloraOnServlet {
                     }
                 }
                 merged.setUnmatchedOccurrences(occ);
+
+                // Set inventory coordinates to the average of the merged occurrences
+                float averageLat = 0, averageLong = 0;
+                for (OBSERVED_IN oi : occ) {
+                    averageLat += oi.getObservationLatitude();
+                    averageLong += oi.getObservationLongitude();
+                }
+                averageLat = averageLat / occ.size();
+                averageLong = averageLong / occ.size();
+
+                merged.setLatitude(averageLat);
+                merged.setLongitude(averageLong);
+
                 System.out.println(gs.toJson(merged));
 
-                // first we delete occurrences to avoid UUID duplication
+                // now ew first we delete occurrences to avoid UUID duplication
                 for(Inventory tmp1 : tmp) {
                     driver.getOccurrenceDriver().deleteOccurrencesByUuid(new String[] {tmp1._getOccurrences().size() == 0 ? ""
                             : tmp1._getOccurrences().get(0).getUuid().toString()});

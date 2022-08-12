@@ -10,6 +10,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import pt.floraon.authentication.entities.User;
+import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeWorker;
@@ -170,10 +171,10 @@ public class OccurrenceImporterJob implements JobTask {
                     Inventory merged = null;
                     try {
                         // we ignore the field that holds the occurrences
-                        System.out.println(tmpInventories.iterator().next().toJson().toString());
+//                        System.out.println(tmpInventories.iterator().next().toJson().toString());
                         merged = BeanUtils.mergeBeans(Inventory.class, Collections.singletonList("unmatchedOccurrences"), "code"
                                 , tmpInventories.toArray(new Inventory[0]));
-                        System.out.println("MERG" + merged.toJson().toString());
+//                        System.out.println("MERG" + merged.toJson().toString());
                     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                         e.printStackTrace();
                         throw new FloraOnException(e.getMessage());
@@ -202,7 +203,7 @@ public class OccurrenceImporterJob implements JobTask {
                         for (Inventory inventory : entry.getValue()) {
                             // gather all coordinates of the pre-merged inventory and copy them to the occurrences, if empty.
                             // because the inventory coordinates will be lost.
-/*  TODO: IS THIS NEEDED?
+/*  TODO: IS THIS NEEDED? Perhaps when we have a decent geo index?
                             for(OBSERVED_IN oi1 : inventory.getUnmatchedOccurrences()) {
                                 if(oi1.getObservationLatitude() == null)
                                     oi1.setObservationLatitude(inventory.getLatitude());
@@ -234,6 +235,27 @@ public class OccurrenceImporterJob implements JobTask {
                             }
                         }
 */
+                        // Set inventory coordinates to the average of the merged occurrences if the inventory coordinates
+                        // are null
+                        if(Constants.isNullOrNoData(merged.getLatitude()) || Constants.isNullOrNoData(merged.getLongitude())) {
+                            float averageLat = 0, averageLong = 0;
+                            int count = 0;
+                            for (OBSERVED_IN oi : occurrences) {
+                                if (!Constants.isNullOrNoData(oi.getObservationLatitude()) && !Constants.isNullOrNoData(oi.getObservationLongitude())) {
+                                    averageLat += oi.getObservationLatitude();
+                                    averageLong += oi.getObservationLongitude();
+                                    count++;
+                                }
+                            }
+                            if (count > 1) {
+                                averageLat = averageLat / count;
+                                averageLong = averageLong / count;
+
+                                merged.setLatitude(averageLat);
+                                merged.setLongitude(averageLong);
+                            }
+                        }
+
                         merged.setUnmatchedOccurrences(occurrences);
 
                         if (mainObserver) {

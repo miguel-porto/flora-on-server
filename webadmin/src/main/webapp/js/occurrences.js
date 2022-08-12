@@ -40,6 +40,11 @@ document.addEventListener('DOMContentLoaded', function() {
             L.rectangle(bounds, {color: "#ff7800", weight: 3, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);
         }
 
+        if(document.querySelector('input[name=queriedPolygon]')) {
+            var latLngs = JSON.parse(document.querySelector('input[name=queriedPolygon]').value);
+            L.polygon(latLngs, {color: "#ff7800", weight: 3, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);
+        }
+
     }
 
 //    L.tileLayer.provider('Esri.WorldImagery').addTo(mymap);

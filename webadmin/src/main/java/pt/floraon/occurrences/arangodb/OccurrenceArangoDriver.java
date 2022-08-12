@@ -18,6 +18,8 @@ import pt.floraon.driver.interfaces.IOccurrenceDriver;
 import pt.floraon.driver.utils.BeanUtils;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.geometry.LatLongCoordinate;
+import pt.floraon.geometry.Polygon;
+import pt.floraon.geometry.PolygonTheme;
 import pt.floraon.geometry.Precision;
 import pt.floraon.occurrences.OBSERVED_IN_summary;
 import pt.floraon.occurrences.OccurrenceConstants;
@@ -907,6 +909,23 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.longitude.2")).append(" ");
             }
             filter.remove("long");
+        }
+
+        // polygon filter (no holes! only one polygon!)
+        if(filter.containsKey("wkt")) {
+            PolygonTheme pt;
+            try {
+                pt = new PolygonTheme(filter.get("wkt"));
+            } catch (IllegalArgumentException e) {
+                throw new FloraOnException(e.getMessage());
+            }
+            Polygon poly = pt.iterator().next().getValue();
+            String coo = poly.toCoordinatesArrayLongLat();
+            bindVars.put("coordArray", "[" + coo + "]");
+            System.out.println(bindVars.get("coordArray"));
+            inventoryFilter.append(AQLOccurrenceQueries.getString("filter.wkt")).append(" ");
+            occurrenceFilter.append(AQLOccurrenceQueries.getString("filter.wkt.2")).append(" ");
+            filter.remove("wkt");
         }
 
         // red list tag filter

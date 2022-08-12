@@ -55,6 +55,7 @@
         <input type="hidden" name="queriedRectangleMinLong" value="${queriedRectangleMinLong}"/>
         <input type="hidden" name="queriedRectangleMaxLong" value="${queriedRectangleMaxLong}"/>
         </c:if>
+        <c:if test="${queriedPolygon != null}"><input type="hidden" name="queriedPolygon" value="${queriedPolygon}"/></c:if>
     </div>
     <div id="georreferencer" class="${sessionScope['option-showgeo'] == true ? '' : 'hiddenhard'}">
         <div class="head">

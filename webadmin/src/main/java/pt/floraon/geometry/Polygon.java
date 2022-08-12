@@ -260,5 +260,31 @@ public class Polygon {
     public void setKeyFields(Set<String> keyFields) {
         this.keyFields = keyFields;
     }
+
+    /**
+     * Print as coordinate array compatible with geoJSON
+     * @return
+     */
+    public String toCoordinatesArrayLongLat() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <= N; i++) {
+            sb.append(String.format(Locale.US, "[%.5f,%.5f],", points[i].x(), points[i].y()));
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
+    }
+
+    /**
+     * Print as coordinate array compatible with geoJSON
+     * @return
+     */
+    public String toCoordinatesArrayLatLong() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <= N; i++) {
+            sb.append(String.format(Locale.US, "[%.5f,%.5f],", points[i].y(), points[i].x()));
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
+    }
 }
 
