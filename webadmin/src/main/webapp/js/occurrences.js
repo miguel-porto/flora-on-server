@@ -37,12 +37,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 [document.querySelector('input[name=queriedRectangleMinLat]').value, document.querySelector('input[name=queriedRectangleMaxLong]').value]];
 
             // create an orange rectangle
-            L.rectangle(bounds, {color: "#ff7800", weight: 3, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);
+            L.rectangle(bounds, {color: "#00bfff", weight: 4, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);
         }
 
         if(document.querySelector('input[name=queriedPolygon]')) {
             var latLngs = JSON.parse(document.querySelector('input[name=queriedPolygon]').value);
-            L.polygon(latLngs, {color: "#ff7800", weight: 3, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);
+            var querypoly = L.polygon(latLngs, {color: "#00bfff", weight: 4, fill:false, dashArray:'4 7', interactive:false}).addTo(myMap);     //#ff7800
+            // This throws an error! Leaflet Draw Bug?
+/*              querypoly.editing.enable();
+            querypoly.on('edit', function() {
+                console.log('Polygon was edited!');
+            });*/
         }
 
     }
@@ -478,6 +483,14 @@ function doMouseClick(el) {
     el.dispatchEvent(event);
 }
 
+function disableAllMapButtons() {
+    document.getElementById('querypoly').classList.remove('selected');
+    document.getElementById('queryrect').classList.remove('selected');
+    document.getElementById('selectpoints').classList.remove('selected');
+    document.getElementById('addpointstoggle').classList.remove('selected');
+    if(mapRectSelect) mapRectSelect.disable();
+}
+
 function clickButton(ev) {
     var b = getParentbyClass(ev.target, 'button');
     if(!b.id) {
@@ -534,7 +547,15 @@ function clickButton(ev) {
             break;
 
         case 'selectpoints':
-            if(!b.classList.contains('selected')) {
+            disableAllMapButtons();
+            if(!b.classList.contains('selected')) {/*
+                        var bnd = layer.getBounds();
+                        document.querySelector('textarea[name=filter]').value =
+                            'long:' + Math.round(bnd.getWest() * 10000) / 10000 + '-' + Math.round(bnd.getEast() * 10000) / 10000
+                            + ' lat:' + Math.round(bnd.getSouth() * 10000) / 10000 + '-' + Math.round(bnd.getNorth() * 10000) / 10000;
+                        document.getElementById('occurrencefilter').firstElementChild.submit();
+*/
+
                 mapLocationFilter = myMap.selectAreaFeature.enable();
                 //L.setOptions(mapLocationFilter, {color:'yellow', onMouseUp: function(el, ev) {
                 L.setOptions(mapLocationFilter, {color:'yellow'});
@@ -559,7 +580,45 @@ function clickButton(ev) {
                 if(mapLocationFilter) mapLocationFilter.disable();
             break;
 
+        case 'querypoly':
+            disableAllMapButtons();
+            if(!b.classList.contains('selected')) {
+                mapRectSelect = new L.Draw.Polygon(myMap);
+                mapRectSelect.setOptions({allowIntersection: false});
+                mapRectSelect.enable();
+                myMap.on(L.Draw.Event.CREATED, function (e) {
+                    /*loader = document.getElementById('loader');
+                    if(loader) loader.style.display = 'block';*/
+
+                    var type = e.layerType,
+                        layer = e.layer;
+                    if (type === 'polygon') {
+                        var vertices = layer.getLatLngs();
+                        if(vertices.length > 1) {
+                            if(mapRectSelect) mapRectSelect.disable();
+                            return;
+                        }
+                        vertices = vertices[0];
+                        var wkt = 'POLYGON ((';
+                        for(var i=0; i<vertices.length; i++) {
+                            wkt = wkt + Math.round(vertices[i].lng * 10000) / 10000 + ' ' + Math.round(vertices[i].lat * 10000) / 10000 + (i == vertices.length - 1 ? '' : ',');
+                        }
+                        wkt = wkt + '))';
+                        document.querySelector('textarea[name=filter]').value = 'wkt: ' + wkt;
+                        document.getElementById('occurrencefilter').firstElementChild.submit();
+                    }
+                });
+            } else {
+                if(mapRectSelect) mapRectSelect.disable();
+            }
+            break;
+
+        case 'addpointstoggle':
+            disableAllMapButtons();
+            break;
+
         case 'queryrect':
+            disableAllMapButtons();
             if(!b.classList.contains('selected')) {
                 mapRectSelect = new L.Draw.Rectangle(myMap);
                 mapRectSelect.enable();

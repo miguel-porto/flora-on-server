@@ -45,6 +45,7 @@
     <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
         <div id="mapcontainer"></div>
         <div class="mapbuttons">
+            <div class="button togglebutton round" id="querypoly" title="Realizar consulta de dados em polígono"><img src="images/query-poly.png"/></div>
             <div class="button togglebutton round" id="queryrect" title="Realizar consulta de dados em rectângulo"><img src="images/queryrect.png"/></div>
             <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
             <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
