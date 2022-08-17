@@ -84,6 +84,16 @@ public class JobRunnerFileDownload implements JobRunner {
 		return dateTimeFormat.get().format(this.date);
 	}
 
+	@Override
+	public Boolean hasError() {
+		return this.hasError;
+	}
+
+	@Override
+	public String getErrorMessage() {
+		return this.errorMessage;
+	}
+
 	public Charset getCharset() {
 		return job.getCharset();
 	}

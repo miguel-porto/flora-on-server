@@ -31,7 +31,7 @@ public class iNaturalistImporterJob  implements JobTask {
         if(iNat == null)
             return "Starting...";
         else {
-            if(iNat.size() < 0)
+            if (iNat.size() < 0)
                 return "Fetching iNaturalist URL...";
             else
                 return "Importing occurrence " + (progressCreated + progressUpdated) + " of " + iNat.size() + ". " + progressCreated + " created, " + progressUpdated + " updated.";
@@ -51,7 +51,10 @@ public class iNaturalistImporterJob  implements JobTask {
     private void iterateiNaturalistDataProvider(iNaturalistDataProvider iNat, Map<String, String> userMap, IFloraOn driver) throws FloraOnException {
         final IOccurrenceDriver od = driver.getOccurrenceDriver();
         for (Inventory inv : iNat) {
-            System.out.println(inv.getObservers()[0] + " | " + inv._getCoordinates() + " | " + inv.getPubNotes() + " | " + inv._getDate());
+            if(inv == null) {
+                continue;
+            }
+//            System.out.println(inv.getObservers()[0] + " | " + inv._getCoordinates() + " | " + inv.getPubNotes() + " | " + inv._getDate());
             inv.setMaintainer(maintainer.getID());
             String[] obs = inv.getObservers();
             String tmp;
@@ -103,6 +106,10 @@ public class iNaturalistImporterJob  implements JobTask {
                 iNat = new iNaturalistDataProvider(new iNaturalistFilter(this.iNaturalistFilter).withTaxonNames(taxonName));
                 iterateiNaturalistDataProvider(iNat, userMap, driver);
             }
+        }
+        if(iNat.getCurrentRequestURL() != null) {
+            Log.error("END fetch iNaturalist with error: " + iNat.getErrorMessage());
+            throw new FloraOnException("Fetching URL \"" + iNat.getCurrentRequestURL() + "\" got error \"" + iNat.getErrorMessage() + "\"");
         }
         Log.info("END fetch iNaturalist");
     }

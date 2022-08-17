@@ -1,6 +1,7 @@
 package pt.floraon.occurrences.dataproviders;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import jline.internal.Log;
 import org.apache.commons.lang.ArrayUtils;
@@ -34,6 +35,8 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
     final private Map<String, String> requestParameters = new HashMap<>();
     private Integer totalCount;
     private StopWatch stopWatch;
+    private URL currentRequestURL;
+    private String errorMessage = null;
 
     static {
         try {
@@ -50,6 +53,14 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
 
     public iNaturalistDataProvider(iNaturalistFilter iNaturalistFilter) throws IllegalArgumentException {
         this(iNaturalistFilter, 200);
+    }
+
+    public URL getCurrentRequestURL() {
+        return this.currentRequestURL;
+    }
+
+    public String getErrorMessage() {
+        return this.errorMessage;
     }
 
     public iNaturalistDataProvider(iNaturalistFilter iNaturalistFilter, Integer resultsPerPage) throws IllegalArgumentException {
@@ -76,6 +87,7 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
 
     class iNaturalistDataIterator implements Iterator<Occurrence> {
         private iNaturalistOccurrence lastOccurrence;
+        private Long lastId = null;
         private JsonReader reader;
         private final Gson gson = new Gson();
 
@@ -112,10 +124,9 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
             }
 
             Log.info("Executing iNaturalist query:");
-            URL requestURL;
             try {
-                requestURL = ub.build().toURL();
-                Log.info(requestURL.toString());
+                currentRequestURL = ub.build().toURL();
+                Log.info(currentRequestURL.toString());
             } catch (URISyntaxException | MalformedURLException e) {
                 throw new FloraOnException("Não foi possível descarregar os registos do iNaturalist (" + e + ")");
             }
@@ -134,7 +145,7 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
                 stopWatch.reset();
                 stopWatch.start();
                 // do the actual request!
-                reader = new JsonReader(new InputStreamReader(requestURL.openStream()));
+                reader = new JsonReader(new InputStreamReader(currentRequestURL.openStream()));
                 reader.beginObject();
                 while (reader.hasNext()) {
                     String name = reader.nextName();
@@ -175,10 +186,19 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
 
                 if (hasNext) {
 //                    freshRequest = false;
-                    lastOccurrence = gson.fromJson(reader, iNaturalistOccurrence.class);
+                    try {
+                        // TODO: JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Unterminated string at line 1 column 10708594 path $.results[194].identifications[1].taxon.ancestors[0].
+                        lastOccurrence = gson.fromJson(reader, iNaturalistOccurrence.class);
+                        lastId = lastOccurrence.id;
+                    } catch (JsonSyntaxException e) {   // Fatal error in JSON, stop here
+                        e.printStackTrace();
+                        lastOccurrence = null;
+                        iNaturalistDataProvider.this.errorMessage = e.getMessage();
+                        return false;
+                    }
 //                    return true;
 
-                    if(!StringUtils.isArrayEmpty(iNaturalistFilter.getExclude_user_id())) {
+                    if(!StringUtils.isArrayEmpty(iNaturalistFilter.getExclude_user_id()) && lastOccurrence != null) {
                         if(Arrays.asList(iNaturalistFilter.getExclude_user_id()).contains(lastOccurrence.user.login)) {
                             Log.info("Skipped record", lastOccurrence.id, ", observer excluded by filter");
                             continue;
@@ -210,10 +230,10 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
 
                 // do another request using last occurrence ID as condition
                 try {
-                    if (lastOccurrence == null)
+                    if (lastId == null)
                         doRequest(null);
                     else
-                        doRequest(lastOccurrence.id);
+                        doRequest(lastId);
                 } catch (FloraOnException e) {
                     e.printStackTrace();
                     return false;
@@ -250,7 +270,6 @@ public class iNaturalistDataProvider implements Iterable<Occurrence> {
     static class iNaturalistTaxon {
         String name, rank, min_species_ancestry;
         int min_species_taxon_id;
-
     }
 
     static class iNaturalistUser {

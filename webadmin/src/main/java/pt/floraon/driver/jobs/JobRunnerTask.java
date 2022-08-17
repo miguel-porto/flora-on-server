@@ -40,7 +40,11 @@ public class JobRunnerTask implements JobRunner {
 
     @Override
     public String getState() throws FloraOnException {
-        return isClosed ? "Finished" : job.getState();
+        if(isClosed) {
+            return this.hasError() ? "Finished with error: " + this.getErrorMessage()
+            : "Finished. Last message: «" + job.getState() + "»";
+        } else
+            return job.getState();
     }
 
     @Override
@@ -66,6 +70,16 @@ public class JobRunnerTask implements JobRunner {
     @Override
     public String getDateSubmitted() {
         return dateTimeFormat.get().format(this.date);
+    }
+
+    @Override
+    public Boolean hasError() {
+        return this.hasError;
+    }
+
+    @Override
+    public String getErrorMessage() {
+        return this.errorMessage;
     }
 
     @Override

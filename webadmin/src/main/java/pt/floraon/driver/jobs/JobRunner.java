@@ -11,6 +11,8 @@ import java.util.Date;
 public interface JobRunner extends Runnable {
     String getID();
     Boolean isReady() throws FloraOnException;
+    Boolean hasError();
+    String getErrorMessage();
     String getState() throws FloraOnException;
     String getDescription();
     User getOwner();
