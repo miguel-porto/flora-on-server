@@ -253,7 +253,7 @@ public class BeanUtils {
             String propertyName = (String) propNameObject;
             if((ignoreProperties != null && ignoreProperties.contains(propertyName))
                     || "class".equals(propertyName)) continue;
-            System.out.println("PROP: " + propertyName);
+//            System.out.println("PROP: " + propertyName);
             Object newProperty;
 
             newProperty = propUtils.getProperty(newBean, propertyName);
