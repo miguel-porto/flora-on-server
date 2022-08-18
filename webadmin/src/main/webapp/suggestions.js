@@ -223,6 +223,7 @@ function attachOptionButtonHandler(url) {
             var elid = optb.getAttribute('data-element');
             var type = optb.getAttribute('data-type');
             var norefresh = optb.getAttribute('data-norefresh');
+            var persistent = optb.getAttribute('data-persistent');
             var allowdeselect = optb.getAttribute('data-allow-deselect');
             var vbool = (value == 'true');
             var el = (elid == '' ? null : document.getElementById(elid));
@@ -241,8 +242,8 @@ function attachOptionButtonHandler(url) {
                 }
                 if (typeof myMap !== 'undefined') myMap.invalidateSize(false);
             }
-            console.log(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type);
-            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type, function(rt) {
+            console.log(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&p=' + (persistent == 'true' ? 1 : 0));
+            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&p=' + (persistent == 'true' ? 1 : 0), function(rt) {
                 if(norefresh == 'false') window.location.reload();
 //                if(!el)
             });

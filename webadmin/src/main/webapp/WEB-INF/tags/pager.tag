@@ -4,7 +4,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <div class="pager">
-    <t:option-radiobutton optionprefix="view" optionnames="${pagerOptions}" defaultvalue="250"/>
+    <t:option-radiobutton optionprefix="view" optionnames="${pagerOptions}" defaultvalue="250" persistent="true"/>
     <c:if test="${occperpage < 10000000}">
     <div style="display:inline-block; vertical-align:middle">showing ${page != null ? ((page - 1) * occperpage + 1) : 1} to ${page != null ? (page * occperpage) : occperpage}</div>
     <c:if test="${page != null && page > 2}"><a class="imagebutton" href="?w=${param.w}&p=1"><img src="images/start.png" /></a></c:if>

@@ -3,6 +3,7 @@
 <%@ attribute name="optionprefix" required="true" %>
 <%@ attribute name="optionnames" required="true" type="java.util.Map<String, String>" %>
 <%@ attribute name="defaultvalue" required="false" type="java.lang.String" %>
+<%@ attribute name="persistent" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="norefresh" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="allowdeselect" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="style" required="false" %>
@@ -19,11 +20,11 @@
 <c:choose>
 <c:when test="${style == 'light'}">
     <div class="${classes} filter option${val ? ' selected' : ''}" data-option="${optionName}" data-value="${opt.getKey()}"
-        data-norefresh="${norefresh == null ? 'false' : norefresh}" data-type="radio" data-allow-deselect="${allowdeselect == null ? 'false' : allowdeselect}"><div class="light"></div><div>${opt.getValue()}</div></div>
+        data-norefresh="${norefresh == null ? 'false' : norefresh}" data-persistent="${persistent == null ? 'false' : persistent}" data-type="radio" data-allow-deselect="${allowdeselect == null ? 'false' : allowdeselect}"><div class="light"></div><div>${opt.getValue()}</div></div>
 </c:when>
 <c:otherwise>
     <div class="${classes} button option${val ? ' selected' : ''}" data-option="${optionName}" data-value="${opt.getKey()}"
-        data-norefresh="${norefresh == null ? 'false' : norefresh}" data-type="radio" data-allow-deselect="${allowdeselect == null ? 'false' : allowdeselect}">${opt.getValue()}</div>
+        data-norefresh="${norefresh == null ? 'false' : norefresh}" data-persistent="${persistent == null ? 'false' : persistent}" data-type="radio" data-allow-deselect="${allowdeselect == null ? 'false' : allowdeselect}">${opt.getValue()}</div>
 </c:otherwise>
 </c:choose>
 </c:forEach>

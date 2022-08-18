@@ -19,6 +19,7 @@
 	<link rel="stylesheet" type="text/css" href="redlist.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="occurrences.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="js/leaflet.draw.css" />
+	<c:if test="${!offline}">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
         integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
         crossorigin=""/>
@@ -31,6 +32,7 @@
 	<script src="js/leaflet-bing-layer.min.js"></script>
 	<script src="js/Leaflet.SelectAreaFeature.js"></script>
 	<script src="js/leaflet.draw.js"></script>
+	</c:if>
 	<script src="js/getcursorxy.js"></script>
 	<script type="text/javascript" src="sorttable.js"></script>
 	<script type="text/javascript" src="ajaxforms.js"></script>
@@ -40,7 +42,7 @@
 	<script type="text/javascript" src="js/occurrences.js?nocache=${uuid}"></script>
 	<!-- <script type="text/javascript" src="js/ajax_nav.js?nocache=${uuid}"></script> -->
 </head>
-<body class="occurrencespage ${sessionScope['option-compactview'] ? 'compactview' : ''}">
+<body class="occurrencespage ${sessionScope['option-advancedview'] ? '' : 'compactview'}">
     <c:set var="maphidden" value="${sessionScope['option-showmap'] == false ? true : (nroccurrences > 1000 ? true : false)}" />
     <div id="occurrencemap" class="${maphidden ? 'hiddenhard' : ''}">
         <div id="mapcontainer"></div>

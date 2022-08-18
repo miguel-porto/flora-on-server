@@ -32,7 +32,7 @@ body.occurrencespage a.returntomain {position:static;}
 body.occurrencespage a.returntomain img {height:70px}
 
 body.occurrencespage.compactview .hideincompactview {display:none !important}
-body.occurrencespage.compactview table {font-size:0.6rem;}
+body.occurrencespage.compactview table td {font-size:0.6rem;}
 
 #alloccurrencetable th {position:sticky; top:0px; z-index:1}
 

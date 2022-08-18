@@ -126,7 +126,7 @@
         <div class="button hideincompactview" id="mergeocc"><fmt:message key="occurrences.1c"/></div>
         <div class="button icon" id="updatemodified"><img src="${contextPath}/images/ic_menu_save.png"/><span><fmt:message key="inventory.upd"/></span></div>
         <%-- <c:if test="${sessionScope['option-flavour'] == 'redlist'}"></c:if> --%>
-        <t:optionbutton optionname="compactview" title="Compact" defaultvalue="false" />
+        <t:optionbutton optionname="advancedview" title="Advanced view" defaultvalue="false" persistent="true"/>
         <t:isoptionselected optionname="allusers" value="false"><t:optionbutton optionname="viewAsObserver" title="As observer" defaultvalue="false" /></t:isoptionselected>
         <c:if test="${nproblems > 0}"><div class="button anchorbutton"><a href="?w=fixissues"><fmt:message key="button.3"/></a></div></c:if>
         <div id="occurrencefilter">
@@ -143,19 +143,19 @@
                 <c:param name="p" value="1" />
                 <c:param name="filter" value="${filter} date:na" />
             </c:url>
-            <div class="button anchorbutton"><a href="${url1}"><fmt:message key="occurrences.1f"/></a></div>
+            <div class="button anchorbutton hideincompactview"><a href="${url1}"><fmt:message key="occurrences.1f"/></a></div>
             <c:url value="" var="url2">
                 <c:param name="w" value="${param.w}" />
                 <c:param name="p" value="1" />
                 <c:param name="filter" value="${filter} detected:1" />
             </c:url>
-            <div class="button anchorbutton"><a href="${url2}"><fmt:message key="occurrences.1g"/></a></div>
+            <div class="button anchorbutton hideincompactview"><a href="${url2}"><fmt:message key="occurrences.1g"/></a></div>
             <c:url value="" var="url3">
                 <c:param name="w" value="${param.w}" />
                 <c:param name="p" value="1" />
                 <c:param name="filter" value="tag:lista alvo" />
             </c:url>
-            <div class="button anchorbutton"><a href="${url3}">Lista Alvo</a></div>
+            <div class="button anchorbutton hideincompactview"><a href="${url3}">Lista Alvo</a></div>
             <c:if test="${filter != null && filter != ''}">
             <c:url value="" var="url4">
                 <c:param name="w" value="${param.w}" />

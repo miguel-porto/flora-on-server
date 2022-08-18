@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -403,9 +404,11 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "setoption":
 //                System.out.println("SET " + "option-" + thisRequest.getParameterAsString("n")+ " to "+thisRequest.getParameterAsBooleanNoNull("v"));
                 String optionName = thisRequest.getParameterAsString("n");
+                boolean persistent = thisRequest.getParameterAsBoolean("p", false);
+                Serializable value;
                 switch(thisRequest.getParameterAsString("t", "boolean")) {
                     case "boolean":
-                        thisRequest.setOption(optionName, thisRequest.getParameterAsBooleanNoNull("v"));
+                        value = thisRequest.getParameterAsBooleanNoNull("v");
                         break;
 
                     case "radio":
@@ -420,10 +423,20 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         }
 */
                         if("null".equals(thisRequest.getParameterAsString("v")))
-                            thisRequest.setOption(optionName, null);
+                            value = null;
                         else
-                            thisRequest.setOption(optionName, thisRequest.getParameterAsString("v"));
+                            value = thisRequest.getParameterAsString("v");
                         break;
+
+                    default:
+                        value = null;
+                }
+                thisRequest.setOption(optionName, value);
+                if(persistent) {
+                    Map<String, Object> persistentOptions = user.getOptions();
+                    persistentOptions.put(optionName, value);
+                    driver.getAdministration().updateUser(driver.asNodeKey(user.getID()), user);
+                    thisRequest.refreshUser();
                 }
 /*
                 if(optionName.startsWith("view")) {

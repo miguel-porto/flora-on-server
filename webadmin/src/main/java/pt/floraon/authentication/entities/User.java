@@ -19,6 +19,7 @@ import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -38,6 +39,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	private Map<String, String> savedOccurrenceFilters;
 	private iNaturalistFilter iNaturalistFilter;
 	private String userPolygons;
+	private Map<String, Object> options;
 	private boolean isGuest;
 	private Set<CustomOccurrenceFlavour> customOccurrenceFlavours;
 	public enum FlavourFilter {ONLY_OCCURRENCE, ONLY_INVENTORY}
@@ -179,6 +181,16 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 
 	public void setSavedOccurrenceFilters(Map<String, String> savedOccurrenceFilters) {
 		this.savedOccurrenceFilters = savedOccurrenceFilters;
+	}
+
+	public Map<String, Object> getOptions() {
+		if(options == null)
+			options = new HashMap<>();
+		return options;
+	}
+
+	public void setOptions(Map<String, Object> options) {
+		this.options = options;
 	}
 
 	public void addUploadedTable(String uploadedTable) {

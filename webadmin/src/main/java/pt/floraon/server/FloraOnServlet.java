@@ -2,6 +2,7 @@ package pt.floraon.server;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
@@ -70,6 +71,15 @@ public class FloraOnServlet extends HttpServlet {
 		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("offline", Boolean.parseBoolean(driver.getProperties().getProperty("offline", "false")));		// for working in offline mode (no web fonts)
 		request.setAttribute("occurrenceNewFeature", "NOVO! É possível agora filtrar as ocorrências por qualquer polígono, experimente a ferramenta!");
+
+		for(Map.Entry<String, Serializable> ent : thisRequest.getUser().getOptions().entrySet()) {
+			try {
+				thisRequest.setOption(ent.getKey(), ent.getValue());
+			} catch (FloraOnException e) {
+				e.printStackTrace();
+				thisRequest.error(e.getMessage());
+			}
+		}
 
 		try {
 			doFloraOnGet(thisRequest);

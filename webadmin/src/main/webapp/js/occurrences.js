@@ -947,7 +947,8 @@ function projectPointsOnMap(ota, markerOptions) {
     if(minLat < 1000) {
         var ranLat = maxLat - minLat;
         var ranLng = maxLng - minLng;
-        myMap.fitBounds([[minLat - ranLat * 0.1, minLng - ranLng * 0.1], [maxLat + ranLat * 0.1, maxLng + ranLng * 0.1]]);
+        if (typeof L !== 'undefined')
+            myMap.fitBounds([[minLat - ranLat * 0.1, minLng - ranLng * 0.1], [maxLat + ranLat * 0.1, maxLng + ranLng * 0.1]]);
     }
     return true;
 }
