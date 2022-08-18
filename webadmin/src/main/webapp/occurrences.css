@@ -156,7 +156,7 @@ td.grouper {
 .occurrencetable th {word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
 .occurrencetable th.selectcol, .occurrencetable td.selectcol, .occurrencetable th.tinycol {width:1%;}
 .occurrencetable th.fieldsize_BIG {min-width:150px;}
-.occurrencetable.inventorysummary th.fieldsize_VERYBIG {min-width:350px;}
+.occurrencetable th.fieldsize_VERYBIG {min-width:350px;}
 .occurrencetable th.fieldsize_SMALL {width:10%;}
 tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified {outline: 1px dashed #b931ff; box-shadow: 0 0 3px #b931ff;}

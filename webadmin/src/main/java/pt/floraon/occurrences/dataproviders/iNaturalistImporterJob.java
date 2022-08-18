@@ -107,7 +107,7 @@ public class iNaturalistImporterJob  implements JobTask {
                 iterateiNaturalistDataProvider(iNat, userMap, driver);
             }
         }
-        if(iNat.getCurrentRequestURL() != null) {
+        if(iNat.getErrorMessage() != null) {
             Log.error("END fetch iNaturalist with error: " + iNat.getErrorMessage());
             throw new FloraOnException("Fetching URL \"" + iNat.getCurrentRequestURL() + "\" got error \"" + iNat.getErrorMessage() + "\"");
         }
