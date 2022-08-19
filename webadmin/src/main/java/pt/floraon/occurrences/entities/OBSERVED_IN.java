@@ -31,6 +31,11 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Estado fenológico", shortName = "Fen", important = true)
+    @EditWidget(value = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"FLOWER", "DISPERSION", "VEGETATIVE"},
+            labelsSimple = {"Flower", "Dispersion", "Vegetative"},
+            valuesAdvanced = {"FLOWER", "DISPERSION", "VEGETATIVE", "RESTING", "BUD", "FRUIT", "FLOWER_DISPERSION", "FLOWER_FRUIT"},
+            labelsAdvanced = {"Flower", "Dispersion", "Vegetative", "Resting", "Flower buds", "Immature fruit", "Flower+Dispersion", "Flower+Fruit"})
     private Constants.PhenologicalStates phenoState;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
@@ -38,6 +43,11 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
+    @EditWidget(value = EditWidget.Type.RADIO,
+            valuesSimple = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
+            labelsSimple = {"Certain", "Almost sure", "Doubtful"},
+            valuesAdvanced = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
+            labelsAdvanced = {"Certain", "Almost sure", "Doubtful"})
     @PrettyName(value = "Confiança ID", shortName = "Conf", important = true)
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)

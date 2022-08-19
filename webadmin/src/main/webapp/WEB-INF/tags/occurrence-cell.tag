@@ -43,16 +43,16 @@
 <c:when test="${field == 'coordinates'}">
     <c:set var="coordchanged" value="${taxon == null ? '' : (taxon.getCoordinatesChanged() ? 'textemphasis' : '')}" />
     <c:if test="${view == 'occurrence'}">
-        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates hideincompactview" data-name="observationCoordinates" data-lat="${inventory._getLatitude()}" data-lng="${inventory._getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getCoordinates()}</td>
+        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates" data-name="observationCoordinates" data-lat="${inventory._getLatitude()}" data-lng="${inventory._getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getCoordinates()}</td>
     </c:if>
     <c:if test="${view == 'inventorySummary'}">
-        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates hideincompactview" data-name="inventoryCoordinates" data-lat="${inventory._getInventoryLatitude()}" data-lng="${inventory._getInventoryLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td>
+        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory._getInventoryLatitude()}" data-lng="${inventory._getInventoryLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td>
     </c:if>
 </c:when>
-<c:when test="${field == 'inventoryCoordinates' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates hideincompactview" data-name="inventoryCoordinates" data-lat="${inventory.getLatitude()}" data-lng="${inventory.getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td></c:when>
+<c:when test="${field == 'inventoryCoordinates' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory.getLatitude()}" data-lng="${inventory.getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td></c:when>
 <c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>
 <c:when test="${field == 'time' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="time">${inventory == null ? '' : inventory._getTime()}</td></c:when>
-<c:when test="${field == 'tags' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} hideincompactview" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}" showAsTags="true"/></td></c:when>
+<c:when test="${field == 'tags' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}" showAsTags="true"/></td></c:when>
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
 <c:when test="${field == 'maintainer' && view != 'inventory'}"><td class="${fields.isReadOnly(field, user.canMODIFY_OCCURRENCES()) ? '' : thisfieldeditable} ${collapsedClass} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} authors" data-name="${field}"><t:usernames id="${inventory == null ? null : fields.getFieldValueRaw(taxon, inventory, field)}" usermap="${userMap}"/></td></c:when>
 
@@ -84,7 +84,38 @@
         <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}"><a target="_blank" href="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</a></td>
         </c:when>
         <c:otherwise>
-        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
+            <c:choose>
+            <c:when test="${fields.getFieldWidget(field) == 'TEXT'}">
+            <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
+            </c:when>
+            <c:when test="${fields.getFieldWidget(field) == 'DROPDOWN'}">
+            <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
+            <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
+            <select name="${field}">
+                <c:if test="${val == ''}"><option selected value=""></option></c:if>
+                <c:if test="${val != ''}"><option value=""></option></c:if>
+                <c:forEach var="option" items="${fields.getFieldValuesAdvanced(field)}" varStatus="loop">
+                    <c:set var="label" value="${fields.getFieldLabelsAdvanced(field)[loop.index]}"/>
+                    <c:if test="${val == label}"><option selected value="${option}">${label}</option></c:if>
+                    <c:if test="${val != label}"><option value="${option}">${label}</option></c:if>
+                </c:forEach>
+            </select>
+            </td>
+            </c:when>
+
+            <c:when test="${fields.getFieldWidget(field) == 'RADIO'}">
+            <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
+            <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
+            <c:if test="${val == ''}"><label><input type="radio" name="ll" value="" checked/></label></c:if>
+            <c:if test="${val != ''}"><label><input type="radio" name="ll" value=""/></label></c:if>
+            <c:forEach var="option" items="${fields.getFieldValuesAdvanced(field)}" varStatus="loop">
+                <c:set var="label" value="${fields.getFieldLabelsAdvanced(field)[loop.index]}"/>
+                <c:if test="${val == label}"><label><input type="radio" name="ll" value="${option}" checked/>${label}</label></c:if>
+                <c:if test="${val != label}"><label><input type="radio" name="ll" value="${option}"/>${label}</label></c:if>
+            </c:forEach>
+            </td>
+            </c:when>
+            </c:choose>
         </c:otherwise>
         </c:choose>
     </c:if>

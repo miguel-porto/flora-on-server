@@ -5,6 +5,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
+<a href="${contextPath}"><img src="${contextPath}/images/home.png" style="width:1.5em; height:1.5em; vertical-align:middle; margin-left:6px;" alt="home"/></a>
 <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
 <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
 <div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div>
@@ -121,6 +122,7 @@
             </c:if>
         </c:if>
         </h2>
+        <a class="hideInAdvancedView" href="${contextPath}"><img src="${contextPath}/images/home.png" style="width:1.5em; height:1.5em; vertical-align:middle; margin-left:6px;" alt="home"/></a>
         <div class="button icon" id="newoccurrence"><img src="${contextPath}/images/add.png"/><span><fmt:message key="occurrences.1a"/></span></div>
         <div class="button icon" id="deleteselected"><img src="${contextPath}/images/delete.png"/><span><fmt:message key="occurrences.1b"/></span></div>
         <div class="button hideincompactview" id="mergeocc"><fmt:message key="occurrences.1c"/></div>

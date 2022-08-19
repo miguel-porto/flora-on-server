@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fields.flavours;
 
+import pt.floraon.driver.annotations.EditWidget;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 
@@ -62,4 +63,14 @@ public interface IOccurrenceFlavour {
     boolean isAdminField(String field);
 
     boolean containsInventoryFields();
+
+    String[] getFieldValuesSimple(String field);
+
+    String[] getFieldLabelsSimple(String field);
+
+    String[] getFieldValuesAdvanced(String field);
+
+    String[] getFieldLabelsAdvanced(String field);
+
+    EditWidget.Type getFieldWidget(String field);
 }

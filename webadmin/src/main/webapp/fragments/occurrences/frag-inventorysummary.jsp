@@ -5,6 +5,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
+<a href="${contextPath}"><img src="${contextPath}/images/home.png" style="width:1.5em; height:1.5em; vertical-align:middle; margin-left:6px;" alt="home"/></a>
 <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
 <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
 <div class="button anchorbutton"><a href="?w=downloadinventorytable"><fmt:message key="button.12"/></a></div>

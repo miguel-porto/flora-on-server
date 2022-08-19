@@ -25,7 +25,6 @@
     </div>
 </div>
 <div id="topbuttons" class="hideincompactview">
-<a class="returntomain" href="./"><img src="images/cap-cor.png" alt="logo"/></a>
 <!--<h1> ${user.getFullName()}</h1>-->
 <c:choose>
 <c:when test="${param.w == 'uploads'}">

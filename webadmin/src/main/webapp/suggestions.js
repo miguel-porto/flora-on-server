@@ -242,8 +242,8 @@ function attachOptionButtonHandler(url) {
                 }
                 if (typeof myMap !== 'undefined') myMap.invalidateSize(false);
             }
-            console.log(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&p=' + (persistent == 'true' ? 1 : 0));
-            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&p=' + (persistent == 'true' ? 1 : 0), function(rt) {
+            console.log(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&persistent=' + (persistent == 'true' ? 1 : 0));
+            fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&persistent=' + (persistent == 'true' ? 1 : 0), function(rt) {
                 if(norefresh == 'false') window.location.reload();
 //                if(!el)
             });

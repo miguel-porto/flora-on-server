@@ -85,7 +85,8 @@
     <div id="occurrencetable-holder" class="${sessionScope['option-showocc'] == false ? 'hiddenhard' : ''}">
         <jsp:include page="occurrences-pages.jsp"></jsp:include>
     </div>
-    <t:isoptionselected optionname="showtax">
+    <%--  <t:isoptionselected optionname="showtax"> --%>
+    <c:if test="${sessionScope['option-showtax'] || !sessionScope['option-advancedview']}">
     <div id="taxtree" class="taxtree-holder compact">
         <input type="text" id="taxtree-filter" style="width:100%; box-sizing: border-box" placeholder="filtrar"/>
         <t:option-radiobutton optionprefix="rootrank" optionnames="${taxonomicRanks}" defaultvalue="genus" style="light" classes="small"/>
@@ -96,8 +97,9 @@
         </c:url>
         <jsp:include page="${urltaxtree}"></jsp:include>
     </div>
-    </t:isoptionselected>
-    <div id="floatingswitches">
+    </c:if>
+    <%-- </t:isoptionselected> --%>
+    <div id="floatingswitches" class="hideincompactview">
         <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />
         <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" />
         <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" />

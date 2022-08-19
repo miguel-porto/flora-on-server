@@ -168,7 +168,7 @@ public final class Constants {
 	}
 
 	public enum PhenologicalStates implements RedListEnums.LabelledEnum {
-		NULL("")
+		NULL("NULL")
 		, VEGETATIVE("Vegetative")
 		, FLOWER("Flower")
 		, DISPERSION("Dispersion")

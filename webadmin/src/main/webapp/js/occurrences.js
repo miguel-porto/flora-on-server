@@ -72,6 +72,14 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
+    var ot = document.querySelectorAll('.occurrencetable td.editable select');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
+
+    var ot = document.querySelectorAll('.occurrencetable td.editable input[type=radio]');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
+
     showPointsOnMap = projectPointsOnMap();
 
     attachSuggestionHandler('taxonsearchbox', 'checklist/api/suggestions?limit=20&q=', 'suggestionstaxon', onConfirmEdit, true, '+', tabHandler);
@@ -408,9 +416,19 @@ function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
         sel = document.querySelectorAll('table.newoccurrencetable tr.selected td[data-name="' + fieldname + '"]');
     }
 
+    // if it has a widget, then we set nocontent to true, so that innerHTML is not set
+    var selectEl = parent.querySelector('select');
+    if(!selectEl)
+        selectEl = parent.querySelector('input[type=radio]');
+    var nocontentForNext = null;
+    if(selectEl) {
+        nocontentForNext = true;
+        selectEl.value = name;
+    }
+
     if(sel.length > 0 && !nopropagation) {
         for(var i=0; i<sel.length; i++) {
-            onConfirmEdit({}, name, null, sel[i], true, sel[i].classList.contains('nodisplay'), true);
+            onConfirmEdit({}, name, null, sel[i], true, nocontentForNext ? true : sel[i].classList.contains('nodisplay'), true);
         }
     }
 
@@ -756,9 +774,14 @@ function addNewTaxon(ev) {
     inv.querySelector('.newoccurrencetable tbody').appendChild(row);
 }
 
+function cellWidgetChanged(ev) {
+    var cell = getParentbyTag(ev.target, 'td');
+    if(cell) onConfirmEdit({}, ev.target.value, null, cell, true, true, false);
+}
+
 function clickOccurrenceTable(ev) {
     var cell = getParentbyClass(ev.target, 'editable') || getParentbyClass(ev.target, 'clickable');
-    if(!cell || !cell.classList) return;
+    if(!cell || !cell.classList || cell.querySelector('select') || cell.querySelector('input[type=radio]')) return;
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
 //        selectGeoElement(cell, true, true);
@@ -1162,6 +1185,14 @@ function addNewInventory(ev) {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
+    var ot = inv.querySelectorAll('.occurrencetable td.editable select');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
+
+    var ot = inv.querySelectorAll('.occurrencetable td.editable input[type=radio]');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
+
     document.getElementById('addnewinventories').classList.remove('hidden');
     addEvent('click', inv.querySelector('.newtaxon'), addNewTaxon);
     doMouseClick(inv.querySelector('.newtaxon'));
@@ -1196,6 +1227,15 @@ function addNewOccurrence(ev) {
 
     newRow.setAttribute('data-id', id);
     tab.appendChild(newRow);
+
+    // attach widgets' change handlers
+    var ot = newRow.querySelectorAll('td.editable select');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
+
+    var ot = newRow.querySelectorAll('td.editable input[type=radio]');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
 
     document.getElementById('addnewoccurrences').classList.remove('hidden');
 }

@@ -1,13 +1,40 @@
 package pt.floraon.occurrences.fields.flavours;
 
+import pt.floraon.driver.annotations.EditWidget;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.fields.FieldReflection;
+
+import java.lang.reflect.Field;
 
 /**
  * This is basically a class to expose static methods to JSTL.
  */
 public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
+    @Override
+    public String[] getFieldValuesSimple(String field) {
+        return FieldReflection.getFieldValuesSimple(field);
+    }
+
+    @Override
+    public String[] getFieldLabelsSimple(String field) {
+        return FieldReflection.getFieldLabelsSimple(field);
+    }
+
+    @Override
+    public String[] getFieldValuesAdvanced(String field) {
+        return FieldReflection.getFieldValuesAdvanced(field);
+    }
+
+    @Override
+    public String[] getFieldLabelsAdvanced(String field) {
+        return FieldReflection.getFieldLabelsAdvanced(field);
+    }
+
+    @Override
+    public EditWidget.Type getFieldWidget(String field) {
+        return FieldReflection.getFieldWidget(field);
+    }
 
     @Override
     public String getFieldName(String field) {

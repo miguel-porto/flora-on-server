@@ -28,11 +28,9 @@ body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 body.occurrencespage .heading2 {background-color: #1565c0; color: white; position:relative}
 body.occurrencespage .legend {color:#d5d5d5; margin:4px}
 body.occurrencespage :not(.warning):not(.heading2) .legend {color:#393939;}
-body.occurrencespage a.returntomain {position:static;}
-body.occurrencespage a.returntomain img {height:70px}
-
 body.occurrencespage.compactview .hideincompactview {display:none !important}
 body.occurrencespage.compactview table td {font-size:0.6rem;}
+body.occurrencespage:not(.compactview) .hideInAdvancedView {display:none !important}
 
 #alloccurrencetable th {position:sticky; top:0px; z-index:1}
 

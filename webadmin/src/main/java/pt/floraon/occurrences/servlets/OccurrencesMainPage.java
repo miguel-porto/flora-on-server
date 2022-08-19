@@ -404,7 +404,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "setoption":
 //                System.out.println("SET " + "option-" + thisRequest.getParameterAsString("n")+ " to "+thisRequest.getParameterAsBooleanNoNull("v"));
                 String optionName = thisRequest.getParameterAsString("n");
-                boolean persistent = thisRequest.getParameterAsBoolean("p", false);
+                boolean persistent = thisRequest.getParameterAsBoolean("persistent", false);
                 Serializable value;
                 switch(thisRequest.getParameterAsString("t", "boolean")) {
                     case "boolean":
