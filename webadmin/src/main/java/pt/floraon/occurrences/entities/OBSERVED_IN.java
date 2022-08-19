@@ -40,10 +40,15 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
+    @EditWidget(value = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"WILD", "CULTIVATED", "ESCAPED", "REINTRODUCTION", "TRANSLOCATION"},
+            labelsSimple = {"Wild", "Cultivated", "Escaped", "Reintroduction", "Translocation"},
+            valuesAdvanced = {"WILD", "CULTIVATED", "ESCAPED", "REINTRODUCTION", "TRANSLOCATION"},
+            labelsAdvanced = {"Wild", "Cultivated", "Escaped", "Reintroduction", "Translocation"})
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
-    @EditWidget(value = EditWidget.Type.RADIO,
+    @EditWidget(value = EditWidget.Type.DROPDOWN,
             valuesSimple = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
             labelsSimple = {"Certain", "Almost sure", "Doubtful"},
             valuesAdvanced = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
