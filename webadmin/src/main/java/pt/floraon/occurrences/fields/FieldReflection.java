@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fields;
 
+import jdk.internal.org.jline.utils.Log;
 import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.utils.StringUtils;
@@ -332,7 +333,7 @@ public final class FieldReflection {
     static public boolean isBigEditWidget(String field) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(BigEditWidget.class);
+        return f.isAnnotationPresent(EditWidget.class) && f.getAnnotation(EditWidget.class).value() == EditWidget.Type.BIGTEXT;
     }
 
     static public boolean isAdminField(String field) {

@@ -82,6 +82,7 @@ public class Lists extends FloraOnServlet {
 			INodeKey id;
 			try {
 				id = thisRequest.getParameterAsKey("id");        // the id of the taxent node of which to get the children
+				if(id != null && !id.getCollection().equals("taxent")) id = null;		// because de id parameter here conflicts with the inventory id in the inventory view
 			} catch (FloraOnException e) {
 				id = null;
 			}

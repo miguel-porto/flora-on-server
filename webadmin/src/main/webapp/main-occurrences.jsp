@@ -103,7 +103,7 @@
         <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />
         <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" />
         <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" />
-        <t:optionbutton optionname="showtax" title="Tax" defaultvalue="false" element="taxtree" norefresh="false" />
+        <t:optionbutton optionname="showtax" title="Tax" defaultvalue="false" element="taxtree" norefresh="false" persistent="true" />
     </div>
     <c:if test="${warning != null}">
     <div class="warning floating"><b>${warning}</b></div>

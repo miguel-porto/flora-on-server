@@ -24,6 +24,7 @@ code {
     vertical-align:middle;
     font-weight: normal;
 }
+.no-space-break {white-space:nowrap;}
 img.exclamation {width: 1.5em;vertical-align: middle;margin-right:8px}
 img.exclamation+* {vertical-align: middle;}
 img.lock {vertical-align:middle; height:25px; margin: 2px 6px 2px 0;}

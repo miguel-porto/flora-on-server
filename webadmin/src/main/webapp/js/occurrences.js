@@ -72,11 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    var ot = document.querySelectorAll('.occurrencetable td.editable select');
-    for(var i=0; i<ot.length; i++)
-        addEvent('change', ot[i], cellWidgetChanged);
-
-    var ot = document.querySelectorAll('.occurrencetable td.editable input[type=radio]');
+    var ot = document.querySelectorAll('.occurrencetable td.editable select, .occurrencetable td.editable input[type=radio], .occurrencetable td.editable input[type=date]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 
@@ -97,6 +93,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // the mechanism for adding species to the taxon edit box
     new TreeExpander(document.querySelectorAll('.taxtree-holder>ul'), function(ev, key) {
         var elem = document.getElementById('taxonsearchwrapper');
+        // check if there are selected rows, if yes update field in all selected
+        var sel = document.querySelectorAll('#alloccurrencetable tr.selected td[data-name=taxa]');
+        if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected td[data-name=taxa]');
+        if(sel.length == 0) sel = document.querySelectorAll('table.newoccurrencetable tr.selected td[data-name=taxa]');
+
         var el = document.querySelector('.taxtree-holder li[data-key="' + key +'"]');
         var text = '';
         for (var i = 0; i < el.childNodes.length; ++i) {
@@ -105,26 +106,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         text = text.trim();
-        if (!!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length )) { // taxon input box is visible
+        var isTaxonBoxVisible = !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
+        if (isTaxonBoxVisible || sel.length > 0) { // taxon input box is visible
             if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES'))) {
-                var box = document.getElementById('taxonsearchbox');
                 var outtext;
-                // if it contains exactly, don't add again
-                if(box.value.toLowerCase().indexOf(text.toLowerCase()) != -1) return;
+                var currentValue;
                 const regex = /([a-z]+) ([a-z]+)/i;
                 const match = text.match(regex);
-//                console.log(match[1] + '|' + match[2]);
-                // if it contains a higher taxonomic rank, replace by lower rank
-                var tmp = box.value.toLowerCase().indexOf(match[1].toLowerCase() + ' ' + match[2].toLowerCase());
-                if(tmp != -1) {
-                    const re = new RegExp('(^|\\+) *(' + match[1] + ' ' + match[2] + '[\\w. ]*)($|\\+)');
-                    outtext = box.value.replace(re, '$1 ' + text + ' $3');
-                } else
-                    outtext = document.getElementById('taxonsearchbox').value + ' + ' + text;
+                if(isTaxonBoxVisible) {
+                    var box = document.getElementById('taxonsearchbox');
+                    currentValue = box.value;
+                    // if it contains exactly, don't add again
+                    if(currentValue.toLowerCase().indexOf(text.toLowerCase()) != -1) return;
+    //                console.log(match[1] + '|' + match[2]);
+                    // if it contains a higher taxonomic rank, replace by lower rank
+                    var tmp = currentValue.toLowerCase().indexOf(match[1].toLowerCase() + ' ' + match[2].toLowerCase());
+                    if(tmp != -1) {
+                        const re = new RegExp('(^|\\+) *(' + match[1] + ' ' + match[2] + '[\\w. ]*)($|\\+)');
+                        outtext = currentValue.replace(re, '$1 ' + text + ' $3');
+                    } else
+                        outtext = document.getElementById('taxonsearchbox').value + ' + ' + text;
 
-                outtext = outtext.replace(/^[ +]*|[ +]*$/, '').trim();
-                box.value = outtext;
-                box.focus();
+                    outtext = outtext.replace(/^[ +]*|[ +]*$/, '').trim();
+                    box.value = outtext;
+                    box.focus();
+                } else {
+                    for(var i=0; i<sel.length; i++) {
+                        currentValue = sel[i].textContent;
+                        if(currentValue.toLowerCase().indexOf(text.toLowerCase()) != -1) continue;
+        //                console.log(match[1] + '|' + match[2]);
+                        // if it contains a higher taxonomic rank, replace by lower rank
+                        var tmp = currentValue.toLowerCase().indexOf(match[1].toLowerCase() + ' ' + match[2].toLowerCase());
+                        if(tmp != -1) {
+                            const re = new RegExp('(^|\\+) *(' + match[1] + ' ' + match[2] + '[\\w. ]*)($|\\+)');
+                            outtext = currentValue.replace(re, '$1 ' + text + ' $3');
+                        } else
+                            outtext = currentValue + ' + ' + text;
+
+                        outtext = outtext.replace(/^[ +]*|[ +]*$/, '').trim();
+                        onConfirmEdit({}, outtext, null, sel[i], true, false, true);
+                    }
+                }
             }
         } else {
 /*
@@ -412,14 +434,14 @@ function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
 
     // if there are selected rows, update field in all selected!
     var sel = document.querySelectorAll('#alloccurrencetable tr.selected td[data-name="' + fieldname + '"]');
-    if(sel.length == 0) {
-        sel = document.querySelectorAll('table.newoccurrencetable tr.selected td[data-name="' + fieldname + '"]');
-    }
+    if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected td[data-name="' + fieldname + '"]');
+    if(sel.length == 0) sel = document.querySelectorAll('table.newoccurrencetable tr.selected td[data-name="' + fieldname + '"]');
 
     // if it has a widget, then we set nocontent to true, so that innerHTML is not set
     var selectEl = parent.querySelector('select');
-    if(!selectEl)
-        selectEl = parent.querySelector('input[type=radio]');
+    if(!selectEl) selectEl = parent.querySelector('input[type=radio]');
+    if(!selectEl) selectEl = parent.querySelector('input[type=date]');
+
     var nocontentForNext = null;
     if(selectEl) {
         nocontentForNext = true;
@@ -768,10 +790,15 @@ function updateCoords(geoel, lat, lng) {
 function addNewTaxon(ev) {
     var id = randomString(6);
     var inv = getParentbyClass(ev.target, 'inventory');
-    var row = inv.querySelector('.newoccurrencetable tr.dummy').cloneNode(true);
-    row.classList.remove('dummy');
-    row.setAttribute('data-id', id);
-    inv.querySelector('.newoccurrencetable tbody').appendChild(row);
+    var newRow = inv.querySelector('.newoccurrencetable tr.dummy').cloneNode(true);
+    newRow.classList.remove('dummy');
+    newRow.setAttribute('data-id', id);
+    inv.querySelector('.newoccurrencetable tbody').appendChild(newRow);
+
+    // attach widgets' change handlers
+    var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date]');
+    for(var i=0; i<ot.length; i++)
+        addEvent('change', ot[i], cellWidgetChanged);
 }
 
 function cellWidgetChanged(ev) {
@@ -781,7 +808,7 @@ function cellWidgetChanged(ev) {
 
 function clickOccurrenceTable(ev) {
     var cell = getParentbyClass(ev.target, 'editable') || getParentbyClass(ev.target, 'clickable');
-    if(!cell || !cell.classList || cell.querySelector('select') || cell.querySelector('input[type=radio]')) return;
+    if(!cell || !cell.classList || cell.querySelector('select') || cell.querySelector('input[type=radio]') || cell.querySelector('input[type=date]')) return;
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
 //        selectGeoElement(cell, true, true);
@@ -1185,11 +1212,7 @@ function addNewInventory(ev) {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    var ot = inv.querySelectorAll('.occurrencetable td.editable select');
-    for(var i=0; i<ot.length; i++)
-        addEvent('change', ot[i], cellWidgetChanged);
-
-    var ot = inv.querySelectorAll('.occurrencetable td.editable input[type=radio]');
+    var ot = inv.querySelectorAll('.occurrencetable td.editable select, .occurrencetable td.editable input[type=radio]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 
@@ -1212,6 +1235,8 @@ function addNewOccurrence(ev) {
     var newRow = document.querySelector('#addoccurrencetable tr.dummy').cloneNode(true);
     var cell2 = newRow.querySelector('td.coordinates');
     newRow.classList.remove('dummy');
+    newRow.classList.add('selected');
+    newRow.querySelector('.selectbutton').classList.add('selected');
 
     if(lat && lng) {
         var inp_latitude = createHiddenInputElement(id + '_latitude', lat);
@@ -1229,11 +1254,7 @@ function addNewOccurrence(ev) {
     tab.appendChild(newRow);
 
     // attach widgets' change handlers
-    var ot = newRow.querySelectorAll('td.editable select');
-    for(var i=0; i<ot.length; i++)
-        addEvent('change', ot[i], cellWidgetChanged);
-
-    var ot = newRow.querySelectorAll('td.editable input[type=radio]');
+    var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 

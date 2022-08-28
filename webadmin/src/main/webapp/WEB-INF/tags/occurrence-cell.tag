@@ -12,6 +12,8 @@
 <%@ attribute name="symbol" required="false" %>
 <%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="view" required="true" type="java.lang.String" %>
+<jsp:useBean id="rand" class="pt.floraon.driver.utils.StringUtils" scope="application" />
+<jsp:useBean id="now" class="java.util.Date" />
 
 <c:set var="taxon" value="${taxon == null ? (inventory == null ? null : (inventory._getTaxa()[0])) : taxon}" />
 <%--
@@ -50,7 +52,8 @@
     </c:if>
 </c:when>
 <c:when test="${field == 'inventoryCoordinates' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory.getLatitude()}" data-lng="${inventory.getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td></c:when>
-<c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>
+<%--<c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>--%>
+<c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}"><c:if test="${inventory == null}"><fmt:formatDate var="today" value="${now}" pattern="yyyy-MM-dd" /><input type="date" value="${today}"/></c:if><c:if test="${inventory != null}"><c:if test="${inventory._isDateOnly()}"><input type="date" value="${inventory._getDateYMDForHtml()}"/></c:if><c:if test="${!inventory._isDateOnly()}">${inventory._getDate()}</c:if></c:if></td></c:when>
 <c:when test="${field == 'time' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="time">${inventory == null ? '' : inventory._getTime()}</td></c:when>
 <c:when test="${field == 'tags' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace}" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}" showAsTags="true"/></td></c:when>
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
@@ -85,33 +88,35 @@
         </c:when>
         <c:otherwise>
             <c:choose>
-            <c:when test="${fields.getFieldWidget(field) == 'TEXT'}">
+            <c:when test="${fields.getFieldWidget(field) == 'TEXT' || fields.getFieldWidget(field) == 'BIGTEXT'}">
             <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}</td>
             </c:when>
+
             <c:when test="${fields.getFieldWidget(field) == 'DROPDOWN'}">
             <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
-            <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
+            <c:set var="val" value="${taxon == null ? '' : fields.getFieldValueRaw(taxon, inventory, field)}"/>
             <select name="${field}">
-                <c:if test="${val == ''}"><option selected value=""></option></c:if>
-                <c:if test="${val != ''}"><option value=""></option></c:if>
+                <c:if test="${val == '' || val == null}"><option selected value=""></option></c:if>
+                <c:if test="${val != '' && val != null}"><option value=""></option></c:if>
                 <c:forEach var="option" items="${fields.getFieldValuesAdvanced(field)}" varStatus="loop">
                     <c:set var="label" value="${fields.getFieldLabelsAdvanced(field)[loop.index]}"/>
-                    <c:if test="${val == label}"><option selected value="${option}">${label}</option></c:if>
-                    <c:if test="${val != label}"><option value="${option}">${label}</option></c:if>
+                    <c:if test="${val == option}"><option selected value="${option}">${label}</option></c:if>
+                    <c:if test="${val != option}"><option value="${option}">${label}</option></c:if>
                 </c:forEach>
             </select>
             </td>
             </c:when>
 
             <c:when test="${fields.getFieldWidget(field) == 'RADIO'}">
+            <c:set var="randid" value="${rand.randomString(8)}"/>
             <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
             <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
-            <c:if test="${val == ''}"><label><input type="radio" name="ll" value="" checked/></label></c:if>
-            <c:if test="${val != ''}"><label><input type="radio" name="ll" value=""/></label></c:if>
+            <c:if test="${val == '' || val == null}"><label><input type="radio" name="${randid}" value="" checked/></label></c:if>
+            <c:if test="${val != '' && val != null}"><label><input type="radio" name="${randid}" value=""/></label></c:if>
             <c:forEach var="option" items="${fields.getFieldValuesAdvanced(field)}" varStatus="loop">
                 <c:set var="label" value="${fields.getFieldLabelsAdvanced(field)[loop.index]}"/>
-                <c:if test="${val == label}"><label><input type="radio" name="ll" value="${option}" checked/>${label}</label></c:if>
-                <c:if test="${val != label}"><label><input type="radio" name="ll" value="${option}"/>${label}</label></c:if>
+                <c:if test="${val == option}"><label class="no-space-break"><input type="radio" name="${randid}" value="${option}" checked/>${label}</label></c:if>
+                <c:if test="${val != option}"><label class="no-space-break"><input type="radio" name="${randid}" value="${option}"/>${label}</label></c:if>
             </c:forEach>
             </td>
             </c:when>

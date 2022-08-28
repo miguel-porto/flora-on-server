@@ -22,6 +22,7 @@ public class SpecialFields {
     @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
     @DatabaseFields({"year", "month", "day", "hour", "minute"})
     @PrettyName(value = "Data de observação", shortName = "Data", important = true)
+    @EditWidget(EditWidget.Type.DATE)
     private String date;
     @FieldStyle(FieldStyle.Size.SMALL)
     @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @ReadOnly
