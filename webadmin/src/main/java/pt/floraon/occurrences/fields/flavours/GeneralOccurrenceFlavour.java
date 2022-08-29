@@ -12,28 +12,18 @@ import java.lang.reflect.Field;
  */
 public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     @Override
-    public String[] getFieldValuesSimple(String field) {
-        return FieldReflection.getFieldValuesSimple(field);
+    public String[] getFieldValues(String field, boolean advanced) {
+        return FieldReflection.getFieldValues(field, advanced);
     }
 
     @Override
-    public String[] getFieldLabelsSimple(String field) {
-        return FieldReflection.getFieldLabelsSimple(field);
+    public String[] getFieldLabels(String field, boolean advanced) {
+        return FieldReflection.getFieldLabels(field, advanced);
     }
 
     @Override
-    public String[] getFieldValuesAdvanced(String field) {
-        return FieldReflection.getFieldValuesAdvanced(field);
-    }
-
-    @Override
-    public String[] getFieldLabelsAdvanced(String field) {
-        return FieldReflection.getFieldLabelsAdvanced(field);
-    }
-
-    @Override
-    public EditWidget.Type getFieldWidget(String field) {
-        return FieldReflection.getFieldWidget(field);
+    public EditWidget.Type getFieldWidget(String field, boolean advanced) {
+        return FieldReflection.getFieldWidget(field, advanced);
     }
 
     @Override
@@ -94,6 +84,11 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     @Override
     public boolean isMonospaceFont(String field) {
         return FieldReflection.isMonospaceFont(field);
+    }
+
+    @Override
+    public boolean breakLines(String field) {
+        return FieldReflection.breakLines(field);
     }
 
     @Override

@@ -54,6 +54,8 @@ public interface IOccurrenceFlavour {
 
     boolean isMonospaceFont(String field);
 
+    boolean breakLines(String field);
+
     boolean isBigEditWidget(String field);
 
     boolean isImageField(String field);
@@ -64,13 +66,9 @@ public interface IOccurrenceFlavour {
 
     boolean containsInventoryFields();
 
-    String[] getFieldValuesSimple(String field);
+    String[] getFieldValues(String field, boolean advanced);
 
-    String[] getFieldLabelsSimple(String field);
+    String[] getFieldLabels(String field, boolean advanced);
 
-    String[] getFieldValuesAdvanced(String field);
-
-    String[] getFieldLabelsAdvanced(String field);
-
-    EditWidget.Type getFieldWidget(String field);
+    EditWidget.Type getFieldWidget(String field, boolean advanced);
 }

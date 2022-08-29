@@ -149,6 +149,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } else {
+            if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES')))
+                alert('Seleccione um ou mais registos clicando no círculo à sua esquerda para adicionar espécies.');
 /*
             if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES')))
                 window.location = '?w=occurrenceview&filter=tax:' + text;
@@ -528,6 +530,7 @@ function disableAllMapButtons() {
     document.getElementById('queryrect').classList.remove('selected');
     document.getElementById('selectpoints').classList.remove('selected');
     document.getElementById('addpointstoggle').classList.remove('selected');
+    document.querySelector('.leaflet-container').style.cursor = 'auto';
     if(mapRectSelect) mapRectSelect.disable();
 }
 
@@ -655,6 +658,7 @@ function clickButton(ev) {
 
         case 'addpointstoggle':
             disableAllMapButtons();
+            document.querySelector('.leaflet-container').style.cursor = 'crosshair';
             break;
 
         case 'queryrect':
@@ -870,7 +874,10 @@ function clickOccurrenceTable(ev) {
         var txt = cell.innerHTML;
 //        var txt = cell.textContent;
 //        cell.textContent = '';
-        displayEditField(cell, txt, cell.classList.contains('multiline'));
+        if(cell.classList.contains('coordinates'))
+            var hint = 'Pode clicar no mapa para definir as coordenadas';
+
+        displayEditField(cell, txt, cell.classList.contains('multiline'), hint);
     }
 }
 
@@ -1063,7 +1070,7 @@ function displaySearchbox(el, text, whichBox) {
     inp.focus();
 }
 
-function displayEditField(el, text, multiline) {
+function displayEditField(el, text, multiline, hint) {
     acceptVisibleSearchbox();
     if(multiline) {
         var old = document.getElementById('multilinefieldwrapper');
@@ -1083,6 +1090,17 @@ function displayEditField(el, text, multiline) {
         inp.value = createHTML(text).textContent;
         inp.setSelectionRange(0, inp.value.length);
         inp.focus();
+    }
+
+    var hintEl = old.querySelector('.hint');
+    if(hintEl) {
+        if(hint) {
+            hintEl.textContent = hint;
+            hintEl.style.display = 'block';
+        } else {
+            hintEl.textContent = '';
+            hintEl.style.display = 'none';
+        }
     }
 }
 
@@ -1176,6 +1194,7 @@ function mapClick(ev) {
 
     if(opt && !opt.classList.contains('selected')) return;
 
+    document.querySelector('.leaflet-container').style.cursor = 'auto';
     acceptVisibleSearchbox();
     var ot = document.getElementById('addoccurrencetable')
     if(ot)

@@ -33,26 +33,26 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @PrettyName(value = "Estado fenológico", shortName = "Fen", important = true)
     @EditWidget(value = EditWidget.Type.DROPDOWN,
             valuesSimple = {"FLOWER", "DISPERSION", "VEGETATIVE"},
-            labelsSimple = {"Flower", "Dispersion", "Vegetative"},
+            labelsSimple = {"Floração", "Dispersão", "Vegetativo"},
             valuesAdvanced = {"FLOWER", "DISPERSION", "VEGETATIVE", "RESTING", "BUD", "FRUIT", "FLOWER_DISPERSION", "FLOWER_FRUIT"},
-            labelsAdvanced = {"Flower", "Dispersion", "Vegetative", "Resting", "Flower buds", "Immature fruit", "Flower+Dispersion", "Flower+Fruit"})
+            labelsAdvanced = {"Floração", "Dispersão", "Vegetativo", "Dormência", "Em botão", "Fruto imaturo", "Flor+Dispersão", "Flor+Fruto imaturo"})
     private Constants.PhenologicalStates phenoState;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
     @EditWidget(value = EditWidget.Type.DROPDOWN,
-            valuesSimple = {"WILD", "CULTIVATED", "ESCAPED", "REINTRODUCTION", "TRANSLOCATION"},
-            labelsSimple = {"Wild", "Cultivated", "Escaped", "Reintroduction", "Translocation"},
+            valuesSimple = {"WILD", "CULTIVATED", "ESCAPED"},
+            labelsSimple = {"Silvestre", "Cultivado", "Escapado"},
             valuesAdvanced = {"WILD", "CULTIVATED", "ESCAPED", "REINTRODUCTION", "TRANSLOCATION"},
-            labelsAdvanced = {"Wild", "Cultivated", "Escaped", "Reintroduction", "Translocation"})
+            labelsAdvanced = {"Silvestre", "Cultivado", "Escapado", "Reintrodução", "Translocação"})
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
     @EditWidget(value = EditWidget.Type.DROPDOWN,
-            valuesSimple = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
-            labelsSimple = {"Certain", "Almost sure", "Doubtful"},
+            valuesSimple = {"CERTAIN", "DOUBTFUL"},
+            labelsSimple = {"ID certa", "ID duvidosa"},
             valuesAdvanced = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
-            labelsAdvanced = {"Sure", "Almost sure", "Doubt"})
+            labelsAdvanced = {"ID certa", "ID provável", "ID duvidosa"})
     @PrettyName(value = "Confiança ID", shortName = "Conf", important = true)
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)

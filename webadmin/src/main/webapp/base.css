@@ -167,7 +167,6 @@ div.newfeature {
 
 .button.singleline {
     margin: 0;
-    height: 1.2em;
     line-height: 1.2em;
     padding: 0.05em 6px;
 }
@@ -427,9 +426,10 @@ ul.suggestions li.selected {
 	border-left:1px dashed gray;
 }
 
-.taxtree-holder.compact ul li {padding:0 0 2px 0;}
-.taxtree-holder ul li:hover {
-	background-color:#fa0;
-}
+.taxtree-holder.compact ul li {padding:0 0 2px 2px;}
+.taxtree-holder ul li:hover {background-color:#fa0;}
+.taxtree-holder ul li.GENUS:hover {background-color:#ff000020; outline:2px solid #ff0000; position:relative; z-index:100}
+.taxtree-holder ul li.SPECIES:hover {background-color:#00ff0020; outline:2px solid #00ff00; position:relative; z-index:101}
+.taxtree-holder ul li.SUBSPECIES:hover {background-color:#0000ff20; outline:2px solid #0000ff; position:relative; z-index:102}
 
 .taxtree-holder ul li.notcurrent {color:#999 !important}

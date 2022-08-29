@@ -86,7 +86,7 @@
         <jsp:include page="occurrences-pages.jsp"></jsp:include>
     </div>
     <%--  <t:isoptionselected optionname="showtax"> --%>
-    <c:if test="${sessionScope['option-showtax'] || !sessionScope['option-advancedview']}">
+    <c:if test="${(param.w == 'occurrenceview' || param.w == 'openinventory') && (sessionScope['option-showtax'] || !sessionScope['option-advancedview'])}">
     <div id="taxtree" class="taxtree-holder compact">
         <input type="text" id="taxtree-filter" style="width:100%; box-sizing: border-box" placeholder="filtrar"/>
         <t:option-radiobutton optionprefix="rootrank" optionnames="${taxonomicRanks}" defaultvalue="genus" style="light" classes="small"/>
@@ -100,10 +100,10 @@
     </c:if>
     <%-- </t:isoptionselected> --%>
     <div id="floatingswitches" class="hideincompactview">
-        <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" />
-        <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" />
-        <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" />
-        <t:optionbutton optionname="showtax" title="Tax" defaultvalue="false" element="taxtree" norefresh="false" persistent="true" />
+        <t:optionbutton optionname="showmap" title="Map" defaultvalue="${!maphidden}" element="occurrencemap" norefresh="true" persistent="true" />
+        <t:optionbutton optionname="showgeo" title="Geo" defaultvalue="false" element="georreferencer" norefresh="true" persistent="true" />
+        <t:optionbutton optionname="showocc" title="Occ" defaultvalue="true" element="occurrencetable-holder" norefresh="true" persistent="true" />
+        <c:if test="${param.w == 'occurrenceview' || param.w == 'openinventory'}"><t:optionbutton optionname="showtax" title="Tax" defaultvalue="false" element="taxtree" norefresh="false" persistent="true" /></c:if>
     </div>
     <c:if test="${warning != null}">
     <div class="warning floating"><b>${warning}</b></div>

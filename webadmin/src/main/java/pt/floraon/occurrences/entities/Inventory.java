@@ -66,10 +66,12 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Minuto", shortName = "Min")
     private Integer minute;
-    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldStyle(value = FieldStyle.Size.SMALL, breakLines = false)
     @InventoryField
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
+    @EditWidget(value = EditWidget.Type.DROPDOWN, widgetAdvanced = EditWidget.Type.TEXT
+            , valuesSimple = {"1 m", "50 m", "100 m", "1000 m"}, labelsSimple = {"Ponto GPS", "50 m", "100 m", "1000 m"})
     private Precision precision;
     @FieldStyle(FieldStyle.Size.SMALL)
     @InventoryField @HideInCompactView @FieldParser(GeneralFieldParser.class)

@@ -10,6 +10,7 @@ import pt.floraon.occurrences.entities.SpecialFields;
 import pt.floraon.occurrences.fields.parsers.BooleanParser;
 import pt.floraon.redlistdata.RedListEnums;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -281,43 +282,35 @@ public final class FieldReflection {
         return (obsField == null || StringUtils.isStringEmpty(obsField.value())) ? field : obsField.value();
     }
 
-    static public String[] getFieldValuesSimple(String field) {
+    static public String[] getFieldValues(String field, boolean advanced) {
         Field f = findField(field);
         if(f == null) return new String[0];
         if(f.isAnnotationPresent(EditWidget.class)) {
-            return f.getAnnotation(EditWidget.class).valuesSimple();
+            EditWidget a = f.getAnnotation(EditWidget.class);
+            return advanced ? (a.valuesAdvanced().length == 0 ? a.valuesSimple() : a.valuesAdvanced()) : a.valuesSimple();
         } else
             return new String[0];
     }
 
-    static public String[] getFieldLabelsSimple(String field) {
+    static public String[] getFieldLabels(String field, boolean advanced) {
         Field f = findField(field);
         if(f == null) return new String[0];
         if(f.isAnnotationPresent(EditWidget.class)) {
-            return f.getAnnotation(EditWidget.class).labelsSimple();
+            EditWidget a = f.getAnnotation(EditWidget.class);
+            return advanced ? (a.labelsAdvanced().length == 0 ? a.labelsSimple() : a.labelsAdvanced()) : a.labelsSimple();
         } else
             return new String[0];
     }
 
-    static public String[] getFieldValuesAdvanced(String field) {
+    static public EditWidget.Type getFieldWidget(String field, boolean advanced) {
         Field f = findField(field);
-        if(f == null) return new String[0];
-        if(f.isAnnotationPresent(EditWidget.class)) {
-            return f.getAnnotation(EditWidget.class).valuesAdvanced();
-        } else
-            return new String[0];
+        if(f == null) return null;
+        if(!f.isAnnotationPresent(EditWidget.class)) return EditWidget.Type.TEXT;
+        EditWidget a = f.getAnnotation(EditWidget.class);
+        return advanced ? (a.widgetAdvanced() == EditWidget.Type.NULL ? a.value() : a.widgetAdvanced()) : a.value();
     }
 
-    static public String[] getFieldLabelsAdvanced(String field) {
-        Field f = findField(field);
-        if(f == null) return new String[0];
-        if(f.isAnnotationPresent(EditWidget.class)) {
-            return f.getAnnotation(EditWidget.class).labelsAdvanced();
-        } else
-            return new String[0];
-    }
-
-    static public EditWidget.Type getFieldWidget(String field) {
+    static public EditWidget.Type getFieldWidgetAdvanced(String field) {
         Field f = findField(field);
         if(f == null) return null;
         if(!f.isAnnotationPresent(EditWidget.class)) return EditWidget.Type.TEXT;
@@ -328,6 +321,12 @@ public final class FieldReflection {
         Field f = findField(field);
         if(f == null) return false;
         return f.isAnnotationPresent(FieldStyle.class) && f.getAnnotation(FieldStyle.class).monospaceFont();
+    }
+
+    static public boolean breakLines(String field) {
+        Field f = findField(field);
+        if(f == null) return true;
+        return f.isAnnotationPresent(FieldStyle.class) && f.getAnnotation(FieldStyle.class).breakLines();
     }
 
     static public boolean isBigEditWidget(String field) {

@@ -240,7 +240,7 @@ function attachOptionButtonHandler(url) {
                     optb.classList.remove('selected');
                     optb.setAttribute('data-value', true);
                 }
-                if (typeof myMap !== 'undefined') myMap.invalidateSize(false);
+                if (typeof L !== 'undefined' && myMap) myMap.invalidateSize(false);
             }
             console.log(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&persistent=' + (persistent == 'true' ? 1 : 0));
             fetchAJAX(url + '?w=setoption&n=' + encodeURIComponent(name) + '&v=' + encodeURIComponent(value) + '&t=' + type + '&persistent=' + (persistent == 'true' ? 1 : 0), function(rt) {
