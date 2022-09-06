@@ -4,7 +4,7 @@ public class SimpleFlavour extends GeneralOccurrenceFlavour implements IOccurren
     @Override
     public String[] getFields() {
         return new String[]{
-                "taxa", "confidence", "coordinates", "precision", "comment", "privateComment", "date", "phenoState",
+                "taxa", "confidence", "phenoState", "date", "coordinates", "precision", "comment", "privateComment",
                 "observers", "naturalization"
         };
     }
@@ -16,7 +16,7 @@ public class SimpleFlavour extends GeneralOccurrenceFlavour implements IOccurren
 
     @Override
     public boolean showInInventoryView() {
-        return false;
+        return true;
     }
 
     @Override

@@ -325,8 +325,8 @@ public final class FieldReflection {
 
     static public boolean breakLines(String field) {
         Field f = findField(field);
-        if(f == null) return true;
-        return f.isAnnotationPresent(FieldStyle.class) && f.getAnnotation(FieldStyle.class).breakLines();
+        if(f == null || !f.isAnnotationPresent(FieldStyle.class)) return true;
+        return f.getAnnotation(FieldStyle.class).breakLines();
     }
 
     static public boolean isBigEditWidget(String field) {

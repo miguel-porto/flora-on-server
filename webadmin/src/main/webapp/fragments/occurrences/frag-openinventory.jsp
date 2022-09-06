@@ -5,29 +5,21 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
-<div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
-<div class="button anchorbutton"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
-<%--
-<div id="flavourlist">
-    <div class="label"><fmt:message key="button.4a"/></div>
-    <c:forEach var="flv" items="${flavourList}" varStatus="loop">
-    <c:if test="${flv.getValue().showInInventoryView()}">
-        <c:set var="sel" value="${(param.flavour == null || param.flavour == '') ? (loop.index == 0 ? 'selected' : '') : (param.flavour == flv.getKey() ? 'selected' : '')}"/>
-        <div class="button anchorbutton ${sel}"><a href="?w=openinventory&flavour=${flv.getKey()}&id=${param.id}">${flv.getValue().getName()}</a></div>
-    </c:if>
-    </c:forEach>
-</div>
---%>
-<div id="flavourlist">
-    <div class="label"><fmt:message key="button.4a"/></div>
-    <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
-</div>
+<div id="topbuttons">
+    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.8"/></a></div>
+    <div class="button anchorbutton hideincompactview"><a href="?w=occurrenceview&p=1&filter=iid:${param.id}"><fmt:message key="button.11"/></a></div>
+    <div id="flavourlist" class="hideincompactview">
+        <div class="label"><fmt:message key="button.4a"/></div>
+        <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
+    </div>
 </div>  <!-- top buttons -->
+
 <div id="deleteoccurrences" class="hidden">
     <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
         <div class="heading2">
             <h2><fmt:message key="occurrences.5" /></h2>
             <input type="submit" class="textbutton" value="Delete"/>
+            <div class="button" id="canceldelete"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="deleteoccurrencetable" class="verysmalltext sortable">
             <thead><tr><t:occurrenceheader fields="${flavourfields}" view="inventory"/></tr></thead>
@@ -36,7 +28,9 @@
     </form>
 </div>
 
+<div class="inventory dummy id1holder geoelement">
 <t:inventorymodel fields="${flavourfields}"/>
+</div>
 
 <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
     <div class="heading2">
@@ -53,14 +47,18 @@
     <c:set var="locked" value="${(inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()) || inv.getReadOnly()}"/>
     <c:set var="editable" value="${locked ? '' : 'editable'}"/>
     <div class="inventory geoelement">
-        <h3><fmt:message key="inventory.1"/> ${inv.getCode()} <c:if test="${inv._getInventoryLatitude() != null}">${inv._getInventoryCoordinates()}</c:if> - ${inv._getNumberOfTaxa()} taxa</h3>
+        <h3><fmt:message key="inventory.1"/> ${inv.getCode()} <c:if test="${inv._getInventoryLatitude() != null}">${inv._getInventoryCoordinates()}</c:if> - ${inv._getNumberOfTaxa()} taxa
+        <c:if test="${inv._hasMultipleCoordinates()}"><span class="info"><br/>This inventory has multiple coordinates</span></c:if>
+        </h3>
         <c:if test="${!locked}">
         <form class="poster" data-path="occurrences/api/deleteoccurrences" data-confirm="true" data-callback="?w=main">
             <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
-            <input type="submit" class="textbutton" value="Delete inventory" style="float:left"/>
+            <input type="submit" class="textbutton" value="Delete inventory"/>
         </form>
         </c:if>
         <form class="poster id1holder" data-path="occurrences/api/updateinventory" data-refresh="true">
+            <t:inventorymodel fields="${flavourfields}" showSave="${!locked}" inv="${inv}"/>
+<%--
             <input type="hidden" name="inventoryId" value="${inv.getID()}"/>
             <c:if test="${!locked}"><input type="submit" class="textbutton onlywhenmodified" value="<fmt:message key="inventory.upd"/>"/></c:if>
             <c:if test="${inv._hasMultipleCoordinates()}"><br/><span class="info">This inventory has multiple coordinates</span></c:if>
@@ -116,6 +114,7 @@
             <div class="button" id="deleteselectedinv">Delete selected taxa</div>
             <div class="button newtaxon">Add taxon</div>
             </c:if>
+--%>
         </form>
     </div>
     </c:forEach>

@@ -233,6 +233,10 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
     padding: 0 8px 0 0;
     margin: 3px;
 }
+.filter.verysmall {
+    padding: 0 6px 2px 0;
+    margin: 3px 0px;
+}
 
 .filter[data-option=onlyvalidated] {background: linear-gradient(270deg, #00E676 0, #00E676 20px, #3949ab 20px, #3949ab 100%);}
 .filter[data-option=onlyreassessment] {background: linear-gradient(270deg, #80D8FF 0, #80D8FF 20px, #3949ab 20px, #3949ab 100%);}
@@ -289,6 +293,7 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
     background-color: rgba(255, 255, 255, 0.5);
 }
 .filter.small .light {width:1rem; height:1rem}
+.filter.verysmall .light {width:0.6rem; height:0.6rem; margin: 0 4px 1px 5px;}
 .filter.selected>div.light {background-color:#76ff03; box-shadow: 0 0 7px #76ff03;}
 
 input.selectionbox {display:none;}

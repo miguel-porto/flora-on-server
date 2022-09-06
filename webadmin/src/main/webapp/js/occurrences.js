@@ -26,6 +26,15 @@ function submitOnEnter(event){
     }
 }
 
+function dimMainTable() {
+    var el;
+    if(el = document.getElementById('alloccurrences')) el.classList.add('inactive');
+    if(el = document.getElementById('allinventories')) el.classList.add('inactive');
+    if(el = document.getElementById('maintableheader')) el.classList.add('inactive');
+    if(el = document.getElementById('warningpanel')) el.classList.add('inactive');
+    if(el = document.querySelector('div.newfeature')) el.classList.add('inactive');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof L !== 'undefined') {
         myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
@@ -91,12 +100,16 @@ document.addEventListener('DOMContentLoaded', function() {
     attachAJAXContent();
 
     // the mechanism for adding species to the taxon edit box
+    var territory;
+    if(territory = document.querySelector('div.option.selected[data-option=taxtree-territory]'))
+        territory = territory.getAttribute('data-value');
     new TreeExpander(document.querySelectorAll('.taxtree-holder>ul'), function(ev, key) {
         var elem = document.getElementById('taxonsearchwrapper');
         // check if there are selected rows, if yes update field in all selected
         var sel = document.querySelectorAll('#alloccurrencetable tr.selected td[data-name=taxa]');
         if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected td[data-name=taxa]');
         if(sel.length == 0) sel = document.querySelectorAll('table.newoccurrencetable tr.selected td[data-name=taxa]');
+        if(sel.length == 0) {sel = document.querySelectorAll('table.newoccurrencetable tr:not(.dummy).empty td[data-name=taxa]'); var separateRecords = true;}
 
         var el = document.querySelector('.taxtree-holder li[data-key="' + key +'"]');
         var text = '';
@@ -135,28 +148,54 @@ document.addEventListener('DOMContentLoaded', function() {
                         currentValue = sel[i].textContent;
                         if(currentValue.toLowerCase().indexOf(text.toLowerCase()) != -1) continue;
         //                console.log(match[1] + '|' + match[2]);
-                        // if it contains a higher taxonomic rank, replace by lower rank
-                        var tmp = currentValue.toLowerCase().indexOf(match[1].toLowerCase() + ' ' + match[2].toLowerCase());
-                        if(tmp != -1) {
-                            const re = new RegExp('(^|\\+) *(' + match[1] + ' ' + match[2] + '[\\w. ]*)($|\\+)');
-                            outtext = currentValue.replace(re, '$1 ' + text + ' $3');
-                        } else
-                            outtext = currentValue + ' + ' + text;
+                        if(separateRecords && currentValue.length > 0) {
+                        // TODO Handle multiple selection
+/*
+                            var selected = document.querySelectorAll('table.newoccurrencetable tbody tr.selected');
+                            for(var j=0; j<selected.length; j++) {
+                                selected[j].classList.remove('selected');
+                                selected[j].querySelector('.selectbutton').classList.remove('selected');
+                            }
+                            var toSelect = document.querySelectorAll('table.newoccurrencetable tbody tr:not(.dummy).empty');
+                            for(var j=0; j<toSelect.length; j++) {
+                                toSelect[j].classList.add('selected');
+                                toSelect[j].querySelector('.selectbutton').classList.add('selected');
+                            }
+*/
+                            onConfirmEdit({}, text, null, sel[i], true, false, true);
+/*
+                            var geoel = getParentbyClass(sel[i], 'geoelement');
+                            var coo = geoel.querySelector('.coordinates');
+                            addNewOccurrence({latlng:{lat: coo.getAttribute('data-lat'), lng: coo.getAttribute('data-lng')}});
+                            onConfirmEdit({}, text, null, document.querySelector('#addoccurrencetable tr.selected td[data-name=taxa]'), true, false, true);
+*/
+                        } else {
+                            // if it contains a higher taxonomic rank, replace by lower rank
+                            var tmp = currentValue.toLowerCase().indexOf(match[1].toLowerCase() + ' ' + match[2].toLowerCase());
+                            if(tmp != -1) {
+                                const re = new RegExp('(^|\\+) *(' + match[1] + ' ' + match[2] + '[\\w. ]*)($|\\+)');
+                                outtext = currentValue.replace(re, '$1 ' + text + ' $3');
+                            } else
+                                outtext = currentValue + ' + ' + text;
 
-                        outtext = outtext.replace(/^[ +]*|[ +]*$/, '').trim();
-                        onConfirmEdit({}, outtext, null, sel[i], true, false, true);
+                            outtext = outtext.replace(/^[ +]*|[ +]*$/, '').trim();
+                            onConfirmEdit({}, outtext, null, sel[i], true, false, true);
+                        }
                     }
                 }
             }
         } else {
-            if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES')))
-                alert('Seleccione um ou mais registos clicando no círculo à sua esquerda para adicionar espécies.');
+            if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES'))) {
+                alert(document.querySelector('table.inventorysummary')
+                    ? 'Adicione um novo inventário para adicionar espécies.'
+                    : 'Seleccione um ou mais registos clicando no círculo à sua esquerda para adicionar espécies.');
+            }
 /*
             if(el && (el.classList.contains('SPECIES') || el.classList.contains('SUBSPECIES')))
                 window.location = '?w=occurrenceview&filter=tax:' + text;
 */
         }
-    }, 'checklist/api/lists?w=tree&fmt=htmllist&id={id}').init();
+    }, 'checklist/api/lists?w=tree&fmt=htmllist&territory=' + territory + '&id={id}').init();
 
     addEvent('keyup', document.getElementById('taxtree-filter'), function(ev) {
         var txt = ev.target.value.trim();
@@ -709,24 +748,46 @@ function clickButton(ev) {
             var tbody = document.querySelector('#deleteoccurrencetable tbody');
             for(var i=0; i<sel.length; i++)
                 tbody.appendChild(sel[i]);
-
             document.getElementById('deleteoccurrences').classList.remove('hidden');
-            document.getElementById('alloccurrences').classList.add('inactive');
-            document.getElementById('warningpanel').classList.add('inactive');
+            dimMainTable();
             break;
 
         case 'deleteselectedinv':
             acceptVisibleSearchbox();
+            var count = 0;
             var inv = getParentbyClass(b, 'inventory');
             var sel = inv.querySelectorAll('.newoccurrencetable tr.selected');
             if(sel.length == 0) return;
             var tbody = document.querySelector('#deleteoccurrencetable tbody');
             for(var i=0; i<sel.length; i++) {
-                if(sel[i].querySelector('input[name=occurrenceUuid]').value != '')
+                if(sel[i].querySelector('input[name=occurrenceUuid]').value != '') {
                     tbody.appendChild(sel[i]);
+                    count++;
+                } else {
+                    if(sel[i].marker)
+                        sel[i].marker.remove();
+                    sel[i].parentNode.removeChild(sel[i]);
+                }
             }
 
-            document.getElementById('deleteoccurrences').classList.remove('hidden');
+            if(count > 0) {
+                document.getElementById('deleteoccurrences').classList.remove('hidden');
+                document.getElementById('deleteoccurrences').scrollIntoView({behavior:'smooth', inline:'start', block:'center'});
+                dimMainTable();
+            }
+            break;
+
+        case 'deleteselectednew':
+            acceptVisibleSearchbox();
+            var sel = document.querySelectorAll('#addnewinventories .newoccurrencetable tr.selected');
+            if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected');
+            if(sel.length == 0) return;
+            for(var i=0; i<sel.length; i++) {
+                if(sel[i].marker) {
+                    sel[i].marker.remove();
+                }
+                sel[i].parentNode.removeChild(sel[i]);
+            }
             break;
 
         case 'updatemodified':
@@ -746,12 +807,12 @@ function clickButton(ev) {
             }
 
             document.getElementById('updateoccurrences').classList.remove('hidden');
-            document.getElementById('alloccurrences').classList.add('inactive');
-            document.getElementById('warningpanel').classList.add('inactive');
+            dimMainTable();
             break;
 
         case 'cancelupdate':
         case 'canceldelete':
+        case 'cancelnew':
             window.location.reload(false);
             break;
 
@@ -760,19 +821,6 @@ function clickButton(ev) {
             acceptVisibleSearchbox();
             break;
 */
-
-        case 'deleteselectednew':
-            acceptVisibleSearchbox();
-            var sel = document.querySelectorAll('#addnewinventories .newoccurrencetable tr.selected');
-            if(sel.length == 0) sel = document.querySelectorAll('#addoccurrencetable tr.selected');
-            if(sel.length == 0) return;
-            for(var i=0; i<sel.length; i++) {
-                if(sel[i].marker) {
-                    sel[i].marker.remove();
-                }
-                sel[i].parentNode.removeChild(sel[i]);
-            }
-            break;
 
         case 'newoccurrence':
             addNewOccurrence();
@@ -1194,7 +1242,6 @@ function mapClick(ev) {
 
     if(opt && !opt.classList.contains('selected')) return;
 
-    document.querySelector('.leaflet-container').style.cursor = 'auto';
     acceptVisibleSearchbox();
     var ot = document.getElementById('addoccurrencetable')
     if(ot)
@@ -1205,6 +1252,7 @@ function mapClick(ev) {
 }
 
 function addNewInventory(ev) {
+    dimMainTable();
     var id = randomString(6);
     var inv = document.querySelector('.inventory.dummy').cloneNode(true);
     inv.classList.remove('dummy');
@@ -1238,6 +1286,11 @@ function addNewInventory(ev) {
     document.getElementById('addnewinventories').classList.remove('hidden');
     addEvent('click', inv.querySelector('.newtaxon'), addNewTaxon);
     doMouseClick(inv.querySelector('.newtaxon'));
+/*
+    // select last, just added, row
+    var lastRow = inv.querySelector('tr.id2holder:not(.dummy)');
+    lastRow.classList.add('selected');
+    lastRow.querySelector('.selectbutton').classList.add('selected');*/
 }
 
 function addNewOccurrence(ev) {

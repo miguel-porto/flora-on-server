@@ -88,6 +88,7 @@ public class Lists extends FloraOnServlet {
 			}
 			String rank = thisRequest.getParameterAsString("rank");	// the rank of which to get all nodes
 			String type = thisRequest.getParameterAsString("type");	// taxent or habitat
+			String territory1 = thisRequest.getParameterAsString("territory");	// taxent or habitat
 			if(id != null && rank != null) {
 				thisRequest.error("You must specify id OR rank, not both.");
 				return;
@@ -108,6 +109,8 @@ public class Lists extends FloraOnServlet {
 
 					if(rank != null)
 						ite = LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()));
+
+					if(territory1 != null) ite = LD.filterTaxEntByTerritory(ite, territory1);
 
 					thisRequest.request.setAttribute("taxents", ite);
 					thisRequest.request.getRequestDispatcher("/fragments/frag-taxentli.jsp").include(thisRequest.request,

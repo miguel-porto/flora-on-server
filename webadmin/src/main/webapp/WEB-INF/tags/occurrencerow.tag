@@ -5,6 +5,7 @@
 <%@ attribute name="fields" required="true" type="pt.floraon.occurrences.fields.flavours.IOccurrenceFlavour" %>
 <%@ attribute name="userMap" required="false" type="java.util.Map" %>
 <%@ attribute name="locked" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="isInventory" required="false" type="java.lang.Boolean" %>
 <%@ attribute name="symbol" required="false" %>
 <%@ attribute name="cssclass" required="false" %>
 <%@ attribute name="view" required="true" type="java.lang.String" %>
@@ -45,7 +46,7 @@
         <c:if test="${fields.containsCoordinates()}">
         <td class="selectcol ${newrecord} clickable">
         </c:if>
-            <input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/>
+            <c:if test="${!isInventory}"><input type="hidden" name="occurrenceUuid" value="${occ._getTaxa()[0].getUuid()}"/></c:if>
             <input type="hidden" name="inventoryId" value="${occ.getID()}"/>
             <div class="selectbutton"></div>
         </td>

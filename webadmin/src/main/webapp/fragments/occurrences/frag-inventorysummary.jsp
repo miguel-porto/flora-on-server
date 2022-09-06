@@ -5,27 +5,47 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
-<a href="${contextPath}"><img src="${contextPath}/images/home.png" style="width:1.5em; height:1.5em; vertical-align:middle; margin-left:6px;" alt="home"/></a>
-<div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-<div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
-<div class="button anchorbutton"><a href="?w=downloadinventorytable"><fmt:message key="button.12"/></a></div>
-<c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users inventories" defaultvalue="false"/></c:if>
+<div id="topbuttons">
+    <a class="homebutton" href="${contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a>
+    <div class="button anchorbutton hideincompactview"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
+    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
+    <t:isoptionselected optionname="advancedview" value="false"><div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div></t:isoptionselected>
+    <t:optionbutton optionname="advancedview" title="Advanced view" defaultvalue="false" persistent="true"/>
+    <div class="button anchorbutton hideincompactview"><a href="?w=downloadinventorytable"><fmt:message key="button.12"/></a></div>
+    <c:if test="${user.canMODIFY_OCCURRENCES()}"><t:optionbutton optionname="allusers" title="All users inventories" defaultvalue="false"/></c:if>
+    <div id="flavourlist" class="hideincompactview">
+        <div class="label"><fmt:message key="button.4a"/></div>
+        <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
+    </div>
 </div>  <!-- top buttons -->
-<div id="flavourlist">
-    <div class="label"><fmt:message key="button.4a"/></div>
-    <t:option-radiobutton optionprefix="flavour" optionnames="${flavourList}" defaultvalue="simple" style="light" classes="small"/>
-</div>
+<div class="inventory dummy id1holder geoelement">
 <t:inventorymodel fields="${flavourfields}"/>
+</div>
 
 <form id="addnewinventories" class="poster hidden" data-path="occurrences/api/addoccurrences" data-refresh="true">
     <div class="heading2">
         <h2><fmt:message key="inventory.add"/></h2>
         <label><input type="checkbox" name="mainobserver" checked="checked"/> <fmt:message key="options.1"/><div class="legend"><fmt:message key="options.1.desc"/></div></label>
         <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
-        <div class="button" id="deleteselectednew">Delete selected</div>
         <input type="submit" class="textbutton" value="Save"/>
+        <div class="button" id="deleteselectednew">Delete selected</div>
+        <div class="button" id="cancelnew"><fmt:message key="occurrences.cancel"/></div>
     </div>
 </form>
+
+<div id="deleteoccurrences" class="hidden">
+    <form class="poster" data-path="occurrences/api/deleteoccurrences" data-refresh="true" data-confirm="true">
+        <div class="heading2">
+            <h2><fmt:message key="occurrences.5" /></h2>
+            <input type="submit" class="textbutton" value="Delete"/>
+            <div class="button" id="canceldelete"><fmt:message key="occurrences.cancel"/></div>
+        </div>
+        <table id="deleteoccurrencetable" class="verysmalltext sortable">
+            <thead><tr><t:occurrenceheader fields="${summaryfields}" view="inventorySummary" noSortButton="true"/></tr></thead>
+            <tbody></tbody>
+        </table>
+    </form>
+</div>
 
 <div id="updateoccurrences" class="hidden">
     <form class="poster" data-path="occurrences/api/updateoccurrences" data-refresh="true">
@@ -36,16 +56,15 @@
             <div class="button" id="cancelupdate"><fmt:message key="occurrences.cancel"/></div>
         </div>
         <table id="updateoccurrencetable" class="verysmalltext sortable occurrencetable">
-            <thead><tr>
-                <t:occurrenceheader fields="${summaryfields}" view="inventorySummary" noSortButton="true"/>
-            </tr></thead>
+            <thead><tr><t:occurrenceheader fields="${summaryfields}" view="inventorySummary" noSortButton="true"/></tr></thead>
             <tbody></tbody>
         </table>
     </form>
 </div>
-<div class="heading2">
-    <h2>${sessionScope['option-allusers'] ? 'All inventories' : (sessionScope['option-viewAsObserver'] ? "Inventories where you're listed as observer"  : 'Your inventories')} - ${nrtotaloccurrences}
+<div class="heading2" id="maintableheader">
+    <h2 class="hideincompactview">${sessionScope['option-allusers'] ? 'All inventories' : (sessionScope['option-viewAsObserver'] ? "Inventories where you're listed as observer"  : 'Your inventories')} - ${nrtotaloccurrences}
     <c:if test="${(filter != null && filter != '') || baseFilter != null}"> [filtered <t:ajaxloadhtml url="${contextPath}/occurrences/api/countNumberFilteredOccurrences?w=inventories" classes="inlineblock"/>]
+        <t:isoptionselected optionname="advancedview">
             <c:if test="${baseFilter == null}">
             <form class="poster" style="display:inline-flex; vertical-align:middle" data-path="occurrences/api/saveFilter" data-refresh="true">
                 <input type="hidden" name="filter" value="${filter}" />
@@ -59,52 +78,18 @@
                 <input type="submit" class="button singleline" value="<fmt:message key='occurrences.1j'/>" />
             </form>
             </c:if>
+        </t:isoptionselected>
     </c:if>
     </h2>
     <%--<t:isoptionselected optionname="allusers" value="false"><div class="button anchorbutton"><a href="?w=openinventory">Expand all inventories</a></div></t:isoptionselected>--%>
     <div class="button icon" id="addemptyinventory"><img src="${contextPath}/images/add.png"/><span>Novo</span></div>
     <div class="button icon" id="updatemodified"><img src="${contextPath}/images/ic_menu_save.png"/><span><fmt:message key="inventory.upd"/></span></div>
+    <div class="button icon" id="deleteselected"><img src="${contextPath}/images/delete.png"/><span><fmt:message key="occurrences.1b"/></span></div>
     <t:isoptionselected optionname="allusers" value="false"><t:optionbutton optionname="viewAsObserver" title="As observer" defaultvalue="false" /></t:isoptionselected>
-    <div id="occurrencefilter">
-        <form method="get" action="occurrences" class="inlineblock">
-            <input type="hidden" name="w" value="${param.w}" />
-            <input type="hidden" name="p" value="1" />
-            <%-- <input type="text" name="filter" style="width:300px" placeholder="<fmt:message key="occurrences.1e"/>" value="${filter}"/> --%>
-            <textarea id="filter-textarea" rows="2" name="filter" style="width:400px" placeholder="<fmt:message key="occurrences.1e"/>">${filter}</textarea>
-            <t:helpbutton msgid="filterhelp"><t:filterhelp /></t:helpbutton>
-            <input type="submit" class="button" value="Filter" />
-        </form>
-        <c:url value="" var="url1">
-            <c:param name="w" value="${param.w}" />
-            <c:param name="p" value="1" />
-            <c:param name="filter" value="${filter} date:na" />
-        </c:url>
-        <div class="button anchorbutton"><a href="${url1}"><fmt:message key="occurrences.1f"/></a></div>
-        <c:url value="" var="url2">
-            <c:param name="w" value="${param.w}" />
-            <c:param name="p" value="1" />
-            <c:param name="filter" value="${filter} detected:1" />
-        </c:url>
-        <div class="button anchorbutton"><a href="${url2}"><fmt:message key="occurrences.1g"/></a></div>
-        <c:url value="" var="url3">
-            <c:param name="w" value="${param.w}" />
-            <c:param name="p" value="1" />
-            <c:param name="filter" value="lvtag:lista alvo" />
-        </c:url>
-        <div class="button anchorbutton"><a href="${url3}">Lista Alvo</a></div>
-        <c:if test="${filter != null && filter != ''}">
-        <c:url value="" var="url4">
-            <c:param name="w" value="${param.w}" />
-            <c:param name="p" value="1" />
-            <c:param name="filter" value="" />
-        </c:url>
-        <div class="button anchorbutton"><a href="${url4}"><fmt:message key="occurrences.1h"/></a></div>
-        </c:if>
-        <t:option-radiobutton optionprefix="baseFilter" optionnames="${savedFilters}" allowdeselect="true"/>
-    </div>
+    <jsp:include page="frag-filterpanel.jsp"></jsp:include>
     <t:pager />
 </div>
-<%-- <div class="newfeature">NOVO! Esta tabela agora é directamente editável!</div> --%>
+<t:isoptionselected optionname="advancedview" value="false"><div class="newfeature info">Para editar as espécies individualmente, pode usar a <a href="?w=occurrenceview">vista de ocorrências</a> ou abrir o inventário desejado.</div></t:isoptionselected>
 <div id="alloccurrences">
     <table id="alloccurrencetable" class="occurrencetable verysmalltext inventorysummary">
         <thead><tr>
@@ -112,7 +97,7 @@
         </tr></thead>
         <tbody>
         <c:forEach var="inv" items="${inventories}">
-            <t:occurrencerow fields="${summaryfields}" occ="${inv}" userMap="${userMap}" view="inventorySummary" locked="${(inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()) || inv.getReadOnly()}" />
+            <t:occurrencerow fields="${summaryfields}" occ="${inv}" isInventory="true" userMap="${userMap}" view="inventorySummary" locked="${(inv.getMaintainer() != user.getID() && !user.canMODIFY_OCCURRENCES()) || inv.getReadOnly()}" />
         </c:forEach>
         </tbody>
     </table>

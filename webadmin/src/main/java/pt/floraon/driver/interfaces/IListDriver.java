@@ -192,6 +192,8 @@ public interface IListDriver {
 	 */
 	Iterator<TaxEnt> getChildrenTaxEnt(INodeKey parentId) throws FloraOnException;
 
+	Iterator<TaxEnt> filterTaxEntByTerritory(Iterator<TaxEnt> taxEntIterator, String territory);
+
 	Iterator<Habitat> getChildrenHabitats(INodeKey parentId) throws DatabaseException;
 
 	Iterator<Habitat> getHabitatsOfLevel(int level) throws DatabaseException;

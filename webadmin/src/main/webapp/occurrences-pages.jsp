@@ -24,12 +24,11 @@
         </form>
     </div>
 </div>
-<div id="topbuttons" class="hideincompactview">
-<!--<h1> ${user.getFullName()}</h1>-->
 <c:choose>
 <c:when test="${param.w == 'uploads'}">
-    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
+    <div id="topbuttons">
+        <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
+        <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
     </div>  <!-- top buttons -->
     <h1>Uploads</h1>
     <h2>Upload new table</h2>
@@ -213,9 +212,10 @@
 </c:when>
 
 <c:when test="${param.w == 'fixissues'}">
-    <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
-    <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
-    <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
+    <div id="topbuttons">
+        <div class="button anchorbutton"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
+        <div class="button anchorbutton"><a href="?w=main&p=1"><fmt:message key="button.2"/></a></div>
+        <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
     </div>  <!-- top buttons -->
     <h1><fmt:message key="occurrences.3"/></h1>
     <c:if test="${nomatchquestions.size() == 0 && matchwarnings.size() == 0 && nomatches.size() == 0 && parseerrors.size() == 0}">
@@ -250,7 +250,7 @@
 <c:when test="${param.w == 'occurrenceview'}">
     <jsp:include page="fragments/occurrences/frag-occurrenceview.jsp"></jsp:include>
 </c:when>
-<c:when test="${param.w == null || param.w == 'main'}">
+<c:when test="${param.w == 'main'}">
     <jsp:include page="fragments/occurrences/frag-inventorysummary.jsp"></jsp:include>
 </c:when>
 <c:when test="${param.w == 'openinventory'}">

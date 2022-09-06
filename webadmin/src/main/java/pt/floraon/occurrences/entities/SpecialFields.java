@@ -22,7 +22,7 @@ public class SpecialFields {
     @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
     @DatabaseFields({"year", "month", "day", "hour", "minute"})
     @PrettyName(value = "Data de observação", shortName = "Data", important = true)
-//    @EditWidget(value = EditWidget.Type.DATE, widgetAdvanced = EditWidget.Type.TEXT) This is not used for this special field
+    @EditWidget(value = EditWidget.Type.DATE, widgetAdvanced = EditWidget.Type.TEXT)
     private String date;
     @FieldStyle(FieldStyle.Size.SMALL)
     @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @ReadOnly

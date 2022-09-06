@@ -900,6 +900,15 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
                     suffix.append("?");
                 if (tmp[i].getNaturalization() != null && tmp[i].getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
                     suffix.append("*");
+                if(tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER
+                        || tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER_FRUIT
+                        || tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER_DISPERSION)
+                    suffix.append("❀");
+/*
+                if(tmp[i].getPhenoState() == Constants.PhenologicalStates.DISPERSION
+                        || tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER_DISPERSION)
+                    suffix.append("\uD83C\uDF4F");
+*/
             }
             if(tmp[i].getTaxEnt() == null) {
                 if(tmp[i].getVerbTaxon() == null || tmp[i].getVerbTaxon().equals(""))

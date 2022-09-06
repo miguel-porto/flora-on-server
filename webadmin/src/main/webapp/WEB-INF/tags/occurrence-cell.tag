@@ -50,10 +50,10 @@
         <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${coordchanged} coordinates" data-name="observationCoordinates" data-lat="${inventory._getLatitude()}" data-lng="${inventory._getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getCoordinates()}</td>
     </c:if>
     <c:if test="${view == 'inventorySummary'}">
-        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory._getInventoryLatitude()}" data-lng="${inventory._getInventoryLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td>
+        <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory._getInventoryLatitude()}" data-lng="${inventory._getInventoryLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}</td>
     </c:if>
 </c:when>
-<c:when test="${field == 'inventoryCoordinates' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory.getLatitude()}" data-lng="${inventory.getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}<c:if test="${inventory._hasMultipleCoordinates()}"><span class="info"><br/>multiple coords</span></c:if></td></c:when>
+<c:when test="${field == 'inventoryCoordinates' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory.getLatitude()}" data-lng="${inventory.getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}</td></c:when>
 <%--<c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>--%>
 <c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">
 <c:if test="${inventory == null}">
@@ -114,8 +114,8 @@
             <c:set var="val" value="${taxon == null ? '' : fields.getFieldValueRaw(taxon, inventory, field)}"/>
             <select name="${field}">
                 <c:set var="found" value="${false}" />
-                <c:if test="${val == '' || val == null}"><c:set var="found" value="${true}" /><option selected value=""></option></c:if>
-                <c:if test="${val != '' && val != null}"><option value=""></option></c:if>
+                <c:if test="${val == '' || val == null || val == 'NULL'}"><c:set var="found" value="${true}" /><option selected value=""></option></c:if>
+                <c:if test="${val != '' && val != null && val != 'NULL'}"><option value=""></option></c:if>
                 <c:forEach var="option" items="${fields.getFieldValues(field, advancedview)}" varStatus="loop">
                     <c:set var="label" value="${fields.getFieldLabels(field, advancedview)[loop.index]}"/>
                     <c:if test="${val == option}"><c:set var="found" value="${true}" /><option selected value="${option}">${label}</option></c:if>
@@ -130,8 +130,8 @@
             <c:set var="randid" value="${rand.randomString(8)}"/>
             <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
             <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
-            <c:if test="${val == '' || val == null}"><label><input type="radio" name="${randid}" value="" checked/></label></c:if>
-            <c:if test="${val != '' && val != null}"><label><input type="radio" name="${randid}" value=""/></label></c:if>
+            <c:if test="${val == '' || val == null || val == 'NULL'}"><label><input type="radio" name="${randid}" value="" checked/></label></c:if>
+            <c:if test="${val != '' && val != null && val != 'NULL'}"><label><input type="radio" name="${randid}" value=""/></label></c:if>
             <c:forEach var="option" items="${fields.getFieldValues(field, advancedview)}" varStatus="loop">
                 <c:set var="label" value="${fields.getFieldLabels(field, advancedview)[loop.index]}"/>
                 <c:if test="${val == option}"><label class="no-space-break"><input type="radio" name="${randid}" value="${option}" checked/>${label}</label></c:if>

@@ -40,6 +40,12 @@ public final class Common {
             "comment", "privateComment", "inventoryComment", "year", "month", "day", "dateInserted", "uuid", "accession",
             "credits", "maintainer", "maintainerName", "redListCategory", "URL", "endemicTo", "nativeStatusLu");
 
+    public static final List<String> simplifiedOutputFields = Arrays.asList(
+            "family", "taxonFull", "taxa", "confidence", "phenoState", "naturalization", "date", "observers",
+            "latitude", "longitude", "precision", "mgrs", "habitat",
+            "comment", "privateComment", "inventoryComment", "dateInserted",
+            "redListCategory", "endemicTo", "nativeStatusLu");
+
     public static InventoryList readInventoryListFromFile(String fileName) throws IOException, ClassNotFoundException {
         ObjectInputStream oist;
         InventoryList invList;
@@ -173,9 +179,11 @@ public final class Common {
         Map<String, InferredStatus> inferredStatusMap = new HashMap<>();
         Map<String, String[]> endemismDegreeMap = new HashMap<>();
         Map<String, TaxEnt[]> higherTaxonomyMap = new HashMap<>();
+        Map<String, RedListDataEntity> redListDataEntityMap = new HashMap<>();
         InferredStatus inferredStatus = null;
         String[] endemismDegree = null;
         TaxEnt[] higherTaxonomy = null;
+        RedListDataEntity rlde = null;
 
         if(fieldsToOutput == null)
             fieldsToOutput = allOutputFields;
@@ -206,37 +214,69 @@ public final class Common {
                     if(tmp != null)
                         acceptedTaxa.put(i2.getOccurrence().getTaxEntMatch(), tmp);
                 }
-                if(inferredStatusMap.containsKey(taxEntId)) {
+
+                if(inferredStatusMap.containsKey(taxEntId))
                     inferredStatus = inferredStatusMap.get(taxEntId);
-                    endemismDegree = endemismDegreeMap.get(taxEntId);
-                    higherTaxonomy = higherTaxonomyMap.get(taxEntId);
-                } else {
+                else {
                     try {
                         tew = driver.wrapTaxEnt(driver.asNodeKey(taxEntId));
                         if(fieldsToOutput.contains("nativeStatusLu")) {
-                            inferredStatus = tew.getInferredNativeStatus("lu");   // TODO user config
+                            inferredStatus = tew.getInferredNativeStatus(driver.getDefaultRedListTerritory());
                             inferredStatusMap.put(taxEntId, inferredStatus);
                         }
+                    } catch (FloraOnException e) {
+                        inferredStatus = null;
+                    }
+                }
+
+                if(endemismDegreeMap.containsKey(taxEntId))
+                    endemismDegree = endemismDegreeMap.get(taxEntId);
+                else {
+                    try {
+                        tew = driver.wrapTaxEnt(driver.asNodeKey(taxEntId));
                         if(fieldsToOutput.contains("endemicTo")) {
                             endemismDegree = tew.getEndemismDegree();
                             endemismDegreeMap.put(taxEntId, endemismDegree);
                         }
-                        if(fieldsToOutput.contains("higherTaxonomy")) {
+                    } catch (FloraOnException e) {
+                        endemismDegree = null;
+                    }
+                }
+
+                if(higherTaxonomyMap.containsKey(taxEntId))
+                    higherTaxonomy = higherTaxonomyMap.get(taxEntId);
+                else {
+                    try {
+                        if(fieldsToOutput.contains("higherTaxonomy") || fieldsToOutput.contains("family")
+                                || fieldsToOutput.contains("order") || fieldsToOutput.contains("class")
+                                || fieldsToOutput.contains("subclass") || fieldsToOutput.contains("superorder")) {
                             higherTaxonomy = driver.getQueryDriver().getHigherTaxonomy(new String[]{taxEntId}).next();
                             higherTaxonomyMap.put(taxEntId, higherTaxonomy);
                         }
                     } catch (FloraOnException e) {
-                        inferredStatus = null;
-                        endemismDegree = null;
                         higherTaxonomy = null;
+                    }
+                }
+                if(redListDataEntityMap.containsKey(taxEntId))
+                    rlde = redListDataEntityMap.get(taxEntId);
+                else {
+                    try {
+                        if(fieldsToOutput.contains("redListCategory")) {
+                            rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(taxEntId));
+                            redListDataEntityMap.put(taxEntId, rlde);
+                        }
+                    } catch (FloraOnException e) {
+                        rlde = null;
                     }
                 }
             } else {
                 inferredStatus = null;
                 endemismDegree = null;
                 higherTaxonomy = null;
+                rlde = null;
             }
-            exportOccurrenceToCSV(i2, csv, fieldsToOutput, tmp, userMap, null, inferredStatus, endemismDegree, higherTaxonomy);
+
+            exportOccurrenceToCSV(i2, csv, fieldsToOutput, tmp, userMap, rlde, inferredStatus, endemismDegree, higherTaxonomy);
         }
         csv.close();
     }
