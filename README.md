@@ -1,5 +1,8 @@
 # Flora-On server
 Database server to manage and query biodiversity databases, including modules for managing taxonomy, checklists, species traits, habitats and species occurrences.
+
+[Check out the Wiki](https://github.com/miguel-porto/flora-on-server/wiki#flora-on--red-list-management-software)
+
 The main highlight is the graph-based approach to taxonomy, traits, habitats and territories, which is backed by the power of [ArangoDB](http://www.arangodb.com/) and which confers it great advantages over classic relational databases.
 
 * [The new taxonomic concept in Flora-On](#the-new-taxonomic-concept-in-flora-on)
