@@ -27,8 +27,8 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
-    public String getFieldName(String field) {
-        return FieldReflection.getFieldName(field);
+    public String getFieldName(String field, boolean advanced) {
+        return FieldReflection.getFieldName(field, advanced);
     }
 
     @Override
@@ -42,8 +42,8 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
-    public String getFieldShortName(String field) {
-        return FieldReflection.getFieldShortName(field);
+    public String getFieldShortName(String field, boolean advanced) {
+        return FieldReflection.getFieldShortName(field, advanced);
     }
 
     @Override

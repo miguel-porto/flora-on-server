@@ -15,7 +15,9 @@ public interface IOccurrenceFlavour {
      * @return The flavour name
      */
     String getName();
-    String getFieldName(String field);
+
+    String getFieldName(String field, boolean advanced);
+
     boolean containsCoordinates();
 
     /**
@@ -36,7 +38,7 @@ public interface IOccurrenceFlavour {
      */
     Object getFieldValueRaw(OBSERVED_IN occurrence, Inventory inventory, String field);
 
-    String getFieldShortName(String field);
+    String getFieldShortName(String field, boolean advanced);
 
     boolean hideFieldInCompactView(String field);
 

@@ -56,21 +56,7 @@
 <c:when test="${field == 'inventoryCoordinates' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${coordchanged} coordinates" data-name="inventoryCoordinates" data-lat="${inventory.getLatitude()}" data-lng="${inventory.getLongitude()}" data-symbol="${symbol}">${taxon == null ? '' : inventory._getInventoryCoordinates()}</td></c:when>
 <%--<c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">${inventory == null ? '' : inventory._getDate()}</td></c:when>--%>
 <c:when test="${field == 'date' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="date" sorttable_customkey="${inventory._getDateYMD()}">
-<c:if test="${inventory == null}">
-    <c:if test="${!advancedview}"><fmt:formatDate var="today" value="${now}" pattern="yyyy-MM-dd" /><input type="date" value="${today}"/></c:if>
-    <c:if test="${advancedview}"><fmt:formatDate var="today" value="${now}" pattern="dd-MM-yyyy" />${today}</c:if>
-</c:if>
-<c:if test="${inventory != null}">
-    <c:if test="${advancedview}">${inventory._getDate()}</c:if>
-    <c:if test="${!advancedview}">
-        <c:if test="${inventory._isDateOnly()}"><input type="date" value="${inventory._getDateYMDForHtml()}"/></c:if>
-        <c:if test="${!inventory._isDateOnly()}">
-            <c:if test="${inventory._isDateEmpty()}"><input type="date" /></c:if>
-            <c:if test="${!inventory._isDateEmpty()}">${inventory._getDate()}</c:if>
-        </c:if>
-    </c:if>
-</c:if>
-</td></c:when>
+<c:if test="${inventory == null}"><c:if test="${!advancedview}"><fmt:formatDate var="today" value="${now}" pattern="yyyy-MM-dd" /><input type="date" value="${today}"/></c:if><c:if test="${advancedview}"><fmt:formatDate var="today" value="${now}" pattern="dd-MM-yyyy" />${today}</c:if></c:if><c:if test="${inventory != null}"><c:if test="${advancedview}">${inventory._getDate()}</c:if><c:if test="${!advancedview}"><c:if test="${inventory._isDateOnly()}"><input type="date" value="${inventory._getDateYMDForHtml()}"/></c:if><c:if test="${!inventory._isDateOnly()}"><c:if test="${inventory._isDateEmpty()}"><input type="date" /></c:if><c:if test="${!inventory._isDateEmpty()}">${inventory._getDate()}</c:if></c:if></c:if></c:if></td></c:when>
 <c:when test="${field == 'time' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="time">${inventory == null ? '' : inventory._getTime()}</td></c:when>
 <c:when test="${field == 'tags' && view != 'inventory'}"><td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="tags"><t:usernames idarray="${inventory == null ? null : inventory.getTags()}" showAsTags="true"/></td></c:when>
 <c:when test="${field == 'verbLocality' && view != 'inventory'}"><td class="${collapsedClass} ${multiline} ${monospace} ${breakLines}" data-name="verbLocality">${inventory == null ? '' : inventory.getVerbLocality()}</td></c:when>
@@ -137,6 +123,15 @@
                 <c:if test="${val == option}"><label class="no-space-break"><input type="radio" name="${randid}" value="${option}" checked/>${label}</label></c:if>
                 <c:if test="${val != option}"><label class="no-space-break"><input type="radio" name="${randid}" value="${option}"/>${label}</label></c:if>
             </c:forEach>
+            </td>
+            </c:when>
+
+            <c:when test="${fields.getFieldWidget(field, advancedview) == 'CHECKBOX'}">
+            <c:set var="randid" value="${rand.randomString(8)}"/>
+            <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
+            <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
+            <c:if test="${val == '' || val == null || val == 'NULL'}"><label><input type="checkbox" name="${randid}" value="${fields.getFieldValues(field, advancedview)[0]}"/>${fields.getFieldLabels(field, advancedview)[0]}</label></c:if>
+            <c:if test="${val != '' && val != null && val != 'NULL'}"><label><input type="checkbox" name="${randid}" value="${fields.getFieldValues(field, advancedview)[0]}" checked/>${fields.getFieldLabels(field, advancedview)[0]}</label></c:if>
             </td>
             </c:when>
             </c:choose>

@@ -46,14 +46,14 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
             valuesAdvanced = {"WILD", "CULTIVATED", "ESCAPED", "REINTRODUCTION", "TRANSLOCATION"},
             labelsAdvanced = {"Silvestre", "Cultivado", "Escapado", "Reintrodução", "Translocação"})
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
-    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldStyle(value = FieldStyle.Size.SMALL, breakLines = false)
     @HideInCompactView @FieldParser(EnumParser.class)
-    @EditWidget(value = EditWidget.Type.DROPDOWN,
-            valuesSimple = {"CERTAIN", "DOUBTFUL"},
-            labelsSimple = {"ID certa", "ID duvidosa"},
+    @EditWidget(value = EditWidget.Type.CHECKBOX, widgetAdvanced = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"DOUBTFUL"},
+            labelsSimple = {" "},
             valuesAdvanced = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
             labelsAdvanced = {"ID certa", "ID provável", "ID duvidosa"})
-    @PrettyName(value = "Confiança ID", shortName = "Conf", important = true)
+    @PrettyName(value = "Dúvida", shortName = "Duv?", important = true, nameAdvanced = "Confiança ID", shortNameAdvanced = "Conf")
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nome original", shortName = "Verb tax")

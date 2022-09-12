@@ -21,7 +21,7 @@
 <c:forEach var="field" items="${fields.getFields()}">
 <c:if test="${fields.isInventoryField(field) && field != 'taxa'}">
 <c:set var="cellClass" value="${fields.getFieldWidget(field, advancedview) == 'CHECKBOX' || fields.getFieldWidget(field, advancedview) == 'DROPDOWN' || fields.getFieldWidget(field, advancedview) == 'RADIO' || fields.getFieldWidget(field, advancedview) == 'DATE' ? ' widget' : ''}"/>
-<table class="${cellClass} fieldsize_${fields.getFieldSize(field)}"><tr><th class="fieldsize_${fields.getFieldSize(field)}">${fields.getFieldName(field)}</th></tr><tr><t:occurrence-cell field="${field}" view="inventorySummary" fields="${fields}" locked="${!showSave}" inventory="${inv}"/></tr></table>
+<table class="${cellClass} fieldsize_${fields.getFieldSize(field)}"><tr><th class="fieldsize_${fields.getFieldSize(field)}">${fields.getFieldName(field, advancedview)}</th></tr><tr><t:occurrence-cell field="${field}" view="inventorySummary" fields="${fields}" locked="${!showSave}" inventory="${inv}"/></tr></table>
 </c:if>
 </c:forEach>
 </div>

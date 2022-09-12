@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    var ot = document.querySelectorAll('.occurrencetable td.editable select, .occurrencetable td.editable input[type=radio], .occurrencetable td.editable input[type=date]');
+    var ot = document.querySelectorAll('.occurrencetable td.editable select, .occurrencetable td.editable input[type=radio], .occurrencetable td.editable input[type=date], .occurrencetable td.editable input[type=checkbox]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 
@@ -482,6 +482,7 @@ function onConfirmEdit(ev, name, key, parent, dry, nocontent, nopropagation) {
     var selectEl = parent.querySelector('select');
     if(!selectEl) selectEl = parent.querySelector('input[type=radio]');
     if(!selectEl) selectEl = parent.querySelector('input[type=date]');
+    if(!selectEl) selectEl = parent.querySelector('input[type=checkbox]');
 
     var nocontentForNext = null;
     if(selectEl) {
@@ -848,19 +849,25 @@ function addNewTaxon(ev) {
     inv.querySelector('.newoccurrencetable tbody').appendChild(newRow);
 
     // attach widgets' change handlers
-    var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date]');
+    var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date], td.editable input[type=checkbox]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 }
 
 function cellWidgetChanged(ev) {
     var cell = getParentbyTag(ev.target, 'td');
-    if(cell) onConfirmEdit({}, ev.target.value, null, cell, true, true, false);
+    var value;
+    if(ev.target && ev.target.type == 'checkbox') {
+        if(ev.target.checked)
+            value = ev.target.value;
+        else value = '';
+    } else value = ev.target.value;
+    if(cell) onConfirmEdit({}, value, null, cell, true, true, false);
 }
 
 function clickOccurrenceTable(ev) {
     var cell = getParentbyClass(ev.target, 'editable') || getParentbyClass(ev.target, 'clickable');
-    if(!cell || !cell.classList || cell.querySelector('select') || cell.querySelector('input[type=radio]') || cell.querySelector('input[type=date]')) return;
+    if(!cell || !cell.classList || cell.querySelector('select, input[type=radio], input[type=date], input[type=checkbox]')) return;
     if(cell.classList.contains('taxon')) { // clicked taxon cell
         if(cell.querySelector('#taxonsearchwrapper')) return;
 //        selectGeoElement(cell, true, true);
@@ -1279,7 +1286,7 @@ function addNewInventory(ev) {
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
 
-    var ot = inv.querySelectorAll('.occurrencetable td.editable select, .occurrencetable td.editable input[type=radio]');
+    var ot = inv.querySelectorAll('.occurrencetable td.editable select, .occurrencetable td.editable input[type=radio], .occurrencetable td.editable input[type=date], .occurrencetable td.editable input[type=checkbox]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 
@@ -1326,7 +1333,7 @@ function addNewOccurrence(ev) {
     tab.appendChild(newRow);
 
     // attach widgets' change handlers
-    var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date]');
+    var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date], td.editable input[type=checkbox]');
     for(var i=0; i<ot.length; i++)
         addEvent('change', ot[i], cellWidgetChanged);
 

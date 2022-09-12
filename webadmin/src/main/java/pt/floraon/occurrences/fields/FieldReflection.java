@@ -267,19 +267,34 @@ public final class FieldReflection {
 */
     }
 
-    static public String getFieldShortName(String field) {
+    static public String getFieldShortName(String field, boolean advanced) {
         Field f = findField(field);
         if(f == null) return "??" + field + "??";
         PrettyName obsField = f.getAnnotation(PrettyName.class);
-        return (obsField == null || StringUtils.isStringEmpty(obsField.value())) ? field : obsField.shortName();
+        if(obsField == null) return field;
+
+        String ret;
+        if(advanced)
+            ret = obsField.shortNameAdvanced().equals("") ? obsField.shortName() : obsField.shortNameAdvanced();
+        else
+            ret = obsField.shortName();
+
+        return StringUtils.isStringEmpty(ret) ? getFieldName(field, advanced) : ret;
     }
 
-    static public String getFieldName(String field) {
+    static public String getFieldName(String field, boolean advanced) {
         Field f = findField(field);
         if(f == null) return "??" + field + "??";
 
         PrettyName obsField = f.getAnnotation(PrettyName.class);
-        return (obsField == null || StringUtils.isStringEmpty(obsField.value())) ? field : obsField.value();
+        if(obsField == null) return field;
+        String ret;
+        if(advanced)
+            ret = obsField.nameAdvanced().equals("") ? obsField.value() : obsField.nameAdvanced();
+        else
+            ret = obsField.value();
+
+        return StringUtils.isStringEmpty(ret) ? field : ret;
     }
 
     static public String[] getFieldValues(String field, boolean advanced) {
@@ -308,13 +323,6 @@ public final class FieldReflection {
         if(!f.isAnnotationPresent(EditWidget.class)) return EditWidget.Type.TEXT;
         EditWidget a = f.getAnnotation(EditWidget.class);
         return advanced ? (a.widgetAdvanced() == EditWidget.Type.NULL ? a.value() : a.widgetAdvanced()) : a.value();
-    }
-
-    static public EditWidget.Type getFieldWidgetAdvanced(String field) {
-        Field f = findField(field);
-        if(f == null) return null;
-        if(!f.isAnnotationPresent(EditWidget.class)) return EditWidget.Type.TEXT;
-        return f.getAnnotation(EditWidget.class).value();
     }
 
     static public boolean isMonospaceFont(String field) {

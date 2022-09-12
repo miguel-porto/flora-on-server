@@ -12,5 +12,7 @@ public @interface PrettyName {
     String shortName();
     String[] alias() default {};
     String description() default "[no description]";
+    String nameAdvanced() default "";
+    String shortNameAdvanced() default "";
     boolean important() default false;
 }

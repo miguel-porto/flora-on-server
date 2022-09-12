@@ -271,7 +271,7 @@ td.selectcol {background-color: transparent !important; padding:0 !important; te
 .inventory.geoelement.selected {background-color: #ffffbf !important;}
 .inventory .editable {background-color:#bbdefb}
 .inventory form:not(.id1holder) {float:left}
-.inventory .occurrencetable th {background-color: transparent}
+.inventory .occurrencetable th {background-color: transparent; font-size:0.9rem;}
 .inventory table td {background-color: transparent}
 .inventory table tr:hover td:not(.title) {background-color:transparent;}
 .inventory table tr:hover:not(.selected) .editable {background-color:#e3f2fd !important;}
