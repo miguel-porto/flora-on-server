@@ -22,6 +22,7 @@ import pt.floraon.occurrences.dataproviders.iNaturalistImporterJob;
 import pt.floraon.redlistdata.dataproviders.SimpleOccurrenceDataProvider;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
+import pt.floraon.taxonomy.entities.Territory;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -171,8 +172,14 @@ public class OccurrencesMainPage extends FloraOnServlet {
         taxonomicRanks.put("genus", "Genus");
         request.setAttribute("taxonomicRanks", taxonomicRanks);
 
+        Map<String, String> territories = new HashMap<>();
+        for(Territory t : driver.getChecklistTerritories())
+            if(t.getShowInChecklist()) territories.put(t.getShortName(), t.getShortName());
+        request.setAttribute("checklistTerritories", territories);
+        request.setAttribute("defaultTerritory", driver.getDefaultRedListTerritory());
+
         String what = thisRequest.getParameterAsString("w");
-        if(what == null) what = "main";
+        if(StringUtils.isStringEmpty(what)) what = thisRequest.isOptionTrue("advancedview") ? "occurrenceview" : "main";
 
         switch(what) {
             case "main":    // this is the inventory summary view
@@ -210,7 +217,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
 
                 // Flavours
                 // the flavour for new inventories
-                request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventory"));
+                request.setAttribute("flavourfields", OccurrenceConstants.occurrenceManagerFlavours.get(thisRequest.isOptionTrue("advancedview") ? "inventory" : "simple"));
                 // the flavour for the inventory summary
 //                request.setAttribute("summaryfields", OccurrenceConstants.occurrenceManagerFlavours.get("inventorySummary"));
 
@@ -219,7 +226,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                 request.setAttribute("flavourList", user.getEffectiveOccurrenceFlavourNames(flv2));
                 String flavour2 = (String) thisRequest.getOption("flavour");
                 if(!flv2.containsKey(flavour2))
-                    thisRequest.setOption("flavour", flavour2 = "inventory");
+                    thisRequest.setOption("flavour", flavour2 = thisRequest.isOptionTrue("advancedview") ? "inventory" : "simple");
 
                 request.setAttribute("summaryfields", flv2.get(flavour2));
                 break;
@@ -404,7 +411,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
             case "setoption":
 //                System.out.println("SET " + "option-" + thisRequest.getParameterAsString("n")+ " to "+thisRequest.getParameterAsBooleanNoNull("v"));
                 String optionName = thisRequest.getParameterAsString("n");
-                boolean persistent = thisRequest.getParameterAsBoolean("p", false);
+                boolean persistent = thisRequest.getParameterAsBoolean("persistent", false);
                 Serializable value;
                 switch(thisRequest.getParameterAsString("t", "boolean")) {
                     case "boolean":
@@ -495,7 +502,7 @@ public class OccurrencesMainPage extends FloraOnServlet {
                         Common.exportTaxonListToCSV(speciesList.entrySet().iterator(), thisRequest.response.getWriter(), driver);
                         break;
                     case "downloadoccurrencetable":
-                        Common.exportOccurrencesToCSV((Iterator<Occurrence>) it1, thisRequest.response.getWriter(), Common.allOutputFields, driver);
+                        Common.exportOccurrencesToCSV((Iterator<Occurrence>) it1, thisRequest.response.getWriter(), thisRequest.isOptionTrue("advancedview") ? Common.allOutputFields : Common.simplifiedOutputFields, driver);
                         break;
                     case "downloadinventorytable":
                         Common.exportInventoriesToCSV((Iterator<Inventory>) it1, thisRequest.response.getWriter(), driver);

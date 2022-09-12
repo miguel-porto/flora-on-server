@@ -5,6 +5,8 @@
 <%@ attribute name="view" required="true" type="java.lang.String" %>
 <%@ attribute name="noSortButton" required="false" type="java.lang.Boolean" %>
 
+<t:isoptionselected optionname="advancedview"><c:set var="advancedview" value="${true}" /></t:isoptionselected>
+<t:isoptionselected optionname="advancedview" value="false"><c:set var="advancedview" value="${false}" /></t:isoptionselected>
 <jsp:useBean id="collapseField" class="java.util.HashMap"/>
 <c:forEach var="flf" items="${fields.getFields()}">
     <t:isoptionselected optionname="collapse-${flf}" value="true"><c:set target="${collapseField}" property="${flf}" value="collapsed"/></t:isoptionselected>
@@ -33,7 +35,7 @@
 </c:url>
 <c:set var="sortedCol" value="${view != 'inventory' && !noSortButton && (occurrenceOrder == field || occurrenceOrder == field.concat('_d')) ? 'sorted' : ''}"/>
 <th class="fieldsize_${fields.getFieldSize(field)} ${sortedCol} ${collapsed} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''} ${fields.isInventoryField(field) ? 'inventoryfield' : 'occurrencefield'}"
-    title="${fields.getFieldName(field)}" data-field="${field}">
+    title="${fields.getFieldName(field, advancedview)}" data-field="${field}">
     <t:optionbutton optionname="collapse-${field}" title="ex" style="content" classes="expandbutton" norefresh="true"></t:optionbutton>
     <c:set var="butsel" value="${occurrenceOrder == field ? 'selected' : ''}"/>
     <c:if test="${view != 'inventory' && !noSortButton}">
@@ -43,7 +45,7 @@
     <c:otherwise><div class="anchorbutton sortbutton button"><a href="${url}&order=${field}">&blacktriangle;</a></div></c:otherwise>
     </c:choose>
     </c:if>
-    ${fields.getFieldShortName(field)}
+    ${fields.getFieldShortName(field, advancedview)}
 </th>
 </c:if>
 </c:otherwise>

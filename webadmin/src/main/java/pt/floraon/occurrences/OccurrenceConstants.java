@@ -30,7 +30,8 @@ public final class OccurrenceConstants {
         CULTIVATED("Cultivated"),
         ESCAPED("Escaped"),
         REINTRODUCTION("Reintroduction"),
-        TRANSLOCATION("Translocation");
+        TRANSLOCATION("Translocation"),
+        NULL("");
 
         private final String label;
         private static final Map<String, OccurrenceNaturalization> acronymMap = new HashMap<>();

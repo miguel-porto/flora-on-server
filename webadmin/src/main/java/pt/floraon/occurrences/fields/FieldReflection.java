@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fields;
 
+import jdk.internal.org.jline.utils.Log;
 import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.utils.StringUtils;
@@ -9,6 +10,7 @@ import pt.floraon.occurrences.entities.SpecialFields;
 import pt.floraon.occurrences.fields.parsers.BooleanParser;
 import pt.floraon.redlistdata.RedListEnums;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -257,24 +259,70 @@ public final class FieldReflection {
     }
 
     static public boolean hideFieldInCompactView(String field) {
+        return false;
+/*
         Field f = findField(field);
         if(f == null) return false;
         return f.isAnnotationPresent(HideInCompactView.class);
+*/
     }
 
-    static public String getFieldShortName(String field) {
+    static public String getFieldShortName(String field, boolean advanced) {
         Field f = findField(field);
         if(f == null) return "??" + field + "??";
         PrettyName obsField = f.getAnnotation(PrettyName.class);
-        return (obsField == null || StringUtils.isStringEmpty(obsField.value())) ? field : obsField.shortName();
+        if(obsField == null) return field;
+
+        String ret;
+        if(advanced)
+            ret = obsField.shortNameAdvanced().equals("") ? obsField.shortName() : obsField.shortNameAdvanced();
+        else
+            ret = obsField.shortName();
+
+        return StringUtils.isStringEmpty(ret) ? getFieldName(field, advanced) : ret;
     }
 
-    static public String getFieldName(String field) {
+    static public String getFieldName(String field, boolean advanced) {
         Field f = findField(field);
         if(f == null) return "??" + field + "??";
 
         PrettyName obsField = f.getAnnotation(PrettyName.class);
-        return (obsField == null || StringUtils.isStringEmpty(obsField.value())) ? field : obsField.value();
+        if(obsField == null) return field;
+        String ret;
+        if(advanced)
+            ret = obsField.nameAdvanced().equals("") ? obsField.value() : obsField.nameAdvanced();
+        else
+            ret = obsField.value();
+
+        return StringUtils.isStringEmpty(ret) ? field : ret;
+    }
+
+    static public String[] getFieldValues(String field, boolean advanced) {
+        Field f = findField(field);
+        if(f == null) return new String[0];
+        if(f.isAnnotationPresent(EditWidget.class)) {
+            EditWidget a = f.getAnnotation(EditWidget.class);
+            return advanced ? (a.valuesAdvanced().length == 0 ? a.valuesSimple() : a.valuesAdvanced()) : a.valuesSimple();
+        } else
+            return new String[0];
+    }
+
+    static public String[] getFieldLabels(String field, boolean advanced) {
+        Field f = findField(field);
+        if(f == null) return new String[0];
+        if(f.isAnnotationPresent(EditWidget.class)) {
+            EditWidget a = f.getAnnotation(EditWidget.class);
+            return advanced ? (a.labelsAdvanced().length == 0 ? a.labelsSimple() : a.labelsAdvanced()) : a.labelsSimple();
+        } else
+            return new String[0];
+    }
+
+    static public EditWidget.Type getFieldWidget(String field, boolean advanced) {
+        Field f = findField(field);
+        if(f == null) return null;
+        if(!f.isAnnotationPresent(EditWidget.class)) return EditWidget.Type.TEXT;
+        EditWidget a = f.getAnnotation(EditWidget.class);
+        return advanced ? (a.widgetAdvanced() == EditWidget.Type.NULL ? a.value() : a.widgetAdvanced()) : a.value();
     }
 
     static public boolean isMonospaceFont(String field) {
@@ -283,10 +331,16 @@ public final class FieldReflection {
         return f.isAnnotationPresent(FieldStyle.class) && f.getAnnotation(FieldStyle.class).monospaceFont();
     }
 
+    static public boolean breakLines(String field) {
+        Field f = findField(field);
+        if(f == null || !f.isAnnotationPresent(FieldStyle.class)) return true;
+        return f.getAnnotation(FieldStyle.class).breakLines();
+    }
+
     static public boolean isBigEditWidget(String field) {
         Field f = findField(field);
         if(f == null) return false;
-        return f.isAnnotationPresent(BigEditWidget.class);
+        return f.isAnnotationPresent(EditWidget.class) && f.getAnnotation(EditWidget.class).value() == EditWidget.Type.BIGTEXT;
     }
 
     static public boolean isAdminField(String field) {

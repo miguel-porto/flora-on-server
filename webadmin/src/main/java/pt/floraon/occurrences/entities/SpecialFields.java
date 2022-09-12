@@ -18,10 +18,11 @@ public class SpecialFields {
     @PrettyName(value = "Coordenadas", shortName = "Coord", important = true)
     @DatabaseFields({"observationLatitude", "observationLongitude"})
     private String coordinates;
-    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldStyle(value = FieldStyle.Size.SMALL, breakLines = false)
     @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE)
     @DatabaseFields({"year", "month", "day", "hour", "minute"})
     @PrettyName(value = "Data de observação", shortName = "Data", important = true)
+    @EditWidget(value = EditWidget.Type.DATE, widgetAdvanced = EditWidget.Type.TEXT)
     private String date;
     @FieldStyle(FieldStyle.Size.SMALL)
     @SpecialField @InventoryField @FieldParser(DateParser.class) @FieldType(FieldType.Type.DATE) @ReadOnly

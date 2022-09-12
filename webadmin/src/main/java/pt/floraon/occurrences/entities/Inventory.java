@@ -66,21 +66,23 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(IntegerParser.class)
     @PrettyName(value = "Minuto", shortName = "Min")
     private Integer minute;
-    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldStyle(value = FieldStyle.Size.SMALL, breakLines = false)
     @InventoryField
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Precisão", shortName = "Prec", important = true)
+    @EditWidget(value = EditWidget.Type.DROPDOWN, widgetAdvanced = EditWidget.Type.TEXT
+            , valuesSimple = {"1 m", "50 m", "100 m", "1000 m"}, labelsSimple = {"Ponto GPS", "50 m", "100 m", "1000 m"})
     private Precision precision;
     @FieldStyle(FieldStyle.Size.SMALL)
     @InventoryField @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @FieldType(FieldType.Type.BOOLEAN)
     @PrettyName(value = "Inventário completo", shortName = "Compl")
     private String complete;
-    @InventoryField @BigEditWidget
+    @InventoryField @EditWidget(EditWidget.Type.BIGTEXT)
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Habitat", shortName = "Hab")
     private String habitat;
-    @HideInCompactView @InventoryField @BigEditWidget
+    @HideInCompactView @InventoryField @EditWidget(EditWidget.Type.BIGTEXT)
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas públicas do inventário", shortName = "Notas pub", alias = {"inventoryComment"})
     private String pubNotes;
@@ -96,7 +98,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Projecto ou instituição financiadora", shortName = "Proj", alias = {"project"})
     private String credits;
-    @HideInCompactView @InventoryField @BigEditWidget
+    @HideInCompactView @InventoryField @EditWidget(EditWidget.Type.BIGTEXT)
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Notas privadas do inventário", shortName = "Notas priv")
     private String privNotes;
@@ -136,7 +138,7 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Código do inventário", shortName = "Cod", alias={"código", "inventário"}, important = true)
     private String code;
-    @InventoryField @BigEditWidget
+    @InventoryField @EditWidget(EditWidget.Type.BIGTEXT)
     @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Ameaças do local", shortName = "Ameaças", alias="ameaças")
     private String threats;
@@ -501,6 +503,18 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
     public boolean _isDateEmpty() {
         return (Constants.isNullOrNoData(day) || day == 0) && (Constants.isNullOrNoData(month) || month == 0)
                 && (Constants.isNullOrNoData(year) || year == 0);
+    }
+
+    public boolean _isDateOnly() {
+        return !Constants.isNullOrNoData(day) && day != 0 && !Constants.isNullOrNoData(month) && month != 0
+                && !Constants.isNullOrNoData(year) && year != 0 && Constants.isNullOrNoData(hour) && Constants.isNullOrNoData(minute);
+    }
+
+    public String _getDateYMDForHtml() {
+        String sb = year + "-" +
+                String.format("%02d", month) + "-" +
+                String.format("%02d", day);
+        return sb;
     }
 
     public String _getDateYMD() {
@@ -886,6 +900,15 @@ public class Inventory extends GeneralDBNode implements Serializable, DiffableBe
                     suffix.append("?");
                 if (tmp[i].getNaturalization() != null && tmp[i].getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD)
                     suffix.append("*");
+                if(tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER
+                        || tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER_FRUIT
+                        || tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER_DISPERSION)
+                    suffix.append("❀");
+/*
+                if(tmp[i].getPhenoState() == Constants.PhenologicalStates.DISPERSION
+                        || tmp[i].getPhenoState() == Constants.PhenologicalStates.FLOWER_DISPERSION)
+                    suffix.append("\uD83C\uDF4F");
+*/
             }
             if(tmp[i].getTaxEnt() == null) {
                 if(tmp[i].getVerbTaxon() == null || tmp[i].getVerbTaxon().equals(""))

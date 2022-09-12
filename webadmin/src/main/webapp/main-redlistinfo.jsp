@@ -33,7 +33,6 @@
 </head>
 <body>
 <input type="hidden" name="territory" value="${territory}"/>
-<a class="returntomain" href="../"><img src="../images/cap-cor.png" alt="logo"/></a>
 <div id="title"><a href="../"><fmt:message key="DataSheet.title"/></a></div>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords' && !user.isGuest()}">

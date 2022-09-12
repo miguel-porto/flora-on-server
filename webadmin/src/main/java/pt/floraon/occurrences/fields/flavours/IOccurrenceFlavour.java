@@ -1,5 +1,6 @@
 package pt.floraon.occurrences.fields.flavours;
 
+import pt.floraon.driver.annotations.EditWidget;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 
@@ -14,7 +15,9 @@ public interface IOccurrenceFlavour {
      * @return The flavour name
      */
     String getName();
-    String getFieldName(String field);
+
+    String getFieldName(String field, boolean advanced);
+
     boolean containsCoordinates();
 
     /**
@@ -35,7 +38,7 @@ public interface IOccurrenceFlavour {
      */
     Object getFieldValueRaw(OBSERVED_IN occurrence, Inventory inventory, String field);
 
-    String getFieldShortName(String field);
+    String getFieldShortName(String field, boolean advanced);
 
     boolean hideFieldInCompactView(String field);
 
@@ -53,6 +56,8 @@ public interface IOccurrenceFlavour {
 
     boolean isMonospaceFont(String field);
 
+    boolean breakLines(String field);
+
     boolean isBigEditWidget(String field);
 
     boolean isImageField(String field);
@@ -62,4 +67,10 @@ public interface IOccurrenceFlavour {
     boolean isAdminField(String field);
 
     boolean containsInventoryFields();
+
+    String[] getFieldValues(String field, boolean advanced);
+
+    String[] getFieldLabels(String field, boolean advanced);
+
+    EditWidget.Type getFieldWidget(String field, boolean advanced);
 }

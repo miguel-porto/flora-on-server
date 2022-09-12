@@ -20,6 +20,7 @@ import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.entities.DBEntity;
 import pt.floraon.driver.interfaces.IListDriver;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.taxonomy.entities.ChecklistEntry;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -283,6 +284,56 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 		}
 	}
 
+	@Override
+	public Iterator<TaxEnt> filterTaxEntByTerritory(Iterator<TaxEnt> taxEntIterator, String territory) {
+		return(new TaxEntIterator(taxEntIterator, territory));
+	}
+
+	class TaxEntIterator implements Iterator<TaxEnt> {
+		private final Iterator<TaxEnt> taxEntIterator;
+		private final String territory;
+		private TaxEnt nextTaxEnt;
+		private boolean consumed = true;
+		private boolean lastHasNext = false;
+
+		TaxEntIterator(Iterator<TaxEnt> taxEntIterator, String territory) {
+			this.taxEntIterator = taxEntIterator;
+			this.territory = territory;
+		}
+
+		@Override
+		public boolean hasNext() {
+			if(!consumed) return lastHasNext;
+			consumed = false;
+			InferredStatus status;
+			while(this.taxEntIterator.hasNext()) {
+				nextTaxEnt = this.taxEntIterator.next();
+				try {
+					status = driver.wrapTaxEnt(driver.asNodeKey(nextTaxEnt.getID())).getInferredNativeStatus(this.territory);
+				} catch (FloraOnException e) {
+					nextTaxEnt = null;
+					lastHasNext = false;
+					return false;
+				}
+				if(status == null) continue;
+				lastHasNext = true;
+				return true;
+			}
+			nextTaxEnt = null;
+			lastHasNext = false;
+			return false;
+		}
+
+		@Override
+		public TaxEnt next() {
+			consumed = true;
+			return nextTaxEnt;
+		}
+
+		@Override
+		public void remove() {
+		}
+	}
 	@Override
 	public Iterator<Habitat> getChildrenHabitats(INodeKey parentId) throws DatabaseException {
 		Map<String, Object> bindVars = new HashMap<>();

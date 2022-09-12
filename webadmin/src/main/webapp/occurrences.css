@@ -14,11 +14,10 @@
     animation-iteration-count: infinite;
 }
 
-div.inactive {opacity:0.3; }
-
 .monospace {font-family: "Courier New", Courier, monospace;}
 
-#alloccurrences,#warningpanel {transition: opacity 0.5s, transform 0.5s;}
+div.inactive {opacity:0.3; pointer-events: none;filter: blur(3px) grayscale(1);}
+#alloccurrences,#warningpanel,#allinventories {transition: opacity 0.5s, transform 0.5s;}
 
 html.occurrencespage, body.occurrencespage {width:100%; height:100%; overflow:auto;}
 body.occurrencespage {display:flex; height: 100%; align-items: stretch; flex-direction:row-reverse}
@@ -28,11 +27,9 @@ body.occurrencespage h2 {background-color: #1565c0; color: white; margin: 0}
 body.occurrencespage .heading2 {background-color: #1565c0; color: white; position:relative}
 body.occurrencespage .legend {color:#d5d5d5; margin:4px}
 body.occurrencespage :not(.warning):not(.heading2) .legend {color:#393939;}
-body.occurrencespage a.returntomain {position:static;}
-body.occurrencespage a.returntomain img {height:70px}
-
 body.occurrencespage.compactview .hideincompactview {display:none !important}
-body.occurrencespage.compactview table td {font-size:0.6rem;}
+/*body.occurrencespage.compactview table td {font-size:0.6rem;}*/
+body.occurrencespage:not(.compactview) .hideInAdvancedView {display:none !important}
 
 #alloccurrencetable th {position:sticky; top:0px; z-index:1}
 
@@ -54,8 +51,8 @@ td.grouper {
 
 .pager .imagebutton {line-height:0;}
 
-#occurrencetable-holder {flex: 2 4 auto; overflow: scroll; position:relative;}
-#taxtree {flex: 0 1 240px; overflow: scroll; height:100%}
+#occurrencetable-holder {flex: 2 4 auto; overflow: scroll; position:relative; padding:0px;}
+#taxtree {flex: 0 1 260px; overflow: scroll; height:100%}
 #georreferencer {flex: 1 5 auto; overflow: visible; display:flex; flex-direction: column;background-color: #bbdefb; position: relative}
 #occurrencemap {flex: 4 0 30%;position:relative; height:100%;}
 #floatingswitches {
@@ -136,7 +133,24 @@ td.grouper {
 
 /* occurrence table */
 /*.occurrencetable {table-layout: fixed;}*/
-#topbuttons {display: flex; align-items: center; flex-wrap: wrap;}
+#topbuttons {display: flex; align-items: center; flex-wrap: wrap;/*background-color:#0d47a1*/}
+#topbuttons .homebutton {padding:3px}
+#topbuttons .homebutton img {width:1.8em; height:1.8em; vertical-align:middle; margin-left:6px;}
+
+#flavourlist {
+    width:100%;
+    background-color:white;
+}
+
+#flavourlist div.label {
+    padding: 8px 12px;
+    margin: 0;
+    /*background-color: #0d47a1;*/
+    color: black;
+    text-transform:uppercase;
+    font-size:1em;
+}
+
 .occurrencetable td.textemphasis {border:1px solid #444;font-weight: bold}
 .occurrencetable td {
     height:16px;
@@ -153,11 +167,12 @@ td.grouper {
 .occurrencetable tr.dummy, .inventory.dummy {display: none;}
 .occurrencetable tr.locked td:not(.editable) {}
 .occurrencetable tr td:not(.editable) {font-style:italic; color:#666; background-color:#f8f8f8;}
-.occurrencetable th {word-break: break-all; position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
+.occurrencetable th {/*word-break: break-all;*/ position:relative;vertical-align: bottom; padding: 10px 4px 0 4px;}
 .occurrencetable th.selectcol, .occurrencetable td.selectcol, .occurrencetable th.tinycol {width:1%;}
 .occurrencetable th.fieldsize_BIG {min-width:150px;}
-.occurrencetable th.fieldsize_VERYBIG {min-width:350px;}
-.occurrencetable th.fieldsize_SMALL {width:10%;}
+.occurrencetable:not(.inventorysummary) th.fieldsize_VERYBIG {min-width:150px;}
+.occurrencetable.inventorysummary th.fieldsize_VERYBIG {min-width:350px;}
+.occurrencetable th.fieldsize_SMALL {width:0;}  /* was 10% */
 tr.unmatched td {background-color: #ffcdd2 !important}
 tr.modified {outline: 1px dashed #b931ff; box-shadow: 0 0 3px #b931ff;}
 tr.active {outline: 1px solid #63c2ff;}
@@ -170,6 +185,8 @@ tr.external td {font-style:italic}
 .occurrencetable th:not(.collapsed) .expandbutton {background-image:url(images/expand.png); background-position:center center; background-repeat: no-repeat;}
 .occurrencetable th.collapsed .expandbutton {background-image:url(images/resist.png); background-position:center center; background-repeat: no-repeat;}
 .occurrencetable td img.photo {width:200px}
+.occurrencetable select, .occurrencetable input[type=date], #deleteoccurrencetable select, #deleteoccurrencetable input[type=date] {border: 0px; background-color:transparent; font:inherit}
+
 
 .expandbutton-clicker {width:100%; height:10px; margin:0;}
 
@@ -200,6 +217,14 @@ tr.external td {font-style:italic}
 .editbox.large {
     min-width: 60%;
     left:20%;
+}
+
+.editbox .hint {
+    background-color: #96ffa5;
+    color: black;
+    padding: 3px;
+    border-top-left-radius:6px;
+    border-top-right-radius:6px;
 }
 
 #taxonsearchwrapper.editbox {min-width:60%;left:20%}
@@ -245,12 +270,26 @@ td.selectcol {background-color: transparent !important; padding:0 !important; te
 .inventory h3 {background-color: #2196f3; color:white;}
 .inventory.geoelement.selected {background-color: #ffffbf !important;}
 .inventory .editable {background-color:#bbdefb}
-.inventory .occurrencetable th {background-color: transparent}
+.inventory form:not(.id1holder) {float:left}
+.inventory .occurrencetable th {background-color: transparent; font-size:0.9rem;}
 .inventory table td {background-color: transparent}
 .inventory table tr:hover td:not(.title) {background-color:transparent;}
 .inventory table tr:hover:not(.selected) .editable {background-color:#e3f2fd !important;}
+.inventory .button.newtaxon {visibility:hidden}
+div.inventoryheader {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:stretch;
+    clear:both;
+}
+
+div.inventoryheader table {flex: 5 1 auto; width:auto}
+div.inventoryheader table.widget, div.inventoryheader table.fieldsize_SMALL {flex:0 0 0;}
+div.inventoryheader table.fieldsize_BIG {flex:1 1 150px;}
+div.inventoryheader table td {height:1.5em}
 
 .onlywhenmodified {display:none !important;}
 .modified .onlywhenmodified {display:inherit !important;}
 
 #occurrencefilter {display:inline-block; margin: 0 6px;}
+#filter-textarea {font-size: 12px}

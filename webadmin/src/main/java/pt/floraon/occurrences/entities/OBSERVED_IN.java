@@ -31,22 +31,39 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Estado fenológico", shortName = "Fen", important = true)
+    @EditWidget(value = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"FLOWER", "DISPERSION", "VEGETATIVE"},
+            labelsSimple = {"❀Floração", "Dispersão", "Vegetativo"},
+            valuesAdvanced = {"FLOWER", "DISPERSION", "VEGETATIVE", "RESTING", "BUD", "FRUIT", "FLOWER_DISPERSION", "FLOWER_FRUIT"},
+            labelsAdvanced = {"Floração", "Dispersão", "Vegetativo", "Dormência", "Em botão", "Fruto imaturo", "Flor+Dispersão", "Flor+Fruto imaturo"})
     private Constants.PhenologicalStates phenoState;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)
     @PrettyName(value = "Espontaneidade", shortName = "Nat")
+    @EditWidget(value = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"WILD", "CULTIVATED", "ESCAPED"},
+            labelsSimple = {"Silvestre", "Cultivado", "Escapado"},
+            valuesAdvanced = {"WILD", "CULTIVATED", "ESCAPED", "REINTRODUCTION", "TRANSLOCATION"},
+            labelsAdvanced = {"Silvestre", "Cultivado", "Escapado", "Reintrodução", "Translocação"})
     private OccurrenceConstants.OccurrenceNaturalization naturalization;
-    @FieldStyle(FieldStyle.Size.SMALL)
+    @FieldStyle(value = FieldStyle.Size.SMALL, breakLines = false)
     @HideInCompactView @FieldParser(EnumParser.class)
-    @PrettyName(value = "Confiança ID", shortName = "Conf", important = true)
+    @EditWidget(value = EditWidget.Type.CHECKBOX, widgetAdvanced = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"DOUBTFUL"},
+            labelsSimple = {" "},
+            valuesAdvanced = {"CERTAIN", "ALMOST_SURE", "DOUBTFUL"},
+            labelsAdvanced = {"ID certa", "ID provável", "ID duvidosa"})
+    @PrettyName(value = "Dúvida", shortName = "Duv?", important = true, nameAdvanced = "Confiança ID", shortNameAdvanced = "Conf")
     private OccurrenceConstants.ConfidenceInIdentifiction confidence;
     @HideInCompactView @FieldParser(GeneralFieldParser.class)
     @PrettyName(value = "Nome original", shortName = "Verb tax")
     private String verbTaxon;
-    @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @EditWidget(EditWidget.Type.BIGTEXT)
     @PrettyName(value = "Notas públicas do taxon", shortName = "Notas pub", important = true)
     private String comment;
-    @HideInCompactView @FieldParser(GeneralFieldParser.class) @BigEditWidget
+    @HideInCompactView @FieldParser(GeneralFieldParser.class)
+    @EditWidget(EditWidget.Type.BIGTEXT)
     @PrettyName(value = "Notas privadas do taxon", shortName = "Notas priv", alias="privateNote", important = true)
     private String privateComment;
     @FieldStyle(FieldStyle.Size.SMALL)
@@ -113,7 +130,7 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @PrettyName(value = "Código GPS", shortName = "GPS", alias={"gps", "gps code"}
         , description = "The GPS point name for this particular taxon. Usage discouraged: not to be confounded with the inventory code!")
     private String gpsCode;
-    @FieldParser(GeneralFieldParser.class) @BigEditWidget
+    @FieldParser(GeneralFieldParser.class) @EditWidget(EditWidget.Type.BIGTEXT)
     @PrettyName(value = "Ameaças do taxon", shortName = "Ameaças esp")
     private String specificThreats;
     @FieldStyle(FieldStyle.Size.SMALL)

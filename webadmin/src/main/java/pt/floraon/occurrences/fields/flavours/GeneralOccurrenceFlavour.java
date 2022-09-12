@@ -1,17 +1,34 @@
 package pt.floraon.occurrences.fields.flavours;
 
+import pt.floraon.driver.annotations.EditWidget;
 import pt.floraon.occurrences.entities.Inventory;
 import pt.floraon.occurrences.entities.OBSERVED_IN;
 import pt.floraon.occurrences.fields.FieldReflection;
+
+import java.lang.reflect.Field;
 
 /**
  * This is basically a class to expose static methods to JSTL.
  */
 public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
+    @Override
+    public String[] getFieldValues(String field, boolean advanced) {
+        return FieldReflection.getFieldValues(field, advanced);
+    }
 
     @Override
-    public String getFieldName(String field) {
-        return FieldReflection.getFieldName(field);
+    public String[] getFieldLabels(String field, boolean advanced) {
+        return FieldReflection.getFieldLabels(field, advanced);
+    }
+
+    @Override
+    public EditWidget.Type getFieldWidget(String field, boolean advanced) {
+        return FieldReflection.getFieldWidget(field, advanced);
+    }
+
+    @Override
+    public String getFieldName(String field, boolean advanced) {
+        return FieldReflection.getFieldName(field, advanced);
     }
 
     @Override
@@ -25,8 +42,8 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     }
 
     @Override
-    public String getFieldShortName(String field) {
-        return FieldReflection.getFieldShortName(field);
+    public String getFieldShortName(String field, boolean advanced) {
+        return FieldReflection.getFieldShortName(field, advanced);
     }
 
     @Override
@@ -67,6 +84,11 @@ public abstract class GeneralOccurrenceFlavour implements IOccurrenceFlavour {
     @Override
     public boolean isMonospaceFont(String field) {
         return FieldReflection.isMonospaceFont(field);
+    }
+
+    @Override
+    public boolean breakLines(String field) {
+        return FieldReflection.breakLines(field);
     }
 
     @Override
