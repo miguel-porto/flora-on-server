@@ -6,7 +6,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <fmt:setBundle basename="pt.floraon.occurrences.occurrencesMessages" />
 <div id="topbuttons">
-    <a class="homebutton" href="${contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a>
+    <a class="homebutton" href="${contextPath == '' ? '/' : contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a>
     <div class="button anchorbutton hideincompactview"><a href="?w=uploads"><fmt:message key="button.1"/></a></div>
     <div class="button anchorbutton"><a href="?w=occurrenceview&p=1"><fmt:message key="button.4"/></a></div>
     <t:isoptionselected optionname="advancedview" value="false"><div class="button anchorbutton"><a href="?w=downloadoccurrencetable"><fmt:message key="button.9"/></a></div></t:isoptionselected>

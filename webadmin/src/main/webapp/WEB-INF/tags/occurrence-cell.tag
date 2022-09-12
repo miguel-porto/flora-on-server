@@ -130,8 +130,9 @@
             <c:set var="randid" value="${rand.randomString(8)}"/>
             <td class="${thisfieldeditable} ${collapsedClass} ${multiline} ${monospace} ${breakLines} ${fields.hideFieldInCompactView(field) ? 'hideincompactview' : ''}" data-name="${field}">
             <c:set var="val" value="${taxon == null ? '' : fields.getFieldValue(taxon, inventory, field)}"/>
-            <c:if test="${val == '' || val == null || val == 'NULL'}"><label><input type="checkbox" name="${randid}" value="${fields.getFieldValues(field, advancedview)[0]}"/>${fields.getFieldLabels(field, advancedview)[0]}</label></c:if>
-            <c:if test="${val != '' && val != null && val != 'NULL'}"><label><input type="checkbox" name="${randid}" value="${fields.getFieldValues(field, advancedview)[0]}" checked/>${fields.getFieldLabels(field, advancedview)[0]}</label></c:if>
+            <c:set var="valRaw" value="${taxon == null ? '' : fields.getFieldValueRaw(taxon, inventory, field)}"/>
+            <c:if test="${val == '' || val == null || val == 'NULL' || valRaw != fields.getFieldValues(field, advancedview)[0]}"><label><input type="checkbox" name="${randid}" value="${fields.getFieldValues(field, advancedview)[0]}"/>${fields.getFieldLabels(field, advancedview)[0]}</label></c:if>
+            <c:if test="${valRaw == fields.getFieldValues(field, advancedview)[0]}"><label><input type="checkbox" name="${randid}" value="${fields.getFieldValues(field, advancedview)[0]}" checked/>${fields.getFieldLabels(field, advancedview)[0]}</label></c:if>
             </td>
             </c:when>
             </c:choose>
