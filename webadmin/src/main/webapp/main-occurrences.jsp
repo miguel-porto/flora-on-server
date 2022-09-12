@@ -56,7 +56,7 @@
         <div class="mapbuttons">
             <c:if test="${whichPage != 'openinventory'}"><div class="button togglebutton round" id="querypoly" title="Realizar consulta de dados em polígono"><img src="images/query-poly.png"/></div></c:if>
             <c:if test="${whichPage != 'openinventory'}"><div class="button togglebutton round" id="queryrect" title="Realizar consulta de dados em rectângulo"><img src="images/queryrect.png"/></div></c:if>
-            <div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div>
+            <c:if test="${!(whichPage == 'openinventory' && !sessionScope['option-advancedview'])}"><div class="button togglebutton round" id="selectpoints" title="Seleccionar pontos no mapa"><img src="images/lasso.png"/></div></c:if>
             <div class="button togglebutton round red" id="addpointstoggle" title="Adicionar novos inventários no mapa"><img src="images/add.png"/></div>
         </div>
         <c:if test="${queriedRectangleMinLat != null}">

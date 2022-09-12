@@ -56,8 +56,9 @@
         </c:if>
         <label><input type="checkbox" name="createUsers"/> <fmt:message key="options.2"/><div class="legend"><fmt:message key="options.2.desc"/></div></label>
         <!--<label><input type="checkbox" name="createTaxa"/> <fmt:message key="options.3"/><div class="legend"><fmt:message key="options.3.desc"/></div></label>-->
-        <div class="button" id="deleteselectednew">Delete selected</div>
         <input type="submit" class="textbutton" value="Save"/>
+        <div class="button" id="deleteselectednew">Delete selected</div>
+        <div class="button" id="cancelnew"><fmt:message key="occurrences.cancel"/></div>
     </div>
     <table id="addoccurrencetable" class="verysmalltext occurrencetable sortable">
         <thead><tr><t:occurrenceheader fields="${flavourfields}" view="occurrence" noSortButton="true"/></tr></thead>

@@ -279,14 +279,14 @@ td.selectcol {background-color: transparent !important; padding:0 !important; te
 div.inventoryheader {
     display:flex;
     flex-wrap:wrap;
-    align-content:stretch;
+    align-items:stretch;
     clear:both;
 }
 
 div.inventoryheader table {flex: 5 1 auto; width:auto}
 div.inventoryheader table.widget, div.inventoryheader table.fieldsize_SMALL {flex:0 0 0;}
 div.inventoryheader table.fieldsize_BIG {flex:1 1 150px;}
-div.inventoryheader table td {height:1.2em}
+div.inventoryheader table td {height:1.5em}
 
 .onlywhenmodified {display:none !important;}
 .modified .onlywhenmodified {display:inherit !important;}

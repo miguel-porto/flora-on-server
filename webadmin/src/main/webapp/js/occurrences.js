@@ -566,9 +566,9 @@ function doMouseClick(el) {
 }
 
 function disableAllMapButtons() {
-    document.getElementById('querypoly').classList.remove('selected');
-    document.getElementById('queryrect').classList.remove('selected');
-    document.getElementById('selectpoints').classList.remove('selected');
+    if(document.getElementById('querypoly')) document.getElementById('querypoly').classList.remove('selected');
+    if(document.getElementById('queryrect')) document.getElementById('queryrect').classList.remove('selected');
+    if(document.getElementById('selectpoints')) document.getElementById('selectpoints').classList.remove('selected');
     document.getElementById('addpointstoggle').classList.remove('selected');
     document.querySelector('.leaflet-container').style.cursor = 'auto';
     if(mapRectSelect) mapRectSelect.disable();
@@ -1219,7 +1219,7 @@ function markerClick(ev) {
 function mapClick(ev) {
     var opt = document.getElementById('addpointstoggle');
     var sp = document.getElementById('selectpoints');
-    if(sp.classList.contains('selected')) {
+    if(sp && sp.classList.contains('selected')) {
         sp.classList.toggle('selected');
         if(mapLocationFilter) {
             mapLocationFilter.removeAllArea();
@@ -1301,6 +1301,7 @@ function addNewInventory(ev) {
 }
 
 function addNewOccurrence(ev) {
+    dimMainTable();
     var id = randomString(6);
     if(ev && ev.latlng) {
         var lat = Math.round(ev.latlng.lat * 100000) / 100000;
