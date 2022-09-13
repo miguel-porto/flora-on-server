@@ -47,7 +47,7 @@ public final class Common {
             "redListCategory", "endemicTo", "nativeStatusLu");
 
     public static final List<String> floraOnOutputFields = Arrays.asList(
-            "uuid", "credits", "maintainer", "source", "observers", "collectors", "excludeReason", "taxa", "year",
+            "uuid", "credits", "maintainer", "source", "observers", "collectors", "excludeReason", "taxa", "year", "precision",
             "comment", "latitude", "longitude", "utmX", "utmY", "acceptedTaxon", "date", "taxaCanonical", "habitat",
             "inventoryComment", "comment", "URL", "month", "day", "confidence", "phenoState", "dateInserted", "naturalization", "taxonFull"
             );

@@ -366,6 +366,7 @@ public class AdminAPI extends FloraOnServlet {
 */
                 Iterator<Occurrence> it = driver.getOccurrenceDriver().getFilteredOccurrences(of);
                 thisRequest.setDownloadFileName("all-occurrences.csv");
+                thisRequest.response.setContentType("text/csv; charset=utf-8");
 
                 List<String> fieldSetList;
                 switch(fieldSet) {
