@@ -46,6 +46,12 @@ public final class Common {
             "comment", "privateComment", "inventoryComment", "dateInserted",
             "redListCategory", "endemicTo", "nativeStatusLu");
 
+    public static final List<String> floraOnOutputFields = Arrays.asList(
+            "uuid", "credits", "maintainer", "source", "observers", "collectors", "excludeReason", "taxa", "year",
+            "comment", "latitude", "longitude", "utmX", "utmY", "acceptedTaxon", "date", "taxaCanonical", "habitat",
+            "inventoryComment", "comment", "URL", "month", "day", "confidence", "phenoState", "dateInserted", "naturalization", "taxonFull"
+            );
+
     public static InventoryList readInventoryListFromFile(String fileName) throws IOException, ClassNotFoundException {
         ObjectInputStream oist;
         InventoryList invList;

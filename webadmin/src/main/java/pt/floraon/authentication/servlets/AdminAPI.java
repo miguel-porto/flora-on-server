@@ -350,6 +350,8 @@ public class AdminAPI extends FloraOnServlet {
                 if(thisRequest.isQueryParameterSet("certain")) allowed.add(OccurrenceConstants.ConfidenceInIdentifiction.CERTAIN);
                 if(thisRequest.isQueryParameterSet("doubtful")) allowed.add(OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
                 if(thisRequest.isQueryParameterSet("almostsure")) allowed.add(OccurrenceConstants.ConfidenceInIdentifiction.ALMOST_SURE);
+                String fieldSet = thisRequest.getParameterAsString("fieldset", "all");
+
                 OccurrenceFilter of = thisRequest.isQueryParameterSet("all") ? null
                         : BasicOccurrenceFilter.create().withValidTaxaOnly().withSpeciesOrLowerRankOnly()
                         .withEnsureCurrentlyExisting().withoutExcluded()
@@ -365,7 +367,23 @@ public class AdminAPI extends FloraOnServlet {
                 Iterator<Occurrence> it = driver.getOccurrenceDriver().getFilteredOccurrences(of);
                 thisRequest.setDownloadFileName("all-occurrences.csv");
 
-                Common.exportOccurrencesToCSV(it, thisRequest.response.getWriter(), Common.allOutputFields, driver);
+                List<String> fieldSetList;
+                switch(fieldSet) {
+                    case "all":
+                        fieldSetList = Common.allOutputFields;
+                        break;
+                    case "floraon":
+                        fieldSetList = Common.floraOnOutputFields;
+                        break;
+                    case "short":
+                        fieldSetList = Common.simplifiedOutputFields;
+                        break;
+                    default:
+                        fieldSetList = Common.allOutputFields;
+                        break;
+                }
+
+                Common.exportOccurrencesToCSV(it, thisRequest.response.getWriter(), fieldSetList, driver);
                 break;
 
             default:
