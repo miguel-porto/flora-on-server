@@ -4,7 +4,7 @@ import com.sun.istack.NotNull;
 import jline.internal.Log;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.entities.GeneralDBNode;
 import pt.floraon.driver.entities.NamedDBNode;
@@ -19,7 +19,7 @@ import java.util.*;
  */
 public class StringUtils {
     private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    private static final Whitelist whiteTagList = Whitelist.none();
+    private static final Safelist whiteTagList = Safelist.none();
     private static Random rnd = new Random();
 
     static {

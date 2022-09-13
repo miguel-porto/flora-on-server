@@ -195,7 +195,9 @@ tr.external td {font-style:italic}
     margin:2px;
     box-shadow:none;
     background-color:transparent;
-    float:right;
+    font-size:0.9rem;
+    font-weight:bold;
+    /*float:right;*/
 }
 .occurrencetable .sortbutton a, .occurrencetable .sortbutton a:visited {color:black; padding:0 4px;}
 .occurrencetable .sortbutton.selected a, .occurrencetable .sortbutton.selected a:visited {color:red;}
@@ -285,7 +287,7 @@ div.inventoryheader {
 
 div.inventoryheader table {flex: 5 1 auto; width:auto}
 div.inventoryheader table.widget, div.inventoryheader table.fieldsize_SMALL {flex:0 0 0;}
-div.inventoryheader table.fieldsize_BIG {flex:1 1 150px;}
+div.inventoryheader table.fieldsize_BIG {flex:1 1 auto;}
 div.inventoryheader table td {height:1.5em}
 
 .onlywhenmodified {display:none !important;}

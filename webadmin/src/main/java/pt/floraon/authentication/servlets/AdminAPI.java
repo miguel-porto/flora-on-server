@@ -260,7 +260,7 @@ public class AdminAPI extends FloraOnServlet {
         BeanUtilsBean bub = BeanUtilsBean.getInstance();
         ArrayConverter stringArrayConverter = new ArrayConverter(String[].class, new TrimmedStringConverter(null));
         stringArrayConverter.setDelimiter(',');
-        stringArrayConverter.setAllowedChars(new char[]{' ', '.', '-'});
+        stringArrayConverter.setAllowedChars(new char[]{' ', '.', '-', '_'});
         bub.getConvertUtils().register(stringArrayConverter, String[].class);
         bub.getConvertUtils().register(new TrimmedStringConverter(null), String.class) ;
 

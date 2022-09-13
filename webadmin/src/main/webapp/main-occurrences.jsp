@@ -43,7 +43,7 @@
 	<!-- <script type="text/javascript" src="js/ajax_nav.js?nocache=${uuid}"></script> -->
 </head>
 <c:choose>
-<c:when test="${param.w == 'uploads'}"><c:set var="whichPage" value="-uploads"/></c:when>
+<c:when test="${param.w == 'uploads'}"><c:set var="whichPage" value="uploads"/></c:when>
 <c:when test="${param.w == 'fixissues'}"><c:set var="whichPage" value="fixissues"/></c:when>
 <c:when test="${((param.w == null || param.w == '') && sessionScope['option-advancedview']) || param.w == 'occurrenceview'}"><c:set var="whichPage" value="occurrenceview"/></c:when>
 <c:when test="${((param.w == null || param.w == '') && !sessionScope['option-advancedview']) || param.w == 'main'}"><c:set var="whichPage" value="main"/></c:when>

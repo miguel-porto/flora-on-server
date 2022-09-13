@@ -40,12 +40,12 @@
     <c:set var="butsel" value="${occurrenceOrder == field ? 'selected' : ''}"/>
     <c:if test="${view != 'inventory' && !noSortButton}">
     <c:choose>
-    <c:when test="${occurrenceOrder == field}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=${field}_d">&blacktriangle;</a></div></c:when>
-    <c:when test="${occurrenceOrder == field.concat('_d')}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=">&blacktriangledown;</a></div></c:when>
-    <c:otherwise><div class="anchorbutton sortbutton button"><a href="${url}&order=${field}">&blacktriangle;</a></div></c:otherwise>
+    <c:when test="${occurrenceOrder == field}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=${field}_d">${fields.getFieldShortName(field, advancedview)}&nbsp;&blacktriangle;</a></div></c:when>
+    <c:when test="${occurrenceOrder == field.concat('_d')}"><div class="anchorbutton sortbutton button selected"><a href="${url}&order=">${fields.getFieldShortName(field, advancedview)}&nbsp;&blacktriangledown;</a></div></c:when>
+    <c:otherwise><div class="anchorbutton sortbutton button"><a href="${url}&order=${field}">${fields.getFieldShortName(field, advancedview)}&nbsp;&blacktriangle;</a></div></c:otherwise>
     </c:choose>
     </c:if>
-    ${fields.getFieldShortName(field, advancedview)}
+    <c:if test="${!(view != 'inventory' && !noSortButton)}">${fields.getFieldShortName(field, advancedview)}</c:if>
 </th>
 </c:if>
 </c:otherwise>
