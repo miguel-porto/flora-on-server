@@ -134,8 +134,6 @@ td.grouper {
 /* occurrence table */
 /*.occurrencetable {table-layout: fixed;}*/
 #topbuttons {display: flex; align-items: center; flex-wrap: wrap;/*background-color:#0d47a1*/}
-#topbuttons .homebutton {padding:3px}
-#topbuttons .homebutton img {width:1.8em; height:1.8em; vertical-align:middle; margin-left:6px;}
 
 #flavourlist {
     width:100%;
@@ -143,7 +141,7 @@ td.grouper {
 }
 
 #flavourlist div.label {
-    padding: 8px 12px;
+    padding: 4px 6px;
     margin: 0;
     /*background-color: #0d47a1;*/
     color: black;

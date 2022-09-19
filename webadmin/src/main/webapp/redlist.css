@@ -6,6 +6,9 @@ ul.hanging li {padding-left: 26px; text-indent: -20px;}
 .compactform * {margin:0 !important}*/
 #main {text-align:left;}
 #title {font-size:3em; text-align:right; padding:15px;}
+#title .homebutton {float:left; line-height:0}
+#title .homebutton img {width:1em; height:1em; vertical-align:initial;margin-left:0}
+
 #left-bar, #title, #title a, #title a:visited {
     background-color:#f44336;
     flex: 1 1 auto;
@@ -232,6 +235,7 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
 .filter.small {
     padding: 0 8px 0 0;
     margin: 3px;
+    font-size:0.8em;
 }
 .filter.verysmall {
     padding: 0 6px 2px 0;
@@ -292,7 +296,7 @@ table.selectable tr.selected td {background-color: #64b5f6 !important;}
     height: 1.5rem;
     background-color: rgba(255, 255, 255, 0.5);
 }
-.filter.small .light {width:1rem; height:1rem}
+.filter.small .light {width:0.7rem; height:0.7rem; margin:4px 5px 4px 4px;}
 .filter.verysmall .light {width:0.6rem; height:0.6rem; margin: 0 4px 1px 5px;}
 .filter.selected>div.light {background-color:#76ff03; box-shadow: 0 0 7px #76ff03;}
 
@@ -377,13 +381,14 @@ input[type=submit].hidden, .button.hidden, .floatingtoolbar>div.hidden {
 }
 
 input[type=submit].textbutton {
-    font-size: 1.2rem;
+    font-size: 1rem;
     display: inline-block;
     border-radius:3px;
     width:auto;
     height:auto;
-    padding:8px 14px;
-    margin:8px;
+    padding:4px 7px;
+    margin:6px;
+    line-height:1em;
 }
 
 input[type=submit].textbutton.compact {
@@ -396,15 +401,15 @@ input[type=submit].textbutton.compact {
 }
 
 .button {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: normal;
     display: inline-block;
     border-radius:3px;
     width:auto;
     height:auto;
-    margin:6px;
+    margin:4px;
     background-color: #2979ff;
-    padding:8px 14px;
+    padding:4px 7px;
     cursor:pointer;
     /*box-shadow: 0 0 8px #222;*/
     color: white;
@@ -421,14 +426,14 @@ input[type=submit].textbutton.compact {
 }*/
 
 .button.anchorbutton {padding:0;}
-.button.anchorbutton a, .button.anchorbutton a:visited {padding:8px 14px; display: inline-block; color:white; line-height:1em;}
+.button.anchorbutton a, .button.anchorbutton a:visited {padding:4px 7px; display: inline-block; color:white; line-height:1em;}
 .button.anchorbutton.selected a, .button.anchorbutton.selected a:visited {color:green;}
 .button.smallround {padding: 3px 5px; font-style:italic; font-size: 0.75rem; background-color: rgba(255,255,255,0.5); color: black; box-shadow: 0 0 3px gray; margin: 0 0 3px 0;}
 .button.icon {padding: 2px 14px 2px 3px}
 .button.icon img {
     vertical-align: middle;
-    width:1.5em;
-    height:1.5em;
+    width:1.25em;
+    height:1.25em;
 }
 .button.icon span {vertical-align: middle;}
 
