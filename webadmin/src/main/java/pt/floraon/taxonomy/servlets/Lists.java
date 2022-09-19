@@ -82,7 +82,7 @@ public class Lists extends FloraOnServlet {
 			INodeKey id;
 			try {
 				id = thisRequest.getParameterAsKey("id");        // the id of the taxent node of which to get the children
-				if(id != null && !id.getCollection().equals("taxent")) id = null;		// because de id parameter here conflicts with the inventory id in the inventory view
+				if(id != null && !id.getCollection().equals("taxent") && !id.getCollection().equals("habitat")) id = null;		// because de id parameter here conflicts with the inventory id in the inventory view
 			} catch (FloraOnException e) {
 				id = null;
 			}
@@ -130,8 +130,7 @@ public class Lists extends FloraOnServlet {
 						thisRequest.request.setAttribute("habitatTypesIds", Arrays.asList(rlde.getEcology().getHabitatTypes()));
 					}
 
-
-//					System.out.printf("Level %d; ID: %s\n", level == null ? 0 : level, id == null ? "NULL" : id);
+//					System.out.printf("Level %d; Child of ID: %s\n", level == null ? 0 : level, id == null ? "NULL" : id);
 
 					if(id == null) {
 						if(level == null)
