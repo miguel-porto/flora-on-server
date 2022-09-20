@@ -136,6 +136,11 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @AdminOnly @FieldParser(EnumParser.class)
     @PrettyName(value = "Exclusion reason", shortName = "Excl", description = "Reason for excluding record from public maps", alias="excludeReason")
+    @EditWidget(value = EditWidget.Type.DROPDOWN,
+            valuesSimple = {"ASSUMED_PRESENT", "DESTROYED", "PROBABLY_MISIDENTIFIED", "ESCAPED", "INTRODUCED", "WRONG_GEORREF", "OTHER_REASON"},
+            labelsSimple = {"Present", "Destroyed", "Misidentified?", "Escaped?", "Introduced", "Wrong georref", "Other exclusion reason"},
+            valuesAdvanced = {"ASSUMED_PRESENT", "DESTROYED", "PROBABLY_MISIDENTIFIED", "ESCAPED", "INTRODUCED", "WRONG_GEORREF", "OTHER_REASON"},
+            labelsAdvanced = {"Present", "Destroyed", "Misidentified?", "Escaped?", "Introduced", "Wrong georref", "Other exclusion reason"})
     private OccurrenceConstants.PresenceStatus presenceStatus;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @AdminOnly @FieldParser(GeneralFieldParser.class)

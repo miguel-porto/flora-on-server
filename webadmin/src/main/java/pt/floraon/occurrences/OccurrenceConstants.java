@@ -41,7 +41,7 @@ public final class OccurrenceConstants {
             acronymMap.put("e", OccurrenceNaturalization.ESCAPED);
             acronymMap.put("r", OccurrenceNaturalization.REINTRODUCTION);
             acronymMap.put("t", OccurrenceNaturalization.TRANSLOCATION);
-            acronymMap.put("", OccurrenceNaturalization.WILD);
+            acronymMap.put("", OccurrenceNaturalization.NULL);
         }
 
         OccurrenceNaturalization(String label) {
@@ -124,13 +124,14 @@ public final class OccurrenceConstants {
     public enum CoverType {BRAUN_BLANQUET, TEXTUAL, AREA, OTHER_SCALE}
     public enum ValidationStatus{SPECIMEN_VERIFIED, ASSUMED_CORRECT, DOUBTFUL, PROBABLY_WRONG, WRONG, NOT_VALIDATED}
     public enum PresenceStatus implements RedListEnums.LabelledEnum {
-        ASSUMED_PRESENT("")
+        ASSUMED_PRESENT("Assumed present")
         , DESTROYED("Destroyed")
         , PROBABLY_MISIDENTIFIED("Misidentified?")
         , ESCAPED("Escaped?")
         , INTRODUCED("Introduced")
         , OTHER_REASON("Other exclusion reason")
-        , WRONG_GEORREF("Wrong georref");
+        , WRONG_GEORREF("Wrong georref")
+        , NULL("");
 
         private String label;
         private static Map<String, PresenceStatus> acronymMap = new HashMap<>();
@@ -142,7 +143,7 @@ public final class OccurrenceConstants {
             acronymMap.put("e", ESCAPED);
             acronymMap.put("i", INTRODUCED);
             acronymMap.put("o", OTHER_REASON);
-            acronymMap.put("", ASSUMED_PRESENT);
+            acronymMap.put("", NULL);
         }
 
         PresenceStatus(String label) {

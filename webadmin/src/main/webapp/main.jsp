@@ -63,45 +63,18 @@
         <ul id="mainmenu" class="mainmenu">
             <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>
             <c:if test="${!user.isGuest()}">
-            <%-- <li class="section2"><div class="bullet"></div><span><a href="redlist/lu"><fmt:message key="Modules.1"/></a> --%>
             <c:if test="${redlistterritories.size() > 0}">
             <c:forEach var="terr" items="${redlistterritories}">
                 <li class="section2"><div class="bullet"></div><span><a href="redlist/${terr}"><fmt:message key="Modules.1"/> | ${terr}</a>
-
             </c:forEach>
             </c:if>
+            <c:if test="${redlistterritories.size() == 0}"><li class="section2"><div class="bullet"></div><span><a href="redlist/">Create new Red List</a></c:if>
             </span></li>
             <li class="section3"><div class="bullet"></div><span><a href="occurrences"><fmt:message key="Modules.3"/></a></span></li>
             </c:if>
             <c:if test="${user.isAdministrator()}"><li class="section4"><div class="bullet"></div><span><a href="adminpage">Administration</a></span></li></c:if>
             <c:if test="${!user.isAdministrator() && !user.isGuest()}"><li class="section4"><div class="bullet"></div><span><a href="adminpage">Personal area</a></span></li></c:if>
         </ul>
-<%--
-        <div class="bigbutton section2">
-            <h1><a href="checklist"><fmt:message key="Modules.2"/></a></h1>
-        </div>
-        <div class="bigbutton section3">
-            <h1><fmt:message key="Modules.1"/></h1>
-            <c:if test="${user.canCREATE_REDLIST_DATASETS()}">
-                <div class="subbutton"><a href="redlist">create new red list dataset</a></div>
-            </c:if>
-            <c:if test="${redlistterritories.size() > 0}">
-                <c:forEach var="terr" items="${redlistterritories}">
-                    <div class="subbutton"><a href="redlist/${terr}">dataset for ${terr}</a></div>
-                </c:forEach>
-            </c:if>
-        </div>
-        <c:if test="${!user.isGuest()}">
-        <div class="bigbutton section4">
-            <h1><a href="occurrences?w=occurrenceview"><fmt:message key="Modules.3"/></a></h1>
-        </div>
-        </c:if>
-        <c:if test="${user.isAdministrator()}">
-        <div class="bigbutton section2">
-            <h1><a href="adminpage">Administration</a></h1>
-        </div>
-        </c:if>
---%>
     </div>
     <div id="stamp">portal de trabalho</div>
     <div id="logobar">

@@ -273,7 +273,10 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
         enter &= !(maximumYear != null && so.getYear() != null && so.getYear() != 0 && so.getYear() > maximumYear && !wasDestroyed);
 
         if(!includeExcludedRecords)
-            enter &= !(so.getOccurrence().getPresenceStatus() != null && so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT && !wasDestroyed);
+            enter &= !(so.getOccurrence().getPresenceStatus() != null &&
+                    so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.ASSUMED_PRESENT &&
+                    so.getOccurrence().getPresenceStatus() != OccurrenceConstants.PresenceStatus.NULL &&
+                    !wasDestroyed);
 
         // only include allowed confidence levels
         enter &= !(so.getOccurrence().getConfidence() != null && !allowedConfidence.contains(so.getOccurrence().getConfidence()));
@@ -283,7 +286,9 @@ public class BasicOccurrenceFilter implements OccurrenceFilter {
                     || so.getOccurrence().getConfidence() == OccurrenceConstants.ConfidenceInIdentifiction.DOUBTFUL);
         }
 */
-        enter &= !(onlyWild && so.getOccurrence().getNaturalization() != null && so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD);
+        enter &= !(onlyWild && so.getOccurrence().getNaturalization() != null &&
+                so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.WILD &&
+                so.getOccurrence().getNaturalization() != OccurrenceConstants.OccurrenceNaturalization.NULL);
 
         // Records that do not have a year are excluded from historical datasets except if marked as destroyed.
         // They're only included in the current dataset.
