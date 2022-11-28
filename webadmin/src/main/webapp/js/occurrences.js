@@ -1282,6 +1282,17 @@ function addNewInventory(ev) {
     inv.setAttribute('data-id', id);
     document.getElementById('addnewinventories').appendChild(inv);
 
+    // if the date field is filled in, trigger an update so it gets saved.
+    var celldate = inv.querySelector('td[data-name=date] input[type=date]');
+    if(celldate) {
+        cellWidgetChanged({target: celldate});
+    } else {
+        celldate = inv.querySelector('td[data-name=date]');
+        if(celldate && celldate.textContent) {
+            onConfirmEdit({}, celldate.textContent, null, celldate, true, true, false);
+        }
+    }
+
     var ot = inv.querySelectorAll('.occurrencetable');
     for(var i=0; i<ot.length; i++)
         addEvent('click', ot[i], clickOccurrenceTable);
@@ -1332,6 +1343,17 @@ function addNewOccurrence(ev) {
 
     newRow.setAttribute('data-id', id);
     tab.appendChild(newRow);
+
+    // if the date field is filled in, trigger an update so it gets saved.
+    var celldate = newRow.querySelector('td[data-name=date] input[type=date]');
+    if(celldate) {
+        cellWidgetChanged({target: celldate});
+    } else {
+        celldate = newRow.querySelector('td[data-name=date]');
+        if(celldate && celldate.textContent) {
+            onConfirmEdit({}, celldate.textContent, null, celldate, true, true, false);
+        }
+    }
 
     // attach widgets' change handlers
     var ot = newRow.querySelectorAll('td.editable select, td.editable input[type=radio], td.editable input[type=date], td.editable input[type=checkbox]');

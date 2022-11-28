@@ -67,10 +67,10 @@ public class FloraOnServlet extends HttpServlet {
 
 //		thisRequest.getUser().resetEffectivePrivileges();
 		request.setAttribute("user", thisRequest.getUser());
-		request.setAttribute("uuid", "bk36");
+		request.setAttribute("uuid", "bk37");
 		request.setAttribute("contextPath", driver.getContextPath());
 		request.setAttribute("offline", Boolean.parseBoolean(driver.getProperties().getProperty("offline", "false")));		// for working in offline mode (no web fonts)
-		request.setAttribute("occurrenceNewFeature", "NOVO! É possível agora filtrar as ocorrências por qualquer polígono, experimente a ferramenta!");
+//		request.setAttribute("occurrenceNewFeature", "NOVO! É possível agora filtrar as ocorrências por qualquer polígono, experimente a ferramenta!");
 
 		for(Map.Entry<String, Object> ent : thisRequest.getUser().getOptions().entrySet()) {
 			try {
