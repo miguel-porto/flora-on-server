@@ -163,7 +163,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		List<TaxEnt> out;
 		try {
 			out = database.query(query, null, null, TaxEnt.class).asListRemaining();
-			if(out.size() != 1) return null;
+			if(out.size() == 0) return null;
 			return out.get(0);
 		} catch (ArangoDBException e) {
 			System.err.println("More than one taxon with this ID?!");

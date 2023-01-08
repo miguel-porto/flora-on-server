@@ -10,7 +10,9 @@ import com.google.gson.Gson;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
+import pt.floraon.taxonomy.entities.TaxEnt;
 
 /**
  * API endpoint to query node data
@@ -70,9 +72,23 @@ public class NodeReader extends FloraOnServlet {
 						driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), key)
 				));
 			} else if(oldid != null) {
-				thisRequest.success(new Gson().toJsonTree(
-						driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(driver.getNodeWorkerDriver().getTaxEntByOldId(oldid).getID()))
-				));
+				TaxEnt te1 = driver.getNodeWorkerDriver().getTaxEntByOldId(oldid);
+				INodeKey key1 = null;
+				RedListDataEntity rlde = null;
+				if(te1 != null) {
+					key1 = driver.asNodeKey(te1.getID());
+					rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), key1);
+				}
+				if(key1 != null && rlde == null) {
+					for (TaxEnt te : driver.wrapTaxEnt(key1).getSynonyms()) {
+						rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(te.getID()));
+						if (rlde != null) {
+							thisRequest.success(new Gson().toJsonTree(rlde));
+							return;
+						}
+					}
+					thisRequest.error("No assessment found.");
+				} else thisRequest.success(new Gson().toJsonTree(rlde));
 			}
 			break;
 
