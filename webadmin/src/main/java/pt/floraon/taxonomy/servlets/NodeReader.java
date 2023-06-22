@@ -64,32 +64,31 @@ public class NodeReader extends FloraOnServlet {
 
 		case "taxonredlist":
 			errorIfAllNull(
-					key = thisRequest.getParameterAsKey("key")
-					, oldid = thisRequest.getParameterAsInteger("oldid", null)
+				key = thisRequest.getParameterAsKey("key")
+				, oldid = thisRequest.getParameterAsInteger("oldid", null)
 			);
+			TaxEnt te1;
+			INodeKey key1 = null;
 			if(key != null) {
-				thisRequest.success(new Gson().toJsonTree(
-						driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), key)
-				));
+				key1 = key;
 			} else if(oldid != null) {
-				TaxEnt te1 = driver.getNodeWorkerDriver().getTaxEntByOldId(oldid);
-				INodeKey key1 = null;
-				RedListDataEntity rlde = null;
-				if(te1 != null) {
+				te1 = driver.getNodeWorkerDriver().getTaxEntByOldId(oldid);
+				if(te1 != null)
 					key1 = driver.asNodeKey(te1.getID());
-					rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), key1);
-				}
-				if(key1 != null && rlde == null) {
-					for (TaxEnt te : driver.wrapTaxEnt(key1).getSynonyms()) {
-						rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(te.getID()));
-						if (rlde != null) {
-							thisRequest.success(new Gson().toJsonTree(rlde));
-							return;
-						}
-					}
-					thisRequest.error("No assessment found.");
-				} else thisRequest.success(new Gson().toJsonTree(rlde));
 			}
+			RedListDataEntity rlde = null;
+			if(key1 != null)
+				rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), key1);
+			if(key1 != null && rlde == null) {
+				for (TaxEnt te : driver.wrapTaxEnt(key1).getSynonyms()) {
+					rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(te.getID()));
+					if (rlde != null) {
+						thisRequest.success(new Gson().toJsonTree(rlde));
+						return;
+					}
+				}
+				thisRequest.error("No assessment found.");
+			} else thisRequest.success(new Gson().toJsonTree(rlde));
 			break;
 
 		default:

@@ -10,7 +10,7 @@ import java.util.Map;
 @WebListener
 public class StartupListener implements ServletContextListener {
     private static final Map<String, String> PAGEROPTIONS =
-            ImmutableMap.of("250", "250", "1000", "1000", "5000", "5000", "10000000", "all");
+            ImmutableMap.of("250", "250", "1000", "1000", "2000", "2000");
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
