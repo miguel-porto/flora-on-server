@@ -56,8 +56,9 @@ public class PublicApi extends FloraOnServlet {
                 String category = null;
                 String threatType = null, mapFileName = "";
                 Integer squareSize;
-                Float borderWidth;
+                Float borderWidth, squareStrokeWidth;
                 String squareFill = null;
+                String strokeColor = null;
                 boolean standAlone, searchForCached;
                 boolean viewAll, showProtectedAreas;
                 Matcher m;
@@ -68,6 +69,7 @@ public class PublicApi extends FloraOnServlet {
                     key = driver.asNodeKey("taxent/" + m.group("id"));
                     squareSize = 10000;
                     borderWidth = 0.2f;
+                    squareStrokeWidth = 0.2f;
                     viewAll = false;
                     standAlone = true;
                     showProtectedAreas = false;
@@ -77,10 +79,13 @@ public class PublicApi extends FloraOnServlet {
                     threatType = thisRequest.getParameterAsString("threatType");
                     squareSize = thisRequest.getParameterAsInteger("size", 10000);
                     borderWidth = thisRequest.getParameterAsFloat("border", 2f);
+                    squareStrokeWidth = thisRequest.getParameterAsFloat("squareStrokeWidth", 2f);
                     viewAll = "all".equals(thisRequest.getParameterAsString("view"));
                     historical = thisRequest.getParameterAsBoolean("historical", false);
                     standAlone = thisRequest.getParameterAsBoolean("sa", true);
                     squareFill = "#" + thisRequest.getParameterAsString("squareFill");
+                    strokeColor = "#" + thisRequest.getParameterAsString("strokeColor");
+
                     showProtectedAreas = thisRequest.getParameterAsBoolean("pa", true);
                 }
 
@@ -226,8 +231,9 @@ public class PublicApi extends FloraOnServlet {
                 switch(format) {
                     case ".svg":
                         thisRequest.exportSVGMap(writer, processor, territory, thisRequest.getParameterAsBoolean("basemap", false)
-                                , borderWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas
-                                , standAlone, true, thisRequest.getParameterAsBoolean("stroke", false), squareFill);
+                                , borderWidth, squareStrokeWidth, thisRequest.getParameterAsBoolean("shadow", true), protectedAreas
+                                , standAlone, true, thisRequest.getParameterAsBoolean("stroke", false)
+                                , squareFill, strokeColor);
                         break;
 
                     case ".csv":

@@ -11,7 +11,9 @@
     showShadow="${showShadow}"
     standAlone="${standAlone}"
     borderWidth="${borderWidth}"
+    squareStrokeWidth="${squareStrokeWidth}"
     scaleStroke="${scaleStroke}"
     showOccurrences="${showOccurrences}"
     squareFill="${squareFill}"
+    strokeColor="${strokeColor}"
     />
