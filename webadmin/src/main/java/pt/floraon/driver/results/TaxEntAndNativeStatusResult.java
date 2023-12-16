@@ -40,6 +40,8 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	 */
 	protected TaxEnt acceptedTaxon;
 
+	protected String[] relationships;
+
 	public List<TerritoryStatus> getTerritoryStatus() {
 		return this.territories;
 	}
@@ -145,6 +147,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print(this.taxent.getFullName());
 		rec.print(this.taxent.getAuthor());
 		rec.print(this.acceptedTaxon == null ? "" : this.acceptedTaxon.getFullName());
+		rec.print(StringUtils.implode(",", this.relationships));
 		if(this.territories==null) return;
 
 		for(String t : allTerritories) {
@@ -167,6 +170,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print("fullName");
 		rec.print("authority");
 		rec.print("acceptedTaxon");
+		rec.print("relationships");
 		for(String t : territories) {
 			rec.print(t);
 		}
