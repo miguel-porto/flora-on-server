@@ -1,6 +1,8 @@
 package pt.floraon.server;
 
 import pt.floraon.driver.FloraOnException;
+import pt.floraon.driver.utils.StringUtils;
+import pt.floraon.occurrences.Common;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -29,7 +31,12 @@ public class MainPage extends FloraOnServlet {
             return;
         }
 */
-
+        String mpl = driver.getProperties().getProperty("mainPageLogo");
+        thisRequest.request.setAttribute("mainPageLogo", mpl == null ? null : "images/" + mpl);
+        thisRequest.request.setAttribute("mainPageFooter", driver.getProperties().getProperty("mainPageFooter"));
+        String tmp = driver.getProperties().getProperty("mainMenu");
+        thisRequest.request.setAttribute("mainMenu", StringUtils.isStringEmpty(tmp) ? null : tmp);
+        thisRequest.request.setAttribute("favicons", driver.getProperties().getProperty("favicons"));
         thisRequest.request.setAttribute("redlistterritories", driver.getRedListData().getRedListTerritories());
         thisRequest.request.setAttribute("globalSettings", driver.getGlobalSettings());
         thisRequest.request.getRequestDispatcher("/main.jsp").forward(thisRequest.request, thisRequest.response);

@@ -12,6 +12,8 @@
 	<title>Taxonomy &amp; Checklist Manager</title>
 	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
+	<c:if test="${favicons != null}"><jsp:include page="${favicons}" flush="true" /></c:if>
+	<%--
     <link rel="apple-touch-icon" sizes="57x57"          href="icon/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60"          href="icon/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72"          href="icon/apple-icon-72x72.png">
@@ -29,6 +31,7 @@
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="icon/ms-icon-144x144.png">
     <meta name="theme-color" content="#ffffff">
+    --%>
 </head>
 <body style="text-align:center" class="enterpage">
     <div id="logindiv">
@@ -54,15 +57,21 @@
     </c:choose>
     </div>
     <div class="outer">
-        <img src="images/logo-LV-cor-fundoclaro_800.png" alt="logo"/>
+        <img src="${mainPageLogo}" style="width:715px" alt="logo"/>
         <div style="width:100%"></div>
         <%--<c:if test="${user.isGuest()}"><p style="font-size:3em">portal de trabalho</p></c:if>
         <c:if test="${!user.isGuest()}">--%>
         <c:if test="${globalSettings.isClosedForAdminTasks()}"><div class="warning"><p><img class="exclamation" src="./images/exclamation.png"/><span>Portal temporariamente fechado para actualização</span></p>Por favor volte novamente um pouco mais tarde (normalmente é rápido).</div></c:if>
         <div style="width:100%"></div>
         <ul id="mainmenu" class="mainmenu">
+            <c:if test="${mainMenu == null}">
             <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>
+            </c:if>
+            <c:if test="${mainMenu != null && user.isGuest()}"><jsp:include page="${mainMenu}" flush="true" /></c:if>
             <c:if test="${!user.isGuest()}">
+            <c:if test="${mainMenu != null}">
+            <li class="section1"><div class="bullet"></div><span><a href="checklist"><fmt:message key="Modules.2"/></a></span></li>
+            </c:if>
             <c:if test="${redlistterritories.size() > 0}">
             <c:forEach var="terr" items="${redlistterritories}">
                 <li class="section2"><div class="bullet"></div><span><a href="redlist/${terr}"><fmt:message key="Modules.1"/> | ${terr}</a>
@@ -77,12 +86,7 @@
         </ul>
     </div>
     <div id="stamp">portal de trabalho</div>
-    <div id="logobar">
-        <div><p>Coordenação</p><div class="logos"><img src="images/logo_SPBotanica.png"/><img src="images/logo_Phytos.jpg"/></div></div>
-        <div><p>Parceria</p><div class="logos"><img src="images/logo_ICNF.png"/></div></div>
-        <div><p>Co-financiamento</p><div class="logos"><img src="images/logo_poseur.png"/><img src="images/logo_Portugal_2020.png"/><img src="images/logo_UE.png"/><img src="images/logo_FundoAmbiental.png"/></div></div>
-        <div><p>Apoio</p><div class="logos"><img src="images/logo_INCD.png"/></div></div>
-    </div>
+    <c:if test="${mainPageFooter != null}"><jsp:include page="${mainPageFooter}" flush="true" /></c:if>
     <a href="https://github.com/miguel-porto/flora-on-server">
     <svg style="position: absolute; top: 0; left: 0; border: 0; width:48px; height:48px; margin:6px" version="1.1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
     </a>

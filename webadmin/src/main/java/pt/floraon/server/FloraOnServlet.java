@@ -262,6 +262,8 @@ public class FloraOnServlet extends HttpServlet {
 
 		public Float getParameterAsFloat(String name, Float nullValue) throws IOException, ServletException {
 			try {
+				if(getParameterAsString(name) == null)
+					return nullValue;
 				return Float.parseFloat(getParameterAsString(name));
 			} catch (NumberFormatException e) {
 				return nullValue;

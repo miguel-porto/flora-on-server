@@ -35,6 +35,10 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	 * The list of inferred native status for all checklist territories
 	 */
 	protected transient Map<String,InferredStatus> inferredStatus;
+	/**
+	 * The closest accepted taxon
+	 */
+	protected TaxEnt acceptedTaxon;
 
 	public List<TerritoryStatus> getTerritoryStatus() {
 		return this.territories;
@@ -140,6 +144,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print((this.isLeaf == null ? "" : (this.isLeaf ? "" : "+")) + this.taxent.getNameWithAnnotationOnly(false));
 		rec.print(this.taxent.getFullName());
 		rec.print(this.taxent.getAuthor());
+		rec.print(this.acceptedTaxon == null ? "" : this.acceptedTaxon.getFullName());
 		if(this.territories==null) return;
 
 		for(String t : allTerritories) {
@@ -161,6 +166,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print("canonicalName");
 		rec.print("fullName");
 		rec.print("authority");
+		rec.print("acceptedTaxon");
 		for(String t : territories) {
 			rec.print(t);
 		}
