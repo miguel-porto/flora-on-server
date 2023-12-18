@@ -148,6 +148,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print(this.taxent.getAuthor());
 		rec.print(this.acceptedTaxon == null ? "" : this.acceptedTaxon.getFullName());
 		rec.print(StringUtils.implode(",", this.relationships));
+		rec.print(StringUtils.implode(",", this.inferEndemismDegree().toArray(new String[0])));
 		if(this.territories==null) return;
 
 		for(String t : allTerritories) {
@@ -171,6 +172,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print("authority");
 		rec.print("acceptedTaxon");
 		rec.print("relationships");
+		rec.print("endemicTo");
 		for(String t : territories) {
 			rec.print(t);
 		}
