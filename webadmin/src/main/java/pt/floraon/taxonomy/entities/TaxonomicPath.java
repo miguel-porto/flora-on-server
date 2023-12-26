@@ -19,6 +19,12 @@ public class TaxonomicPath {
         this.path = path;
     }
 
+    /**
+     * Returns the last taxon of the given rank. If there are multiple taxa of the same rank in path, returns the last
+     * one.
+     * @param rank
+     * @return
+     */
     public TaxEnt getTaxonOfRank(Constants.TaxonRanks rank) {
         if(this.pathMap == null) buildMap();
 

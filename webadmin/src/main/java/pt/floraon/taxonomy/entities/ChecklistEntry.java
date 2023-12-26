@@ -3,6 +3,7 @@ package pt.floraon.taxonomy.entities;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.results.InferredStatus;
 import pt.floraon.driver.results.TaxEntAndNativeStatusResult;
 
@@ -24,6 +25,7 @@ public class ChecklistEntry extends TaxEntAndNativeStatusResult {
     @Override
     public void toCSVLine(CSVPrinter rec, Object obj) throws IOException {
         TaxonomicPath taxonomicPath;
+        this.higherTaxonomy.remove(this.higherTaxonomy.size() - 1);
         taxonomicPath = new TaxonomicPath(this.higherTaxonomy);
 
         if (this.taxent == null) {
@@ -35,8 +37,14 @@ public class ChecklistEntry extends TaxEntAndNativeStatusResult {
         for(Constants.TaxonRanks cf : Constants.CHECKLISTFIELDS) {
             if((tmp = taxonomicPath.getTaxonOfRank(cf)) == null)
                 rec.print("");
-            else
-                rec.print(tmp.getFullName(false));
+            else {
+                try {
+                    rec.print(tmp.getTaxonName().getCanonicalName(true));
+                } catch (TaxonomyException e) {
+                    rec.print("<ERROR>");
+                    e.printStackTrace();
+                }
+            }
         }
         super.toCSVLine(rec, obj);
     }
