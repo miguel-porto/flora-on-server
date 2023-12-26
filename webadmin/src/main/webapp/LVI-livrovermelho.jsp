@@ -12,22 +12,14 @@
 	<title>LVI - O projeto</title>
 	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
-    <link rel="apple-touch-icon" sizes="57x57"          href="icon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60"          href="icon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72"          href="icon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76"          href="icon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114"        href="icon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120"        href="icon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144"        href="icon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152"        href="icon/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180"        href="icon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"   href="icon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32"     href="icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96"     href="icon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16"     href="icon/favicon-16x16.png">
-    <link rel="manifest" href="icon/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="icon/ms-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/icons-lvi/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons-lvi/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons-lvi/favicon-16x16.png">
+    <link rel="manifest" href="/icons-lvi/site.webmanifest">
+    <link rel="mask-icon" href="/icons-lvi/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/icons-lvi/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="/icons-lvi/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <style>
     h1 {
@@ -48,7 +40,7 @@
     <p>O primeiro Livro Vermelho dos Invertebrados de Portugal Continental é uma obra há muito aguardada e fundamental para a conservação da biodiversidade do nosso país. Reúne os resultados da avaliação do risco de extinção de 863 espécies de invertebrados terrestres e dulçaquícolas, uma pequena fração da rica biodiversidade nacional conhecida, que é superior a 15.000 espécies. As espécies avaliadas pertencem a vários grupos taxonómicos, tais como gastrópodes, bivalves, aranhas, crustáceos e insetos, e incluem um número assinalável de endemismos lusitânicos e ibéricos. Cerca de 200 espécies foram classificadas como ameaçadas e esta obra dá a conhecer a sua ecologia, distribuição em Portugal continental e tendências populacionais, a par da identificação das principais ameaças às suas populações e das medidas necessárias à sua conservação.</p>
     <p>O trabalho aqui apresentado resulta da colaboração de mais de 360 pessoas e de dezenas de instituições e pretende-se que venha a constituir uma referência no apoio à tomada de decisão em assuntos relacionados com a conservação da natureza e a gestão do território, mas também como instrumento educativo e de sensibilização para a conservação da biodiversidade.</p>
     <p></p>
-    <p>O Livro Vermelho dos Invertebrados de Portugal continental pode ser descarregado aqui</p>
+    <p>O Livro Vermelho dos Invertebrados de Portugal continental pode ser <a href="https://lvinvertebrados.uac.pt/docs/Livro-Vermelho-dos-Invertebrados-de-Portugal-Continental.pdf">descarregado aqui</a></p>
     <h1>A lista de espécies avaliadas</h1>
     <p>A avaliação incidiu sobre um conjunto de espécies previamente selecionado, por ser inviável fazê-lo para todas as espécies de invertebrados de Portugal. Numa primeira fase, efetuou-se a seleção dos grupos para avaliação do risco de extinção tendo em consideração a informação fornecida pelos especialistas taxonómicos a realizar trabalho ativo nessa área do conhecimento. A seleção das espécies dentro de cada grupo de invertebrados procurou incluir os endemismos de Portugal continental e da Península Ibérica, as espécies com um reduzido número de registos de ocorrência no nosso país e aquelas que se suspeitava estarem ameaçadas ou que os seus habitats se encontram em regressão. Foram ainda incluídas no processo de avaliação as espécies de invertebrados terrestres e dulçaquícolas listadas na Diretiva Habitats.</p>
     <p>Ao elenco inicial de espécies a avaliar (707) foram adicionadas algumas espécies que se suspeitou estarem em declínio e para as quais se obteve informação suficiente para a sua avaliação durante o desenvolvimento do projeto, e foram eliminadas espécies cuja ocorrência em Portugal se mostrou duvidosa ou para as quais ocorreram alterações taxonómicas importantes. Desta forma, o número de espécies avaliadas no âmbito do projeto foi de 863, sendo 22 crustáceos, 79 gastrópodes, 10 bivalves, 43 aracnídeos e 709 insetos.</p>

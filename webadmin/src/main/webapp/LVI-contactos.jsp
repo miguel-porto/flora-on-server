@@ -12,22 +12,14 @@
 	<title>LVI - O projeto</title>
 	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
 	<link rel="stylesheet" type="text/css" href="base.css?nocache=${uuid}"/>
-    <link rel="apple-touch-icon" sizes="57x57"          href="icon/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60"          href="icon/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72"          href="icon/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76"          href="icon/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114"        href="icon/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120"        href="icon/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144"        href="icon/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152"        href="icon/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180"        href="icon/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"   href="icon/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32"     href="icon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96"     href="icon/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16"     href="icon/favicon-16x16.png">
-    <link rel="manifest" href="icon/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="icon/ms-icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="/icons-lvi/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons-lvi/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons-lvi/favicon-16x16.png">
+    <link rel="manifest" href="/icons-lvi/site.webmanifest">
+    <link rel="mask-icon" href="/icons-lvi/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="shortcut icon" href="/icons-lvi/favicon.ico">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-config" content="/icons-lvi/browserconfig.xml">
     <meta name="theme-color" content="#ffffff">
     <style>
     h1 {
