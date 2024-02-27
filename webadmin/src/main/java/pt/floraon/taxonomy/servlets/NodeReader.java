@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
 import pt.floraon.driver.interfaces.INodeKey;
+import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.entities.RedListDataEntity;
 import pt.floraon.server.FloraOnServlet;
 import pt.floraon.taxonomy.entities.TaxEnt;
@@ -79,13 +80,21 @@ public class NodeReader extends FloraOnServlet {
 			RedListDataEntity rlde = null;
 			if(key1 != null)
 				rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), key1);
-			if(key1 != null && rlde == null) {
+			if(key1 != null && (rlde == null || rlde.getAssessment().getReviewStatus() != RedListEnums.ReviewStatus.REVISED_PUBLISHING)) {	// this taxon has no assessment sheet
+				// search for assessments in the synonyms
 				for (TaxEnt te : driver.wrapTaxEnt(key1).getSynonyms()) {
 					rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(te.getID()));
-					if (rlde != null) {
+					if (rlde != null && rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) {
 						thisRequest.success(new Gson().toJsonTree(rlde));
 						return;
 					}
+				}
+				// not found, search parent taxon
+				TaxEnt te = driver.wrapTaxEnt(key1).getParentTaxon();
+				rlde = driver.getRedListData().getRedListDataEntity(driver.getDefaultRedListTerritory(), driver.asNodeKey(te.getID()));
+				if (rlde != null && rlde.getAssessment().getReviewStatus() == RedListEnums.ReviewStatus.REVISED_PUBLISHING) {
+					thisRequest.success(new Gson().toJsonTree(rlde));
+					return;
 				}
 				thisRequest.error("No assessment found.");
 			} else thisRequest.success(new Gson().toJsonTree(rlde));

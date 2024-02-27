@@ -106,7 +106,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         try {
             return database.query(
                     AQLOccurrenceQueries.getString(query, userId == null ? null : userId.toString())
-                    , null, new AqlQueryOptions().ttl(120), Inventory.class);
+                    , null, new AqlQueryOptions().ttl(1200), Inventory.class);
         } catch (ArangoDBException e) {
             throw new DatabaseException(e.getMessage());
         }
