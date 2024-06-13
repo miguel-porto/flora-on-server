@@ -16,6 +16,7 @@ import pt.floraon.driver.Constants.RelTypes;
 import pt.floraon.driver.Constants.TaxonRanks;
 import pt.floraon.driver.Constants.TerritoryTypes;
 import pt.floraon.driver.Constants.WorldNativeDistributionCompleteness;
+import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.ecology.entities.Habitat;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -222,6 +223,12 @@ public class ApiUpdate extends FloraOnServlet {
 							,thisRequest.getParameterAsInteger("oldId", null)
 					);
 				}
+				if(StringUtils.isStringEmpty(te.getSensu())) {    // remove attribute
+					// FIXME error null
+					NWD.updateDocument(thisRequest.getParameterAsKey("id"), "sensu", null, false);
+					te.setSensu(null);
+				}
+
 				te.setCurrent(thisRequest.getParameterAsBoolean("current"));
 				te.setWorldDistributionCompleteness(thisRequest.getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class));
 				te.setOldId(thisRequest.getParameterAsInteger("oldId", null));

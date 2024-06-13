@@ -336,7 +336,7 @@ public class RedListDataApi extends FloraOnServlet {
                 Log.info(thisRequest.getParameterAsKey("source"));
                 Log.info(thisRequest.getParameterAsString("id"));
                 driver.getNodeWorkerDriver().updateDocument(thisRequest.getParameterAsKey("source")
-                        , "taxEntID", thisRequest.getParameterAsString("id"));
+                        , "taxEntID", thisRequest.getParameterAsString("id"), true);
                 thisRequest.success("Ok");
                 break;
 

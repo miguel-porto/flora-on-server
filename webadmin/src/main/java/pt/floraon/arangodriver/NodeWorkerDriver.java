@@ -342,11 +342,16 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	}
 
 	@Override
-    public GraphUpdateResult updateDocument(INodeKey id, String key, Object value) throws FloraOnException {
+	public GraphUpdateResult updateDocument(INodeKey id, String key, Object value) throws FloraOnException {
+		return updateDocument(id, key, value, true);
+	}
+
+	@Override
+    public GraphUpdateResult updateDocument(INodeKey id, String key, Object value, boolean keepNull) throws FloraOnException {
     	HashMap<String, Object> newHashMap = new HashMap<String, Object>();
     	newHashMap.put(key, value);
     	try {
-			database.collection(id.getCollection()).updateDocument(id.getDBKey(), newHashMap);
+			database.collection(id.getCollection()).updateDocument(id.getDBKey(), newHashMap, new DocumentUpdateOptions().keepNull(keepNull));
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

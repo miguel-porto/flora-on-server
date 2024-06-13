@@ -113,7 +113,7 @@ public class AdminAPI extends FloraOnServlet {
                     filePart = thisRequest.request.getPart("userarea");
                     if(filePart.getSize() == 0) {
                         driver.getNodeWorkerDriver().updateDocument(thisRequest.getParameterAsKey("databaseId")
-                                , "userPolygons", "");
+                                , "userPolygons", "", true);
                         thisRequest.success("Ok");
                         return;
                     }
@@ -137,7 +137,7 @@ public class AdminAPI extends FloraOnServlet {
                     else {
                         bais = new ByteArrayInputStream(bytes);
                         thisRequest.success(driver.getNodeWorkerDriver().updateDocument(thisRequest.getParameterAsKey("databaseId")
-                                , "userPolygons", IOUtils.toString(bais)).toJsonObject());
+                                , "userPolygons", IOUtils.toString(bais), true).toJsonObject());
                     }
                 }
                 break;

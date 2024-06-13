@@ -177,7 +177,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 if(oldIdColumn != null) { 	// FIXME: OldId
                     String oldId = record.get(oldIdColumn);
                     if(!StringUtils.isStringEmpty(oldId))
-                        nwd.updateDocument(driver.asNodeKey(curTaxEnt.getID()), "oldId", (Integer)Integer.parseInt(oldId));
+                        nwd.updateDocument(driver.asNodeKey(curTaxEnt.getID()), "oldId", (Integer)Integer.parseInt(oldId), true);
                     //curTaxEnt.setOldId(Integer.parseInt(record.get(oldIdColumn)));
                     //curTaxEnt.commit();
                 }
@@ -330,7 +330,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 }
 
                 if(oldIdColumn != null) { 	// FIXME: OldId
-                    nwd.updateDocument(driver.asNodeKey(curTaxEnt.getID()), "oldId", (Integer)Integer.parseInt(record.get(oldIdColumn)));
+                    nwd.updateDocument(driver.asNodeKey(curTaxEnt.getID()), "oldId", (Integer)Integer.parseInt(record.get(oldIdColumn)), true);
                     //curTaxEnt.setOldId(Integer.parseInt(record.get(oldIdColumn)));
                     //curTaxEnt.commit();
                 }

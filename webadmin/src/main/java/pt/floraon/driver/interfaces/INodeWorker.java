@@ -180,6 +180,8 @@ public interface INodeWorker {
 	 * @return
 	 * @throws FloraOnException
 	 */
+	GraphUpdateResult updateDocument(INodeKey id, String key, Object value, boolean keepNull) throws FloraOnException;
+
 	GraphUpdateResult updateDocument(INodeKey id, String key, Object value) throws FloraOnException;
 
 	/**
