@@ -224,7 +224,6 @@ public class ApiUpdate extends FloraOnServlet {
 					);
 				}
 				if(StringUtils.isStringEmpty(te.getSensu())) {    // remove attribute
-					// FIXME error null
 					NWD.updateDocument(thisRequest.getParameterAsKey("id"), "sensu", null, false);
 					te.setSensu(null);
 				}
