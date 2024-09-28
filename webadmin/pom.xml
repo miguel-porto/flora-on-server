@@ -88,9 +88,14 @@
 		<dependency>
 			<groupId>com.arangodb</groupId>
 			<artifactId>arangodb-java-driver</artifactId>
-			<version>6.12.3</version>
+			<version>6.25.0</version>
 <!--			<scope>compile</scope>-->
 		</dependency>
+<!--		<dependency>
+			<groupId>com.arangodb</groupId>
+			<artifactId>jackson-dataformat-velocypack</artifactId>
+			<version>4.3.0</version>
+		</dependency>-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>

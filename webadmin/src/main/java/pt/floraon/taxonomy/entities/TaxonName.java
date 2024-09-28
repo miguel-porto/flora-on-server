@@ -68,6 +68,10 @@ public class TaxonName {
         // get rid of strange spaces
         verbatimName = verbatimName.replaceAll("[ \\t\\xA0\\u1680\\u180e\\u2000-\\u200a\\u202f\\u205f\\u3000]", " ");
 
+        verbatimName = verbatimName.replaceAll(" +", " ").trim();
+        if(verbatimName.equals(""))
+            throw new TaxonomyException(Messages.getString("error.3"));
+
         Matcher m = completeName.matcher(verbatimName);
         if(debug) Log.info("  Verb: " + verbatimName);
         String previousEpithet, previousAuthor;

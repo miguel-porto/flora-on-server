@@ -219,7 +219,7 @@ public class ApiUpdate extends FloraOnServlet {
 							,thisRequest.getParameterAsString("annotation")
 							,thisRequest.getParameterAsBoolean("current")
 							,null
-							,thisRequest.getParameterAsEnum("worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
+							,thisRequest.getParameterAsEnum( "worldDistributionCompleteness", WorldNativeDistributionCompleteness.class)
 							,thisRequest.getParameterAsInteger("oldId", null)
 					);
 				}

@@ -16,6 +16,10 @@ var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest
     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
 });
 */
+var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+});
+
 
 function submitOnEnter(event){
     if(event.which === 13){
@@ -38,7 +42,8 @@ function dimMainTable() {
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof L !== 'undefined') {
         myMap = L.map('mapcontainer', {zoomSnap: 0, markerZoomAnimation: false}).setView([39.5, -8.1], 8);
-        L.tileLayer.bing({imagerySet:'AerialWithLabels', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
+        L.tileLayer.bing({imagerySet:'AerialWithLabelsOnDemand', bingMapsKey: 'AiPknGGGT9nQtbl5Rpa_fhMQxthyZrh5z_bAc-ESzNaaqwQYcyEthgHB-_WowOEP'}).addTo(myMap);
+        //L.tileLayer.provider('Esri.WorldImagery').addTo(myMap);
         myMap.on('click', mapClick);
 
         if(document.querySelector('input[name=queriedRectangleMinLat]')) {

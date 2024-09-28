@@ -29,6 +29,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
 //    private static Pattern filterPattern = Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?.,;<>*-]+))");
     private static Pattern filterPattern =
         Pattern.compile("((?<key>[a-zA-Z]+): *(?<value>[\\wçãõáàâéêíóôú/?ºª&.,;<>* ()-]+?)(?= +[a-zA-Z]+:| *$))");
+    private static List<String> infraRanks = Arrays.asList("subsp.", "var.", "f.", "ssp.", "subvar.", "forma");
 
     public GOccurrenceDriver(IFloraOn driver) {
         super(driver);
@@ -41,7 +42,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         for(OBSERVED_IN oi : inventory.getUnmatchedOccurrences()) {
             TaxEnt te, te1;
             List<TaxEnt> matched;
-//            Log.info("Verbose name: "+ oi.getVerbTaxon());
+            Log.info("Verbose name: "+ oi.getVerbTaxon());
             if(oi.getVerbTaxon() == null) continue;
 
             if(oi.getVerbTaxon().trim().equals("")) {
@@ -52,19 +53,46 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
             }
 
             try {
-//                te = new TaxEnt(new TaxonName(oi.getVerbTaxon()));
-                te = TaxEnt.parse2(oi.getVerbTaxon());      // this allows uninomials
+                te = new TaxEnt(new TaxonName(oi.getVerbTaxon()));
+//                te = TaxEnt.parse2(oi.getVerbTaxon());      // this allows uninomials
             } catch (FloraOnException e) {  // could not even parse the name
                 if(inventories != null)
 //                    inventories.addQuestion(oi.getVerbTaxon(), oi.getUuid(), null);
                     inventories.addParseError(oi.getVerbTaxon());
-                Log.warn(e.getMessage());
+                Log.warn(oi.getVerbTaxon() + ": " + e.getMessage());
                 oi.setTaxEntMatch("");
                 continue;
             }
 //            Log.info("    Parsed name: "+ te.getFullName(false));
             matched = nwd.getTaxEnt(te, ask, false);
             if(matched.size() > 1) Log.info("    Matched size: "+ matched.size());
+            if(matched.size() == 0) {
+                // let's check if this is a trinomial without infrarank
+                String tmp = oi.getVerbTaxon().replaceAll(" +", " ").trim();
+                String[] splitted = tmp.split(" ");
+                //Log.info("    Splitted length of " + tmp + ":" + splitted.length);
+                if(splitted.length == 3) {
+                    StringBuilder tmp1 = new StringBuilder();
+                    for (String iR : infraRanks) {
+                        tmp1.setLength(0);
+                        tmp1.append(splitted[0]).append(" ").append(splitted[1]).append(" ")
+                                .append(iR).append(" ").append(splitted[2]);
+                        Log.info("    Checking trinomial " + tmp1.toString());
+                        try {
+                            te = new TaxEnt(new TaxonName(tmp1.toString()));
+                            matched = nwd.getTaxEnt(te, ask, false);
+//                            Log.info("    Matched size: " + matched.size());
+                            if(matched.size() == 0) {
+                                te = null;
+                                continue;
+                            }
+                            break;
+                        } catch (FloraOnException ignored) {
+                        }
+                    }
+                }
+            }
+
             switch(matched.size()) {
             case 0:
                 if (createNew) {

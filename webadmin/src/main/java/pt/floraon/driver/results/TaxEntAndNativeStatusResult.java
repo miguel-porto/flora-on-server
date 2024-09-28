@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.csv.CSVPrinter;
 
 import pt.floraon.driver.Constants;
+import pt.floraon.driver.TaxonomyException;
 import pt.floraon.driver.utils.StringUtils;
 import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
@@ -41,6 +42,11 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 	protected TaxEnt acceptedTaxon;
 
 	protected String[] relationships;
+
+	/**
+	 * All the existing direct parents that are species or inferior
+	 */
+	protected TaxEnt[] parents;
 
 	public List<TerritoryStatus> getTerritoryStatus() {
 		return this.territories;
@@ -148,6 +154,19 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print(this.taxent.getAuthor());
 		rec.print(this.acceptedTaxon == null ? "" : this.acceptedTaxon.getFullName());
 		rec.print(StringUtils.implode(",", this.relationships));
+		// iterate through the parents and extract canonical names
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < this.parents.length; i++) {
+			try {
+				if(this.parents[i] != null && !this.parents[i].getTaxonName().getCanonicalName().matches(" *")) {
+					sb.append(this.parents[i].getTaxonName().getCanonicalName(true));
+					if(i < this.parents.length-1 && this.parents[i+1] != null && !this.parents[i+1].getTaxonName().getCanonicalName().matches(" *")) sb.append("|");
+				}
+			} catch (TaxonomyException e) {
+				e.printStackTrace();
+			}
+		}
+		rec.print(sb.toString());
 		rec.print(StringUtils.implode(",", this.inferEndemismDegree().toArray(new String[0])));
 		if(this.territories==null) return;
 
@@ -172,6 +191,7 @@ public class TaxEntAndNativeStatusResult extends SimpleTaxEntResult implements R
 		rec.print("authority");
 		rec.print("acceptedTaxon");
 		rec.print("relationships");
+		rec.print("parents");
 		rec.print("endemicTo");
 		for(String t : territories) {
 			rec.print(t);
