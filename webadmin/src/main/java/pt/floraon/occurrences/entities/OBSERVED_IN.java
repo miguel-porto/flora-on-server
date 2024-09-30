@@ -34,8 +34,8 @@ public class OBSERVED_IN extends GeneralDBEdge implements Serializable, Diffable
     @EditWidget(value = EditWidget.Type.DROPDOWN,
             valuesSimple = {"FLOWER", "DISPERSION", "VEGETATIVE"},
             labelsSimple = {"❀Floração", "Dispersão", "Vegetativo"},
-            valuesAdvanced = {"FLOWER", "DISPERSION", "VEGETATIVE", "RESTING", "BUD", "FRUIT", "FLOWER_DISPERSION", "FLOWER_FRUIT"},
-            labelsAdvanced = {"Floração", "Dispersão", "Vegetativo", "Dormência", "Em botão", "Fruto imaturo", "Flor+Dispersão", "Flor+Fruto imaturo"})
+            valuesAdvanced = {"FLOWER", "DISPERSION", "VEGETATIVE", "RESTING", "BUD", "FRUIT", "FLOWER_DISPERSION", "FLOWER_FRUIT", "FRUIT_DISPERSION"},
+            labelsAdvanced = {"Floração", "Dispersão", "Vegetativo", "Dormência", "Em botão", "Fruto imaturo", "Flor+Dispersão", "Flor+Fruto imaturo", "Fruto imaturo+Dispersão"})
     private Constants.PhenologicalStates phenoState;
     @FieldStyle(FieldStyle.Size.SMALL)
     @HideInCompactView @FieldParser(EnumParser.class)

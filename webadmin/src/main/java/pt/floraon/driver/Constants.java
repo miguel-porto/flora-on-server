@@ -108,16 +108,39 @@ public final class Constants {
 	}
 
 	public enum TaxonRanks {
-		NORANK("non-taxonomic rank", 1000, null), CLASS("Class", 50, null), FAMILY("Family", 100, null)
-		, FORM("Form", 240, "f."), GENUS("Genus", 140, null), KINGDOM("Kingdom", 10, null), ORDER("Order", 80, null)
-		, PHYLUM("Phylum (Division)", 30, null), SECTION("Section", 160, "sect."), SERIES("Series", 180, null)
-		, SPECIES("Species", 200, null), SUBCLASS("Subclass", 60, null), SUBGENUS("Subgenus", 150, "subgen.")
-		, SUBFAMILY("Subfamily", 110, null), SUBFORM("Subform", 250, null), SUBKINGDOM("Subkingdom", 20, null)
-		, SUBORDER("Suborder", 90, null), SUBPHYLUM("Subphylum (Subdivision)", 40, null), SUBSECTION("Subsection", 170, "subsect.")
-		, SUBSERIES("Subseries", 190, null), SUBSPECIES("Subspecies", 210, "subsp."), SUBTRIBE("Subtribe", 130, null)
-		, SUBVARIETY("Subvariety", 230, "subvar."), SUPERORDER("Superorder", 70, null), TRIBE("Tribe", 120, null)
-		, VARIETY("Variety", 220, "var.");
-    
+		NORANK("non-taxonomic rank", 1000, null)
+		, KINGDOM("Kingdom", 10, null)
+		, SUBKINGDOM("Subkingdom", 20, null)
+		, PHYLUM("Phylum (Division)", 30, null)
+		, SUBPHYLUM("Subphylum (Subdivision)", 40, null)
+		, CLASS("Class", 50, null)
+		, SUBCLASS("Subclass", 60, null)
+		, SUPERORDER("Superorder", 70, null)
+		, ORDER("Order", 80, null)
+		, SUBORDER("Suborder", 90, null)
+		, INFRAORDER("Infraorder", 94, null)
+		, SUPERFAMILY("Superfamily", 96, null)
+		, EPIFAMILY("Epifamily", 98, null)
+		, FAMILY("Family", 100, null)
+		, SUBFAMILY("Subfamily", 110, null)
+		, INFRAFAMILY("Infrafamily", 112, null)
+		, TRIBE("Tribe", 120, null)
+		, SUBTRIBE("Subtribe", 130, null)
+		, INFRATRIBE("Infratribe", 132, null)
+		, GENUS("Genus", 140, null)
+		, SUBGENUS("Subgenus", 150, "subgen.")
+		, SECTION("Section", 160, "sect.")
+		, SUBSECTION("Subsection", 170, "subsect.")
+		, SERIES("Series", 180, null)
+		, SUBSERIES("Subseries", 190, null)
+		, SPECIES("Species", 200, null)
+		, SUBSPECIES("Subspecies", 210, "subsp.")
+		, VARIETY("Variety", 220, "var.")
+		, SUBVARIETY("Subvariety", 230, "subvar.")
+		, FORM("Form", 240, "f.")
+		, SUBFORM("Subform", 250, null)
+		;
+
 		private final String name;
 		private final Integer value;
 		private final String shortName;
@@ -175,7 +198,8 @@ public final class Constants {
 		, FLOWER_DISPERSION("Flower+Dispersion")
 		, FRUIT("Immature fruit")
 		, RESTING("Resting")
-		, FLOWER_FRUIT("Flower+Fruit")
+		, FLOWER_FRUIT("Flower+Immature fruit")
+		, FRUIT_DISPERSION("Immature fruit+Dispersion")
 		, BUD("Flower buds");
 
 		private String label;
