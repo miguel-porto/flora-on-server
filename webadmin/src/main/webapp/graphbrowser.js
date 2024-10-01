@@ -768,7 +768,10 @@ function clickToolbar(ev) {
 		    if(el.id == 'but-delnode')
 			    if(!confirm('You\'re about to delete a vertex, ALL THE EDGES CONNECTING TO IT WILL BE DELETED ALSO. This cannot be undone! Proceed?')) break;
 		    if(el.id == 'but-deltree')
-			    if(!confirm('You\'re about to delete a WHOLE TAXONOMIC BRANCH! ALL THE EDGES AND TAXA DOWNSTREAM THIS TAXON WILL BE DELETED! This cannot be undone! Proceed?')) break;
+			    if(prompt('You\'re about to delete a WHOLE TAXONOMIC BRANCH! ALL THE EDGES AND TAXA DOWNSTREAM THIS TAXON WILL BE DELETED! This cannot be undone! Proceed? Type "yes"') != 'yes') {
+			        alert('Nothing deleted.');
+			        break;
+			    }
 		}
 
 		if(seln.length==0) {

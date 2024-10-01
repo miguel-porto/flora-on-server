@@ -50,6 +50,10 @@
             <tr><td class="title">Name</td><td><input type="text" name="name" value="${user.getName()}" /></td></tr>
             <tr><td class="title">Username<br/><span class="info">Este é o nome que usa para fazer login. Não pode conter espaços.</span></td><td><input type="text" name="userName" value="${user.getUserName()}" /></td></tr>
             <tr><td class="title">iNaturalist login name<br/><span class="info">Este é o nome que usa para fazer login no iNaturalist.${user.canMODIFY_OCCURRENCES() ? '' : ' Se o definir, permite sincronizar os seus dados com os que estiverem no iNaturalist sob este observador.'}</span></td><td><input type="text" name="iNaturalistUserName" value="${user.getiNaturalistUserName()}" /></td></tr>
+            <tr><td class="title">Kingdoms<br/><span class="info">Escolha os reinos que pretende que estejam disponíveis</span></td><td>
+                <input id="kingdom_a" type="checkbox" name="showKingdoms" value="Animalia" <c:if test="${showKingdoms.contains('Animalia')}">checked="checked"</c:if> /><label for="kingdom_a">Animalia</label>
+                <input id="kingdom_b" type="checkbox" name="showKingdoms" value="Chlorobionta" <c:if test="${showKingdoms.contains('Chlorobionta')}">checked="checked"</c:if> /><label for="kingdom_b">Chlorobionta (plants)</label>
+            </td></tr>
         </table>
         <c:if test="${user.canMANAGE_EXTERNAL_DATA()}">
         <h2>Sincronização com iNaturalist - filtros cumulativos</h2>

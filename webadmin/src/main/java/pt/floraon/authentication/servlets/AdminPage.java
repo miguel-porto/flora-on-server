@@ -129,6 +129,7 @@ DEPRECATED
                 thisRequest.request.setAttribute("inventoryfields", inventoryFieldNames);
 //        thisRequest.request.setAttribute("specialfields", specialFieldNames);
                 thisRequest.request.setAttribute("customflavours", thisRequest.getUser().getCustomOccurrenceFlavours());
+                thisRequest.request.setAttribute("showKingdoms", Arrays.asList(thisRequest.getUser().getShowKingdoms()));
                 thisRequest.request.setAttribute("fieldData", new GeneralOccurrenceFlavour() {  // a dummy OF for exposing field attributes only
                     @Override
                     public String[] getFields() {

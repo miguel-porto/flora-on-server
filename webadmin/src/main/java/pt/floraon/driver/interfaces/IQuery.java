@@ -95,6 +95,8 @@ public interface IQuery {
      */
 	Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException;
 
+	Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit, String[] kingdoms) throws FloraOnException;
+
 	/**
 	 * Gets a list of suggested names similar to the query
 	 * @param query

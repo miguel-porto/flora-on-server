@@ -29,7 +29,7 @@ public class Suggestions extends FloraOnServlet {
 
 		switch(thisRequest.getParameterAsString("what", "taxon")) {
 			case "taxon":
-				Iterator<TaxEnt> ite = driver.getQueryDriver().findTaxonSuggestions(query, limit);
+				Iterator<TaxEnt> ite = driver.getQueryDriver().findTaxonSuggestions(query, limit, thisRequest.getUser().getShowKingdoms());
 				TaxEnt te;
 				pw.print("<ul class=\"suggestions\">");
 				while (ite.hasNext()) {

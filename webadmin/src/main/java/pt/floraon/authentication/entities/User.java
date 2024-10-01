@@ -36,6 +36,7 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 	private Set<Privileges> privileges;
 	private List<TaxonPrivileges> taxonPrivileges;
 	private List<String> uploadedTables;
+	private String[] showKingdoms;
 	private Map<String, String> savedOccurrenceFilters;
 	private iNaturalistFilter iNaturalistFilter;
 	private String userPolygons;
@@ -167,6 +168,14 @@ public class User extends NamedDBNode implements Comparable<User>, HttpSessionBi
 
 	public List<String> getUploadedTables() {
 		return uploadedTables == null ? Collections.<String>emptyList() : uploadedTables;
+	}
+
+	public String[] getShowKingdoms() {
+		return showKingdoms == null ? new String[0] : showKingdoms;
+	}
+
+	public void setShowKingdoms(String[] showKingdoms) {
+		this.showKingdoms = showKingdoms;
 	}
 
 	public void setUploadedTables(List<String> uploadedTables) {

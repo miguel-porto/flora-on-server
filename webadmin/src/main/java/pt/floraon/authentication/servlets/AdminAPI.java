@@ -266,6 +266,7 @@ public class AdminAPI extends FloraOnServlet {
 
         while (names.hasMoreElements()) {
             String name = names.nextElement();
+            Log.info("Param: " + name + "; value: " + thisRequest.request.getParameterValues(name).toString());
             if(name.startsWith("iNatFilter_")) {
                 iNatFilterMap.put(name.replace("iNatFilter_", ""), thisRequest.request.getParameter(name).replace('\n', ','));
             } else

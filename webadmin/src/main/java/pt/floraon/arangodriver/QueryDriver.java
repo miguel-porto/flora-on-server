@@ -295,29 +295,46 @@ FOR final IN FLATTEN(FOR v IN base
     }
 
 	@Override
-    public Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
-    	String limitQ;
-		String _query = null;
-		// FIXME: use bind vars
-		if(limit != null) limitQ = "LIMIT " + limit; else limitQ = "";
+	public Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit) throws FloraOnException {
+		return findTaxonSuggestions(query, limit, new String[]{"Chlorobionta"});
+	}
 
-		if(query.length() == 1)
-			_query = AQLQueries.getString("QueryDriver.1", query, limitQ);
-    	else if(query.length() > 1) {
+	@Override
+    public Iterator<TaxEnt> findTaxonSuggestions(String query, Integer limit, String[] kingdoms) throws FloraOnException {
+		String _query = null;
+		Map<String, Object> bindVars = new HashMap<>();
+
+		bindVars.put("limit", limit == null ? 10000 : limit);
+
+		if(query.length() == 1) {
+//			_query = AQLQueries.getString("QueryDriver.1", query, limitQ);
+			_query = AQLQueries.getString("QueryDriver.1");
+			bindVars.put("king", kingdoms);
+			bindVars.put("start", query + "%");
+		} else if(query.length() > 1) {
 			String first = query.substring(0, 1);
 			String last = query.substring(1);
 			if(query.length() % 2 != 0) {
-				_query = AQLQueries.getString("QueryDriver.1a", query, limitQ, first, last);
+				//_query = AQLQueries.getString("QueryDriver.1a", query, limitQ, first, last);
+				_query = AQLQueries.getString("QueryDriver.1a");
+				bindVars.put("king", kingdoms);
+				bindVars.put("full", query + "%");
+				bindVars.put("sep", first + "% " + last + "%");
 			} else {
 				String firstHalf = query.substring(0, query.length() / 2);
 				String lastHalf = query.substring(query.length() / 2);
-				_query = AQLQueries.getString("QueryDriver.1b", query, limitQ, first, last, firstHalf, lastHalf);
+//				_query = AQLQueries.getString("QueryDriver.1b", query, limitQ, first, last, firstHalf, lastHalf);
+				_query = AQLQueries.getString("QueryDriver.1b");
+				bindVars.put("king", kingdoms);
+				bindVars.put("full", query + "%");
+				bindVars.put("sep1", first + "% " + last + "%");
+				bindVars.put("sep2", firstHalf + "% " + lastHalf + "%");
 			}
 		}
 		if(_query == null) return Collections.emptyIterator();
 
 		try {
-			return database.query(_query, null, null, TaxEnt.class);
+			return database.query(_query, bindVars, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}

@@ -103,21 +103,24 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                             nerrors ++;
                             continue;
                         }
-                        // add genus node
+                        // add genus node, or fetch it, if it exists
                         TaxEnt genus = new TaxEnt(taxonName.getGenus(),
                                 Constants.TaxonRanks.GENUS.getValue(), null, null);
                         genus.setCurrent(true);
                         curTaxEnt = nwd.getSingleTaxEntOrNull(genus, true);
-                        if(curTaxEnt == null) {
+                        if(curTaxEnt == null) { // no genus, create
                             curTaxEnt = nwd.createTaxEntFromTaxEnt(genus);
                             nnodes++;
                         }
 
-                        // connect it
-                        if (parentNode != null) // create PART_OF relationship to previous column
-                            nrels += driver.wrapNode(driver.asNodeKey(curTaxEnt.getID())).setPART_OF(driver.asNodeKey(parentNode.getID()));
-
-                        parentNode = curTaxEnt;
+                        // connect it to the previous column taxon
+                        if (parentNode != null) {   // create PART_OF relationship to previous column
+                            // if parent is higher in taxonomy than genus TODO
+                            if(parentNode.getRankValue() < curTaxEnt.getRankValue()) {
+                                nrels += driver.wrapNode(driver.asNodeKey(curTaxEnt.getID())).setPART_OF(driver.asNodeKey(parentNode.getID()));
+                                parentNode = curTaxEnt;
+                            }
+                        }
 
                         // add species node
                         TaxEnt species = new TaxEnt(taxonName.getGenus() + " " + taxonName.getSpecificEpithet(),
