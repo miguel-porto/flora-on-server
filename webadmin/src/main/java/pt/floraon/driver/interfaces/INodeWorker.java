@@ -134,6 +134,14 @@ public interface INodeWorker {
 	String[] deleteVertexOrEdge(INodeKey id) throws FloraOnException;
 
 	/**
+	 * Deletes all taxa and edges downstream a given taxon
+	 * @param id Must be of a taxent
+	 * @return
+	 * @throws FloraOnException
+	 */
+	String[] deleteTreeDownstream(INodeKey id) throws FloraOnException;
+
+	/**
 	 * Low-level function to delete one document.<br/><br/>
 	 * <em>WARNING:</em> This does not check for graph consistency! An invalid graph may result.
 	 *

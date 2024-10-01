@@ -38,6 +38,7 @@
 			<div class="box">
 				<div class="title"><p>Node tools</p></div>
 				<div id="but-delnode" class="button">Delete node/link</div>
+				<div id="but-deltree" class="button" style="background-color:red">Delete taxon tree</div>
 				<div id="but-newnode" class="button" data-type="taxent">New taxon</div>
 				<div id="but-newterritory" class="button" data-type="territory">New territory</div>
 				<div id="but-newhabitat" class="button" data-type="habitat">New habitat</div>

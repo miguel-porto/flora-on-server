@@ -633,7 +633,7 @@ function clickToolbar(ev) {
 			addEvent('click',el.querySelector('.button.delete'),function(ev) {
 				var seln=$('#taxbrowser .link.selected');
 				var seldatum=d3.select(seln[0]).datum();
-				deleteEntity(seldatum);
+				deleteEntity(seldatum, 'delete');
 				var chg=document.getElementById('changename');
 				chg.parentNode.removeChild(chg);
 				force.resume();
@@ -759,12 +759,16 @@ function clickToolbar(ev) {
 		break;
 
 	case 'but-delnode':
+	case 'but-deltree':
 		var seln=$('#taxbrowser .node.selected');
 		if(seln.length==0) {
 			var what='link';
 			seln=$('#taxbrowser .link.selected');
 		} else {
-			if(!confirm('You\'re about to delete a vertex, ALL THE EDGES CONNECTING TO IT WILL BE DELETED ALSO. This cannot be undone! Proceed?')) break;
+		    if(el.id == 'but-delnode')
+			    if(!confirm('You\'re about to delete a vertex, ALL THE EDGES CONNECTING TO IT WILL BE DELETED ALSO. This cannot be undone! Proceed?')) break;
+		    if(el.id == 'but-deltree')
+			    if(!confirm('You\'re about to delete a WHOLE TAXONOMIC BRANCH! ALL THE EDGES AND TAXA DOWNSTREAM THIS TAXON WILL BE DELETED! This cannot be undone! Proceed?')) break;
 		}
 
 		if(seln.length==0) {
@@ -772,7 +776,8 @@ function clickToolbar(ev) {
 			break;
 		} else {
 			var seldatum=d3.select(seln[0]).datum();
-			deleteEntity(seldatum);
+			if(el.id == 'but-delnode') deleteEntity(seldatum, 'delete');
+			if(el.id == 'but-deltree') deleteEntity(seldatum, 'deleteTree');
 		}
 		break;
 	
@@ -870,8 +875,8 @@ function collapseNode(n) {
 	onUpdateData();
 }
 
-function deleteEntity(d) {
-	fetchAJAX('checklist/api/update/delete?id='+d._id,function(rt) {
+function deleteEntity(d, endpoint) {
+	fetchAJAX('checklist/api/update/' + endpoint + '?id='+d._id,function(rt) {
 		rt=JSON.parse(rt);
 		var toremove=[];
 		if(rt.success) {

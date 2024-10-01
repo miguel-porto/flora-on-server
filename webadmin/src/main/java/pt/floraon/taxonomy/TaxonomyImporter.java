@@ -80,17 +80,16 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 parentNode = null;
                 curTaxEnt = null;
                 for(int i=0; i<rankNames.length; i++) {
+                    if(StringUtils.isStringEmpty(record.get(i))) continue;
                     try {
                         parsedName = new TaxEnt(new TaxonName(record.get(i)));
-                    } catch (DatabaseException e) {
-                        // is it an empty cell? skip.
-                        continue;
                     } catch (TaxonomyException e) {
                         Log.error("Ignoring name: " + record.get(i));
                         nerrors++;
                         continue;
                     }
 
+                    // only species or inferior have their ranks automatically. The others must see the header
                     if(parsedName.getRank() == null)
                         parsedName.setRank(Constants.TaxonRanks.valueOf(rankNames[i].toUpperCase()).getValue());
                     parsedName.setCurrent(true);

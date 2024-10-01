@@ -40,6 +40,8 @@ import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.driver.results.GraphUpdateResult;
 import pt.floraon.driver.results.NativeStatusResult;
 
+import static pt.floraon.driver.Constants.DocumentType.EDGE;
+
 public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	protected ArangoDB dbDriver;
 	protected ArangoDatabase database;
@@ -170,7 +172,38 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			return null;
 		}
 	}
-	
+
+	@Override
+	public String[] deleteTreeDownstream(INodeKey id) throws FloraOnException {
+		List<String> deleted=new ArrayList<String>();
+		Map<String, Object> bindVars = new HashMap<>();
+		bindVars.put("id", id.toString());
+
+		if(id.getDocumentType().equals(EDGE)) throw new FloraOnException("Given key must be a vertex.");
+		if(!id.getCollection().equals(NodeTypes.taxent.toString())) throw new FloraOnException("Given vertex must be a Taxon.");
+
+		// we do it manually cause we want the IDs of everything that was deleted
+		ArangoKey tmp;
+		ArangoCursor<String> toDelete = database.query(AQLQueries.getString("NodeWorkerDriver.2a"), bindVars, null, String.class);
+		if(toDelete.getWarnings().size() > 0)
+			throw new DatabaseException(toDelete.getWarnings().iterator().next().getMessage());
+
+		while(toDelete.hasNext()) {
+			tmp = (ArangoKey) driver.asNodeKey(toDelete.next());
+			Log.info("Delete " + tmp.toString());
+			if(tmp.getDBKey().equals(id.getDBKey())) continue;
+			try {
+				database.collection(tmp.getCollection()).deleteDocument(tmp.getDBKey());
+				deleted.add(tmp.getID());
+			} catch (ArangoDBException e) {
+				Log.error("Error deleting " + tmp.toString());
+			}
+		}
+		//database.collection(id.getCollection()).deleteDocument(id.getDBKey());
+		//deleted.add(id.getID());
+		return deleted.toArray(new String[0]);
+	}
+
 	@Override
 	public String[] deleteVertexOrEdge(INodeKey id) throws FloraOnException {
 		List<String> deleted=new ArrayList<String>();

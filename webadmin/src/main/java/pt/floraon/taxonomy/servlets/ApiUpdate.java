@@ -60,6 +60,12 @@ public class ApiUpdate extends FloraOnServlet {
 			thisRequest.success(new Gson().toJsonTree(NWD.deleteVertexOrEdge(id)));
 			return;
 
+		case "deleteTree":
+			if(!thisRequest.getUser().canEDIT_FULL_CHECKLIST()) {thisRequest.error("You don't have privileges for this operation!"); return;}
+			id=thisRequest.getParameterAsKey("id");
+			thisRequest.success(new Gson().toJsonTree(NWD.deleteTreeDownstream(id)));
+			return;
+
 		case "deleteleaf":
 			if(!thisRequest.getUser().canEDIT_FULL_CHECKLIST()) {thisRequest.error("You don't have privileges for this operation!"); return;}
 			id=thisRequest.getParameterAsKey("id");
