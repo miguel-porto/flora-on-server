@@ -304,6 +304,8 @@ FOR final IN FLATTEN(FOR v IN base
 		String _query = null;
 		Map<String, Object> bindVars = new HashMap<>();
 
+		if(kingdoms.length == 0) kingdoms = new String[]{"Chlorobionta"};
+
 		bindVars.put("limit", limit == null ? 10000 : limit);
 
 		if(query.length() == 1) {

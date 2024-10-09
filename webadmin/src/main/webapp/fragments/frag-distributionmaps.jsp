@@ -20,7 +20,7 @@
 </c:when>
 
 <c:when test="${param.maps=='threats'}">
-<h1>Distribuição das plantas ameaçadas</h1>
+<h1>Distribuição das espécies ameaçadas</h1>
 <p>Coloque o rato numa quadrícula para ver as plantas aí existentes, com a respectiva categoria de ameaça.</p>
 <div class="button textbutton"><a href="?w=allmaps&maps=threats&refreshmaps=1">Refresh maps</a></div>
 <div id="allmapholder" class="big interactive">
@@ -65,7 +65,7 @@
 </c:when>
 
 <c:when test="${param.maps=='threatTypes'}">
-<h1>Distribuição das plantas por tipo de ameaça</h1>
+<h1>Distribuição das espécies por tipo de ameaça</h1>
 <p>Coloque o rato numa quadrícula para ver as plantas aí existentes, com a respectiva categoria de ameaça.</p>
 <div id="allmapholder" class="big interactive">
     <c:set var="refresh" value="${user.isGuest() ? '' : '&refresh=1'}"/>

@@ -26,7 +26,7 @@ public class TaxonName {
      */
     private final transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?)?(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?)?" +
+                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von )[^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 
@@ -39,12 +39,12 @@ public class TaxonName {
 */
 
     private final transient static Pattern infraTaxa = Pattern.compile(
-            " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.* +(?<infra>[a-zç-]+)(?: +(?<author> *[A-ZÁÉÍÓÚd(][^\\[\\]{}]+?)?)?" +
+            " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.* +(?<infra>[a-zç-]+)(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von )[^\\[\\]{}]+?)?)?" +
                     "(?: +\\[(?<annot>[\\w .çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))? *" +
                     "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.* +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
 
     private final transient static Pattern uninomialName = Pattern.compile(
-            "^ *(?<name>[A-Z]?[a-zç]+)(?: +(?<author> *[A-ZÁÉÍÓÚ(][^\\[\\]{}]+?)?)?" +
+            "^ *(?<name>[A-Z]?[a-zç]+)(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von )[^\\[\\]{}]+?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?$");
 
 /*
@@ -133,14 +133,14 @@ public class TaxonName {
                         }
                     }
                     if (this.infraRanks.size() == 0) {     // has a trailing substring, but could not be parsed
-                        Log.info("      INVALID NAME: " + verbatimName);
+                        Log.warn("      INVALID NAME (at infraranks): " + verbatimName);
                         throw new TaxonomyException("Could not parse this name: " + verbatimName);
                     }
                 } else if (debug)
                     Log.info(String.format("    Canonical: G=%s; S=%s; auth=%s; annot=%s; sensu=%s", genus, specificEpithet, author, annotation, sensu));
             }
         } else {
-            Log.info("      INVALID SPECIES NAME: " + verbatimName);
+            Log.warn("      INVALID SPECIES NAME: " + verbatimName);
             throw new TaxonomyException("Could not parse this name: " + verbatimName);
         }
     }
