@@ -26,7 +26,7 @@ public class TaxonName {
      */
     private final transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von )[^\\[\\]{}]+?)?)?)?" +
+                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 
@@ -39,12 +39,12 @@ public class TaxonName {
 */
 
     private final transient static Pattern infraTaxa = Pattern.compile(
-            " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.* +(?<infra>[a-zç-]+)(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von )[^\\[\\]{}]+?)?)?" +
+            " *(?<rank>subsp|var|f|ssp|subvar|forma)\\.* +(?<infra>[a-zç-]+)(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?" +
                     "(?: +\\[(?<annot>[\\w .çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+?))? *" +
                     "(?= +(?:subsp|var|f|ssp|subvar|forma)\\.* +|$)");  // a position look-ahead to ensure that the regex decomposes each infrataxon fully
 
     private final transient static Pattern uninomialName = Pattern.compile(
-            "^ *(?<name>[A-Z]?[a-zç]+)(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von )[^\\[\\]{}]+?)?)?" +
+            "^ *(?<name>[A-Z]?[a-zç]+)(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?$");
 
 /*
