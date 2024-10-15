@@ -26,7 +26,7 @@ public class TaxonName {
      */
     private final transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?)?" +
+                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>(?!van |de |von )[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 

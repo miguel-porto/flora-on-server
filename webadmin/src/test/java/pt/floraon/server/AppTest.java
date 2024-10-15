@@ -112,6 +112,19 @@ public class AppTest
         assertEquals("Flora Iberica", te.getInfraRanks().get(0).getInfraSensu());
         assertEquals("Cistus ladanifer subsp. sulcatus sensu Flora Iberica", te.getCanonicalName(true));
 
+        // unusual author names
+        te = new TaxonName("Setina cantabrica de Freina & Witt, 1985");
+        assertEquals("Setina", te.getGenus());
+        assertEquals("cantabrica", te.getSpecificEpithet());
+        assertEquals(0, te.getInfraRanks().size());
+        assertEquals("de Freina & Witt, 1985", te.getLastAuthor());
+
+        te = new TaxonName("Ectoedemia phaeolepis van Nieukerken, A. Laštůvka & Z. Laštůvka, 2010");
+        assertEquals("Ectoedemia", te.getGenus());
+        assertEquals("phaeolepis", te.getSpecificEpithet());
+        assertEquals(0, te.getInfraRanks().size());
+        assertEquals("van Nieukerken, A. Laštůvka & Z. Laštůvka, 2010", te.getLastAuthor());
+
         // ignore minor typos
         te = new TaxonName("Trifolium pratense subsp.... pratense var.. pratense");
         assertEquals("Trifolium", te.getGenus());
