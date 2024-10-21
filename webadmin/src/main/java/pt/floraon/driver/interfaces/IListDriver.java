@@ -66,6 +66,9 @@ public interface IListDriver {
 	 * @throws FloraOnException
 	 */
 	Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException;
+
+	Iterator<TaxEnt> getAllOfRank(TaxonRanks rank, String[] kingdoms) throws FloraOnException;
+
 	/**
      * Gets all territories.
      * @return

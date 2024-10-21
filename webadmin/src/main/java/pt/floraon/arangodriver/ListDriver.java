@@ -179,10 +179,20 @@ public class ListDriver extends BaseFloraOnDriver implements IListDriver {
 
 	@Override
 	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank) throws FloraOnException {
-		String query=String.format(AQLQueries.getString("ListDriver.21") //$NON-NLS-1$
-			,rank.getValue());
+		return getAllOfRank(rank, new String[]{"Chlorobionta"});
+	}
+
+	@Override
+	public Iterator<TaxEnt> getAllOfRank(TaxonRanks rank, String[] kingdoms) throws FloraOnException {
+		Map<String, Object> bindVars = new HashMap<>();
+		if(kingdoms.length == 0) kingdoms = new String[]{"Chlorobionta"};
+
+		bindVars.put("king", kingdoms);
+		bindVars.put("rank", rank.getValue());
+
+		String query=AQLQueries.getString("ListDriver.21a");
 		try {
-			return database.query(query, null, null, TaxEnt.class);
+			return database.query(query, bindVars, null, TaxEnt.class);
 		} catch (ArangoDBException e) {
 			throw new FloraOnException(e.getMessage());
 		}

@@ -108,7 +108,7 @@ public class Lists extends FloraOnServlet {
 						ite = LD.getChildrenTaxEnt(id);
 
 					if(rank != null)
-						ite = LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()));
+						ite = LD.getAllOfRank(TaxonRanks.valueOf(rank.toUpperCase()), thisRequest.getUser().getShowKingdoms());
 
 					if(territory1 != null) ite = LD.filterTaxEntByTerritory(ite, territory1);
 
