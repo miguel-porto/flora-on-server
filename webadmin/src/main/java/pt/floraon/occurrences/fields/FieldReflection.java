@@ -1,6 +1,5 @@
 package pt.floraon.occurrences.fields;
 
-import jdk.internal.org.jline.utils.Log;
 import pt.floraon.driver.annotations.*;
 import pt.floraon.driver.datatypes.IntegerInterval;
 import pt.floraon.driver.utils.StringUtils;

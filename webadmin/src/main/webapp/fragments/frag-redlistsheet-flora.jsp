@@ -5,18 +5,26 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
-<tr class="section1">
+<%--<tr class="section1">
     <td class="title">1.1</td>
     <td><fmt:message key="DataSheet.label.1.1" /></td><td>${taxon.getCanonicalName().toString(true)}
         <div class="floatingtoolbar">
             <div tabindex="0" id="removeformatting" class="hidden"></div>
         <c:if test="${user.canEDIT_ANY_FIELD()}">
             <input type="submit" value="" id="mainformsubmitter" class="hidden"/>
-        </c:if>
             <div id="toggle_help"></div>
+        </c:if>
         </div>
     </td>
-</tr>
+</tr>--%>
+<tr class="section1"><t:redlistsheetrow field="1.1" help="false"/><td>${taxon.getCanonicalName().toString(true)}
+  <div class="floatingtoolbar">
+      <div tabindex="0" id="removeformatting" class="hidden"></div>
+  <c:if test="${user.canEDIT_ANY_FIELD()}">
+      <input type="submit" value="" id="mainformsubmitter" class="hidden"/>
+      <div id="toggle_help"></div>
+  </c:if>
+  </div></td></tr>
 <tr class="section1"><t:redlistsheetrow field="1.2" help="false"/><td>${taxon.getAuthor()}</td></tr>
 <tr class="section1"><t:redlistsheetrow field="1.3" help="false"/><td><%@ include file="/fragments/redlistsheetfields/1.3.jsp" %></td></tr>
 <tr class="section1 textual"><t:redlistsheetrow field="1.4" help="true"/><td>

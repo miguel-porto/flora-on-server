@@ -29,6 +29,7 @@ import pt.floraon.occurrences.arangodb.OccurrenceReportArangoDriver;
 import pt.floraon.redlistdata.RedListEnums;
 import pt.floraon.redlistdata.threats.*;
 import pt.floraon.redlistdata.entities.RedListSettings;
+import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.redlistdata.RedListDataArangoDBDriver;
@@ -352,6 +353,11 @@ public class FloraOnArangoDriver implements IFloraOn {
 	@Override
 	public ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException {
 		return new TaxEntWrapperDriver(this, node);
+	}
+
+	@Override
+	public ITaxEntWrapper wrapTaxEnt(TaxEnt node) throws FloraOnException {
+		return new TaxEntWrapperDriver(this, this.asNodeKey(node.getID()));
 	}
 
 	@Override

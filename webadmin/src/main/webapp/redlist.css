@@ -330,9 +330,16 @@ input.selectionbox:not(:checked) + label {background-color: white;}
     position:absolute;
     top:-45px;
     left:-25px;
-    /*transform: scale(0.8, 0.8);*/
     box-shadow: 0 0 16px #600;
 }
+#sheet-header .redlistcategory.inlinefloat {
+    position: static;
+    top:0;
+    left:0;
+    float:left;
+    transform: scale(0.8, 0.8);
+}
+
 #sheet-header h1 {padding-left: 130px; color: inherit; border:none; margin:8px 0 5px 0}
 
 #panels {   /* the tools below sheet header */
@@ -591,6 +598,7 @@ table.sheet.help #toggle_help {background-color:yellow;}
 table.sheet:not(.help) .legend {display:none;}
 .legend.alwaysvisible {display:block !important;}
 table.sheet>tbody>tr>td:nth-of-type(2) {font-weight:bold;width:30%}
+table.sheet>tbody>tr>td:nth-of-type(2).collapsed {width:10%;font-size:0.8em}
 table.sheet textarea
  , table.sheet input[type=text].longbox {width:100%; box-sizing: border-box;}
 table.sheet {margin-bottom:350px;}
@@ -606,6 +614,7 @@ table.sheet tr.textual td:nth-of-type(3) {padding:0;}
 table.sheet.showhighlights .highlight.yellow {transform: scale(1.4, 1.4); display:inline-block; box-shadow: 0 0 16px black;}
 table.sheet.showhighlights #highlight_toggle {background-color:yellow; color:green;}
 table.sheet td.title {color:white; font-size:1.2em; padding:8px; vertical-align:middle; text-align:center; font-weight:bold}
+table.sheet td.title.collapsed {font-size:0.8em; padding:0}
 /*table.sheet .section1 td.title, .button.section1 {background-color: #81c784;}
 table.sheet .section2 td.title, .button.section2 {background-color: #7986cb;}
 table.sheet .section3 td.title, .button.section3 {background-color: #ff4081;}

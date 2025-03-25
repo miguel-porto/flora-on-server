@@ -7,4 +7,4 @@
 <fmt:setLocale value="${language}" />
 <fmt:setBundle basename="pt.floraon.redlistdata.fieldValues" />
 <c:set var="help" value="${(empty help) ? true : help}" />
-<td class="title">${field}</td><td><fmt:message key="DataSheet.label.${field}" /><c:if test="${help && user.canVIEW_FULL_SHEET()}"><div class="fieldhelp"><fmt:message key="DataSheet.help.${field}" /></div></c:if></td>
+<td class="title ${user.isGuest() ? 'collapsed' : ''}">${field}</td><td class="${user.isGuest() ? 'collapsed' : ''}"><fmt:message key="DataSheet.label.${field}" /><c:if test="${help && user.canVIEW_FULL_SHEET()}"><div class="fieldhelp"><fmt:message key="DataSheet.help.${field}" /></div></c:if></td>

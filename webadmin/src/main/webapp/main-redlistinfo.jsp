@@ -33,7 +33,7 @@
 </head>
 <body>
 <input type="hidden" name="territory" value="${territory}"/>
-<div id="title"><a class="homebutton" href="${contextPath == '' ? '/' : contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a><fmt:message key="DataSheet.title"/></div>
+<div id="title"><c:if test="${what!='taxon' || (what=='taxon' && !user.isGuest())}"><a class="homebutton" href="${contextPath == '' ? '/' : contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a></c:if><fmt:message key="DataSheet.title"/></div>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords' && !user.isGuest()}">
     <%--                THE MAIN MENU ON THE LEFT               --%>

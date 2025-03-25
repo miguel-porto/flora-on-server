@@ -50,9 +50,11 @@
 <c:if test="${!privilege}">
     <ul>
     <c:forEach var="tmp" items="${values}">
+        <c:if test="${tmp != null}">
         <c:if test="${namedDbNode}"><c:set var="lab" value="${tmp.getName()}" /></c:if>
         <c:if test="${!namedDbNode}"><fmt:message key="${tmp.getLabel()}" var="lab"/></c:if>
         <li>${lab}</li>
+        </c:if>
     </c:forEach>
     </ul>
 </c:if>

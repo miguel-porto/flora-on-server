@@ -396,6 +396,7 @@ public class RedListDataApi extends FloraOnServlet {
                 String[] ids = thisRequest.request.getParameterValues("taxEntID");
                 if(ids == null || ids.length == 0) {
                     Log.error("IDs not provided to update");
+                    thisRequest.error("IDs not provided. Are you missing the «View full sheet» privilege? Ask the admin.");
                     break;
                 }
                 HashMap<String, String[]> map = new HashMap<>();

@@ -9,6 +9,7 @@ import pt.floraon.driver.entities.GlobalSettings;
 import pt.floraon.occurrences.CSVFileProcessor;
 import pt.floraon.redlistdata.threats.*;
 import pt.floraon.redlistdata.entities.RedListSettings;
+import pt.floraon.taxonomy.entities.TaxEnt;
 import pt.floraon.taxonomy.entities.Territory;
 
 /**
@@ -40,6 +41,8 @@ public interface IFloraOn {
 	INodeWrapper wrapNode(INodeKey node) throws FloraOnException;
 
 	ITaxEntWrapper wrapTaxEnt(INodeKey node) throws FloraOnException;
+
+	ITaxEntWrapper wrapTaxEnt(TaxEnt node) throws FloraOnException;
 
 	IAttributeWrapper wrapAttribute(INodeKey node) throws FloraOnException;
 

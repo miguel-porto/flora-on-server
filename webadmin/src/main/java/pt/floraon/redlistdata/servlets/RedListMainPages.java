@@ -368,6 +368,11 @@ System.out.println(gs.toJson(getUser()));
 
                         thisRequest.getUser().setEffectivePrivilegesFor(driver, thisId, ignorePrivileges);
 
+                        // now we have the privileges for this taxon. So we upadate the size of square - if it is unlocked.
+                        if (!rls.isEditionLocked(rlde) || rls.isSheetUnlocked(rlde.getTaxEntID())) {
+                            sizeOfSquare = thisRequest.getUser().canVIEW_OCCURRENCES() ? 2000 : 10000;
+                        }
+
                         sodps = driver.getRedListData().getSimpleOccurrenceDataProviders();
                         for(SimpleOccurrenceDataProvider edp : sodps) {
                             try {
@@ -396,14 +401,13 @@ System.out.println(gs.toJson(getUser()));
                         // if it is published, AOO and EOO are from the data sheet, otherwise they are computed from
                         // live occurrences
                         Double EOO = null, AOO = null, hEOO = null, hAOO = null;
-/*  no sense in locking these because the sheets can be frozen at any stage
-                        if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+//                        if (rlde.getAssessment().getPublicationStatus() == RedListEnums.PublicationStatus.PUBLISHED) {
+                        if(thisRequest.getUser().isGuest()) {
                             EOO = rlde.getGeographicalDistribution().getEOO();
                             AOO = rlde.getGeographicalDistribution().getAOO();
                             hEOO = rlde.getGeographicalDistribution().getHistoricalEOO();
                             hAOO = rlde.getGeographicalDistribution().getHistoricalAOO();
                         }
-*/
                         if (EOO == null) EOO = occurrenceProcessor.getEOO();
                         if (AOO == null) AOO = occurrenceProcessor.getAOO();
                         if (hEOO == null) hEOO = historicalOccurrenceProcessor.getEOO();

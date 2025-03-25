@@ -105,6 +105,7 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                         TaxEnt genus = new TaxEnt(taxonName.getGenus(),
                                 Constants.TaxonRanks.GENUS.getValue(), null, null);
                         genus.setCurrent(true);
+                        // FIXME duplicated genus, must disambiguate (Polypogon)
                         curTaxEnt = nwd.getSingleTaxEntOrNull(genus, true);
                         if(curTaxEnt == null) { // no genus, create
                             curTaxEnt = nwd.createTaxEntFromTaxEnt(genus);
@@ -157,10 +158,13 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                     } else {
                         curTaxEnt = nwd.getSingleTaxEntOrNull(parsedName, true);
 
-                        if (curTaxEnt == null) {    // if node does not exist, add it.
+                        // FIXME disambiguate when multiple taxa with the same name, is it ok now???
+                        if (curTaxEnt == null || (driver.wrapTaxEnt(curTaxEnt).getParentTaxon() != null && driver.wrapTaxEnt(curTaxEnt).getParentTaxon().compareTo(parentNode) != 0)) {    // if node does not exist OR if it exists but the parent is different, add it.
+                            // this is because there are taxon with the same names belonging to different orders/kingdoms
                             curTaxEnt = nwd.createTaxEntFromTaxEnt(parsedName);//   TaxEnt.newFromTaxEnt(FloraOnDriver.this,parsedName);
                             nnodes++;
                         }
+
                         if (parentNode != null)    // create PART_OF relationship to previous column
                             nrels += driver.wrapNode(driver.asNodeKey(curTaxEnt.getID())).setPART_OF(driver.asNodeKey(parentNode.getID()));
 

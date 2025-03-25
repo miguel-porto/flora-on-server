@@ -169,12 +169,13 @@
 		</div>
 	</c:when>
 	<c:when test="${what=='upload'}">
+	    <div id="main"><h2>Upload a tab-separated CSV file. See <a href="https://github.com/miguel-porto/flora-on-server/wiki/File-formats-for-uploading-data">wiki</a>.</h2>
         <form action="${contextPath}/checklist" method="post" enctype="multipart/form-data">
             <input type="hidden" name="w" value="uploadChecklist"/>
             <input type="file" name="checklistTable" />
             <input type="submit" class="textbutton" value="Upload"/>
         </form>
-
+        </div>
 	</c:when>
 	</c:choose>
 </div>

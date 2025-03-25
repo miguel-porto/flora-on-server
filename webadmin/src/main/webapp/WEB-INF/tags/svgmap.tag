@@ -44,7 +44,7 @@
         <c:if test="${baseMap != null}">
             <c:if test="${standAlone}">
             <c:forEach var="poly" items="${baseMap}">
-            <path style="${shadow} fill:none; stroke-width:${borderWidth * 10}; stroke:${strokeColor}" class="portugal" d="${poly}"></path>
+            <path style="${shadow} fill:none; stroke-width:${borderWidth * 1.5}; stroke:${strokeColor}" class="portugal" d="${poly}"></path>
             </c:forEach>
             </c:if>
             <c:if test="${!standAlone}">
