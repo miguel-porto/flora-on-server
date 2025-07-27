@@ -340,7 +340,6 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 			}
 		} else {
 			rt = RelTypes.valueOf(id.getCollection());
-			System.out.println(rt);
 			try {
 				return (T) database.getDocument(id.toString(), rt.getEdgeClass());
 			} catch (ArangoDBException | SecurityException | IllegalArgumentException e) {
@@ -522,6 +521,30 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 				return nodes.get(0);
 			default:
 				throw new QueryException(Messages.getString("error.4", q.getName()));
+		}
+	}
+
+	public TaxEnt getSingleTaxEntOrNull(TaxEnt q, boolean strict, TaxEnt parent) throws FloraOnException {
+		if(parent == null) return getSingleTaxEntOrNull(q, strict);
+		TaxEnt tmp;
+		List<TaxEnt> nodes = getTaxEnt(q, null, strict);
+		switch(nodes.size()) {
+			case 0: return null;
+			case 1: return nodes.get(0);
+			default:
+				TaxEnt out = null;
+				Log.info("Disambiguating " + q.getFullName() + " (requested parent:" + parent.getFullName() + ")");
+				for(TaxEnt node : nodes) {
+					tmp = driver.wrapTaxEnt(node).getParentTaxon();
+					Log.info(node.getFullName() + " > " + tmp.getFullName() + " compare to " + parent.getFullName());
+					if(tmp.compareTo(parent) == 0) {
+						out = node;
+						Log.info("Match!");
+						break;
+					}
+				}
+				if(out == null) throw new QueryException("Taxon " + q.getFullName() + " with parent " + parent.getFullName() + " not found");
+				return out;
 		}
 	}
 

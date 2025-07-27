@@ -1,5 +1,6 @@
 package pt.floraon.taxonomy;
 
+import com.sun.codemodel.JForEach;
 import jline.internal.Log;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -15,6 +16,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static pt.floraon.driver.Constants.infraRanks;
@@ -106,7 +108,34 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                                 Constants.TaxonRanks.GENUS.getValue(), null, null);
                         genus.setCurrent(true);
                         // FIXME duplicated genus, must disambiguate (Polypogon)
-                        curTaxEnt = nwd.getSingleTaxEntOrNull(genus, true);
+//                        curTaxEnt = nwd.getSingleTaxEntOrNull(genus, true);
+                        curTaxEnt = nwd.getSingleTaxEntOrNull(genus, true, driver.wrapTaxEnt(parentNode).getParentTaxon());
+
+/*
+                        List<TaxEnt> genera = nwd.getTaxEnt(genus, null, true);
+
+                        switch(genera.size()) {
+                            case 0: curTaxEnt = null; break;
+                            case 1: curTaxEnt = genera.get(0); break;
+                            default:
+                                curTaxEnt = null;
+                                Log.info("Disambiguating (current parent:" + (parentNode != null ? parentNode.getFullName() : "null") + ")");
+                                TaxEnt grandParent = driver.wrapTaxEnt(parentNode).getParentTaxon();
+                                for(TaxEnt node : genera) {
+                                    Log.info(node.getFullName() + " > " + grandParent.getFullName());
+                                    if(driver.wrapTaxEnt(node).getParentTaxon().compareTo(grandParent) == 0) {
+                                        curTaxEnt = node;
+                                        break;
+                                    }
+                                }
+                                if(curTaxEnt == null) {
+                                    if(parentNode != null) throw new FloraOnException("Unexpected error when processing " + parentNode);
+                                    else throw new FloraOnException("Unexpected error when processing line " + nrecs);
+                                }
+                                break;
+                        }
+*/
+
                         if(curTaxEnt == null) { // no genus, create
                             curTaxEnt = nwd.createTaxEntFromTaxEnt(genus);
                             nnodes++;
@@ -156,10 +185,13 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                         }
 //                        Log.info("Finished chain");
                     } else {
-                        curTaxEnt = nwd.getSingleTaxEntOrNull(parsedName, true);
+//                        curTaxEnt = nwd.getSingleTaxEntOrNull(parsedName, true);
+                        curTaxEnt = nwd.getSingleTaxEntOrNull(parsedName, true, parentNode);
 
                         // FIXME disambiguate when multiple taxa with the same name, is it ok now???
-                        if (curTaxEnt == null || (driver.wrapTaxEnt(curTaxEnt).getParentTaxon() != null && driver.wrapTaxEnt(curTaxEnt).getParentTaxon().compareTo(parentNode) != 0)) {    // if node does not exist OR if it exists but the parent is different, add it.
+                        if (curTaxEnt == null ||
+                                (driver.wrapTaxEnt(curTaxEnt).getParentTaxon() != null
+                                        && driver.wrapTaxEnt(curTaxEnt).getParentTaxon().compareTo(parentNode) != 0)) {    // if node does not exist OR if it exists but the parent is different, add it.
                             // this is because there are taxon with the same names belonging to different orders/kingdoms
                             curTaxEnt = nwd.createTaxEntFromTaxEnt(parsedName);//   TaxEnt.newFromTaxEnt(FloraOnDriver.this,parsedName);
                             nnodes++;

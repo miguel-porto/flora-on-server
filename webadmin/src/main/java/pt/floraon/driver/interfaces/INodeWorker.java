@@ -108,6 +108,8 @@ public interface INodeWorker {
 
 	TaxEnt getSingleTaxEntOrNull(TaxEnt q, boolean strict) throws FloraOnException;
 
+	TaxEnt getSingleTaxEntOrNull(TaxEnt q, boolean strict, TaxEnt parent) throws FloraOnException;
+
 	/**
 	 * Matches a given TaxEnt with the name, annotation, author and sensu, with a List of TaxEnt.
 	 * @param q Query

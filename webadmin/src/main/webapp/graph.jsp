@@ -66,7 +66,7 @@
 		<div class="box">
 		<div class="title"><p>General query</p></div>
 		<div class="button dead"><input type="text" name="query" id="querytool"/></div>
-		<div class="title"><p>Add node</p></div>
+		<div class="title"><p>Add node (fuzzy match)</p></div>
 		<div class="button dead"><input type="text" name="query" id="loadnode"/></div>
 		</div>
 		<div id="viewfacets" class="box">
