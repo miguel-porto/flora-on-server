@@ -2,7 +2,6 @@ package pt.floraon.redlistdata.jobs;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import pt.floraon.authentication.entities.User;
 import pt.floraon.driver.Constants;
 import pt.floraon.driver.FloraOnException;
@@ -60,7 +59,7 @@ public class ComputeAOOEOOJob implements JobFileDownload {
      * @param recalculate Recompute AOO and EOO?
      */
     public ComputeAOOEOOJob(String territory, Integer sizeOfSquare, OccurrenceFilter occurrenceFilter
-            , RedListDataFilter redListDataFilter, boolean recalculate, IFloraOn driver, @NonNull User owner) {
+            , RedListDataFilter redListDataFilter, boolean recalculate, IFloraOn driver, User owner) {
         this.sizeOfSquare = sizeOfSquare;
         this.occurrenceFilter = occurrenceFilter;
         this.redListDataFilter = redListDataFilter;
