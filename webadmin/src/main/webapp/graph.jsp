@@ -35,6 +35,9 @@
 			<div id="but-characters" class="button">Load characters</div>
 			<div id="but-territories" class="button">Load territories</div>
 			<div id="but-allhabitats" class="button">Load habitats</div>
+			<div id="but-shortcut" data-query="Embryopsidae" data-depth="3" class="button" style="background-color:#26c6da">Embryopsidae</div>
+			<div id="but-shortcut" data-query="Apoidea" data-depth="4" class="button" style="background-color:#26c6da">Apoidea</div>
+			<div id="but-shortcut" data-query="Lepidoptera" data-depth="2" class="button" style="background-color:#26c6da">Lepidoptera</div>
 		</div>
 		<c:if test="${user.canEDIT_FULL_CHECKLIST()}">
 			<div class="box">

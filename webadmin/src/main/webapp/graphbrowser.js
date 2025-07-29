@@ -446,7 +446,8 @@ function clickToolbar(ev) {
 	case 'but-logout':
 		window.location='?logout=1';
 		break;
-		
+
+	case 'but-shortcut':
 	case 'but-clean':
 		var seln=$('#taxbrowser .node.selected');
 		if(seln.length==0)
@@ -459,8 +460,11 @@ function clickToolbar(ev) {
 			gdata=newgdata;
 			clearSelected(document.querySelector('#taxbrowser'));
 		}
-		onUpdateData();		
+		onUpdateData();
+		if(el.id == 'but-clean') break;
+		window.location = '?w=graph&depth=' + el.getAttribute('data-depth')+ '&q=' + el.getAttribute('data-query');
 		break;
+
 	case 'but-editnode':	// edits currently selected node
 			var d=ev.target.datum;
 			if(document.getElementById('changename')) return;

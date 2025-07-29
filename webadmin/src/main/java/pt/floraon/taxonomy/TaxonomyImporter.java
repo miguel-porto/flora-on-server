@@ -80,6 +80,10 @@ public class TaxonomyImporter extends BaseFloraOnDriver {
                 parentNode = null;
                 curTaxEnt = null;
                 for(int i=0; i<rankNames.length; i++) {
+                    if(i > record.size() - 1) {
+                        Log.error("Line with too few fields: " + nrecs);
+                        break;
+                    }
                     if(StringUtils.isStringEmpty(record.get(i))) continue;
                     try {
                         parsedName = new TaxEnt(new TaxonName(record.get(i)));
