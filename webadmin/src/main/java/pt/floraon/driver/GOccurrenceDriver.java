@@ -42,7 +42,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         for(OBSERVED_IN oi : inventory.getUnmatchedOccurrences()) {
             TaxEnt te, te1;
             List<TaxEnt> matched;
-            Log.info("Verbose name: "+ oi.getVerbTaxon());
+//Log.info("Verbose name: "+ oi.getVerbTaxon());
             if(oi.getVerbTaxon() == null) continue;
 
             if(oi.getVerbTaxon().trim().equals("")) {
@@ -111,7 +111,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
 
             default:
                 if(!ask.booleanValue()) {
-                    Log.info("    Matched name: " + matched.get(0).getFullName(false), " -- ", matched.get(0).getID());
+//                    Log.info("    Matched name: " + matched.get(0).getFullName(false), " -- ", matched.get(0).getID());
                     oi.setTaxEntMatch(matched.get(0).getID());
                     if(doMatch && inventories != null) {
                         Map<String, TaxonomicChange> tmp1 = new HashMap<>();

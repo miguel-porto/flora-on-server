@@ -136,9 +136,18 @@ public class OccurrenceImporterJob implements JobTask {
                     try {
                         for (String col : headers.keySet())
                             recordValues.put(col.replaceAll("\t", "").toLowerCase().trim(), record.get(col).replaceAll("\t", ""));
-
+                    } catch (IllegalArgumentException e) {
+                        // recover from abnormal line (different field number)
+                        Log.warn(e.getMessage());
+/*
+                        for(Map.Entry<String, String> en : recordValues.entrySet()) {
+                            Log.info(en.getValue());
+                        }
+*/
+                    }
+                    try {
                         occurrenceParser.parseFields(recordValues, inv);
-                    } catch (FloraOnException | IllegalArgumentException e) {
+                    } catch (FloraOnException e) {
                         Log.warn(e.getMessage());
                         lineerrors.put(record.getRecordNumber(), e.getMessage());
                     }

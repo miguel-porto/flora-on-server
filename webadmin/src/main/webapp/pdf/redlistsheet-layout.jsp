@@ -40,9 +40,16 @@
     </style>
 </head>
 <body>
-    <jsp:include page="/api/svgmap?basemap=1&size=10000&border=1&shadow=0&close=false&taxon=taxent%2F335830856606"></jsp:include>
 
+    <%--<jsp:include page="/api/svgmap?basemap=1&size=10000&border=1&shadow=0&close=false&taxon=taxent%2F335830856606"></jsp:include>
+    AAAA--%>
+    <jsp:include page="/redlist/lu?w=taxon&id=taxent%2F340942205854" />
     <page-after>
+    <jsp:include page="/" />
+    AAA
+    http://localhost:8080/floraon/redlist/api/downloadsheetPDF
+    http://localhost:8080/floraon/redlist/api/sheet2PDF
+
     taxon._getIDURLEncoded()
     </page-after>
 

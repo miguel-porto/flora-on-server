@@ -151,7 +151,7 @@ public class BeanUtils {
         BeanMap propertyMap = new BeanMap(beans[0]);    // we assume beans are all same class! so we take the first as a model
         PropertyUtilsBean propUtils = new PropertyUtilsBean();
 
-        Log.info("Merging "+beans.length+" beans");
+//        Log.info("Merging "+beans.length+" beans");
         T out = cls.newInstance();
 
         BeanUtilsBean bub = createBeanUtilsNull();
