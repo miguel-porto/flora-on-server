@@ -218,6 +218,8 @@ public interface IOccurrenceDriver {
      */
     int deleteOccurrencesByUuid(String[] uuid) throws DatabaseException;
 
+    int deleteAllOccurrencesByMaintainer(INodeKey maintainerID) throws DatabaseException;
+
     /**
      * Updates one inventory with the fields present in the passed Inventory. The occurrence array is merged by their
      * UUID. Same UUIDs are replaced, others are added. No occurrences are removed.

@@ -43,7 +43,7 @@
 	</c:if>
 	<script src="js/getcursorxy.js"></script>
 	<script type="text/javascript" src="sorttable.js"></script>
-	<script type="text/javascript" src="ajaxforms.js"></script>
+	<script type="text/javascript" src="ajaxforms.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="js/treenavigator.js"></script>
 	<script type="text/javascript" src="basefunctions.js?nocache=${uuid}"></script>
 	<script type="text/javascript" src="suggestions.js?nocache=${uuid}"></script>

@@ -84,6 +84,16 @@
     </c:otherwise>
     </c:choose>
     </div>
+    <c:if test="${user.canMANAGE_EXTERNAL_DATA()}">
+    <div class="bigoption" style="background-color:#ffcaca">
+        <h3>Zona perigosa</h3>
+        <form class="poster" data-path="${contextPath}/occurrences/api/deleteallrecords" method="post" enctype="multipart/form-data" data-refresh="false" data-confirmStrong="true">
+        <p>Apagar <b>todos</b> os dados de ocorrência - <b>INTO APAGARÁ TODOS OS SEUS INVENTÁRIOS! NÃO É POSSÍVEL VOLTAR ATRÁS!</b></p>
+        <input type="hidden" name="what" value="deleteAllRecords"/>
+        <input type="submit" class="textbutton" value="Apagar"/>
+        </form>
+    </div>
+    </c:if>
     <c:if test="${pendingFiles.size() > 0}">
     <h2>Files being processed</h2>
     <table>

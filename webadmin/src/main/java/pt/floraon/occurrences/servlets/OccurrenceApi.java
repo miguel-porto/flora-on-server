@@ -58,6 +58,11 @@ public class OccurrenceApi extends FloraOnServlet {
         }
 
         switch (option) {
+            case "deleteallrecords":
+                int out = driver.getOccurrenceDriver().deleteAllOccurrencesByMaintainer(driver.asNodeKey(thisRequest.getUser().getID()));
+                thisRequest.success("Deleted " + out + " inventories.", true);
+                break;
+
             case "fixtaxonomicissues":
                 driver.getOccurrenceDriver().replaceTaxEntMatch(buildTaxonomicIssues(thisRequest
                         , thisRequest.getUser().isAdministrator() ? null : thisRequest.getUser()));

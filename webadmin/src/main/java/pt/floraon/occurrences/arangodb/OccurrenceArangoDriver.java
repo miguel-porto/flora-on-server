@@ -346,6 +346,23 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
     }
 
     @Override
+    public int deleteAllOccurrencesByMaintainer(INodeKey maintainerID) throws DatabaseException {
+        int count;
+        Map<String, Object> bindVars = new HashMap<>();
+        try {
+            bindVars.put("user", maintainerID.toString());
+            Log.info(maintainerID);
+            Log.info(AQLOccurrenceQueries.getString("occurrencequery.10"));
+            count = database.query(
+                    AQLOccurrenceQueries.getString("occurrencequery.10")
+                    , bindVars, null, int.class).next();
+        } catch (ArangoDBException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+        return count;
+    }
+
+    @Override
     public Inventory updateOccurrence(String uuid, Inventory inv) throws FloraOnException {
         if(inv._getTaxa().length > 1) throw new FloraOnException("Inventory to update has more than one occurrence");
         Map<String, Object> bindVars = new HashMap<>();

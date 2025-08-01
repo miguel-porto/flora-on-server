@@ -9,6 +9,14 @@ function formPoster(ev, callback, beforePost) {
 	if(ev.target.getAttribute('data-confirm')) {
 	    if(!confirm('Are you sure? There\'s no way back.')) return;
 	}
+
+	if(ev.target.getAttribute('data-confirmStrong')) {
+        if(prompt('Are you sure?! THIS CANNOT BE UNDONE! Proceed? Type "yes"') != 'yes') {
+            alert('Nothing deleted.');
+            return;
+        }
+    }
+
 	isFormSubmitting = true;
 	var loader = document.getElementById('loader');
 	if(loader) {
