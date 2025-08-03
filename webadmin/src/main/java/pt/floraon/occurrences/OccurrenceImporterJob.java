@@ -147,7 +147,7 @@ public class OccurrenceImporterJob implements JobTask {
                     }
                     try {
                         occurrenceParser.parseFields(recordValues, inv);
-                    } catch (FloraOnException e) {
+                    } catch (FloraOnException | IllegalArgumentException e) {
                         Log.warn(e.getMessage());
                         lineerrors.put(record.getRecordNumber(), e.getMessage());
                     }
