@@ -39,9 +39,9 @@ public class ChecklistEntry extends TaxEntAndNativeStatusResult {
                 rec.print("");
             else {
                 try {
-                    rec.print(tmp.getTaxonName().getCanonicalName(true));
+                    rec.print(tmp.getTaxonName().getCanonicalName(tmp.isSpeciesOrInferior()));
                 } catch (TaxonomyException e) {
-                    rec.print("<ERROR>");
+                    rec.print("<ERROR: " + e.getMessage() + ">");
                     e.printStackTrace();
                 }
             }

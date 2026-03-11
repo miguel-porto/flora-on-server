@@ -42,7 +42,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
         for(OBSERVED_IN oi : inventory.getUnmatchedOccurrences()) {
             TaxEnt te, te1;
             List<TaxEnt> matched;
-//Log.info("Verbose name: "+ oi.getVerbTaxon());
+ Log.info("Verbose name: "+ oi.getVerbTaxon());
             if(oi.getVerbTaxon() == null) continue;
 
             if(oi.getVerbTaxon().trim().equals("")) {
@@ -63,7 +63,7 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
                 oi.setTaxEntMatch("");
                 continue;
             }
-//            Log.info("    Parsed name: "+ te.getFullName(false));
+ Log.info("    Parsed name: "+ te.getFullName(false));
             matched = nwd.getTaxEnt(te, ask, false);
             if(matched.size() > 1) Log.info("    Matched size: "+ matched.size());
             if(matched.size() == 0) {
@@ -117,7 +117,9 @@ public abstract class GOccurrenceDriver extends BaseFloraOnDriver implements IOc
                         Map<String, TaxonomicChange> tmp1 = new HashMap<>();
                         tmp1.put(oi.getVerbTaxon(), new TaxonomicChange(matched.get(0).getID(), oi.getUuid().toString(), null));
                         replaceTaxEntMatch(tmp1);
+                        // FIXME this replaces all records, but the original cursor will continue to iterate in the already replaced?
                         inventories.getVerboseWarnings().add("Automatically matched " + oi.getVerbTaxon() + " to " + matched.get(0).getID());
+                Log.info("    Automatically matched " + oi.getVerbTaxon() + " to " + matched.get(0).getID());
                         //inventories.addQuestion(oi.getVerbTaxon(), oi.getUuid(), matched.get(0));
                     }
                 } else {

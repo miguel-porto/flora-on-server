@@ -26,7 +26,7 @@ public class TaxonName {
      */
     private final transient static Pattern completeName = Pattern.compile(
             "^ *(?<subrank>subgen.? +)?(?<genus>[A-Z][a-zç]+)" +
-                    "(?:(?: +(?<species>[a-zç-]+)(?: +(?!sensu )(?<subspecies>(?!van |de |von )[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?)?" +
+                    "(?:(?: +(?<species>(?!sensu)[a-zç-]+)(?: +(?!sensu )(?<subspecies>(?!van |de |von )[a-zç-]+))?)?(?: +(?<author> *([A-ZÁÉÍÓÚŠd(]|von |van |de )[^\\[\\]{}]+?)?)?)?" +
                     "(?: +\\[(?<annot>[\\w çãõáàâéêíóôú]+)])?(?: +sensu +(?<sensu>[^\\[\\]]+))?" +
                     "(?: +(?<rest>(subsp|var|f|ssp|subvar|forma)\\.* .*))?$");
 
@@ -268,7 +268,7 @@ public class TaxonName {
             sb.append(" ").append(this.specificEpithet);
 
         if(withAnnotations) {
-            if(this.sensu != null) sb.append(" sensu ").append(this.sensu);
+            if(!StringUtils.isStringEmpty(this.sensu)) sb.append(" sensu ").append(this.sensu);
             if(this.annotation != null) sb.append(" [").append(this.annotation).append("]");
         }
 

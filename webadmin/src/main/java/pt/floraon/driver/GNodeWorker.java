@@ -1,5 +1,6 @@
 package pt.floraon.driver;
 
+import jline.internal.Log;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import pt.floraon.driver.interfaces.IFloraOn;
 import pt.floraon.driver.interfaces.INodeWorker;
@@ -38,7 +39,7 @@ public abstract class GNodeWorker extends BaseFloraOnDriver implements INodeWork
 			int levenName;
 			boolean tmpask = false;
 			tmp = nodes.next();
-//			Log.info("    trying: " + tmp.getFullName());
+			Log.info("    trying: " + tmp.getFullName());
 /*			System.out.println("COMPARE");
 			System.out.println(query.getName() + " <-> " + tmp.getName());
 			System.out.println(query.getRankValue() + " <-> " + tmp.getRankValue());

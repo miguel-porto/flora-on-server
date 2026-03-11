@@ -570,7 +570,7 @@ public final class Constants {
     }
 
 	public static TaxonRanks[] CHECKLISTFIELDS = new TaxonRanks[] {
-			TaxonRanks.KINGDOM, TaxonRanks.CLASS, TaxonRanks.SUBCLASS, TaxonRanks.SUPERORDER, TaxonRanks.ORDER, TaxonRanks.FAMILY, TaxonRanks.GENUS, TaxonRanks.SPECIES
+			TaxonRanks.KINGDOM, TaxonRanks.CLASS, TaxonRanks.SUBCLASS, TaxonRanks.SUPERORDER, TaxonRanks.ORDER, TaxonRanks.FAMILY, TaxonRanks.SUBFAMILY, TaxonRanks.TRIBE, TaxonRanks.GENUS, TaxonRanks.SPECIES
 	};
 
 	public static Map<String,String> infraRanks;

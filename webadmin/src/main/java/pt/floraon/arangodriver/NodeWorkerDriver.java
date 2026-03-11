@@ -496,8 +496,20 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 	public List<TaxEnt> getTaxEnt(TaxEnt q, MutableBoolean askQuestion, boolean strict) throws FloraOnException {
     	if(q.getName() == null || q.getName().equals("")) throw new QueryException("Invalid blank name.");
 		ArangoCursor<TaxEnt> cursor;
+		String query;
 
-		String query = AQLQueries.getString("NodeWorkerDriver.12", q.getName().substring(0
+/*		String query = AQLQueries.getString("NodeWorkerDriver.12a", q.getName());
+		try {
+			cursor = database.query(query, null, null, TaxEnt.class);
+			if(cursor.hasNext()) {
+				List<TaxEnt> out = cursor.asListRemaining();
+				if(out.size() == 1) return out;
+			}
+		} catch (ArangoDBException e) {
+			throw new DatabaseException(e.getMessage());
+		}*/
+
+		query = AQLQueries.getString("NodeWorkerDriver.12", q.getName().substring(0
 				, q.getName().length() > 2 ? 3 : q.getName().length()));
 // FIXME: when no rank is specified!
 		try {

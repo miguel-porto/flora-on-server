@@ -173,7 +173,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
         Map<String, Object> bindVars = new HashMap<>();
         if(authorId != null) bindVars.put("user", authorId.toString());
         bindVars.put("off", offset == null ? 0 : offset);
-        bindVars.put("cou", count == null ? 999999 : count);
+        bindVars.put("cou", count == null ? 9999999 : count);       // FIXME this limits download to 10M records!
 
         String filter = authorId == null ? "" : (asObserver ? "FILTER i.observers ANY == @user" : "FILTER i.maintainer == @user");
         String sortExpression = buildSortOrderExpression(orderField);
