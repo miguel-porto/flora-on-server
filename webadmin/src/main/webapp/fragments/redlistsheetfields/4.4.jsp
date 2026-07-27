@@ -13,7 +13,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION4()}">
     <table>
-        <tr><td>Length (exact or interval)</td><td>${rlde.getEcology().getGenerationLength()}</td></tr>
-        <tr><td>Justification</td><td>${rlde.getEcology().getGenerationLengthJustification()}</td></tr>
+        <tr><td>Duração (exacta ou intervalo)</td><td>${rlde.getEcology().getGenerationLength()}</td></tr>
+        <tr><td>Justificação</td><td>${rlde.getEcology().getGenerationLengthJustification()}</td></tr>
     </table>
 </c:if>

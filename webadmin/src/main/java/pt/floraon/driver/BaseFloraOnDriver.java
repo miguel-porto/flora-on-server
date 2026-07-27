@@ -175,12 +175,15 @@ public class BaseFloraOnDriver {
 			year = rlde._getYearPublished().toString();
 		else
 			year = "unpublished";
-
+		year = "2020";
 		citationParts.add(tmp + " (" + year + ")");
-		citationParts.add("<i>" + rlde.getTaxEnt().getName() + "</i>");
-		citationParts.add("Lista Vermelha da Flora Vascular de Portugal Continental");
+		citationParts.add("<i>" + rlde.getTaxEnt().getName() + "</i>: Ficha de avaliação do risco de extinção");
+		citationParts.add("in <i>Lista Vermelha da Flora Vascular de Portugal Continental</i>. Coordenação: " +
+				"Sociedade Portuguesa de Botânica, Associação Portuguesa de Ciência da Vegetação - PHYTOS e Instituto " +
+				"de Conservação da Natureza e das Florestas. Disponível em <a href=\"https://listavermelha-flora.pt/\">https://listavermelha-flora.pt/</a>");
 
 		return StringUtils.implode(". ", citationParts.toArray(new String[0]));
+
 	}
 
 }

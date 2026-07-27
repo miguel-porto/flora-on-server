@@ -13,7 +13,14 @@
 <head>
 	<title>${taxon.getName()} <fmt:message key="DataSheet.title"/></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<c:if test="${!offline}"><link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'></c:if>
+	<c:if test="${!offline}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	    <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Elms+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Cantarell:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    </c:if>
 	<link rel="stylesheet" type="text/css" href="../base.css?nocache=${uuid}"/>
 	<link rel="stylesheet" type="text/css" href="../redlist.css?nocache=${uuid}"/>
 	<script type="text/javascript" src="../sorttable.js"></script>
@@ -31,9 +38,22 @@
 	</style>
 	</c:if>
 </head>
-<body>
+<body class="${(what=='taxon' || what=='sheet') && user.isGuest() ? 'print-layout' : ''}">
 <input type="hidden" name="territory" value="${territory}"/>
-<div id="title"><c:if test="${what!='taxon' || (what=='taxon' && !user.isGuest())}"><a class="homebutton" href="${contextPath == '' ? '/' : contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a></c:if><fmt:message key="DataSheet.title"/></div>
+
+<c:if test="${!((what=='taxon' || what=='sheet') && user.isGuest())}">
+<div id="title">
+    <a class="homebutton" href="${contextPath == '' ? '/' : contextPath}"><img src="${contextPath}/images/home.png" alt="home"/></a><fmt:message key="DataSheet.title"/></span>
+</div>
+</c:if>
+<c:if test="${(what=='taxon' || what=='sheet') && user.isGuest()}">
+<div id="title" style="display:flex; align-items: center;border-bottom: 0px solid black">
+    <div style="flex: 0 0 100px; border-right: 0px solid #aaa; padding-right: 20px;"><img src="../images/capitulo-red.png" style="width:100%"/></div>
+    <!-- <div style="flex: 0 0 200px; border-right: 2px solid #aaa; padding-right: 20px;"><img src="../images/logo-LV-cor-fundoescuro.resized.png" style="width:100%"/></div> -->
+    <div style="padding-left: 20px;text-align: left;"><fmt:message key="DataSheet.title.public"/><span style="font-size:0.7em; color:#d6d6d6"><br/>Ficha de avaliação do risco de extinção</span></div>
+    <!--<p style="clear:both;padding:0"/>-->
+</div>
+</c:if>
 <div id="main-holder">
     <c:if test="${what != 'taxonrecords' && !user.isGuest()}">
     <%--                THE MAIN MENU ON THE LEFT               --%>

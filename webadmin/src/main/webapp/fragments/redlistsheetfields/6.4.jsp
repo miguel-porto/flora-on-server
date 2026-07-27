@@ -21,7 +21,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION6()}">
     <table>
-        <tr><td>Category</td><td><fmt:message key="${rlde.getThreats().getDeclineNrLocations().getLabel()}"/></td></tr>
-        <tr><td>Justification</td><td>${rlde.getThreats().getDeclineNrLocationsJustification()}</td></tr>
+        <tr><td>Categoria</td><td><b><fmt:message key="${rlde.getThreats().getDeclineNrLocations().getLabel()}"/></b></td></tr>
+        <tr><td>Justificação</td><td>${rlde.getThreats().getDeclineNrLocationsJustification()}</td></tr>
     </table>
 </c:if>

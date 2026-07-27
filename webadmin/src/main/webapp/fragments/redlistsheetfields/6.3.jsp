@@ -11,8 +11,8 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION6()}">
     <table>
-        <tr><td>Number</td><td>${rlde.getThreats().getNumberOfLocations()}</td></tr>
-        <tr><td>Justification</td><td>${rlde.getThreats().getNumberOfLocationsJustification()}</td></tr>
+        <tr><td>Número</td><td><b>${rlde.getThreats().getNumberOfLocations()}</b></td></tr>
+        <tr><td>Justificação</td><td>${rlde.getThreats().getNumberOfLocationsJustification()}</td></tr>
         <%-- <tr><td><fmt:message key="DataSheet.label.6.3b"/></td><td>${nclusters} <fmt:message key="DataSheet.label.6.3a"/></td></tr> --%>
     </table>
 </c:if>

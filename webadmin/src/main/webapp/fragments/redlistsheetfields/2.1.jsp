@@ -37,6 +37,6 @@
     </tr>
     <tr><td style="width:auto"></td>
         <c:if test="${historicalSquares != null && user.canVIEW_FULL_SHEET()}"><td style="width:0; text-align:center;"><fmt:message key="DataSheet.label.2.1a"/></td></c:if>
-        <td style="width:0; text-align:center;"><fmt:message key="DataSheet.label.2.1b"/></td>
+        <td style="width:0; text-align:center;"><fmt:message key="DataSheet.label.2.1b"/> (${cutRecordsInsertedAfter})</td>
     </tr>
 </table>

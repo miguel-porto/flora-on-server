@@ -21,7 +21,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION4()}">
     <table>
-        <tr><td>Category</td><td>${rlde.getEcology().getDeclineHabitatQuality().getLabel()}</td></tr>
-        <tr><td>Justification</td><td>${rlde.getEcology().getDeclineHabitatQualityJustification()}</td></tr>
+        <tr><td>Categoria</td><td><b>${rlde.getEcology().getDeclineHabitatQuality().getLabel()}</b></td></tr>
+        <tr><td>Justificação</td><td>${rlde.getEcology().getDeclineHabitatQualityJustification()}</td></tr>
     </table>
 </c:if>

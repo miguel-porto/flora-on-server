@@ -112,7 +112,3 @@
 </td></tr>
 <tr class="section7"><t:redlistsheetrow field="7.5" help="true"/><td><%@ include file="/fragments/redlistsheetfields/7.5.jsp" %></td></tr>
 <tr class="section7"><t:redlistsheetrow field="7.6" help="true"/><td><%@ include file="/fragments/redlistsheetfields/7.6.jsp" %></td></tr>
-
-<tr class="section8"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 8 - <fmt:message key="DataSheet.label.8" /></td></tr>
-<tr class="section8"><t:redlistsheetrow field="8.1" help="true"/><td><%@ include file="/fragments/redlistsheetfields/8.1.jsp" %></td></tr>
-<tr class="section8"><t:redlistsheetrow field="8.2" help="true"/><td><%@ include file="/fragments/redlistsheetfields/8.2.jsp" %></td></tr>

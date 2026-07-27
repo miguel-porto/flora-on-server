@@ -13,7 +13,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION3()}">
     <table>
-        <tr><td>Category</td><td>${rlde.getPopulation().getNrMatureIndividualsCategory().getLabel()}</td></tr>
-        <tr><td>Exact number</td><td>${rlde.getPopulation().getNrMatureIndividualsExact()}</td></tr>
+        <tr><td>Intervalo</td><td>${rlde.getPopulation().getNrMatureIndividualsCategory().getLabel()}</td></tr>
+        <tr><td>Número exacto/aproximado</td><td>${rlde.getPopulation().getNrMatureIndividualsExact()}</td></tr>
     </table>
 </c:if>

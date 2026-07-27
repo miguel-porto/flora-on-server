@@ -248,9 +248,9 @@ public class RedListEnums {
     }
 
     public enum SeverelyFragmented implements TriggerEnum {
-        NO_INFORMATION("No information", false)
-        , SEVERELY_FRAGMENTED("Severely fragmented", true)
-        , NOT_SEVERELY_FRAGMENTED("Not severely fragmented", false);
+        NO_INFORMATION(FieldValues.getString("SeverelyFragmented.1"), false)
+        , SEVERELY_FRAGMENTED(FieldValues.getString("SeverelyFragmented.2"), true)
+        , NOT_SEVERELY_FRAGMENTED(FieldValues.getString("SeverelyFragmented.3"), false);
 
         private String label;
         private boolean trigger;
@@ -272,9 +272,9 @@ public class RedListEnums {
     }
 
     public enum YesNoNA implements TriggerEnum {
-        NO_DATA("No information", false)
-        , NO("No", false)
-        , YES("Yes", true);
+        NO_DATA(FieldValues.getString("SeverelyFragmented.1"), false)
+        , NO(FieldValues.getString("no"), false)
+        , YES(FieldValues.getString("yes"), true);
 
         private String label;
         private boolean trigger;
@@ -296,7 +296,7 @@ public class RedListEnums {
     }
 
     public enum NrMatureEachSubpop implements LabelledEnum {
-        NO_DATA("No data")
+        NO_DATA(FieldValues.getString("PercentMatureOneSubpop.1"))
         , LT_50("≤ 50")
         , LT_250("≤ 250")
         , LT_1000("≤ 1000")
@@ -871,8 +871,8 @@ public class RedListEnums {
 
     public enum YesNoLikelyUnlikely implements LabelledEnum {
         NOT_KNOWN("Not known")
-        , YES("Yes")
-        , NO("No")
+        , YES(FieldValues.getString("yes"))
+        , NO(FieldValues.getString("no"))
         , LIKELY("Likely")
         , UNLIKELY("Unlikely");
 

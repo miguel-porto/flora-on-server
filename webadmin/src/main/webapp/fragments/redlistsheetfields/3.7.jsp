@@ -21,7 +21,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION3()}">
     <table>
-        <tr><td>Category</td><td>${rlde.getPopulation().getExtremeFluctuations().getLabel()}</td></tr>
-        <tr><td>Justification</td><td>${rlde.getPopulation().getExtremeFluctuationsJustification()}</td></tr>
+        <tr><td>Categoria</td><td><b>${rlde.getPopulation().getExtremeFluctuations().getLabel()}</b></td></tr>
+        <tr><td>Justificação</td><td>${rlde.getPopulation().getExtremeFluctuationsJustification()}</td></tr>
     </table>
 </c:if>

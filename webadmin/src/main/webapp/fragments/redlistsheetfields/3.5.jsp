@@ -31,10 +31,10 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION3()}">
     <table>
-        <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationTrend()} %</td></tr>
-        <tr><td>Categories</td><td><ul>
+        <tr><td>Percentagem</td><td>${rlde.getPopulation().getPopulationTrend()} %</td></tr>
+        <tr><td>Categorias</td><td><ul>
             <c:forEach var="psr" items="${rlde.getPopulation().getPopulationSizeReduction()}"><li>${psr.getLabel()}</li></c:forEach>
         </ul></td></tr>
-        <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationSizeReductionJustification()}</td></tr>
+        <tr><td>Justificação</td><td>${rlde.getPopulation().getPopulationSizeReductionJustification()}</td></tr>
     </table>
 </c:if>

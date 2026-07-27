@@ -488,7 +488,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
             } else
                 tmp = change.getValue().getTargetTaxEntId();
             bindVars.put("replace", tmp);
-
+            Log.info("Start replace...");
             try {
                 database.query(
                         AQLOccurrenceQueries.getString(change.getValue().getUserId() == null ? "occurrencequery.7a" : "occurrencequery.7")
@@ -497,6 +497,7 @@ public class OccurrenceArangoDriver extends GOccurrenceDriver implements IOccurr
                 e.printStackTrace();
                 throw new DatabaseException(e.getMessage());
             }
+            Log.info("End replace.");
         }
     }
 

@@ -62,6 +62,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
@@ -269,6 +270,7 @@ System.out.println(gs.toJson(getUser()));
             case "taxon":   // this is the entry point for a red list sheet
                 String redListSheetTemplate = driver.getProperties().getProperty("redListSheetTemplate");
                 if(redListSheetTemplate == null) redListSheetTemplate = "frag-redlistsheet-flora"; else redListSheetTemplate = "frag-redlistsheet-" + redListSheetTemplate;
+                RedListSettings rls = driver.getRedListSettings(territory);
                 request.setAttribute("redListSheetTemplate", redListSheetTemplate);
                 // enums
                 request.setAttribute("geographicalDistribution_DeclineDistribution", RedListEnums.DeclineDistribution.values());
@@ -309,6 +311,12 @@ System.out.println(gs.toJson(getUser()));
                 request.setAttribute("assessment_ReviewStatus", RedListEnums.ReviewStatus.values());
                 request.setAttribute("assessment_PublicationStatus", RedListEnums.PublicationStatus.values());
                 request.setAttribute("assessment_ValidationStatus", RedListEnums.ValidationStatus.values());
+                DateFormat formatter = new SimpleDateFormat("MMMM' de 'yyyy");
+                request.setAttribute("cutRecordsInsertedAfter", formatter.format(rls.getCutRecordsInsertedAfter()));
+
+
+                String mpl = driver.getProperties().getProperty("mainPageLogo");
+                thisRequest.request.setAttribute("mainPageLogo", mpl == null ? null : "images/" + mpl);
 
 //                request.getRequestDispatcher("/main-redlistinfo.jsp").forward(request, response);
 
@@ -348,7 +356,6 @@ System.out.println(gs.toJson(getUser()));
 
                     List<SimpleOccurrenceDataProvider> sodps = null;
                     OccurrenceProcessor occurrenceProcessor, historicalOccurrenceProcessor, publicOccurrenceProcessor;
-                    RedListSettings rls = driver.getRedListSettings(territory);
                     PolygonTheme clippingPolygon = rls.getClippingPolygon();
 
                     OccurrenceFilter historicalFilter = BasicOccurrenceFilter.RedListHistoricalMapFilter(driver, territory);

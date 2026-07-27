@@ -14,9 +14,7 @@
     <input type="button" value="Create new..." class="button" id="newevaluator"/>
 </c:if>
 <c:if test="${!user.canEDIT_9_7_9_92() && !user.canEDIT_SECTION9()}">
-    <c:forEach var="tmp" items="${rlde.getAssessment().getEvaluator()}">
-    <c:if test="${tmp != null}">
-        <div class="wordtag">${userMap.get(tmp)}</div>
-    </c:if>
+    <c:forEach var="tmp" items="${rlde.getAssessment().getEvaluator()}" varStatus="status">
+    <c:if test="${tmp != null}">${userMap.get(tmp)}</c:if><c:if test="${not status.last}">, </c:if>
     </c:forEach>
 </c:if>

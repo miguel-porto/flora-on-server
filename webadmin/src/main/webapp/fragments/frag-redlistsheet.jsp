@@ -38,6 +38,7 @@
     </ul>
 </c:if>
 <c:if test="${!multipletaxa}">
+    <c:if test="${!user.isGuest()}">
     <div class="redlistcategory assess_${rlde.getAssessment().getFinalCategory().getEffectiveCategory().toString()} ${user.isGuest() ? 'inlinefloat' : ''}">
         <h1>
             ${rlde.getAssessment().getFinalCategory().getShortTag()}
@@ -45,14 +46,22 @@
         </h1>
         <p>${rlde.getAssessment().getFinalCategory().getLabel()}</p>
     </div>
-    <h1>${taxon.getCanonicalName().toString(true)}
+    <h1>${taxon.getCanonicalName().toString(true)} <p class="hide-in-web" style="font-size:0.5em">${rlde.getAssessment()._getCriteriaAsString()}</p>
         <c:if test="${rls.isEditionLocked(rlde) && !rls.isSheetUnlocked(taxon.getID())}"> <img class="lock" src="../images/locked.png" style="height:auto"/></c:if>
         <c:if test="${versiondate != null}"><span style="font-size:0.4em"> [version ${versiondate}]</span></c:if>
-        <c:if test="${rls.isEditionLocked(rlde) && rls.isSheetUnlocked(taxon.getID()) && versiondate == null && !user.isGuest()}">
+        <c:if test="${rls.isEditionLocked(rlde) && rls.isSheetUnlocked(taxon.getID()) && versiondate == null}">
             <img class="lock" style="height:auto" src="../images/unlocked.png"/> <span class="warning">Esta ficha está desbloqueada!</span>
         </c:if>
     </h1>
-    <div id="panels">
+    </c:if>
+    <c:if test="${user.isGuest()}">
+    <div style="flex: 0 1 100%;text-align: left;"><h1 class="cormorant-garamond">${taxon.getCanonicalName().toString(true)} <span style="font-size:0.35em">${taxon.getAuthor()}</span><p style="font-size:0.35em; padding:0; margin:0"><c:out value="${commonNames}"/></p></h1>
+    <p style="font-size:0.8em; padding:0 0 2mm 5mm;margin:0"><%@ include file="/fragments/redlistsheetfields/1.3-print.jsp" %></p>
+    <p style="font-size:0.8em; padding:0 0 0 5mm;margin:0"><b>Critérios UICN:</b> ${rlde.getAssessment()._getCriteriaAsString()}</p>
+    </div>
+    <div style="flex: 0 0 auto; align-self: flex-start;"><img src="../images/${rlde.getAssessment().getFinalCategory().getShortTag()}.png" class="redlistcategory inlinefloat" style="padding:0;height:100px;width:auto"/></div>
+    </c:if>
+    <div id="panels" class="hide-in-print">
         <c:if test="${!user.isGuest()}">
         <div id="header-buttons">
             <h3>Tools</h3>
@@ -175,25 +184,19 @@
             <input type="hidden" name="databaseId" value="${rlde.getID()}"/>
             <input type="hidden" name="taxEntID" value="${rlde.getTaxEntID()}"/>
             </c:if>
-            <fmt:message key="DataSheet.label.section"/> 1 - <fmt:message key="DataSheet.label.1" />
+            <span class="hide-in-print"><fmt:message key="DataSheet.label.section"/> 1 - </span><fmt:message key="DataSheet.label.1" />
         </td></tr>
     </c:if>
-<%--        <%@ include file="/fragments/${redListSheetTemplate}.jsp" %> --%>
         <jsp:include page="/fragments/${redListSheetTemplate}.jsp" />
-        <tr class="section9"><td class="title" colspan="3"><a name="assessment"></a><fmt:message key="DataSheet.label.section"/> 9 - <fmt:message key="DataSheet.label.9" /></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.1" help="false"/><td class="triggergroup"><%@ include file="/fragments/redlistsheetfields/9.1.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.2" help="true"/><td><%@ include file="/fragments/redlistsheetfields/9.2.jsp" %></td></tr>
-        <tr class="section9 textual"><t:redlistsheetrow field="9.3" help="true"/><td>
-            <t:editabletext
-                privilege="${user.canEDIT_9_1_2_3_4() || user.canEDIT_9_3_9_45() || user.canEDIT_SECTION9()}"
-                value="${rlde.getAssessment().getJustification()}"
-                maxlen="1700"
-                name="assessment_Justification"/>
-        </td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.4" help="true"/><td><%@ include file="/fragments/redlistsheetfields/9.4.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.5" help="true"/><td><%@ include file="/fragments/redlistsheetfields/9.5.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.6" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.6.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.6.1" help="false"/><td>
+        <jsp:include page="/fragments/frag-redlistsheet-assessment.jsp" />
+
+        </table><table class="sheet">
+        <thead>
+        <tr class="hide-in-web"><td colspan="3" class="separator"></td></tr>
+        <tr class="sectionTechnical"><td class="title" colspan="3"><fmt:message key="DataSheet.label.technical" /></td></tr>
+        </thead>
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.6" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.6.jsp" %></td></tr>
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.6.1" help="false"/><td>
             <c:if test="${user.canEDIT_9_5_9_6_9_61_9_91() || user.canEDIT_SECTION9()}">
                 <input name="assessment_Collaborators" type="text" class="longbox" value="${rlde.getAssessment().getCollaborators()}"/>
             </c:if>
@@ -201,16 +204,24 @@
                 ${rlde.getAssessment().getCollaborators()}
             </c:if>
         </td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.7" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.7.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.8" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.8.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.9" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.9.jsp" %></td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.10" help="false"/><td>${rlde.getDateAssessed()}</td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.11" help="false"/><td>${rlde.getDatePublished()}</td></tr>
-        <tr class="section9"><t:redlistsheetrow field="9.12" help="false"/><td>${citation}</td></tr>
-
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.7" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.7.jsp" %></td></tr>
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.8" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.8.jsp" %></td></tr>
+        <tr class="sectionTechnical hide-in-print"><t:redlistsheetrow field="9.9" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.9.jsp" %></td></tr>
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.10" help="false"/><td>${rlde.getDateAssessed()}</td></tr>
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.11" help="false"/><td><span class="hide-in-web">13/10/2020</span><span class="hide-in-print">${rlde.getDatePublished()}</span></td></tr>
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.12" help="false"/><td>${citation}</td></tr>
     <c:if test="${!multipletaxa && user.canVIEW_FULL_SHEET()}">
-        <tr class="section9"><t:redlistsheetrow field="9.13" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.13.jsp" %></td></tr>
-
+        <tr class="sectionTechnical"><t:redlistsheetrow field="9.13" help="false"/><td><%@ include file="/fragments/redlistsheetfields/9.13.jsp" %></td></tr>
+    </c:if>
+        </table><table class="sheet">
+        <thead>
+        <tr class="hide-in-web"><td colspan="3" class="separator"></td></tr>
+        <tr class="section8"><td class="title" colspan="3"><fmt:message key="DataSheet.label.8" /></td></tr>
+        </thead>
+        <tr class="section8 ${user.isGuest() ? 'textual' : ''}"><t:redlistsheetrow field="8.1" help="true"/><td colspan="${user.isGuest() ? 2 : 1}"><%@ include file="/fragments/redlistsheetfields/8.1.jsp" %></td></tr>
+        <tr class="hide-in-web"><td colspan="3" class="separator" style="padding-top:5mm"><img src="../images/logo-LV-cor-fundoclaro_800.png" style="width:15%;margin-right:5%"/><img src="../images/lvf-logo-bar.jpg" style="width:80%"/></td></tr>
+        <c:if test="${!user.isGuest()}"><tr class="section8"><t:redlistsheetrow field="8.2" help="true"/><td><%@ include file="/fragments/redlistsheetfields/8.2.jsp" %></td></tr></c:if>
+    <c:if test="${!multipletaxa && user.canVIEW_FULL_SHEET()}">
         <tr class="section11"><td class="title" colspan="3"><fmt:message key="DataSheet.label.section"/> 11 - <fmt:message key="DataSheet.label.11" /></td></tr>
         <tr class="section11"><t:redlistsheetrow field="11.1" help="true"/><td>
             <t:editabletext

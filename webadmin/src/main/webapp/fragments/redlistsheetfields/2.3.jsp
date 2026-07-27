@@ -4,9 +4,9 @@
 </c:if>
 <c:if test="${occurrences != null}">
     <table class="subtable">
-        <tr><td><b>AOO</b></td><td>
+        <tr><td class="hide-in-print"><b>AOO</b></td><td>
             <input type="hidden" name="geographicalDistribution_AOO" value="${AOO}"/>
-            <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4" groupingUsed="false"/></b> km<sup>2</sup> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)
+            <b><fmt:formatNumber value="${AOO}" maxFractionDigits="4" groupingUsed="false"/> km<sup>2</sup></b><span class="hide-in-print"> (${nquads} ${sizeofsquare}x${sizeofsquare} km squares)</span>
         </td></tr>
     <c:if test="${user.canVIEW_FULL_SHEET()}">
         <tr><td>Historical AOO</td><td>

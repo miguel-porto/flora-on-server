@@ -21,7 +21,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION7()}">
     <table>
-        <tr><td>Category</td><td>${rlde.getConservation().getConservationPlans().getLabel()}</td></tr>
-        <tr><td>Justification</td><td>${rlde.getConservation().getConservationPlansJustification()}</td></tr>
+        <tr><td>Categoria</td><td><b>${rlde.getConservation().getConservationPlans().getLabel()}</b></td></tr>
+        <tr><td>Justificação</td><td>${rlde.getConservation().getConservationPlansJustification()}</td></tr>
     </table>
 </c:if>

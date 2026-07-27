@@ -14,7 +14,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION2()}">
 <table>
-    <tr><td>Category</td><td>${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}</td></tr>
-    <tr><td>Justification</td><td>${rlde.getGeographicalDistribution().getDeclineDistributionJustification()}</td></tr>
+    <tr><td class="hide-in-print">Categoria</td><td><b>${rlde.getGeographicalDistribution().getDeclineDistribution().getLabel()}</b></td></tr>
+    <tr><td class="hide-in-print">Justificação</td><td>${rlde.getGeographicalDistribution().getDeclineDistributionJustification()}</td></tr>
 </table>
 </c:if>

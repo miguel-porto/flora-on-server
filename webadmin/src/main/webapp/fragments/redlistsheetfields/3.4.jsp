@@ -17,8 +17,8 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION3()}">
     <table>
-        <tr><td>Category</td><td>${rlde.getPopulation().getPopulationDecline().getLabel()}</td></tr>
-        <tr><td>Percentage</td><td>${rlde.getPopulation().getPopulationDeclinePercent()}</td></tr>
-        <tr><td>Justification</td><td>${rlde.getPopulation().getPopulationDeclineJustification()}</td></tr>
+        <tr><td>Categoria</td><td><b>${rlde.getPopulation().getPopulationDecline().getLabel()}</b></td></tr>
+        <tr><td>Percentagem</td><td>${rlde.getPopulation().getPopulationDeclinePercent()}</td></tr>
+        <tr><td>Justificação</td><td>${rlde.getPopulation().getPopulationDeclineJustification()}</td></tr>
     </table>
 </c:if>

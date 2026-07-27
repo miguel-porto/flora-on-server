@@ -12,7 +12,7 @@
 </c:if>
 <c:if test="${!user.canEDIT_SECTION3()}">
     <table>
-        <tr><td>Type</td><td>${rlde.getPopulation().getTypeOfEstimate().getLabel()}</td></tr>
-        <tr><td>Description</td><td>${rlde.getPopulation().getNrMatureIndividualsDescription()}</td></tr>
+        <tr><td>Tipo</td><td><b>${rlde.getPopulation().getTypeOfEstimate().getLabel()}</b></td></tr>
+        <tr><td>Descrição</td><td>${rlde.getPopulation().getNrMatureIndividualsDescription()}</td></tr>
     </table>
 </c:if>

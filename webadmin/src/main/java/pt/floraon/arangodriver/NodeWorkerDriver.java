@@ -508,7 +508,7 @@ public class NodeWorkerDriver extends GNodeWorker implements INodeWorker {
 		} catch (ArangoDBException e) {
 			throw new DatabaseException(e.getMessage());
 		}*/
-
+// FIXME: why the hell so many possibilities, only search the first 3 letters? Why is the code above commented?
 		query = AQLQueries.getString("NodeWorkerDriver.12", q.getName().substring(0
 				, q.getName().length() > 2 ? 3 : q.getName().length()));
 // FIXME: when no rank is specified!
